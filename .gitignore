@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# TypeScript
+*.tsbuildinfo
+
+# VITE / PWA Specific
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Service Worker / Workbox (if generated during build)
+dev-dist/
+
+# Optional: Testing
+coverage/
+__snapshots__/
+
+# Optional: Documentation
+out/
