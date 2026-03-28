@@ -1,12 +1,11 @@
-import React from "react";
-import ProtectedRoute from "./auth/ProtectedRoute";
+import AuthGate from "./auth/AuthGate";
 import AdminPage from "./AdminPage";
 
 const Admin = () => {
   return (
-    <ProtectedRoute>
+    <AuthGate>
       <AdminPage />
-    </ProtectedRoute>
+    </AuthGate>
   );
 };
 
