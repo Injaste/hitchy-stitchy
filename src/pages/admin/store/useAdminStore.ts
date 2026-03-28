@@ -64,6 +64,12 @@ interface AdminState {
   eventConfig: EventConfig;
   notificationPrefs: NotificationPrefs;
 
+  // Bootstrap context — set once from useBootstrap
+  slug: string | null;
+  eventId: string | null;
+  isBootstrapped: boolean;
+  bootstrapError: string | null;
+
   setTeamRoles: (roles: TeamMember[]) => void;
   setCurrentRole: (role: string) => void;
   getEventsForDay: (dayId: string) => TimelineEvent[];
@@ -76,6 +82,8 @@ interface AdminState {
   setEventConfig: (config: EventConfig) => void;
   setNotificationPref: (key: keyof NotificationPrefs, value: boolean) => void;
   getDayById: (id: string) => EventConfig["days"][number] | undefined;
+  setContext: (ctx: { slug: string; eventId: string; eventConfig: EventConfig }) => void;
+  setBootstrapError: (msg: string) => void;
 }
 
 const getInitialArrivals = () => {
@@ -100,6 +108,11 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   activePage: "day-1",
   eventConfig: DEFAULT_EVENT_CONFIG,
   notificationPrefs: DEFAULT_NOTIFICATION_PREFS,
+
+  slug: null,
+  eventId: null,
+  isBootstrapped: false,
+  bootstrapError: null,
 
   setTeamRoles: (roles) => set({ teamRoles: roles }),
   setCurrentRole: (role) => set({ currentRole: role }),
@@ -128,4 +141,8 @@ export const useAdminStore = create<AdminState>((set, get) => ({
         ...state.logs,
       ],
     })),
+  setContext: ({ slug, eventId, eventConfig }) =>
+    set({ slug, eventId, eventConfig, isBootstrapped: true, bootstrapError: null }),
+  setBootstrapError: (msg) =>
+    set({ bootstrapError: msg, isBootstrapped: false }),
 }));

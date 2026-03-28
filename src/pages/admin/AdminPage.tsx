@@ -1,13 +1,15 @@
 import { useEffect } from "react";
 import { isSameDay, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+import { CalendarHeart, Plus } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { useAdminStore } from "./store/useAdminStore";
 import { useModalStore } from "./store/useModalStore";
 import { useCueStore } from "./store/useCueStore";
+import { useBootstrap } from "./hooks/useBootstrap";
 
 import { AdminSidebar } from "./components/AdminSidebar";
 import { AdminTopbar } from "./components/AdminTopbar";
@@ -25,8 +27,18 @@ import { SettingsTab } from "./features/settings/SettingsTab";
 import { tabTransition } from "./animations";
 
 export default function AdminPage() {
-  const { activePage, setActivePage, events, teamRoles, currentRole, eventConfig } =
-    useAdminStore();
+  useBootstrap();
+
+  const {
+    activePage,
+    setActivePage,
+    events,
+    teamRoles,
+    currentRole,
+    eventConfig,
+    isBootstrapped,
+    bootstrapError,
+  } = useAdminStore();
   const { openEventModal, openTaskModal } = useModalStore();
   const { activeCueEvent, notifiedEvents, markNotified } = useCueStore();
 
@@ -36,13 +48,13 @@ export default function AdminPage() {
   const dayIds = eventConfig.days.map((d) => d.id);
   const isActiveDayPage = dayIds.includes(activePage);
 
-  // Auto-select day based on current date
+  // Auto-select day after bootstrap
   useEffect(() => {
+    if (!isBootstrapped) return;
     const today = startOfDay(new Date());
-    const matchingDay = eventConfig.days.find((d) => isSameDay(d.date, today));
-    if (matchingDay) setActivePage(matchingDay.id);
-    else setActivePage(eventConfig.days[0]?.id ?? "day-1");
-  }, [eventConfig.days]);
+    const match = eventConfig.days.find((d) => isSameDay(d.date, today));
+    setActivePage(match?.id ?? eventConfig.days[0]?.id ?? "day-1");
+  }, [isBootstrapped]);
 
   // Time-based event notifications
   useEffect(() => {
@@ -97,8 +109,60 @@ export default function AdminPage() {
   };
 
   // Prevent AnimatePresence from re-animating when switching between day tabs
-  // (TimelineTab handles its own internal animation)
   const animationKey = isActiveDayPage ? "__days__" : activePage;
+
+  // Bootstrap error state
+  if (bootstrapError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 border border-destructive/20 mb-4">
+            <CalendarHeart className="w-8 h-8 text-destructive" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground mb-2">
+            Unable to load event
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">{bootstrapError}</p>
+          <p className="text-xs text-muted-foreground">
+            Please contact support if this issue persists.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Bootstrap loading skeleton
+  if (!isBootstrapped) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex h-screen w-full overflow-hidden bg-background"
+      >
+        {/* Sidebar skeleton */}
+        <div className="w-64 border-r border-border p-4 flex flex-col gap-3">
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-4 w-1/2 mt-2" />
+          <div className="flex flex-col gap-2 mt-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full" />
+            ))}
+          </div>
+        </div>
+        {/* Content skeleton */}
+        <div className="flex-1 flex flex-col p-6 gap-4">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-4 w-64" />
+          <div className="grid grid-cols-3 gap-4 mt-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-48 rounded-xl mt-2" />
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <SidebarProvider>

@@ -1,40 +1,27 @@
-import { useState, useEffect } from "react";
-import { isAuthenticated } from "@/lib/auth";
-import { AUTH_CHANGE_EVENT, type AuthChangeDetail } from "./events";
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
-/**
- * Reactive auth gate hook.
- *
- * Listens for:
- *   1. auth:change — dispatched by api.ts after loginUser / logoutUser
- *   2. storage    — handles cross-tab login / logout (same localStorage key)
- *
- * Returns a live `isAuthenticated` boolean that re-renders consumers
- * whenever auth state flips, without any navigation needed.
- */
-export function useAuthGate(): { isAuthenticated: boolean } {
-  const [authed, setAuthed] = useState<boolean>(() => isAuthenticated());
+export function useAuthGate(): { isAuthenticated: boolean; userId: string | null } {
+  const [authed, setAuthed] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    // Fired from within the same tab (loginUser / logoutUser in api.ts)
-    const handleAuthChange = (e: Event) => {
-      const { type } = (e as CustomEvent<AuthChangeDetail>).detail;
-      setAuthed(type === "login");
-    };
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthed(!!session)
+      setUserId(session?.user?.id ?? null)
+    })
 
-    // Fired when localStorage changes from another tab
-    const handleStorage = () => {
-      setAuthed(isAuthenticated());
-    };
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setAuthed(!!session)
+        setUserId(session?.user?.id ?? null)
+      }
+    )
 
-    window.addEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
-    window.addEventListener("storage", handleStorage);
+    return () => subscription.unsubscribe()
+  }, [])
 
-    return () => {
-      window.removeEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
-      window.removeEventListener("storage", handleStorage);
-    };
-  }, []);
-
-  return { isAuthenticated: authed };
+  return { isAuthenticated: authed, userId }
 }
