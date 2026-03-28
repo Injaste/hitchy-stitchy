@@ -34,7 +34,7 @@ const Footer: FC<FooterProps> = ({ fadeIn, fadeUp }) => {
       </motion.p>
       <motion.h2
         variants={fadeUp(0.2, 16, 0.8)}
-        className="font-bold text-white [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] text-2xl sm:text-3xl italic font-serif"
+        className="font-bold text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] text-2xl sm:text-3xl italic font-serif"
       >
         Danish & Nadhirah
       </motion.h2>

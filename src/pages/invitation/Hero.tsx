@@ -78,13 +78,14 @@ const Hero = () => {
         <div className="mb-12 sm:mb-16">
           <motion.h1
             variants={name1}
-            className="font-black text-white [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
             Izhan Danish
           </motion.h1>
 
           <motion.div
             variants={amp}
+            text-primary-foreground
             className="flex items-center justify-center gap-5 my-2 sm:my-4"
           >
             <div className="h-px flex-1 max-w-16 bg-primary/25" />
@@ -96,7 +97,7 @@ const Hero = () => {
 
           <motion.h1
             variants={name2}
-            className="font-black text-white [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
             Sharifah Nadhirah
           </motion.h1>
@@ -122,7 +123,7 @@ const Hero = () => {
           variants={cta}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="inline-block bg-primary text-white px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
+          className="inline-block bg-primary text-primary-foreground px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
         >
           Our Invitation
         </motion.a>

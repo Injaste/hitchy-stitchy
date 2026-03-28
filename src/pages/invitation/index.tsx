@@ -4,7 +4,7 @@ import { motion, useScroll, useSpring } from "framer-motion";
 import Hero from "./Hero";
 import Details from "./Details";
 import RSVP from "./RSVP";
-import FloatingHearts from "./FloatingHearts";
+import FloatingIcons from "./FloatingIcons";
 
 const Invitation = () => {
   const containerRef = useRef(null);
@@ -36,7 +36,7 @@ const Invitation = () => {
       <Hero />
       <Details />
       <RSVP />
-      <FloatingHearts />
+      <FloatingIcons />
     </div>
   );
 };

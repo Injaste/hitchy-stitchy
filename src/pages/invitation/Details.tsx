@@ -122,7 +122,7 @@ const Details = () => {
             variants={fadeUp(0.1, 20, 0.8)}
             className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 font-serif"
           >
-            Shaik & Nazreen
+            Shaik Mohammed & Nazreen Khan
           </motion.h3>
           <motion.p
             variants={fadeUp(0.2, 12, 0.7)}
@@ -255,7 +255,7 @@ const Details = () => {
               href="#rsvp"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-block bg-primary text-white px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
+              className="inline-block bg-primary text-primary-foreground px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
             >
               RSVP Now
             </motion.a>

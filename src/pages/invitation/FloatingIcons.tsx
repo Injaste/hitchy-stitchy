@@ -1,37 +1,39 @@
-import { Heart } from "lucide-react";
+import { Sparkle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-interface HeartItem {
+interface IconItem {
   id: number;
   left: number;
   size: number;
+  rotation: number;
   duration: number;
   delay: number;
   travelY: number;
 }
 
-const generateHearts = (count: number): HeartItem[] =>
+const generateIcons = (count: number): IconItem[] =>
   Array.from({ length: count }, (_, i) => ({
     id: i,
     left: Math.random() * 88 + 2,
     size: Math.random() * 14 + 10,
+    rotation: Math.random() * 180 + 180,
     duration: Math.random() * 5 + 6,
     delay: Math.random() * 4,
     travelY: window.innerHeight * 0.1,
   }));
 
-const getHeartCount = (): number =>
+const getIconCount = (): number =>
   Math.min(Math.floor(window.innerWidth * 0.05), 30);
 
-const FloatingHearts = () => {
-  const [heartCount, setHeartCount] = useState(() => getHeartCount());
+const FloatingIcons = () => {
+  const [iconCount, setIconCount] = useState(() => getIconCount());
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
 
     const handleResize = () => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => setHeartCount(getHeartCount()), 200);
+      timeout = setTimeout(() => setIconCount(getIconCount()), 200);
     };
 
     window.addEventListener("resize", handleResize);
@@ -41,39 +43,39 @@ const FloatingHearts = () => {
     };
   }, []);
 
-  const hearts = useMemo(() => generateHearts(heartCount), [heartCount]);
+  const icons = useMemo(() => generateIcons(iconCount), [iconCount]);
 
   return (
     <>
       <style>{`
-        ${hearts
+        ${icons
           .map(
             (h) => `
           @keyframes floatDown-${h.id} {
-            0%   { transform: translateY(0);           opacity: 0.5; }
+            0%   { transform: translateY(0)              rotate(${h.rotation}deg); opacity: 0.5; }
             70%  { opacity: 0.5; }
-            100% { transform: translateY(${h.travelY}px); opacity: 0; }
+            100% { transform: translateY(${h.travelY}px) rotate(${h.rotation}deg); opacity: 0; }
           }
         `,
           )
           .join("")}
       `}</style>
       <div className="fixed left-0 right-0 top-0 h-60 pointer-events-none overflow-hidden z-40">
-        {hearts.map((heart) => (
+        {icons.map((icon) => (
           <div
-            key={heart.id}
+            key={icon.id}
             style={{
               position: "absolute",
               top: "-30px",
-              left: `${heart.left}%`,
-              width: heart.size,
-              height: heart.size,
+              left: `${icon.left}%`,
+              width: icon.size,
+              height: icon.size,
               opacity: 1,
-              animation: `floatDown-${heart.id} ${heart.duration}s ${heart.delay}s linear infinite`,
+              animation: `floatDown-${icon.id} ${icon.duration}s ${icon.delay}s linear infinite`,
             }}
           >
-            <Heart
-              style={{ width: heart.size, height: heart.size }}
+            <Sparkle
+              style={{ width: icon.size, height: icon.size }}
               className="stroke-pink-400 fill-pink-300"
             />
           </div>
@@ -83,4 +85,4 @@ const FloatingHearts = () => {
   );
 };
 
-export default FloatingHearts;
+export default FloatingIcons;

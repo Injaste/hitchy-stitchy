@@ -214,7 +214,7 @@ const RSVPForm = ({
               type="submit"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full h-12 rounded-full bg-primary text-white font-bold uppercase tracking-widest text-xs sm:text-sm shadow-lg hover:bg-primary/90 disabled:opacity-60 transition-all mt-8"
+              className="w-full h-12 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-widest text-xs sm:text-sm shadow-lg hover:bg-primary/90 disabled:opacity-60 transition-all mt-8"
               disabled={isSubmitting || !canSubmit}
             >
               {isSubmitting
