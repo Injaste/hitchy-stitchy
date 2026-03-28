@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isSameDay, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { Toaster, toast } from "sonner";
@@ -24,7 +25,7 @@ import { SettingsTab } from "./features/settings/SettingsTab";
 import { tabTransition } from "./animations";
 
 export default function AdminPage() {
-  const { activePage, setActivePage, day1Events, day2Events, teamRoles, currentRole } =
+  const { activePage, setActivePage, events, teamRoles, currentRole, eventConfig } =
     useAdminStore();
   const { openEventModal, openTaskModal } = useModalStore();
   const { activeCueEvent, notifiedEvents, markNotified } = useCueStore();
@@ -32,25 +33,16 @@ export default function AdminPage() {
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const isAdmin = currentUser?.isAdmin;
 
+  const dayIds = eventConfig.days.map((d) => d.id);
+  const isActiveDayPage = dayIds.includes(activePage);
+
   // Auto-select day based on current date
   useEffect(() => {
-    const now = new Date();
-    if (now.getMonth() === 6) {
-      if (now.getDate() === 4) setActivePage("day1");
-      else if (now.getDate() === 5) setActivePage("day2");
-    }
-  }, [setActivePage]);
-
-  // Scheduled reminder toast
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      toast("9:30 AM: Reminder – Bunga Rampai distribution should begin now.", {
-        icon: "🌸",
-        duration: 10000,
-      });
-    }, 10000);
-    return () => clearTimeout(timer);
-  }, []);
+    const today = startOfDay(new Date());
+    const matchingDay = eventConfig.days.find((d) => isSameDay(d.date, today));
+    if (matchingDay) setActivePage(matchingDay.id);
+    else setActivePage(eventConfig.days[0]?.id ?? "day-1");
+  }, [eventConfig.days]);
 
   // Time-based event notifications
   useEffect(() => {
@@ -60,8 +52,8 @@ export default function AdminPage() {
         minute: "2-digit",
         hour12: true,
       });
-      const check = (events: typeof day1Events) => {
-        events.forEach((event) => {
+      for (const dayId of Object.keys(events)) {
+        (events[dayId] ?? []).forEach((event) => {
           if (event.time === timeString && !notifiedEvents.has(event.id)) {
             if (isAdmin)
               toast.info(`Scheduled Event Now: ${event.title}`, {
@@ -71,27 +63,22 @@ export default function AdminPage() {
             markNotified(event.id);
           }
         });
-      };
-      check(day1Events);
-      check(day2Events);
+      }
     }, 10000);
     return () => clearInterval(interval);
-  }, [day1Events, day2Events, isAdmin, notifiedEvents, markNotified]);
+  }, [events, isAdmin, notifiedEvents, markNotified]);
 
   // FAB: add event / task
   const handleFABClick = () => {
     if (activePage === "checklist") openTaskModal();
-    else if (activePage === "day1" || activePage === "day2")
-      openEventModal(activePage as "day1" | "day2");
+    else if (isActiveDayPage) openEventModal(activePage);
   };
-  const showFAB = ["day1", "day2", "checklist"].includes(activePage) && isAdmin;
+  const showFAB = (isActiveDayPage || activePage === "checklist") && isAdmin;
 
   // Content router
   const renderContent = () => {
+    if (isActiveDayPage) return <TimelineTab />;
     switch (activePage) {
-      case "day1":
-      case "day2":
-        return <TimelineTab />;
       case "checklist":
         return <ChecklistTab />;
       case "team":
@@ -108,6 +95,10 @@ export default function AdminPage() {
         return null;
     }
   };
+
+  // Prevent AnimatePresence from re-animating when switching between day tabs
+  // (TimelineTab handles its own internal animation)
+  const animationKey = isActiveDayPage ? "__days__" : activePage;
 
   return (
     <SidebarProvider>
@@ -128,7 +119,7 @@ export default function AdminPage() {
           <main className="flex-1 overflow-y-auto">
             <div className="px-4 md:px-6 py-6 md:py-8">
               <AnimatePresence mode="wait">
-                <motion.div key={activePage === "day2" ? "day1" : activePage} {...tabTransition}>
+                <motion.div key={animationKey} {...tabTransition}>
                   {renderContent()}
                 </motion.div>
               </AnimatePresence>

@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { motion, type Variants } from "framer-motion";
 import {
   Calendar,
@@ -9,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },
@@ -46,13 +48,21 @@ const divider: Variants = {
 };
 
 const Details = () => {
+  const { eventConfig } = useAdminStore();
+  const firstDay = eventConfig.days[0];
+
   const detailsList = [
-    { icon: Calendar, title: "Date", detail: "4th July 2026", sub: "Saturday" },
+    {
+      icon: Calendar,
+      title: "Date",
+      detail: format(firstDay.date, "do MMMM yyyy"),
+      sub: format(firstDay.date, "EEEE"),
+    },
     { icon: Clock, title: "Time", detail: "10:00 AM", sub: "to 4:00 PM" },
     {
       icon: MapPin,
       title: "Location",
-      detail: "De Hall Pte Ltd",
+      detail: firstDay.venue,
       sub: "Tai Seng, Singapore",
     },
     {
@@ -63,15 +73,18 @@ const Details = () => {
     },
   ];
 
+  const fromDate = eventConfig.dateRange.from;
+  const toDate = eventConfig.dateRange.to;
+  const formatGCal = (d: Date) => format(d, "yyyyMMdd'T'HHmmss'Z'");
+
   const googleCalendarUrl =
     "https://calendar.google.com/calendar/render?action=TEMPLATE" +
     "&text=" +
-    encodeURIComponent("Wedding of Danish & Nadhirah") +
-    "&dates=20260704T020000Z/20260704T080000Z" +
+    encodeURIComponent(eventConfig.name) +
+    "&dates=" +
+    encodeURIComponent(`${formatGCal(fromDate)}/${formatGCal(toDate)}`) +
     "&location=" +
-    encodeURIComponent(
-      "De Hall Pte Ltd, 3 Irving Rd, #02-10, Singapore 369522",
-    );
+    encodeURIComponent(firstDay.venue);
 
   return (
     <section

@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { Bell, Radio } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
 
-const PAGE_LABELS: Record<string, string> = {
-  day1: "Timeline — Day 1",
-  day2: "Timeline — Day 2",
+const STATIC_LABELS: Record<string, string> = {
   checklist: "Tasks",
   team: "Team",
   live: "Live Operations",
@@ -18,10 +17,15 @@ const PAGE_LABELS: Record<string, string> = {
 };
 
 export function AdminTopbar() {
-  const { activePage, setActivePage } = useAdminStore();
+  const { activePage, setActivePage, eventConfig } = useAdminStore();
   const { activeCueEvent } = useCueStore();
   const { openPingModal } = useModalStore();
-  const label = PAGE_LABELS[activePage] ?? "Dashboard";
+
+  const activeDay = eventConfig.days.find((d) => d.id === activePage);
+  const label = activeDay
+    ? `Timeline — ${format(activeDay.date, "do MMM")} · ${activeDay.label}`
+    : (STATIC_LABELS[activePage] ?? "Dashboard");
+
   const hasCue = !!activeCueEvent;
 
   return (
@@ -34,37 +38,37 @@ export function AdminTopbar() {
 
       {/* Right: Bell + Live button */}
       <div className="flex items-center gap-2 shrink-0">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-muted-foreground hover:text-foreground"
-        onClick={() => openPingModal()}
-      >
-        <Bell className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setActivePage("live")}
-        className={cn(
-          "shrink-0 gap-2 text-xs",
-          hasCue
-            ? "bg-destructive/10 text-destructive border border-destructive/30 rounded-full hover:bg-destructive/15"
-            : "text-muted-foreground hover:text-foreground"
-        )}
-      >
-        {hasCue ? (
-          <>
-            <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-            <span className="max-w-[120px] truncate">{activeCueEvent!.title}</span>
-          </>
-        ) : (
-          <>
-            <Radio className="h-3.5 w-3.5" />
-            <span>Live</span>
-          </>
-        )}
-      </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          onClick={() => openPingModal()}
+        >
+          <Bell className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setActivePage("live")}
+          className={cn(
+            "shrink-0 gap-2 text-xs",
+            hasCue
+              ? "bg-destructive/10 text-destructive border border-destructive/30 rounded-full hover:bg-destructive/15"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {hasCue ? (
+            <>
+              <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+              <span className="max-w-[120px] truncate">{activeCueEvent!.title}</span>
+            </>
+          ) : (
+            <>
+              <Radio className="h-3.5 w-3.5" />
+              <span>Live</span>
+            </>
+          )}
+        </Button>
       </div>
     </header>
   );

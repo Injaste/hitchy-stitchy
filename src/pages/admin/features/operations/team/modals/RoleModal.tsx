@@ -11,7 +11,7 @@ import type { TeamMember } from "../types";
 import { toast } from "sonner";
 
 export function RoleModal() {
-  const { teamRoles, day1Events, day2Events, tasks, addLog, currentRole } = useAdminStore();
+  const { teamRoles, events, tasks, addLog, currentRole } = useAdminStore();
   const {
     isRoleModalOpen,
     editingRole,
@@ -44,9 +44,9 @@ export function RoleModal() {
 
   const handleDelete = () => {
     if (!editingRole) return;
-    const isAssignedToEvent =
-      day1Events.some((e) => e.assignees.includes(editingRole.role)) ||
-      day2Events.some((e) => e.assignees.includes(editingRole.role));
+    const isAssignedToEvent = Object.values(events).some((dayEvs) =>
+      dayEvs.some((e) => e.assignees.includes(editingRole.role))
+    );
     const isAssignedToTask = tasks.some((t) => t.assignees.includes(editingRole.role));
     if (isAssignedToEvent || isAssignedToTask) {
       toast.error(`Cannot delete ${editingRole.role}. It is assigned to events or tasks.`);

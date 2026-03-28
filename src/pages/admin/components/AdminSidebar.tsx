@@ -38,7 +38,7 @@ import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useLogoutMutation } from "@/pages/admin/auth/queries";
 
 export function AdminSidebar() {
-  const { activePage, setActivePage, teamRoles, currentRole, setCurrentRole } =
+  const { activePage, setActivePage, teamRoles, currentRole, setCurrentRole, eventConfig } =
     useAdminStore();
   const { activeCueEvent } = useCueStore();
   const { slug } = useParams<{ slug: string }>();
@@ -91,8 +91,8 @@ export function AdminSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => setActivePage("day1")}
-                  className={navItemClass("day1", "day2")}
+                  onClick={() => setActivePage(eventConfig.days[0]?.id ?? "day-1")}
+                  className={navItemClass(...eventConfig.days.map((d) => d.id))}
                 >
                   <CalendarDays className="h-4 w-4 shrink-0" />
                   <span>Timeline</span>

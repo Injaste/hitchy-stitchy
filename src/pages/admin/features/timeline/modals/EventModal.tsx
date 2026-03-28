@@ -1,18 +1,43 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useEventMutations } from "../queries";
 import type { TimelineEvent } from "../types";
 
+/** Convert "07:00 AM" → "07:00" (24hr for <input type="time">) */
+function to24h(display: string): string {
+  if (!display) return "";
+  const match = display.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return display;
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2];
+  const period = match[3].toUpperCase();
+  if (period === "AM" && hours === 12) hours = 0;
+  if (period === "PM" && hours !== 12) hours += 12;
+  return `${String(hours).padStart(2, "0")}:${minutes}`;
+}
+
+/** Convert "07:00" (24hr) → "07:00 AM" */
+function to12h(value: string): string {
+  if (!value) return "";
+  const [hStr, mStr] = value.split(":");
+  let hours = parseInt(hStr, 10);
+  const minutes = mStr;
+  const period = hours >= 12 ? "PM" : "AM";
+  if (hours === 0) hours = 12;
+  else if (hours > 12) hours -= 12;
+  return `${String(hours).padStart(2, "0")}:${minutes} ${period}`;
+}
+
 export function EventModal() {
-  const { teamRoles, currentRole, day1Events, day2Events, setDay1Events, setDay2Events, addLog } =
-    useAdminStore();
+  const { teamRoles, currentRole, addLog } = useAdminStore();
   const {
     isEventModalOpen,
     editingEvent,
@@ -23,6 +48,10 @@ export function EventModal() {
   } = useModalStore();
   const { activeCueEvent, setActiveCueEvent } = useCueStore();
   const { create, update } = useEventMutations();
+
+  const [timeValue, setTimeValue] = useState(
+    editingEvent?.time ? to24h(editingEvent.time) : ""
+  );
 
   const getAssigneeDisplay = (roleName: string) => {
     if (roleName === "All") return "All";
@@ -39,7 +68,7 @@ export function EventModal() {
 
     const eventData: TimelineEvent = {
       id: editingEvent?.id || `evt-${Date.now()}`,
-      time: formData.get("time") as string,
+      time: to12h(timeValue),
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       assignees,
@@ -48,7 +77,6 @@ export function EventModal() {
       startedAt: editingEvent?.startedAt,
     };
 
-    // If editing an active event, confirm first
     if (editingEvent?.startedAt) {
       openConfirmUpdateActiveEvent(eventData);
       closeEventModal();
@@ -67,9 +95,7 @@ export function EventModal() {
 
   const handleDelete = () => {
     if (!editingEvent) return;
-    if (editingEvent.startedAt) {
-      return; // Can't delete active event — handled in ConfirmModals
-    }
+    if (editingEvent.startedAt) return;
     closeEventModal();
     openConfirmDeleteEvent(editingEvent.id, eventModalDay);
   };
@@ -84,11 +110,12 @@ export function EventModal() {
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-1.5">
             <Label>Time</Label>
-            <Input
+            <input
               required
-              name="time"
-              defaultValue={editingEvent?.time}
-              placeholder="e.g. 07:00 AM"
+              type="time"
+              value={timeValue}
+              onChange={(e) => setTimeValue(e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 

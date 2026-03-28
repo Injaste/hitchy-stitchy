@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ClipboardList } from "lucide-react";
 import {
@@ -16,39 +16,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { fadeUp } from "@/pages/admin/animations";
-import { useSettings, useRSVPFormMutation } from "../queries";
-import type { RSVPFormConfig, RSVPFieldConfig, RSVPMode } from "../types";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { toast } from "sonner";
+import type { RSVPFormConfig, RSVPFieldConfig } from "../types";
 
-const DEFAULT_FORM: RSVPFormConfig = {
-  mode: "open",
-  fields: [
-    { id: "name", label: "Name", visible: true, required: true },
-    { id: "phone", label: "Phone", visible: true, required: false },
-    { id: "guestCount", label: "Number of guests", visible: true, required: false },
-    { id: "dietary", label: "Dietary notes", visible: true, required: false },
-    { id: "meal", label: "Meal choice", visible: false, required: false },
-    { id: "message", label: "Special message", visible: true, required: false },
-  ],
-  confirmationMessage: "Thank you! We can't wait to celebrate with you. 💕",
-  minGuests: 1,
-  maxGuests: 5,
+type FieldKey = keyof RSVPFormConfig["fields"];
+
+const FIELD_LABELS: Record<FieldKey, string> = {
+  name: "Full Name",
+  phone: "Phone Number",
+  guestsCount: "Number of Guests",
+  dietaryNotes: "Dietary Notes",
+  mealChoice: "Meal Choice",
+  message: "Message",
 };
 
 export function RSVPFormConfigSection() {
-  const { data: settings } = useSettings();
-  const [form, setForm] = useState<RSVPFormConfig>(DEFAULT_FORM);
+  const { eventConfig, setEventConfig } = useAdminStore();
+  const [form, setForm] = useState<RSVPFormConfig>(eventConfig.rsvpForm);
 
-  useEffect(() => {
-    if (settings?.rsvpForm) setForm(settings.rsvpForm);
-  }, [settings]);
-
-  const { mutate: save, isPending } = useRSVPFormMutation();
-
-  const updateField = (id: string, patch: Partial<RSVPFieldConfig>) =>
+  const updateField = (key: FieldKey, patch: Partial<RSVPFieldConfig>) =>
     setForm((prev) => ({
       ...prev,
-      fields: prev.fields.map((f) => (f.id === id ? { ...f, ...patch } : f)),
+      fields: {
+        ...prev.fields,
+        [key]: { ...prev.fields[key], ...patch },
+      },
     }));
+
+  const handleSave = () => {
+    setEventConfig({ ...eventConfig, rsvpForm: form });
+    toast.success("RSVP settings saved");
+  };
 
   return (
     <motion.div initial="hidden" animate="show" variants={fadeUp(0.1)}>
@@ -59,47 +58,49 @@ export function RSVPFormConfigSection() {
             <CardTitle className="text-base font-serif">RSVP Form Config</CardTitle>
           </div>
           <CardDescription>
-            Control which fields appear on the RSVP form and how guests can respond.
+            Control which fields guests see when submitting their RSVP.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Field visibility */}
+          {/* Form Fields table */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium">Field visibility</h4>
+            <h4 className="text-sm font-medium">Form Fields</h4>
             <div className="rounded-lg border border-border overflow-hidden">
-              {/* Header row */}
               <div className="grid grid-cols-[1fr_80px_80px] gap-2 px-4 py-2 bg-muted/40 text-xs font-medium text-muted-foreground border-b border-border">
                 <span>Field</span>
                 <span className="text-center">Visible</span>
                 <span className="text-center">Required</span>
               </div>
-              {form.fields.map((field) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-[1fr_80px_80px] gap-2 items-center px-4 py-3 border-b border-border last:border-0"
-                >
-                  <span className="text-sm">{field.label}</span>
-                  <div className="flex justify-center">
-                    <Switch
-                      checked={field.visible}
-                      onCheckedChange={(v) =>
-                        updateField(field.id, {
-                          visible: v,
-                          required: v ? field.required : false,
-                        })
-                      }
-                    />
+              {(Object.keys(form.fields) as FieldKey[]).map((key) => {
+                const field = form.fields[key];
+                return (
+                  <div
+                    key={key}
+                    className="grid grid-cols-[1fr_80px_80px] gap-2 items-center px-4 py-3 border-b border-border last:border-0"
+                  >
+                    <span className="text-sm">{FIELD_LABELS[key]}</span>
+                    <div className="flex justify-center">
+                      <Switch
+                        checked={field.visible}
+                        onCheckedChange={(v) =>
+                          updateField(key, {
+                            visible: v,
+                            required: v ? field.required : false,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="flex justify-center">
+                      <Switch
+                        checked={field.required}
+                        disabled={!field.visible}
+                        onCheckedChange={(v) => updateField(key, { required: v })}
+                      />
+                    </div>
                   </div>
-                  <div className="flex justify-center">
-                    <Switch
-                      checked={field.required}
-                      disabled={!field.visible}
-                      onCheckedChange={(v) => updateField(field.id, { required: v })}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -107,38 +108,25 @@ export function RSVPFormConfigSection() {
 
           {/* RSVP mode */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium">RSVP mode</h4>
+            <h4 className="text-sm font-medium">RSVP Mode</h4>
             <RadioGroup
               value={form.mode}
-              onValueChange={(v) => setForm((p) => ({ ...p, mode: v as RSVPMode }))}
+              onValueChange={(v) => setForm((p) => ({ ...p, mode: v as RSVPFormConfig["mode"] }))}
               className="space-y-2"
             >
               {[
-                {
-                  value: "open",
-                  label: "Open",
-                  description: "Anyone with the link can RSVP.",
-                },
-                {
-                  value: "pool",
-                  label: "Guest pool only",
-                  description: "Only pre-approved guests can RSVP.",
-                },
-                {
-                  value: "pool-open",
-                  label: "Pool priority",
-                  description:
-                    "Pool guests get priority; overflow RSVPs are accepted.",
-                },
+                { value: "open", label: "Open", description: "Anyone can RSVP" },
+                { value: "pool", label: "Pool", description: "Pre-approved guests only" },
+                { value: "pool-open", label: "Pool Open", description: "Pool gets priority, overflow allowed" },
               ].map((opt) => (
                 <Label
                   key={opt.value}
-                  htmlFor={`mode-${opt.value}`}
+                  htmlFor={`rsvp-mode-${opt.value}`}
                   className="flex items-start gap-3 rounded-lg border border-border px-4 py-3 cursor-pointer hover:bg-muted/40 transition-colors [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-primary/5"
                 >
                   <RadioGroupItem
                     value={opt.value}
-                    id={`mode-${opt.value}`}
+                    id={`rsvp-mode-${opt.value}`}
                     className="mt-0.5"
                   />
                   <div>
@@ -152,51 +140,49 @@ export function RSVPFormConfigSection() {
 
           <Separator />
 
+          {/* Guest count constraints */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="guestMin">Min guests per RSVP</Label>
+              <Input
+                id="guestMin"
+                type="number"
+                min={1}
+                value={form.guestMin}
+                onChange={(e) => setForm((p) => ({ ...p, guestMin: Number(e.target.value) }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="guestMax">Max guests per RSVP</Label>
+              <Input
+                id="guestMax"
+                type="number"
+                min={1}
+                max={99}
+                value={form.guestMax}
+                onChange={(e) => setForm((p) => ({ ...p, guestMax: Number(e.target.value) }))}
+              />
+            </div>
+          </div>
+
           {/* Confirmation message */}
           <div className="space-y-2">
-            <Label htmlFor="confirmMsg">Confirmation message</Label>
+            <Label htmlFor="confirmMsg">Confirmation Message</Label>
+            <p className="text-xs text-muted-foreground">
+              Shown to guests after they submit their RSVP.
+            </p>
             <Textarea
               id="confirmMsg"
               value={form.confirmationMessage}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, confirmationMessage: e.target.value }))
-              }
+              onChange={(e) => setForm((p) => ({ ...p, confirmationMessage: e.target.value }))}
               rows={3}
               placeholder="Thank you for your response!"
             />
           </div>
 
-          {/* Guest count constraints */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="minGuests">Min guests per RSVP</Label>
-              <Input
-                id="minGuests"
-                type="number"
-                min={1}
-                value={form.minGuests}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, minGuests: Number(e.target.value) }))
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="maxGuests">Max guests per RSVP</Label>
-              <Input
-                id="maxGuests"
-                type="number"
-                min={1}
-                value={form.maxGuests}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, maxGuests: Number(e.target.value) }))
-                }
-              />
-            </div>
-          </div>
-
           <div className="flex justify-end pt-2">
-            <Button onClick={() => save(form)} disabled={isPending} size="sm">
-              {isPending ? "Saving…" : "Save RSVP config"}
+            <Button onClick={handleSave} size="sm">
+              Save RSVP settings
             </Button>
           </div>
         </CardContent>
