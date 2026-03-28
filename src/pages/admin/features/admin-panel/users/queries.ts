@@ -1,7 +1,7 @@
 import { useQuery } from "@/lib/query/useQuery";
 import { useMutation } from "@/lib/query/useMutation";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { getUsers, updateAdminStatus } from "./api";
+import { getUsers, updateAdminStatus, toggleActiveStatus } from "./api";
 
 export function useUsers() {
   return useQuery(getUsers, { key: "users" });
@@ -21,5 +21,16 @@ export function useUserMutations() {
     }
   );
 
-  return { toggleAdmin };
+  const toggleActive = useMutation(
+    (args: { role: string; isActive: boolean }) => toggleActiveStatus(args),
+    {
+      successMessage: "Access updated",
+      errorMessage: "Failed to update access",
+      onSuccess: ({ role, isActive }) => {
+        setTeamRoles(teamRoles.map((r) => (r.role === role ? { ...r, isActive } : r)));
+      },
+    }
+  );
+
+  return { toggleAdmin, toggleActive };
 }

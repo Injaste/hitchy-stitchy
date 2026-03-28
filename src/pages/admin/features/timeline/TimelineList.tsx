@@ -1,5 +1,9 @@
-import { Clock } from "lucide-react";
+import { CalendarDays, Clock } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { fadeIn } from "@/pages/admin/animations";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { TimelineEventCard } from "./TimelineEventCard";
 import type { TimelineEvent } from "./types";
 
@@ -28,6 +32,37 @@ function groupEventsByTime(events: TimelineEvent[]) {
 
 export function TimelineList({ events, day }: Props) {
   const grouped = groupEventsByTime(events);
+  const { teamRoles, currentRole } = useAdminStore();
+  const { openEventModal } = useModalStore();
+  const currentUser = teamRoles.find((r) => r.role === currentRole);
+  const isAdmin = currentUser?.isAdmin;
+
+  if (events.length === 0) {
+    return (
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={fadeIn(0)}
+        className="flex flex-col items-center justify-center py-20 gap-3 text-center"
+      >
+        <CalendarDays className="h-10 w-10 text-muted-foreground opacity-30" />
+        <p className="font-semibold text-foreground">No events yet</p>
+        {isAdmin && (
+          <p className="text-sm text-muted-foreground">
+            Tap + to add the first event for this day.
+          </p>
+        )}
+        {isAdmin && (
+          <button
+            onClick={() => openEventModal(day)}
+            className="mt-2 text-sm text-primary underline underline-offset-2 hover:opacity-70 transition-opacity"
+          >
+            Add event
+          </button>
+        )}
+      </motion.div>
+    );
+  }
 
   return (
     <div className="relative border-l-2 border-primary/30 ml-3 md:ml-6 space-y-6 md:space-y-8 pb-24">

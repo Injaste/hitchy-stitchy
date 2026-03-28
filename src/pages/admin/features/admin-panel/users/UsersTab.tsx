@@ -12,7 +12,7 @@ import { UserRow } from "./UserRow";
 export function UsersTab() {
   const [search, setSearch] = useState("");
   const { teamRoles } = useAdminStore();
-  const { openAddRoleModal } = useModalStore();
+  const { openAddRoleModal, openInviteModal } = useModalStore();
 
   const filtered = teamRoles.filter(
     (m) =>
@@ -25,8 +25,14 @@ export function UsersTab() {
       <Card className="border-border">
         <CardHeader className="pb-3 space-y-4">
           <div className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Team Access Control</CardTitle>
-            <ShieldCheck className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Team Access</CardTitle>
+            </div>
+            <Button size="sm" onClick={openInviteModal} className="gap-1.5">
+              <UserPlus className="h-4 w-4" />
+              Invite Member
+            </Button>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

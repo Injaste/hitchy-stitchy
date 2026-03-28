@@ -18,6 +18,14 @@ interface LogEntry {
   msg: string;
 }
 
+type NotificationPrefs = {
+  eventStarted: boolean;
+  taskAssigned: boolean;
+  pinged: boolean;
+  upcomingEvent: boolean;
+  bridesmaidsCheckin: boolean;
+};
+
 interface AdminState {
   teamRoles: TeamMember[];
   currentRole: string;
@@ -28,6 +36,8 @@ interface AdminState {
   logs: LogEntry[];
   arrivals: Record<string, boolean>;
   activePage: string;
+  eventDays: 1 | 2;
+  notificationPrefs: NotificationPrefs;
 
   setTeamRoles: (roles: TeamMember[]) => void;
   setCurrentRole: (role: string) => void;
@@ -38,6 +48,8 @@ interface AdminState {
   setArrivals: (arrivals: Record<string, boolean>) => void;
   addLog: (role: string, msg: string) => void;
   setActivePage: (page: string) => void;
+  setEventDays: (days: 1 | 2) => void;
+  setNotificationPref: (key: keyof NotificationPrefs, value: boolean) => void;
 }
 
 const getInitialArrivals = () => {
@@ -58,6 +70,14 @@ export const useAdminStore = create<AdminState>((set) => ({
   logs: [],
   arrivals: getInitialArrivals(),
   activePage: "day1",
+  eventDays: 2,
+  notificationPrefs: {
+    eventStarted: true,
+    taskAssigned: true,
+    pinged: true,
+    upcomingEvent: true,
+    bridesmaidsCheckin: true,
+  },
 
   setTeamRoles: (roles) => set({ teamRoles: roles }),
   setCurrentRole: (role) => set({ currentRole: role }),
@@ -67,6 +87,11 @@ export const useAdminStore = create<AdminState>((set) => ({
   setRsvps: (rsvps) => set({ rsvps }),
   setArrivals: (arrivals) => set({ arrivals }),
   setActivePage: (page) => set({ activePage: page }),
+  setEventDays: (days) => set({ eventDays: days }),
+  setNotificationPref: (key, value) =>
+    set((state) => ({
+      notificationPrefs: { ...state.notificationPrefs, [key]: value },
+    })),
   addLog: (role, msg) =>
     set((state) => ({
       logs: [

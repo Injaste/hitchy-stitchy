@@ -43,6 +43,12 @@ interface ModalState {
   isPingModalOpen: boolean;
   pingTargetRole: string | null;
 
+  // Invite modal
+  isInviteModalOpen: boolean;
+
+  // Manual RSVP modal
+  isManualRSVPModalOpen: boolean;
+
   // Actions
   openEventModal: (day: "day1" | "day2", event?: TimelineEvent) => void;
   closeEventModal: () => void;
@@ -74,6 +80,12 @@ interface ModalState {
 
   openPingModal: (role?: string) => void;
   closePingModal: () => void;
+
+  openInviteModal: () => void;
+  closeInviteModal: () => void;
+
+  openManualRSVPModal: () => void;
+  closeManualRSVPModal: () => void;
 }
 
 export const useModalStore = create<ModalState>((set) => ({
@@ -107,6 +119,10 @@ export const useModalStore = create<ModalState>((set) => ({
 
   isPingModalOpen: false,
   pingTargetRole: null,
+
+  isInviteModalOpen: false,
+
+  isManualRSVPModalOpen: false,
 
   openEventModal: (day, event) =>
     set({ isEventModalOpen: true, eventModalDay: day, editingEvent: event ?? null }),
@@ -157,4 +173,10 @@ export const useModalStore = create<ModalState>((set) => ({
     set({ isPingModalOpen: true, pingTargetRole: role ?? null }),
   closePingModal: () =>
     set({ isPingModalOpen: false, pingTargetRole: null }),
+
+  openInviteModal: () => set({ isInviteModalOpen: true }),
+  closeInviteModal: () => set({ isInviteModalOpen: false }),
+
+  openManualRSVPModal: () => set({ isManualRSVPModalOpen: true }),
+  closeManualRSVPModal: () => set({ isManualRSVPModalOpen: false }),
 }));

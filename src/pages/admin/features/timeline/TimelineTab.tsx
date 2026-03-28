@@ -39,9 +39,10 @@ const DAYS = [
  *   [Content]  — only the list + heading animates on day change
  */
 export function TimelineTab() {
-  const { activePage, setActivePage, day1Events, day2Events } = useAdminStore();
+  const { activePage, setActivePage, day1Events, day2Events, eventDays } = useAdminStore();
 
-  const activeDay = DAYS.find((d) => d.id === activePage) ?? DAYS[0];
+  const visibleDays = DAYS.slice(0, eventDays);
+  const activeDay = visibleDays.find((d) => d.id === activePage) ?? visibleDays[0];
   const activeEvents = activePage === "day2" ? day2Events : day1Events;
 
   // Embla makes the tab bar draggable/swipeable when there are many days.
@@ -56,7 +57,7 @@ export function TimelineTab() {
         className="overflow-hidden mb-6 md:mb-8 border-b border-border"
       >
         <div className="flex">
-          {DAYS.map((day) => {
+          {visibleDays.map((day) => {
             const active = activePage === day.id;
             return (
               <button

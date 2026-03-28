@@ -11,3 +11,10 @@ export async function updateAdminStatus(args: {
 }): Promise<{ role: string; isAdmin: boolean }> {
   return args;
 }
+
+export async function toggleActiveStatus(args: {
+  role: string;
+  isActive: boolean;
+}): Promise<{ role: string; isActive: boolean }> {
+  return args;
+}

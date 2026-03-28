@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { fadeUp } from "@/pages/admin/animations";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useSettings, useEventSettingsMutation } from "../queries";
 import type { EventSettings } from "../types";
 
@@ -38,6 +39,7 @@ const DEFAULTS: EventSettings = {
 export function EventSettingsSection() {
   const { data: settings } = useSettings();
   const [form, setForm] = useState<EventSettings>(DEFAULTS);
+  const { setEventDays } = useAdminStore();
 
   useEffect(() => {
     if (settings?.event) setForm(settings.event);
@@ -78,7 +80,11 @@ export function EventSettingsSection() {
             <Label htmlFor="numDays">Number of days</Label>
             <Select
               value={String(form.numberOfDays)}
-              onValueChange={(v) => set("numberOfDays", Number(v) as 1 | 2)}
+              onValueChange={(v) => {
+                const days = Number(v) as 1 | 2;
+                set("numberOfDays", days);
+                setEventDays(days);
+              }}
             >
               <SelectTrigger id="numDays" className="w-40">
                 <SelectValue />

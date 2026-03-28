@@ -1,7 +1,10 @@
+import { Radio } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { fadeIn } from "@/pages/admin/animations";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 export function EventLogPanel() {
@@ -58,7 +61,16 @@ export function EventLogPanel() {
         <ScrollArea className="h-64 rounded-lg border border-border bg-muted/30">
           <div className="p-3 space-y-2">
             {logs.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
+              <motion.div
+                initial="hidden"
+                animate="show"
+                variants={fadeIn(0)}
+                className="flex flex-col items-center justify-center py-8 gap-2 text-center"
+              >
+                <Radio className="h-10 w-10 text-muted-foreground opacity-30" />
+                <p className="font-semibold text-sm text-foreground">No activity yet</p>
+                <p className="text-xs text-muted-foreground">Actions logged here will appear in real time.</p>
+              </motion.div>
             ) : (
               logs.map((log) => (
                 <div key={log.id} className="text-sm p-2.5 bg-card rounded-md border border-border shadow-sm">

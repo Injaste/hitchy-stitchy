@@ -4,22 +4,23 @@ export interface TeamMember {
   names: string[];
   isAdmin?: boolean;
   isBridesmaid?: boolean;
+  isActive?: boolean;
   description?: string;
 }
 
 export const TEAM_ROLES: TeamMember[] = [
-  { role: "Coordinator", shortRole: "Coord", names: ["Aisyah"], isAdmin: true, description: "Oversees the entire event, manages vendors, and ensures the timeline is followed." },
-  { role: "Floor manager", shortRole: "FM", names: ["Tariq"], isAdmin: true, description: "Assists the coordinator, manages the venue floor, and handles immediate logistical issues." },
-  { role: "Usher/ crowd control", shortRole: "Usher", names: ["Amir", "Zaid"], description: "Directs guests, manages seating, and ensures smooth crowd flow." },
-  { role: "Informer / runner", shortRole: "Runner", names: ["Bilal"], description: "Relays messages between teams and runs quick errands." },
-  { role: "Logistics 1", shortRole: "Log", names: ["Omar"], description: "Handles physical items, props, and equipment transport." },
-  { role: "Bridesmaid 1", shortRole: "BM", names: ["Fatimah"], isBridesmaid: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
-  { role: "Bridesmaid 2", shortRole: "BM", names: ["Khadijah"], isBridesmaid: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
-  { role: "Bridesmaid 3", shortRole: "BM", names: ["Zainab"], isBridesmaid: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
-  { role: "Bridesmaid 4", shortRole: "BM", names: ["Maryam"], isBridesmaid: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
-  { role: "Bridesmaid 5", shortRole: "BM", names: ["Safiyyah"], isBridesmaid: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
-  { role: "Emcee", shortRole: "MC", names: ["Yusuf"], description: "Hosts the reception, makes announcements, and keeps the energy high." },
-  { role: "Dan & Nad", shortRole: "Couple", names: ["Dan", "Nad"], isAdmin: true, description: "The stars of the show!" }
+  { role: "Coordinator", shortRole: "Coord", names: ["Aisyah"], isAdmin: true, isActive: true, description: "Oversees the entire event, manages vendors, and ensures the timeline is followed." },
+  { role: "Floor manager", shortRole: "FM", names: ["Tariq"], isAdmin: true, isActive: true, description: "Assists the coordinator, manages the venue floor, and handles immediate logistical issues." },
+  { role: "Usher/ crowd control", shortRole: "Usher", names: ["Amir", "Zaid"], isActive: true, description: "Directs guests, manages seating, and ensures smooth crowd flow." },
+  { role: "Informer / runner", shortRole: "Runner", names: ["Bilal"], isActive: true, description: "Relays messages between teams and runs quick errands." },
+  { role: "Logistics 1", shortRole: "Log", names: ["Omar"], isActive: true, description: "Handles physical items, props, and equipment transport." },
+  { role: "Bridesmaid 1", shortRole: "BM", names: ["Fatimah"], isBridesmaid: true, isActive: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
+  { role: "Bridesmaid 2", shortRole: "BM", names: ["Khadijah"], isBridesmaid: true, isActive: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
+  { role: "Bridesmaid 3", shortRole: "BM", names: ["Zainab"], isBridesmaid: true, isActive: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
+  { role: "Bridesmaid 4", shortRole: "BM", names: ["Maryam"], isBridesmaid: true, isActive: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
+  { role: "Bridesmaid 5", shortRole: "BM", names: ["Safiyyah"], isBridesmaid: true, isActive: true, description: "Supports the bride, assists with tasks, and keeps the bridal party organized." },
+  { role: "Emcee", shortRole: "MC", names: ["Yusuf"], isActive: true, description: "Hosts the reception, makes announcements, and keeps the energy high." },
+  { role: "Dan & Nad", shortRole: "Couple", names: ["Dan", "Nad"], isAdmin: true, isActive: true, description: "The stars of the show!" }
 ];
 
 export interface TimelineEvent {
@@ -108,9 +109,11 @@ export interface RSVP {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   guests: number;
   status: 'Confirmed' | 'Declined' | 'Pending';
   dietaryRequirements?: string;
+  notes?: string;
   submittedAt: string;
 }
 
