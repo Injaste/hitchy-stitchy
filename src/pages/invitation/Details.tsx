@@ -5,6 +5,7 @@ import {
   Clock,
   MapPin,
   MapPinCheck,
+  Shirt,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,12 @@ const Details = () => {
       title: "Location",
       detail: "De Hall Pte Ltd",
       sub: "Tai Seng, Singapore",
+    },
+    {
+      icon: Shirt,
+      title: "Attire",
+      detail: "Formal/Semi-formal/Traditional",
+      sub: "Modest",
     },
   ];
 
@@ -135,7 +142,7 @@ const Details = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-40px" }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6 md:gap-12 mb-14 sm:mb-16"
+          className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-6 md:gap-12 mb-14 sm:mb-16"
         >
           {detailsList.map((item, idx) => (
             <motion.div
