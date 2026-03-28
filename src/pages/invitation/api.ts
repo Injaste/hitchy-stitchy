@@ -1,4 +1,4 @@
-import type { RSVPFormData } from "./queries";
+import type { RSVPFormData } from "./types";
 
 const STORAGE_KEY = "wedding_rsvp_data";
 
