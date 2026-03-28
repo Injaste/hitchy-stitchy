@@ -76,7 +76,7 @@ const FloatingIcons = () => {
           >
             <Sparkle
               style={{ width: icon.size, height: icon.size }}
-              className="stroke-pink-400 fill-pink-300"
+              className="stroke-primary fill-primary"
             />
           </div>
         ))}

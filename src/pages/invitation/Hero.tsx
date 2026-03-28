@@ -85,7 +85,6 @@ const Hero = () => {
 
           <motion.div
             variants={amp}
-            text-primary-foreground
             className="flex items-center justify-center gap-5 my-2 sm:my-4"
           >
             <div className="h-px flex-1 max-w-16 bg-primary/25" />
