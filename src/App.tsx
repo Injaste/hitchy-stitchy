@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import RSVPPage from "./pages/RSVPPage";
+import Invitation from "./pages/invitation";
 import AdminPage from "./pages/AdminPage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -8,13 +8,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public: RSVP / invitation */}
-        <Route path="/" element={<RSVPPage />} />
+        <Route path="/" element={<Invitation />} />
+        <Route path="/admin" element={<AdminPage />} />
 
-        {/* Admin: login gate */}
-        <Route path="/admin/login" element={<LoginPage />} />
-
-        {/* Admin: planning suite — auth protected */}
         <Route
           path="/admin"
           element={
@@ -24,7 +20,6 @@ export default function App() {
           }
         />
 
-        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
