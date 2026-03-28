@@ -1,9 +1,10 @@
-import { Radio } from "lucide-react";
+import { Bell, Radio } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
+import { useModalStore } from "@/pages/admin/store/useModalStore";
 
 const PAGE_LABELS: Record<string, string> = {
   day1: "Timeline — Day 1",
@@ -19,6 +20,7 @@ const PAGE_LABELS: Record<string, string> = {
 export function AdminTopbar() {
   const { activePage, setActivePage } = useAdminStore();
   const { activeCueEvent } = useCueStore();
+  const { openPingModal } = useModalStore();
   const label = PAGE_LABELS[activePage] ?? "Dashboard";
   const hasCue = !!activeCueEvent;
 
@@ -30,7 +32,16 @@ export function AdminTopbar() {
         <p className="text-sm font-medium text-foreground/80 font-serif truncate">{label}</p>
       </div>
 
-      {/* Right: Live button */}
+      {/* Right: Bell + Live button */}
+      <div className="flex items-center gap-2 shrink-0">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+        onClick={() => openPingModal()}
+      >
+        <Bell className="h-4 w-4" />
+      </Button>
       <Button
         variant="ghost"
         size="sm"
@@ -54,6 +65,7 @@ export function AdminTopbar() {
           </>
         )}
       </Button>
+      </div>
     </header>
   );
 }

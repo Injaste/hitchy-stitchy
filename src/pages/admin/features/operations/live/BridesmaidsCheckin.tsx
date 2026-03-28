@@ -1,12 +1,14 @@
-import { CheckCircle2 } from "lucide-react";
+import { Bell, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { useArrivalMutations } from "./queries";
 
 export function BridesmaidsCheckin() {
   const { teamRoles, arrivals, currentRole } = useAdminStore();
+  const { openPingModal } = useModalStore();
   const { arrive } = useArrivalMutations();
   const bridesmaids = teamRoles.filter((r) => r.isBridesmaid);
   const currentUser = teamRoles.find((r) => r.role === currentRole);
@@ -39,14 +41,24 @@ export function BridesmaidsCheckin() {
                   Arrived
                 </div>
               ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => arrive.mutate(b.role)}
-                  disabled={currentRole !== b.role && !isAdmin}
-                >
-                  Mark Arrived
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => openPingModal(b.role)}
+                  >
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => arrive.mutate(b.role)}
+                    disabled={currentRole !== b.role && !isAdmin}
+                  >
+                    Mark Arrived
+                  </Button>
+                </div>
               )}
             </div>
           );

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { StickyNote, Users } from "lucide-react";
+import { Bell, StickyNote, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ interface Props {
 
 export function TimelineEventCard({ event, day, index }: Props) {
   const { teamRoles, currentRole } = useAdminStore();
-  const { openEventModal, openConfirmStart } = useModalStore();
+  const { openEventModal, openConfirmStart, openPingModal } = useModalStore();
 
   const canStart = currentRole === "Coordinator" || currentRole === "Floor manager";
 
@@ -77,12 +77,18 @@ export function TimelineEventCard({ event, day, index }: Props) {
               <div className="flex flex-wrap items-center gap-1.5">
                 <Users className="h-3 w-3 text-muted-foreground" />
                 {event.assignees.map((role) => (
-                  <span
+                  <button
                     key={role}
-                    className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openPingModal(role);
+                    }}
+                    className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border hover:bg-muted/80 transition-colors"
                   >
                     {getAssigneeDisplay(role)}
-                  </span>
+                    <Bell className="w-3 h-3" />
+                  </button>
                 ))}
               </div>
               {event.startedAt && (

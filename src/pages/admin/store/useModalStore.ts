@@ -39,6 +39,10 @@ interface ModalState {
   isConfirmUpdateActiveEventModalOpen: boolean;
   pendingEventUpdate: TimelineEvent | null;
 
+  // Ping modal
+  isPingModalOpen: boolean;
+  pingTargetRole: string | null;
+
   // Actions
   openEventModal: (day: "day1" | "day2", event?: TimelineEvent) => void;
   closeEventModal: () => void;
@@ -67,6 +71,9 @@ interface ModalState {
 
   openConfirmUpdateActiveEvent: (event: TimelineEvent) => void;
   closeConfirmUpdateActiveEvent: () => void;
+
+  openPingModal: (role?: string) => void;
+  closePingModal: () => void;
 }
 
 export const useModalStore = create<ModalState>((set) => ({
@@ -97,6 +104,9 @@ export const useModalStore = create<ModalState>((set) => ({
 
   isConfirmUpdateActiveEventModalOpen: false,
   pendingEventUpdate: null,
+
+  isPingModalOpen: false,
+  pingTargetRole: null,
 
   openEventModal: (day, event) =>
     set({ isEventModalOpen: true, eventModalDay: day, editingEvent: event ?? null }),
@@ -142,4 +152,9 @@ export const useModalStore = create<ModalState>((set) => ({
     set({ isConfirmUpdateActiveEventModalOpen: true, pendingEventUpdate: event }),
   closeConfirmUpdateActiveEvent: () =>
     set({ isConfirmUpdateActiveEventModalOpen: false, pendingEventUpdate: null }),
+
+  openPingModal: (role) =>
+    set({ isPingModalOpen: true, pingTargetRole: role ?? null }),
+  closePingModal: () =>
+    set({ isPingModalOpen: false, pingTargetRole: null }),
 }));
