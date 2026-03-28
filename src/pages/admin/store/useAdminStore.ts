@@ -27,6 +27,7 @@ interface AdminState {
   rsvps: RSVP[];
   logs: LogEntry[];
   arrivals: Record<string, boolean>;
+  activePage: string;
 
   setTeamRoles: (roles: TeamMember[]) => void;
   setCurrentRole: (role: string) => void;
@@ -36,6 +37,7 @@ interface AdminState {
   setRsvps: (rsvps: RSVP[]) => void;
   setArrivals: (arrivals: Record<string, boolean>) => void;
   addLog: (role: string, msg: string) => void;
+  setActivePage: (page: string) => void;
 }
 
 const getInitialArrivals = () => {
@@ -55,6 +57,7 @@ export const useAdminStore = create<AdminState>((set) => ({
   rsvps: mockRSVPs,
   logs: [],
   arrivals: getInitialArrivals(),
+  activePage: "day1",
 
   setTeamRoles: (roles) => set({ teamRoles: roles }),
   setCurrentRole: (role) => set({ currentRole: role }),
@@ -63,6 +66,7 @@ export const useAdminStore = create<AdminState>((set) => ({
   setTasks: (tasks) => set({ tasks }),
   setRsvps: (rsvps) => set({ rsvps }),
   setArrivals: (arrivals) => set({ arrivals }),
+  setActivePage: (page) => set({ activePage: page }),
   addLog: (role, msg) =>
     set((state) => ({
       logs: [

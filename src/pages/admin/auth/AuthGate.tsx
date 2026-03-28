@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/Component-fade";
+import { ComponentFade } from "@/components/animations/component-fade";
 
 import { useAuthGate } from "./hook";
 

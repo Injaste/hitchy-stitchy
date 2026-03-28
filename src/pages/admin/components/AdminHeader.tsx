@@ -1,69 +1,71 @@
-import { CalendarHeart, LogOut } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { CalendarHeart, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useLogoutMutation } from "@/pages/admin/auth/queries";
+import { ActiveCueBanner } from "./ActiveCueBanner";
 
-export function AdminHeader() {
-  const navigate = useNavigate();
-  const { slug } = useParams<{ slug: string }>();
-  const { teamRoles, currentRole, setCurrentRole } = useAdminStore();
+const SECTION_LABELS: Record<string, string> = {
+  timeline: "Timeline",
+  ops: "Operations",
+  admin: "Admin Panel",
+};
 
-  // logoutUser() dispatches auth:change → AuthGate swaps to <Login>.
-  // onSuccess navigates to the invitation page so the URL also resets.
-  const { mutate: doLogout, isPending: loggingOut } = useLogoutMutation({});
+interface AdminHeaderProps {
+  /** Currently active top-level category — drives the desktop section title */
+  activeCategory: string;
+  /** Opens the mobile sidebar Sheet */
+  onMobileMenuOpen: () => void;
+}
 
-  const getAssigneeDisplay = (roleName: string) => {
-    const role = teamRoles.find((r) => r.role === roleName);
-    if (role) return `${role.shortRole} – ${role.names.join(" & ")}`;
-    return roleName;
-  };
+/**
+ * Slim topbar.
+ *
+ * Desktop (md+):
+ *   - ActiveCueBanner (animates in/out)
+ *   - Section title only — role selector + logout live in the sidebar
+ *
+ * Mobile (<md):
+ *   - ActiveCueBanner
+ *   - Logo on the left, hamburger on the right to open the sidebar Sheet
+ */
+export function AdminHeader({ activeCategory, onMobileMenuOpen }: AdminHeaderProps) {
+  const sectionLabel = SECTION_LABELS[activeCategory] ?? "Dashboard";
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-2 md:py-3 flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2">
-        <CalendarHeart className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-        <div className="flex flex-col">
-          <h1 className="text-lg md:text-xl font-serif font-bold text-primary tracking-tight leading-none">
-            Dan & Nad
-          </h1>
-          <p className="text-muted-foreground font-medium tracking-wide uppercase text-[8px] md:text-[10px] mt-0.5">
-            Wedding Planning
-          </p>
+    <div>
+      {/* Cue banner sits above the topbar row — animates in/out via its own AnimatePresence */}
+      <ActiveCueBanner />
+
+      <div className="px-4 py-3 flex items-center justify-between min-h-[52px]">
+        {/* ── Desktop: section title ── */}
+        <p className="hidden md:block text-sm font-medium text-foreground/80 font-serif tracking-wide">
+          {sectionLabel}
+        </p>
+
+        {/* ── Mobile: brand mark ── */}
+        <div className="flex items-center gap-2 md:hidden">
+          <CalendarHeart className="h-5 w-5 text-primary" />
+          <div>
+            <h1 className="text-base font-serif font-bold text-primary leading-none">
+              Dan &amp; Nad
+            </h1>
+            <p className="text-[8px] uppercase tracking-widest text-muted-foreground">
+              Wedding Planning
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <Select value={currentRole} onValueChange={setCurrentRole}>
-          <SelectTrigger size="sm" className="text-xs min-w-[120px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {teamRoles.map((r) => (
-              <SelectItem key={r.role} value={r.role}>
-                {getAssigneeDisplay(r.role)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
+        {/* ── Mobile: hamburger ── */}
         <Button
           variant="ghost"
           size="icon-sm"
-          onClick={() => doLogout()}
-          disabled={loggingOut}
-          title="Logout"
-          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          className="md:hidden"
+          onClick={onMobileMenuOpen}
+          aria-label="Open navigation menu"
         >
-          <LogOut className="h-4 w-4" />
+          <Menu className="h-5 w-5" />
         </Button>
+
+        {/* Desktop right side intentionally empty — sidebar owns role + logout */}
+        <div className="hidden md:block" />
       </div>
     </div>
   );
