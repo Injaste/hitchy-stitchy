@@ -1,8 +1,7 @@
-import { mockRSVPs } from "@/lib/data";
 import type { RSVP } from "./types";
 
 export async function getRSVPs(): Promise<RSVP[]> {
-  return mockRSVPs;
+  return [];
 }
 
 export async function updateRSVPStatus(

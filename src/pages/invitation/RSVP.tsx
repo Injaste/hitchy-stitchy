@@ -6,14 +6,11 @@ import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useRSVP } from "./queries";
-import type { RSVPFormData } from "./types";
+import { useGuestRSVP, useRSVPMutations } from "./queries";
+import type { RSVPFormData, PublicEventConfig } from "./types";
 import RSVPForm from "./form/RSVPForm";
 import Footer from "./form/Footer";
 import RSVPDelete from "./form/RSVPDelete";
-
-const BLANK: RSVPFormData = { name: "", phoneNumber: "", guestsCount: 1 };
 
 const fadeUp = (delay: number, y = 20, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },
@@ -61,10 +58,9 @@ const useContentHeight = () => {
   return { ref, height };
 };
 
-const RSVP = () => {
-  const { eventConfig } = useAdminStore();
-  const { isQuerying, rsvp, isDeleting, deleteRSVP, isSubmitting, submitRSVP } =
-    useRSVP();
+const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
+  const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.id);
+  const { submit, remove } = useRSVPMutations(eventConfig.id);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -79,18 +75,25 @@ const RSVP = () => {
     isAfter(startOfDay(new Date()), startOfDay(eventConfig.rsvpDeadline));
 
   const handleSubmit = async (value: RSVPFormData) => {
-    await submitRSVP(value);
+    await submit.mutate({
+      name: value.name,
+      phone: value.phone ?? "",
+      guestsCount: value.guestsCount ?? 1,
+      dietaryNotes: value.dietaryNotes,
+      message: value.message,
+      cancelToken: "",
+    });
     setIsEditing(false);
     fireConfetti();
   };
 
   const handleDeleteConfirm = async () => {
     setShowDeleteDialog(false);
-    await deleteRSVP();
+    await remove.mutate({ id: existingRSVP!.id });
     setIsEditing(false);
   };
 
-  if (isQuerying) {
+  if (isLoading) {
     return (
       <div className="py-32 text-center text-primary font-bold italic font-serif">
         Checking RSVP status…
@@ -154,7 +157,8 @@ const RSVP = () => {
                   className="text-center py-8"
                 >
                   <p className="text-foreground/70 italic text-sm sm:text-base font-serif leading-relaxed">
-                    RSVPs are by invitation only. Contact the couple directly.
+                    RSVPs are by invitation only.{" "}
+                    Please contact us directly to confirm your attendance.
                   </p>
                 </motion.div>
               ) : isDeadlinePassed ? (
@@ -165,12 +169,13 @@ const RSVP = () => {
                   className="text-center py-8"
                 >
                   <p className="text-foreground/70 italic text-sm sm:text-base font-serif leading-relaxed">
-                    RSVP submissions are now closed.
+                    RSVP submissions are now closed.{" "}
+                    Thank you to everyone who responded.
                   </p>
                 </motion.div>
               ) : (
                 <AnimatePresence mode="wait">
-                  {rsvp && !isEditing ? (
+                  {existingRSVP && !isEditing ? (
                     <motion.div
                       key="success"
                       initial={{ opacity: 0, scale: 0.95 }}
@@ -197,14 +202,7 @@ const RSVP = () => {
                         Alhamdulillah!
                       </h3>
                       <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base font-serif">
-                        Jazak Allah Khair{" "}
-                        <b className="text-foreground">{rsvp.name}!</b> We have
-                        you down for{" "}
-                        <b className="text-foreground">
-                          {rsvp.guestsCount}{" "}
-                          {rsvp.guestsCount === 1 ? "guest" : "guests"}
-                        </b>
-                        .
+                        {rsvpConfig.confirmationMessage}
                       </p>
                       <div className="flex gap-3 justify-center">
                         <motion.div
@@ -227,12 +225,12 @@ const RSVP = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            disabled={isDeleting}
+                            disabled={remove.isPending}
                             onClick={() => setShowDeleteDialog(true)}
                             className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
                           >
                             <Trash2 size={14} className="text-primary" />
-                            {isDeleting ? "Removing…" : "Delete"}
+                            {remove.isPending ? "Removing…" : "Delete"}
                           </Button>
                         </motion.div>
                       </div>
@@ -247,7 +245,17 @@ const RSVP = () => {
                     >
                       <RSVPForm
                         key={isEditing ? "edit" : "new"}
-                        defaultValues={isEditing && rsvp ? rsvp : BLANK}
+                        defaultValues={
+                          isEditing && existingRSVP
+                            ? {
+                                name: existingRSVP.name,
+                                phone: existingRSVP.phone,
+                                guestsCount: existingRSVP.guestsCount,
+                                dietaryNotes: existingRSVP.dietaryNotes,
+                                message: existingRSVP.message,
+                              }
+                            : undefined
+                        }
                         onSubmit={handleSubmit}
                         onCancel={
                           isEditing ? () => setIsEditing(false) : undefined

@@ -1,6 +1,6 @@
 import { motion, type Variants } from "framer-motion";
 import CountdownTimer from "./hero/CountdownTimer";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import type { PublicEventConfig } from "./types";
 
 // Timing constants — easy to tune
 const T = {
@@ -46,9 +46,8 @@ const countdown: Variants = make(T.countdown, 20, 0.8);
 const verse: Variants = make(T.verse, 16, 0.8);
 const cta: Variants = make(T.cta, 12, 0.7);
 
-const Hero = () => {
-  const { eventConfig } = useAdminStore();
-  const weddingDate = eventConfig.days[0]?.date ?? new Date("2026-07-04T10:00:00");
+const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
+  const weddingDate = new Date(eventConfig.dateStart);
 
   return (
     <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10 backdrop-blur-sm">
@@ -82,7 +81,7 @@ const Hero = () => {
             variants={name1}
             className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            Izhan Danish
+            {eventConfig.groomName}
           </motion.h1>
 
           <motion.div
@@ -100,7 +99,7 @@ const Hero = () => {
             variants={name2}
             className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            Sharifah Nadhirah
+            {eventConfig.brideName}
           </motion.h1>
         </div>
 

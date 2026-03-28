@@ -1,36 +1,59 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "react-router-dom"
+import { useQuery } from "@/lib/query/useQuery"
+import { useMutation } from "@/lib/query/useMutation"
+import { fetchPublicEvent, fetchRSVP, submitRSVP, updateRSVP, deleteRSVP } from "./api"
+import type { NewRSVPSubmission } from "./types"
 
-import { fetchMockRsvp, submitMockRsvp, deleteMockRsvp } from "./api";
+const PHONE_KEY = "rsvp_phone"
+const TOKEN_KEY = "rsvp_cancel_token"
 
-export const useRSVP = () => {
-  const queryClient = useQueryClient();
+export function usePublicEvent() {
+  const { slug } = useParams<{ slug: string }>()
+  return useQuery(
+    () => fetchPublicEvent(slug!),
+    { key: `public:${slug}:event`, enabled: !!slug }
+  )
+}
 
-  const rsvpQuery = useQuery({
-    queryKey: ["rsvp"],
-    queryFn: fetchMockRsvp,
-    staleTime: Infinity,
-  });
+export function useGuestRSVP(eventId: string | null) {
+  const phone = localStorage.getItem(PHONE_KEY)
+  return useQuery(
+    () => fetchRSVP(eventId!, phone!),
+    { key: `public:${eventId}:rsvp:${phone}`, enabled: !!eventId && !!phone }
+  )
+}
 
-  const submitMutation = useMutation({
-    mutationFn: submitMockRsvp,
-    onSuccess: (data) => {
-      queryClient.setQueryData(["rsvp"], data);
+export function useRSVPMutations(eventId: string | null) {
+  const submit = useMutation(
+    (submission: NewRSVPSubmission) => submitRSVP(eventId!, submission),
+    {
+      silent: true,
+      onSuccess: (result) => {
+        localStorage.setItem(PHONE_KEY, result.phone)
+        localStorage.setItem(TOKEN_KEY, result.cancelToken)
+      },
+    }
+  )
+
+  const update = useMutation(
+    ({ id, patch }: { id: string; patch: Partial<NewRSVPSubmission> }) =>
+      updateRSVP(id, patch),
+    { silent: true }
+  )
+
+  const remove = useMutation(
+    ({ id }: { id: string }) => {
+      const cancelToken = localStorage.getItem(TOKEN_KEY) ?? ""
+      return deleteRSVP(id, cancelToken)
     },
-  });
+    {
+      silent: true,
+      onSuccess: () => {
+        localStorage.removeItem(PHONE_KEY)
+        localStorage.removeItem(TOKEN_KEY)
+      },
+    }
+  )
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteMockRsvp,
-    onSuccess: () => {
-      queryClient.setQueryData(["rsvp"], null);
-    },
-  });
-
-  return {
-    rsvp: rsvpQuery.data,
-    isQuerying: rsvpQuery.isLoading,
-    isSubmitting: submitMutation.isPending,
-    isDeleting: deleteMutation.isPending,
-    submitRSVP: submitMutation.mutateAsync,
-    deleteRSVP: deleteMutation.mutateAsync,
-  };
-};
+  return { submit, update, remove }
+}
