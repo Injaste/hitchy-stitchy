@@ -1,6 +1,7 @@
 import { login, logout } from "@/lib/auth";
-import { dispatchAuthChange } from "./gate/events";
+import { dispatchAuthChange } from "./events";
 import type { LoginCredentials } from "./types";
+import { delay } from "@/lib/utils";
 
 /**
  * Attempts to authenticate with the provided password.
@@ -22,6 +23,7 @@ export async function loginUser({ password }: LoginCredentials): Promise<void> {
  * so AuthGate switches back to <Login /> without any navigation.
  */
 export async function logoutUser(): Promise<void> {
+  await delay(500);
   logout();
   dispatchAuthChange("logout");
 }

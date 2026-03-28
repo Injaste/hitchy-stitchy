@@ -11,8 +11,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  // No navigate needed — AuthGate listens for the auth:change event
-  // dispatched by loginUser() and swaps to <AdminPage> automatically.
   const { mutate: login, isPending } = useLoginMutation({
     onError: (err) => {
       setError(err.message);
@@ -28,18 +26,15 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <motion.div
-        initial="hidden"
-        animate="show"
-        variants={fadeUp(0)}
-        className="w-full max-w-sm"
-      >
+      <div className="w-full max-w-sm">
         {/* Logo */}
         <motion.div variants={scaleIn(0.1)} className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
             <CalendarHeart className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-serif font-bold text-primary">Dan & Nad</h1>
+          <h1 className="text-2xl font-serif font-bold text-primary">
+            Dan & Nad
+          </h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             Wedding Admin
           </p>
@@ -77,7 +72,11 @@ export default function Login() {
                 onClick={() => setShowPassword((p) => !p)}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </Button>
             </div>
 
@@ -106,7 +105,7 @@ export default function Login() {
             ← Back to invitation
           </a>
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

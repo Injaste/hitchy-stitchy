@@ -18,9 +18,7 @@ export function AdminHeader() {
 
   // logoutUser() dispatches auth:change → AuthGate swaps to <Login>.
   // onSuccess navigates to the invitation page so the URL also resets.
-  const { mutate: doLogout, isPending: loggingOut } = useLogoutMutation({
-    onSuccess: () => navigate(`/${slug}/admin`),
-  });
+  const { mutate: doLogout, isPending: loggingOut } = useLogoutMutation({});
 
   const getAssigneeDisplay = (roleName: string) => {
     const role = teamRoles.find((r) => r.role === roleName);
