@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Flag, StickyNote, User } from "lucide-react";
+import { Bell, Calendar, Flag, StickyNote, User } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ const priorityVariant: Record<
 
 export function ChecklistItem({ task, index, onToggle }: Props) {
   const { teamRoles } = useAdminStore();
-  const { openTaskModal } = useModalStore();
+  const { openTaskModal, openPingModal } = useModalStore();
 
   const getAssigneeDisplay = (roleName: string) => {
     if (roleName === "All") return "All";
@@ -75,13 +75,19 @@ export function ChecklistItem({ task, index, onToggle }: Props) {
           </div>
           <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             {task.assignees.map((role) => (
-              <div
+              <button
                 key={role}
-                className="flex items-center gap-1 bg-muted text-muted-foreground px-2 py-0.5 rounded-md border border-border text-[10px] md:text-xs font-medium"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openPingModal(role);
+                }}
+                className="flex items-center gap-1 bg-muted text-muted-foreground px-2 py-0.5 rounded-md border border-border text-[10px] md:text-xs font-medium hover:bg-muted/80 transition-colors"
               >
                 <User className="h-3 w-3" />
                 {getAssigneeDisplay(role)}
-              </div>
+                <Bell className="w-3 h-3" />
+              </button>
             ))}
             {task.dueDate && (
               <div className="flex items-center gap-1 bg-primary/5 text-primary px-2 py-0.5 rounded-md border border-primary/10 text-[10px] md:text-xs font-medium">

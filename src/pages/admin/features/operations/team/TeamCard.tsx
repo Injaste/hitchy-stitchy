@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
+import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { scaleIn } from "@/pages/admin/animations";
@@ -14,7 +16,7 @@ interface Props {
 
 export function TeamCard({ member, index }: Props) {
   const { currentRole, teamRoles } = useAdminStore();
-  const { openEditRoleModal } = useModalStore();
+  const { openEditRoleModal, openPingModal } = useModalStore();
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const isAdmin = currentUser?.isAdmin;
 
@@ -47,11 +49,24 @@ export function TeamCard({ member, index }: Props) {
                 <span className="text-xs text-muted-foreground">{member.names.join(" & ")}</span>
               </div>
             </div>
-            {member.isAdmin && (
-              <Badge variant="default" className="text-[10px]">
-                Admin
-              </Badge>
-            )}
+            <div className="flex items-center gap-1.5">
+              {member.isAdmin && (
+                <Badge variant="default" className="text-[10px]">
+                  Admin
+                </Badge>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openPingModal(member.role);
+                }}
+              >
+                <Bell className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
           {member.description && (
             <p className="text-xs text-muted-foreground leading-relaxed border-t border-border pt-2 mt-1">
