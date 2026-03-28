@@ -10,7 +10,7 @@ import type { TimelineEvent } from "./types";
 
 interface Props {
   event: TimelineEvent;
-  day: "day1" | "day2";
+  day: string;
   index: number;
 }
 

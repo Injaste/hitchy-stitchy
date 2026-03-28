@@ -5,7 +5,7 @@ import type { TimelineEvent } from "./types";
 
 interface Props {
   events: TimelineEvent[];
-  day: "day1" | "day2";
+  day: string;
 }
 
 function groupEventsByTime(events: TimelineEvent[]) {

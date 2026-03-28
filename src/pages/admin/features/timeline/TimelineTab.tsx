@@ -1,51 +1,17 @@
+import { format } from "date-fns";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { TimelineList } from "./TimelineList";
 
-// ─── Day config ───────────────────────────────────────────────────────────────
-
-const DAYS = [
-  {
-    id: "day1",
-    date: "4th July",
-    dayName: "Saturday",
-    label: "Day 1",
-    title: "The Ceremony",
-    plan: "7:00 AM – 7:00 PM",
-    main: "10:00 AM – 4:00 PM",
-  },
-  {
-    id: "day2",
-    date: "5th July",
-    dayName: "Sunday",
-    label: "Day 2",
-    title: "The Reception",
-    plan: "10:00 AM – 10:00 PM",
-    main: "2:00 PM – 7:00 PM",
-  },
-] as const;
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * TimelineTab reads activePage / setActivePage directly from the store.
- * No props needed — removing props prevents the parent AnimatePresence
- * from re-animating this component when switching between day1 ↔ day2.
- *
- * Structure:
- *   [Tab bar]  — static, never re-animates (outside AnimatePresence)
- *   [Content]  — only the list + heading animates on day change
- */
 export function TimelineTab() {
-  const { activePage, setActivePage, day1Events, day2Events } = useAdminStore();
+  const { activePage, setActivePage, eventConfig, events } = useAdminStore();
 
-  const activeDay = DAYS.find((d) => d.id === activePage) ?? DAYS[0];
-  const activeEvents = activePage === "day2" ? day2Events : day1Events;
+  const days = eventConfig.days;
+  const activeDay = days.find((d) => d.id === activePage) ?? days[0];
+  const activeEvents = events[activeDay?.id ?? "day-1"] ?? [];
 
-  // Embla makes the tab bar draggable/swipeable when there are many days.
-  // For 2 days it simply renders them statically — no visible difference.
   const [emblaRef] = useEmblaCarousel({ dragFree: true, containScroll: "keepSnaps" });
 
   return (
@@ -56,7 +22,7 @@ export function TimelineTab() {
         className="overflow-hidden mb-6 md:mb-8 border-b border-border"
       >
         <div className="flex">
-          {DAYS.map((day) => {
+          {days.map((day, index) => {
             const active = activePage === day.id;
             return (
               <button
@@ -77,13 +43,15 @@ export function TimelineTab() {
                     active ? "text-primary" : "text-muted-foreground"
                   )}
                 >
-                  {day.date}
+                  {format(day.date, "do MMM")}
                 </span>
                 {/* Line 2 — day name */}
-                <span className="text-xs text-muted-foreground">{day.dayName}</span>
+                <span className="text-xs text-muted-foreground">
+                  {format(day.date, "EEEE")}
+                </span>
                 {/* Line 3 — label */}
                 <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                  {day.label}
+                  Day {index + 1}
                 </span>
               </button>
             );
@@ -100,20 +68,21 @@ export function TimelineTab() {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Day heading */}
-          <div className="mb-6">
-            <h2 className="text-xl md:text-2xl font-serif font-semibold text-primary mb-1 md:mb-2">
-              {activeDay.label}: {activeDay.title}
-            </h2>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Plan: {activeDay.plan} | Main Event: {activeDay.main}
-            </p>
-          </div>
+          {activeDay && (
+            <>
+              {/* Day heading */}
+              <div className="mb-6">
+                <h2 className="text-xl md:text-2xl font-serif font-semibold text-primary mb-1 md:mb-2">
+                  {activeDay.label}
+                </h2>
+                <p className="text-sm md:text-base text-muted-foreground">
+                  {activeDay.venue} · {format(activeDay.date, "EEEE, do MMMM yyyy")}
+                </p>
+              </div>
 
-          <TimelineList
-            events={activeEvents}
-            day={activePage as "day1" | "day2"}
-          />
+              <TimelineList events={activeEvents} day={activeDay.id} />
+            </>
+          )}
         </motion.div>
       </AnimatePresence>
     </div>

@@ -1,40 +1,50 @@
-export interface EventSettings {
-  eventName: string;
-  numberOfDays: 1 | 2;
-  day1Date: string;
-  day2Date: string;
-  day1Venue: string;
-  day2Venue: string;
-  rsvpDeadlineEnabled: boolean;
-  rsvpDeadline: string;
+export interface EventDay {
+  id: string       // "day-1", "day-2", etc — stable routing key
+  date: Date
+  label: string    // user-editable e.g. "The Ceremony"
+  venue: string    // user-editable
 }
 
 export interface RSVPFieldConfig {
-  id: string;
-  label: string;
-  visible: boolean;
-  required: boolean;
+  visible: boolean
+  required: boolean
 }
 
-export type RSVPMode = "open" | "pool" | "pool-open";
-
 export interface RSVPFormConfig {
-  mode: RSVPMode;
-  fields: RSVPFieldConfig[];
-  confirmationMessage: string;
-  minGuests: number;
-  maxGuests: number;
+  fields: {
+    name: RSVPFieldConfig
+    phone: RSVPFieldConfig
+    guestsCount: RSVPFieldConfig
+    dietaryNotes: RSVPFieldConfig
+    mealChoice: RSVPFieldConfig
+    message: RSVPFieldConfig
+  }
+  mode: "open" | "pool" | "pool-open"
+  guestMin: number
+  guestMax: number
+  confirmationMessage: string
+}
+
+export interface EventConfig {
+  name: string
+  dateRange: { from: Date; to: Date }
+  days: EventDay[]          // derived — one per calendar day in range
+  rsvpDeadlineEnabled: boolean
+  rsvpDeadline: Date | null
+  rsvpForm: RSVPFormConfig
+}
+
+export type NotificationPrefs = {
+  eventStarted: boolean
+  taskAssigned: boolean
+  pinged: boolean
+  upcomingEvent: boolean
+  bridesmaidsCheckin: boolean
 }
 
 export interface GuestEntry {
-  id: string;
-  name: string;
-  phone?: string;
-  status: "claimed" | "unclaimed";
-}
-
-export interface SettingsData {
-  event: EventSettings;
-  rsvpForm: RSVPFormConfig;
-  guestPool: GuestEntry[];
+  id: string
+  name: string
+  phone?: string
+  status: "claimed" | "unclaimed"
 }

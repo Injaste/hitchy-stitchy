@@ -1,7 +1,7 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { StickyNote, Users } from "lucide-react";
+import { StickyNote } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
@@ -11,10 +11,6 @@ import { useEventMutations } from "@/pages/admin/features/timeline/queries";
 export function ConfirmModals() {
   const {
     teamRoles,
-    day1Events,
-    day2Events,
-    setDay1Events,
-    setDay2Events,
     tasks,
     setTasks,
     currentRole,
@@ -47,14 +43,18 @@ export function ConfirmModals() {
     const { event, day } = eventToStart;
     const timeNow = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const updatedEvent = { ...event, startedAt: timeNow };
-    const clearStarted = (evs: typeof day1Events) => evs.map((ev) => ({ ...ev, startedAt: undefined }));
-    if (day === "day1") {
-      setDay1Events(clearStarted(day1Events).map((ev) => (ev.id === event.id ? updatedEvent : ev)));
-      setDay2Events(clearStarted(day2Events));
-    } else {
-      setDay1Events(clearStarted(day1Events));
-      setDay2Events(clearStarted(day2Events).map((ev) => (ev.id === event.id ? updatedEvent : ev)));
+
+    const { events, setEventsForDay, eventConfig } = useAdminStore.getState();
+    for (const d of eventConfig.days) {
+      const dayEvs = events[d.id] ?? [];
+      const cleared = dayEvs.map((ev) => ({ ...ev, startedAt: undefined }));
+      if (d.id === day) {
+        setEventsForDay(d.id, cleared.map((ev) => (ev.id === event.id ? updatedEvent : ev)));
+      } else {
+        setEventsForDay(d.id, cleared);
+      }
     }
+
     setActiveCueEvent(updatedEvent);
     addLog(currentRole, `Started event: ${event.title}`);
     toast.success(`Event Started: ${event.title}`);
@@ -78,15 +78,14 @@ export function ConfirmModals() {
   const confirmDeleteEvent = () => {
     if (!eventToDelete) return;
     const { id, day } = eventToDelete;
-    if (day === "day1") {
-      const evt = day1Events.find((e) => e.id === id);
-      if (evt) { addLog(currentRole, `Deleted event: ${evt.title}`); toast(`Deleted event: ${evt.title}`, { icon: "🗑️" }); }
-      setDay1Events(day1Events.filter((e) => e.id !== id));
-    } else {
-      const evt = day2Events.find((e) => e.id === id);
-      if (evt) { addLog(currentRole, `Deleted event: ${evt.title}`); toast(`Deleted event: ${evt.title}`, { icon: "🗑️" }); }
-      setDay2Events(day2Events.filter((e) => e.id !== id));
+    const { events, setEventsForDay } = useAdminStore.getState();
+    const dayEvs = events[day] ?? [];
+    const evt = dayEvs.find((e) => e.id === id);
+    if (evt) {
+      addLog(currentRole, `Deleted event: ${evt.title}`);
+      toast(`Deleted event: ${evt.title}`, { icon: "🗑️" });
     }
+    setEventsForDay(day, dayEvs.filter((e) => e.id !== id));
     closeConfirmDeleteEvent();
   };
 

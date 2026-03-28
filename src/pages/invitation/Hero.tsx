@@ -1,5 +1,6 @@
 import { motion, type Variants } from "framer-motion";
 import CountdownTimer from "./hero/CountdownTimer";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 // Timing constants — easy to tune
 const T = {
@@ -46,7 +47,8 @@ const verse: Variants = make(T.verse, 16, 0.8);
 const cta: Variants = make(T.cta, 12, 0.7);
 
 const Hero = () => {
-  const weddingDate = new Date("2026-07-04T10:00:00");
+  const { eventConfig } = useAdminStore();
+  const weddingDate = eventConfig.days[0]?.date ?? new Date("2026-07-04T10:00:00");
 
   return (
     <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10 backdrop-blur-sm">

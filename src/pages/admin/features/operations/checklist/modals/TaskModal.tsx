@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { useTaskMutations } from "../queries";
 import type { ChecklistItem } from "../types";
-import { useState } from "react";
 
 export function TaskModal() {
   const { teamRoles, currentRole, addLog } = useAdminStore();
@@ -33,6 +37,11 @@ export function TaskModal() {
   const [day, setDay] = useState<ChecklistItem["day"]>(
     editingTask?.day ?? "Pre-wedding"
   );
+  const [dueDate, setDueDate] = useState<Date | undefined>(() => {
+    if (!editingTask?.dueDate) return undefined;
+    const d = new Date(editingTask.dueDate);
+    return isNaN(d.getTime()) ? undefined : d;
+  });
 
   const getAssigneeDisplay = (roleName: string) => {
     if (roleName === "All") return "All";
@@ -54,7 +63,7 @@ export function TaskModal() {
       completed: editingTask?.completed || false,
       priority,
       day,
-      dueDate: formData.get("dueDate") as string,
+      dueDate: dueDate ? dueDate.toISOString().split("T")[0] : "",
       notes: formData.get("notes") as string,
     };
 
@@ -116,11 +125,23 @@ export function TaskModal() {
 
           <div className="space-y-1.5">
             <Label>Due Date (Optional)</Label>
-            <Input
-              name="dueDate"
-              defaultValue={editingTask?.dueDate}
-              placeholder="e.g. Oct 10"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2 font-normal">
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className={dueDate ? "" : "text-muted-foreground"}>
+                    {dueDate ? format(dueDate, "do MMM yyyy") : "Pick a date"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dueDate}
+                  onSelect={setDueDate}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

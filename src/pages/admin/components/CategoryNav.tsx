@@ -21,7 +21,7 @@ export function CategoryNav({ activeCategory, onCategoryChange }: Props) {
       id: "timeline",
       label: "Timeline",
       icon: Calendar,
-      defaultTab: "day1",
+      defaultTab: "day-1",
     },
     {
       id: "ops",

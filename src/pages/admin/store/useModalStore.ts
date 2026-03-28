@@ -5,7 +5,7 @@ interface ModalState {
   // Event modal
   isEventModalOpen: boolean;
   editingEvent: TimelineEvent | null;
-  eventModalDay: "day1" | "day2";
+  eventModalDay: string;
 
   // Task modal
   isTaskModalOpen: boolean;
@@ -21,7 +21,7 @@ interface ModalState {
 
   // Confirm: start event
   isConfirmStartModalOpen: boolean;
-  eventToStart: { event: TimelineEvent; day: "day1" | "day2" } | null;
+  eventToStart: { event: TimelineEvent; day: string } | null;
 
   // Confirm: delete task
   isConfirmDeleteTaskModalOpen: boolean;
@@ -29,7 +29,7 @@ interface ModalState {
 
   // Confirm: delete event
   isConfirmDeleteEventModalOpen: boolean;
-  eventToDelete: { id: string; day: "day1" | "day2" } | null;
+  eventToDelete: { id: string; day: string } | null;
 
   // Confirm: delete role
   isConfirmDeleteRoleModalOpen: boolean;
@@ -44,7 +44,7 @@ interface ModalState {
   pingTargetRole: string | null;
 
   // Actions
-  openEventModal: (day: "day1" | "day2", event?: TimelineEvent) => void;
+  openEventModal: (day: string, event?: TimelineEvent) => void;
   closeEventModal: () => void;
 
   openTaskModal: (task?: ChecklistItem) => void;
@@ -57,13 +57,13 @@ interface ModalState {
   openActiveCueModal: () => void;
   closeActiveCueModal: () => void;
 
-  openConfirmStart: (event: TimelineEvent, day: "day1" | "day2") => void;
+  openConfirmStart: (event: TimelineEvent, day: string) => void;
   closeConfirmStart: () => void;
 
   openConfirmDeleteTask: (id: string) => void;
   closeConfirmDeleteTask: () => void;
 
-  openConfirmDeleteEvent: (id: string, day: "day1" | "day2") => void;
+  openConfirmDeleteEvent: (id: string, day: string) => void;
   closeConfirmDeleteEvent: () => void;
 
   openConfirmDeleteRole: (role: TeamMember) => void;
@@ -79,7 +79,7 @@ interface ModalState {
 export const useModalStore = create<ModalState>((set) => ({
   isEventModalOpen: false,
   editingEvent: null,
-  eventModalDay: "day1",
+  eventModalDay: "day-1",
 
   isTaskModalOpen: false,
   editingTask: null,

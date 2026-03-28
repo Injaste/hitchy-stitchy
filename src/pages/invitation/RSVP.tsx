@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { isAfter, startOfDay } from "date-fns";
 import confetti from "canvas-confetti";
 import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useRSVP } from "./queries";
 import type { RSVPFormData } from "./types";
 import RSVPForm from "./form/RSVPForm";
@@ -60,12 +62,21 @@ const useContentHeight = () => {
 };
 
 const RSVP = () => {
+  const { eventConfig } = useAdminStore();
   const { isQuerying, rsvp, isDeleting, deleteRSVP, isSubmitting, submitRSVP } =
     useRSVP();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { ref: bodyRef, height: bodyHeight } = useContentHeight();
+
+  const rsvpConfig = eventConfig.rsvpForm;
+
+  // Check if RSVP is closed (past deadline)
+  const isDeadlinePassed =
+    eventConfig.rsvpDeadlineEnabled &&
+    eventConfig.rsvpDeadline !== null &&
+    isAfter(startOfDay(new Date()), startOfDay(eventConfig.rsvpDeadline));
 
   const handleSubmit = async (value: RSVPFormData) => {
     await submitRSVP(value);
@@ -134,94 +145,120 @@ const RSVP = () => {
           >
             {/* Inner div measured by ResizeObserver */}
             <div ref={bodyRef}>
-              <AnimatePresence mode="wait">
-                {rsvp && !isEditing ? (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.25 }}
-                    className="text-center py-4 sm:py-6"
-                  >
+              {/* Pool-only closed state */}
+              {rsvpConfig.mode === "pool" ? (
+                <motion.div
+                  key="pool-closed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-8"
+                >
+                  <p className="text-foreground/70 italic text-sm sm:text-base font-serif leading-relaxed">
+                    RSVPs are by invitation only. Contact the couple directly.
+                  </p>
+                </motion.div>
+              ) : isDeadlinePassed ? (
+                <motion.div
+                  key="deadline-closed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-8"
+                >
+                  <p className="text-foreground/70 italic text-sm sm:text-base font-serif leading-relaxed">
+                    RSVP submissions are now closed.
+                  </p>
+                </motion.div>
+              ) : (
+                <AnimatePresence mode="wait">
+                  {rsvp && !isEditing ? (
                     <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 20,
-                      }}
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25 }}
+                      className="text-center py-4 sm:py-6"
                     >
-                      <CheckCircle2
-                        className="text-green-400 mx-auto mb-4 sm:mb-6"
-                        size={64}
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 20,
+                        }}
+                      >
+                        <CheckCircle2
+                          className="text-green-400 mx-auto mb-4 sm:mb-6"
+                          size={64}
+                        />
+                      </motion.div>
+                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-foreground font-serif">
+                        Alhamdulillah!
+                      </h3>
+                      <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base font-serif">
+                        Jazak Allah Khair{" "}
+                        <b className="text-foreground">{rsvp.name}!</b> We have
+                        you down for{" "}
+                        <b className="text-foreground">
+                          {rsvp.guestsCount}{" "}
+                          {rsvp.guestsCount === 1 ? "guest" : "guests"}
+                        </b>
+                        .
+                      </p>
+                      <div className="flex gap-3 justify-center">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsEditing(true)}
+                            className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                          >
+                            <Edit2 size={14} className="text-primary" /> Edit
+                          </Button>
+                        </motion.div>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isDeleting}
+                            onClick={() => setShowDeleteDialog(true)}
+                            className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                          >
+                            <Trash2 size={14} className="text-primary" />
+                            {isDeleting ? "Removing…" : "Delete"}
+                          </Button>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key={isEditing ? "edit-form" : "new-form"}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <RSVPForm
+                        key={isEditing ? "edit" : "new"}
+                        defaultValues={isEditing && rsvp ? rsvp : BLANK}
+                        onSubmit={handleSubmit}
+                        onCancel={
+                          isEditing ? () => setIsEditing(false) : undefined
+                        }
+                        isEditing={isEditing}
+                        rsvpConfig={rsvpConfig}
                       />
                     </motion.div>
-                    <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-foreground font-serif">
-                      Alhamdulillah!
-                    </h3>
-                    <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base font-serif">
-                      Jazak Allah Khair{" "}
-                      <b className="text-foreground">{rsvp.name}!</b> We have
-                      you down for{" "}
-                      <b className="text-foreground">
-                        {rsvp.guestsCount}{" "}
-                        {rsvp.guestsCount === 1 ? "guest" : "guests"}
-                      </b>
-                      .
-                    </p>
-                    <div className="flex gap-3 justify-center">
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsEditing(true)}
-                          className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
-                        >
-                          <Edit2 size={14} className="text-primary" /> Edit
-                        </Button>
-                      </motion.div>
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={isDeleting}
-                          onClick={() => setShowDeleteDialog(true)}
-                          className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
-                        >
-                          <Trash2 size={14} className="text-primary" />
-                          {isDeleting ? "Removing…" : "Delete"}
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key={isEditing ? "edit-form" : "new-form"}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <RSVPForm
-                      key={isEditing ? "edit" : "new"}
-                      defaultValues={isEditing && rsvp ? rsvp : BLANK}
-                      onSubmit={handleSubmit}
-                      onCancel={
-                        isEditing ? () => setIsEditing(false) : undefined
-                      }
-                      isEditing={isEditing}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  )}
+                </AnimatePresence>
+              )}
             </div>
           </motion.div>
         </motion.div>
