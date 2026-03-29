@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { TimelineEvent } from "@/lib/data";
+import type { TimelineEvent } from "@/pages/admin/features/timeline/types";
 
 interface CueState {
   activeCueEvent: TimelineEvent | null;

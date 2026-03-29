@@ -18,6 +18,7 @@ export interface RSVPFormConfig {
     dietaryNotes: RSVPFieldConfig
     mealChoice: RSVPFieldConfig
     message: RSVPFieldConfig
+    email?: RSVPFieldConfig
   }
   mode: "open" | "pool" | "pool-open"
   guestMin: number

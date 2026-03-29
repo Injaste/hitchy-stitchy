@@ -1,8 +1,7 @@
-import { checklists } from "@/lib/data";
 import type { ChecklistItem } from "./types";
 
 export async function getTasks(): Promise<ChecklistItem[]> {
-  return checklists;
+  return [];
 }
 
 export async function createTask(task: Omit<ChecklistItem, "id">): Promise<ChecklistItem> {

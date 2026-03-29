@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { fadeUp } from "@/pages/admin/animations";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
 import type { TimelineEvent } from "./types";
 
 interface Props {
@@ -18,14 +19,8 @@ export function TimelineEventCard({ event, day, index }: Props) {
   const { teamRoles, currentRole } = useAdminStore();
   const { openEventModal, openConfirmStart, openPingModal } = useModalStore();
 
-  const canStart = currentRole === "Coordinator" || currentRole === "Floor manager";
-
-  const getAssigneeDisplay = (roleName: string) => {
-    if (roleName === "All") return "All";
-    const role = teamRoles.find((r) => r.role === roleName);
-    if (role) return `${role.shortRole} – ${role.names.join(" & ")}`;
-    return roleName;
-  };
+  const currentUser = teamRoles.find((r) => r.role === currentRole);
+  const canStart = currentUser?.isAdmin || currentRole === "Floor manager";
 
   return (
     <motion.div
@@ -86,7 +81,7 @@ export function TimelineEventCard({ event, day, index }: Props) {
                     }}
                     className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border hover:bg-muted/80 transition-colors"
                   >
-                    {getAssigneeDisplay(role)}
+                    {getAssigneeDisplay(role, teamRoles)}
                     <Bell className="w-3 h-3" />
                   </button>
                 ))}

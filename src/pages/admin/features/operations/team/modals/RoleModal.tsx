@@ -1,5 +1,4 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -7,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { useRoleMutations } from "../queries";
+import { ModalFooter } from "@/pages/admin/components/ModalFooter";
 import type { TeamMember } from "../types";
 import { toast } from "sonner";
 
@@ -29,14 +29,16 @@ export function RoleModal() {
     const shortRole = formData.get("shortRole") as string;
     const description = formData.get("description") as string;
 
+    const isBridesmaidChecked = formData.get("isBridesmaid") === "on";
+
     if (isNewRole) {
       const roleTitle = formData.get("role") as string;
       const isAdminRole = formData.get("isAdmin") === "on";
-      const newRole: TeamMember = { role: roleTitle, shortRole, names, description, isAdmin: isAdminRole };
+      const newRole: TeamMember = { role: roleTitle, shortRole, names, description, isAdmin: isAdminRole, isBridesmaid: isBridesmaidChecked };
       create.mutate(newRole);
       addLog(currentRole, `Added new role: ${roleTitle}`);
     } else if (editingRole) {
-      const updated: TeamMember = { ...editingRole, shortRole, names, description };
+      const updated: TeamMember = { ...editingRole, shortRole, names, description, isBridesmaid: isBridesmaidChecked };
       update.mutate(updated);
       addLog(currentRole, `Updated role: ${editingRole.role}`);
     }
@@ -123,35 +125,13 @@ export function RoleModal() {
             </div>
           )}
 
-          <DialogFooter className="pt-4 flex-col sm:flex-row sm:justify-between w-full">
-            {!isNewRole && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDelete}
-                className="w-full sm:w-auto mb-2 sm:mb-0"
-              >
-                Delete Role
-              </Button>
-            )}
-            <div className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={closeRoleModal}
-                className="w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={create.isPending || update.isPending}
-                className="w-full sm:w-auto"
-              >
-                {isNewRole ? "Add Role" : "Save Changes"}
-              </Button>
-            </div>
-          </DialogFooter>
+          <ModalFooter
+            onCancel={closeRoleModal}
+            onDelete={!isNewRole ? handleDelete : undefined}
+            deleteLabel="Delete Role"
+            submitLabel={isNewRole ? "Add Role" : "Save Changes"}
+            isPending={create.isPending || update.isPending}
+          />
         </form>
       </DialogContent>
     </Dialog>

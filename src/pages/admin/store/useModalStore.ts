@@ -1,5 +1,7 @@
 import { create } from "zustand";
-import type { TimelineEvent, ChecklistItem, TeamMember } from "@/lib/data";
+import type { TimelineEvent } from "@/pages/admin/features/timeline/types";
+import type { ChecklistItem } from "@/pages/admin/features/operations/checklist/types";
+import type { TeamMember } from "@/pages/admin/features/operations/team/types";
 
 interface ModalState {
   // Event modal

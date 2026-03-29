@@ -7,6 +7,7 @@ import { fadeUp, scaleIn } from "@/pages/admin/animations";
 import { useLoginMutation } from "./queries";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -21,7 +22,7 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    login({ password });
+    login({ email, password });
   };
 
   return (
@@ -48,11 +49,22 @@ export default function Login() {
           <div className="flex items-center gap-2 mb-6">
             <Lock className="w-4 h-4 text-muted-foreground" />
             <p className="text-sm text-muted-foreground font-medium">
-              Enter your access password
+              Sign in to your account
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Email"
+              autoFocus
+            />
+
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
@@ -62,7 +74,6 @@ export default function Login() {
                   if (error) setError("");
                 }}
                 placeholder="Password"
-                autoFocus
                 className="pr-12"
               />
               <Button
@@ -92,10 +103,10 @@ export default function Login() {
 
             <Button
               type="submit"
-              disabled={!password || isPending}
+              disabled={!email || !password || isPending}
               className="w-full"
             >
-              {isPending ? "Checking..." : "Enter Planning Suite"}
+              {isPending ? "Signing in..." : "Enter Planning Suite"}
             </Button>
           </form>
         </motion.div>

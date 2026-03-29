@@ -4,9 +4,11 @@ import { motion, type Variants } from "framer-motion";
 interface FooterProps {
   fadeUp: (delay: number, y?: number, duration?: number) => Variants;
   fadeIn: (delay: number, duration?: number) => Variants;
+  groomName?: string;
+  brideName?: string;
 }
 
-const Footer: FC<FooterProps> = ({ fadeIn, fadeUp }) => {
+const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, groomName = "Danish", brideName = "Nadhirah" }) => {
   return (
     <motion.div
       initial="hidden"
@@ -36,7 +38,7 @@ const Footer: FC<FooterProps> = ({ fadeIn, fadeUp }) => {
         variants={fadeUp(0.2, 16, 0.8)}
         className="font-bold text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] text-2xl sm:text-3xl italic font-serif"
       >
-        Danish & Nadhirah
+        {groomName} & {brideName}
       </motion.h2>
       <motion.div variants={fadeIn(0.35, 1)} className="-mt-8 sm:-mt-10 mb-4">
         <img

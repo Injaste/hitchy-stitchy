@@ -1,12 +1,11 @@
-import { day1Timeline, day2Timeline } from "@/lib/data";
 import type { TimelineEvent } from "./types";
 
 export async function getDay1Events(): Promise<TimelineEvent[]> {
-  return day1Timeline;
+  return [];
 }
 
 export async function getDay2Events(): Promise<TimelineEvent[]> {
-  return day2Timeline;
+  return [];
 }
 
 export async function createEvent(event: Omit<TimelineEvent, "id">): Promise<TimelineEvent> {

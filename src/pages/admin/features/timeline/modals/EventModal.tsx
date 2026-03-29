@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,8 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useEventMutations } from "../queries";
+import { AssigneeCheckboxes } from "@/pages/admin/components/AssigneeCheckboxes";
+import { ModalFooter } from "@/pages/admin/components/ModalFooter";
 import type { TimelineEvent } from "../types";
 
 /** Convert "07:00 AM" → "07:00" (24hr for <input type="time">) */
@@ -52,13 +53,6 @@ export function EventModal() {
   const [timeValue, setTimeValue] = useState(
     editingEvent?.time ? to24h(editingEvent.time) : ""
   );
-
-  const getAssigneeDisplay = (roleName: string) => {
-    if (roleName === "All") return "All";
-    const role = teamRoles.find((r) => r.role === roleName);
-    if (role) return `${role.shortRole} – ${role.names.join(" & ")}`;
-    return roleName;
-  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -121,32 +115,11 @@ export function EventModal() {
 
           <div className="space-y-1.5">
             <Label>Assignees</Label>
-            <div className="bg-card border border-border rounded-md p-3 max-h-40 overflow-y-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="event-assignee-All"
-                    name="assignees"
-                    value="All"
-                    defaultChecked={editingEvent?.assignees?.includes("All")}
-                  />
-                  <label htmlFor="event-assignee-All" className="text-sm cursor-pointer">All</label>
-                </div>
-                {teamRoles.map((r) => (
-                  <div key={r.role} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`event-assignee-${r.role}`}
-                      name="assignees"
-                      value={r.role}
-                      defaultChecked={editingEvent?.assignees?.includes(r.role)}
-                    />
-                    <label htmlFor={`event-assignee-${r.role}`} className="text-sm cursor-pointer">
-                      {getAssigneeDisplay(r.role)}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <AssigneeCheckboxes
+              teamRoles={teamRoles}
+              defaultAssignees={editingEvent?.assignees}
+              feature="event"
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -185,35 +158,13 @@ export function EventModal() {
             </label>
           </div>
 
-          <DialogFooter className="pt-4 flex-col sm:flex-row sm:justify-between w-full">
-            {editingEvent && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDelete}
-                className="w-full sm:w-auto mb-2 sm:mb-0"
-              >
-                Delete Event
-              </Button>
-            )}
-            <div className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={closeEventModal}
-                className="w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={create.isPending || update.isPending}
-                className="w-full sm:w-auto"
-              >
-                Save Event
-              </Button>
-            </div>
-          </DialogFooter>
+          <ModalFooter
+            onCancel={closeEventModal}
+            onDelete={editingEvent ? handleDelete : undefined}
+            deleteLabel="Delete Event"
+            submitLabel={editingEvent ? "Save Event" : "Add Event"}
+            isPending={create.isPending || update.isPending}
+          />
         </form>
       </DialogContent>
     </Dialog>

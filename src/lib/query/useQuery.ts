@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 export function useQuery<T>(
   fetcher: () => Promise<T>,
-  options?: { key?: string }
+  options?: { key?: string; enabled?: boolean }
 ): { data: T | null; isLoading: boolean; error: Error | null; refetch: () => void } {
+  const enabled = options?.enabled ?? true;
+
   const [data, setData] = useState<T | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(enabled);
   const [error, setError] = useState<Error | null>(null);
   const lastFocusTime = useRef<number>(0);
   const isMounted = useRef(true);
@@ -27,12 +29,13 @@ export function useQuery<T>(
 
   useEffect(() => {
     isMounted.current = true;
-    run();
+    if (enabled) run();
     return () => { isMounted.current = false; };
-  }, [run]);
+  }, [run, enabled]);
 
   // Re-fetch on window focus (debounced 500ms)
   useEffect(() => {
+    if (!enabled) return;
     const handleFocus = () => {
       const now = Date.now();
       if (now - lastFocusTime.current > 500) {
@@ -42,14 +45,19 @@ export function useQuery<T>(
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, [run]);
+  }, [run, enabled]);
 
   // Re-fetch on network reconnect
   useEffect(() => {
+    if (!enabled) return;
     const handleOnline = () => run();
     window.addEventListener("online", handleOnline);
     return () => window.removeEventListener("online", handleOnline);
-  }, [run]);
+  }, [run, enabled]);
+
+  if (!enabled) {
+    return { data: null, isLoading: false, error: null, refetch: () => {} };
+  }
 
   return { data, isLoading, error, refetch: run };
 }

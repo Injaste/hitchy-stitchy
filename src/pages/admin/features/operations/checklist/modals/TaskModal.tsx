@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,10 +18,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { useTaskMutations } from "../queries";
+import { AssigneeCheckboxes } from "@/pages/admin/components/AssigneeCheckboxes";
+import { ModalFooter } from "@/pages/admin/components/ModalFooter";
 import type { ChecklistItem } from "../types";
 
 export function TaskModal() {
-  const { teamRoles, currentRole, addLog } = useAdminStore();
+  const { teamRoles, currentRole, addLog, eventConfig } = useAdminStore();
+
+  const dayOptions = ["Pre-wedding", ...eventConfig.days.map((d) => d.label)];
   const {
     isTaskModalOpen,
     editingTask,
@@ -34,7 +37,7 @@ export function TaskModal() {
   const [priority, setPriority] = useState<ChecklistItem["priority"]>(
     editingTask?.priority ?? "Medium"
   );
-  const [day, setDay] = useState<ChecklistItem["day"]>(
+  const [day, setDay] = useState<string>(
     editingTask?.day ?? "Pre-wedding"
   );
   const [dueDate, setDueDate] = useState<Date | undefined>(() => {
@@ -42,13 +45,6 @@ export function TaskModal() {
     const d = new Date(editingTask.dueDate);
     return isNaN(d.getTime()) ? undefined : d;
   });
-
-  const getAssigneeDisplay = (roleName: string) => {
-    if (roleName === "All") return "All";
-    const role = teamRoles.find((r) => r.role === roleName);
-    if (role) return `${role.shortRole} – ${role.names.join(" & ")}`;
-    return roleName;
-  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -97,30 +93,11 @@ export function TaskModal() {
 
           <div className="space-y-1.5">
             <Label>Assignees</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-border p-3 rounded-md max-h-40 overflow-y-auto bg-card">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="assignee-All"
-                  name="assignees"
-                  value="All"
-                  defaultChecked={editingTask?.assignees?.includes("All")}
-                />
-                <label htmlFor="assignee-All" className="text-sm cursor-pointer">All</label>
-              </div>
-              {teamRoles.map((r) => (
-                <div key={r.role} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`assignee-${r.role}`}
-                    name="assignees"
-                    value={r.role}
-                    defaultChecked={editingTask?.assignees?.includes(r.role)}
-                  />
-                  <label htmlFor={`assignee-${r.role}`} className="text-sm cursor-pointer">
-                    {getAssigneeDisplay(r.role)}
-                  </label>
-                </div>
-              ))}
-            </div>
+            <AssigneeCheckboxes
+              teamRoles={teamRoles}
+              defaultAssignees={editingTask?.assignees}
+              feature="task"
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -163,17 +140,14 @@ export function TaskModal() {
             </div>
             <div className="space-y-1.5">
               <Label>Day</Label>
-              <Select
-                value={day}
-                onValueChange={(v) => setDay(v as ChecklistItem["day"])}
-              >
+              <Select value={day} onValueChange={setDay}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Pre-wedding">Pre-wedding</SelectItem>
-                  <SelectItem value="Day 1">Day 1</SelectItem>
-                  <SelectItem value="Day 2">Day 2</SelectItem>
+                  {dayOptions.map((d) => (
+                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -184,38 +158,13 @@ export function TaskModal() {
             <Textarea name="notes" defaultValue={editingTask?.notes} rows={2} />
           </div>
 
-          <DialogFooter className="pt-4 flex-col sm:flex-row sm:justify-between w-full">
-            {editingTask && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => {
-                  closeTaskModal();
-                  openConfirmDeleteTask(editingTask.id);
-                }}
-                className="w-full sm:w-auto mb-2 sm:mb-0"
-              >
-                Delete Task
-              </Button>
-            )}
-            <div className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto sm:justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={closeTaskModal}
-                className="w-full sm:w-auto"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={create.isPending || update.isPending}
-                className="w-full sm:w-auto"
-              >
-                Save Task
-              </Button>
-            </div>
-          </DialogFooter>
+          <ModalFooter
+            onCancel={closeTaskModal}
+            onDelete={editingTask ? () => { closeTaskModal(); openConfirmDeleteTask(editingTask.id); } : undefined}
+            deleteLabel="Delete Task"
+            submitLabel={editingTask ? "Save Task" : "Add Task"}
+            isPending={create.isPending || update.isPending}
+          />
         </form>
       </DialogContent>
     </Dialog>

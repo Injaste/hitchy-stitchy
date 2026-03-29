@@ -1,8 +1,7 @@
-import { TEAM_ROLES } from "@/lib/data";
 import type { TeamMember } from "./types";
 
 export async function getUsers(): Promise<TeamMember[]> {
-  return TEAM_ROLES;
+  return [];
 }
 
 export async function updateAdminStatus(args: {

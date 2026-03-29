@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import type { PublicEventConfig } from "./types";
 
 const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },
@@ -47,34 +47,34 @@ const divider: Variants = {
   },
 };
 
-const Details = () => {
-  const { eventConfig } = useAdminStore();
-  const firstDay = eventConfig.days[0];
-
+const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const detailsList = [
     {
       icon: Calendar,
       title: "Date",
-      detail: format(firstDay.date, "do MMMM yyyy"),
-      sub: format(firstDay.date, "EEEE"),
+      detail: format(eventConfig.dateStart, "do MMMM yyyy"),
+      sub: format(eventConfig.dateStart, "EEEE"),
     },
-    { icon: Clock, title: "Time", detail: "10:00 AM", sub: "to 4:00 PM" },
+    {
+      icon: Clock,
+      title: "Time",
+      detail: eventConfig.startTime,
+      sub: `to ${eventConfig.endTime}`,
+    },
     {
       icon: MapPin,
       title: "Location",
-      detail: firstDay.venue,
-      sub: "Tai Seng, Singapore",
+      detail: eventConfig.venueName,
+      sub: eventConfig.venueAddress,
     },
     {
       icon: Shirt,
       title: "Attire",
-      detail: "Formal/Semi-formal/Traditional",
-      sub: "Modest",
+      detail: eventConfig.attire,
+      sub: "Dress code",
     },
   ];
 
-  const fromDate = eventConfig.dateRange.from;
-  const toDate = eventConfig.dateRange.to;
   const formatGCal = (d: Date) => format(d, "yyyyMMdd'T'HHmmss'Z'");
 
   const googleCalendarUrl =
@@ -82,9 +82,11 @@ const Details = () => {
     "&text=" +
     encodeURIComponent(eventConfig.name) +
     "&dates=" +
-    encodeURIComponent(`${formatGCal(fromDate)}/${formatGCal(toDate)}`) +
+    encodeURIComponent(
+      `${formatGCal(eventConfig.dateStart)}/${formatGCal(eventConfig.dateEnd)}`
+    ) +
     "&location=" +
-    encodeURIComponent(firstDay.venue);
+    encodeURIComponent(eventConfig.venueAddress);
 
   return (
     <section
@@ -135,13 +137,13 @@ const Details = () => {
             variants={fadeUp(0.1, 20, 0.8)}
             className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 font-serif"
           >
-            Shaik Mohammed & Nazreen Khan
+            {eventConfig.blessingsName}
           </motion.h3>
           <motion.p
             variants={fadeUp(0.2, 12, 0.7)}
             className="text-foreground/70 italic text-sm sm:text-base"
           >
-            Parents of the Bride
+            {eventConfig.blessingsLabel}
           </motion.p>
           <motion.div
             variants={divider}
@@ -221,7 +223,7 @@ const Details = () => {
             className="relative w-full aspect-4/3"
           >
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.7341039563585!2d103.8844618123356!3d1.3357613986459655!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da1773cb7e8e69%3A0xd35a6227ea3210d4!2sDe%20Hall%20Restaurant!5e0!3m2!1sen!2ssg!4v1774334382426!5m2!1sen!2ssg"
+              src={eventConfig.venueMapEmbedUrl}
               className="absolute inset-0 w-full h-full border-0 rounded-xl sm:rounded-2xl"
               allowFullScreen
               loading="lazy"
@@ -233,7 +235,7 @@ const Details = () => {
             className="p-4 sm:p-5 pb-2 sm:pb-0 flex flex-col sm:flex-row items-center justify-between gap-3"
           >
             <p className="text-foreground/70 italic text-xs sm:text-sm text-center sm:text-left">
-              3 Irving Rd, #02-10, Singapore 369522
+              {eventConfig.venueAddress}
             </p>
 
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -244,7 +246,7 @@ const Details = () => {
                 className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
               >
                 <a
-                  href="https://maps.app.goo.gl/JBUozdjuYPFsv7KE6"
+                  href={eventConfig.venueMapLink}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

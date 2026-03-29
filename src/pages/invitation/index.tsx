@@ -1,12 +1,34 @@
 import { useRef } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
+import { CalendarHeart } from "lucide-react";
+
+import { usePublicEvent } from "./queries";
+import type { PublicEventConfig } from "./types";
 
 import Hero from "./Hero";
 import Details from "./Details";
 import RSVP from "./RSVP";
 import FloatingIcons from "./FloatingIcons";
 
-const Invitation = () => {
+const InvitationSkeleton = () => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="min-h-screen bg-background flex items-center justify-center"
+  >
+    <CalendarHeart className="w-10 h-10 text-primary animate-pulse" />
+  </motion.div>
+);
+
+const InvitationError = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <p className="text-sm text-muted-foreground italic font-serif">
+      This invitation could not be found.
+    </p>
+  </div>
+);
+
+const InvitationContent = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const containerRef = useRef(null);
 
   const { scrollYProgress } = useScroll({
@@ -33,12 +55,21 @@ const Invitation = () => {
         alt="dannad"
       />
 
-      <Hero />
-      <Details />
-      <RSVP />
+      <Hero eventConfig={eventConfig} />
+      <Details eventConfig={eventConfig} />
+      <RSVP eventConfig={eventConfig} />
       <FloatingIcons />
     </div>
   );
+};
+
+const Invitation = () => {
+  const { data: eventConfig, isLoading, error } = usePublicEvent();
+
+  if (isLoading) return <InvitationSkeleton />;
+  if (error || !eventConfig) return <InvitationError />;
+
+  return <InvitationContent eventConfig={eventConfig} />;
 };
 
 export default Invitation;
