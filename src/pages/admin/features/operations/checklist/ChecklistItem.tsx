@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { fadeUp } from "@/pages/admin/animations";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useChecklistModalStore } from "@/pages/admin/store/useChecklistModalStore";
+import { usePingModalStore } from "@/pages/admin/store/usePingModalStore";
 import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
 import { type ChecklistItem as ChecklistItemType, priorityVariant } from "./types";
 
@@ -17,7 +18,8 @@ interface Props {
 
 export function ChecklistItem({ task, index, onToggle }: Props) {
   const { teamRoles } = useAdminStore();
-  const { openTaskModal, openPingModal } = useModalStore();
+  const { openTaskModal } = useChecklistModalStore();
+  const { openPingModal } = usePingModalStore();
 
   return (
     <motion.div

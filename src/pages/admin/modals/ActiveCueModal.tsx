@@ -1,13 +1,13 @@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { StickyNote } from "lucide-react";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useActiveCueModalStore } from "@/pages/admin/store/useActiveCueModalStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
 
 export function ActiveCueModal() {
-  const { isActiveCueModalOpen, closeActiveCueModal } = useModalStore();
+  const { isActiveCueModalOpen, closeActiveCueModal } = useActiveCueModalStore();
   const { activeCueEvent } = useCueStore();
   const { teamRoles } = useAdminStore();
 

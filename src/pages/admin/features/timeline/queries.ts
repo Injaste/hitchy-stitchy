@@ -1,14 +1,14 @@
 import { useMutation } from "@/lib/query/useMutation";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTimelineModalStore } from "@/pages/admin/store/useTimelineModalStore";
 import { createEvent, updateEvent, deleteEvent } from "./api";
 import type { TimelineEvent } from "./types";
 
 export function useEventMutations() {
   const { setEventsForDay } = useAdminStore();
   const { activeCueEvent, setActiveCueEvent } = useCueStore();
-  const { eventModalDay, closeEventModal, closeConfirmUpdateActiveEvent } = useModalStore();
+  const { eventModalDay, closeEventModal, closeConfirmUpdateActiveEvent } = useTimelineModalStore();
 
   const create = useMutation(
     (event: Omit<TimelineEvent, "id">) => createEvent(event),

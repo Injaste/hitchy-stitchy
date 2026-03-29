@@ -19,13 +19,13 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { usePingModalStore } from "@/pages/admin/store/usePingModalStore";
 import { PING_PRESETS } from "./types";
 import type { PingPreset } from "./types";
 
 export function PingModal() {
   const { teamRoles, currentRole, addLog } = useAdminStore();
-  const { isPingModalOpen, pingTargetRole, closePingModal } = useModalStore();
+  const { isPingModalOpen, pingTargetRole, closePingModal } = usePingModalStore();
 
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [selectedPreset, setSelectedPreset] = useState<PingPreset | null>(null);

@@ -1,6 +1,6 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTimelineModalStore } from "@/pages/admin/store/useTimelineModalStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useEventMutations } from "../queries";
 
@@ -10,7 +10,7 @@ export function ConfirmUpdateActiveEventModal() {
     isConfirmUpdateActiveEventModalOpen,
     pendingEventUpdate,
     closeConfirmUpdateActiveEvent,
-  } = useModalStore();
+  } = useTimelineModalStore();
   const { activeCueEvent, setActiveCueEvent } = useCueStore();
   const { update: updateEvent } = useEventMutations();
 

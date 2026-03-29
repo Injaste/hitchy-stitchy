@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { usePingModalStore } from "@/pages/admin/store/usePingModalStore";
 
 const STATIC_LABELS: Record<string, string> = {
   checklist: "Tasks",
@@ -19,7 +19,7 @@ const STATIC_LABELS: Record<string, string> = {
 export function AdminTopbar() {
   const { activePage, setActivePage, eventConfig } = useAdminStore();
   const { activeCueEvent } = useCueStore();
-  const { openPingModal } = useModalStore();
+  const { openPingModal } = usePingModalStore();
 
   const activeDay = eventConfig.days.find((d) => d.id === activePage);
   const label = activeDay

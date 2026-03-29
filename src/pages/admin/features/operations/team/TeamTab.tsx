@@ -2,12 +2,12 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTeamModalStore } from "@/pages/admin/store/useTeamModalStore";
 import { TeamCard } from "./TeamCard";
 
 export function TeamTab() {
   const { teamRoles, currentRole } = useAdminStore();
-  const { openAddRoleModal } = useModalStore();
+  const { openAddRoleModal } = useTeamModalStore();
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const isAdmin = currentUser?.isAdmin;
 

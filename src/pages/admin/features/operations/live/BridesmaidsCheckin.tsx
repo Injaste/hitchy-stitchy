@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { usePingModalStore } from "@/pages/admin/store/usePingModalStore";
 import { useArrivalMutations } from "./queries";
 
 export function BridesmaidsCheckin() {
   const { teamRoles, arrivals, currentRole } = useAdminStore();
-  const { openPingModal } = useModalStore();
+  const { openPingModal } = usePingModalStore();
   const { arrive } = useArrivalMutations();
   const bridesmaids = teamRoles.filter((r) => r.isBridesmaid);
   const currentUser = teamRoles.find((r) => r.role === currentRole);

@@ -6,7 +6,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { scaleIn } from "@/pages/admin/animations";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTeamModalStore } from "@/pages/admin/store/useTeamModalStore";
+import { usePingModalStore } from "@/pages/admin/store/usePingModalStore";
 import type { TeamMember } from "./types";
 
 interface Props {
@@ -16,7 +17,8 @@ interface Props {
 
 export function TeamCard({ member, index }: Props) {
   const { currentRole, teamRoles } = useAdminStore();
-  const { openEditRoleModal, openPingModal } = useModalStore();
+  const { openEditRoleModal } = useTeamModalStore();
+  const { openPingModal } = usePingModalStore();
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const isAdmin = currentUser?.isAdmin;
 

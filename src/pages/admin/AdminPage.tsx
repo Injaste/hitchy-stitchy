@@ -7,7 +7,8 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useAdminStore } from "./store/useAdminStore";
-import { useModalStore } from "./store/useModalStore";
+import { useTimelineModalStore } from "./store/useTimelineModalStore";
+import { useChecklistModalStore } from "./store/useChecklistModalStore";
 import { useCueStore } from "./store/useCueStore";
 import { useBootstrap } from "./hooks/useBootstrap";
 
@@ -39,7 +40,8 @@ export default function AdminPage() {
     isBootstrapped,
     bootstrapError,
   } = useAdminStore();
-  const { openEventModal, openTaskModal } = useModalStore();
+  const { openEventModal } = useTimelineModalStore();
+  const { openTaskModal } = useChecklistModalStore();
   const { activeCueEvent, notifiedEvents, markNotified } = useCueStore();
 
   const currentUser = teamRoles.find((r) => r.role === currentRole);

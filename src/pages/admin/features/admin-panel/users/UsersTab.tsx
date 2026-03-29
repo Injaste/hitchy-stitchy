@@ -6,13 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTeamModalStore } from "@/pages/admin/store/useTeamModalStore";
 import { UserRow } from "./UserRow";
 
 export function UsersTab() {
   const [search, setSearch] = useState("");
   const { teamRoles } = useAdminStore();
-  const { openAddRoleModal } = useModalStore();
+  const { openAddRoleModal } = useTeamModalStore();
 
   const filtered = teamRoles.filter(
     (m) =>

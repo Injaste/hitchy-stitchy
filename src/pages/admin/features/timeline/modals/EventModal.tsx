@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTimelineModalStore } from "@/pages/admin/store/useTimelineModalStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useEventMutations } from "../queries";
 import { AssigneeCheckboxes } from "@/pages/admin/components/AssigneeCheckboxes";
@@ -46,7 +46,7 @@ export function EventModal() {
     closeEventModal,
     openConfirmDeleteEvent,
     openConfirmUpdateActiveEvent,
-  } = useModalStore();
+  } = useTimelineModalStore();
   const { activeCueEvent, setActiveCueEvent } = useCueStore();
   const { create, update } = useEventMutations();
 

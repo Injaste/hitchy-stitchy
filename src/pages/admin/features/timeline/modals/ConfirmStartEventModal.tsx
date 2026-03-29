@@ -1,12 +1,12 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTimelineModalStore } from "@/pages/admin/store/useTimelineModalStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 
 export function ConfirmStartEventModal() {
   const { currentRole, addLog } = useAdminStore();
-  const { isConfirmStartModalOpen, eventToStart, closeConfirmStart } = useModalStore();
+  const { isConfirmStartModalOpen, eventToStart, closeConfirmStart } = useTimelineModalStore();
   const { setActiveCueEvent } = useCueStore();
 
   const confirmStartEvent = () => {

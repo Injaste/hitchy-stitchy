@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { fadeUp } from "@/pages/admin/animations";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTeamModalStore } from "@/pages/admin/store/useTeamModalStore";
 import { useUserMutations } from "./queries";
 import type { TeamMember } from "./types";
 
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function UserRow({ member, index }: Props) {
-  const { openEditRoleModal } = useModalStore();
+  const { openEditRoleModal } = useTeamModalStore();
   const { toggleAdmin } = useUserMutations();
 
   return (

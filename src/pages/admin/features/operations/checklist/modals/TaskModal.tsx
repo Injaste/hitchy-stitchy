@@ -16,7 +16,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useChecklistModalStore } from "@/pages/admin/store/useChecklistModalStore";
 import { useTaskMutations } from "../queries";
 import { AssigneeCheckboxes } from "@/pages/admin/components/AssigneeCheckboxes";
 import { ModalFooter } from "@/pages/admin/components/ModalFooter";
@@ -31,7 +31,7 @@ export function TaskModal() {
     editingTask,
     closeTaskModal,
     openConfirmDeleteTask,
-  } = useModalStore();
+  } = useChecklistModalStore();
   const { create, update } = useTaskMutations();
 
   const [priority, setPriority] = useState<ChecklistItem["priority"]>(

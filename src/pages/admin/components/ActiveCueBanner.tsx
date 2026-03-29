@@ -1,10 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useActiveCueModalStore } from "@/pages/admin/store/useActiveCueModalStore";
 
 export function ActiveCueBanner() {
   const { activeCueEvent } = useCueStore();
-  const { openActiveCueModal } = useModalStore();
+  const { openActiveCueModal } = useActiveCueModalStore();
 
   return (
     <AnimatePresence>

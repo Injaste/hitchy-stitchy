@@ -1,11 +1,11 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useChecklistModalStore } from "@/pages/admin/store/useChecklistModalStore";
 
 export function ConfirmDeleteTaskModal() {
   const { tasks, setTasks, currentRole, addLog, teamRoles } = useAdminStore();
-  const { isConfirmDeleteTaskModalOpen, taskToDelete, closeConfirmDeleteTask } = useModalStore();
+  const { isConfirmDeleteTaskModalOpen, taskToDelete, closeConfirmDeleteTask } = useChecklistModalStore();
 
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const isAdmin = currentUser?.isAdmin;

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { fadeUp } from "@/pages/admin/animations";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTimelineModalStore } from "@/pages/admin/store/useTimelineModalStore";
+import { usePingModalStore } from "@/pages/admin/store/usePingModalStore";
 import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
 import type { TimelineEvent } from "./types";
 
@@ -17,7 +18,8 @@ interface Props {
 
 export function TimelineEventCard({ event, day, index }: Props) {
   const { teamRoles, currentRole } = useAdminStore();
-  const { openEventModal, openConfirmStart, openPingModal } = useModalStore();
+  const { openEventModal, openConfirmStart } = useTimelineModalStore();
+  const { openPingModal } = usePingModalStore();
 
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const canStart = currentUser?.isAdmin || currentRole === "Floor manager";

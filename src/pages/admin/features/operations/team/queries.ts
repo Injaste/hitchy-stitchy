@@ -1,7 +1,7 @@
 import { useQuery } from "@/lib/query/useQuery";
 import { useMutation } from "@/lib/query/useMutation";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTeamModalStore } from "@/pages/admin/store/useTeamModalStore";
 import { getTeamRoles, createRole, updateRole, deleteRole } from "./api";
 import type { TeamMember } from "./types";
 
@@ -11,7 +11,7 @@ export function useTeamRoles() {
 
 export function useRoleMutations() {
   const { teamRoles, setTeamRoles } = useAdminStore();
-  const { closeRoleModal } = useModalStore();
+  const { closeRoleModal } = useTeamModalStore();
 
   const create = useMutation(
     (role: TeamMember) => createRole(role),

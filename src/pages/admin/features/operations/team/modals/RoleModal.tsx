@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useTeamModalStore } from "@/pages/admin/store/useTeamModalStore";
 import { useRoleMutations } from "../queries";
 import { ModalFooter } from "@/pages/admin/components/ModalFooter";
 import type { TeamMember } from "../types";
@@ -18,7 +18,7 @@ export function RoleModal() {
     isNewRole,
     closeRoleModal,
     openConfirmDeleteRole,
-  } = useModalStore();
+  } = useTeamModalStore();
   const { create, update } = useRoleMutations();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

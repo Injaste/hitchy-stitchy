@@ -1,7 +1,7 @@
 import { useQuery } from "@/lib/query/useQuery";
 import { useMutation } from "@/lib/query/useMutation";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { useChecklistModalStore } from "@/pages/admin/store/useChecklistModalStore";
 import { getTasks, createTask, updateTask, deleteTask } from "./api";
 import type { ChecklistItem } from "./types";
 
@@ -11,7 +11,7 @@ export function useTasks() {
 
 export function useTaskMutations() {
   const { tasks, setTasks } = useAdminStore();
-  const { closeTaskModal } = useModalStore();
+  const { closeTaskModal } = useChecklistModalStore();
 
   const create = useMutation(
     (task: Omit<ChecklistItem, "id">) => createTask(task),
