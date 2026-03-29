@@ -1,62 +1,18 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { isAfter, startOfDay } from "date-fns";
-import confetti from "canvas-confetti";
 import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { fadeUp, fadeIn } from "@/lib/animations";
+import { fireConfetti } from "@/lib/confetti";
+import { useContentHeight } from "./hooks/useContentHeight";
 
 import { useGuestRSVP, useRSVPMutations } from "./queries";
 import type { RSVPFormData, PublicEventConfig } from "./types";
 import RSVPForm from "./form/RSVPForm";
 import Footer from "./form/Footer";
 import RSVPDelete from "./form/RSVPDelete";
-
-const fadeUp = (delay: number, y = 20, duration = 0.8): Variants => ({
-  hidden: { opacity: 0, y },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration, delay, ease: [0.16, 1, 0.3, 1] },
-  },
-});
-
-const fadeIn = (delay: number, duration = 0.8): Variants => ({
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration, delay, ease: "easeOut" },
-  },
-});
-
-const fireConfetti = () => {
-  confetti({
-    particleCount: 200,
-    spread: 80,
-    origin: { y: 0.6 },
-    colors: ["#ff4d8f", "#e8003a", "#ffb3c6", "#d4af37", "#ffd700"],
-  });
-};
-
-/** Tracks the height of a child element via ResizeObserver */
-const useContentHeight = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number | "auto">("auto");
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new ResizeObserver(([entry]) => {
-      setHeight(entry.contentRect.height);
-    });
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, height };
-};
 
 const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.id);

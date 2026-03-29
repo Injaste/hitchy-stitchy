@@ -1,21 +1,7 @@
 import type { Variants } from "framer-motion";
 
-export const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
-  hidden: { opacity: 0, y },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration, delay, ease: [0.16, 1, 0.3, 1] },
-  },
-});
-
-export const fadeIn = (delay: number, duration = 0.8): Variants => ({
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration, delay, ease: "easeOut" },
-  },
-});
+// Shared animation factories — canonical source is @/lib/animations
+export { fadeUp, fadeIn } from "@/lib/animations";
 
 export const stepEnter: Variants = {
   hidden: { opacity: 0, x: 40 },

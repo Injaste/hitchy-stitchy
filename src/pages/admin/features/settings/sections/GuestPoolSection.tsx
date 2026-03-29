@@ -15,23 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { fadeUp } from "@/pages/admin/animations";
 import { useSettings, useGuestPoolMutation } from "../queries";
-import type { GuestEntry } from "../types";
-
-function parseGuestList(raw: string): GuestEntry[] {
-  return raw
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .map((line, i) => {
-      const parts = line.split(",").map((p) => p.trim());
-      return {
-        id: `guest-${Date.now()}-${i}`,
-        name: parts[0] || "Unknown",
-        phone: parts[1] || undefined,
-        status: "unclaimed" as const,
-      };
-    });
-}
+import { parseGuestList } from "@/pages/admin/utils/guestListParser";
 
 export function GuestPoolSection() {
   const { data: settings } = useSettings();

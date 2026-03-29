@@ -10,33 +10,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fadeUp, fadeIn, scaleIn } from "@/lib/animations";
+import { buildGoogleCalendarUrl } from "@/lib/calendarUrl";
 import type { PublicEventConfig } from "./types";
-
-const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
-  hidden: { opacity: 0, y },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration, delay, ease: [0.16, 1, 0.3, 1] },
-  },
-});
-
-const fadeIn = (delay: number, duration = 0.8): Variants => ({
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration, delay, ease: "easeOut" },
-  },
-});
-
-const scaleIn = (delay: number): Variants => ({
-  hidden: { opacity: 0, scale: 0.92 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
-  },
-});
 
 const divider: Variants = {
   hidden: { opacity: 0, scaleX: 0 },
@@ -75,18 +51,12 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
     },
   ];
 
-  const formatGCal = (d: Date) => format(d, "yyyyMMdd'T'HHmmss'Z'");
-
-  const googleCalendarUrl =
-    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-    "&text=" +
-    encodeURIComponent(eventConfig.name) +
-    "&dates=" +
-    encodeURIComponent(
-      `${formatGCal(eventConfig.dateStart)}/${formatGCal(eventConfig.dateEnd)}`
-    ) +
-    "&location=" +
-    encodeURIComponent(eventConfig.venueAddress);
+  const googleCalendarUrl = buildGoogleCalendarUrl({
+    name: eventConfig.name,
+    dateStart: eventConfig.dateStart,
+    dateEnd: eventConfig.dateEnd,
+    venueAddress: eventConfig.venueAddress,
+  });
 
   return (
     <section

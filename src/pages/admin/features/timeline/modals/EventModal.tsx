@@ -10,32 +10,8 @@ import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useEventMutations } from "../queries";
 import { AssigneeCheckboxes } from "@/pages/admin/components/AssigneeCheckboxes";
 import { ModalFooter } from "@/pages/admin/components/ModalFooter";
+import { to24h, to12h } from "@/lib/timeFormat";
 import type { TimelineEvent } from "../types";
-
-/** Convert "07:00 AM" → "07:00" (24hr for <input type="time">) */
-function to24h(display: string): string {
-  if (!display) return "";
-  const match = display.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!match) return display;
-  let hours = parseInt(match[1], 10);
-  const minutes = match[2];
-  const period = match[3].toUpperCase();
-  if (period === "AM" && hours === 12) hours = 0;
-  if (period === "PM" && hours !== 12) hours += 12;
-  return `${String(hours).padStart(2, "0")}:${minutes}`;
-}
-
-/** Convert "07:00" (24hr) → "07:00 AM" */
-function to12h(value: string): string {
-  if (!value) return "";
-  const [hStr, mStr] = value.split(":");
-  let hours = parseInt(hStr, 10);
-  const minutes = mStr;
-  const period = hours >= 12 ? "PM" : "AM";
-  if (hours === 0) hours = 12;
-  else if (hours > 12) hours -= 12;
-  return `${String(hours).padStart(2, "0")}:${minutes} ${period}`;
-}
 
 export function EventModal() {
   const { teamRoles, currentRole, addLog } = useAdminStore();

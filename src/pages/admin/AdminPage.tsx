@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { isSameDay, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { CalendarHeart, Plus } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,6 +11,7 @@ import { useTimelineModalStore } from "./store/useTimelineModalStore";
 import { useChecklistModalStore } from "./store/useChecklistModalStore";
 import { useCueStore } from "./store/useCueStore";
 import { useBootstrap } from "./hooks/useBootstrap";
+import { useScheduledNotifications } from "./hooks/useScheduledNotifications";
 
 import { AdminSidebar } from "./components/AdminSidebar";
 import { AdminTopbar } from "./components/AdminTopbar";
@@ -29,11 +30,11 @@ import { tabTransition } from "./animations";
 
 export default function AdminPage() {
   useBootstrap();
+  useScheduledNotifications();
 
   const {
     activePage,
     setActivePage,
-    events,
     teamRoles,
     currentRole,
     eventConfig,
@@ -42,7 +43,7 @@ export default function AdminPage() {
   } = useAdminStore();
   const { openEventModal } = useTimelineModalStore();
   const { openTaskModal } = useChecklistModalStore();
-  const { activeCueEvent, notifiedEvents, markNotified } = useCueStore();
+  const { activeCueEvent } = useCueStore();
 
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const isAdmin = currentUser?.isAdmin;
@@ -57,30 +58,6 @@ export default function AdminPage() {
     const match = eventConfig.days.find((d) => isSameDay(d.date, today));
     setActivePage(match?.id ?? eventConfig.days[0]?.id ?? "day-1");
   }, [isBootstrapped]);
-
-  // Time-based event notifications
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const timeString = new Date().toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-      for (const dayId of Object.keys(events)) {
-        (events[dayId] ?? []).forEach((event) => {
-          if (event.time === timeString && !notifiedEvents.has(event.id)) {
-            if (isAdmin)
-              toast.info(`Scheduled Event Now: ${event.title}`, {
-                icon: "⏰",
-                duration: 10000,
-              });
-            markNotified(event.id);
-          }
-        });
-      }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [events, isAdmin, notifiedEvents, markNotified]);
 
   // FAB: add event / task
   const handleFABClick = () => {
