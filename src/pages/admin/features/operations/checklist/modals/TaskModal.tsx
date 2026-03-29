@@ -23,7 +23,9 @@ import { ModalFooter } from "@/pages/admin/components/ModalFooter";
 import type { ChecklistItem } from "../types";
 
 export function TaskModal() {
-  const { teamRoles, currentRole, addLog } = useAdminStore();
+  const { teamRoles, currentRole, addLog, eventConfig } = useAdminStore();
+
+  const dayOptions = ["Pre-wedding", ...eventConfig.days.map((d) => d.label)];
   const {
     isTaskModalOpen,
     editingTask,
@@ -35,7 +37,7 @@ export function TaskModal() {
   const [priority, setPriority] = useState<ChecklistItem["priority"]>(
     editingTask?.priority ?? "Medium"
   );
-  const [day, setDay] = useState<ChecklistItem["day"]>(
+  const [day, setDay] = useState<string>(
     editingTask?.day ?? "Pre-wedding"
   );
   const [dueDate, setDueDate] = useState<Date | undefined>(() => {
@@ -138,17 +140,14 @@ export function TaskModal() {
             </div>
             <div className="space-y-1.5">
               <Label>Day</Label>
-              <Select
-                value={day}
-                onValueChange={(v) => setDay(v as ChecklistItem["day"])}
-              >
+              <Select value={day} onValueChange={setDay}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Pre-wedding">Pre-wedding</SelectItem>
-                  <SelectItem value="Day 1">Day 1</SelectItem>
-                  <SelectItem value="Day 2">Day 2</SelectItem>
+                  {dayOptions.map((d) => (
+                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -7,3 +7,12 @@ export interface RSVP {
   dietaryRequirements?: string;
   submittedAt: string;
 }
+
+export const statusVariant: Record<
+  RSVP["status"],
+  "default" | "secondary" | "destructive" | "outline"
+> = {
+  Confirmed: "default",
+  Pending: "outline",
+  Declined: "destructive",
+};

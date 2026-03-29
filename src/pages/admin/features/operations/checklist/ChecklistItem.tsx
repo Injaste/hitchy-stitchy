@@ -7,22 +7,13 @@ import { fadeUp } from "@/pages/admin/animations";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
 import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
-import type { ChecklistItem as ChecklistItemType } from "./types";
+import { type ChecklistItem as ChecklistItemType, priorityVariant } from "./types";
 
 interface Props {
   task: ChecklistItemType;
   index: number;
   onToggle: (id: string) => void;
 }
-
-const priorityVariant: Record<
-  ChecklistItemType["priority"],
-  "default" | "destructive" | "secondary" | "outline"
-> = {
-  High: "destructive",
-  Medium: "outline",
-  Low: "secondary",
-};
 
 export function ChecklistItem({ task, index, onToggle }: Props) {
   const { teamRoles } = useAdminStore();

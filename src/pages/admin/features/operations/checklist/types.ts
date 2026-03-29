@@ -8,3 +8,12 @@ export interface ChecklistItem {
   day: string;
   notes?: string;
 }
+
+export const priorityVariant: Record<
+  ChecklistItem["priority"],
+  "default" | "destructive" | "secondary" | "outline"
+> = {
+  High: "destructive",
+  Medium: "outline",
+  Low: "secondary",
+};

@@ -14,13 +14,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -36,11 +29,10 @@ import {
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useLogoutMutation } from "@/pages/admin/auth/queries";
-import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
+import { RoleSelector } from "./RoleSelector";
 
 export function AdminSidebar() {
-  const { activePage, setActivePage, teamRoles, currentRole, setCurrentRole, eventConfig } =
-    useAdminStore();
+  const { activePage, setActivePage, teamRoles, currentRole, eventConfig } = useAdminStore();
   const { activeCueEvent } = useCueStore();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -177,18 +169,7 @@ export function AdminSidebar() {
 
       {/* ── Footer: role selector + logout ── */}
       <SidebarFooter className="border-t border-sidebar-border p-4 space-y-3">
-        <Select value={currentRole} onValueChange={setCurrentRole}>
-          <SelectTrigger size="sm" className="text-xs w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {teamRoles.map((r) => (
-              <SelectItem key={r.role} value={r.role}>
-                {getAssigneeDisplay(r.role, teamRoles)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <RoleSelector />
 
         <Button
           variant="ghost"

@@ -4,7 +4,9 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { ChecklistSection } from "./ChecklistSection";
 
 export function ChecklistTab() {
-  const { tasks, setTasks, currentRole, teamRoles, addLog } = useAdminStore();
+  const { tasks, setTasks, currentRole, teamRoles, addLog, eventConfig } = useAdminStore();
+
+  const sections = ["Pre-wedding", ...eventConfig.days.map((d) => d.label)];
   const currentUser = teamRoles.find((r) => r.role === currentRole);
   const isAdmin = currentUser?.isAdmin;
 
@@ -37,21 +39,14 @@ export function ChecklistTab() {
         <ListTodo className="h-5 w-5 md:h-6 md:w-6 text-primary" />
         <h2 className="text-xl md:text-2xl font-serif font-semibold text-primary">To-Do List</h2>
       </div>
-      <ChecklistSection
-        title="Pre-Wedding"
-        tasks={tasks.filter((t) => t.day === "Pre-wedding")}
-        onToggle={handleToggle}
-      />
-      <ChecklistSection
-        title="Day 1"
-        tasks={tasks.filter((t) => t.day === "Day 1")}
-        onToggle={handleToggle}
-      />
-      <ChecklistSection
-        title="Day 2"
-        tasks={tasks.filter((t) => t.day === "Day 2")}
-        onToggle={handleToggle}
-      />
+      {sections.map((section) => (
+        <ChecklistSection
+          key={section}
+          title={section}
+          tasks={tasks.filter((t) => t.day === section)}
+          onToggle={handleToggle}
+        />
+      ))}
     </div>
   );
 }

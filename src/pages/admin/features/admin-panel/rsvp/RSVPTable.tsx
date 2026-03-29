@@ -11,14 +11,7 @@ import {
 } from "@/components/ui/select";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useRSVPMutations } from "./queries";
-import type { RSVP } from "./types";
-
-const statusVariant: Record<RSVP["status"], "default" | "secondary" | "destructive" | "outline"> =
-  {
-    Confirmed: "default",
-    Pending: "outline",
-    Declined: "destructive",
-  };
+import { type RSVP, statusVariant } from "./types";
 
 export function RSVPTable() {
   const { rsvps } = useAdminStore();
