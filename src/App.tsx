@@ -1,11 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Invitation from "./pages/invitation";
 import Admin from "./pages/admin";
+import Onboard from "./pages/onboard";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/onboard" element={<Onboard />} />
+
         <Route path="/:slug" element={<Invitation />} />
 
         <Route path="/:slug/admin" element={<Admin />} />

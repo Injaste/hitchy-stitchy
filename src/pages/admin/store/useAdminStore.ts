@@ -4,13 +4,7 @@ import type { TimelineEvent } from "@/pages/admin/features/timeline/types";
 import type { ChecklistItem } from "@/pages/admin/features/operations/checklist/types";
 import type { RSVP } from "@/pages/admin/features/admin-panel/rsvp/types";
 import type { EventConfig, NotificationPrefs } from "@/pages/admin/features/settings/types";
-
-interface LogEntry {
-  id: number;
-  time: string;
-  role: string;
-  msg: string;
-}
+import type { LogEntry } from "@/pages/admin/features/operations/live/types";
 
 const DEFAULT_EVENT_CONFIG: EventConfig = {
   name: "",

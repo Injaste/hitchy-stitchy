@@ -5,6 +5,6 @@ export interface ChecklistItem {
   completed: boolean;
   dueDate?: string;
   priority: "High" | "Medium" | "Low";
-  day: "Pre-wedding" | "Day 1" | "Day 2";
+  day: string;
   notes?: string;
 }

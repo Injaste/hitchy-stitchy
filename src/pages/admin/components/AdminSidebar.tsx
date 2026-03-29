@@ -36,6 +36,7 @@ import {
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 import { useLogoutMutation } from "@/pages/admin/auth/queries";
+import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
 
 export function AdminSidebar() {
   const { activePage, setActivePage, teamRoles, currentRole, setCurrentRole, eventConfig } =
@@ -50,12 +51,6 @@ export function AdminSidebar() {
   const { mutate: doLogout, isPending: loggingOut } = useLogoutMutation({
     onSuccess: () => navigate(slug ? `/${slug}` : "/"),
   });
-
-  const getAssigneeDisplay = (roleName: string) => {
-    const role = teamRoles.find((r) => r.role === roleName);
-    if (role) return `${role.shortRole} – ${role.names.join(" & ")}`;
-    return roleName;
-  };
 
   const navItemClass = (...pages: string[]) =>
     cn(
@@ -189,7 +184,7 @@ export function AdminSidebar() {
           <SelectContent>
             {teamRoles.map((r) => (
               <SelectItem key={r.role} value={r.role}>
-                {getAssigneeDisplay(r.role)}
+                {getAssigneeDisplay(r.role, teamRoles)}
               </SelectItem>
             ))}
           </SelectContent>

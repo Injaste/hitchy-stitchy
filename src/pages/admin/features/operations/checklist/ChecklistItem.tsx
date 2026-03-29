@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { fadeUp } from "@/pages/admin/animations";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
 import type { ChecklistItem as ChecklistItemType } from "./types";
 
 interface Props {
@@ -26,13 +27,6 @@ const priorityVariant: Record<
 export function ChecklistItem({ task, index, onToggle }: Props) {
   const { teamRoles } = useAdminStore();
   const { openTaskModal, openPingModal } = useModalStore();
-
-  const getAssigneeDisplay = (roleName: string) => {
-    if (roleName === "All") return "All";
-    const role = teamRoles.find((r) => r.role === roleName);
-    if (role) return `${role.shortRole} – ${role.names.join(" & ")}`;
-    return roleName;
-  };
 
   return (
     <motion.div
@@ -85,7 +79,7 @@ export function ChecklistItem({ task, index, onToggle }: Props) {
                 className="flex items-center gap-1 bg-muted text-muted-foreground px-2 py-0.5 rounded-md border border-border text-[10px] md:text-xs font-medium hover:bg-muted/80 transition-colors"
               >
                 <User className="h-3 w-3" />
-                {getAssigneeDisplay(role)}
+                {getAssigneeDisplay(role, teamRoles)}
                 <Bell className="w-3 h-3" />
               </button>
             ))}
