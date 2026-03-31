@@ -1,15 +1,15 @@
 import { supabase } from "@/lib/supabase"
 import type { PublicEventConfig, RSVPSubmission, NewRSVPSubmission } from "./types"
-import type { RSVPFormConfig } from "@/pages/admin/features/settings/types"
+import type { RSVPFormConfig } from "@/pages/planner/features/settings/types"
 
 const DEFAULT_RSVP_FORM: RSVPFormConfig = {
   fields: {
-    name:         { visible: true,  required: true  },
-    phone:        { visible: true,  required: true  },
-    guestsCount:  { visible: true,  required: true  },
+    name: { visible: true, required: true },
+    phone: { visible: true, required: true },
+    guestsCount: { visible: true, required: true },
     dietaryNotes: { visible: false, required: false },
-    mealChoice:   { visible: false, required: false },
-    message:      { visible: false, required: false },
+    mealChoice: { visible: false, required: false },
+    message: { visible: false, required: false },
   },
   mode: "open",
   guestMin: 1,

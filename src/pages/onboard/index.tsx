@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { ComponentFade } from "@/components/ui/ComponentFade";
 import OnboardPage from "./OnboardPage";
+import { ComponentFade } from "@/components/animations/component-fade";
 
 export default function Onboard() {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function Onboard() {
   }, []);
 
   return (
-    <ComponentFade id="onboard">
+    <ComponentFade>
       <OnboardPage />
     </ComponentFade>
   );

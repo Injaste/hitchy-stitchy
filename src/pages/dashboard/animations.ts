@@ -9,14 +9,6 @@ export const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   },
 });
 
-export const fadeIn = (delay: number, duration = 0.8): Variants => ({
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration, delay, ease: "easeOut" },
-  },
-});
-
 export const scaleIn = (delay: number): Variants => ({
   hidden: { opacity: 0, scale: 0.92 },
   show: {
@@ -26,19 +18,12 @@ export const scaleIn = (delay: number): Variants => ({
   },
 });
 
-export const stepEnter: Variants = {
-  hidden: { opacity: 0, x: 40 },
+export const staggerContainer: Variants = {
+  hidden: {},
   show: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-export const stepExit: Variants = {
-  exit: {
-    opacity: 0,
-    x: -40,
-    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    },
   },
 };

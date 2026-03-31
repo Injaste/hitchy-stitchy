@@ -1,5 +1,5 @@
 import { z } from "zod"
-import type { RSVPFormConfig } from "@/pages/admin/features/settings/types"
+import type { RSVPFormConfig } from "@/pages/planner/features/settings/types"
 
 export function buildRsvpSchema(config: RSVPFormConfig) {
   return z.object({
@@ -10,12 +10,12 @@ export function buildRsvpSchema(config: RSVPFormConfig) {
     phone: config.fields.phone.visible
       ? config.fields.phone.required
         ? z.string()
-            .min(1, "Phone number is required")
-            .regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number")
+          .min(1, "Phone number is required")
+          .regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number")
         : z.string()
-            .regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number")
-            .optional()
-            .or(z.literal(""))
+          .regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number")
+          .optional()
+          .or(z.literal(""))
       : z.string().optional(),
 
     // email — special validation, only if visible
@@ -29,12 +29,12 @@ export function buildRsvpSchema(config: RSVPFormConfig) {
     guestsCount: config.fields.guestsCount.visible
       ? config.fields.guestsCount.required
         ? z.number()
-            .min(config.guestMin, `Minimum ${config.guestMin} guest`)
-            .max(config.guestMax, `Maximum ${config.guestMax} guests`)
+          .min(config.guestMin, `Minimum ${config.guestMin} guest`)
+          .max(config.guestMax, `Maximum ${config.guestMax} guests`)
         : z.number()
-            .min(config.guestMin)
-            .max(config.guestMax)
-            .optional()
+          .min(config.guestMin)
+          .max(config.guestMax)
+          .optional()
       : z.number().optional(),
 
     // dietaryNotes — plain text
