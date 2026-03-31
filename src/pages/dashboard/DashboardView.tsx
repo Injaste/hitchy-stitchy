@@ -8,7 +8,7 @@ import { useUserEventsQuery } from "./queries";
 import { EventCard } from "./EventCard";
 import { supabase } from "@/lib/supabase";
 import { useLogoutMutation } from "@/pages/auth/queries";
-import Login from "../auth/Login";
+import Login from "../auth/AuthForm";
 
 function useSession() {
   const [userId, setUserId] = useState<string | null>(null);

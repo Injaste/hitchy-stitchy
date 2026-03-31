@@ -4,7 +4,7 @@ import { ComponentFade } from "@/components/animations/component-fade";
 
 import { useAuthGate } from "./hook";
 
-import Login from "./Login";
+import Login from "./AuthForm";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthGate();
