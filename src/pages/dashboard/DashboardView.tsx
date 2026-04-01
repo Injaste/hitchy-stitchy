@@ -7,8 +7,8 @@ import { fadeUp, scaleIn, staggerContainer } from "./animations";
 import { useUserEventsQuery } from "./queries";
 import { EventCard } from "./EventCard";
 import { supabase } from "@/lib/supabase";
-import { useLogoutMutation } from "@/pages/auth/queries";
-import Login from "../auth/AuthForm";
+import { useLogoutMutation } from "@/auth/queries";
+import SignIn from "../../auth/SignIn";
 
 function useSession() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -93,7 +93,7 @@ export default function DashboardView() {
     onSuccess: () => navigate("/"),
   });
 
-  if (!sessionLoading && !userId) return <Login />;
+  if (!sessionLoading && !userId) return <SignIn />;
 
   const isLoading = sessionLoading || eventsLoading;
 

@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/component-fade";
+import { ComponentFade } from "@/components/animations/animate-component-fade";
 
 import { useAuthGate } from "./hook";
 
-import Login from "./AuthForm";
+import SignIn from "./SignIn";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthGate();
@@ -13,7 +13,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     <AnimatePresence mode="wait">
       {!isAuthenticated ? (
         <ComponentFade key="login">
-          <Login />
+          <SignIn />
         </ComponentFade>
       ) : (
         <ComponentFade key="admin">{children}</ComponentFade>

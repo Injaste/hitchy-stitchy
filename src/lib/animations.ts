@@ -15,7 +15,7 @@ export const itemScaleIn: Variants = {
   show: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.7 }
   },
 };
 
@@ -24,7 +24,7 @@ export const itemFadeUp: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.6 }
   },
 };
 
@@ -54,7 +54,7 @@ export const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration, delay, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration, delay },
   },
 });
 
@@ -71,7 +71,7 @@ export const scaleIn = (delay: number): Variants => ({
   show: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.7, delay },
   },
 });
 

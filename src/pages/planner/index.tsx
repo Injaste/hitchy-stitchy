@@ -1,4 +1,4 @@
-import AuthGate from "../auth/AuthGate";
+import AuthGate from "../../auth/AuthGate";
 import AdminPage from "./AdminPage";
 
 const Admin = () => {

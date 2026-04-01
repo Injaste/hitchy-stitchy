@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useForm } from "@tanstack/react-form";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarHeart } from "lucide-react";
+import { CalendarHeart, NotebookPen } from "lucide-react";
 import { z } from "zod";
 import { Link } from "react-router-dom";
 
@@ -24,15 +24,21 @@ import {
   itemScaleIn,
   shakeVariants,
 } from "@/lib/animations";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
 
 const signInSchema = z.object({
-  email: z.string().email("Enter a valid email"),
+  email: z.email("Enter a valid email"),
   password: z.string().min(1, "Password is required"),
 });
 
-const AuthForm = () => {
-  const { mutate: login } = useLoginMutation();
+const SignIn = () => {
+  const { mutate: login, isPending } = useLoginMutation({
+    onError: (error) => {
+      setSubmitError(error.message);
+    },
+  });
   const [submitError, setSubmitError] = useState<string | null>(null);
+
   // Track attempts to re-trigger animations on click
   const [attemptCount, setAttemptCount] = useState(0);
 
@@ -40,15 +46,15 @@ const AuthForm = () => {
     defaultValues: { email: "", password: "" },
     validators: { onSubmit: signInSchema },
     onSubmit: async ({ value }) => {
-      setSubmitError(null);
-      login(value);
+      await login(value);
     },
   });
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    setSubmitError(null);
     e.preventDefault();
     e.stopPropagation();
-    setAttemptCount((prev) => prev + 1); // Increments on every click
+    setAttemptCount((prev) => prev + 1);
     form.handleSubmit();
   };
 
@@ -60,7 +66,6 @@ const AuthForm = () => {
       className="min-h-screen flex justify-center items-center px-4"
     >
       <div className="w-full max-w-sm">
-        {/* 1. Logo & Title */}
         <motion.div
           variants={itemScaleIn}
           className="flex items-center flex-col mb-6"
@@ -76,11 +81,13 @@ const AuthForm = () => {
           </p>
         </motion.div>
 
-        {/* 2. The Card (Animates as one unit) */}
         <motion.div variants={itemFadeUp}>
           <Card>
             <CardHeader>
-              <CardTitle>Lets get into planning!</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-muted-foreground">
+                <NotebookPen className="size-4 " />
+                <p className="text-sm font-medium">Lets get into planning!</p>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={handleFormSubmit}>
@@ -132,10 +139,11 @@ const AuthForm = () => {
                       const hasError =
                         Boolean(error.length) && field.state.meta.isTouched;
                       return (
-                        <motion.div
+                        <AnimateItem
                           key={`password-error-${attemptCount}`}
-                          variants={shakeVariants}
-                          animate={hasError ? "shake" : "idle"}
+                          errors={field.state.meta.errors}
+                          hasError={hasError}
+                          attemptCount={attemptCount}
                         >
                           <Field data-invalid={hasError} className="gap-2">
                             <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -149,24 +157,19 @@ const AuthForm = () => {
                                   field.handleChange(e.target.value)
                                 }
                               />
-                              <AnimatePresence mode="wait">
-                                {hasError && (
-                                  <motion.div
-                                    key="pass-error-msg"
-                                    {...errorVariants}
-                                    className="overflow-hidden"
-                                  >
-                                    <FieldError errors={error} />
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
                             </FieldContent>
                           </Field>
-                        </motion.div>
+                        </AnimateItem>
                       );
                     }}
                   </form.Field>
                 </FieldGroup>
+
+                <AnimateItem
+                  hasError={Boolean(submitError)}
+                  error={submitError}
+                  attemptCount={attemptCount}
+                />
 
                 <form.Subscribe
                   selector={(s) => [s.isSubmitting, s.isSubmitSuccessful]}
@@ -190,7 +193,6 @@ const AuthForm = () => {
           </Card>
         </motion.div>
 
-        {/* 3. Footer */}
         <motion.div variants={itemFadeUp} className="text-center mt-6">
           <p className="text-xs text-muted-foreground">
             <Link to="/" className="hover:text-primary transition-colors">
@@ -203,4 +205,4 @@ const AuthForm = () => {
   );
 };
 
-export default AuthForm;
+export default SignIn;

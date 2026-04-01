@@ -1,4 +1,4 @@
-import AuthGate from "../auth/AuthGate";
+import AuthGate from "../../auth/AuthGate";
 import DashboardView from "./DashboardView";
 
 const Dashboard = () => {

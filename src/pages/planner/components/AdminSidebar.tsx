@@ -28,7 +28,7 @@ import {
 
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useCueStore } from "@/pages/planner/store/useCueStore";
-import { useLogoutMutation } from "@/pages/auth/queries";
+import { useLogoutMutation } from "@/auth/queries";
 import { RoleSelector } from "./RoleSelector";
 
 export function AdminSidebar() {
