@@ -1,22 +1,27 @@
-import { useQuery } from "@/lib/query/useQuery";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@/lib/query/useMutation";
-import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { getUsers, updateAdminStatus } from "./api";
 
+export const usersQueryKey = ["users"] as const;
+
 export function useUsers() {
-  return useQuery(getUsers, { key: "users" });
+  return useQuery({
+    queryKey: usersQueryKey,
+    queryFn: getUsers,
+  });
 }
 
 export function useUserMutations() {
-  const { teamRoles, setTeamRoles } = useAdminStore();
+  const queryClient = useQueryClient();
 
   const toggleAdmin = useMutation(
     (args: { role: string; isAdmin: boolean }) => updateAdminStatus(args),
     {
       successMessage: "Admin status updated",
       errorMessage: "Failed to update admin status",
-      onSuccess: ({ role, isAdmin }) => {
-        setTeamRoles(teamRoles.map((r) => (r.role === role ? { ...r, isAdmin } : r)));
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: usersQueryKey });
+        queryClient.invalidateQueries({ queryKey: ["teamRolesQueryKey"] });
       },
     }
   );

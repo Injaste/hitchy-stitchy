@@ -1,58 +1,55 @@
-// src/lib/query/useMutation.ts
-
-import { useState, useCallback } from "react";
+import { useMutation as useTanstackMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { MutationOptions } from "./types";
 
 export function useMutation<TArgs, TResult>(
   fn: (args: TArgs) => Promise<TResult>,
-  options: MutationOptions<TResult>,
+  options: MutationOptions<TResult, TArgs>,
 ) {
-  const [isPending, setIsPending] = useState(false);
+  const { mutateAsync: _mutateAsync, isPending, error, data, reset } = useTanstackMutation({
+    mutationFn: fn,
 
-  const mutate = useCallback(
-    async (args: TArgs) => {
-      setIsPending(true);
-
-      try {
-        if ("toast" in options && options.toast) {
-          // Mode 2 — promise toast, Sonner owns the lifecycle
-          const promise = fn(args);
-          toast.promise(promise, {
-            loading: options.toast.loading,
-            success: options.toast.success,
-            error: options.toast.error,
-          });
-          const result = await promise;
-          options.onSuccess?.(result);
-
-        } else if ("silent" in options && options.silent) {
-          // Mode 3 — silent, no toast
-          const result = await fn(args);
-          options.onSuccess?.(result);
-
-        } else {
-          // Mode 1 — simple toast after resolution
-          const result = await fn(args);
-          toast.success(options.successMessage);
-          options.onSuccess?.(result);
-        }
-
-      } catch (err) {
-        const error = err instanceof Error ? err : new Error(String(err));
-
-        if (!("toast" in options) && !("silent" in options)) {
-          // Mode 1 only — promise mode lets Sonner handle it, silent mode skips it
-          toast.error(options.errorMessage);
-        }
-
-        options.onError?.(error);
-      } finally {
-        setIsPending(false);
+    onSuccess(result, args) {
+      if ("toast" in options && options.toast) return;
+      options.onSuccess?.(result, args);
+      if (!("silent" in options)) {
+        const msg = typeof options.successMessage === "function"
+          ? options.successMessage(result, args)
+          : options.successMessage;
+        toast.success(msg);
       }
     },
-    [fn, options],
-  );
 
-  return { mutate, isPending };
+    onError(err, args) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      options.onError?.(error, args);
+      if (!("toast" in options) && !("silent" in options)) {
+        const msg = typeof options.errorMessage === "function"
+          ? options.errorMessage(error, args)
+          : options.errorMessage;
+        toast.error(msg);
+      }
+    },
+  });
+
+  async function mutate(args: TArgs): Promise<void> {
+    if ("toast" in options && options.toast) {
+      const promise = _mutateAsync(args);
+      toast.promise(promise, {
+        loading: options.toast.loading,
+        success: options.toast.success as string,
+        error: options.toast.error as string,
+      });
+      await promise.catch(() => { });
+      return;
+    }
+    await _mutateAsync(args).catch(() => { });
+  }
+
+
+  async function mutateAsync(args: TArgs): Promise<TResult> {
+    return _mutateAsync(args);
+  }
+
+  return { mutate, mutateAsync, isPending, error, data, reset };
 }

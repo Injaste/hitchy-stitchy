@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { TimelineEventCard } from "./TimelineEventCard";
 import type { TimelineEvent } from "./types";
 
@@ -38,7 +38,7 @@ export function TimelineList({ events, day }: Props) {
             <div
               className={cn(
                 "absolute -left-[9px] top-1 h-4 w-4 rounded-full border-2 bg-card",
-                isMainGroup ? "border-primary bg-primary/10" : "border-border"
+                isMainGroup ? "border-primary bg-primary/10" : "border-border",
               )}
             />
             <div className="flex items-center gap-2 text-primary font-semibold mb-3 pl-5 md:pl-8">

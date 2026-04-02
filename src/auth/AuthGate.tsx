@@ -1,13 +1,17 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 
-import { useAuthGate } from "./hook";
+import { useAuthListener, useIsAuthenticatedQuery } from "./queries";
 
-import SignIn from "./SignIn";
+import SignIn from ".";
+import Loading from "@/components/custom/loading";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthGate();
+  const { data: isAuthenticated, isLoading } = useIsAuthenticatedQuery();
+  useAuthListener();
+
+  if (isLoading) return <Loading />;
 
   return (
     <AnimatePresence mode="wait">

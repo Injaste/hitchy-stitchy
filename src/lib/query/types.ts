@@ -1,40 +1,37 @@
-export interface QueryState<T> {
-  data: T | null;
-  isLoading: boolean;
-  error: Error | null;
-}
-
-type MutationCallbacks<TResult> = {
-  onSuccess?: (result: TResult) => void;
-  onError?: (error: Error) => void;
+export type MutationCallbacks<TResult, TArgs = unknown> = {
+  onSuccess?: (result: TResult, args: TArgs) => void;
+  onError?: (error: Error, args: TArgs) => void;
 };
 
 // Mode 1 — simple toasts
-type SimpleMutationOptions<TResult> = MutationCallbacks<TResult> & {
-  successMessage: string;
-  errorMessage: string;
+type SimpleMutationOptions<TResult, TArgs> = MutationCallbacks<TResult, TArgs> & {
+  successMessage: string | ((result: TResult, args: TArgs) => string);
+  errorMessage: string | ((error: Error, args: TArgs) => string);
   toast?: never;
+  silent?: never;
 };
 
 // Mode 2 — promise toast
-type PromiseMutationOptions<TResult> = MutationCallbacks<TResult> & {
+type PromiseMutationOptions<TResult, TArgs> = MutationCallbacks<TResult, TArgs> & {
   toast: {
     loading: string;
-    success: string;
-    error: string;
+    success: string | ((result: TResult) => string);
+    error: string | ((error: Error) => string);
   };
   successMessage?: never;
   errorMessage?: never;
+  silent?: never;
 };
 
-type SilentMutationOptions<TResult> = MutationCallbacks<TResult> & {
+// Mode 3 — silent
+type SilentMutationOptions<TResult, TArgs> = MutationCallbacks<TResult, TArgs> & {
   silent: true;
   toast?: never;
   successMessage?: never;
   errorMessage?: never;
 };
 
-export type MutationOptions<TResult> =
-  | SimpleMutationOptions<TResult>
-  | PromiseMutationOptions<TResult>
-  | SilentMutationOptions<TResult>;
+export type MutationOptions<TResult, TArgs = unknown> =
+  | SimpleMutationOptions<TResult, TArgs>
+  | PromiseMutationOptions<TResult, TArgs>
+  | SilentMutationOptions<TResult, TArgs>;

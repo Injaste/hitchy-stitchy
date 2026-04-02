@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Heart, CalendarCheck, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 
 export interface RoleData {
   role: string;
@@ -25,18 +25,25 @@ interface RoleOption {
 }
 
 const ROLE_OPTIONS: RoleOption[] = [
-  { role: "Bride",       shortRole: "Bride", icon: Heart },
-  { role: "Groom",       shortRole: "Groom", icon: Heart },
+  { role: "Bride", shortRole: "Bride", icon: Heart },
+  { role: "Groom", shortRole: "Groom", icon: Heart },
   { role: "Coordinator", shortRole: "Coord", icon: CalendarCheck },
-  { role: "Other",       shortRole: "Other", icon: User },
+  { role: "Other", shortRole: "Other", icon: User },
 ];
 
-export function StepRole({ defaultValues, onSubmit, onBack, isSubmitting, error }: Props) {
+export function StepRole({
+  defaultValues,
+  onSubmit,
+  onBack,
+  isSubmitting,
+  error,
+}: Props) {
   const [selected, setSelected] = useState<string>(defaultValues?.role ?? "");
   const [customRole, setCustomRole] = useState(
-    defaultValues?.role && !ROLE_OPTIONS.find((o) => o.role === defaultValues.role)
+    defaultValues?.role &&
+      !ROLE_OPTIONS.find((o) => o.role === defaultValues.role)
       ? defaultValues.role
-      : ""
+      : "",
   );
   const [validationError, setValidationError] = useState("");
 
@@ -86,10 +93,15 @@ export function StepRole({ defaultValues, onSubmit, onBack, isSubmitting, error 
                 "flex flex-col items-center gap-2 rounded-xl border p-4 text-sm font-medium transition-colors",
                 isSelected
                   ? "bg-primary/10 border-primary border-2 text-primary"
-                  : "bg-card border-border hover:bg-muted/50 text-foreground"
+                  : "bg-card border-border hover:bg-muted/50 text-foreground",
               )}
             >
-              <Icon className={cn("w-6 h-6", isSelected ? "text-primary" : "text-muted-foreground")} />
+              <Icon
+                className={cn(
+                  "w-6 h-6",
+                  isSelected ? "text-primary" : "text-muted-foreground",
+                )}
+              />
               {option.role}
             </motion.button>
           );
@@ -116,10 +128,19 @@ export function StepRole({ defaultValues, onSubmit, onBack, isSubmitting, error 
       )}
 
       <div className="flex gap-2">
-        <Button variant="outline" onClick={onBack} disabled={isSubmitting} className="w-full">
+        <Button
+          variant="outline"
+          onClick={onBack}
+          disabled={isSubmitting}
+          className="w-full"
+        >
           Back
         </Button>
-        <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full">
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="w-full"
+        >
           {isSubmitting ? "Creating your event…" : "Create Event"}
         </Button>
       </div>

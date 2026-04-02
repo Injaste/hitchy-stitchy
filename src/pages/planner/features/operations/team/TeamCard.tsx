@@ -3,7 +3,7 @@ import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { scaleIn } from "@/pages/planner/animations";
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useModalStore } from "@/pages/planner/store/useModalStore";

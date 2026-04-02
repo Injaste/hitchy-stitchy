@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Calendar, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { useCueStore } from "@/pages/planner/store/useCueStore";
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 

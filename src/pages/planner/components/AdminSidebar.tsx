@@ -11,7 +11,7 @@ import {
 import { CalendarHeart } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,

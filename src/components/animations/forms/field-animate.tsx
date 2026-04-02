@@ -1,6 +1,16 @@
 import { FieldError } from "@/components/ui/field";
-import { errorVariants, shakeVariants } from "@/lib/animations";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useAnimate, AnimatePresence } from "framer-motion";
+import { useEffect, useRef } from "react";
+
+type FieldErrors = Array<{ message?: string } | undefined>;
+
+function resolveMessage(
+  errors?: FieldErrors,
+  error?: string | null,
+): string | null {
+  if (error) return error;
+  return errors?.find((e) => e?.message)?.message ?? null;
+}
 
 const AnimateItem = ({
   errors,
@@ -10,40 +20,26 @@ const AnimateItem = ({
   children,
 }: {
   error?: string | null;
-  errors?: Array<{ message?: string } | undefined>;
+  errors?: FieldErrors;
   hasError: boolean;
   attemptCount: number;
   children?: React.ReactNode;
 }) => {
+  const [scope, animate] = useAnimate();
+
+  // Fire shake imperatively — no key change, no remount, no focus loss
+  useEffect(() => {
+    if (!hasError) return;
+    animate(scope.current, { x: [0, -6, 6, -4, 4, 0] }, { duration: 0.35 });
+  }, [attemptCount, hasError]);
+
   return (
-    <AnimateShake hasError={hasError} attemptCount={attemptCount}>
+    <div ref={scope}>
       {children}
-      {error ? (
-        <AnimateError hasError={hasError} error={error} />
-      ) : (
-        <AnimateError hasError={hasError} errors={errors} />
-      )}
-    </AnimateShake>
+      <AnimateError hasError={hasError} errors={errors} error={error} />
+    </div>
   );
 };
-
-const AnimateShake = ({
-  hasError,
-  attemptCount,
-  children,
-}: {
-  hasError: boolean;
-  attemptCount: number;
-  children: React.ReactNode;
-}) => (
-  <motion.div
-    key={`shake-${attemptCount}`}
-    variants={shakeVariants}
-    animate={hasError ? "shake" : "idle"}
-  >
-    {children}
-  </motion.div>
-);
 
 const AnimateError = ({
   hasError,
@@ -52,21 +48,35 @@ const AnimateError = ({
 }: {
   hasError: boolean;
   error?: string | null;
-  errors?: Array<{ message?: string } | undefined>;
+  errors?: FieldErrors;
 }) => {
+  const message = resolveMessage(errors, error);
+
+  // Track previous message so we only re-animate on a genuinely new error
+  const prevRef = useRef<string | null>(null);
+  const keyRef = useRef(0);
+  if (message !== prevRef.current) {
+    prevRef.current = message;
+    keyRef.current += 1;
+  }
+
   return (
-    <AnimatePresence mode="wait">
-      {hasError && (
-        <motion.div {...errorVariants} className="overflow-hidden">
-          {error ? (
-            <FieldError>{error}</FieldError>
-          ) : (
-            <FieldError errors={errors} />
-          )}
+    <AnimatePresence initial={false}>
+      {hasError && message && (
+        <motion.div
+          key={keyRef.current}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          style={{ overflow: "hidden" }}
+          className="mt-0.5"
+        >
+          <FieldError>{message}</FieldError>
         </motion.div>
       )}
     </AnimatePresence>
   );
 };
 
-export { AnimateItem, AnimateShake, AnimateError };
+export { AnimateItem, AnimateError };

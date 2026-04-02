@@ -1,25 +1,32 @@
-import { useQuery } from "@/lib/query/useQuery";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@/lib/query/useMutation";
-import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useModalStore } from "@/pages/planner/store/useModalStore";
 import { getTeamRoles, createRole, updateRole, deleteRole } from "./api";
 import type { TeamMember } from "./types";
 
+export const teamRolesQueryKey = ["teamRoles"] as const;
+
 export function useTeamRoles() {
-  return useQuery(getTeamRoles, { key: "teamRoles" });
+  return useQuery({
+    queryKey: teamRolesQueryKey,
+    queryFn: getTeamRoles,
+  });
 }
 
 export function useRoleMutations() {
-  const { teamRoles, setTeamRoles } = useAdminStore();
+  const queryClient = useQueryClient();
   const { closeRoleModal } = useModalStore();
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: teamRolesQueryKey });
 
   const create = useMutation(
     (role: TeamMember) => createRole(role),
     {
       successMessage: "Role created",
       errorMessage: "Failed to create role",
-      onSuccess: (newRole) => {
-        setTeamRoles([...teamRoles, newRole]);
+      onSuccess: () => {
+        invalidate();
         closeRoleModal();
       },
     }
@@ -30,8 +37,8 @@ export function useRoleMutations() {
     {
       successMessage: "Role updated",
       errorMessage: "Failed to update role",
-      onSuccess: (updated) => {
-        setTeamRoles(teamRoles.map((r) => (r.role === updated.role ? updated : r)));
+      onSuccess: () => {
+        invalidate();
         closeRoleModal();
       },
     }
@@ -42,8 +49,8 @@ export function useRoleMutations() {
     {
       successMessage: "Role deleted",
       errorMessage: "Failed to delete role",
-      onSuccess: (roleName) => {
-        setTeamRoles(teamRoles.filter((r) => r.role !== roleName));
+      onSuccess: () => {
+        invalidate();
         closeRoleModal();
       },
     }

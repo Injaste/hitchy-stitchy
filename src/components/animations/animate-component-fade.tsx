@@ -6,9 +6,17 @@ interface ComponentFadeProps {
 }
 
 const pageTransition: Variants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.35, ease: "easeOut" } },
-  exit: { opacity: 0, transition: { duration: 0.25, ease: "easeIn" } },
+  hidden: { opacity: 0, filter: "blur(2px)" },
+  show: {
+    opacity: 1,
+    filter: "blur(0px)",
+    transition: { duration: 0.35, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    filter: "blur(2px)",
+    transition: { duration: 0.25, ease: "easeIn" },
+  },
 };
 
 export function ComponentFade({ children, className }: ComponentFadeProps) {

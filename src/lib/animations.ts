@@ -33,6 +33,8 @@ export const itemFadeIn = {
   show: { opacity: 1, transition: { duration: 0.5 } },
 };
 
+export const cardHover = { y: -3, transition: { duration: 0.2 } };
+
 export const shakeVariants = {
   idle: { x: 0 },
   shake: {
@@ -47,7 +49,7 @@ export const errorVariants = {
   exit: { opacity: 0, y: -4, height: 0, transition: { duration: 0.15 } },
 };
 
-//!TO DEPRECATE AND USE THE ABOVE
+//!TO DEPRECATE - PLEASE USE THE ABOVE
 
 export const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },

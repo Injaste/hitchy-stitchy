@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { fadeUp } from "@/pages/planner/animations";
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useModalStore } from "@/pages/planner/store/useModalStore";

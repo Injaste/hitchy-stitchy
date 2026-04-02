@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { CalendarHeart } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { supabase } from "@/lib/supabase";
 import { fadeUp, scaleIn, stepEnter, stepExit } from "./animations";
 import { StepAccount, type AccountData } from "./steps/StepAccount";
@@ -36,22 +36,26 @@ export default function OnboardPage() {
     setIsSubmitting(true);
     setError(null);
 
-    const { data, error: fnError } = await supabase.functions.invoke("onboard-event", {
-      body: {
-        email: account.email,
-        password: account.password,
-        fullName: account.fullName,
-        eventName: event.eventName,
-        dateStart: event.dateStart,
-        dateEnd: event.dateEnd,
-        slug: event.slug,
-        role: roleData.role,
-        shortRole: roleData.shortRole,
+    const { data, error: fnError } = await supabase.functions.invoke(
+      "onboard-event",
+      {
+        body: {
+          email: account.email,
+          password: account.password,
+          fullName: account.fullName,
+          eventName: event.eventName,
+          dateStart: event.dateStart,
+          dateEnd: event.dateEnd,
+          slug: event.slug,
+          role: roleData.role,
+          shortRole: roleData.shortRole,
+        },
       },
-    });
+    );
 
     if (fnError || !data) {
-      const message = fnError?.message ?? "Something went wrong. Please try again.";
+      const message =
+        fnError?.message ?? "Something went wrong. Please try again.";
       setError(message);
       setIsSubmitting(false);
       return;
@@ -63,7 +67,9 @@ export default function OnboardPage() {
     });
 
     if (signInError) {
-      toast.error("Account created but sign-in failed. Please try logging in manually.");
+      toast.error(
+        "Account created but sign-in failed. Please try logging in manually.",
+      );
       setIsSubmitting(false);
       return;
     }
@@ -84,7 +90,9 @@ export default function OnboardPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
             <CalendarHeart className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-serif font-bold text-primary">Cozynosy</h1>
+          <h1 className="text-2xl font-serif font-bold text-primary">
+            Cozynosy
+          </h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             Wedding Admin
           </p>
@@ -112,8 +120,8 @@ export default function OnboardPage() {
                         isActive
                           ? "bg-primary text-primary-foreground"
                           : isDone
-                          ? "bg-primary/20 text-primary"
-                          : "bg-muted text-muted-foreground"
+                            ? "bg-primary/20 text-primary"
+                            : "bg-muted text-muted-foreground",
                       )}
                     >
                       {isDone ? "✓" : s}
@@ -121,7 +129,9 @@ export default function OnboardPage() {
                     <span
                       className={cn(
                         "text-[10px] uppercase tracking-wide",
-                        isActive ? "text-primary font-medium" : "text-muted-foreground"
+                        isActive
+                          ? "text-primary font-medium"
+                          : "text-muted-foreground",
                       )}
                     >
                       {label}
@@ -131,7 +141,7 @@ export default function OnboardPage() {
                     <div
                       className={cn(
                         "w-8 h-px mb-4 transition-colors",
-                        isDone ? "bg-primary/40" : "bg-border"
+                        isDone ? "bg-primary/40" : "bg-border",
                       )}
                     />
                   )}

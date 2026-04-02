@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from "react";
 import { useForm } from "@tanstack/react-form";
-import { AnimatePresence, motion } from "framer-motion";
-import { CalendarHeart, NotebookPen } from "lucide-react";
+import { motion } from "framer-motion";
+import { CalendarHeart, Eye, EyeOff, NotebookPen } from "lucide-react";
 import { z } from "zod";
 import { Link } from "react-router-dom";
 
@@ -16,15 +16,13 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useLoginMutation } from "./queries";
-import {
-  container,
-  errorVariants,
-  itemFadeIn,
-  itemFadeUp,
-  itemScaleIn,
-  shakeVariants,
-} from "@/lib/animations";
+import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 const signInSchema = z.object({
   email: z.email("Enter a valid email"),
@@ -32,26 +30,28 @@ const signInSchema = z.object({
 });
 
 const SignIn = () => {
-  const { mutate: login, isPending } = useLoginMutation({
-    onError: (error) => {
-      setSubmitError(error.message);
-    },
-  });
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Track attempts to re-trigger animations on click
+  const [showPassword, setShowPassword] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
+
+  const {
+    mutateAsync: login,
+    error: errorLogin,
+    reset: resetLogin,
+  } = useLoginMutation();
 
   const form = useForm({
     defaultValues: { email: "", password: "" },
-    validators: { onSubmit: signInSchema },
+    validators: {
+      onSubmit: signInSchema,
+      onChange: signInSchema,
+    },
     onSubmit: async ({ value }) => {
+      resetLogin();
       await login(value);
     },
   });
 
   const handleFormSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-    setSubmitError(null);
     e.preventDefault();
     e.stopPropagation();
     setAttemptCount((prev) => prev + 1);
@@ -96,13 +96,13 @@ const SignIn = () => {
                     {(field) => {
                       const error = field.state.meta.errors;
                       const hasError =
-                        error.length && field.state.meta.isTouched;
+                        Boolean(error.length) &&
+                        form.state.submissionAttempts > 0;
                       return (
-                        // Key includes attemptCount to re-trigger shake on submit click
-                        <motion.div
-                          key={`email-error-${attemptCount}`}
-                          variants={shakeVariants}
-                          animate={hasError ? "shake" : "idle"}
+                        <AnimateItem
+                          errors={field.state.meta.errors}
+                          hasError={hasError}
+                          attemptCount={attemptCount}
                         >
                           <Field data-invalid={hasError} className="gap-2">
                             <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -114,21 +114,11 @@ const SignIn = () => {
                                 onChange={(e) =>
                                   field.handleChange(e.target.value)
                                 }
+                                onBlur={field.handleBlur}
                               />
-                              <AnimatePresence mode="wait">
-                                {hasError && (
-                                  <motion.div
-                                    key="email-error-msg"
-                                    {...errorVariants}
-                                    className="overflow-hidden"
-                                  >
-                                    <FieldError errors={error} />
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
                             </FieldContent>
                           </Field>
-                        </motion.div>
+                        </AnimateItem>
                       );
                     }}
                   </form.Field>
@@ -137,10 +127,10 @@ const SignIn = () => {
                     {(field) => {
                       const error = field.state.meta.errors;
                       const hasError =
-                        Boolean(error.length) && field.state.meta.isTouched;
+                        Boolean(error.length) &&
+                        form.state.submissionAttempts > 0;
                       return (
                         <AnimateItem
-                          key={`password-error-${attemptCount}`}
                           errors={field.state.meta.errors}
                           hasError={hasError}
                           attemptCount={attemptCount}
@@ -148,15 +138,34 @@ const SignIn = () => {
                           <Field data-invalid={hasError} className="gap-2">
                             <FieldLabel htmlFor="password">Password</FieldLabel>
                             <FieldContent>
-                              <Input
-                                id="password"
-                                type="password"
-                                placeholder="Password"
-                                value={field.state.value}
-                                onChange={(e) =>
-                                  field.handleChange(e.target.value)
-                                }
-                              />
+                              <InputGroup>
+                                <InputGroupInput
+                                  id="password"
+                                  type={showPassword ? "text" : "password"}
+                                  placeholder="Password"
+                                  value={field.state.value}
+                                  onChange={(e) =>
+                                    field.handleChange(e.target.value)
+                                  }
+                                  onBlur={field.handleBlur}
+                                />
+                                <InputGroupAddon align="inline-end">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={() => setShowPassword((p) => !p)}
+                                    onMouseLeave={() => setShowPassword(false)}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff className="w-4 h-4" />
+                                    ) : (
+                                      <Eye className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                </InputGroupAddon>
+                              </InputGroup>
                             </FieldContent>
                           </Field>
                         </AnimateItem>
@@ -166,8 +175,8 @@ const SignIn = () => {
                 </FieldGroup>
 
                 <AnimateItem
-                  hasError={Boolean(submitError)}
-                  error={submitError}
+                  hasError={Boolean(errorLogin)}
+                  error={errorLogin?.message}
                   attemptCount={attemptCount}
                 />
 
@@ -176,7 +185,7 @@ const SignIn = () => {
                 >
                   {([isSubmitting, isSubmitSuccessful]) => {
                     const isDisabled =
-                      (isSubmitting || isSubmitSuccessful) && !submitError;
+                      (isSubmitting || isSubmitSuccessful) && !errorLogin;
                     return (
                       <Button
                         type="submit"

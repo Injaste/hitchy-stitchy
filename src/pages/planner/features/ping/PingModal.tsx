@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useModalStore } from "@/pages/planner/store/useModalStore";
 import { PING_PRESETS } from "./types";

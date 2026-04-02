@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { Bell, Radio } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useCueStore } from "@/pages/planner/store/useCueStore";
 import { useModalStore } from "@/pages/planner/store/useModalStore";

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Bell, Calendar, Flag, StickyNote, User } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { fadeUp } from "@/pages/planner/animations";
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useModalStore } from "@/pages/planner/store/useModalStore";

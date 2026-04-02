@@ -1,25 +1,32 @@
-import { useQuery } from "@/lib/query/useQuery";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@/lib/query/useMutation";
-import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { useModalStore } from "@/pages/planner/store/useModalStore";
 import { getTasks, createTask, updateTask, deleteTask } from "./api";
 import type { ChecklistItem } from "./types";
 
+export const tasksQueryKey = ["tasks"] as const;
+
 export function useTasks() {
-  return useQuery(getTasks, { key: "tasks" });
+  return useQuery({
+    queryKey: tasksQueryKey,
+    queryFn: getTasks,
+  });
 }
 
 export function useTaskMutations() {
-  const { tasks, setTasks } = useAdminStore();
+  const queryClient = useQueryClient();
   const { closeTaskModal } = useModalStore();
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: tasksQueryKey });
 
   const create = useMutation(
     (task: Omit<ChecklistItem, "id">) => createTask(task),
     {
       successMessage: "Task created",
       errorMessage: "Failed to create task",
-      onSuccess: (newTask) => {
-        setTasks([...tasks, newTask]);
+      onSuccess: () => {
+        invalidate();
         closeTaskModal();
       },
     }
@@ -30,8 +37,8 @@ export function useTaskMutations() {
     {
       successMessage: "Task updated",
       errorMessage: "Failed to update task",
-      onSuccess: (updated) => {
-        setTasks(tasks.map((t) => (t.id === updated.id ? updated : t)));
+      onSuccess: () => {
+        invalidate();
         closeTaskModal();
       },
     }
@@ -42,9 +49,7 @@ export function useTaskMutations() {
     {
       successMessage: "Task deleted",
       errorMessage: "Failed to delete task",
-      onSuccess: (id) => {
-        setTasks(tasks.filter((t) => t.id !== id));
-      },
+      onSuccess: () => invalidate(),
     }
   );
 

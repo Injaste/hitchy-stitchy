@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/utils";
 import { useAdminStore } from "@/pages/planner/store/useAdminStore";
 import { TimelineList } from "./TimelineList";
 
