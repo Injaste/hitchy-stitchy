@@ -1,27 +1,22 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Heart, CalendarCheck, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils/utils";
-
-export interface RoleData {
-  role: string;
-  shortRole: string;
-}
+import { useState } from "react"
+import { Heart, CalendarCheck, User } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils/utils"
+import type { RoleData } from "../types"
 
 interface Props {
-  defaultValues?: Partial<RoleData>;
-  onSubmit: (data: RoleData) => void;
-  onBack: () => void;
-  isSubmitting?: boolean;
-  error?: string | null;
+  defaultValues?: Partial<RoleData>
+  onSubmit: (data: RoleData) => void
+  onBack: () => void
+  isSubmitting?: boolean
+  error?: string | null
 }
 
 interface RoleOption {
-  role: string;
-  shortRole: string;
-  icon: React.ComponentType<{ className?: string }>;
+  role: string
+  shortRole: string
+  icon: React.ComponentType<{ className?: string }>
 }
 
 const ROLE_OPTIONS: RoleOption[] = [
@@ -29,42 +24,35 @@ const ROLE_OPTIONS: RoleOption[] = [
   { role: "Groom", shortRole: "Groom", icon: Heart },
   { role: "Coordinator", shortRole: "Coord", icon: CalendarCheck },
   { role: "Other", shortRole: "Other", icon: User },
-];
+]
 
-export function StepRole({
-  defaultValues,
-  onSubmit,
-  onBack,
-  isSubmitting,
-  error,
-}: Props) {
-  const [selected, setSelected] = useState<string>(defaultValues?.role ?? "");
+export function StepRole({ defaultValues, onSubmit, onBack, isSubmitting, error }: Props) {
+  const [selected, setSelected] = useState<string>(defaultValues?.role ?? "")
   const [customRole, setCustomRole] = useState(
-    defaultValues?.role &&
-      !ROLE_OPTIONS.find((o) => o.role === defaultValues.role)
+    defaultValues?.role && !ROLE_OPTIONS.find((o) => o.role === defaultValues.role)
       ? defaultValues.role
       : "",
-  );
-  const [validationError, setValidationError] = useState("");
+  )
+  const [validationError, setValidationError] = useState("")
 
   const handleSubmit = () => {
     if (!selected) {
-      setValidationError("Please select a role to continue.");
-      return;
+      setValidationError("Please select a role to continue.")
+      return
     }
     if (selected === "Other" && customRole.trim().length === 0) {
-      setValidationError("Please enter your role.");
-      return;
+      setValidationError("Please enter your role.")
+      return
     }
-    setValidationError("");
+    setValidationError("")
     if (selected === "Other") {
-      const trimmed = customRole.trim();
-      onSubmit({ role: trimmed, shortRole: trimmed.slice(0, 10) });
+      const trimmed = customRole.trim()
+      onSubmit({ role: trimmed, shortRole: trimmed.slice(0, 10) })
     } else {
-      const option = ROLE_OPTIONS.find((o) => o.role === selected)!;
-      onSubmit({ role: option.role, shortRole: option.shortRole });
+      const option = ROLE_OPTIONS.find((o) => o.role === selected)!
+      onSubmit({ role: option.role, shortRole: option.shortRole })
     }
-  };
+  }
 
   return (
     <div className="space-y-5">
@@ -77,17 +65,15 @@ export function StepRole({
 
       <div className="grid grid-cols-2 gap-3">
         {ROLE_OPTIONS.map((option) => {
-          const Icon = option.icon;
-          const isSelected = selected === option.role;
+          const Icon = option.icon
+          const isSelected = selected === option.role
           return (
-            <motion.button
+            <button
               key={option.role}
               type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
               onClick={() => {
-                setSelected(option.role);
-                setValidationError("");
+                setSelected(option.role)
+                setValidationError("")
               }}
               className={cn(
                 "flex flex-col items-center gap-2 rounded-xl border p-4 text-sm font-medium transition-colors",
@@ -96,15 +82,10 @@ export function StepRole({
                   : "bg-card border-border hover:bg-muted/50 text-foreground",
               )}
             >
-              <Icon
-                className={cn(
-                  "w-6 h-6",
-                  isSelected ? "text-primary" : "text-muted-foreground",
-                )}
-              />
+              <Icon className={cn("w-6 h-6", isSelected ? "text-primary" : "text-muted-foreground")} />
               {option.role}
-            </motion.button>
-          );
+            </button>
+          )
         })}
       </div>
 
@@ -114,8 +95,8 @@ export function StepRole({
             type="text"
             value={customRole}
             onChange={(e) => {
-              setCustomRole(e.target.value);
-              setValidationError("");
+              setCustomRole(e.target.value)
+              setValidationError("")
             }}
             placeholder="Your role e.g. Floor Manager"
             autoFocus
@@ -128,22 +109,13 @@ export function StepRole({
       )}
 
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          onClick={onBack}
-          disabled={isSubmitting}
-          className="w-full"
-        >
+        <Button variant="outline" onClick={onBack} disabled={isSubmitting} className="w-full">
           Back
         </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full"
-        >
+        <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full">
           {isSubmitting ? "Creating your event…" : "Create Event"}
         </Button>
       </div>
     </div>
-  );
+  )
 }

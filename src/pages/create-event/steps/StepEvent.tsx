@@ -1,92 +1,103 @@
-import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Calendar, type DateRange } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
-export interface EventData {
-  eventName: string;
-  dateStart: string;
-  dateEnd: string;
-  slug: string;
-}
+import { useState, useEffect } from "react"
+import { format } from "date-fns"
+import { CalendarIcon } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Calendar, type DateRange } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import type { EventData } from "../types"
 
 interface Props {
-  defaultValues?: Partial<EventData>;
-  onNext: (data: EventData) => void;
-  onBack: () => void;
+  defaultValues?: Partial<EventData>
+  onNext: (data: EventData) => void
 }
 
 interface FieldErrors {
-  eventName?: string;
-  dates?: string;
-  slug?: string;
+  displayName?: string
+  eventName?: string
+  dates?: string
+  slug?: string
 }
 
-const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
+const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/
 
 function toSlug(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/^-|-$/g, "")
 }
 
-export function StepEvent({ defaultValues, onNext, onBack }: Props) {
-  const [eventName, setEventName] = useState(defaultValues?.eventName ?? "");
-  const [slug, setSlug] = useState(defaultValues?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(false);
+export function StepEvent({ defaultValues, onNext }: Props) {
+  const [displayName, setDisplayName] = useState(defaultValues?.displayName ?? "")
+  const [eventName, setEventName] = useState(defaultValues?.eventName ?? "")
+  const [slug, setSlug] = useState(defaultValues?.slug ?? "")
+  const [slugTouched, setSlugTouched] = useState(false)
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     if (defaultValues?.dateStart && defaultValues?.dateEnd) {
       return {
         from: new Date(defaultValues.dateStart),
         to: new Date(defaultValues.dateEnd),
-      };
+      }
     }
-    return undefined;
-  });
-  const [errors, setErrors] = useState<FieldErrors>({});
+    return undefined
+  })
+  const [errors, setErrors] = useState<FieldErrors>({})
 
   useEffect(() => {
     if (!slugTouched) {
-      setSlug(toSlug(eventName));
+      setSlug(toSlug(eventName))
     }
-  }, [eventName, slugTouched]);
+  }, [eventName, slugTouched])
 
   const handleSlugChange = (val: string) => {
-    setSlugTouched(true);
-    setSlug(val);
-  };
+    setSlugTouched(true)
+    setSlug(val)
+  }
 
   const validate = (): boolean => {
-    const next: FieldErrors = {};
-    if (eventName.trim().length < 3) next.eventName = "Event name must be at least 3 characters.";
-    if (!dateRange?.from || !dateRange?.to) next.dates = "Please select a start and end date.";
-    if (!SLUG_REGEX.test(slug)) next.slug = "Slug must be 3–50 chars, lowercase letters, numbers and hyphens only.";
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  };
+    const next: FieldErrors = {}
+    if (displayName.trim().length < 2) next.displayName = "Name must be at least 2 characters."
+    if (eventName.trim().length < 3) next.eventName = "Event name must be at least 3 characters."
+    if (!dateRange?.from || !dateRange?.to) next.dates = "Please select a start and end date."
+    if (!SLUG_REGEX.test(slug)) next.slug = "Slug must be 3–50 chars, lowercase letters, numbers and hyphens only."
+    setErrors(next)
+    return Object.keys(next).length === 0
+  }
 
   const handleNext = () => {
-    if (!validate()) return;
+    if (!validate()) return
     onNext({
+      displayName: displayName.trim(),
       eventName: eventName.trim(),
       dateStart: format(dateRange!.from!, "yyyy-MM-dd"),
       dateEnd: format(dateRange!.to!, "yyyy-MM-dd"),
       slug,
-    });
-  };
+    })
+  }
 
-  const dateLabel = dateRange?.from && dateRange?.to
-    ? `${format(dateRange.from, "do MMM")} – ${format(dateRange.to, "do MMM yyyy")}`
-    : "Pick dates";
+  const dateLabel =
+    dateRange?.from && dateRange?.to
+      ? `${format(dateRange.from, "do MMM")} – ${format(dateRange.to, "do MMM yyyy")}`
+      : "Pick dates"
 
   return (
     <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="displayName">Your Name</Label>
+        <Input
+          id="displayName"
+          type="text"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          placeholder="e.g. Danish Izhan"
+          autoFocus
+        />
+        {errors.displayName && <p className="text-xs text-destructive">{errors.displayName}</p>}
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="eventName">Event Name</Label>
         <Input
@@ -95,7 +106,6 @@ export function StepEvent({ defaultValues, onNext, onBack }: Props) {
           value={eventName}
           onChange={(e) => setEventName(e.target.value)}
           placeholder="e.g. Danish & Nadhirah Wedding"
-          autoFocus
         />
         {errors.eventName && <p className="text-xs text-destructive">{errors.eventName}</p>}
       </div>
@@ -104,23 +114,13 @@ export function StepEvent({ defaultValues, onNext, onBack }: Props) {
         <Label>Event Dates</Label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2 font-normal"
-            >
+            <Button variant="outline" className="w-full justify-start gap-2 font-normal">
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-              <span className={dateRange?.from ? "" : "text-muted-foreground"}>
-                {dateLabel}
-              </span>
+              <span className={dateRange?.from ? "" : "text-muted-foreground"}>{dateLabel}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="range"
-              selected={dateRange}
-              onSelect={setDateRange}
-              numberOfMonths={1}
-            />
+            <Calendar mode="range" selected={dateRange} onSelect={setDateRange} numberOfMonths={1} />
           </PopoverContent>
         </Popover>
         {errors.dates && <p className="text-xs text-destructive">{errors.dates}</p>}
@@ -143,14 +143,11 @@ export function StepEvent({ defaultValues, onNext, onBack }: Props) {
         {errors.slug && <p className="text-xs text-destructive">{errors.slug}</p>}
       </div>
 
-      <div className="flex gap-2 pt-2">
-        <Button variant="outline" onClick={onBack} className="w-full">
-          Back
-        </Button>
+      <div className="pt-2">
         <Button onClick={handleNext} className="w-full">
           Next
         </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -1,17 +1,10 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
-import OnboardPage from "./OnboardPage";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import AuthGate from "@/auth/AuthGate"
+import CreateEventShell from "./components/CreateEventShell"
 
-export default function Onboard() {
-  const navigate = useNavigate();
+const CreateEvent = () => (
+  <AuthGate>
+    <CreateEventShell />
+  </AuthGate>
+)
 
-  useEffect(() => {}, []);
-
-  return (
-    <ComponentFade>
-      <OnboardPage />
-    </ComponentFade>
-  );
-}
+export default CreateEvent
