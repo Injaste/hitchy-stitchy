@@ -35,7 +35,7 @@ export const itemFadeIn = {
 
 export const cardHover = { y: -3, transition: { duration: 0.2 } };
 
-export const shakeVariants = {
+export const itemShake = {
   idle: { x: 0 },
   shake: {
     x: [0, -6, 6, -4, 4, -2, 2, 0],
@@ -43,7 +43,7 @@ export const shakeVariants = {
   },
 };
 
-export const errorVariants = {
+export const itemRevealIn = {
   initial: { opacity: 0, y: -4, height: 0 },
   animate: { opacity: 1, y: 0, height: "auto", transition: { duration: 0.2 } },
   exit: { opacity: 0, y: -4, height: 0, transition: { duration: 0.15 } },

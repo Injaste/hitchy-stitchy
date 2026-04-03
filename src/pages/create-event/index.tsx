@@ -1,10 +1,10 @@
-import AuthGate from "@/auth/AuthGate"
-import CreateEventShell from "./components/CreateEventShell"
+import AuthGate from "@/auth/AuthGate";
+import CreateEventView from "./components/CreateEventView";
 
 const CreateEvent = () => (
   <AuthGate>
-    <CreateEventShell />
+    <CreateEventView />
   </AuthGate>
-)
+);
 
-export default CreateEvent
+export default CreateEvent;

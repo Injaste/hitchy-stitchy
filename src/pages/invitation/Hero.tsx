@@ -1,5 +1,5 @@
 import { motion, type Variants } from "framer-motion";
-import CountdownTimer from "./hero/CountdownTimer";
+import CountdownTimer from "../../components/custom/countdown-timer";
 import type { PublicEventConfig } from "./types";
 
 // Timing constants — easy to tune

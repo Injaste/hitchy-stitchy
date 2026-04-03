@@ -7,6 +7,11 @@ export function useCreateEventMutation() {
   const navigate = useNavigate()
   return useMutation({
     mutationFn: (payload: CreateEventPayload) => createEvent(payload),
-    onSuccess: (data) => navigate(`/${data.slug}/admin`),
+    onSuccess: (data) => {
+      console.log(data);
+
+      navigate(`/${data.slug}/admin`)
+    },
   })
 }
+``

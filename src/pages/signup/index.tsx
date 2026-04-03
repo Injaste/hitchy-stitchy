@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { fadeUp, scaleIn } from "@/pages/planner/animations";
+import { fadeUp, scaleIn } from "@/pages/admin/animations";
 import { useSignupMutation } from "./queries";
 
 export default function Signup() {

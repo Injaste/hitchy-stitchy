@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/input-group";
 
 import { buildRsvpSchema, type RSVPFormData } from "../types";
-import type { RSVPFormConfig } from "@/pages/planner/features/settings/types";
+import type { RSVPFormConfig } from "@/pages/admin/features/settings/types";
 
 const fieldVariant: Variants = {
   hidden: { opacity: 0, y: 14 },

@@ -3,12 +3,15 @@ import { motion, useAnimate, AnimatePresence } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 type FieldErrors = Array<{ message?: string } | undefined>;
+type AllErrors = Error | string | null;
 
 function resolveMessage(
   errors?: FieldErrors,
-  error?: string | null,
+  error?: AllErrors,
 ): string | null {
-  if (error) return error;
+  if (error) {
+    return typeof error === "string" ? error : (error.message ?? String(error));
+  }
   return errors?.find((e) => e?.message)?.message ?? null;
 }
 
@@ -19,7 +22,7 @@ const AnimateItem = ({
   attemptCount,
   children,
 }: {
-  error?: string | null;
+  error?: AllErrors;
   errors?: FieldErrors;
   hasError: boolean;
   attemptCount: number;
@@ -47,7 +50,7 @@ const AnimateError = ({
   errors,
 }: {
   hasError: boolean;
-  error?: string | null;
+  error?: AllErrors;
   errors?: FieldErrors;
 }) => {
   const message = resolveMessage(errors, error);

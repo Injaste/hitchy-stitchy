@@ -1,35 +1,95 @@
-"use client";
-
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Tabs as TabsPrimitive } from "radix-ui";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils/utils";
+import useHoverIndicator from "@/lib/hooks/use-hover-indicator";
+import ComponentSlide from "../animations/animate-component-slide";
+
+interface TabsIndicatorContextValue {
+  setRef: (id: string) => (el: HTMLElement | null) => void;
+  onMouseEnter: (id: string) => void;
+}
+
+const TabsIndicatorContext =
+  React.createContext<TabsIndicatorContextValue | null>(null);
+
+type TabsDirection = 1 | -1 | 0;
+
+interface TabsDirectionContextValue {
+  direction: TabsDirection;
+}
+
+const TabsDirectionContext = React.createContext<TabsDirectionContextValue>({
+  direction: 0,
+});
 
 function Tabs({
   className,
   orientation = "horizontal",
+  tabOrder,
+  value,
+  defaultValue,
+  onValueChange,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+}: React.ComponentProps<typeof TabsPrimitive.Root> & {
+  tabOrder?: string[] | readonly string[];
+}) {
+  // 0 = no directional slide (initial mount), 1 = forward, -1 = backward
+  const [direction, setDirection] = React.useState<TabsDirection>(0);
+
+  const prevValueRef = React.useRef<string | undefined>(value ?? defaultValue);
+  // Stays false until the user actually clicks a tab
+  const hasInteracted = React.useRef(false);
+
+  const handleValueChange = React.useCallback(
+    (newValue: string) => {
+      if (newValue === prevValueRef.current) return;
+
+      hasInteracted.current = true;
+
+      if (tabOrder && prevValueRef.current) {
+        const prevIdx = tabOrder.indexOf(prevValueRef.current);
+        const nextIdx = tabOrder.indexOf(newValue);
+        if (prevIdx !== -1 && nextIdx !== -1) {
+          let sign: TabsDirection = 1;
+          if (nextIdx < prevIdx) sign = -1;
+          setDirection(sign);
+        }
+      }
+
+      prevValueRef.current = newValue;
+      onValueChange?.(newValue);
+    },
+    [tabOrder, onValueChange],
+  );
+
   return (
-    <TabsPrimitive.Root
-      data-slot="tabs"
-      data-orientation={orientation}
-      className={cn(
-        "group/tabs flex gap-2 data-horizontal:flex-col",
-        className,
-      )}
-      {...props}
-    />
+    <TabsDirectionContext.Provider value={{ direction }}>
+      <TabsPrimitive.Root
+        data-slot="tabs"
+        data-orientation={orientation}
+        value={value}
+        defaultValue={defaultValue}
+        onValueChange={handleValueChange}
+        className={cn(
+          "gap-2 group/tabs flex data-horizontal:flex-col",
+          className,
+        )}
+        {...props}
+      />
+    </TabsDirectionContext.Provider>
   );
 }
+// ─── TabsList ─────────────────────────────────────────────────────────────────
 
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-horizontal/tabs:h-9 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
+  "rounded-lg p-[3px] group-data-horizontal/tabs:h-9 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
   {
     variants: {
       variant: {
-        default: "bg-muted",
+        default: "gap-1 bg-muted",
         line: "gap-1 bg-transparent",
       },
     },
@@ -42,31 +102,57 @@ const tabsListVariants = cva(
 function TabsList({
   className,
   variant = "default",
+  activeValue,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List> &
-  VariantProps<typeof tabsListVariants>) {
+  VariantProps<typeof tabsListVariants> & {
+    activeValue?: string;
+  }) {
+  const { containerRef, indicatorRef, setRef, onMouseEnter, onMouseLeave } =
+    useHoverIndicator("horizontal", activeValue);
+
   return (
-    <TabsPrimitive.List
-      data-slot="tabs-list"
-      data-variant={variant}
-      className={cn(tabsListVariants({ variant }), className)}
-      {...props}
-    />
+    <TabsIndicatorContext.Provider value={{ setRef, onMouseEnter }}>
+      <TabsPrimitive.List
+        ref={containerRef as React.Ref<HTMLDivElement>}
+        data-slot="tabs-list"
+        data-variant={variant}
+        onMouseLeave={onMouseLeave}
+        className={cn(tabsListVariants({ variant }), "relative", className)}
+        {...props}
+      >
+        <motion.div
+          ref={indicatorRef}
+          className="absolute top-1 bottom-1 bg-background/50 rounded-md z-0 pointer-events-none opacity-0"
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        />
+        {props.children}
+      </TabsPrimitive.List>
+    </TabsIndicatorContext.Provider>
   );
 }
 
+// ─── TabsTrigger ──────────────────────────────────────────────────────────────
+
 function TabsTrigger({
   className,
+  value,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  const ctx = React.useContext(TabsIndicatorContext);
+
   return (
     <TabsPrimitive.Trigger
+      ref={ctx ? ctx.setRef(value) : undefined}
+      onMouseEnter={ctx ? () => ctx.onMouseEnter(value) : undefined}
       data-slot="tabs-trigger"
+      value={value}
       className={cn(
-        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-        "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
-        "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg:not([class*='size-'])]:size-4 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground/60 hover:text-foreground relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent",
+        "data-active:bg-background data-active:text-foreground",
+        "after:bg-foreground after:absolute after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "z-10",
         className,
       )}
       {...props}
@@ -74,16 +160,31 @@ function TabsTrigger({
   );
 }
 
+// ─── TabsContent ──────────────────────────────────────────────────────────────
+// Direction is read from TabsDirectionContext — no prop needed on the consumer.
+// `value` is used as the TabWrapper key so the animation re-fires every time
+// Radix mounts this panel (= every time this tab becomes active).
+
 function TabsContent({
+  value,
   className,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Content>) {
+  const { direction } = React.useContext(TabsDirectionContext);
+
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn("flex-1 text-sm outline-none", className)}
+      value={value}
+      className={cn("text-sm flex-1 outline-none", className)}
       {...props}
-    />
+    >
+      <AnimatePresence mode="wait">
+        <ComponentSlide key={value} direction={direction}>
+          {props.children}
+        </ComponentSlide>
+      </AnimatePresence>
+    </TabsPrimitive.Content>
   );
 }
 

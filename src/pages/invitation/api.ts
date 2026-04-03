@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import type { PublicEventConfig, RSVPSubmission, NewRSVPSubmission } from "./types"
-import type { RSVPFormConfig } from "@/pages/planner/features/settings/types"
+import type { RSVPFormConfig } from "@/pages/admin/features/settings/types"
 
 const DEFAULT_RSVP_FORM: RSVPFormConfig = {
   fields: {

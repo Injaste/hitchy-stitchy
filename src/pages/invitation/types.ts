@@ -1,5 +1,5 @@
 import { z } from "zod"
-import type { RSVPFormConfig } from "@/pages/planner/features/settings/types"
+import type { RSVPFormConfig } from "@/pages/admin/features/settings/types"
 
 export function buildRsvpSchema(config: RSVPFormConfig) {
   return z.object({
