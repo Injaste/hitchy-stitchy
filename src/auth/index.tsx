@@ -21,6 +21,7 @@ import { AnimateItem } from "@/components/animations/forms/field-animate";
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
 
@@ -150,7 +151,7 @@ const SignIn = () => {
                                   onBlur={field.handleBlur}
                                 />
                                 <InputGroupAddon align="inline-end">
-                                  <Button
+                                  <InputGroupButton
                                     type="button"
                                     variant="ghost"
                                     size="icon-sm"
@@ -163,7 +164,7 @@ const SignIn = () => {
                                     ) : (
                                       <Eye className="w-4 h-4" />
                                     )}
-                                  </Button>
+                                  </InputGroupButton>
                                 </InputGroupAddon>
                               </InputGroup>
                             </FieldContent>

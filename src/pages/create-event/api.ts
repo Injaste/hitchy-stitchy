@@ -12,6 +12,18 @@ export function getFriendlyErrorMessage(error: PostgrestError | null): string {
   return "Something went wrong. Please try again.";
 }
 
+export async function getExistingSlug(slug: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("event_slugs")
+    .select("*")
+    .eq("slug", slug)
+
+  if (error || !data) throw new Error(getFriendlyErrorMessage(error))
+
+  return data.length > 0;
+
+}
+
 export async function createEvent(
   payload: CreateEventPayload
 ): Promise<CreateEventResult> {

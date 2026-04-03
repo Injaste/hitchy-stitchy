@@ -22,10 +22,10 @@ const CreateEventForm = () => {
 
   const {
     mutate: createEvent,
-    isPending,
+    isPending: isCreating,
     error,
     isError,
-    reset,
+    reset: resetCreateEvent,
   } = useCreateEventMutation();
 
   const handleSubmit = (data: CreateRoleData) => {
@@ -59,10 +59,10 @@ const CreateEventForm = () => {
                   defaultValues={roleData ?? undefined}
                   onBack={(data) => {
                     if (data.role_name) setRoleData(data);
-                    if (isError) reset();
+                    if (isError) resetCreateEvent();
                   }}
                   onSubmit={handleSubmit}
-                  isSubmitting={isPending}
+                  isSubmitting={isCreating}
                   error={error}
                 />
               )}

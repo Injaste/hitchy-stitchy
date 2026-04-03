@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { FC } from "react";
 import { addDays, differenceInCalendarDays, format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 
@@ -24,6 +24,13 @@ import type { CreateEventData, StepType } from "../types";
 import type { DateRange } from "react-day-picker";
 import OdometerDigit from "@/components/animations/animate-odometer-digit";
 import { useSteps } from "@/components/custom/steps";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { useCheckSlugMutation } from "../queries";
 
 // ─── Schema ────────────────────────────────────────────────────────────────
 
@@ -31,13 +38,19 @@ const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
 
 const stepEventSchema = z
   .object({
-    display_name: z.string().min(2, "Name must be at least 2 characters."),
-    event_name: z.string().min(3, "Event name must be at least 3 characters."),
+    display_name: z
+      .string()
+      .min(2, "Name must be at least 2 characters.")
+      .max(50, "Name must be less than 50 characters."),
+    event_name: z
+      .string()
+      .min(3, "Event name must be at least 3 characters.")
+      .max(50, "Event name must be less than 50 characters."),
     slug: z
       .string()
       .regex(
         SLUG_REGEX,
-        "Slug must be 3–50 chars, lowercase letters, numbers and hyphens only.",
+        "Slug must be 3-50 chars, lowercase letters, numbers and hyphens only.",
       ),
     date_start: z.string(),
     date_end: z.string(),
@@ -80,6 +93,14 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
     };
   });
 
+  const {
+    mutateAsync: checkSlug,
+    reset: resetSlug,
+    data: slugExists,
+    isPending: isCheckingSlug,
+    error,
+  } = useCheckSlugMutation();
+
   const form = useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
@@ -93,6 +114,9 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
       onChange: stepEventSchema,
     },
     onSubmit: async ({ value }) => {
+      const exists = await checkSlug(value.slug);
+      if (exists) return;
+
       onNext({
         display_name: value.display_name.trim(),
         event_name: value.event_name.trim(),
@@ -107,9 +131,9 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
 
   useEffect(() => {
     if (!slugTouched) {
-      form.setFieldValue("slug", toSlug(eventName));
+      form.setFieldValue("slug", toSlug(defaultValues?.slug ?? eventName));
     }
-  }, [eventName, slugTouched]);
+  }, [defaultValues?.slug, eventName, slugTouched]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -124,8 +148,8 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
       : "Pick dates";
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <FieldGroup>
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      <FieldGroup className="block space-y-4">
         {/* Display Name */}
         <form.Field name="display_name">
           {(field) => {
@@ -277,75 +301,104 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
         <form.Field name="slug">
           {(field) => {
             const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              (Boolean(field.state.meta.errors.length) && attemptCount > 0) ||
+              slugExists == true;
+
             return (
               <AnimateItem
-                errors={field.state.meta.errors}
+                errors={
+                  slugExists
+                    ? [{ message: "Slug taken, please choose another." }]
+                    : field.state.meta.errors
+                }
                 hasError={hasError}
                 attemptCount={attemptCount}
               >
                 <Field data-invalid={hasError} className="gap-2">
                   <FieldLabel htmlFor="slug">URL Slug</FieldLabel>
                   <FieldContent>
-                    <Input
-                      id="slug"
-                      placeholder="e.g. my-wedding"
-                      value={field.state.value}
-                      onChange={(e) => {
-                        setSlugTouched(Boolean(e.target.value));
-                        field.handleChange(e.target.value);
-                      }}
-                      onBlur={(e) => {
-                        field.handleBlur();
-                        field.handleChange(toSlug(e.target.value));
-                      }}
-                    />
+                    <InputGroup>
+                      <InputGroupInput
+                        id="slug"
+                        placeholder="e.g. my-wedding"
+                        value={field.state.value}
+                        className="pr-16!"
+                        onChange={(e) => {
+                          setSlugTouched(Boolean(e.target.value));
+                          field.handleChange(e.target.value);
+                        }}
+                        onBlur={(e) => {
+                          resetSlug();
+                          field.handleBlur();
+                          field.handleChange(toSlug(e.target.value));
+                        }}
+                      />
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          type="button"
+                          variant="outline"
+                          onClick={() => checkSlug(field.state.value)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {isCheckingSlug ? (
+                            <Loader2 className="animate-spin" />
+                          ) : (
+                            "Verify"
+                          )}
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    </InputGroup>
 
-                    {!hasError && (
-                      <div className="mt-4 p-4 rounded-xl border border-secondary/30 bg-secondary/30">
-                        <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
-                          Your Wedding Links
-                        </h4>
+                    <div className="text-black mt-4 p-4 rounded-xl border border-secondary/30 bg-secondary/30">
+                      <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
+                        Your Wedding Links
+                      </h4>
 
-                        <div className="space-y-3">
-                          {/* Admin Link */}
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                            <span className="text-sm font-serif italic min-w-[40px]">
-                              Admin:
-                            </span>
-                            <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full">
-                              {`hitchystitchy.com/${field.state.value ? toSlug(field.state.value) : "my-wedding"}/admin`}
-                            </code>
-                          </div>
+                      <div className="space-y-3">
+                        {/* Admin Link */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                          <span className="text-sm font-serif italic min-w-[40px]">
+                            Admin:
+                          </span>
+                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full truncate">
+                            {`hitchystitchy.com/${field.state.value ? toSlug(field.state.value) : "my-wedding"}/admin`}
+                          </code>
+                        </div>
 
-                          {/* RSVP */}
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                            <span className="text-sm font-serif italic min-w-[40px]">
-                              RSVP:
-                            </span>
-                            <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full">
-                              {`hitchystitchy.com/${field.state.value ? toSlug(field.state.value) : "my-wedding"}`}
-                            </code>
-                          </div>
+                        {/* RSVP */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                          <span className="text-sm font-serif italic min-w-[40px]">
+                            RSVP:
+                          </span>
+                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full truncate">
+                            {`hitchystitchy.com/${field.state.value ? toSlug(field.state.value) : "my-wedding"}`}
+                          </code>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </FieldContent>
                 </Field>
               </AnimateItem>
             );
           }}
         </form.Field>
+
+        {/* Mutation error */}
+        <AnimateItem
+          hasError={Boolean(error)}
+          error={error ?? undefined}
+          attemptCount={attemptCount}
+        />
       </FieldGroup>
 
       <form.Subscribe selector={(s) => [s.isSubmitting, s.isSubmitSuccessful]}>
-        {([isSubmitting, isSubmitSuccessful]) => (
+        {([isSubmitting]) => (
           <Button
             type="submit"
-            className="w-full mt-2"
-            disabled={isSubmitting || isSubmitSuccessful}
+            className="w-full"
+            disabled={isSubmitting || isCheckingSlug}
           >
-            {isSubmitting ? "Saving..." : "Next"}
+            Next
           </Button>
         )}
       </form.Subscribe>

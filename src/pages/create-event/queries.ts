@@ -1,7 +1,16 @@
-import { useMutation } from "@tanstack/react-query"
+import { useQuery, useMutation } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
-import { createEvent } from "./api"
+
+import { createEvent, getExistingSlug } from "./api"
 import type { CreateEventPayload } from "./types"
+
+export function useCheckSlugMutation() {
+  return useMutation({
+    mutationKey: ["check-slug"],
+    mutationFn: (slug: string) => getExistingSlug(slug),
+    gcTime: 0,
+  });
+}
 
 export function useCreateEventMutation() {
   const navigate = useNavigate()
@@ -14,4 +23,3 @@ export function useCreateEventMutation() {
     },
   })
 }
-``

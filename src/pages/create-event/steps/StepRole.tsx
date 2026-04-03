@@ -250,7 +250,7 @@ const StepRole: FC<StepRoleProps> = ({
 
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting_) => (
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-2">
             <Button
               type="button"
               variant="outline"
