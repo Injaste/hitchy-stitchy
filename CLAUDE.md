@@ -7,21 +7,22 @@ Friendly, approachable, playful brand. Core loop: create event → admin dashboa
 
 ## Tech Stack
 
-| Tool | Role |
-|---|---|
-| Vite + React + TypeScript | App framework |
-| Supabase | Database, Auth, Edge Functions |
-| shadcn/ui | Component library (radix-vega style) |
-| Framer Motion | All animations |
-| Zustand | Global state (3 stores) |
-| Sonner | Toast notifications |
-| date-fns | All date formatting and math |
-| Embla Carousel | Carousel components |
-| Zod | Schema validation |
-| @tanstack/react-form | Form state management |
-| @tanstack/react-query | Server state (via custom wrappers) |
-| react-day-picker | Calendar / date range picker |
-| lucide-react 
+| Tool                      | Role                                 |
+| ------------------------- | ------------------------------------ |
+| Vite + React + TypeScript | App framework                        |
+| Supabase                  | Database, Auth, Edge Functions       |
+| shadcn/ui                 | Component library (radix-vega style) |
+| Framer Motion             | All animations                       |
+| Zustand                   | Global state (3 stores)              |
+| Sonner                    | Toast notifications                  |
+| date-fns                  | All date formatting and math         |
+| Embla Carousel            | Carousel components                  |
+| Zod                       | Schema validation                    |
+| @tanstack/react-form      | Form state management                |
+| @tanstack/react-query     | Server state (via custom wrappers)   |
+| react-day-picker          | Calendar / date range picker         |
+
+| lucide-react
 
 ---
 
@@ -103,40 +104,47 @@ src/
 ## Database (Supabase — source of truth)
 
 ### Reference chain
+
 ```
 auth.users → event_members (ONLY direct auth reference)
           → everything else references event_members.id
 ```
 
 ### Key tables
-| Table | Notes |
-|---|---|
-| `events` | `deleted_at` immutable-once-set; recovery via direct SQL |
-| `event_members` | `is_active` for revocation instead of deletion |
-| `roles` | |
-| `event_appearance` | Template system for future multi-template support |
-| `event_rsvp_config` | Flat boolean columns for field visibility |
-| `event_settings` | Internal admin config |
-| `event_templates` | Platform-managed only, no client writes |
-| `member_notification_prefs` | JSONB preferences |
-| `event_logs` | Append-only, no client UPDATE/DELETE |
-| `live_logs` | Operational: member_id, role, type, msg |
+
+| Table                       | Notes                                                    |
+| --------------------------- | -------------------------------------------------------- |
+| `events`                    | `deleted_at` immutable-once-set; recovery via direct SQL |
+| `event_members`             | `is_active` for revocation instead of deletion           |
+| `roles`                     |                                                          |
+| `event_appearance`          | Template system for future multi-template support        |
+| `event_rsvp_config`         | Flat boolean columns for field visibility                |
+| `event_settings`            | Internal admin config                                    |
+| `event_templates`           | Platform-managed only, no client writes                  |
+| `member_notification_prefs` | JSONB preferences                                        |
+| `event_logs`                | Append-only, no client UPDATE/DELETE                     |
+| `live_logs`                 | Operational: member_id, role, type, msg                  |
 
 ### Key enums
+
 - `role_category`: `'root' | 'admin' | 'bridesmaid' | 'general'`
 - `rsvp_mode`: `'open' | 'pool' | 'both'`
 
 ### Views
+
 - `event_slugs` — returns only the `slug` column from `events`. Used for slug availability checks. `select("*")` and `select("slug")` are equivalent.
 
 ### Dropped tables (not needed for MVP)
+
 `rsvp_logs`, `settings_logs`, `task_logs`
 
 ### Triggers written
+
 - `touch_updated_at` — applied to all relevant tables
 - `enforce_immutable_columns` — prevents mutation of locked fields
 
 ### Triggers remaining
+
 - `prevent_hard_delete`
 - `sync_required_when_hidden`
 - `initialize_event_rows` — creates companion rows on event insert
@@ -147,12 +155,14 @@ auth.users → event_members (ONLY direct auth reference)
 ## Conventions
 
 ### File rules
+
 - Single responsibility per file
 - 150-line target, 250-line hard maximum
 - `api.ts` — never imports from stores, never uses hooks, no side effects
 - Components never import from `api.ts` directly — always through `queries.ts`
 
 ### Query conventions
+
 - All queries keyed as `${slug}:${resource}`
 - `enabled: !!eventId` gates every feature query — nothing fires before bootstrap resolves
 - Read operations use `useQuery` (TanStack)
@@ -160,7 +170,9 @@ auth.users → event_members (ONLY direct auth reference)
 - **Never import `useMutation` directly from TanStack in feature files** — always use the custom wrapper
 
 ### Mutation modes (src/lib/query/useMutation.ts)
+
 Three exclusive modes — pick one per mutation:
+
 1. **Simple toast** — `successMessage` + `errorMessage` strings (or functions)
 2. **Promise toast** — `toast: { loading, success, error }` — Sonner promise style
 3. **Silent** — `silent: true` — no automatic toast, handle feedback manually
@@ -168,21 +180,26 @@ Three exclusive modes — pick one per mutation:
 **Bug fixed (this session):** In toast mode, `onSuccess` was silently swallowed due to an early `return`. Now `onSuccess` always fires first regardless of mode.
 
 ### Mutation rules
+
 - Modals only close in mutation `onSuccess` — never on submit directly
 - No hard deletes from the client — soft delete via `deleted_at` only
 - Append-only tables (`live_logs`, all `*_logs`) — no client UPDATE or DELETE
 - Analytics log tables — no client INSERT, written by DB triggers only
 
 ### Store conventions
+
 Three Zustand stores — `useAdminStore`, `useModalStore`, `useCueStore`.
+
 - `useAdminStore` — bootstrap context (slug, eventId, eventConfig, isBootstrapped), team, events, tasks, RSVPs, logs
 - `useModalStore` — all modal open/close booleans and editing state
 - `useCueStore` — activeCueEvent, notifiedEvents
 
 ### No inline Framer Motion variants in components
-Import from `animations.ts` (lib or page-level). No variant objects defined inline in JSX.
+
+Import from `animations.ts` (lib or page-level). No variant objects defined inline in JSX or create in them as when as needed.
 
 ### No hardcoded colours
+
 Use CSS variable tokens only — `text-primary`, `bg-card`, `text-muted-foreground`, etc.
 
 ---
@@ -190,6 +207,7 @@ Use CSS variable tokens only — `text-primary`, `bg-card`, `text-muted-foregrou
 ## Animation System
 
 ### Shared variants (src/lib/animations.ts)
+
 - `container` — stagger parent
 - `itemFadeIn` — opacity only
 - `itemFadeUp` — opacity + y translate
@@ -201,11 +219,13 @@ Use CSS variable tokens only — `text-primary`, `bg-card`, `text-muted-foregrou
 - `cardHover` — `whileHover` preset
 
 ### Wrappers
+
 - `ComponentFade` — self-contained `motion.div` with `pageTransition` variants + `key` prop for AnimatePresence
 - `ComponentSlide` — directional slide for wizard steps (direction: 1 | -1 | 0)
 - `AnimateItem` — field-level error animation for forms
 
 ### AnimatePresence pattern
+
 Always wrap state transitions in `<AnimatePresence mode="wait">`. Each child must have a unique `key` so Framer Motion treats state changes as unmount/mount cycles.
 
 ```tsx
@@ -223,6 +243,7 @@ Always wrap state transitions in `<AnimatePresence mode="wait">`. Each child mus
 This pattern is used in: **Dashboard** (skeleton → empty → events), **AuthGate** (login → admin), and any page with loading/empty/data states.
 
 ### Step transitions (wizard)
+
 `ComponentSlide` handles direction-aware slide animations via the `Steps` / `useSteps` system. Direction is computed from step order index before navigating.
 
 ---
@@ -232,6 +253,7 @@ This pattern is used in: **Dashboard** (skeleton → empty → events), **AuthGa
 Two-step wizard: **Step 1 (Event)** → **Step 2 (Role)** → submit via `create_event` RPC.
 
 ### File structure
+
 ```
 src/pages/create-event/
 ├── index.tsx (or route entry)
@@ -254,12 +276,15 @@ src/pages/create-event/
 Two exported transform functions:
 
 **`toSafeSlug(input)`** — applied on every keystroke:
+
 - Lowercase, convert non-`[a-z0-9-]` to dash, collapse consecutive dashes, strip leading dashes, collapse multiple trailing dashes to one but preserve a single trailing dash (user is mid-word)
 
 **`toSlug(input)`** — applied on blur, submit, and programmatic generation:
+
 - Everything `toSafeSlug` does + strip all trailing dashes
 
 The `useSlugCheck` hook exports:
+
 - `status: SlugStatus` — `"idle" | "checking" | "available" | "taken" | "error"`
 - `scheduleCheck(slug)` — debounced (600ms), called on every keystroke with the `toSafeSlug`-transformed value. Shows spinner immediately when slug passes regex, fires network check after debounce.
 - `checkNow(slug)` — immediate, cancels pending debounce. Called on every submit — always, no skip optimization (result could be stale if user AFK'd).
@@ -281,16 +306,19 @@ The `useSlugCheck` hook exports:
 - **Field sub-labels** — "Your Name — how you appear to your team", "Event Name — shown to guests on invitations"
 
 ### StepRole
+
 - Radio grid: Bride / Groom / Coordinator / Other
 - "Other" reveals a custom role input with collapse animation
 - `role_short_name` auto-generated: `option.shortRole` for presets, `customRole.slice(0, 10)` for custom
 
 ### queries.ts
+
 - Only `useCreateEventMutation` — uses custom `useMutation` from `@/lib/query/useMutation`, `silent: true`, navigates to `/:slug/admin` on success
 - Slug checking is **not** a mutation — it lives entirely in `useSlugCheck.ts`
 - No `console.log` in production code
 
 ### api.ts
+
 - `getExistingSlug(slug)` — queries `event_slugs` view, returns `boolean`
 - `createEvent(payload)` — calls `create_event` RPC
 - `getFriendlyErrorMessage(error)` — maps Postgres constraint errors to human messages
@@ -316,23 +344,31 @@ src/pages/dashboard/
 ```
 
 ### State transitions — animated
+
 ```tsx
 <AnimatePresence mode="wait">
   {isLoading ? (
     <ComponentFade key="skeleton">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
+        {[...Array(3)].map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
       </div>
     </ComponentFade>
   ) : !events?.length ? (
-    <ComponentFade key="empty"><EventEmptyState /></ComponentFade>
+    <ComponentFade key="empty">
+      <EventEmptyState />
+    </ComponentFade>
   ) : (
-    <ComponentFade key="events"><EventView events={events} /></ComponentFade>
+    <ComponentFade key="events">
+      <EventView events={events} />
+    </ComponentFade>
   )}
 </AnimatePresence>
 ```
 
 ### Refresh with cooldown
+
 `DashboardHeader` has a manual refresh button with a 10-second cooldown. Tracks `lastRefreshed` timestamp, updates `now` every second via `setInterval`. Refresh button disabled while `isFetching` or within cooldown window.
 
 ---

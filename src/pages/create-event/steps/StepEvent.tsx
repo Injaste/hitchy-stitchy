@@ -361,7 +361,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                     </InputGroup>
 
                     {/* URL preview */}
-                    <div className="text-black mt-4 p-4 rounded-xl border border-secondary/30 bg-secondary/30">
+                    <div className="text-black mt-4 p-4 rounded-md border border-secondary/30 bg-secondary/30">
                       <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
                         Your Unique Wedding Links
                       </h4>
@@ -370,7 +370,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                           <span className="text-sm font-serif italic min-w-[40px]">
                             Admin:
                           </span>
-                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full truncate">
+                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
                             {`${BASE_URL}/${field.state.value || "my-wedding"}/admin`}
                           </code>
                         </div>
@@ -378,7 +378,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                           <span className="text-sm font-serif italic min-w-[40px]">
                             RSVP:
                           </span>
-                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full truncate">
+                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
                             {`${BASE_URL}/${field.state.value || "my-wedding"}`}
                           </code>
                         </div>
