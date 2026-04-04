@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import type { FC } from "react";
-import { addDays, differenceInCalendarDays, format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { differenceInCalendarDays, format } from "date-fns";
+import {
+  CalendarIcon,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,21 +27,26 @@ import {
   FieldGroup,
 } from "@/components/ui/field";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
-import type { CreateEventData, StepType } from "../types";
-import type { DateRange } from "react-day-picker";
-import OdometerDigit from "@/components/animations/animate-odometer-digit";
-import { useSteps } from "@/components/custom/steps";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useCheckSlugMutation } from "../queries";
+import OdometerDigit from "@/components/animations/animate-odometer-digit";
+import { useSteps } from "@/components/custom/steps";
 
-// ─── Schema ────────────────────────────────────────────────────────────────
+import type { CreateEventData, StepType } from "../types";
+import type { DateRange } from "react-day-picker";
+import {
+  useSlugCheck,
+  toSafeSlug,
+  toSlug,
+  type SlugStatus,
+} from "../hooks/useSlugCheck";
+import { formatDateRange } from "@/lib/utils/utils-time";
 
 const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
+const BASE_URL = import.meta.env.VITE_BASE_URL ?? "hitchystitchy.com";
 
 const stepEventSchema = z
   .object({
@@ -50,27 +62,29 @@ const stepEventSchema = z
       .string()
       .regex(
         SLUG_REGEX,
-        "Slug must be 3-50 chars, lowercase letters, numbers and hyphens only.",
+        "Slug must be 3–50 chars, lowercase letters, numbers and hyphens only.",
       ),
     date_start: z.string(),
     date_end: z.string(),
   })
   .refine((data) => Boolean(data.date_start && data.date_end), {
-    message: "Please select a start and end date.",
+    message: "Please select your event dates.",
     path: ["date_start"],
   });
 
-// ─── Helpers ───────────────────────────────────────────────────────────────
-
-function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+function SlugStatusIcon({ status }: { status: SlugStatus }) {
+  if (status === "checking")
+    return (
+      <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+    );
+  if (status === "available")
+    return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />;
+  if (status === "taken")
+    return <XCircle className="h-3.5 w-3.5 text-destructive" />;
+  if (status === "error")
+    return <AlertCircle className="h-3.5 w-3.5 text-amber-500" />;
+  return null;
 }
-
-// ─── Component ─────────────────────────────────────────────────────────────
 
 interface StepEventProps {
   defaultValues?: Partial<CreateEventData>;
@@ -82,40 +96,37 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
   const [attemptCount, setAttemptCount] = useState(0);
   const [eventName, setEventName] = useState(defaultValues?.event_name ?? "");
   const [slugTouched, setSlugTouched] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
-    return {
-      from: defaultValues?.date_start
-        ? new Date(defaultValues.date_start)
-        : new Date(),
-      to: defaultValues?.date_end
-        ? addDays(new Date(new Date(defaultValues.date_end)), 3)
-        : addDays(new Date(), 3),
-    };
-  });
 
-  const {
-    mutateAsync: checkSlug,
-    reset: resetSlug,
-    data: slugExists,
-    isPending: isCheckingSlug,
-    error,
-  } = useCheckSlugMutation();
+  // Fix: don't add 3 days to existing end date when returning from step 2
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
+    defaultValues?.date_start
+      ? {
+          from: new Date(defaultValues.date_start),
+          to: defaultValues.date_end
+            ? new Date(defaultValues.date_end)
+            : undefined,
+        }
+      : undefined,
+  );
+
+  const isMobile = useIsMobile();
+  const { status: slugStatus, scheduleCheck, checkNow } = useSlugCheck();
 
   const form = useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
       event_name: defaultValues?.event_name ?? "",
       slug: defaultValues?.slug ?? "",
-      date_start: dateRange?.from?.toISOString().split("T")[0] ?? "",
-      date_end: dateRange?.to?.toISOString().split("T")[0] ?? "",
+      date_start: defaultValues?.date_start ?? "",
+      date_end: defaultValues?.date_end ?? "",
     },
     validators: {
       onSubmit: stepEventSchema,
       onChange: stepEventSchema,
     },
     onSubmit: async ({ value }) => {
-      const exists = await checkSlug(value.slug);
-      if (exists) return;
+      const taken = await checkNow(value.slug);
+      if (taken) return;
 
       onNext({
         display_name: value.display_name.trim(),
@@ -130,10 +141,11 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
   });
 
   useEffect(() => {
-    if (!slugTouched) {
-      form.setFieldValue("slug", toSlug(defaultValues?.slug ?? eventName));
-    }
-  }, [defaultValues?.slug, eventName, slugTouched]);
+    if (slugTouched) return;
+    const generated = toSlug(defaultValues?.slug ?? eventName);
+    form.setFieldValue("slug", generated);
+    scheduleCheck(generated);
+  }, [eventName, slugTouched]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -144,13 +156,15 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
 
   const dateLabel =
     dateRange?.from && dateRange?.to
-      ? `${format(dateRange.from, "do MMM")} – ${format(dateRange.to, "do MMM yyyy")}`
-      : "Pick dates";
+      ? formatDateRange(
+          dateRange.from.toISOString(),
+          dateRange.to.toISOString(),
+        )
+      : "Pick your event dates";
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       <FieldGroup className="block space-y-4">
-        {/* Display Name */}
         <form.Field name="display_name">
           {(field) => {
             const hasError =
@@ -162,12 +176,19 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                 attemptCount={attemptCount}
               >
                 <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel htmlFor="displayName">Your Name</FieldLabel>
+                  <FieldLabel
+                    htmlFor="displayName"
+                    className="flex justify-between"
+                  >
+                    Your Name
+                    <span className="text-xs text-muted-foreground font-normal">
+                      — how you appear to your team
+                    </span>
+                  </FieldLabel>
                   <FieldContent>
                     <Input
                       id="displayName"
-                      placeholder="e.g. Danish Izhan"
-                      autoFocus
+                      placeholder="e.g. Danish"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
@@ -178,7 +199,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
             );
           }}
         </form.Field>
-        {/* Event Name */}
+
         <form.Field name="event_name">
           {(field) => {
             const hasError =
@@ -190,10 +211,10 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                 attemptCount={attemptCount}
               >
                 <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel htmlFor="eventName">Event Name</FieldLabel>
+                  <FieldLabel htmlFor="event_name">Event Name</FieldLabel>
                   <FieldContent>
                     <Input
-                      id="eventName"
+                      id="event_name"
                       placeholder="e.g. Danish & Nadhirah Wedding"
                       value={field.state.value}
                       onChange={(e) => {
@@ -209,7 +230,6 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
           }}
         </form.Field>
 
-        {/* Date Range — lives outside tanstack form, uses its own error state */}
         <form.Field name="date_start">
           {(field) => {
             const hasError =
@@ -223,31 +243,30 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                 <Field data-invalid={hasError} className="gap-2">
                   <FieldLabel className="flex justify-between">
                     <span>Event Dates</span>
-                    {dateRange?.from && dateRange?.to && (
-                      <span className="text-muted-foreground font-normal">
-                        <span className="text-muted-foreground font-normal text-xs">
-                          {(() => {
-                            const days =
-                              differenceInCalendarDays(
-                                dateRange.to,
-                                dateRange.from,
-                              ) + 1;
-                            const digits = days.toString().split("");
 
-                            return (
-                              <>
-                                {digits.map((digit, index) => (
-                                  <OdometerDigit
-                                    key={index}
-                                    className="inline-block"
-                                    value={parseInt(digit)}
-                                  />
-                                ))}
-                                {days > 1 ? " days" : " day"}
-                              </>
-                            );
-                          })()}
-                        </span>
+                    {dateRange?.from && dateRange?.to && (
+                      <span className="text-xs text-muted-foreground font-normal">
+                        {(() => {
+                          const days =
+                            differenceInCalendarDays(
+                              dateRange.to,
+                              dateRange.from,
+                            ) + 1;
+                          const digits = days.toString().split("");
+                          return (
+                            <>
+                              {"— "}
+                              {digits.map((digit, index) => (
+                                <OdometerDigit
+                                  key={index}
+                                  className="inline-block"
+                                  value={parseInt(digit)}
+                                />
+                              ))}
+                              {days > 1 ? " days" : " day"}
+                            </>
+                          );
+                        })()}
                       </span>
                     )}
                   </FieldLabel>
@@ -259,13 +278,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                           className="w-full justify-start gap-2 font-normal"
                         >
                           <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                          <span
-                            className={
-                              dateRange?.from ? "" : "text-muted-foreground"
-                            }
-                          >
-                            {dateLabel}
-                          </span>
+                          <span className="text-sm">{dateLabel}</span>
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -277,17 +290,16 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                             form.setFieldValue(
                               "date_start",
                               range?.from
-                                ? range.from.toISOString().split("T")[0]
+                                ? format(range.from, "yyyy-MM-dd")
                                 : "",
                             );
                             form.setFieldValue(
                               "date_end",
-                              range?.to
-                                ? range.to.toISOString().split("T")[0]
-                                : "",
+                              range?.to ? format(range.to, "yyyy-MM-dd") : "",
                             );
                           }}
-                          numberOfMonths={1}
+                          numberOfMonths={isMobile ? 1 : 2}
+                          disabled={{ before: new Date() }}
                         />
                       </PopoverContent>
                     </Popover>
@@ -297,18 +309,23 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
             );
           }}
         </form.Field>
-        {/* Slug */}
+
         <form.Field name="slug">
           {(field) => {
             const hasError =
               (Boolean(field.state.meta.errors.length) && attemptCount > 0) ||
-              slugExists == true;
+              slugStatus === "taken";
 
             return (
               <AnimateItem
                 errors={
-                  slugExists
-                    ? [{ message: "Slug taken, please choose another." }]
+                  slugStatus === "taken"
+                    ? [
+                        {
+                          message:
+                            "This slug is already taken. Please choose another.",
+                        },
+                      ]
                     : field.state.meta.errors
                 }
                 hasError={hasError}
@@ -322,56 +339,47 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                         id="slug"
                         placeholder="e.g. my-wedding"
                         value={field.state.value}
-                        className="pr-16!"
                         onChange={(e) => {
-                          setSlugTouched(Boolean(e.target.value));
-                          field.handleChange(e.target.value);
+                          const safe = toSafeSlug(e.target.value);
+                          setSlugTouched(Boolean(safe));
+                          field.handleChange(safe);
+                          scheduleCheck(safe);
                         }}
                         onBlur={(e) => {
-                          resetSlug();
                           field.handleBlur();
-                          field.handleChange(toSlug(e.target.value));
+                          const normalized = toSlug(e.target.value);
+                          if (normalized !== field.state.value) {
+                            field.handleChange(normalized);
+                            scheduleCheck(normalized);
+                          }
                         }}
                       />
+                      {/* Live status icon — replaces the manual "Verify" button */}
                       <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                          type="button"
-                          variant="outline"
-                          onClick={() => checkSlug(field.state.value)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                          {isCheckingSlug ? (
-                            <Loader2 className="animate-spin" />
-                          ) : (
-                            "Verify"
-                          )}
-                        </InputGroupButton>
+                        <SlugStatusIcon status={slugStatus} />
                       </InputGroupAddon>
                     </InputGroup>
 
+                    {/* URL preview */}
                     <div className="text-black mt-4 p-4 rounded-xl border border-secondary/30 bg-secondary/30">
                       <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
-                        Your Wedding Links
+                        Your Unique Wedding Links
                       </h4>
-
                       <div className="space-y-3">
-                        {/* Admin Link */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                           <span className="text-sm font-serif italic min-w-[40px]">
                             Admin:
                           </span>
                           <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full truncate">
-                            {`hitchystitchy.com/${field.state.value ? toSlug(field.state.value) : "my-wedding"}/admin`}
+                            {`${BASE_URL}/${field.state.value || "my-wedding"}/admin`}
                           </code>
                         </div>
-
-                        {/* RSVP */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                           <span className="text-sm font-serif italic min-w-[40px]">
                             RSVP:
                           </span>
                           <code className="text-xs bg-secondary/60 px-2 py-1 rounded border border-secondary/60 w-full truncate">
-                            {`hitchystitchy.com/${field.state.value ? toSlug(field.state.value) : "my-wedding"}`}
+                            {`${BASE_URL}/${field.state.value || "my-wedding"}`}
                           </code>
                         </div>
                       </div>
@@ -382,23 +390,19 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
             );
           }}
         </form.Field>
-
-        {/* Mutation error */}
-        <AnimateItem
-          hasError={Boolean(error)}
-          error={error ?? undefined}
-          attemptCount={attemptCount}
-        />
       </FieldGroup>
 
-      <form.Subscribe selector={(s) => [s.isSubmitting, s.isSubmitSuccessful]}>
-        {([isSubmitting]) => (
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting || isCheckingSlug}
-          >
-            Next
+      <form.Subscribe selector={(s) => s.isSubmitting}>
+        {(isSubmitting) => (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Verifying…
+              </>
+            ) : (
+              "Continue"
+            )}
           </Button>
         )}
       </form.Subscribe>

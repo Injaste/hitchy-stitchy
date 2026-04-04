@@ -12,7 +12,7 @@ const CreateEventView = () => {
       variants={container}
       initial="hidden"
       animate="show"
-      className="min-h-screen bg-background flex items-center justify-center px-4 py-12"
+      className="relative min-h-screen bg-background flex items-center justify-center px-4 py-12"
     >
       <div className="w-full max-w-md">
         <motion.div

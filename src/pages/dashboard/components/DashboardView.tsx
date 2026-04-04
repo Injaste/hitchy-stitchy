@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 import Container from "@/components/custom/container";
+import { ComponentFade } from "@/components/animations/animate-component-fade";
 
 import { container } from "@/lib/animations";
 
@@ -35,17 +36,25 @@ export default function DashboardView() {
             refetch={refetch}
           />
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[...Array(3)].map((_, i) => (
-                <SkeletonCard key={i} />
-              ))}
-            </div>
-          ) : !events?.length ? (
-            <EventEmptyState />
-          ) : (
-            <EventView events={events} />
-          )}
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <ComponentFade key="skeleton">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {[...Array(3)].map((_, i) => (
+                    <SkeletonCard key={i} />
+                  ))}
+                </div>
+              </ComponentFade>
+            ) : !events?.length ? (
+              <ComponentFade key="empty">
+                <EventEmptyState />
+              </ComponentFade>
+            ) : (
+              <ComponentFade key="events">
+                <EventView events={events} />
+              </ComponentFade>
+            )}
+          </AnimatePresence>
         </Container>
       </motion.div>
     </div>

@@ -7,13 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-import { cn } from "@/lib/utils/utils";
 import {
   formatDateRange,
   getDaysUntil,
   getEventStatus,
 } from "@/lib/utils/utils-time";
-import type { EventStatus } from "@/lib/types/types-time";
 import { cardHover, itemFadeUp } from "@/lib/animations";
 
 import type { Event } from "../types";

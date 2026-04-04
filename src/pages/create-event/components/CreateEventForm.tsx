@@ -12,8 +12,10 @@ import {
 } from "../types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Steps } from "@/components/custom/steps";
+import { useNavigate } from "react-router-dom";
 
 const CreateEventForm = () => {
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState<StepType>(STEPS[0]);
   const [eventData, setEventData] = useState<CreateEventData | null>(null);
   const [roleData, setRoleData] = useState<Partial<CreateRoleData> | null>(
@@ -26,7 +28,9 @@ const CreateEventForm = () => {
     error,
     isError,
     reset: resetCreateEvent,
-  } = useCreateEventMutation();
+  } = useCreateEventMutation({
+    onSuccess: (data) => navigate(`/${data.slug}/admin`),
+  });
 
   const handleSubmit = (data: CreateRoleData) => {
     if (!eventData) return;

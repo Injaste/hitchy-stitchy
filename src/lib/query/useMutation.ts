@@ -6,12 +6,14 @@ export function useMutation<TArgs, TResult>(
   fn: (args: TArgs) => Promise<TResult>,
   options: MutationOptions<TResult, TArgs>,
 ) {
-  const { mutateAsync: _mutateAsync, isPending, error, data, reset } = useTanstackMutation({
+  const { mutateAsync: _mutateAsync, isPending, error, isError, data, reset } = useTanstackMutation({
     mutationFn: fn,
 
     onSuccess(result, args) {
-      if ("toast" in options && options.toast) return;
       options.onSuccess?.(result, args);
+
+      if ("toast" in options && options.toast) return;
+
       if (!("silent" in options)) {
         const msg = typeof options.successMessage === "function"
           ? options.successMessage(result, args)
@@ -51,5 +53,5 @@ export function useMutation<TArgs, TResult>(
     return _mutateAsync(args);
   }
 
-  return { mutate, mutateAsync, isPending, error, data, reset };
+  return { mutate, mutateAsync, isPending, error, isError, data, reset };
 }
