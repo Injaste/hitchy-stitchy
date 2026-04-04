@@ -46,7 +46,7 @@ import {
 import { formatDateRange } from "@/lib/utils/utils-time";
 
 const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
-const BASE_URL = import.meta.env.VITE_BASE_URL ?? "hitchystitchy.com";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const stepEventSchema = z
   .object({
