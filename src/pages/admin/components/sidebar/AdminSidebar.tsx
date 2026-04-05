@@ -1,4 +1,3 @@
-import { useNavigate, useParams } from "react-router-dom";
 import {
   CalendarHeart,
   Clock,
@@ -8,8 +7,8 @@ import {
   ClipboardList,
   UserCog,
   Settings,
-  LogOut,
   ChevronsUpDown,
+  ShoppingCart,
 } from "lucide-react";
 
 import {
@@ -102,6 +101,12 @@ const AdminSidebar = () => {
                 isActive={activePage === "team"}
               />
               <NavItem
+                icon={ShoppingCart}
+                label="Vendor"
+                to={`${base}/vendor`}
+                isActive={activePage === "vendor"}
+              />
+              <NavItem
                 icon={Radio}
                 label="Live"
                 to={`${base}/live`}
@@ -147,7 +152,7 @@ const AdminSidebar = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex w-full items-center gap-3 rounded-md p-1.5 hover:bg-muted transition-colors">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground capitalize">
                 {memberRoleShortName.slice(0, 2).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0 text-left">

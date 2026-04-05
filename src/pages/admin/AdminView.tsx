@@ -1,4 +1,4 @@
-import { Outlet, useOutlet } from "react-router-dom";
+import { useOutlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";

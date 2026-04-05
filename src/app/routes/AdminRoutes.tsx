@@ -8,12 +8,14 @@ import { LiveTab } from "@/pages/admin/live";
 import { RSVPTab } from "@/pages/admin/rsvp";
 import { UsersTab } from "@/pages/admin/users";
 import { SettingsTab } from "@/pages/admin/settings";
+import Vendor from "@/pages/admin/vendor";
 
 const adminChildRoutes = [
   { index: true, element: <Navigate to="timeline" replace /> },
   { path: "timeline", element: <TimelineTab /> },
   { path: "checklist", element: <ChecklistTab /> },
   { path: "team", element: <TeamTab /> },
+  { path: "vendor", element: <Vendor /> },
   { path: "live", element: <LiveTab /> },
   { path: "rsvp", element: <RSVPTab /> },
   { path: "users", element: <UsersTab /> },
