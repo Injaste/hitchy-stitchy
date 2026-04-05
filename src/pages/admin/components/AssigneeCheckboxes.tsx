@@ -1,6 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { getAssigneeDisplay } from "@/pages/admin/utils/assigneeDisplay";
-import type { TeamMember } from "@/pages/admin/features/operations/team/types";
+import type { TeamMember } from "@/pages/admin/team/types";
 
 interface Props {
   teamRoles: TeamMember[];

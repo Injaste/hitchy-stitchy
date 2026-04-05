@@ -8,10 +8,11 @@ import PortalToApp from "@/components/custom/portal-to-app";
 
 import { itemFadeIn, itemFadeUp } from "@/lib/animations";
 import type { EventsCount } from "../types";
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 
 interface DashboardHeaderProps {
-  eventsCount?: EventsCount;
+  eventsCount: EventsCount;
+  isLoading: boolean;
   isFetching: boolean;
   refetch: () => void;
 }
@@ -20,11 +21,10 @@ const COOLDOWN_MS = 10_000; // 10 seconds
 
 const DashboardHeader: FC<DashboardHeaderProps> = ({
   eventsCount,
+  isLoading,
   isFetching,
   refetch,
 }) => {
-  const isLoading = !eventsCount;
-
   const [lastRefreshed, setLastRefreshed] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
 

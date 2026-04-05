@@ -1,4 +1,4 @@
-import type { TeamMember } from "@/pages/admin/features/operations/team/types";
+import type { TeamMember } from "@/pages/admin/team/types";
 
 export function getAssigneeDisplay(roleName: string, teamRoles: TeamMember[]): string {
   if (roleName === "All") return "All";

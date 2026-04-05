@@ -1,32 +1,31 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useCueStore } from "@/pages/admin/store/useCueStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { AnimatePresence, motion } from 'framer-motion'
+import { Play } from 'lucide-react'
+
+import { useCueStore } from '../store/useCueStore'
+import { itemRevealIn } from '@/lib/animations'
 
 export function ActiveCueBanner() {
-  const { activeCueEvent } = useCueStore();
-  const { openActiveCueModal } = useModalStore();
+  const { activeCue, openCueModal } = useCueStore()
 
   return (
     <AnimatePresence>
-      {activeCueEvent && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={openActiveCueModal}
-          className="cursor-pointer bg-primary text-primary-foreground px-4 py-2.5 flex items-center justify-center gap-2 text-xs md:text-sm font-medium border-b-[3px] border-destructive/60 shadow-[0_4px_12px_rgba(0,0,0,0.2)] relative hover:bg-primary/90 transition-colors"
+      {activeCue && (
+        <motion.button
+          key="cue-banner"
+          {...itemRevealIn}
+          onClick={openCueModal}
+          className="w-full flex items-center gap-3 px-4 py-2.5 bg-primary/10 border-b border-primary/20 text-sm cursor-pointer hover:bg-primary/15 transition-colors"
         >
-          <span className="absolute inset-0 bg-destructive/10 animate-pulse pointer-events-none" />
-          <span className="w-2.5 h-2.5 bg-destructive rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
-          <span className="uppercase tracking-wider opacity-90 font-bold">
-            Active Cue:
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
+            <Play className="h-3 w-3 text-primary fill-primary" />
           </span>
-          <span className="font-extrabold drop-shadow-md">
-            {activeCueEvent.title}
+          <span className="font-medium text-primary">Live Now:</span>
+          <span className="text-foreground truncate">{activeCue.title}</span>
+          <span className="text-muted-foreground ml-auto text-xs shrink-0">
+            {activeCue.timeStart}
           </span>
-        </motion.div>
+        </motion.button>
       )}
     </AnimatePresence>
-  );
+  )
 }

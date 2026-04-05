@@ -32,6 +32,7 @@ export default function DashboardView() {
         <Container className="px-6 md:px-10 py-8 md:py-12">
           <DashboardHeader
             eventsCount={eventsCount}
+            isLoading={isLoading}
             isFetching={isFetching}
             refetch={refetch}
           />

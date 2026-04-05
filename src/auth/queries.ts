@@ -67,11 +67,7 @@ export function useLogoutMutation(options?: {
   onSuccess?: () => void;
 }) {
   return useMutation<void, void>(() => logoutUser(), {
-    toast: {
-      loading: "Logging out...",
-      success: "You've been logged out.",
-      error: "Failed to log out.",
-    },
+    silent: true,
     onSuccess: options?.onSuccess,
   });
 }

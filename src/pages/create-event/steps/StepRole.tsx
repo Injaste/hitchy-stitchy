@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/field";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 import type { CreateRoleData, StepType } from "../types";
 import { useSteps } from "@/components/custom/steps";
 

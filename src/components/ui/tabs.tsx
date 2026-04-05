@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 import useHoverIndicator from "@/lib/hooks/use-hover-indicator";
 import ComponentSlide from "../animations/animate-component-slide";
 

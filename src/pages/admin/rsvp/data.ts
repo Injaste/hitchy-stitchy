@@ -1,0 +1,60 @@
+import type { RSVPEntry } from './types'
+
+export const MOCK_EVENT_ID = 'mock-event-001'
+
+export const mockRSVPs: RSVPEntry[] = [
+  {
+    id: 'e5f6a7b8-5555-4eee-ffff-000000000001',
+    eventId: MOCK_EVENT_ID,
+    name: 'Alice Johnson',
+    phone: '+60123456789',
+    email: 'alice@example.com',
+    guestsCount: 2,
+    dietaryNotes: 'Vegetarian',
+    message: 'So excited for the big day!',
+    status: 'confirmed',
+    submittedAt: '2026-03-15T10:00:00Z',
+    updatedAt: '2026-03-15T10:00:00Z',
+  },
+  {
+    id: 'e5f6a7b8-5555-4eee-ffff-000000000002',
+    eventId: MOCK_EVENT_ID,
+    name: 'Bob Smith',
+    phone: '+60198765432',
+    guestsCount: 1,
+    status: 'confirmed',
+    submittedAt: '2026-03-16T14:00:00Z',
+    updatedAt: '2026-03-16T14:00:00Z',
+  },
+  {
+    id: 'e5f6a7b8-5555-4eee-ffff-000000000003',
+    eventId: MOCK_EVENT_ID,
+    name: 'Charlie Brown',
+    email: 'charlie@example.com',
+    guestsCount: 3,
+    dietaryNotes: 'No shellfish',
+    status: 'pending',
+    submittedAt: '2026-03-20T09:00:00Z',
+    updatedAt: '2026-03-20T09:00:00Z',
+  },
+  {
+    id: 'e5f6a7b8-5555-4eee-ffff-000000000004',
+    eventId: MOCK_EVENT_ID,
+    name: 'Diana Ross',
+    phone: '+60112233445',
+    guestsCount: 2,
+    message: 'Unfortunately can\'t make it',
+    status: 'declined',
+    submittedAt: '2026-03-22T16:00:00Z',
+    updatedAt: '2026-03-25T11:00:00Z',
+  },
+  {
+    id: 'e5f6a7b8-5555-4eee-ffff-000000000005',
+    eventId: MOCK_EVENT_ID,
+    name: 'Eve Williams',
+    guestsCount: 4,
+    status: 'pending',
+    submittedAt: '2026-03-28T12:00:00Z',
+    updatedAt: '2026-03-28T12:00:00Z',
+  },
+]

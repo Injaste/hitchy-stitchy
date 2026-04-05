@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 import { type FC, type ReactNode } from "react";
 
 interface ChildrenProps {

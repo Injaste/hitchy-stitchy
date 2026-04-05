@@ -1,23 +1,24 @@
-import { create } from "zustand";
-import type { TimelineEvent } from "@/pages/admin/features/timeline/types";
+import { create } from 'zustand'
+
+export interface ActiveCue {
+  id: string
+  title: string
+  timeStart: string
+  dayId: string
+}
 
 interface CueState {
-  activeCueEvent: TimelineEvent | null;
-  notifiedEvents: Set<string>;
-
-  setActiveCueEvent: (event: TimelineEvent) => void;
-  clearCueEvent: () => void;
-  markNotified: (id: string) => void;
+  activeCue: ActiveCue | null
+  isCueModalOpen: boolean
+  setActiveCue: (cue: ActiveCue | null) => void
+  openCueModal: () => void
+  closeCueModal: () => void
 }
 
 export const useCueStore = create<CueState>((set) => ({
-  activeCueEvent: null,
-  notifiedEvents: new Set<string>(),
-
-  setActiveCueEvent: (event) => set({ activeCueEvent: event }),
-  clearCueEvent: () => set({ activeCueEvent: null }),
-  markNotified: (id) =>
-    set((state) => ({
-      notifiedEvents: new Set(state.notifiedEvents).add(id),
-    })),
-}));
+  activeCue: null,
+  isCueModalOpen: false,
+  setActiveCue: (cue) => set({ activeCue: cue }),
+  openCueModal: () => set({ isCueModalOpen: true }),
+  closeCueModal: () => set({ isCueModalOpen: false }),
+}))

@@ -1,12 +1,12 @@
-import AuthGate from "../../auth/AuthGate";
-import AdminPage from "./AdminPage";
+import AuthGate from '@/auth/AuthGate'
+import AdminView from './AdminView'
 
 const Admin = () => {
   return (
     <AuthGate>
-      <p>Hiii!!</p>
+      <AdminView />
     </AuthGate>
-  );
-};
+  )
+}
 
-export default Admin;
+export default Admin

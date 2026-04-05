@@ -1,57 +1,50 @@
-import { format } from "date-fns";
+import { Link } from "react-router-dom";
 import { Bell, Radio } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarSeparator, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils/utils";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useCueStore } from "@/pages/admin/store/useCueStore";
-import { useModalStore } from "@/pages/admin/store/useModalStore";
+import { cn } from "@/lib/utils";
 
-const STATIC_LABELS: Record<string, string> = {
-  checklist: "Tasks",
-  team: "Team",
-  live: "Live Operations",
-  rsvps: "RSVPs",
-  users: "Users",
-  settings: "Settings",
+import { useAdminStore } from "../store/useAdminStore";
+import { useCueStore } from "../store/useCueStore";
+import { usePingStore } from "../store/usePingStore";
+import useActivePage from "../hooks/useActivePage";
+
+const formatPageLabel = (page: string): string => {
+  return page.replaceAll("-", " ");
 };
 
-export function AdminTopbar() {
-  const { activePage, setActivePage, eventConfig } = useAdminStore();
-  const { activeCueEvent } = useCueStore();
-  const { openPingModal } = useModalStore();
+const AdminTopbar = () => {
+  const { slug } = useAdminStore();
+  const { activeCue } = useCueStore();
+  const openPing = usePingStore((s) => s.open);
+  const activePage = useActivePage();
 
-  const activeDay = eventConfig.days.find((d) => d.id === activePage);
-  const label = activeDay
-    ? `Timeline — ${format(activeDay.date, "do MMM")} · ${activeDay.label}`
-    : (STATIC_LABELS[activePage] ?? "Dashboard");
-
-  const hasCue = !!activeCueEvent;
+  const pageLabel = formatPageLabel(activePage);
+  const hasCue = !!activeCue;
 
   return (
-    <header className="flex h-14 items-center justify-between gap-3 border-b border-border bg-card px-4 shrink-0">
-      {/* Left: mobile trigger + page label */}
+    <header className="flex items-center justify-between gap-3 border-b border-border px-4 h-14 shrink-0">
       <div className="flex items-center gap-3 min-w-0">
-        <SidebarTrigger className="md:hidden shrink-0" />
-        <p className="text-sm font-medium text-foreground/80 font-serif truncate">
-          {label}
-        </p>
+        <SidebarTrigger className="-ml-1" />
+        <SidebarSeparator orientation="vertical" className="mx-0 h-5 my-auto" />
+        <h1 className="text-sm font-semibold text-foreground capitalize">
+          {pageLabel}
+        </h1>
       </div>
 
-      {/* Right: Bell + Live button */}
       <div className="flex items-center gap-2 shrink-0">
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-foreground"
-          onClick={() => openPingModal()}
+          onClick={() => openPing()}
         >
           <Bell className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setActivePage("live")}
+          asChild
           className={cn(
             "shrink-0 gap-2 text-xs",
             hasCue
@@ -59,21 +52,25 @@ export function AdminTopbar() {
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          {hasCue ? (
-            <>
-              <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-              <span className="max-w-[120px] truncate">
-                {activeCueEvent!.title}
-              </span>
-            </>
-          ) : (
-            <>
-              <Radio className="h-3.5 w-3.5" />
-              <span>Live</span>
-            </>
-          )}
+          <Link to={`/${slug}/admin/live`}>
+            {hasCue ? (
+              <>
+                <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+                <span className="max-w-[120px] truncate">
+                  {activeCue!.title}
+                </span>
+              </>
+            ) : (
+              <>
+                <Radio className="h-3.5 w-3.5" />
+                <span>Live</span>
+              </>
+            )}
+          </Link>
         </Button>
       </div>
     </header>
   );
-}
+};
+
+export default AdminTopbar;

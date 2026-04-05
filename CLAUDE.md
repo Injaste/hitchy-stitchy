@@ -34,7 +34,14 @@ Friendly, approachable, playful brand. Core loop: create event → admin dashboa
 /dashboard          → Dashboard (lists all events for the authed user)
 /create-event       → Create event wizard
 /:slug              → Public invitation page (no auth)
-/:slug/admin        → Admin suite (protected)
+/:slug/admin                → redirects to /:slug/admin/timeline
+/:slug/admin/timeline       → Admin suite — Timeline
+/:slug/admin/checklist      → Admin suite — Checklist
+/:slug/admin/team           → Admin suite — Team
+/:slug/admin/live           → Admin suite — Live
+/:slug/admin/rsvp           → Admin suite — RSVPs (admin role only)
+/:slug/admin/users          → Admin suite — Users (admin role only)
+/:slug/admin/settings       → Admin suite — Settings (admin role only)
 ```
 
 ---
@@ -76,27 +83,123 @@ src/
 │   ├── dashboard/               ← Event listing dashboard
 │   ├── create-event/            ← Event creation wizard
 │   ├── invitation/              ← Public RSVP/invitation page
-│   ├── planner/                 ← (if exists) planner views
-│   └── admin/                   ← Admin suite
-│       ├── AdminPage.tsx
-│       ├── animations.ts
+│   └── admin/
+│       ├── index.tsx                    ← AuthGate wrapper only
+│       ├── AdminView.tsx                ← shell, bootstrap, layout, view router
+│       ├── animations.ts                ← tabTransition only
+│       ├── types.ts                     ← shared admin types (RoleCategory, EventDay, etc.)
+│       ├── lib/
+│       │   └── queryKeys.ts             ← adminKeys query key factory
+│       ├── hooks/
+│       │   └── useBootstrap.ts
 │       ├── store/
-│       │   ├── useAdminStore.ts
-│       │   ├── useModalStore.ts
-│       │   └── useCueStore.ts
+│       │   ├── useAdminStore.ts         ← bootstrap context only, no server state
+│       │   ├── useCueStore.ts           ← activeCue + cue modal state
+│       │   └── usePingStore.ts          ← ping modal open state + targetRoleId
 │       ├── components/
-│       └── features/
-│           ├── timeline/
-│           ├── operations/
-│           │   ├── checklist/
-│           │   ├── team/
-│           │   └── live/
-│           ├── admin-panel/
-│           │   ├── rsvp/
-│           │   └── users/
-│           ├── settings/
-│           ├── ping/
+│       │   ├── AdminSidebar.tsx
+│       │   ├── AdminTopbar.tsx
+│       │   ├── ActiveCueBanner.tsx
+│       │   ├── AdminSkeletonLayout.tsx
+│       │   └── AdminErrorLayout.tsx
+│       ├── modals/
+│       │   ├── PingModal.tsx            ← global, used from any view
+│       │   └── ActiveCueModal.tsx       ← global, banner click
+│       ├── timeline/
+│       │   ├── index.tsx                ← TimelineView
+│       │   ├── types.ts
+│       │   ├── data.ts
+│       │   ├── api.ts
+│       │   ├── queries.ts
+│       │   ├── animations.ts
+│       │   └── components/
+│       │       ├── TimelineList.tsx
+│       │       ├── TimelineEventCard.tsx
+│       │       ├── TimelineDayTabs.tsx
+│       │       └── modals/
+│       │           ├── index.tsx
+│       │           ├── EventModal.tsx
+│       │           ├── ConfirmStartCueModal.tsx
+│       │           ├── ConfirmDeleteModal.tsx
+│       │           └── ConfirmUpdateActiveCueModal.tsx
+│       ├── checklist/
+│       │   ├── index.tsx                ← ChecklistView
+│       │   ├── types.ts
+│       │   ├── data.ts
+│       │   ├── api.ts
+│       │   ├── queries.ts
+│       │   └── components/
+│       │       ├── ChecklistSection.tsx
+│       │       ├── ChecklistTaskCard.tsx
+│       │       └── modals/
+│       │           ├── index.tsx
+│       │           ├── TaskModal.tsx
+│       │           └── ConfirmDeleteTaskModal.tsx
+│       ├── team/
+│       │   ├── index.tsx                ← TeamView
+│       │   ├── types.ts
+│       │   ├── data.ts
+│       │   ├── api.ts
+│       │   ├── queries.ts               ← shared cache, imported by users/ too
+│       │   └── components/
+│       │       ├── TeamRoleCard.tsx
+│       │       └── modals/
+│       │           ├── index.tsx
+│       │           ├── RoleModal.tsx
+│       │           └── ConfirmDeleteRoleModal.tsx
+│       ├── live/
+│       │   ├── index.tsx                ← LiveView
+│       │   ├── types.ts
+│       │   ├── data.ts
+│       │   ├── api.ts
+│       │   ├── queries.ts               ← includes Supabase Realtime subscriptions
+│       │   └── components/
+│       │       ├── CueTracker.tsx
+│       │       ├── QuickActions.tsx
+│       │       ├── AttendancePanel.tsx
+│       │       └── LiveFeed.tsx
+│       ├── rsvp/
+│       │   ├── index.tsx                ← RSVPView
+│       │   ├── types.ts
+│       │   ├── data.ts
+│       │   ├── api.ts
+│       │   ├── queries.ts
+│       │   └── components/
+│       │       ├── RSVPStats.tsx
+│       │       ├── RSVPTable.tsx
+│       │       └── modals/
+│       │           ├── index.tsx
+│       │           └── RSVPDetailModal.tsx
+│       ├── users/
+│       │   ├── index.tsx                ← UsersView
+│       │   ├── types.ts                 ← re-exports from team/types.ts
+│       │   └── components/
+│       │       ├── UserRow.tsx
+│       │       └── modals/
+│       │           ├── index.tsx
+│       │           └── InviteMemberModal.tsx
+│       └── settings/
+│           ├── index.tsx                ← SettingsView (tab shell)
+│           ├── event-config/
+│           │   ├── index.tsx
+│           │   ├── types.ts
+│           │   ├── api.ts
+│           │   └── queries.ts
+│           ├── rsvp-config/
+│           │   ├── index.tsx
+│           │   ├── types.ts
+│           │   ├── api.ts
+│           │   └── queries.ts
+│           ├── appearance/
+│           │   ├── index.tsx
+│           │   ├── types.ts
+│           │   ├── api.ts
+│           │   └── queries.ts
 │           └── notifications/
+│               ├── index.tsx
+│               ├── types.ts
+│               ├── api.ts
+│               └── queries.ts
 ```
 
 ---
@@ -112,18 +215,20 @@ auth.users → event_members (ONLY direct auth reference)
 
 ### Key tables
 
-| Table                       | Notes                                                    |
-| --------------------------- | -------------------------------------------------------- |
-| `events`                    | `deleted_at` immutable-once-set; recovery via direct SQL |
-| `event_members`             | `is_active` for revocation instead of deletion           |
-| `roles`                     |                                                          |
-| `event_appearance`          | Template system for future multi-template support        |
-| `event_rsvp_config`         | Flat boolean columns for field visibility                |
-| `event_settings`            | Internal admin config                                    |
-| `event_templates`           | Platform-managed only, no client writes                  |
-| `member_notification_prefs` | JSONB preferences                                        |
-| `event_logs`                | Append-only, no client UPDATE/DELETE                     |
-| `live_logs`                 | Operational: member_id, role, type, msg                  |
+| Table                       | Notes                                                           |
+| --------------------------- | --------------------------------------------------------------- |
+| `events`                    | `deleted_at` immutable-once-set; recovery via direct SQL        |
+| `event_members`             | `is_active` for revocation instead of deletion                  |
+| `event_roles`               | name, short_name, category enum (root/admin/bridesmaid/general) |
+| `event_timelines`           | pre-planned schedule entries per day                            |
+| `event_tasks`               | tasks with checklist JSONB, status, priority, assignees         |
+| `event_rsvps`               | guest submissions, mirrors event_rsvp_config fields             |
+| `event_appearance`          | Template system for future multi-template support               |
+| `event_rsvp_config`         | Flat boolean columns for field visibility                       |
+| `event_settings`            | Internal admin config                                           |
+| `event_templates`           | Platform-managed only, no client writes                         |
+| `event_live_logs`           | append-only realtime operational signals                        |
+| `member_notification_prefs` | JSONB preferences                                               |
 
 ### Key enums
 
@@ -133,22 +238,6 @@ auth.users → event_members (ONLY direct auth reference)
 ### Views
 
 - `event_slugs` — returns only the `slug` column from `events`. Used for slug availability checks. `select("*")` and `select("slug")` are equivalent.
-
-### Dropped tables (not needed for MVP)
-
-`rsvp_logs`, `settings_logs`, `task_logs`
-
-### Triggers written
-
-- `touch_updated_at` — applied to all relevant tables
-- `enforce_immutable_columns` — prevents mutation of locked fields
-
-### Triggers remaining
-
-- `prevent_hard_delete`
-- `sync_required_when_hidden`
-- `initialize_event_rows` — creates companion rows on event insert
-- Analytics triggers
 
 ---
 
@@ -163,11 +252,16 @@ auth.users → event_members (ONLY direct auth reference)
 
 ### Query conventions
 
-- All queries keyed as `${slug}:${resource}`
-- `enabled: !!eventId` gates every feature query — nothing fires before bootstrap resolves
+- All admin queries keyed as `${slug}:${resource}`
+- `enabled: !!eventId && !!slug` gates every admin feature query — nothing fires before bootstrap resolves
+- All admin feature query keys use adminKeys from src/pages/admin/lib/queryKeys.ts
 - Read operations use `useQuery` (TanStack)
 - Write operations use `useMutation` from `@/lib/query/useMutation` (custom wrapper)
 - **Never import `useMutation` directly from TanStack in feature files** — always use the custom wrapper
+- All admin feature query keys use adminKeys factory from src/pages/admin/lib/queryKeys.ts — never raw strings
+- activePage is never in Zustand — always derived from useLocation().pathname
+- AdminView resolves which feature view to render from pathname, not stored state
+- Sidebar navigation uses <Link to={`/${slug}/admin/[route]`}> — not setActivePage
 
 ### Mutation modes (src/lib/query/useMutation.ts)
 
@@ -188,11 +282,14 @@ Three exclusive modes — pick one per mutation:
 
 ### Store conventions
 
-Three Zustand stores — `useAdminStore`, `useModalStore`, `useCueStore`.
+Three Zustand stores — `useAdminStore`, `useCueStore`, `usePingStore`.
 
-- `useAdminStore` — bootstrap context (slug, eventId, eventConfig, isBootstrapped), team, events, tasks, RSVPs, logs
-- `useModalStore` — all modal open/close booleans and editing state
-- `useCueStore` — activeCueEvent, notifiedEvents
+- `useAdminStore` — bootstrap context only: slug, eventId, eventName, days, memberId, memberRoleId, memberRoleName, memberRoleShortName, memberRoleCategory, isBootstrapped, bootstrapError. No server state.
+- `useCueStore` — activeCue (ActiveCue | null), isCueModalOpen
+- `usePingStore` — isOpen, targetRoleId
+
+No `useModalStore`. Each feature owns its own modal state locally.
+All server state (tasks, team, rsvps, logs, timeline) lives in TanStack Query only.
 
 ### No inline Framer Motion variants in components
 
@@ -201,6 +298,42 @@ Import from `animations.ts` (lib or page-level). No variant objects defined inli
 ### No hardcoded colours
 
 Use CSS variable tokens only — `text-primary`, `bg-card`, `text-muted-foreground`, etc.
+
+---
+
+## Component conventions
+
+### One exported component per file
+
+- Never two exported components in the same file
+- Never unexported module-scope components
+
+### Where sub-components live
+
+- Self-contained, no parent scope dependency → own file, exported default
+- Uses parent scope (state, props, hooks) and renders multiple times → const arrow inside parent function body
+- Reused across multiple parents → own file, exported default
+
+### Arrow function exports
+
+All components use arrow function syntax with export default:
+const MyComponent = () => { ... }
+export default MyComponent
+
+Hoisting (function declarations) only when genuinely required.
+
+### Entry points
+
+Every feature and sub-feature uses index.tsx as its entry point.
+Named component files (e.g. TeamRoleCard.tsx) exist for components that are
+not the primary export of their folder.
+
+### Skeleton and error layouts
+
+Dedicated files for skeleton and error states when they are self-contained
+and have no dependency on parent scope:
+AdminSkeletonLayout.tsx — full-page skeleton matching real sidebar + content layout
+AdminErrorLayout.tsx — full-page error state with icon, message, support text
 
 ---
 
@@ -248,6 +381,29 @@ This pattern is used in: **Dashboard** (skeleton → empty → events), **AuthGa
 
 ---
 
+## Realtime conventions
+
+Supabase Realtime subscriptions are set up inside queries.ts, never in components.
+Each feature that subscribes creates its channel in a useEffect inside a custom hook
+exported from queries.ts. Cleanup (channel.unsubscribe) runs on unmount.
+
+Features with Realtime subscriptions:
+
+- live/ → event_live_logs INSERT, event_members UPDATE (arrived_at)
+- timeline/ → event_timelines UPDATE (started_at — drives active cue)
+- checklist/ → event_tasks UPDATE (status)
+- rsvp/ → event_rsvps INSERT
+
+## Mock data conventions
+
+Every feature with a data dependency has a data.ts alongside api.ts.
+api.ts imports from data.ts and returns mocks during development.
+Every mock function is marked: // TODO: replace with live Supabase query
+Mocks simulate async with a 200ms delay before returning.
+MOCK_EVENT_ID and MOCK_MEMBER_ID are shared constants exported from data.ts.
+
+---
+
 ## create-event Page
 
 Two-step wizard: **Step 1 (Event)** → **Step 2 (Role)** → submit via `create_event` RPC.
@@ -275,11 +431,11 @@ src/pages/create-event/
 
 Two exported transform functions:
 
-**`toSafeSlug(input)`** — applied on every keystroke:
+`**toSafeSlug(input)**` — applied on every keystroke:
 
 - Lowercase, convert non-`[a-z0-9-]` to dash, collapse consecutive dashes, strip leading dashes, collapse multiple trailing dashes to one but preserve a single trailing dash (user is mid-word)
 
-**`toSlug(input)`** — applied on blur, submit, and programmatic generation:
+`**toSlug(input)**` — applied on blur, submit, and programmatic generation:
 
 - Everything `toSafeSlug` does + strip all trailing dashes
 
@@ -405,7 +561,9 @@ src/pages/invitation/
 
 - `api.ts` files never import from stores, never use hooks, never have side effects
 - Components never import from `api.ts` directly — always through `queries.ts`
-- `AdminModals.tsx` is the only place modals are rendered — imported once in `AdminPage`
+- Each feature owns its own modals rendered in its own modals/index.tsx
+- Only PingModal and ActiveCueModal are global, rendered once in AdminView
+- activePage is never stored in Zustand — derived from useLocation().pathname
 - Modals only close in mutation `onSuccess` — never on submit directly
 - `enabled: !!eventId` on every feature query — nothing fires before bootstrap
 - Query keys always follow `${slug}:${resource}`

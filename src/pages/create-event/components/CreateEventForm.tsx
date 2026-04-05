@@ -28,7 +28,11 @@ const CreateEventForm = () => {
     error,
     isError,
     reset: resetCreateEvent,
-  } = useCreateEventMutation();
+  } = useCreateEventMutation({
+    onSuccess: (data) => {
+      navigate(`/${data.slug}/admin`);
+    },
+  });
 
   const handleSubmit = (data: CreateRoleData) => {
     if (!eventData) return;
