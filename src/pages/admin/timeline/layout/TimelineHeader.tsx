@@ -7,11 +7,10 @@ import { Button } from "@/components/ui/button";
 import PortalToApp from "@/components/custom/portal-to-app";
 
 import { itemFadeIn, itemFadeUp } from "@/lib/animations";
-import type { EventsCount } from "../types";
+
 import { cn } from "@/lib/utils";
 
-interface DashboardHeaderProps {
-  eventsCount: EventsCount;
+interface TimelineHeaderProps {
   isLoading: boolean;
   isFetching: boolean;
   refetch: () => void;
@@ -19,8 +18,7 @@ interface DashboardHeaderProps {
 
 const COOLDOWN_MS = 10_000; // 10 seconds
 
-const DashboardHeader: FC<DashboardHeaderProps> = ({
-  eventsCount,
+const TimelineHeader: FC<TimelineHeaderProps> = ({
   isLoading,
   isFetching,
   refetch,
@@ -94,39 +92,10 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
               </Button>
             </Link>
           </div>
-
-          <div className="flex items-center gap-3 text-right">
-            {eventsCount.active > 0 && (
-              <>
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                    Active
-                  </p>
-                  <p className="text-lg font-bold font-serif text-foreground leading-none">
-                    {eventsCount.active}
-                  </p>
-                </div>
-                <div className="w-px h-8 bg-border" />
-              </>
-            )}
-            {eventsCount.upcoming > 0 && (
-              <>
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                    Upcoming
-                  </p>
-                  <p className="text-lg font-bold font-serif text-foreground leading-none">
-                    {eventsCount.upcoming}
-                  </p>
-                </div>
-                <div className="w-px h-8 bg-border" />
-              </>
-            )}
-          </div>
         </motion.div>
       )}
     </motion.div>
   );
 };
 
-export default DashboardHeader;
+export default TimelineHeader;

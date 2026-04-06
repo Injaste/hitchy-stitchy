@@ -4,15 +4,23 @@ export interface TimelineAssignee {
   roleShortName: string
 }
 
-export interface TimelineEvent {
+export interface TimelineDay {
+  dayId: string
+  timelineSlot: TimeSlot[]
+}
+
+export interface TimeSlot {
+  timeStart: string
+  isMainEvent: boolean
+  timelineSchedule: TimelineSchedule[]
+}
+
+export interface TimelineSchedule {
   id: string
   eventId: string
-  dayId: string
-  timeStart: string
   title: string
   description?: string
   notes?: string
-  isMainEvent: boolean
   startedAt?: string
   assignees: TimelineAssignee[]
 }

@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Container from "@/components/custom/container";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 
-import { container } from "@/lib/animations";
+import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
 
 import { useCountEventsQuery, useEventsQuery } from "../queries";
 import type { EventsCount } from "../types";
@@ -11,44 +11,46 @@ import type { EventsCount } from "../types";
 import DashboardTopbar from "./DashboardTopbar";
 import DashboardHeader from "./DashboardHeader";
 
-import EventEmptyState from "../events/EventEmptyState";
-import SkeletonCard from "../events/EventSkeletonCard";
-import EventView from "../events/EventView";
+import EventEmpty from "../states/EventEmpty";
+import EventSkeleton from "../states/EventSkeleton";
+import EventView from "../components/EventView";
 
 const EMPTY_COUNT: EventsCount = {
   active: 0,
   upcoming: 0,
 };
 
-export default function DashboardView() {
+const DashboardView = () => {
   const { data: events, isLoading, isFetching, refetch } = useEventsQuery();
   const { data: eventsCount = EMPTY_COUNT } = useCountEventsQuery();
 
   return (
     <div className="min-h-screen bg-background">
       <motion.div variants={container} initial="hidden" animate="show">
-        <DashboardTopbar />
+        <motion.div variants={itemFadeIn}>
+          <DashboardTopbar />
+        </motion.div>
+
+        <motion.div variants={itemFadeUp}>
+          <Container className="px-6 md:px-10 py-8 md:py-12">
+            <DashboardHeader
+              eventsCount={eventsCount}
+              isLoading={isLoading}
+              isFetching={isFetching}
+              refetch={refetch}
+            />
+          </Container>
+        </motion.div>
 
         <Container className="px-6 md:px-10 py-8 md:py-12">
-          <DashboardHeader
-            eventsCount={eventsCount}
-            isLoading={isLoading}
-            isFetching={isFetching}
-            refetch={refetch}
-          />
-
           <AnimatePresence mode="wait">
             {isLoading ? (
               <ComponentFade key="skeleton">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {[...Array(3)].map((_, i) => (
-                    <SkeletonCard key={i} />
-                  ))}
-                </div>
+                <EventSkeleton />
               </ComponentFade>
             ) : !events?.length ? (
               <ComponentFade key="empty">
-                <EventEmptyState />
+                <EventEmpty />
               </ComponentFade>
             ) : (
               <ComponentFade key="events">
@@ -60,4 +62,6 @@ export default function DashboardView() {
       </motion.div>
     </div>
   );
-}
+};
+
+export default DashboardView;

@@ -1,7 +1,6 @@
 import type { TimelineEvent } from './types'
 
 export const MOCK_EVENT_ID = 'mock-event-001'
-export const MOCK_MEMBER_ID = 'mock-member-001'
 
 export const mockTimelineEvents: TimelineEvent[] = [
   {
@@ -15,6 +14,18 @@ export const mockTimelineEvents: TimelineEvent[] = [
     assignees: [
       { roleId: 'role-001', roleName: 'Bride', roleShortName: 'BR' },
       { roleId: 'role-003', roleName: 'Bridesmaid', roleShortName: 'BM' },
+    ],
+  },
+  {
+    id: 'a1b2c3d4-1111-4aaa-bbbb-0000000000099',
+    eventId: MOCK_EVENT_ID,
+    dayId: 'day-1',
+    timeStart: '09:00 AM',
+    title: 'Bridal To Love Groom',
+    description: 'Hair and makeup at the bridal suite',
+    isMainEvent: false,
+    assignees: [
+      { roleId: 'role-001', roleName: 'Bride', roleShortName: 'BR' },
     ],
   },
   {

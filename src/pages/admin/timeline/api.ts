@@ -4,7 +4,8 @@ import { mockTimelineEvents } from './data'
 // TODO: replace with live Supabase query
 export async function fetchTimelineEvents(eventId: string): Promise<TimelineEvent[]> {
   await new Promise((r) => setTimeout(r, 200))
-  return mockTimelineEvents.filter((e) => e.eventId === eventId || true)
+
+  return mockTimelineEvents;
 }
 
 // TODO: replace with live Supabase query

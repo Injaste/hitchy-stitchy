@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { itemScaleIn } from "@/lib/animations";
 
-const EventEmptyState = () => {
+const EventEmpty = () => {
   return (
     <motion.div variants={itemScaleIn} initial="hidden" animate="show">
       <Card className="border-dashed">
@@ -34,4 +34,4 @@ const EventEmptyState = () => {
   );
 };
 
-export default EventEmptyState;
+export default EventEmpty;

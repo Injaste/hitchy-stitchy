@@ -146,7 +146,7 @@ const AdminSidebar = () => {
         )}
       </SidebarContent>
 
-      <SidebarSeparator />
+      <SidebarSeparator className="w-auto!" />
 
       <SidebarFooter className="p-4">
         <DropdownMenu>
