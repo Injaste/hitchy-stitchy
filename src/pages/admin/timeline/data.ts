@@ -9,8 +9,7 @@ export const mockTimelineEvents: TimelineEvent[] = [
     dayId: 'day-1',
     timeStart: '09:00 AM',
     title: 'Bridal Prep',
-    description: 'Hair and makeup at the bridal suite',
-    isMainEvent: false,
+    description: 'Hair and makeup at the bridal suite',    
     assignees: [
       { roleId: 'role-001', roleName: 'Bride', roleShortName: 'BR' },
       { roleId: 'role-003', roleName: 'Bridesmaid', roleShortName: 'BM' },
@@ -22,8 +21,7 @@ export const mockTimelineEvents: TimelineEvent[] = [
     dayId: 'day-1',
     timeStart: '09:00 AM',
     title: 'Bridal To Love Groom',
-    description: 'Hair and makeup at the bridal suite',
-    isMainEvent: false,
+    description: 'Hair and makeup at the bridal suite',    
     assignees: [
       { roleId: 'role-001', roleName: 'Bride', roleShortName: 'BR' },
     ],
@@ -34,8 +32,7 @@ export const mockTimelineEvents: TimelineEvent[] = [
     dayId: 'day-1',
     timeStart: '02:00 PM',
     title: 'Ceremony',
-    description: 'Exchange of vows at the garden pavilion',
-    isMainEvent: true,
+    description: 'Exchange of vows at the garden pavilion',    
     assignees: [
       { roleId: 'role-001', roleName: 'Bride', roleShortName: 'BR' },
       { roleId: 'role-002', roleName: 'Groom', roleShortName: 'GR' },
@@ -47,8 +44,7 @@ export const mockTimelineEvents: TimelineEvent[] = [
     dayId: 'day-1',
     timeStart: '03:30 PM',
     title: 'Photo Session',
-    description: 'Group photos at the lakeside',
-    isMainEvent: false,
+    description: 'Group photos at the lakeside',    
     assignees: [
       { roleId: 'role-004', roleName: 'Coordinator', roleShortName: 'CO' },
     ],
@@ -59,8 +55,7 @@ export const mockTimelineEvents: TimelineEvent[] = [
     dayId: 'day-1',
     timeStart: '06:00 PM',
     title: 'Reception Dinner',
-    description: 'Dinner and speeches in the grand hall',
-    isMainEvent: true,
+    description: 'Dinner and speeches in the grand hall',    
     assignees: [],
   },
   {
@@ -69,8 +64,7 @@ export const mockTimelineEvents: TimelineEvent[] = [
     dayId: 'day-2',
     timeStart: '10:00 AM',
     title: 'Farewell Brunch',
-    description: 'Casual brunch for guests before departure',
-    isMainEvent: false,
+    description: 'Casual brunch for guests before departure',    
     assignees: [
       { roleId: 'role-004', roleName: 'Coordinator', roleShortName: 'CO' },
     ],

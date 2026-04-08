@@ -1,22 +1,11 @@
-export type RoleCategory = 'root' | 'admin' | 'bridesmaid' | 'general'
-
-export interface DaySegment {
-  label: string
-  venue: string
-}
-
-export interface EventDay {
-  id: string
-  date?: string
-  label: string
-  segments: DaySegment[]
-}
+export type RoleCategory = 'root' | 'admin' | 'couple_attendant' | 'general'
 
 export interface AdminBootstrapContext {
   slug: string
   eventId: string
   eventName: string
-  days: EventDay[]
+  dateStart: string  // "yyyy-MM-dd"
+  dateEnd: string  // "yyyy-MM-dd"
   memberId: string
   memberDisplayName: string
   memberRoleId: string
@@ -27,3 +16,6 @@ export interface AdminBootstrapContext {
 
 export const isAdminMember = (category: RoleCategory): boolean =>
   category === 'root' || category === 'admin'
+
+export const isCoupleAttendant = (category: RoleCategory): boolean =>
+  category === 'root' || category === 'admin' || category === 'couple_attendant'

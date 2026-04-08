@@ -4,8 +4,8 @@ import { ComponentFade } from "@/components/animations/animate-component-fade";
 
 import { useTimelineQuery } from "../queries";
 
-import TimelineEmpty from "../states/EventEmpty";
-import TimelineSkeleton from "../states/EventSkeleton";
+import EventEmpty from "../states/TimelineEmpty";
+import TimelineSkeleton from "../states/TimelineSkeleton";
 
 import EventView from "../components/EventView";
 import Container from "@/components/custom/container";
@@ -42,7 +42,7 @@ const TimelineView = () => {
               </ComponentFade>
             ) : !testTimeline?.length ? (
               <ComponentFade key="empty">
-                <TimelineEmpty />
+                <EventEmpty />
               </ComponentFade>
             ) : (
               <ComponentFade key="events">

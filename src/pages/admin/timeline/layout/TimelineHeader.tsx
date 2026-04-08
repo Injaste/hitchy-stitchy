@@ -50,7 +50,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
     >
       <div>
         <p className="text-xs uppercase tracking-widest text-primary font-medium mb-1">
-          Your events
+          Day 1 Timeline
         </p>
         <h1 className="font-serif font-bold text-3xl md:text-4xl text-foreground">
           Planning Dashboard
