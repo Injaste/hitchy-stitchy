@@ -75,7 +75,7 @@ export function Hero() {
         variants={heroActions}
         initial="hidden"
         animate="show"
-        className="mt-10 flex flex-col sm:flex-row items-center gap-4"
+        className="mt-14 flex flex-col sm:flex-row items-center gap-4"
       >
         <Link to="/signup">
           <Button size="lg" className="gap-2 min-w-44 text-base">
