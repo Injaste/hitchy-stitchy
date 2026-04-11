@@ -73,8 +73,6 @@ const AdminSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarSeparator />
-
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Events</SidebarGroupLabel>
