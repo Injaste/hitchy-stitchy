@@ -46,7 +46,7 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
   };
 
   return (
-    <div className="flex not-md:flex-col gap-4 justify-between items-start">
+    <div className="flex not-md:flex-col gap-6 justify-between items-start">
       <div>
         <p className="text-xs uppercase tracking-widest text-primary font-medium mb-1">
           Your events
@@ -92,7 +92,7 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
             </Link>
           </div>
 
-          <div className="flex items-center gap-3 text-right">
+          <div className="flex items-center gap-4 text-right">
             {eventsCount.active > 0 && (
               <>
                 <div>

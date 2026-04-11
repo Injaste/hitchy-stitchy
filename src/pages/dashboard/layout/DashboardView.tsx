@@ -31,33 +31,33 @@ const DashboardView = () => {
           <DashboardTopbar />
         </motion.div>
 
-        <motion.div variants={itemFadeUp}>
-          <Container className="px-6 md:px-10 py-8 md:py-12">
+        <Container className="px-6 md:px-10">
+          <motion.div variants={itemFadeUp} className="pt-10 md:pt-16 pb-8 md:pb-10">
             <DashboardHeader
               eventsCount={eventsCount}
               isLoading={isLoading}
               isFetching={isFetching}
               refetch={refetch}
             />
-          </Container>
-        </motion.div>
+          </motion.div>
 
-        <Container className="px-6 md:px-10 py-8 md:py-12">
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              <ComponentFade key="skeleton">
-                <EventSkeleton />
-              </ComponentFade>
-            ) : !events?.length ? (
-              <ComponentFade key="empty">
-                <EventEmpty />
-              </ComponentFade>
-            ) : (
-              <ComponentFade key="events">
-                <EventView events={events} />
-              </ComponentFade>
-            )}
-          </AnimatePresence>
+          <div className="pb-16">
+            <AnimatePresence mode="wait">
+              {isLoading ? (
+                <ComponentFade key="skeleton">
+                  <EventSkeleton />
+                </ComponentFade>
+              ) : !events?.length ? (
+                <ComponentFade key="empty">
+                  <EventEmpty />
+                </ComponentFade>
+              ) : (
+                <ComponentFade key="events">
+                  <EventView events={events} />
+                </ComponentFade>
+              )}
+            </AnimatePresence>
+          </div>
         </Container>
       </motion.div>
     </div>
