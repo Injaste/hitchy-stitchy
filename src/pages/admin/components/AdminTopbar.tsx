@@ -25,8 +25,11 @@ const AdminTopbar = () => {
   return (
     <header className="flex items-center justify-between gap-3 border-b border-border px-4 h-14 shrink-0">
       <div className="flex items-center gap-3 min-w-0">
-        <SidebarTrigger className="-ml-1" />
-        <SidebarSeparator orientation="vertical" className="mx-0 h-5 my-auto" />
+        <SidebarTrigger className="-mx-1" />
+        <SidebarSeparator
+          orientation="vertical"
+          className="mx-0 h-5 my-auto!"
+        />
         <h1 className="text-sm font-semibold text-foreground capitalize">
           {pageLabel}
         </h1>
