@@ -34,7 +34,7 @@ export function HowItWorks() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="flex gap-10 items-start py-12"
+              className="flex gap-6 sm:gap-10 items-start py-12"
             >
               <div className="shrink-0 w-14 h-14 rounded-full border-2 border-primary/30 bg-primary/5 flex items-center justify-center">
                 <span className="font-serif font-bold text-primary text-lg">

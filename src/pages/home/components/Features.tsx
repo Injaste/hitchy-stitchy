@@ -58,7 +58,7 @@ export function Features() {
                 className="py-24 first:pt-0 last:pb-0"
               >
                 <div
-                  className={`min-h-[500px] flex flex-col lg:flex-row items-center gap-16 xl:gap-24 ${!isEven ? "lg:flex-row-reverse" : ""}`}
+                  className={`min-h-0 lg:min-h-[500px] flex flex-col lg:flex-row items-center gap-16 xl:gap-24 ${!isEven ? "lg:flex-row-reverse" : ""}`}
                 >
                   {/* Mock showcase */}
                   <motion.div
