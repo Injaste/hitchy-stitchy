@@ -39,7 +39,7 @@ const TimelineEditModal = () => {
     <Dialog open={isEditOpen} onOpenChange={closeAll}>
       <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit item</DialogTitle>
+          <DialogTitle className="font-serif">Edit item</DialogTitle>
         </DialogHeader>
         <TimelineItemForm
           defaultValues={{
