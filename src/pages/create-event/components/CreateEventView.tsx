@@ -21,7 +21,7 @@ const CreateEventView = () => {
           variants={itemFadeIn}
           className="text-center mb-10"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <CalendarHeart className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-2xl font-serif font-bold text-primary">
@@ -36,7 +36,7 @@ const CreateEventView = () => {
           <CreateEventForm />
         </motion.div>
 
-        <motion.div variants={itemFadeUp} className="text-center mt-6">
+        <motion.div variants={itemFadeUp} className="text-center mt-8">
           <p className="text-xs text-muted-foreground">
             <Link
               to="/dashboard"

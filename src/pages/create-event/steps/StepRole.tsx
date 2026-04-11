@@ -100,15 +100,17 @@ const StepRole: FC<StepRoleProps> = ({
   };
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div>
-        <p className="text-sm font-medium text-foreground">What's your role?</p>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="font-serif font-semibold text-base text-foreground">
+          What's your role?
+        </p>
+        <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
           You can add more team members after setup.
         </p>
       </div>
 
-      <FieldGroup className="block space-y-4">
+      <FieldGroup className="block space-y-6">
         {/* Role picker */}
         <form.Field name="role">
           {(field) => {
@@ -129,7 +131,7 @@ const StepRole: FC<StepRoleProps> = ({
                         field.handleChange(val);
                         field.handleBlur();
                       }}
-                      className="grid grid-cols-2 gap-3"
+                      className="grid grid-cols-2 gap-4"
                     >
                       {ROLE_OPTIONS.map((option) => {
                         const Icon = option.icon;
@@ -250,24 +252,25 @@ const StepRole: FC<StepRoleProps> = ({
 
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting_) => (
-          <div className="flex flex-col gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleBack}
-              disabled={isSubmitting_ || isSubmitting}
-              className="w-full"
-            >
-              Back
-            </Button>
+          <div className="flex flex-col gap-3">
             <Button
               type="submit"
+              size="lg"
               disabled={isSubmitting_ || isSubmitting}
               className="w-full"
             >
               {isSubmitting_ || isSubmitting
                 ? "Creating your event…"
                 : "Create Event"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleBack}
+              disabled={isSubmitting_ || isSubmitting}
+              className="w-full text-muted-foreground"
+            >
+              ← Back
             </Button>
           </div>
         )}
