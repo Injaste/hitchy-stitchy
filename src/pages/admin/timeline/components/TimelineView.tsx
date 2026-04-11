@@ -1,9 +1,10 @@
-import { useState, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/error-state";
 
+import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import TimelineSkeleton from "../states/TimelineSkeleton";
 import TimelineEmpty from "../states/TimelineEmpty";
@@ -29,10 +30,17 @@ const TimelineView: FC<TimelineViewProps> = ({
   isRefetching,
 }) => {
   const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const { canCreate } = useAccess();
 
   const days = data ?? [];
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const activeDay = days.find((d) => d.day === activeDayId) ?? days[0] ?? null;
+
+  useEffect(() => {
+    if (activeDayId && !days.some((d) => d.day === activeDayId)) {
+      setActiveDayId(days[0]?.day ?? null);
+    }
+  }, [days, activeDayId]);
 
   const renderBody = () => {
     if (isLoading)
@@ -56,7 +64,7 @@ const TimelineView: FC<TimelineViewProps> = ({
     if (!days.length)
       return (
         <ComponentFade key="empty">
-          <TimelineEmpty onAdd={openCreate} />
+          <TimelineEmpty onAdd={openCreate} canCreate={canCreate("timeline")} />
         </ComponentFade>
       );
 

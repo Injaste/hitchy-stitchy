@@ -1,7 +1,6 @@
 import { z } from "zod"
-import type { RSVPFormConfig } from "@/pages/admin/features/settings/types"
 
-export function buildRsvpSchema(config: RSVPFormConfig) {
+export function buildRsvpSchema(config: any) {
   return z.object({
     // name — always present, always required
     name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -81,7 +80,7 @@ export interface PublicEventConfig {
   attire: string
   blessingsName: string
   blessingsLabel: string
-  rsvpForm: RSVPFormConfig
+  rsvpForm: any
   rsvpDeadline: Date | null
   rsvpDeadlineEnabled: boolean
 }

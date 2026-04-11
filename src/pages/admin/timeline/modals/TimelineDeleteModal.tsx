@@ -1,6 +1,10 @@
 import {
   AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -24,44 +28,38 @@ const TimelineDeleteModal = () => {
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
       <AlertDialogContent>
         <AlertDialogHeader className="text-destructive">
-          <AlertDialogTitle
-            className="font-serif flex items-center gap-2"
-            aria-describedby="delete item"
-          >
+          <AlertDialogTitle className="font-serif flex items-center gap-2">
             <TriangleAlert className="w-4 h-4 shrink-0" />
             Delete item
           </AlertDialogTitle>
-        </AlertDialogHeader>
-
-        <div className="space-y-6 mt-1">
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
             Are you sure you want to delete{" "}
             <span className="font-semibold text-foreground">
               "{item.title}"
             </span>
-            ? This cannot be undone.
-          </p>
+            ? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={closeAll}
-              disabled={remove.isPending}
-              autoFocus
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => remove.mutate(item.id)}
-              disabled={remove.isPending}
-            >
-              {remove.isPending ? "Deleting…" : "Delete"}
-            </Button>
-          </div>
-        </div>
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            variant="outline"
+            size="sm"
+            onClick={closeAll}
+            disabled={remove.isPending}
+            autoFocus
+          >
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            size="sm"
+            onClick={() => remove.mutate(item.id)}
+            disabled={remove.isPending}
+          >
+            {remove.isPending ? "Deleting…" : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

@@ -23,6 +23,8 @@ const AdminView = () => {
   const { isBootstrapped, bootstrapError } = useAdminStore();
   const activePage = useActivePage();
 
+  console.log(bootstrapError);
+
   return (
     <AnimatePresence mode="wait">
       {bootstrapError ? (

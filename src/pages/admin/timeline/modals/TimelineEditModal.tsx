@@ -1,13 +1,14 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { useTimelineMutations } from "../queries";
-import type { TimelineItemFormValues } from "../types";
+import { toTimelinePayload, type TimelineItemFormValues } from "../types";
 
 import TimelineItemForm from "./TimelineItemForm";
 
@@ -22,17 +23,7 @@ const TimelineEditModal = () => {
   const item = selectedItem;
 
   const handleSubmit = (values: TimelineItemFormValues) => {
-    update.mutate({
-      id: item.id,
-      label: values.label || null,
-      day: values.day,
-      timeStart: values.timeStart,
-      timeEnd: values.timeEnd || null,
-      title: values.title,
-      description: values.description || null,
-      notes: values.notes || null,
-      assignees: values.assignees,
-    });
+    update.mutate({ id: item.id, ...toTimelinePayload(values) });
   };
 
   return (
@@ -40,6 +31,7 @@ const TimelineEditModal = () => {
       <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-serif">Edit item</DialogTitle>
+          <DialogDescription>Timeline Description</DialogDescription>
         </DialogHeader>
         <TimelineItemForm
           defaultValues={{

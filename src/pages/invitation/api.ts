@@ -1,8 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import type { PublicEventConfig, RSVPSubmission, NewRSVPSubmission } from "./types"
-import type { RSVPFormConfig } from "@/pages/admin/features/settings/types"
 
-const DEFAULT_RSVP_FORM: RSVPFormConfig = {
+const DEFAULT_RSVP_FORM = {
   fields: {
     name: { visible: true, required: true },
     phone: { visible: true, required: true },
@@ -37,7 +36,7 @@ function derivePublicEventConfig(row: any): PublicEventConfig {
     attire: (s.attire as string) ?? "",
     blessingsName: (s.blessings_name as string) ?? "",
     blessingsLabel: (s.blessings_label as string) ?? "",
-    rsvpForm: (s.rsvp_form as RSVPFormConfig) ?? DEFAULT_RSVP_FORM,
+    rsvpForm: (s.rsvp_form) ?? DEFAULT_RSVP_FORM,
     rsvpDeadlineEnabled: (s.rsvp_deadline_enabled as boolean) ?? false,
     rsvpDeadline: s.rsvp_deadline ? new Date(s.rsvp_deadline as string) : null,
   }

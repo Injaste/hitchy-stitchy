@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
+import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { useTimelineModalStore } from "./hooks/useTimelineStore"
 import {
   fetchTimeline,
@@ -10,14 +11,10 @@ import {
 } from "./api"
 import type { CreateTimelineItemPayload, UpdateTimelineItemPayload } from "./types"
 
-function timelineQueryKey(slug: string) {
-  return [`${slug}:timeline`] as const
-}
-
 export function useTimeline() {
   const { slug, eventId } = useAdminStore()
   return useQuery({
-    queryKey: timelineQueryKey(slug!),
+    queryKey: adminKeys.timeline(slug!),
     queryFn: () => fetchTimeline(eventId!),
     enabled: !!eventId,
   })
@@ -29,7 +26,7 @@ export function useTimelineMutations() {
   const queryClient = useQueryClient()
 
   const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: timelineQueryKey(slug!) })
+    queryClient.invalidateQueries({ queryKey: adminKeys.timeline(slug!) })
 
   const create = useMutation(
     (payload: CreateTimelineItemPayload) => createTimelineItem(payload),

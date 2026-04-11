@@ -9,6 +9,7 @@ import PortalToApp from "@/components/custom/portal-to-app";
 import { itemFadeIn } from "@/lib/animations";
 import type { EventsCount } from "../types";
 import { cn } from "@/lib/utils";
+import { useRefetch } from "@/pages/admin/hooks/useRefetch";
 
 interface DashboardHeaderProps {
   eventsCount: EventsCount;
@@ -17,33 +18,13 @@ interface DashboardHeaderProps {
   refetch: () => void;
 }
 
-const COOLDOWN_MS = 10_000; // 10 seconds
-
 const DashboardHeader: FC<DashboardHeaderProps> = ({
   eventsCount,
   isLoading,
   isFetching,
   refetch,
 }) => {
-  const [lastRefreshed, setLastRefreshed] = useState<number | null>(null);
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const cooldownRemaining = lastRefreshed
-    ? Math.max(0, COOLDOWN_MS - (now - lastRefreshed))
-    : 0;
-
-  const canRefresh = !isFetching && cooldownRemaining === 0;
-
-  const handleRefresh = () => {
-    if (!canRefresh) return;
-    refetch();
-    setLastRefreshed(Date.now());
-  };
+  const { handleRefresh, canRefresh } = useRefetch(refetch);
 
   return (
     <div className="flex not-md:flex-col gap-4 justify-between items-start">

@@ -11,8 +11,8 @@ import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 import TimelineItemCard from "./TimelineItemCard";
 
 const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
-  const { emblaRef, emblaApi } = useEmblaCarouselApi({});
-  const { isAtStart, isAtEnd } = useEmblaEdgeDetection(emblaApi);
+  const { emblaRef, emblaApi } = useEmblaCarouselApi();
+  const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   const groupStart = group.items[0]?.timeStart ?? "";
   const groupEnd = group.items.reduce((acc, item) => {
@@ -20,7 +20,6 @@ const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
     return t > acc ? t : acc;
   }, "");
   const itemCount = group.items.length;
-  const countLabel = `${itemCount} item${itemCount === 1 ? "" : "s"}`;
   const timeRange =
     groupStart && groupEnd && groupStart !== groupEnd
       ? `${formatTime(groupStart)} – ${formatTime(groupEnd)}`
@@ -31,23 +30,16 @@ const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
   return (
     <div className="space-y-3">
       <div>
-        {group.label ? (
-          <p className="text-sm">
+        <p className="text-sm">
+          {group.label && (
             <span className="font-serif font-semibold text-foreground">
               {group.label}
             </span>
-            <span className="text-muted-foreground">
-              {" · "}
-              {countLabel}
-              {timeRange && ` · ${timeRange}`}
-            </span>
-          </p>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            {countLabel}
+          )}
+          <span className="text-muted-foreground">
             {timeRange && ` · ${timeRange}`}
-          </p>
-        )}
+          </span>
+        </p>
       </div>
 
       <div className="-mx-1">
@@ -56,14 +48,14 @@ const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
             <div className="flex gap-3">
               {group.items.map((item) => (
                 <div key={item.id} className="shrink-0 w-72">
-                  <TimelineItemCard item={item} roleMap={{}} />
+                  <TimelineItemCard item={item} />
                 </div>
               ))}
             </div>
           </div>
 
           {/* Left fade — only when scrolled */}
-          {isAtStart && (
+          {showLeftFade && (
             <motion.div
               variants={itemFadeIn}
               className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent"
@@ -71,7 +63,7 @@ const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
           )}
 
           {/* Right fade — only when more content */}
-          {isAtEnd && (
+          {showRightFade && (
             <motion.div
               variants={itemFadeIn}
               className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent"
@@ -93,16 +85,15 @@ const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span className="font-mono font-medium text-foreground">
-          {formatTime(earliest)}
-        </span>
-        <span>–</span>
-        <span className="font-mono font-medium text-foreground">
-          {formatTime(latest)}
-        </span>
-        <span>·</span>
-        <span>{calculateTimeDuration(earliest, latest)}</span>
+      <div className="flex flex-col gap-1 font-mono font-medium">
+        <div>Day 1{`: ${"Event"}`}</div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="text-foreground">{formatTime(earliest)}</span>
+          <span>–</span>
+          <span className=" text-foreground">{formatTime(latest)}</span>
+          <span>·</span>
+          <span>{calculateTimeDuration(earliest, latest)}</span>
+        </div>
       </div>
 
       {day.labelGroups.map((group, i) => (

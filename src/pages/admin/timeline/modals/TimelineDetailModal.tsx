@@ -4,6 +4,7 @@ import { StickyNote } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -37,6 +38,9 @@ const TimelineDetailModal = () => {
       <DialogContent className="w-[95vw] max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-serif">{item.title}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
+            {item.description}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-1">
@@ -45,28 +49,10 @@ const TimelineDetailModal = () => {
             <span className="font-mono">{timeLabel}</span>
             <span>·</span>
             <span>{dateLabel}</span>
-            {item.label && (
-              <Badge variant="outline">{item.label}</Badge>
-            )}
+            {item.label && <Badge variant="outline">{item.label}</Badge>}
           </div>
 
           <Separator />
-
-          {/* Description */}
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Description
-            </p>
-            {item.description ? (
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {item.description}
-              </p>
-            ) : (
-              <p className="text-sm text-muted-foreground/50 italic">
-                No description added
-              </p>
-            )}
-          </div>
 
           {/* Notes */}
           <div className="space-y-1.5">

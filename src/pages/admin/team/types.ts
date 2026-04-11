@@ -1,4 +1,4 @@
-import type { RoleCategory } from '../../types'
+import type { RoleCategory } from "../types"
 
 export interface Role {
   id: string

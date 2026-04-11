@@ -6,9 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface TimelineEmptyProps {
   onAdd: () => void;
+  canCreate: boolean;
 }
 
-const TimelineEmpty: FC<TimelineEmptyProps> = ({ onAdd }) => {
+const TimelineEmpty: FC<TimelineEmptyProps> = ({ onAdd, canCreate }) => {
   return (
     <Card className="border-dashed">
       <CardContent className="flex flex-col items-center justify-center text-center py-24 px-6">
@@ -22,10 +23,12 @@ const TimelineEmpty: FC<TimelineEmptyProps> = ({ onAdd }) => {
           Start building your day. Add your first schedule item and bring your
           wedding timeline to life.
         </p>
-        <Button onClick={onAdd} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add first item
-        </Button>
+        {canCreate && (
+          <Button onClick={onAdd} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Add first item
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

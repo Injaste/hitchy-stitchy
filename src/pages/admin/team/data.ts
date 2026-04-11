@@ -6,7 +6,7 @@ export const MOCK_MEMBER_ID = 'mock-member-001'
 export const mockRoles: Role[] = [
   { id: 'role-001', eventId: MOCK_EVENT_ID, name: 'Bride', shortName: 'BR', category: 'root' },
   { id: 'role-002', eventId: MOCK_EVENT_ID, name: 'Groom', shortName: 'GR', category: 'root' },
-  { id: 'role-003', eventId: MOCK_EVENT_ID, name: 'Bridesmaid', shortName: 'BM', category: 'bridesmaid' },
+  { id: 'role-003', eventId: MOCK_EVENT_ID, name: 'Bridesmaid', shortName: 'BM', category: 'couple_attendant' },
   { id: 'role-004', eventId: MOCK_EVENT_ID, name: 'Coordinator', shortName: 'CO', category: 'admin' },
   { id: 'role-005', eventId: MOCK_EVENT_ID, name: 'Usher', shortName: 'US', category: 'general' },
 ]

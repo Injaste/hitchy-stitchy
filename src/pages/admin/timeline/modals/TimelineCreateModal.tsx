@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -9,7 +10,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { useTimelineMutations } from "../queries";
-import type { TimelineItemFormValues } from "../types";
+import { toTimelinePayload, type TimelineItemFormValues } from "../types";
 
 import TimelineItemForm from "./TimelineItemForm";
 
@@ -20,17 +21,7 @@ const CreateTimelineItemModal = () => {
   const { create } = useTimelineMutations();
 
   const handleSubmit = (values: TimelineItemFormValues) => {
-    create.mutate({
-      eventId: eventId!,
-      day: values.day,
-      label: values.label || null,
-      timeStart: values.timeStart,
-      timeEnd: values.timeEnd || null,
-      title: values.title,
-      description: values.description || null,
-      notes: values.notes || null,
-      assignees: values.assignees,
-    });
+    create.mutate({ eventId: eventId!, ...toTimelinePayload(values) });
   };
 
   return (
@@ -38,6 +29,7 @@ const CreateTimelineItemModal = () => {
       <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-serif">Add schedule item</DialogTitle>
+          <DialogDescription>Timeline Description</DialogDescription>
         </DialogHeader>
         <TimelineItemForm
           onSubmit={handleSubmit}

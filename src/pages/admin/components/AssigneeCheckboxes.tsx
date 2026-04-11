@@ -31,18 +31,18 @@ export function AssigneeCheckboxes({
           </label>
         </div>
         {teamRoles.map((r) => (
-          <div key={r.role} className="flex items-center gap-2">
+          <div key={r.role.id} className="flex items-center gap-2">
             <Checkbox
               id={`${feature}-assignee-${r.role}`}
               name="assignees"
-              value={r.role}
-              defaultChecked={defaultAssignees?.includes(r.role)}
+              value={r.role.id}
+              defaultChecked={defaultAssignees?.includes(r.role.id)}
             />
             <label
               htmlFor={`${feature}-assignee-${r.role}`}
               className="text-sm cursor-pointer"
             >
-              {getAssigneeDisplay(r.role, teamRoles)}
+              {getAssigneeDisplay(r.role.id, teamRoles)}
             </label>
           </div>
         ))}

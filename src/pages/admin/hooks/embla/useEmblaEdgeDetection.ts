@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import type { EmblaCarouselType } from 'embla-carousel'
 
 export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) => {
-  const [isAtStart, setIsAtStart] = useState(true)
-  const [isAtEnd, setIsAtEnd] = useState(false)
+  const [showLeftFade, setShowLeftFade] = useState(false)
+  const [showRightFade, setShowRightFade] = useState(false)
 
   const updateEdges = useCallback((api: EmblaCarouselType) => {
     const progress = api.scrollProgress()
-    setIsAtStart(progress > 0);
-    setIsAtEnd(progress < 1);
+    const watchDrag = api.canScrollNext() || api.canScrollPrev()
+    setShowLeftFade(progress > 0 && watchDrag);
+    setShowRightFade(progress < 1 && watchDrag);
   }, [])
 
   useEffect(() => {
@@ -24,5 +25,5 @@ export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) =
     }
   }, [emblaApi, updateEdges])
 
-  return { isAtStart, isAtEnd }
+  return { showLeftFade, showRightFade }
 }

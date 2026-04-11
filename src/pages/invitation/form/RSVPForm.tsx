@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/input-group";
 
 import { buildRsvpSchema, type RSVPFormData } from "../types";
-import type { RSVPFormConfig } from "@/pages/admin/features/settings/types";
 
 const fieldVariant: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -46,7 +45,7 @@ const RSVPForm = ({
   onSubmit: (value: RSVPFormData) => Promise<void>;
   onCancel?: () => void;
   isEditing: boolean;
-  rsvpConfig: RSVPFormConfig;
+  rsvpConfig: any;
 }) => {
   const schema = buildRsvpSchema(rsvpConfig);
 

@@ -35,7 +35,7 @@ function mapRow(row: any): TimelineItem {
 export async function fetchTimeline(eventId: string): Promise<TimelineGroupedDay[]> {
   const { data, error } = await supabase
     .from("event_timelines")
-    .select("*")
+    .select("id, event_id, day, label, time_start, time_end, title, description, notes, assignees, created_at")
     .eq("event_id", eventId)
     .order("day", { ascending: true })
     .order("time_start", { ascending: true })

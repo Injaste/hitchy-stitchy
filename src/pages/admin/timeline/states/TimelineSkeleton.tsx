@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-const SlotSkeleton = () => {
-  return (
+const TimelineSkeleton = () => {
+  const SlotSkeleton = () => (
     <div className="space-y-3">
       <Skeleton className="h-4 w-40" />
       <div className="flex gap-3 overflow-hidden">
@@ -16,9 +16,7 @@ const SlotSkeleton = () => {
       </div>
     </div>
   );
-};
 
-const TimelineSkeleton = () => {
   return (
     <div className="space-y-8">
       {/* Day tab pills */}

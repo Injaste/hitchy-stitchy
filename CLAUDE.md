@@ -318,7 +318,7 @@ Three exclusive modes — pick one per mutation:
 ### Mutation rules
 
 - Modals only close in mutation `onSuccess` — never on submit directly
-- No hard deletes from the client — soft delete via `deleted_at` only
+- No hard deletes for events table — soft delete via `deleted_at` only
 - Append-only tables (`live_logs`, all `*_logs`) — no client UPDATE or DELETE
 - Analytics log tables — no client INSERT, written by DB triggers only
 

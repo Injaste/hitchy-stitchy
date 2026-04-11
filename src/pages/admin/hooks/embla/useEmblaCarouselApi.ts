@@ -1,7 +1,6 @@
-import { type EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
 
-export const useEmblaCarouselApi = ({ }: EmblaOptionsType) => {
+export const useEmblaCarouselApi = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     dragFree: true,
     containScroll: "keepSnaps",

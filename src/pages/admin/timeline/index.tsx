@@ -2,11 +2,7 @@ import { useTimeline } from "./queries";
 
 import TimelineHeader from "./components/TimelineHeader";
 import TimelineView from "./components/TimelineView";
-
-import TimelineCreateModal from "./modals/TimelineCreateModal";
-import TimelineDetailModal from "./modals/TimelineDetailModal";
-import TimelineEditModal from "./modals/TimelineEditModal";
-import TimelineDeleteModal from "./modals/TimelineDeleteModal";
+import TimelineModals from "./modals";
 
 const Timeline = () => {
   const { data, isLoading, isError, refetch, isRefetching } = useTimeline();
@@ -26,10 +22,7 @@ const Timeline = () => {
         refetch={refetch}
         isRefetching={isRefetching}
       />
-      <TimelineCreateModal />
-      <TimelineEditModal />
-      <TimelineDeleteModal />
-      <TimelineDetailModal />
+      <TimelineModals />
     </div>
   );
 };

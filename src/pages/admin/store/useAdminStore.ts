@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { AdminBootstrapContext, EventDay, RoleCategory } from '../types'
+import type { AdminBootstrapContext, RoleCategory } from '../types'
 
 interface AdminState extends AdminBootstrapContext {
   isBootstrapped: boolean
@@ -12,7 +12,8 @@ export const useAdminStore = create<AdminState>((set) => ({
   slug: '',
   eventId: '',
   eventName: '',
-  days: [] as EventDay[],
+  dateStart: '',
+  dateEnd: '',
   memberId: '',
   memberDisplayName: '',
   memberRoleId: '',

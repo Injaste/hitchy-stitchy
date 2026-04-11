@@ -9,6 +9,7 @@ import type { TimelineGroupedDay } from "../types";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface DayTabsProps {
   days: TimelineGroupedDay[];
@@ -17,8 +18,8 @@ interface DayTabsProps {
 }
 
 const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
-  const { emblaRef, emblaApi } = useEmblaCarouselApi({});
-  const { isAtStart, isAtEnd } = useEmblaEdgeDetection(emblaApi);
+  const { emblaRef, emblaApi } = useEmblaCarouselApi();
+  const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   return (
     <div className="mb-6 -mx-1">
@@ -55,7 +56,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
         </div>
 
         {/* Left fade — only when scrolled */}
-        {isAtStart && (
+        {showLeftFade && (
           <motion.div
             variants={itemFadeIn}
             className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent"
@@ -63,13 +64,14 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
         )}
 
         {/* Right fade — only when more content */}
-        {isAtEnd && (
+        {showRightFade && (
           <motion.div
             variants={itemFadeIn}
             className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent"
           />
         )}
       </div>
+      <Separator className="mt-6" />
     </div>
   );
 };

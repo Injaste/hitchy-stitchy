@@ -7,6 +7,7 @@ import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 import { AnimatePresence } from "framer-motion";
+import { useRefetch } from "../../hooks/useRefetch";
 
 interface TimelineHeaderProps {
   isLoading: boolean;
@@ -21,6 +22,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   isRefetching,
   refetch,
 }) => {
+  const { handleRefresh, canRefresh } = useRefetch(refetch);
   const { canCreate } = useAccess();
   const openCreate = useTimelineModalStore((s) => s.openCreate);
 
@@ -38,9 +40,9 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={refetch}
-                disabled={isRefetching}
                 className="text-muted-foreground"
+                onClick={handleRefresh}
+                disabled={!canRefresh}
               >
                 <RefreshCw
                   className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
