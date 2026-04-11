@@ -5,7 +5,7 @@ export const container: Variants = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15, // The magic number you requested
+      staggerChildren: 0.15,
     },
   },
 };
@@ -15,7 +15,7 @@ export const itemScaleIn: Variants = {
   show: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.7 }
+    transition: { duration: 0.4 }
   },
 };
 
@@ -24,16 +24,16 @@ export const itemFadeUp: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6 }
+    transition: { duration: 0.4 }
   },
 };
 
 export const itemFadeIn = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.2 } },
+  show: { opacity: 1, transition: { duration: 0.4 } },
 };
 
-export const cardHover = { y: -3, transition: { duration: 0.2 } };
+export const cardHover = { y: -3, transition: { duration: 0.4 } };
 
 export const itemShake = {
   idle: { x: 0 },

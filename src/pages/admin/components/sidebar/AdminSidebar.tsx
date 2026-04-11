@@ -20,6 +20,8 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 
@@ -54,20 +56,24 @@ const AdminSidebar = () => {
   const base = `/${slug}/admin`;
 
   return (
-    <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-500/10">
-            <CalendarHeart className="h-5 w-5 text-amber-500" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground truncate">
-              {eventName}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">{slug}</p>
-          </div>
-        </div>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" className="pointer-events-none">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary/10 text-sidebar-primary-foreground">
+                <CalendarHeart className="size-4 text-sidebar-primary" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">{eventName}</span>
+                <span className="truncate text-xs">{slug}</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
+
+      <SidebarSeparator />
 
       <SidebarContent>
         <SidebarGroup>
@@ -146,30 +152,34 @@ const AdminSidebar = () => {
         )} */}
       </SidebarContent>
 
-      <SidebarSeparator className="w-auto!" />
+      <SidebarSeparator />
 
-      <SidebarFooter className="p-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex w-full items-center gap-3 rounded-md p-1.5 hover:bg-muted transition-colors">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground capitalize">
-                {memberRoleShortName.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium text-foreground truncate">
-                  {memberDisplayName}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {memberRoleName}
-                </p>
-              </div>
-              <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start">
-            <AdminLogout />
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton size="lg">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground capitalize">
+                    {memberRoleShortName.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {memberDisplayName}
+                    </span>
+                    <span className="truncate text-xs">{memberRoleName}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start">
+                <DropdownMenuItem asChild>
+                  <AdminLogout />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

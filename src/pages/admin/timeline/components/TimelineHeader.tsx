@@ -30,9 +30,9 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
 
   return (
     <div className="flex items-center justify-between">
-      <h1 className="text-2xl font-serif font-bold text-foreground">
-        Timeline
-      </h1>
+      <p className="text-xl font-serif font-bold text-muted-foreground">
+        Timeline description
+      </p>
       <AnimatePresence mode="wait">
         {showActions && (
           <ComponentFade key={showActions.toString()}>
@@ -49,9 +49,14 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
                 />
               </Button>
               {canCreate("timeline") && (
-                <Button size="sm" onClick={openCreate} className="gap-2">
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={openCreate}
+                  className="gap-2"
+                >
                   <Plus className="w-4 h-4" />
-                  Add item
+                  Add Timeline
                 </Button>
               )}
             </div>

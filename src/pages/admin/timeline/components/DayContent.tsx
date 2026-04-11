@@ -1,7 +1,7 @@
 import { type FC } from "react";
 import { motion } from "framer-motion";
 
-import { itemFadeIn } from "@/lib/animations";
+import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
 import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
 
 import type { TimelineGroupedDay, TimelineLabelGroup } from "../types";
@@ -45,13 +45,17 @@ const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
       <div className="-mx-1">
         <div className="relative">
           <div ref={emblaRef} className="overflow-hidden p-1">
-            <div className="flex gap-3">
+            <motion.div variants={container} className="flex gap-3">
               {group.items.map((item) => (
-                <div key={item.id} className="shrink-0 w-72">
+                <motion.div
+                  variants={itemFadeUp}
+                  key={item.id}
+                  className="shrink-0 w-72"
+                >
                   <TimelineItemCard item={item} />
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           {/* Left fade — only when scrolled */}
@@ -96,9 +100,13 @@ const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
         </div>
       </div>
 
-      {day.labelGroups.map((group, i) => (
-        <LabelCarousel key={group.label ?? `__none__${i}`} group={group} />
-      ))}
+      <motion.div variants={container}>
+        {day.labelGroups.map((group, idx) => (
+          <motion.div key={`timeline-label-${idx}`} variants={itemFadeUp}>
+            <LabelCarousel group={group} />
+          </motion.div>
+        ))}
+      </motion.div>
     </div>
   );
 };

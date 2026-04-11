@@ -36,7 +36,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                     onClick={() => onSelect(d.day)}
                     variant={active ? "default" : "outline"}
                     className={cn(
-                      "flex flex-col h-auto! py-3 px-6 gap-0.5",
+                      "flex flex-col h-auto! py-3 px-6",
                       active && "shadow-sm",
                     )}
                   >
@@ -46,7 +46,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                     </span>
                   </Button>
 
-                  <span className="font-serif text-xs text-muted-foreground">
+                  <span className="font-serif text-sm text-muted-foreground">
                     Day {idx + 1}
                   </span>
                 </div>
