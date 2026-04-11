@@ -7,9 +7,17 @@ import { testimonials } from "../data";
 // Duplicate for seamless loop
 const ITEMS = [...testimonials, ...testimonials];
 
-function TestimonialCard({ quote, names, event }: { quote: string; names: string; event: string }) {
+function TestimonialCard({
+  quote,
+  names,
+  event,
+}: {
+  quote: string;
+  names: string;
+  event: string;
+}) {
   return (
-    <div className="shrink-0 w-80 md:w-96 bg-card rounded-2xl border border-border p-7 shadow-sm flex flex-col gap-5">
+    <div className="shrink-0 w-80 md:w-96 bg-card rounded-2xl ring-1 ring-foreground/8 p-8 shadow-sm flex flex-col gap-5">
       {/* Hearts */}
       <div className="flex items-center gap-1">
         {[...Array(5)].map((_, i) => (
@@ -17,14 +25,18 @@ function TestimonialCard({ quote, names, event }: { quote: string; names: string
         ))}
       </div>
 
-      {/* Quote mark */}
-      <span className="font-serif text-5xl leading-none text-primary/20 -mt-1 select-none">"</span>
+      {/* Opening quote mark */}
+      <span className="font-serif text-5xl leading-none text-primary/20 -mt-1 select-none">
+        "
+      </span>
 
       {/* Quote */}
-      <p className="text-foreground/80 leading-relaxed text-sm -mt-6 flex-1">{quote}</p>
+      <p className="text-foreground/80 leading-relaxed text-sm -mt-6 flex-1">
+        {quote}
+      </p>
 
       {/* Attribution */}
-      <div className="border-t border-border pt-4">
+      <div className="mt-5">
         <p className="font-serif font-semibold text-foreground text-sm">{names}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{event}</p>
       </div>
@@ -37,7 +49,7 @@ export function Testimonials() {
 
   return (
     <section className="py-28 bg-muted/20 overflow-hidden">
-      <div className="px-6 md:px-12 max-w-6xl mx-auto mb-14">
+      <div className="px-6 md:px-12 max-w-6xl mx-auto mb-16">
         <div className="text-center">
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -81,13 +93,13 @@ export function Testimonials() {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          {/* Fade edges */}
           <div className="relative">
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-muted/20 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-muted/20 to-transparent z-10 pointer-events-none" />
+            {/* Edge fades */}
+            <div className="absolute left-0 top-0 bottom-0 w-24 bg-linear-to-r from-muted/20 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-muted/20 to-transparent z-10 pointer-events-none" />
 
             <div
-              className="flex gap-5 pb-4"
+              className="flex gap-6 pb-4"
               style={{
                 animation: "hs-marquee 38s linear infinite",
                 animationPlayState: paused ? "paused" : "running",

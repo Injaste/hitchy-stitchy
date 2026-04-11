@@ -18,7 +18,7 @@ export function Features() {
     <section className="py-24 px-6 md:px-12 overflow-hidden">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-24">
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -55,10 +55,10 @@ export function Features() {
             return (
               <div
                 key={feature.key}
-                className="border-b border-border/50 last:border-0 py-20 first:pt-0 last:pb-0"
+                className="py-24 first:pt-0 last:pb-0"
               >
                 <div
-                  className={`min-h-[500px] flex flex-col lg:flex-row items-center gap-12 xl:gap-20 ${!isEven ? "lg:flex-row-reverse" : ""}`}
+                  className={`min-h-[500px] flex flex-col lg:flex-row items-center gap-16 xl:gap-24 ${!isEven ? "lg:flex-row-reverse" : ""}`}
                 >
                   {/* Mock showcase */}
                   <motion.div
@@ -68,7 +68,6 @@ export function Features() {
                     transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                     className="w-full lg:w-1/2 relative"
                   >
-                    {/* Ambient glow behind the mock */}
                     <div className="absolute inset-0 -m-8 rounded-3xl bg-primary/4 blur-2xl pointer-events-none" />
                     <div className="relative max-w-md mx-auto lg:mx-0">
                       {mock}
@@ -87,7 +86,7 @@ export function Features() {
                     }}
                     className="w-full lg:w-1/2"
                   >
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3 mb-5">
                       <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                         <feature.icon className="w-4.5 h-4.5 text-primary" />
                       </div>
@@ -96,11 +95,11 @@ export function Features() {
                       </p>
                     </div>
 
-                    <h3 className="font-serif font-bold text-3xl md:text-4xl text-foreground leading-tight mb-5">
+                    <h3 className="font-serif font-bold text-3xl md:text-4xl text-foreground leading-tight mb-6">
                       {feature.title}
                     </h3>
 
-                    <p className="text-muted-foreground leading-relaxed text-base mb-8">
+                    <p className="text-muted-foreground leading-relaxed text-base max-w-prose mb-10">
                       {feature.description}
                     </p>
 
