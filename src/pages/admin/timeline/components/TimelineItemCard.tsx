@@ -1,15 +1,15 @@
 import type { FC } from "react";
-import { Clock } from "lucide-react";
+import { Clock, StickyNote, ChevronRight } from "lucide-react";
 
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
-
-import { formatTime } from "@/lib/utils/utils-time";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { formatTime, calculateTimeDuration } from "@/lib/utils/utils-time";
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import type { TimelineItem } from "../types";
@@ -19,52 +19,61 @@ interface TimelineItemCardProps {
   roleMap: Record<string, string>;
 }
 
-const TimelineItemCard: FC<TimelineItemCardProps> = ({ item, roleMap }) => {
+const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
 
   const timeStart = formatTime(item.timeStart);
-  const timeEnd = item.timeEnd && formatTime(item.timeEnd);
-
+  const timeEnd = item.timeEnd ? formatTime(item.timeEnd) : null;
   const timeLabel = timeEnd ? `${timeStart} – ${timeEnd}` : timeStart;
-
-  const assigneeLabels = item.assignees
-    .map((id) => roleMap[id])
-    .filter(Boolean);
+  const duration = item.timeEnd
+    ? calculateTimeDuration(item.timeStart, item.timeEnd)
+    : null;
 
   return (
     <div className="space-y-2">
-      <span className="flex items-center text-base font-mono text-primary">
-        <Clock className="size-4 mr-1" />
-        {timeLabel}
-      </span>
+      <div className="flex items-center gap-1.5 text-base font-mono text-primary">
+        <Clock className="size-4 shrink-0" />
+        <span>{timeLabel}</span>
+        {duration && (
+          <span className="ml-1 text-xs font-sans tabular-nums text-muted-foreground">
+            {duration}
+          </span>
+        )}
+      </div>
 
       <Card
-        className="cursor-pointer hover:bg-muted/40 transition-colors"
+        className={cn(
+          "cursor-pointer hover:bg-muted/40 transition-colors",
+          item.notes && "border-l-2 border-primary/30",
+        )}
         onClick={() => openDetail(item)}
       >
-        <CardHeader>
-          <CardTitle className="text-secondary">{item.title}</CardTitle>
+        <CardHeader className="px-5 py-4">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="font-serif text-secondary leading-snug">
+              {item.title}
+            </CardTitle>
+            <ChevronRight className="size-4 shrink-0 mt-0.5 text-muted-foreground/50" />
+          </div>
+
+          {item.label && (
+            <Badge variant="outline" className="self-start w-fit mt-1">
+              {item.label}
+            </Badge>
+          )}
 
           {item.description && (
-            <CardDescription>{item.description}</CardDescription>
+            <CardDescription className="mt-1">
+              {item.description}
+            </CardDescription>
+          )}
+
+          {item.notes && (
+            <div className="mt-1.5">
+              <StickyNote className="size-3 text-muted-foreground/60" />
+            </div>
           )}
         </CardHeader>
-        {/* <CardContent className="px-4 py-3 flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            {assigneeLabels.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {assigneeLabels.map((label) => (
-                  <span
-                    key={label}
-                    className="text-[10px] font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full border border-border"
-                  >
-                    {label}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </CardContent> */}
       </Card>
     </div>
   );

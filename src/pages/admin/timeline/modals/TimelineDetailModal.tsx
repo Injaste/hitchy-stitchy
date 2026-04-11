@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { StickyNote } from "lucide-react";
+
 import {
   Dialog,
   DialogContent,
@@ -8,6 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 
@@ -33,41 +36,90 @@ const TimelineDetailModal = () => {
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent className="w-[95vw] max-w-lg">
         <DialogHeader>
-          <DialogTitle>{item.title}</DialogTitle>
+          <DialogTitle className="font-serif">{item.title}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-2">
+        <div className="space-y-6 mt-1">
+          {/* Time, date & label */}
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <span className="font-mono">{timeLabel}</span>
             <span>·</span>
             <span>{dateLabel}</span>
-            {item.label && <Badge variant="secondary">{item.label}</Badge>}
+            {item.label && (
+              <Badge variant="outline">{item.label}</Badge>
+            )}
           </div>
 
-          {item.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {item.description}
+          <Separator />
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Description
             </p>
-          )}
+            {item.description ? (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {item.description}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground/50 italic">
+                No description added
+              </p>
+            )}
+          </div>
 
-          {item.notes && (
-            <div className="text-sm bg-primary/5 p-3 rounded-md text-primary border border-primary/10 flex gap-2 items-start">
-              <StickyNote className="w-4 h-4 mt-0.5 shrink-0" />
-              <span className="leading-relaxed">{item.notes}</span>
+          {/* Notes */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+              <StickyNote className="w-3 h-3" />
+              Notes
+            </p>
+            {item.notes ? (
+              <div className="text-sm bg-primary/5 p-3 rounded-md text-primary border border-primary/10 leading-relaxed">
+                {item.notes}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground/50 italic">
+                No notes added
+              </p>
+            )}
+          </div>
+
+          {/* Assignees */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Assignees
+            </p>
+            {item.assignees.length === 0 ? (
+              <p className="text-sm text-muted-foreground/50 italic">
+                No assignees
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {item.assignees.length} assigned
+              </p>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Footer — createdAt + actions */}
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-xs text-muted-foreground">
+              Added {format(new Date(item.createdAt), "d MMM yyyy")}
+            </p>
+            <div className="flex gap-2">
+              {canDelete("timeline") && (
+                <Button variant="destructive" size="sm" onClick={openDelete}>
+                  Delete
+                </Button>
+              )}
+              {canUpdate("timeline") && (
+                <Button size="sm" onClick={openEdit} autoFocus>
+                  Edit
+                </Button>
+              )}
             </div>
-          )}
-
-          <div className="flex justify-end gap-2 pt-2">
-            {canDelete("timeline") && (
-              <Button variant="destructive" size="sm" onClick={openDelete}>
-                Delete
-              </Button>
-            )}
-            {canUpdate("timeline") && (
-              <Button size="sm" onClick={openEdit} autoFocus>
-                Edit
-              </Button>
-            )}
           </div>
         </div>
       </DialogContent>
