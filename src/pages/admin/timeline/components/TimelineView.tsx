@@ -67,13 +67,15 @@ const TimelineView: FC<TimelineViewProps> = ({
           activeDayId={activeDay?.day ?? ""}
           onSelect={setActiveDayId}
         />
-        <AnimatePresence mode="wait">
-          {activeDay && (
-            <ComponentFade key={activeDay.day}>
-              <DayContent day={activeDay} />
-            </ComponentFade>
-          )}
-        </AnimatePresence>
+        <div className="mt-8">
+          <AnimatePresence mode="wait">
+            {activeDay && (
+              <ComponentFade key={activeDay.day}>
+                <DayContent day={activeDay} />
+              </ComponentFade>
+            )}
+          </AnimatePresence>
+        </div>
       </ComponentFade>
     );
   };

@@ -43,7 +43,7 @@ const CreateEventForm = () => {
     <LayoutGroup id="create-event">
       <motion.div layout="size">
         <Card className="shadow-sm">
-          <CardContent className="pt-6">
+          <CardContent className="px-6 pt-8 pb-6">
             <CreateEventStepper activeStep={activeStep} />
 
             <Steps

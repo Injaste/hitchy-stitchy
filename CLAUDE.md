@@ -1,7 +1,49 @@
 # Hitchy Stitchy — Wedding Admin Platform
 
 Multi-tenant SaaS for wedding event management hosted at `hitchystitchy.com`.
-Friendly, approachable, playful brand. Core loop: create event → admin dashboard → guest RSVP.
+Calm, editorial, premium brand — wedding planning suite, not a project management tool. Core loop: create event → admin dashboard → guest RSVP.
+
+---
+
+## Design Philosophy
+
+Hitchy Stitchy is a **wedding planning suite** — not a generic SaaS tool. Every screen should feel calm, editorial, and premium. Think printed wedding programme and luxury stationery, not project management dashboard.
+
+### Tone
+- Warm, personal, considered — never clinical or efficient-looking
+- Emotional product — couples are planning the most important day of their lives
+- Details matter — typography, spacing, and hierarchy signal quality
+
+### Spacing
+- Generous padding throughout — cards minimum `px-5 py-4`
+- Section gaps `space-y-10` between major groups
+- Page sections `py-16` minimum
+- Let content breathe — whitespace over density
+
+### Typography
+- `font-serif` for all headings, card titles, section labels
+- Strong contrast between title and metadata
+- `text-muted-foreground` for secondary info
+- `tracking-wide` on uppercase labels
+
+### Visual Tone
+- Fewer borders, more whitespace
+- Subtle over loud — no harsh dividers
+- Soft shadows over hard borders where possible
+- Accent details over raw data dumps
+- Dashed borders only for empty/add states
+
+### Components
+- Cards should feel like paper — soft, considered, padded
+- Buttons — primary for main CTA only, ghost/outline for secondary
+- Badges — subtle, never loud
+- Modals — generous padding, clear hierarchy, never cramped
+
+### Colour Usage
+- CSS variable tokens only — never hardcoded
+- Primary colour used sparingly — only for CTAs and key highlights
+- Muted backgrounds for secondary content areas
+- Destructive only for irreversible actions
 
 ---
 

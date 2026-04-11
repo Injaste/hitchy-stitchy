@@ -12,7 +12,7 @@ const Timeline = () => {
   const { data, isLoading, isError, refetch, isRefetching } = useTimeline();
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-8 pb-24">
       <TimelineHeader
         isLoading={isLoading}
         isError={isError}

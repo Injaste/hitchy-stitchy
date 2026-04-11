@@ -78,11 +78,11 @@ function SlugStatusIcon({ status }: { status: SlugStatus }) {
       <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
     );
   if (status === "available")
-    return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />;
+    return <CheckCircle2 className="h-3.5 w-3.5 text-secondary" />;
   if (status === "taken")
     return <XCircle className="h-3.5 w-3.5 text-destructive" />;
   if (status === "error")
-    return <AlertCircle className="h-3.5 w-3.5 text-amber-500" />;
+    return <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />;
   return null;
 }
 
@@ -163,8 +163,8 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
       : "Pick your event dates";
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
-      <FieldGroup className="block space-y-4">
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      <FieldGroup className="block space-y-6">
         <form.Field name="display_name">
           {(field) => {
             const hasError =
@@ -332,7 +332,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                 attemptCount={attemptCount}
               >
                 <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel htmlFor="slug">URL Slug</FieldLabel>
+                  <FieldLabel htmlFor="slug">Event URL</FieldLabel>
                   <FieldContent>
                     <InputGroup>
                       <InputGroupInput
@@ -361,7 +361,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                     </InputGroup>
 
                     {/* URL preview */}
-                    <div className="text-black mt-4 p-4 rounded-md border border-secondary/30 bg-secondary/30">
+                    <div className="text-foreground mt-4 p-4 rounded-md border border-secondary/30 bg-secondary/30">
                       <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
                         Your Unique Wedding Links
                       </h4>
@@ -394,7 +394,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
 
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting) => (
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -30,24 +30,30 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
               const date = new Date(y, mo - 1, dy);
               const active = d.day === activeDayId;
               return (
-                <div key={d.day} className="flex flex-col gap-2 text-center">
+                <div key={d.day} className="flex flex-col items-center gap-1.5">
                   <Button
                     onClick={() => onSelect(d.day)}
                     variant={active ? "default" : "outline"}
-                    className="flex flex-col h-auto! py-2 px-4"
+                    className={cn(
+                      "flex flex-col h-auto! py-3 px-6 gap-0.5",
+                      active && "shadow-sm",
+                    )}
                   >
-                    {format(date, "d MMM")}
+                    <span className="text-sm">{format(date, "d MMM")}</span>
                     <span className="text-2xs opacity-70">
                       {format(date, "EEE")}
                     </span>
                   </Button>
 
-                  <span className="text-xs">Day {idx + 1}</span>
+                  <span className="font-serif text-xs text-muted-foreground">
+                    Day {idx + 1}
+                  </span>
                 </div>
               );
             })}
           </div>
         </div>
+
         {/* Left fade — only when scrolled */}
         {isAtStart && (
           <motion.div

@@ -4,19 +4,19 @@ import { stats } from "../data";
 
 export function Stats() {
   return (
-    <section className="border-y border-border bg-muted/30 py-12 px-6 md:px-12">
+    <section className="bg-muted/20 py-16 px-6 md:px-12">
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-60px" }}
-        className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-0 sm:divide-x sm:divide-border"
+        className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-10"
       >
         {stats.map((s) => (
           <motion.div
             key={s.label}
             variants={statItem}
-            className="flex flex-col items-center text-center sm:px-12 gap-1"
+            className="flex flex-col items-center text-center sm:px-8 gap-2"
           >
             <span className="font-serif font-bold text-4xl md:text-5xl text-primary">
               {s.value}
