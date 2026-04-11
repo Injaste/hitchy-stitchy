@@ -30,7 +30,7 @@ export const itemFadeUp: Variants = {
 
 export const itemFadeIn = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.5 } },
+  show: { opacity: 1, transition: { duration: 0.2 } },
 };
 
 export const cardHover = { y: -3, transition: { duration: 0.2 } };

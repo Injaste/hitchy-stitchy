@@ -20,12 +20,8 @@ import { ActiveCueModal } from "./modals/ActiveCueModal";
 const AdminView = () => {
   useBootstrap();
   const currentOutlet = useOutlet();
-  const { isBootstrapped, bootstrapError, memberRoleCategory } =
-    useAdminStore();
+  const { isBootstrapped, bootstrapError } = useAdminStore();
   const activePage = useActivePage();
-  const isAdmin = isAdminMember(memberRoleCategory);
-  const showFAB =
-    (activePage === "timeline" || activePage === "checklist") && isAdmin;
 
   return (
     <AnimatePresence mode="wait">
@@ -52,15 +48,6 @@ const AdminView = () => {
                 </AnimatePresence>
               </div>
             </SidebarInset>
-            {showFAB && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg focus:outline-none focus:ring-4 focus:ring-primary/30"
-              >
-                <Plus className="h-6 w-6" />
-              </motion.button>
-            )}
             <PingModal />
             <ActiveCueModal />
           </SidebarProvider>

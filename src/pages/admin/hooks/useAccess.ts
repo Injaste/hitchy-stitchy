@@ -8,55 +8,41 @@ type Action = "create" | "read" | "update" | "delete"
 export type Permission = `${Resource}:${Action}`
 export type RoleCategory = "root" | "admin" | "couple_attendant" | "general"
 
-interface RoleAccess {
-  roleCategory: RoleCategory
-  permissions: Permission[]
-}
+async function fetchPermissions(category: RoleCategory): Promise<Permission[]> {
+  // root shortcuts — no rows in DB, has everything
+  if (category === "root") {
+    const resources: Resource[] = ["timeline", "team", "settings", "rsvp", "announcements", "vendors", "members", "roles", "events"]
+    const actions: Action[] = ["create", "read", "update", "delete"]
+    return resources.flatMap((r) => actions.map((a): Permission => `${r}:${a}`))
+  }
 
-async function fetchRoleAccess(eventId: string): Promise<RoleAccess> {
-  const { data: member, error: memberError } = await supabase
-    .from("event_members")
-    .select("event_roles(category)")
-    .eq("event_id", eventId)
-    .eq("is_frozen", false)
-    .maybeSingle()
-
-  if (memberError || !member) throw new Error("Could not fetch role")
-
-  const category = (member as any).event_roles?.category as RoleCategory
-
-  const { data: perms, error: permsError } = await supabase
+  const { data, error } = await supabase
     .from("event_role_permissions")
     .select("resource, can_create, can_read, can_update, can_delete")
     .eq("category", category)
 
-  if (permsError || !perms) throw new Error("Could not fetch permissions")
+  if (error || !data) throw new Error("Could not fetch permissions")
 
-  const permissions: Permission[] = perms.flatMap((row) => {
+  return data.flatMap((row) => {
     const resource = row.resource as Resource
-    const actions: Permission[] = []
-    if (row.can_read) actions.push(`${resource}:read`)
-    if (row.can_create) actions.push(`${resource}:create`)
-    if (row.can_update) actions.push(`${resource}:update`)
-    if (row.can_delete) actions.push(`${resource}:delete`)
-    return actions
+    const perms: Permission[] = []
+    if (row.can_read) perms.push(`${resource}:read`)
+    if (row.can_create) perms.push(`${resource}:create`)
+    if (row.can_update) perms.push(`${resource}:update`)
+    if (row.can_delete) perms.push(`${resource}:delete`)
+    return perms
   })
-
-  return { roleCategory: category, permissions }
 }
 
 export function useAccess() {
-  const { eventId, slug } = useAdminStore()
+  const { memberRoleCategory: roleCategory, slug } = useAdminStore()
 
-  const { data } = useQuery({
-    queryKey: [`${slug}:role-access`],
-    queryFn: () => fetchRoleAccess(eventId!),
-    enabled: !!eventId,
+  const { data: granted = [] } = useQuery({
+    queryKey: [`${slug}:permissions`, roleCategory],
+    queryFn: () => fetchPermissions(roleCategory as RoleCategory),
+    enabled: !!roleCategory,
     staleTime: Infinity,
   })
-
-  const roleCategory = data?.roleCategory
-  const granted = data?.permissions ?? []
 
   const allow = (...permissions: Permission[]): boolean =>
     permissions.every((p) => granted.includes(p))
@@ -70,7 +56,6 @@ export function useAccess() {
 
   return {
     roleCategory,
-    allow,
     canRead, canCreate, canUpdate, canDelete, canManage,
     isRoot: roleCategory === "root",
     isAdmin: roleCategory === "admin",

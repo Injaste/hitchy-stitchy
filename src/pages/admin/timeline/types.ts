@@ -1,22 +1,14 @@
-export interface TimelineDay {
-  id: string
-  eventId: string
-  day: string // "yyyy-MM-dd"
-  createdAt: string
-}
-
 export interface TimelineItem {
   id: string
   eventId: string
-  dayId: string
-  day: string // "yyyy-MM-dd" joined from parent
+  day: string        // "yyyy-MM-dd"
   label: string | null
-  timeStart: string // "HH:mm"
+  timeStart: string        // "HH:mm"
   timeEnd: string | null
   title: string
   description: string | null
   notes: string | null
-  assignees: string[]
+  assignees: string[]      // event_roles.id[]
   createdAt: string
 }
 
@@ -25,15 +17,20 @@ export interface TimelineLabelGroup {
   items: TimelineItem[]
 }
 
-export interface TimelineSlot {
-  timeStart: string
+export interface TimelineGroupedDay {
+  day: string
   labelGroups: TimelineLabelGroup[]
 }
 
-export interface TimelineGroupedDay {
-  dayId: string
-  day: string
-  slots: TimelineSlot[]
+export interface TimelineItemFormValues {
+  day: string;
+  label: string;
+  timeStart: string;
+  timeEnd: string;
+  title: string;
+  description: string;
+  notes: string;
+  assignees: string[];
 }
 
 export interface CreateTimelineItemPayload {
@@ -50,6 +47,7 @@ export interface CreateTimelineItemPayload {
 
 export interface UpdateTimelineItemPayload {
   id: string
+  day: string
   label?: string | null
   timeStart?: string
   timeEnd?: string | null

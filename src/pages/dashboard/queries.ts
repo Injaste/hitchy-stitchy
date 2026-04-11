@@ -3,6 +3,7 @@ import { fetchUserEvents } from "./api";
 import type { EventsCount } from "./types";
 import { getEventStatus } from "@/lib/utils/utils-time";
 
+//TODO add userId in queryKey
 export const eventsQueryKey = ["events"] as const;
 
 export function useEventsQuery(enabled = true) {

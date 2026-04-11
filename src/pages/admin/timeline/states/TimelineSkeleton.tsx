@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-function SlotSkeleton() {
+const SlotSkeleton = () => {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-3">
@@ -13,7 +13,7 @@ function SlotSkeleton() {
       </div>
     </div>
   );
-}
+};
 
 const TimelineSkeleton = () => {
   return (

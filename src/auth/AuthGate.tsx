@@ -5,13 +5,13 @@ import { ComponentFade } from "@/components/animations/animate-component-fade";
 import { useAuthListener, useIsAuthenticatedQuery } from "./queries";
 
 import SignIn from ".";
-import Loading from "@/components/custom/loading";
+import LoadingState from "@/components/custom/loading-state";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { data: isAuthenticated, isLoading } = useIsAuthenticatedQuery();
   useAuthListener();
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <LoadingState />;
 
   return (
     <AnimatePresence mode="wait">

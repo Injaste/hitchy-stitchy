@@ -2,7 +2,7 @@ import { itemFadeIn } from "@/lib/animations";
 import { motion } from "framer-motion";
 import { CalendarHeart } from "lucide-react";
 
-const Loading = () => (
+const LoadingState = () => (
   <motion.div
     variants={itemFadeIn}
     initial="hidden"
@@ -13,4 +13,4 @@ const Loading = () => (
   </motion.div>
 );
 
-export default Loading;
+export default LoadingState;

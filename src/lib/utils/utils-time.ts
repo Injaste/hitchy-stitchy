@@ -56,3 +56,32 @@ export function getEventStatus(dateStart: string, dateEnd: string): EventStatus 
   if (isFuture(start)) return "upcoming";
   return "past";
 }
+
+export function formatTime(time: string, hour24: boolean = false) {
+  const split = time.split(":");
+  const min = split[1];
+
+  let hour = split[0];
+  let ampm = "";
+
+  if (!hour24) {
+    const hours = Number(hour);
+    const afternoon = hours >= 12 && hours <= 23;
+    ampm = afternoon ? " PM" : " AM";
+    hour = String(hours % 12 || 12);
+  }
+
+  return `${hour}:${min}${ampm}`;
+}
+
+export const calculateTimeDuration = (start: string, end: string): string => {
+  const [sh, sm] = start.split(":").map(Number)
+  const [eh, em] = end.split(":").map(Number)
+  const total = (eh * 60 + em) - (sh * 60 + sm)
+  if (total <= 0) return ""
+  const h = Math.floor(total / 60)
+  const m = total % 60
+  if (h === 0) return `${m}m`
+  if (m === 0) return `${h}h`
+  return `${h}h ${m}m`
+}
