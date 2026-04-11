@@ -33,17 +33,17 @@ Hitchy Stitchy is a **wedding planning suite** — not a generic SaaS tool. Ever
 - Accent details over raw data dumps
 - Dashed borders only for empty/add states
 
-### Colour Usage
-- CSS variable tokens only — never hardcoded
-- Primary colour used sparingly — only for CTAs and key highlights
-- Muted backgrounds for secondary content areas
-- Destructive only for irreversible actions
-
 ### Components
 - Cards should feel like paper — soft, considered, padded
 - Buttons — primary for main CTA only, ghost/outline for secondary
 - Badges — subtle, never loud
 - Modals — generous padding, clear hierarchy, never cramped
+
+### Colour Usage
+- CSS variable tokens only — never hardcoded
+- Primary colour used sparingly — only for CTAs and key highlights
+- Muted backgrounds for secondary content areas
+- Destructive only for irreversible actions
 
 ---
 
