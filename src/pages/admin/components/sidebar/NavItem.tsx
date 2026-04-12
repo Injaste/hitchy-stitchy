@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { toSlug } from "@/pages/create-event/hooks/useSlugCheck";
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -10,8 +11,10 @@ interface NavItemProps {
 }
 
 const NavItem = ({ icon: Icon, label, to, isActive, badge }: NavItemProps) => {
+  console.log(toSlug(label));
+
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem id={toSlug(label)}>
       <SidebarMenuButton asChild isActive={isActive} tooltip={label}>
         <Link to={to}>
           <Icon className="h-4 w-4" />

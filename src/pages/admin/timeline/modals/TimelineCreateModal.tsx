@@ -10,7 +10,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { useTimelineMutations } from "../queries";
-import { toTimelinePayload, type TimelineItemFormValues } from "../types";
+import type { TimelineItemFormValues } from "../types";
 
 import TimelineItemForm from "./TimelineItemForm";
 
@@ -21,7 +21,7 @@ const CreateTimelineItemModal = () => {
   const { create } = useTimelineMutations();
 
   const handleSubmit = (values: TimelineItemFormValues) => {
-    create.mutate({ eventId: eventId!, ...toTimelinePayload(values) });
+    create.mutate({ event_id: eventId!, ...values });
   };
 
   return (

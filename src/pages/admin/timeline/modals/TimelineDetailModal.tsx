@@ -29,7 +29,7 @@ const TimelineDetailModal = () => {
 
   const item = selectedItem;
   const dateLabel = format(parseLocalDate(item.day), "d MMMM yyyy");
-  const timeLabel = formatTimeRange(item.timeStart, item.timeEnd);
+  const timeLabel = formatTimeRange(item.time_start, item.time_end);
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -90,7 +90,7 @@ const TimelineDetailModal = () => {
           {/* Footer — createdAt + actions */}
           <div className="flex items-center justify-between gap-4">
             <p className="text-xs text-muted-foreground">
-              Added {format(new Date(item.createdAt), "d MMM yyyy")}
+              Added {format(new Date(item.created_at), "d MMM yyyy")}
             </p>
             <div className="flex gap-2">
               {canDelete("timeline") && (

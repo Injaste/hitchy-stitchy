@@ -8,7 +8,7 @@ import {
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { useTimelineMutations } from "../queries";
-import { toTimelinePayload, type TimelineItemFormValues } from "../types";
+import type { TimelineItemFormValues } from "../types";
 
 import TimelineItemForm from "./TimelineItemForm";
 
@@ -23,7 +23,7 @@ const TimelineEditModal = () => {
   const item = selectedItem;
 
   const handleSubmit = (values: TimelineItemFormValues) => {
-    update.mutate({ id: item.id, ...toTimelinePayload(values) });
+    update.mutate({ id: item.id, ...values });
   };
 
   return (
@@ -37,8 +37,8 @@ const TimelineEditModal = () => {
           defaultValues={{
             day: item.day,
             label: item.label ?? "",
-            timeStart: item.timeStart,
-            timeEnd: item.timeEnd ?? "",
+            time_start: item.time_start,
+            time_end: item.time_end ?? "",
             title: item.title,
             description: item.description ?? "",
             notes: item.notes ?? "",

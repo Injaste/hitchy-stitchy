@@ -7,22 +7,6 @@ import type {
 } from "./types"
 import { groupTimeline } from "./utils"
 
-function mapRow(row: any): TimelineItem {
-  return {
-    id: row.id,
-    eventId: row.event_id,
-    day: row.day,
-    label: row.label ?? null,
-    timeStart: row.time_start,
-    timeEnd: row.time_end ?? null,
-    title: row.title,
-    description: row.description ?? null,
-    notes: row.notes ?? null,
-    assignees: row.assignees ?? [],
-    createdAt: row.created_at,
-  }
-}
-
 export async function fetchTimeline(eventId: string): Promise<TimelineGroupedDay[]> {
   const { data, error } = await supabase
     .from("event_timelines")
@@ -34,23 +18,23 @@ export async function fetchTimeline(eventId: string): Promise<TimelineGroupedDay
   if (error) throw new Error(error.message)
   if (!data?.length) return []
 
-  return groupTimeline(data.map(mapRow))
+  return groupTimeline(data as TimelineItem[])
 }
 
 export async function createTimelineItem(payload: CreateTimelineItemPayload): Promise<TimelineItem> {
   const { data, error } = await supabase.rpc("create_timeline_item", {
-    p_event_id: payload.eventId,
+    p_event_id: payload.event_id,
     p_day: payload.day,
     p_label: payload.label,
-    p_time_start: payload.timeStart,
-    p_time_end: payload.timeEnd,
+    p_time_start: payload.time_start,
+    p_time_end: payload.time_end,
     p_title: payload.title,
     p_description: payload.description,
     p_notes: payload.notes,
     p_assignees: payload.assignees,
   })
   if (error) throw new Error(error.message)
-  return mapRow(data)
+  return data as TimelineItem
 }
 
 export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Promise<void> {
@@ -59,8 +43,8 @@ export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Pr
     .update({
       label: payload.label,
       day: payload.day,
-      time_start: payload.timeStart,
-      time_end: payload.timeEnd,
+      time_start: payload.time_start,
+      time_end: payload.time_end,
       title: payload.title,
       description: payload.description,
       notes: payload.notes,
@@ -77,4 +61,3 @@ export async function deleteTimelineItem(id: string): Promise<void> {
     .eq("id", id)
   if (error) throw new Error(error.message)
 }
-

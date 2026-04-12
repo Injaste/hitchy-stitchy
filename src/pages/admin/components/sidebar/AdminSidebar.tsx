@@ -73,7 +73,7 @@ const AdminSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent activeId={activePage}>
         <SidebarGroup>
           <SidebarGroupLabel>Events</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -121,12 +121,12 @@ const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup> */}
 
-        {/* {showAdmin && (
+        {showAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <NavItem
+                {/* <NavItem
                   icon={ClipboardList}
                   label="RSVPs"
                   to={`${base}/rsvp`}
@@ -137,7 +137,7 @@ const AdminSidebar = () => {
                   label="Users"
                   to={`${base}/users`}
                   isActive={activePage === "users"}
-                />
+                /> */}
                 <NavItem
                   icon={Settings}
                   label="Settings"
@@ -147,7 +147,7 @@ const AdminSidebar = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        )} */}
+        )}
       </SidebarContent>
 
       <SidebarSeparator />

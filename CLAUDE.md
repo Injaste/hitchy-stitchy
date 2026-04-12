@@ -285,6 +285,10 @@ auth.users → event_members (ONLY direct auth reference)
 
 ## Conventions
 
+### Supabase field naming
+
+TypeScript types for Supabase row responses use snake_case directly — no camelCase mapping layer. Never write a `mapRow` function. Payload types sent to Supabase also use snake_case column names. Form schemas and component-local state also prefer snake_case where fields directly correspond to DB columns. Zod form schemas follow the same rule — use snake_case field names that match the DB columns they map to.
+
 ### File rules
 
 - Single responsibility per file

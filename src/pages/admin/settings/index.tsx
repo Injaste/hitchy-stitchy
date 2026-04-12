@@ -1,44 +1,48 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 
-import { EventConfigSection } from "./event-config";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+import { EventSettingsSection } from "./event-config";
 import { RSVPConfigSection } from "./rsvp-config";
 import { AppearanceSection } from "./appearance";
 import { NotificationsSection } from "./notifications";
 
-const tabs = ["Event", "RSVP", "Appearance", "Notifications"] as const;
-type SettingsTabId = (typeof tabs)[number];
+const TABS = [
+  { id: "event", label: "Event", element: EventSettingsSection },
+  { id: "rsvp", label: "RSVP", element: RSVPConfigSection },
+  { id: "appearance", label: "Appearance", element: AppearanceSection },
+  {
+    id: "notifications",
+    label: "Notifications",
+    element: NotificationsSection,
+  },
+] as const;
+
+type SettingsTabId = (typeof TABS)[number]["id"];
 
 export function SettingsTab() {
-  const [activeTab, setActiveTab] = useState<SettingsTabId>("Event");
+  const [active, setActive] = useState<SettingsTabId>("event");
+
+  const ActiveElement = TABS.find((tab) => tab.id === active)!.element;
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-2 overflow-x-auto">
-        {tabs.map((tab) => (
-          <Button
-            key={tab}
-            variant={activeTab === tab ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "shrink-0 text-xs",
-              activeTab !== tab && "text-muted-foreground",
-            )}
-          >
-            {tab}
-          </Button>
+    <Tabs
+      value={active}
+      onValueChange={(v) => setActive(v as SettingsTabId)}
+      tabOrder={TABS.map((t) => t.id)}
+      className="gap-6"
+    >
+      <TabsList activeValue={active}>
+        {TABS.map((tab) => (
+          <TabsTrigger key={tab.id} value={tab.id}>
+            {tab.label}
+          </TabsTrigger>
         ))}
-      </div>
+      </TabsList>
 
-      <Separator />
-
-      {activeTab === "Event" && <EventConfigSection />}
-      {activeTab === "RSVP" && <RSVPConfigSection />}
-      {activeTab === "Appearance" && <AppearanceSection />}
-      {activeTab === "Notifications" && <NotificationsSection />}
-    </div>
+      <TabsContent value={active}>
+        <ActiveElement />
+      </TabsContent>
+    </Tabs>
   );
 }

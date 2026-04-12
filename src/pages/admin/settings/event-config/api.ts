@@ -1,22 +1,32 @@
+import { supabase } from "@/lib/supabase"
 import type { EventConfig } from './types'
 
-const mockEventConfig: EventConfig = {
-  eventName: 'Sarah & James Wedding',
-  dateStart: '2026-04-04',
-  dateEnd: '2026-04-05',
-  timezone: 'Asia/Kuala_Lumpur',
-}
-
-// TODO: replace with live Supabase query
 export async function fetchEventConfig(eventId: string): Promise<EventConfig> {
-  await new Promise((r) => setTimeout(r, 200))
-  return mockEventConfig
+  const { data, error } = await supabase
+    .from("events")
+    .select("name, date_start, date_end")
+    .eq("id", eventId)
+    .is("deleted_at", null)
+    .single()
+
+  if (error) throw new Error(error.message)
+  return { ...data, timezone: "" }
 }
 
-// TODO: replace with live Supabase query
 export async function updateEventConfig(
   payload: { eventId: string; config: EventConfig },
 ): Promise<EventConfig> {
-  await new Promise((r) => setTimeout(r, 200))
-  return payload.config
+  const { data, error } = await supabase
+    .from("events")
+    .update({
+      name: payload.config.name,
+      date_start: payload.config.date_start,
+      date_end: payload.config.date_end,
+    })
+    .eq("id", payload.eventId)
+    .select("name, date_start, date_end")
+    .single()
+
+  if (error) throw new Error(error.message)
+  return { ...data, timezone: "" }
 }

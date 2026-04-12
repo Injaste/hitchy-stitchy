@@ -24,7 +24,7 @@ const LabelCarousel: FC<{
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
-  const groupStart = group.items[0]?.timeStart ?? "";
+  const groupStart = group.items[0]?.time_start ?? "";
   const groupEnd = getLatestTime(group.items);
   const timeRange = groupStart
     ? groupStart !== groupEnd
@@ -89,7 +89,7 @@ const LabelCarousel: FC<{
 
 const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
   const allItems = day.labelGroups.flatMap((g) => g.items);
-  const earliest = allItems[0]?.timeStart ?? "";
+  const earliest = allItems[0]?.time_start ?? "";
   const latest = getLatestTime(allItems);
 
   return (

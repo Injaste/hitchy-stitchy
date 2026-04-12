@@ -20,7 +20,7 @@ interface TimelineItemCardProps {
 const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
 
-  const timeLabel = formatTimeRange(item.timeStart, item.timeEnd);
+  const timeLabel = formatTimeRange(item.time_start, item.time_end);
 
   return (
     <div className="flex flex-col h-full">

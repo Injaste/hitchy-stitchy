@@ -4,12 +4,12 @@ import { parseLocalDate } from "@/lib/utils/utils-time";
 import type { TimelineItem, TimelineGroupedDay } from "./types";
 
 export function getEarliestTime(items: TimelineItem[]): string {
-  return items.reduce((acc, item) => (item.timeStart < acc ? item.timeStart : acc), items[0]?.timeStart ?? "");
+  return items.reduce((acc, item) => (item.time_start < acc ? item.time_start : acc), items[0]?.time_start ?? "");
 }
 
 export function getLatestTime(items: TimelineItem[]): string {
   return items.reduce((acc, item) => {
-    const t = item.timeEnd ?? item.timeStart;
+    const t = item.time_end ?? item.time_start;
     return t > acc ? t : acc;
   }, "");
 }
@@ -48,15 +48,15 @@ export function groupTimeline(items: TimelineItem[]): TimelineGroupedDay[] {
       const labelMap = groupBy(labelled, (i) => i.label!);
       const labelGroups = [...labelMap.entries()].map(([label, groupItems]) => ({
         label,
-        earliestTime: groupItems.map((i) => i.timeStart).sort()[0],
+        earliestTime: groupItems.map((i) => i.time_start).sort()[0],
         items: groupItems.sort(
-          (a, b) => a.timeStart.localeCompare(b.timeStart) || a.createdAt.localeCompare(b.createdAt),
+          (a, b) => a.time_start.localeCompare(b.time_start) || a.created_at.localeCompare(b.created_at),
         ),
       }));
 
       const unlabelledGroups = unlabelled.map((i) => ({
         label: null as null,
-        earliestTime: i.timeStart,
+        earliestTime: i.time_start,
         items: [i],
       }));
 

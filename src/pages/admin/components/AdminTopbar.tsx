@@ -8,6 +8,7 @@ import { useAdminStore } from "../store/useAdminStore";
 import { useCueStore } from "../store/useCueStore";
 import { usePingStore } from "../store/usePingStore";
 import useActivePage from "../hooks/useActivePage";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formatPageLabel = (page: string): string => {
   return page.replaceAll("-", " ");
@@ -15,6 +16,7 @@ const formatPageLabel = (page: string): string => {
 
 const AdminTopbar = () => {
   const { slug } = useAdminStore();
+  const isMobile = useIsMobile();
   const { activeCue } = useCueStore();
   const openPing = usePingStore((s) => s.open);
   const activePage = useActivePage();
@@ -25,11 +27,15 @@ const AdminTopbar = () => {
   return (
     <header className="flex items-center justify-between gap-3 border-b border-border px-4 h-14 shrink-0">
       <div className="flex items-center gap-3 min-w-0">
-        <SidebarTrigger className="-mx-1" />
-        <SidebarSeparator
-          orientation="vertical"
-          className="mx-0 h-5 my-auto!"
-        />
+        {isMobile && (
+          <>
+            <SidebarTrigger className="-mx-1" />
+            <SidebarSeparator
+              orientation="vertical"
+              className="mx-0 h-5 my-auto!"
+            />
+          </>
+        )}
         <h1 className="text-sm font-semibold text-foreground capitalize">
           {pageLabel}
         </h1>

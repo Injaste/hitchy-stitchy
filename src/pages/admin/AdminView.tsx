@@ -16,6 +16,7 @@ import AdminSkeletonLayout from "./components/AdminSkeletonLayout";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import { PingModal } from "./modals/PingModal";
 import { ActiveCueModal } from "./modals/ActiveCueModal";
+import PortalToApp from "@/components/custom/portal-to-app";
 
 const AdminView = () => {
   useBootstrap();
@@ -36,7 +37,9 @@ const AdminView = () => {
       ) : (
         <ComponentFade key="app">
           <SidebarProvider>
-            <AdminSidebar />
+            <PortalToApp>
+              <AdminSidebar />
+            </PortalToApp>
             <SidebarInset className="flex flex-col flex-1 min-w-0 overflow-hidden">
               <ActiveCueBanner />
               <AdminTopbar />

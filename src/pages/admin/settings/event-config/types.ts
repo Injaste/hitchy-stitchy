@@ -1,6 +1,6 @@
 export interface EventConfig {
-  eventName: string
-  dateStart: string
-  dateEnd: string
+  name: string
+  date_start: string
+  date_end: string
   timezone: string
 }
