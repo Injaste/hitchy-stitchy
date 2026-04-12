@@ -7,11 +7,11 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { formatTime, calculateTimeDuration } from "@/lib/utils/utils-time";
+import { formatTimeRange } from "@/lib/utils/utils-time";
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import type { TimelineItem } from "../types";
+import { Button } from "@/components/ui/button";
 
 interface TimelineItemCardProps {
   item: TimelineItem;
@@ -20,49 +20,44 @@ interface TimelineItemCardProps {
 const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
 
-  const timeStart = formatTime(item.timeStart);
-  const timeEnd = item.timeEnd ? formatTime(item.timeEnd) : null;
-  const timeLabel = timeEnd ? `${timeStart} – ${timeEnd}` : timeStart;
+  const timeLabel = formatTimeRange(item.timeStart, item.timeEnd);
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col h-full">
       <div className="flex items-center gap-1.5 text-base font-mono text-primary">
         <Clock className="size-4 shrink-0" />
         <span>{timeLabel}</span>
       </div>
 
-      <Card
-        className={cn(
-          "cursor-pointer hover:bg-muted/40 transition-colors border-l-2 border-secondary",
-        )}
-        onClick={() => openDetail(item)}
-      >
-        <CardHeader>
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="font-serif text-secondary leading-snug">
-              {item.title}
-            </CardTitle>
-          </div>
-
-          {item.description && (
-            <CardDescription className="mt-1">
-              {item.description}
-            </CardDescription>
-          )}
-
-          {item.notes && (
-            <div className="mt-1.5 flex gap-2 items-center bg-secondary/30 p-2 rounded">
-              <StickyNote
-                strokeWidth={2.5}
-                className="size-3 text-muted-foreground/80"
-              />
-              <span className="text-muted-foreground/80 text-xs">
-                {item.notes}
-              </span>
+      <Button variant="card" size="free" className="mt-2 flex-1">
+        <Card className="h-full" onClick={() => openDetail(item)}>
+          <CardHeader className="flex-1 flex flex-col">
+            <div className="flex items-start justify-between gap-2">
+              <CardTitle className="font-serif text-secondary leading-snug">
+                {item.title}
+              </CardTitle>
             </div>
-          )}
-        </CardHeader>
-      </Card>
+
+            {item.description && (
+              <CardDescription className="line-clamp-2 mt-1">
+                {item.description}
+              </CardDescription>
+            )}
+
+            {item.notes && (
+              <div className="mt-auto pt-1.5 flex gap-2 items-center bg-secondary/30 p-2 rounded">
+                <StickyNote
+                  strokeWidth={2.5}
+                  className="size-3 text-muted-foreground/80"
+                />
+                <span className="line-clamp-1 text-muted-foreground/80 text-xs">
+                  {item.notes}
+                </span>
+              </div>
+            )}
+          </CardHeader>
+        </Card>
+      </Button>
     </div>
   );
 };

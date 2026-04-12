@@ -5,16 +5,7 @@ import type {
   CreateTimelineItemPayload,
   UpdateTimelineItemPayload,
 } from "./types"
-
-function groupBy<T>(arr: T[], key: (item: T) => string): Map<string, T[]> {
-  return arr.reduce((map, item) => {
-    const k = key(item)
-    const group = map.get(k) ?? []
-    group.push(item)
-    map.set(k, group)
-    return map
-  }, new Map<string, T[]>())
-}
+import { groupTimeline } from "./utils"
 
 function mapRow(row: any): TimelineItem {
   return {
@@ -87,34 +78,3 @@ export async function deleteTimelineItem(id: string): Promise<void> {
   if (error) throw new Error(error.message)
 }
 
-function groupTimeline(items: TimelineItem[]): TimelineGroupedDay[] {
-  const byDay = groupBy(items, (i) => i.day)
-
-  return [...byDay.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([day, dayItems]) => {
-      const labelled = dayItems.filter((i) => i.label)
-      const unlabelled = dayItems.filter((i) => !i.label)
-
-      const labelMap = groupBy(labelled, (i) => i.label!)
-      const labelGroups = [...labelMap.entries()].map(([label, groupItems]) => ({
-        label,
-        earliestTime: groupItems.map((i) => i.timeStart).sort()[0],
-        items: groupItems.sort((a, b) =>
-          a.timeStart.localeCompare(b.timeStart) || a.createdAt.localeCompare(b.createdAt)
-        ),
-      }))
-
-      const unlabelledGroups = unlabelled.map((i) => ({
-        label: null as null,
-        earliestTime: i.timeStart,
-        items: [i],
-      }))
-
-      const labelGroupsSorted = [...labelGroups, ...unlabelledGroups]
-        .sort((a, b) => a.earliestTime.localeCompare(b.earliestTime))
-        .map(({ label, items }) => ({ label, items }))
-
-      return { day, labelGroups: labelGroupsSorted }
-    })
-}

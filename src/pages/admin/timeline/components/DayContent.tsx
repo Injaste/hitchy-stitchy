@@ -2,34 +2,42 @@ import { type FC } from "react";
 import { motion } from "framer-motion";
 
 import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
-import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
+import {
+  calculateTimeDuration,
+  formatTime,
+  formatTimeRange,
+} from "@/lib/utils/utils-time";
+import { getLatestTime } from "../utils";
 
 import type { TimelineGroupedDay, TimelineLabelGroup } from "../types";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
 import TimelineItemCard from "./TimelineItemCard";
+import { Circle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
+const LabelCarousel: FC<{
+  group: TimelineLabelGroup;
+  isNotLastItem: boolean;
+}> = ({ group, isNotLastItem }) => {
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   const groupStart = group.items[0]?.timeStart ?? "";
-  const groupEnd = group.items.reduce((acc, item) => {
-    const t = item.timeEnd ?? item.timeStart;
-    return t > acc ? t : acc;
-  }, "");
-  const itemCount = group.items.length;
-  const timeRange =
-    groupStart && groupEnd && groupStart !== groupEnd
-      ? `${formatTime(groupStart)} – ${formatTime(groupEnd)}`
-      : groupStart
-        ? formatTime(groupStart)
-        : null;
+  const groupEnd = getLatestTime(group.items);
+  const timeRange = groupStart
+    ? groupStart !== groupEnd
+      ? formatTimeRange(groupStart, groupEnd)
+      : formatTime(groupStart)
+    : null;
 
   return (
-    <div className="space-y-3">
-      <div>
+    <div className={cn("relative flex gap-4", isNotLastItem && "pb-10")}>
+      <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
+      <Circle className="size-5 text-primary/50 bg-background z-1" />
+
+      <div className="space-y-2">
         <p className="text-sm">
           {group.label && (
             <span className="font-serif font-semibold text-foreground">
@@ -40,39 +48,39 @@ const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
             {timeRange && ` · ${timeRange}`}
           </span>
         </p>
-      </div>
 
-      <div className="-mx-1">
-        <div className="relative">
-          <div ref={emblaRef} className="overflow-hidden p-1">
-            <motion.div variants={container} className="flex gap-3">
-              {group.items.map((item) => (
-                <motion.div
-                  variants={itemFadeUp}
-                  key={item.id}
-                  className="shrink-0 w-72"
-                >
-                  <TimelineItemCard item={item} />
-                </motion.div>
-              ))}
-            </motion.div>
+        <div className="-mx-1">
+          <div className="relative">
+            <div ref={emblaRef} className="overflow-hidden p-1">
+              <motion.div variants={container} className="flex gap-3">
+                {group.items.map((item) => (
+                  <motion.div
+                    variants={itemFadeUp}
+                    key={item.id}
+                    className="shrink-0 w-72 self-stretch"
+                  >
+                    <TimelineItemCard item={item} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Left fade — only when scrolled */}
+            {showLeftFade && (
+              <motion.div
+                variants={itemFadeIn}
+                className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent"
+              />
+            )}
+
+            {/* Right fade — only when more content */}
+            {showRightFade && (
+              <motion.div
+                variants={itemFadeIn}
+                className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent"
+              />
+            )}
           </div>
-
-          {/* Left fade — only when scrolled */}
-          {showLeftFade && (
-            <motion.div
-              variants={itemFadeIn}
-              className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent"
-            />
-          )}
-
-          {/* Right fade — only when more content */}
-          {showRightFade && (
-            <motion.div
-              variants={itemFadeIn}
-              className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent"
-            />
-          )}
         </div>
       </div>
     </div>
@@ -82,10 +90,7 @@ const LabelCarousel: FC<{ group: TimelineLabelGroup }> = ({ group }) => {
 const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
   const allItems = day.labelGroups.flatMap((g) => g.items);
   const earliest = allItems[0]?.timeStart ?? "";
-  const latest = allItems.reduce((acc, item) => {
-    const t = item.timeEnd ?? item.timeStart;
-    return t > acc ? t : acc;
-  }, "");
+  const latest = getLatestTime(allItems);
 
   return (
     <div className="space-y-10">
@@ -103,7 +108,10 @@ const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
       <motion.div variants={container}>
         {day.labelGroups.map((group, idx) => (
           <motion.div key={`timeline-label-${idx}`} variants={itemFadeUp}>
-            <LabelCarousel group={group} />
+            <LabelCarousel
+              group={group}
+              isNotLastItem={idx < day.labelGroups.length - 1}
+            />
           </motion.div>
         ))}
       </motion.div>

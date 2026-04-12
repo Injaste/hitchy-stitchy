@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { Plus, RefreshCw } from "lucide-react";
+import { differenceInDays } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 
@@ -8,12 +9,16 @@ import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 import { AnimatePresence } from "framer-motion";
 import { useRefetch } from "../../hooks/useRefetch";
+import { useAdminStore } from "../../store/useAdminStore";
+import { formatDateRange } from "@/lib/utils/utils-time";
+import type { TimelineGroupedDay } from "../types";
 
 interface TimelineHeaderProps {
   isLoading: boolean;
   isError: boolean;
   isRefetching: boolean;
   refetch: () => void;
+  data?: TimelineGroupedDay[];
 }
 
 const TimelineHeader: FC<TimelineHeaderProps> = ({
@@ -21,17 +26,49 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   isError,
   isRefetching,
   refetch,
+  data,
 }) => {
   const { handleRefresh, canRefresh } = useRefetch(refetch);
   const { canCreate } = useAccess();
   const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const { dateStart, dateEnd } = useAdminStore();
 
   const showActions = !isLoading && !isError;
 
+  const dayCount =
+    dateStart && dateEnd
+      ? differenceInDays(new Date(dateEnd), new Date(dateStart)) + 1
+      : null;
+
+  const itemCount = data?.reduce(
+    (sum, day) => sum + day.labelGroups.reduce((s, g) => s + g.items.length, 0),
+    0,
+  );
+
   return (
     <div className="flex items-center justify-between">
-      <p className="text-xl font-serif font-bold text-muted-foreground">
-        Timeline description
+      <p className="text-sm tracking-wide text-muted-foreground">
+        {dateStart && dateEnd && (
+          <>
+            <span>{formatDateRange(dateStart, dateEnd)}</span>
+            {dayCount !== null && (
+              <>
+                <span className="mx-1.5">·</span>
+                <span>
+                  {dayCount} {dayCount === 1 ? "day" : "days"}
+                </span>
+              </>
+            )}
+            {itemCount !== undefined && itemCount > 0 && (
+              <>
+                <span className="mx-1.5">·</span>
+                <span>
+                  {itemCount} {itemCount === 1 ? "item" : "items"}
+                </span>
+              </>
+            )}
+          </>
+        )}
       </p>
       <AnimatePresence mode="wait">
         {showActions && (

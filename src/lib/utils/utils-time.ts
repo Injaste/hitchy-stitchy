@@ -57,6 +57,15 @@ export function getEventStatus(dateStart: string, dateEnd: string): EventStatus 
   return "past";
 }
 
+export function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+export function formatTimeRange(start: string, end?: string | null): string {
+  return end ? `${formatTime(start)} – ${formatTime(end)}` : formatTime(start);
+}
+
 export function formatTime(time: string, hour24: boolean = false) {
   const split = time.split(":");
   const min = split[1];

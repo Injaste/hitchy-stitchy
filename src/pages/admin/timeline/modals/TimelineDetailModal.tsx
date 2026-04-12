@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { parseLocalDate, formatTimeRange } from "@/lib/utils/utils-time";
 import { StickyNote } from "lucide-react";
 
 import {
@@ -27,11 +28,8 @@ const TimelineDetailModal = () => {
   if (!selectedItem) return null;
 
   const item = selectedItem;
-  const [y, m, d] = item.day.split("-").map(Number);
-  const dateLabel = format(new Date(y, m - 1, d), "d MMMM yyyy");
-  const timeLabel = item.timeEnd
-    ? `${item.timeStart} – ${item.timeEnd}`
-    : item.timeStart;
+  const dateLabel = format(parseLocalDate(item.day), "d MMMM yyyy");
+  const timeLabel = formatTimeRange(item.timeStart, item.timeEnd);
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>

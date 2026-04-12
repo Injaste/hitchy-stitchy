@@ -14,6 +14,7 @@ const Timeline = () => {
         isError={isError}
         isRefetching={isRefetching}
         refetch={refetch}
+        data={data}
       />
       <TimelineView
         data={data}

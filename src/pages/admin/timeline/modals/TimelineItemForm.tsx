@@ -1,5 +1,5 @@
 import { useMemo, useState, type FC } from "react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon, Clock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { generateEventDays } from "../utils";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
@@ -44,17 +45,7 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
 
   const eventDays = useMemo(() => {
     if (!dateStart || !dateEnd) return [];
-    const [sy, sm, sd] = dateStart.split("-").map(Number);
-    const [ey, em, ed] = dateEnd.split("-").map(Number);
-    const start = new Date(sy, sm - 1, sd);
-    const end = new Date(ey, em - 1, ed);
-    const days: Date[] = [];
-    let cur = start;
-    while (cur <= end) {
-      days.push(cur);
-      cur = addDays(cur, 1);
-    }
-    return days;
+    return generateEventDays(dateStart, dateEnd);
   }, [dateStart, dateEnd]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

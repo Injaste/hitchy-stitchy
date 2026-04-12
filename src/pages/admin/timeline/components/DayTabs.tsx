@@ -1,5 +1,6 @@
 import { type FC } from "react";
 import { format } from "date-fns";
+import { parseLocalDate } from "@/lib/utils/utils-time";
 import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -27,8 +28,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
         <div ref={emblaRef} className="overflow-hidden p-1">
           <div className="flex gap-2">
             {days.map((d, idx) => {
-              const [y, mo, dy] = d.day.split("-").map(Number);
-              const date = new Date(y, mo - 1, dy);
+              const date = parseLocalDate(d.day);
               const active = d.day === activeDayId;
               return (
                 <div key={d.day} className="flex flex-col items-center gap-1.5">
