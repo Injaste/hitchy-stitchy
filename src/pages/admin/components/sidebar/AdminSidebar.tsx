@@ -123,7 +123,7 @@ const AdminSidebar = () => {
 
         {showAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            {/* <SidebarGroupLabel>Admin</SidebarGroupLabel> */}
             <SidebarGroupContent>
               <SidebarMenu>
                 {/* <NavItem
@@ -138,12 +138,12 @@ const AdminSidebar = () => {
                   to={`${base}/users`}
                   isActive={activePage === "users"}
                 /> */}
-                <NavItem
+                {/* <NavItem
                   icon={Settings}
                   label="Settings"
                   to={`${base}/settings`}
                   isActive={activePage === "settings"}
-                />
+                /> */}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
