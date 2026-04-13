@@ -2,7 +2,7 @@ import { Route, Navigate } from "react-router-dom";
 
 import Admin from "@/pages/admin";
 import TimelineTab from "@/pages/admin/timeline";
-import { ChecklistTab } from "@/pages/admin/checklist";
+import Tasks from "@/pages/admin/tasks";
 import { TeamTab } from "@/pages/admin/team";
 import { LiveTab } from "@/pages/admin/live";
 import { RSVPTab } from "@/pages/admin/rsvp";
@@ -13,7 +13,7 @@ import Vendor from "@/pages/admin/vendor";
 const adminChildRoutes = [
   { index: true, element: <Navigate to="timeline" replace /> },
   { path: "timeline", element: <TimelineTab /> },
-  { path: "checklist", element: <ChecklistTab /> },
+  { path: "tasks", element: <Tasks /> },
   { path: "team", element: <TeamTab /> },
   { path: "vendor", element: <Vendor /> },
   { path: "live", element: <LiveTab /> },

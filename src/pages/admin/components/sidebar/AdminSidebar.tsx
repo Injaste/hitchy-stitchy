@@ -88,17 +88,17 @@ const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* <SidebarGroup>
+        <SidebarGroup>
           <SidebarGroupLabel>Operations</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <NavItem
                 icon={CheckSquare}
-                label="Checklist"
-                to={`${base}/checklist`}
-                isActive={activePage === "checklist"}
+                label="Tasks"
+                to={`${base}/tasks`}
+                isActive={activePage === "tasks"}
               />
-              <NavItem
+              {/* <NavItem
                 icon={Users}
                 label="Team"
                 to={`${base}/team`}
@@ -116,10 +116,10 @@ const AdminSidebar = () => {
                 to={`${base}/live`}
                 isActive={activePage === "live"}
                 badge={activeCue ? <PulseDot /> : undefined}
-              />
+              /> */}
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup> */}
+        </SidebarGroup>
 
         {showAdmin && (
           <SidebarGroup>
