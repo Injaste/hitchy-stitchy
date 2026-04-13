@@ -11,7 +11,7 @@ import {
   type StepType,
 } from "../types";
 import { Card, CardContent } from "@/components/ui/card";
-import { Steps } from "@/components/custom/steps";
+import { StepsDirection } from "@/components/custom/steps-direction";
 import { useNavigate } from "react-router-dom";
 
 const CreateEventForm = () => {
@@ -46,7 +46,7 @@ const CreateEventForm = () => {
           <CardContent className="px-6 pt-8 pb-6">
             <CreateEventStepper activeStep={activeStep} />
 
-            <Steps
+            <StepsDirection
               value={activeStep}
               order={STEPS}
               onChange={(v) => setActiveStep(v as StepType)}
@@ -72,7 +72,7 @@ const CreateEventForm = () => {
                   error={error}
                 />
               )}
-            </Steps>
+            </StepsDirection>
           </CardContent>
         </Card>
       </motion.div>

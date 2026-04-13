@@ -20,7 +20,7 @@ export function HowItWorks() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif font-bold text-4xl md:text-5xl text-foreground"
+            className="font-bold text-4xl md:text-5xl text-foreground"
           >
             Up and running in minutes
           </motion.h2>
@@ -37,12 +37,12 @@ export function HowItWorks() {
               className="flex gap-10 items-start py-12"
             >
               <div className="shrink-0 w-14 h-14 rounded-full border-2 border-primary/30 bg-primary/5 flex items-center justify-center">
-                <span className="font-serif font-bold text-primary text-lg">
+                <span className="font-bold text-primary text-lg">
                   {step.number}
                 </span>
               </div>
               <div className="pt-2">
-                <h3 className="font-serif font-semibold text-foreground text-xl mb-2">
+                <h3 className="font-semibold text-foreground text-xl mb-2">
                   {step.title}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed max-w-prose">

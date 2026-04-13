@@ -24,7 +24,7 @@ const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-1.5 text-base font-mono text-primary">
+      <div className="flex items-center gap-1.5 text-base text-primary">
         <Clock className="size-4 shrink-0" />
         <span>{timeLabel}</span>
       </div>
@@ -33,7 +33,7 @@ const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
         <Card className="h-full" onClick={() => openDetail(item)}>
           <CardHeader className="flex-1 flex flex-col">
             <div className="flex items-start justify-between gap-2">
-              <CardTitle className="font-serif text-secondary leading-snug">
+              <CardTitle className="text-secondary leading-snug">
                 {item.title}
               </CardTitle>
             </div>

@@ -95,7 +95,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
 
   if (isLoading) {
     return (
-      <div className="py-32 text-center text-primary font-bold italic font-serif">
+      <div className="py-32 text-center text-primary font-bold italic">
         Checking RSVP status…
       </div>
     );
@@ -128,13 +128,13 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             </motion.div>
             <motion.h2
               variants={fadeUp(0.15, 16, 0.7)}
-              className="text-3xl sm:text-4xl font-bold text-primary mb-2 sm:mb-3 italic font-serif"
+              className="text-3xl sm:text-4xl font-bold text-primary mb-2 sm:mb-3 italic"
             >
               RSVP
             </motion.h2>
             <motion.p
               variants={fadeUp(0.25, 12, 0.7)}
-              className="text-muted-foreground italic text-sm sm:text-base font-serif"
+              className="text-muted-foreground italic text-sm sm:text-base"
             >
               Your presence would mean the world to us.
             </motion.p>
@@ -156,7 +156,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                   animate={{ opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <p className="text-foreground/70 italic text-sm sm:text-base font-serif leading-relaxed">
+                  <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
                     RSVPs are by invitation only.{" "}
                     Please contact us directly to confirm your attendance.
                   </p>
@@ -168,7 +168,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                   animate={{ opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <p className="text-foreground/70 italic text-sm sm:text-base font-serif leading-relaxed">
+                  <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
                     RSVP submissions are now closed.{" "}
                     Thank you to everyone who responded.
                   </p>
@@ -198,10 +198,10 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                           size={64}
                         />
                       </motion.div>
-                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-foreground font-serif">
+                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-foreground">
                         Alhamdulillah!
                       </h3>
-                      <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base font-serif">
+                      <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base">
                         {rsvpConfig.confirmationMessage}
                       </p>
                       <div className="flex gap-3 justify-center">

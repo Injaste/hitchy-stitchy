@@ -65,7 +65,7 @@ const AdminSidebar = () => {
                 <CalendarHeart className="size-4 text-sidebar-primary" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{eventName}</span>
+                <span className="font-bold truncate">{eventName}</span>
                 <span className="truncate text-xs">{slug}</span>
               </div>
             </SidebarMenuButton>

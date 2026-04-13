@@ -40,7 +40,7 @@ const LabelCarousel: FC<{
       <div className="space-y-2">
         <p className="text-sm">
           {group.label && (
-            <span className="font-serif font-semibold text-foreground">
+            <span className="font-semibold text-foreground">
               {group.label}
             </span>
           )}
@@ -94,7 +94,7 @@ const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-col gap-1 font-mono font-medium">
+      <div className="flex flex-col gap-1 font-medium">
         <div>Day 1{`: ${"Event"}`}</div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="text-foreground">{formatTime(earliest)}</span>

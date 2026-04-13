@@ -48,15 +48,13 @@ const EventWidget: FC<EventWidgetProps> = ({ event }) => {
         </CardHeader>
 
         <CardContent className="flex-1 pt-4">
-          <h3 className="font-serif font-bold text-foreground text-xl leading-snug mb-1">
+          <h3 className="font-bold text-foreground text-xl leading-snug mb-1">
             {event.name}
           </h3>
           <p className="text-sm text-muted-foreground">
             {formatDateRange(event.date_start, event.date_end)}
           </p>
-          <p className="text-xs text-muted-foreground mt-1 font-mono">
-            /{event.slug}
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">/{event.slug}</p>
 
           <div className="flex items-center gap-2 bg-white mt-4">
             <Link to={`/${event.slug}/admin`} className="flex-1">

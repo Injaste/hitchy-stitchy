@@ -11,11 +11,14 @@ interface NavItemProps {
 }
 
 const NavItem = ({ icon: Icon, label, to, isActive, badge }: NavItemProps) => {
-  console.log(toSlug(label));
-
   return (
     <SidebarMenuItem id={toSlug(label)}>
-      <SidebarMenuButton asChild isActive={isActive} tooltip={label}>
+      <SidebarMenuButton
+        asChild
+        variant="ghost"
+        isActive={isActive}
+        tooltip={label}
+      >
         <Link to={to}>
           <Icon className="h-4 w-4" />
           <span>{label}</span>

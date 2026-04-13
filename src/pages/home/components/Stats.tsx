@@ -18,7 +18,7 @@ export function Stats() {
             variants={statItem}
             className="flex flex-col items-center text-center sm:px-8 gap-2"
           >
-            <span className="font-serif font-bold text-4xl md:text-5xl text-primary">
+            <span className="font-bold text-4xl md:text-5xl text-primary">
               {s.value}
             </span>
             <span className="text-sm text-muted-foreground tracking-wide">

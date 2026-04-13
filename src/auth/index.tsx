@@ -24,6 +24,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import BackLink from "@/components/custom/back-link";
 
 const signInSchema = z.object({
   email: z.email("Enter a valid email"),
@@ -74,9 +75,7 @@ const SignIn = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
             <CalendarHeart className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-serif font-bold text-primary">
-            Hitchy Stitchy
-          </h1>
+          <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             A Wedding Planning Suite
           </p>
@@ -204,11 +203,7 @@ const SignIn = () => {
         </motion.div>
 
         <motion.div variants={itemFadeUp} className="text-center mt-6">
-          <p className="text-xs text-muted-foreground">
-            <Link to="/" className="hover:text-primary transition-colors">
-              ← Back to home
-            </Link>
-          </p>
+          <BackLink to="/" label="Back to Home" />
         </motion.div>
       </div>
     </motion.div>

@@ -33,7 +33,7 @@ export function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif font-bold text-4xl md:text-5xl text-foreground"
+            className="font-bold text-4xl md:text-5xl text-foreground"
           >
             One suite for the whole celebration
           </motion.h2>
@@ -95,7 +95,7 @@ export function Features() {
                       </p>
                     </div>
 
-                    <h3 className="font-serif font-bold text-3xl md:text-4xl text-foreground leading-tight mb-6">
+                    <h3 className="font-bold text-3xl md:text-4xl text-foreground leading-tight mb-6">
                       {feature.title}
                     </h3>
 

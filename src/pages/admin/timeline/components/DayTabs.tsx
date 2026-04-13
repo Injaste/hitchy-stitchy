@@ -46,7 +46,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                     </span>
                   </Button>
 
-                  <span className="font-serif text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     Day {idx + 1}
                   </span>
                 </div>

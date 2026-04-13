@@ -21,7 +21,9 @@ Hitchy Stitchy is a **wedding planning suite** — not a generic SaaS tool. Ever
 - Let content breathe — whitespace over density
 
 ### Typography
-- `font-serif` for all headings, card titles, section labels
+- `font-display` (`Noto Sans Display`) — applied globally to all h1–h6 via base CSS rule; use for any display/heading text that isn't a native h-tag
+- `font-sans` (`Noto Sans`) — base body font; all labels, body copy, UI text
+- `font-mono` (`ui-monospace`) — only for running timers (countdown, elapsed) and technical strings (slugs, IDs); never for static time labels or decorative text
 - Strong contrast between title and metadata
 - `text-muted-foreground` for secondary info
 - `tracking-wide` on uppercase labels

@@ -59,7 +59,7 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
       >
         <motion.p
           variants={greeting}
-          className="text-foreground/80 text-lg sm:text-2xl tracking-wider font-serif mb-14 sm:mb-20"
+          className="text-foreground/80 text-lg sm:text-2xl tracking-wider mb-14 sm:mb-20"
         >
           السلام عليكم ورحمة الله وبركاته
         </motion.p>
@@ -79,7 +79,7 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
         <div className="mb-12 sm:mb-16">
           <motion.h1
             variants={name1}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
             {eventConfig.groomName}
           </motion.h1>
@@ -89,7 +89,7 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             className="flex items-center justify-center gap-5 my-2 sm:my-4"
           >
             <div className="h-px flex-1 max-w-16 bg-primary/25" />
-            <span className="text-xl sm:text-2xl font-light not-italic tracking-normal text-foreground/40 font-serif">
+            <span className="text-xl sm:text-2xl font-light not-italic tracking-normal text-foreground/40">
               &amp;
             </span>
             <div className="h-px flex-1 max-w-16 bg-primary/25" />
@@ -97,7 +97,7 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
 
           <motion.h1
             variants={name2}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic font-serif leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
             {eventConfig.brideName}
           </motion.h1>
@@ -109,10 +109,10 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
 
         <motion.div variants={verse} className="mb-14 sm:mb-20">
           <div className="border-t border-primary/20 pt-6 sm:pt-8">
-            <p className="text-foreground leading-relaxed font-serif text-base sm:text-lg">
+            <p className="text-foreground leading-relaxed text-base sm:text-lg">
               "And We created you in pairs."
             </p>
-            <span className="block mt-3 text-foreground/80 font-serif text-xs tracking-widest uppercase font-medium">
+            <span className="block mt-3 text-foreground/80 text-xs tracking-widest uppercase font-medium">
               Surah An-Naba 78:8
             </span>
           </div>

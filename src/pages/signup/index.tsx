@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fadeUp, scaleIn } from "@/pages/admin/animations";
 import { useSignupMutation } from "./queries";
+import BackLink from "@/components/custom/back-link";
 
 export default function Signup() {
   const [fullName, setFullName] = useState("");
@@ -65,7 +66,7 @@ export default function Signup() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-6">
               <CheckCircle2 className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-serif font-bold text-foreground mb-2">
+            <h2 className="text-2xl font-bold text-foreground mb-2">
               Account created!
             </h2>
             <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
@@ -77,12 +78,7 @@ export default function Signup() {
               <Link to="/dashboard">
                 <Button className="w-full">Go to Dashboard</Button>
               </Link>
-              <Link
-                to="/"
-                className="text-xs text-muted-foreground hover:text-primary transition-colors"
-              >
-                ← Back to home
-              </Link>
+              <BackLink to="/" label="Back to Home" />
             </div>
           </motion.div>
         </div>
@@ -103,9 +99,7 @@ export default function Signup() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
             <CalendarHeart className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-serif font-bold text-primary">
-            Hitchy Stitchy
-          </h1>
+          <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             Wedding Planning Suite
           </p>
@@ -244,11 +238,8 @@ export default function Signup() {
               Sign in
             </Link>
           </p>
-          <p className="text-xs text-muted-foreground">
-            <Link to="/" className="hover:text-primary transition-colors">
-              ← Back to home
-            </Link>
-          </p>
+
+          <BackLink to="/" label="Back to Home" />
         </motion.div>
       </div>
     </div>

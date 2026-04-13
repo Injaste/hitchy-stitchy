@@ -51,7 +51,7 @@ export function Hero() {
         variants={heroHeadline}
         initial="hidden"
         animate="show"
-        className="font-serif font-bold text-5xl md:text-7xl lg:text-8xl text-foreground leading-[1.05] tracking-tight max-w-4xl"
+        className="font-bold text-5xl md:text-7xl lg:text-8xl text-foreground leading-[1.05] tracking-tight max-w-4xl"
       >
         Every moment,{" "}
         <span className="text-primary italic">beautifully</span>

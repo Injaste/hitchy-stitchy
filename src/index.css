@@ -1,12 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Display:wght@400;500;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: 'Noto Sans', sans-serif;
+  --font-display: 'Noto Sans Display', sans-serif;
+  --font-mono: ui-monospace, monospace;
 
   --color-gold-primary: #d4af37;
   --color-sage-secondary: #9cb09a;
@@ -84,6 +84,10 @@
     scrollbar-width: none;
     scroll-behavior: smooth;
     @apply font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 
   body {

@@ -22,7 +22,7 @@ const InvitationSkeleton = () => (
 
 const InvitationError = () => (
   <div className="min-h-screen bg-background flex items-center justify-center px-4">
-    <p className="text-sm text-muted-foreground italic font-serif">
+    <p className="text-sm text-muted-foreground italic">
       This invitation could not be found.
     </p>
   </div>

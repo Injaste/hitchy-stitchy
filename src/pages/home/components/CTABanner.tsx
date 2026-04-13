@@ -22,7 +22,7 @@ export function CTABanner() {
           <FloralSVG className="w-16 h-16" />
         </div>
 
-        <h2 className="font-serif font-bold text-4xl md:text-6xl text-foreground mb-6 max-w-2xl mx-auto leading-tight">
+        <h2 className="font-bold text-4xl md:text-6xl text-foreground mb-6 max-w-2xl mx-auto leading-tight">
           Your perfect day{" "}
           <span className="text-primary italic">starts here.</span>
         </h2>

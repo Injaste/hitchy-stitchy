@@ -28,7 +28,7 @@ const TimelineDeleteModal = () => {
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
       <AlertDialogContent>
         <AlertDialogHeader className="text-destructive">
-          <AlertDialogTitle className="font-serif flex items-center gap-2">
+          <AlertDialogTitle className="flex items-center gap-2">
             <TriangleAlert className="w-4 h-4 shrink-0" />
             Delete item
           </AlertDialogTitle>

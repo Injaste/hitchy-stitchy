@@ -35,7 +35,7 @@ const TimelineDetailModal = () => {
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent className="w-[95vw] max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-serif">{item.title}</DialogTitle>
+          <DialogTitle >{item.title}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
             {item.description}
           </DialogDescription>
@@ -44,7 +44,7 @@ const TimelineDetailModal = () => {
         <div className="space-y-6 mt-1">
           {/* Time, date & label */}
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <span className="font-mono">{timeLabel}</span>
+            <span>{timeLabel}</span>
             <span>·</span>
             <span>{dateLabel}</span>
             {item.label && <Badge variant="outline">{item.label}</Badge>}

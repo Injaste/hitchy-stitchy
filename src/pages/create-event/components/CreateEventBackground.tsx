@@ -4,10 +4,8 @@ export const CreateEventBackground = () => {
   return (
     <div className="absolute inset-0 overflow-hidden">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
-        
         .hs-logo {
-          font-family: 'Playfair Display', serif;
+          font-family: var(--font-display);
           font-size: 42px;
           font-weight: 700;
           background: linear-gradient(135deg, #d4af37 0%, #2d5a4a 100%);

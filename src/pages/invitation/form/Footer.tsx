@@ -30,13 +30,13 @@ const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, groomName = "Danish", brideNa
       />
       <motion.p
         variants={fadeUp(0.1, 12, 0.7)}
-        className="mb-3 sm:mb-4 italic text-muted-foreground text-sm sm:text-base font-serif"
+        className="mb-3 sm:mb-4 italic text-muted-foreground text-sm sm:text-base"
       >
         With love and prayers,
       </motion.p>
       <motion.h2
         variants={fadeUp(0.2, 16, 0.8)}
-        className="font-bold text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] text-2xl sm:text-3xl italic font-serif"
+        className="font-bold text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] text-2xl sm:text-3xl italic"
       >
         {groomName} & {brideName}
       </motion.h2>

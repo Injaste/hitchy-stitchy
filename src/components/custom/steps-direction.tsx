@@ -2,7 +2,7 @@ import { createContext, useContext, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import ComponentSlide from "../animations/animate-component-slide";
 
-type StepDirection = 1 | -1 | 0;
+type Direction = 1 | -1 | 0;
 
 interface StepsContextValue<T extends string> {
   activeStep: T;
@@ -24,14 +24,14 @@ interface StepsProps<T extends string> {
   children: React.ReactNode;
 }
 
-export function Steps<T extends string>({
+export function StepsDirection<T extends string>({
   value,
   order,
   onChange,
   children,
 }: StepsProps<T>) {
   const prevRef = useRef(value);
-  const [direction, setDirection] = useState<StepDirection>(0);
+  const [direction, setDirection] = useState<Direction>(0);
 
   const goTo = (next: T) => {
     const prevIdx = order.indexOf(prevRef.current);

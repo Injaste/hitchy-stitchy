@@ -18,7 +18,7 @@ const DashboardTopbar = () => {
           <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
             <CalendarHeart className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-serif font-bold text-foreground text-base leading-none">
+          <span className="font-bold text-foreground text-base leading-none">
             Hitchy Stitchy
           </span>
         </Link>

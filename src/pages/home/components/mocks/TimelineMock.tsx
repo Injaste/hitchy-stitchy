@@ -80,7 +80,7 @@ export function TimelineMock() {
             {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-muted-foreground">{cue.time}</span>
+                <span className="text-xs text-muted-foreground">{cue.time}</span>
                 <span className={`text-sm font-medium truncate ${cue.done ? "text-muted-foreground line-through" : "text-foreground"}`}>
                   {cue.label}
                 </span>
@@ -115,7 +115,7 @@ export function TimelineMock() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-muted-foreground">{NEW_CUE.time}</span>
+                    <span className="text-xs text-muted-foreground">{NEW_CUE.time}</span>
                     <span className="text-sm font-medium text-foreground">{NEW_CUE.label}</span>
                     <AnimatePresence>
                       {phase === 2 && (

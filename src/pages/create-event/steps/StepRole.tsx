@@ -17,7 +17,7 @@ import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { CreateRoleData, StepType } from "../types";
-import { useSteps } from "@/components/custom/steps";
+import { useSteps } from "@/components/custom/steps-direction";
 
 interface StepRoleProps {
   defaultValues?: Partial<CreateRoleData>;
@@ -102,9 +102,9 @@ const StepRole: FC<StepRoleProps> = ({
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div>
-        <p className="font-serif font-semibold text-base text-foreground">
+        <h3 className="font-semibold text-base text-foreground">
           What's your role?
-        </p>
+        </h3>
         <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">
           You can add more team members after setup.
         </p>
@@ -265,12 +265,12 @@ const StepRole: FC<StepRoleProps> = ({
             </Button>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={handleBack}
               disabled={isSubmitting_ || isSubmitting}
               className="w-full text-muted-foreground"
             >
-              ← Back
+              Back
             </Button>
           </div>
         )}

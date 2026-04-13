@@ -5,6 +5,7 @@ import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
 
 import CreateEventForm from "./CreateEventForm";
 import { Link } from "react-router-dom";
+import BackLink from "@/components/custom/back-link";
 
 const CreateEventView = () => {
   return (
@@ -24,9 +25,7 @@ const CreateEventView = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <CalendarHeart className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-serif font-bold text-primary">
-            Hitchy Stitchy
-          </h1>
+          <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             Wedding Admin
           </p>
@@ -37,14 +36,7 @@ const CreateEventView = () => {
         </motion.div>
 
         <motion.div variants={itemFadeUp} className="text-center mt-8">
-          <p className="text-xs text-muted-foreground">
-            <Link
-              to="/dashboard"
-              className="hover:text-primary transition-colors"
-            >
-              ← Back to dashboard
-            </Link>
-          </p>
+          <BackLink to="/dashboard" label="Back to Dashboard" />
         </motion.div>
       </div>
     </motion.div>

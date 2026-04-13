@@ -15,7 +15,7 @@ const EventEmpty = () => {
           <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
             <CalendarPlus className="w-9 h-9 text-primary" />
           </div>
-          <h2 className="font-serif font-bold text-2xl text-foreground mb-2">
+          <h2 className="font-bold text-2xl text-foreground mb-2">
             No events yet
           </h2>
           <p className="text-muted-foreground text-sm max-w-xs leading-relaxed mb-8">

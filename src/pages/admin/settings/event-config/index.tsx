@@ -103,162 +103,149 @@ export function EventSettingsSection() {
   };
 
   return (
-    <motion.div initial="hidden" animate="show" variants={fadeUp(0)}>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-base font-serif">Event Details</CardTitle>
-          {!editing && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-muted-foreground"
-              onClick={() => setEditing(true)}
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              Edit
-            </Button>
-          )}
-        </CardHeader>
+    <Card className="max-w-lg">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-base">Event Details</CardTitle>
+        {!editing && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground"
+            onClick={() => setEditing(true)}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </Button>
+        )}
+      </CardHeader>
 
-        <CardContent>
-          <AnimatePresence mode="wait">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <FieldGroup className="block space-y-4">
-                {/* Event name */}
-                <form.Field name="name">
-                  {(field) => {
-                    const hasError =
-                      Boolean(field.state.meta.errors.length) &&
-                      attemptCount > 0;
-                    return (
-                      <AnimateItem
-                        errors={field.state.meta.errors}
-                        hasError={hasError}
-                        attemptCount={attemptCount}
-                      >
-                        <Field data-invalid={hasError} className="gap-2">
-                          <FieldLabel htmlFor="event-name">
-                            Event Name
-                          </FieldLabel>
-                          <FieldContent>
-                            <Input
-                              id="event-name"
-                              placeholder="e.g. Dan & Nad Wedding"
-                              value={field.state.value}
-                              mode={editing ? "edit" : "readonly"}
-                              onChange={(e) =>
-                                field.handleChange(e.target.value)
-                              }
-                              onBlur={field.handleBlur}
-                              autoFocus
-                            />
-                          </FieldContent>
-                        </Field>
-                      </AnimateItem>
-                    );
-                  }}
-                </form.Field>
-
-                {/* Date range */}
-                <form.Field name="date_start">
-                  {(field) => {
-                    const hasError =
-                      Boolean(field.state.meta.errors.length) &&
-                      attemptCount > 0;
-                    return (
-                      <AnimateItem
-                        errors={field.state.meta.errors}
-                        hasError={hasError}
-                        attemptCount={attemptCount}
-                      >
-                        <Field data-invalid={hasError} className="gap-2">
-                          <FieldLabel>Event Dates</FieldLabel>
-                          <FieldContent>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  className="w-full justify-start gap-2 font-normal"
-                                >
-                                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                                  <span className="text-sm">{dateLabel}</span>
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto p-0"
-                                align="start"
-                              >
-                                <Calendar
-                                  mode="range"
-                                  selected={dateRange}
-                                  onSelect={(range) => {
-                                    setDateRange(range);
-                                    form.setFieldValue(
-                                      "date_start",
-                                      range?.from
-                                        ? format(range.from, "yyyy-MM-dd")
-                                        : "",
-                                    );
-                                    form.setFieldValue(
-                                      "date_end",
-                                      range?.to
-                                        ? format(range.to, "yyyy-MM-dd")
-                                        : "",
-                                    );
-                                  }}
-                                  numberOfMonths={isMobile ? 1 : 2}
-                                />
-                              </PopoverContent>
-                            </Popover>
-
-                            {/* Timeline shrink warning */}
-                            <AnimatePresence>
-                              {showShrinkWarning && (
-                                <motion.div
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: "auto" }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="flex items-start gap-2 mt-2 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800"
-                                >
-                                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
-                                  <p className="text-xs leading-snug">
-                                    This range is shorter than your current
-                                    timeline. <strong>3 days</strong> have
-                                    events — shrinking may orphan them.
-                                  </p>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </FieldContent>
-                        </Field>
-                      </AnimateItem>
-                    );
-                  }}
-                </form.Field>
-              </FieldGroup>
-
-              {/* Actions */}
-              {editing && (
-                <div className="flex gap-2 pt-1">
-                  <Button type="submit" size="sm">
-                    Save
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCancel}
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <FieldGroup className="block space-y-4">
+            {/* Event name */}
+            <form.Field name="name">
+              {(field) => {
+                const hasError =
+                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
+                return (
+                  <AnimateItem
+                    errors={field.state.meta.errors}
+                    hasError={hasError}
+                    attemptCount={attemptCount}
                   >
-                    <X className="h-3.5 w-3.5 mr-1" />
-                    Cancel
-                  </Button>
-                </div>
-              )}
-            </form>
-          </AnimatePresence>
-        </CardContent>
-      </Card>
-    </motion.div>
+                    <Field data-invalid={hasError} className="gap-2">
+                      <FieldLabel htmlFor="event-name">Event Name</FieldLabel>
+                      <FieldContent>
+                        <Input
+                          id="event-name"
+                          placeholder="e.g. Dan & Nad Wedding"
+                          value={field.state.value}
+                          mode={editing ? "edit" : "readonly"}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          autoFocus
+                        />
+                      </FieldContent>
+                    </Field>
+                  </AnimateItem>
+                );
+              }}
+            </form.Field>
+
+            {/* Date range */}
+            <form.Field name="date_start">
+              {(field) => {
+                const hasError =
+                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
+                return (
+                  <AnimateItem
+                    errors={field.state.meta.errors}
+                    hasError={hasError}
+                    attemptCount={attemptCount}
+                  >
+                    <Field data-invalid={hasError} className="gap-2">
+                      <FieldLabel>Event Dates</FieldLabel>
+                      <FieldContent>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start gap-2 font-normal"
+                            >
+                              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm">{dateLabel}</span>
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="range"
+                              selected={dateRange}
+                              onSelect={(range) => {
+                                setDateRange(range);
+                                form.setFieldValue(
+                                  "date_start",
+                                  range?.from
+                                    ? format(range.from, "yyyy-MM-dd")
+                                    : "",
+                                );
+                                form.setFieldValue(
+                                  "date_end",
+                                  range?.to
+                                    ? format(range.to, "yyyy-MM-dd")
+                                    : "",
+                                );
+                              }}
+                              numberOfMonths={isMobile ? 1 : 2}
+                            />
+                          </PopoverContent>
+                        </Popover>
+
+                        {/* Timeline shrink warning */}
+                        <AnimatePresence>
+                          {showShrinkWarning && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex items-start gap-2 mt-2 p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800"
+                            >
+                              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
+                              <p className="text-xs leading-snug">
+                                This range is shorter than your current
+                                timeline. <strong>3 days</strong> have events —
+                                shrinking may orphan them.
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </FieldContent>
+                    </Field>
+                  </AnimateItem>
+                );
+              }}
+            </form.Field>
+          </FieldGroup>
+
+          {/* Actions */}
+          {editing && (
+            <div className="flex gap-2 pt-1">
+              <Button type="submit" size="sm">
+                Save
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleCancel}
+              >
+                <X className="h-3.5 w-3.5 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          )}
+        </form>
+      </CardContent>
+    </Card>
   );
 }

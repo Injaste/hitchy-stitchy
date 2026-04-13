@@ -20,7 +20,7 @@ const ErrorState: FC<ErrorStateProps> = ({
         <div className="w-20 h-20 rounded-full bg-destructive/10 border border-destructive/20 flex items-center justify-center mb-6">
           <AlertCircle className="w-9 h-9 text-destructive" />
         </div>
-        <h2 className="font-serif font-bold text-2xl text-foreground mb-2">
+        <h2 className="font-bold text-2xl text-foreground mb-2">
           Something went wrong
         </h2>
         <p className="text-muted-foreground text-sm max-w-xs leading-relaxed mb-8">

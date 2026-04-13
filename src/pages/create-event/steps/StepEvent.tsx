@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { FC } from "react";
-import { differenceInCalendarDays, format } from "date-fns";
+import { addDays, differenceInCalendarDays, format } from "date-fns";
 import {
   CalendarIcon,
   CheckCircle2,
@@ -33,7 +33,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import OdometerDigit from "@/components/animations/animate-odometer-digit";
-import { useSteps } from "@/components/custom/steps";
+import { useSteps } from "@/components/custom/steps-direction";
 
 import type { CreateEventData, StepType } from "../types";
 import type { DateRange } from "react-day-picker";
@@ -97,7 +97,6 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
   const [eventName, setEventName] = useState(defaultValues?.event_name ?? "");
   const [slugTouched, setSlugTouched] = useState(false);
 
-  // Fix: don't add 3 days to existing end date when returning from step 2
   const [dateRange, setDateRange] = useState<DateRange | undefined>(
     defaultValues?.date_start
       ? {
@@ -106,7 +105,10 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
             ? new Date(defaultValues.date_end)
             : undefined,
         }
-      : undefined,
+      : {
+          from: new Date(),
+          to: addDays(new Date(), 5),
+        },
   );
 
   const isMobile = useIsMobile();
@@ -117,8 +119,8 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
       display_name: defaultValues?.display_name ?? "",
       event_name: defaultValues?.event_name ?? "",
       slug: defaultValues?.slug ?? "",
-      date_start: defaultValues?.date_start ?? "",
-      date_end: defaultValues?.date_end ?? "",
+      date_start: defaultValues?.date_start ?? dateRange?.from?.toString()!,
+      date_end: defaultValues?.date_end ?? dateRange?.from?.toString()!,
     },
     validators: {
       onSubmit: stepEventSchema,
@@ -367,7 +369,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                       </h4>
                       <div className="space-y-3">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                          <span className="text-sm font-serif italic min-w-[40px]">
+                          <span className="text-sm italic min-w-[40px]">
                             Admin:
                           </span>
                           <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
@@ -375,7 +377,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                           </code>
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                          <span className="text-sm font-serif italic min-w-[40px]">
+                          <span className="text-sm italic min-w-[40px]">
                             RSVP:
                           </span>
                           <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
@@ -394,7 +396,12 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
 
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting) => (
-          <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

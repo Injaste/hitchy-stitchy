@@ -104,7 +104,7 @@ export function LiveMock() {
                   }`}>
                     {cue.label}
                   </p>
-                  <p className="text-xs font-mono text-muted-foreground/70">{cue.time}</p>
+                  <p className="text-xs text-muted-foreground/70">{cue.time}</p>
                 </div>
 
                 {/* Active badge */}

@@ -106,13 +106,13 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
           </motion.div>
           <motion.h3
             variants={fadeUp(0.1, 20, 0.7)}
-            className="text-3xl sm:text-4xl font-bold text-primary mb-4 sm:mb-6 italic font-serif"
+            className="text-3xl sm:text-4xl font-bold text-primary mb-4 sm:mb-6 italic"
           >
             A Journey of Love
           </motion.h3>
           <motion.p
             variants={fadeUp(0.25, 16, 0.8)}
-            className="text-sm sm:text-base md:text-lg text-foreground/70 leading-relaxed max-w-2xl mx-auto italic font-serif"
+            className="text-sm sm:text-base md:text-lg text-foreground/70 leading-relaxed max-w-2xl mx-auto italic"
           >
             "In the name of Allah, the Most Gracious, the Most Merciful. We
             invite you to witness the beginning of our forever. A day where two
@@ -135,7 +135,7 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
           </motion.p>
           <motion.h3
             variants={fadeUp(0.1, 20, 0.8)}
-            className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 font-serif"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2"
           >
             {eventConfig.blessingsName}
           </motion.h3>
@@ -174,7 +174,7 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
               <h4 className="font-bold text-base sm:text-xl mb-1 sm:mb-2 text-foreground">
                 {item.title}
               </h4>
-              <p className="text-primary font-bold text-base sm:text-lg font-serif">
+              <p className="text-primary font-bold text-base sm:text-lg">
                 {item.detail}
               </p>
               <p className="text-muted-foreground text-xs sm:text-sm italic">
