@@ -11,7 +11,7 @@ import {
 } from "./api"
 import type { CreateTimelineItemPayload, UpdateTimelineItemPayload } from "./types"
 
-export function useTimeline() {
+export function useTimelineQuery() {
   const { slug, eventId } = useAdminStore()
   return useQuery({
     queryKey: adminKeys.timeline(slug!),

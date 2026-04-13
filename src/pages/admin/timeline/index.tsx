@@ -1,11 +1,12 @@
-import { useTimeline } from "./queries";
+import { useTimelineQuery } from "./queries";
 
 import TimelineHeader from "./components/TimelineHeader";
 import TimelineView from "./components/TimelineView";
 import TimelineModals from "./modals";
 
 const Timeline = () => {
-  const { data, isLoading, isError, refetch, isRefetching } = useTimeline();
+  const { data, isLoading, isError, refetch, isRefetching } =
+    useTimelineQuery();
 
   return (
     <div className="space-y-8 pb-24">

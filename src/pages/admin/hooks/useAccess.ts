@@ -9,12 +9,7 @@ export type Permission = `${Resource}:${Action}`
 export type RoleCategory = "root" | "admin" | "couple_attendant" | "general"
 
 async function fetchPermissions(category: RoleCategory): Promise<Permission[]> {
-  // root shortcuts — no rows in DB, has everything
-  if (category === "root") {
-    const resources: Resource[] = ["timeline", "team", "settings", "rsvp", "announcements", "vendors", "members", "roles", "events"]
-    const actions: Action[] = ["create", "read", "update", "delete"]
-    return resources.flatMap((r) => actions.map((a): Permission => `${r}:${a}`))
-  }
+  if (category === "root") return [];
 
   const { data, error } = await supabase
     .from("event_role_permissions")
@@ -36,6 +31,7 @@ async function fetchPermissions(category: RoleCategory): Promise<Permission[]> {
 
 export function useAccess() {
   const { memberRoleCategory: roleCategory, slug } = useAdminStore()
+  const isRoot = roleCategory === "root"
 
   const { data: granted = [] } = useQuery({
     queryKey: [`${slug}:permissions`, roleCategory],
@@ -44,8 +40,10 @@ export function useAccess() {
     staleTime: Infinity,
   })
 
-  const allow = (...permissions: Permission[]): boolean =>
-    permissions.every((p) => granted.includes(p))
+  const allow = (...permissions: Permission[]): boolean => {
+    if (isRoot) return true
+    return permissions.every((p) => granted.includes(p))
+  }
 
   const canRead = (...resources: Resource[]) => allow(...resources.map((r): Permission => `${r}:read`))
   const canCreate = (...resources: Resource[]) => allow(...resources.map((r): Permission => `${r}:create`))
