@@ -46,7 +46,7 @@ const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
 
             {item.notes && (
               <div
-                className={`flex gap-2 items-center bg-secondary/30 p-2 rounded ${item.description ? "mt-auto pt-1.5" : "mt-1"}`}
+                className={`flex gap-2 items-center bg-secondary/30 p-2 rounded ${item.description ? "mt-auto pt-1.5" : "mt-2"}`}
               >
                 <StickyNote
                   strokeWidth={2.5}
