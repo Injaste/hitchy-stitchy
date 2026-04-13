@@ -174,7 +174,7 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
               <h4 className="font-bold text-base sm:text-xl mb-1 sm:mb-2 text-foreground">
                 {item.title}
               </h4>
-              <p className="text-primary font-bold text-base sm:text-lg">
+              <p className="font-display text-primary font-bold text-base sm:text-lg">
                 {item.detail}
               </p>
               <p className="text-muted-foreground text-xs sm:text-sm italic">

@@ -3,21 +3,23 @@ import { useAnimate, type AnimationScope } from "framer-motion";
 
 type Direction = "vertical" | "horizontal";
 
-interface HoverIndicatorResult {
+interface IndicatorSliderResult {
   containerRef: RefObject<HTMLElement | null>;
-  indicatorRef: AnimationScope<HTMLDivElement>;
+  hoverIndicatorRef: AnimationScope<HTMLDivElement>;
+  activeIndicatorRef: AnimationScope<HTMLDivElement>;
   setRef: (id: string) => (el: HTMLElement | null) => void;
   onMouseEnter: (id: string) => void;
   onMouseLeave: () => void;
 }
 
-export default function useHoverIndicator(
+export default function useIndicatorSlider(
   direction: Direction = "vertical",
   activeId?: string,
-): HoverIndicatorResult {
+): IndicatorSliderResult {
   const itemRefs = useRef<Record<string, HTMLElement | null>>({});
   const containerRef = useRef<HTMLElement | null>(null);
-  const [scope, animate] = useAnimate();
+  const [hoverScope, hoverAnimate] = useAnimate();
+  const [activeScope, activeAnimate] = useAnimate();
 
   const getValuesForId = useCallback(
     (id: string) => {
@@ -43,44 +45,60 @@ export default function useHoverIndicator(
     [direction],
   );
 
-  const applyValues = useCallback(
+  const applyHoverValues = useCallback(
     (id: string) => {
       const values = getValuesForId(id);
-      if (!values || !scope.current) return;
+      if (!values || !hoverScope.current) return;
 
       const target =
         direction === "horizontal"
           ? { left: values.primary, width: values.secondary, opacity: 1 }
           : { top: values.primary, height: values.secondary, opacity: 1 };
 
-      animate(scope.current, target, {
+      hoverAnimate(hoverScope.current, target, {
         type: "spring",
         stiffness: 400,
         damping: 30,
       });
     },
-    [direction, getValuesForId, animate, scope],
+    [direction, getValuesForId, hoverAnimate, hoverScope],
+  );
+
+  const applyActiveValues = useCallback(
+    (id: string) => {
+      const values = getValuesForId(id);
+      if (!values || !activeScope.current) return;
+
+      const target =
+        direction === "horizontal"
+          ? { left: values.primary, width: values.secondary }
+          : { top: values.primary, height: values.secondary };
+
+      activeAnimate(activeScope.current, target, {
+        type: "spring",
+        stiffness: 400,
+        damping: 30,
+      });
+    },
+    [direction, getValuesForId, activeAnimate, activeScope],
   );
 
   const onMouseEnter = useCallback(
-    (id: string) => applyValues(id),
-    [applyValues],
+    (id: string) => applyHoverValues(id),
+    [applyHoverValues],
   );
 
+  // Update active slider when activeId changes
   useEffect(() => {
     if (!activeId) return;
-    applyValues(activeId);
-  }, [activeId, applyValues]);
+    applyActiveValues(activeId);
+  }, [activeId, applyActiveValues]);
 
   const onMouseLeave = useCallback(() => {
-    if (activeId) {
-      applyValues(activeId);
-      return;
+    if (hoverScope.current) {
+      hoverAnimate(hoverScope.current, { opacity: 0 }, { duration: 0.15 });
     }
-    if (scope.current) {
-      animate(scope.current, { opacity: 0 }, { duration: 0.15 });
-    }
-  }, [activeId, applyValues, animate, scope]);
+  }, [hoverAnimate, hoverScope]);
 
   const setRef = useCallback(
     (id: string) => (el: HTMLElement | null) => {
@@ -91,7 +109,8 @@ export default function useHoverIndicator(
 
   return {
     containerRef,
-    indicatorRef: scope,
+    hoverIndicatorRef: hoverScope,
+    activeIndicatorRef: activeScope,
     setRef,
     onMouseEnter,
     onMouseLeave,

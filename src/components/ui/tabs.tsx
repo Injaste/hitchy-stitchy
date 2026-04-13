@@ -4,7 +4,7 @@ import { Tabs as TabsPrimitive } from "radix-ui";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
-import useHoverIndicator from "@/lib/hooks/use-hover-indicator";
+import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
 import ComponentSlide from "../animations/animate-component-slide";
 
 interface TabsIndicatorContextValue {
@@ -108,8 +108,8 @@ function TabsList({
   VariantProps<typeof tabsListVariants> & {
     activeValue?: string;
   }) {
-  const { containerRef, indicatorRef, setRef, onMouseEnter, onMouseLeave } =
-    useHoverIndicator("horizontal", activeValue);
+  const { containerRef, hoverIndicatorRef, activeIndicatorRef, setRef, onMouseEnter, onMouseLeave } =
+    useIndicatorSlider("horizontal", activeValue);
 
   return (
     <TabsIndicatorContext.Provider value={{ setRef, onMouseEnter }}>
@@ -121,8 +121,17 @@ function TabsList({
         className={cn(tabsListVariants({ variant }), "relative", className)}
         {...props}
       >
+        {/* Active slider */}
+        {activeValue && (
+          <motion.div
+            ref={activeIndicatorRef}
+            className="absolute top-1 bottom-1 bg-primary/20 rounded-md z-0 pointer-events-none"
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          />
+        )}
+        {/* Hover slider */}
         <motion.div
-          ref={indicatorRef}
+          ref={hoverIndicatorRef}
           className="absolute top-1 bottom-1 bg-background/50 rounded-md z-0 pointer-events-none opacity-0"
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
@@ -149,9 +158,7 @@ function TabsTrigger({
       value={value}
       className={cn(
         "gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg:not([class*='size-'])]:size-4 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground/60 hover:text-foreground relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-        "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-        "data-active:bg-background data-active:text-foreground",
-        "after:bg-foreground after:absolute after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "group-data-[variant=line]/tabs-list:bg-transparent",
         "z-10",
         className,
       )}

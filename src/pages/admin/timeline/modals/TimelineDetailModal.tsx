@@ -35,7 +35,7 @@ const TimelineDetailModal = () => {
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent className="w-[95vw] max-w-lg">
         <DialogHeader>
-          <DialogTitle >{item.title}</DialogTitle>
+          <DialogTitle>{item.title}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
             {item.description}
           </DialogDescription>
@@ -47,7 +47,12 @@ const TimelineDetailModal = () => {
             <span>{timeLabel}</span>
             <span>·</span>
             <span>{dateLabel}</span>
-            {item.label && <Badge variant="outline">{item.label}</Badge>}
+            {item.label && (
+              <>
+                <span>·</span>
+                <Badge variant="outline">{item.label}</Badge>
+              </>
+            )}
           </div>
 
           <Separator />
@@ -59,7 +64,7 @@ const TimelineDetailModal = () => {
               Notes
             </p>
             {item.notes ? (
-              <div className="text-sm bg-primary/5 p-3 rounded-md text-primary border border-primary/10 leading-relaxed">
+              <div className="text-sm bg-primary/5 p-3 rounded-md text-primary border border-primary/10 leading-relaxed whitespace-pre-line">
                 {item.notes}
               </div>
             ) : (

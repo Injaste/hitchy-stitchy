@@ -37,7 +37,7 @@ export function HowItWorks() {
               className="flex gap-10 items-start py-12"
             >
               <div className="shrink-0 w-14 h-14 rounded-full border-2 border-primary/30 bg-primary/5 flex items-center justify-center">
-                <span className="font-bold text-primary text-lg">
+                <span className="font-display font-bold text-primary text-lg">
                   {step.number}
                 </span>
               </div>

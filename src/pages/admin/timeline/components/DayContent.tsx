@@ -35,18 +35,23 @@ const LabelCarousel: FC<{
   return (
     <div className={cn("relative flex gap-4", isNotLastItem && "pb-10")}>
       <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
-      <Circle className="size-5 text-primary/50 bg-background z-1" />
+      <Circle className="size-5 text-primary/70 bg-background z-1" />
 
       <div className="space-y-2">
         <p className="text-sm">
           {group.label && (
-            <span className="font-semibold text-foreground">
-              {group.label}
-            </span>
+            <>
+              <span className="font-semibold text-foreground">
+                {group.label}
+              </span>
+              {timeRange && (
+                <span className="text-muted-foreground"> · {timeRange}</span>
+              )}
+            </>
           )}
-          <span className="text-muted-foreground">
-            {timeRange && ` · ${timeRange}`}
-          </span>
+          {!group.label && timeRange && (
+            <span className="text-muted-foreground">{timeRange}</span>
+          )}
         </p>
 
         <div className="-mx-1">
@@ -95,7 +100,7 @@ const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
   return (
     <div className="space-y-10">
       <div className="flex flex-col gap-1 font-medium">
-        <div>Day 1{`: ${"Event"}`}</div>
+        <h2 className="text-base">Day 1{`: ${"Event"}`}</h2>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="text-foreground">{formatTime(earliest)}</span>
           <span>–</span>

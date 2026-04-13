@@ -39,18 +39,20 @@ const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
             </div>
 
             {item.description && (
-              <CardDescription className="line-clamp-2 mt-1">
+              <CardDescription className="line-clamp-3 mt-1">
                 {item.description}
               </CardDescription>
             )}
 
             {item.notes && (
-              <div className="mt-auto pt-1.5 flex gap-2 items-center bg-secondary/30 p-2 rounded">
+              <div
+                className={`flex gap-2 items-center bg-secondary/30 p-2 rounded ${item.description ? "mt-auto pt-1.5" : "mt-1"}`}
+              >
                 <StickyNote
                   strokeWidth={2.5}
                   className="size-3 text-muted-foreground/80"
                 />
-                <span className="line-clamp-1 text-muted-foreground/80 text-xs">
+                <span className="line-clamp-1 text-muted-foreground/80 text-xs whitespace-pre-line">
                   {item.notes}
                 </span>
               </div>

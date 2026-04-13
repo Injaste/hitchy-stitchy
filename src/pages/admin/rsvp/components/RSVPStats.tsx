@@ -23,7 +23,7 @@ export function RSVPStats({ rsvps }: RSVPStatsProps) {
       {stats.map((stat) => (
         <div key={stat.label} className="rounded-xl border border-border bg-card p-3 text-center">
           <stat.icon className={`h-5 w-5 mx-auto mb-1 ${stat.className}`} />
-          <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+          <p className="font-display text-2xl font-bold text-foreground">{stat.value}</p>
           <p className="text-xs text-muted-foreground">{stat.label}</p>
         </div>
       ))}

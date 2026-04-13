@@ -80,7 +80,7 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
                   <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
                     Active
                   </p>
-                  <p className="text-lg font-bold text-foreground leading-none">
+                  <p className="font-display text-lg font-bold text-foreground leading-none">
                     {eventsCount.active}
                   </p>
                 </div>
@@ -93,7 +93,7 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
                   <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
                     Upcoming
                   </p>
-                  <p className="text-lg font-bold text-foreground leading-none">
+                  <p className="font-display text-lg font-bold text-foreground leading-none">
                     {eventsCount.upcoming}
                   </p>
                 </div>

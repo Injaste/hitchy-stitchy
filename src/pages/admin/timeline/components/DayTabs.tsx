@@ -40,7 +40,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                       active && "shadow-sm",
                     )}
                   >
-                    <span className="text-sm">{format(date, "d MMM")}</span>
+                    <span className="font-display text-sm font-bold">{format(date, "d MMM")}</span>
                     <span className="text-2xs opacity-70">
                       {format(date, "EEE")}
                     </span>

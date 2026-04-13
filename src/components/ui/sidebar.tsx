@@ -25,7 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PanelLeftIcon } from "lucide-react";
-import useHoverIndicator from "@/lib/hooks/use-hover-indicator";
+import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -391,8 +391,8 @@ function SidebarContent({
   activeId?: string;
   indicatorClassName?: string;
 }) {
-  const { containerRef, indicatorRef, setRef, onMouseEnter, onMouseLeave } =
-    useHoverIndicator("vertical", activeId);
+  const { containerRef, hoverIndicatorRef, activeIndicatorRef, setRef, onMouseEnter, onMouseLeave } =
+    useIndicatorSlider("vertical", activeId);
 
   return (
     <SidebarHoverContext.Provider value={{ setRef, onMouseEnter }}>
@@ -407,10 +407,22 @@ function SidebarContent({
         )}
         {...props}
       >
+        {/* Active slider */}
+        {activeId && (
+          <motion.div
+            ref={activeIndicatorRef}
+            className={cn(
+              "absolute left-2 right-2 bg-primary/40 rounded-md -z-10 pointer-events-none",
+              indicatorClassName,
+            )}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          />
+        )}
+        {/* Hover slider */}
         <motion.div
-          ref={indicatorRef}
+          ref={hoverIndicatorRef}
           className={cn(
-            "absolute left-2 right-2 bg-primary/70 rounded-md -z-10 pointer-events-none",
+            "absolute left-2 right-2 bg-primary/70 rounded-md -z-10 pointer-events-none opacity-0",
             indicatorClassName,
           )}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -520,7 +532,7 @@ function SidebarMenuItem({
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-all group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:font-medium data-active:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-all group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
   {
     variants: {
       variant: {
@@ -721,7 +733,7 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-sm data-[size=sm]:text-xs data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
+        "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground ring-sidebar-ring outline-hidden group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[size=md]:text-sm data-[size=sm]:text-xs [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
         className,
       )}
       {...props}
