@@ -276,12 +276,16 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
           <form.Field name="notes">
             {(field) => (
               <Textarea
+                placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
-                rows={2}
+                rows={3}
               />
             )}
           </form.Field>
+          <p className="text-xs text-muted-foreground">
+            Supports markdown — **bold**, *italic*, - lists, 1. numbered
+          </p>
         </div>
       </FieldGroup>
 

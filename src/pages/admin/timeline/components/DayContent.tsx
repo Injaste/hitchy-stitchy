@@ -13,7 +13,7 @@ import type { TimelineGroupedDay, TimelineLabelGroup } from "../types";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
-import TimelineItemCard from "./TimelineItemCard";
+import TimelineCard from "./TimelineCard";
 import { Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,29 +32,32 @@ const LabelCarousel: FC<{
       : formatTime(groupStart)
     : null;
 
+  const showTimeRange = group.label
+    ? group.items.length > 1 && !!timeRange
+    : false;
+
   return (
     <div className={cn("relative flex gap-4", isNotLastItem && "pb-10")}>
       <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
-      <Circle className="size-5 text-primary/70 bg-background z-1" />
+      <Circle className="size-5 text-primary/70 bg-background z-1 shrink-0" />
 
-      <div className="space-y-2">
-        <p className="text-sm">
-          {group.label && (
-            <>
-              <span className="font-semibold text-foreground">
-                {group.label}
-              </span>
-              {timeRange && (
-                <span className="text-muted-foreground"> · {timeRange}</span>
-              )}
-            </>
-          )}
-          {!group.label && timeRange && (
-            <span className="text-muted-foreground">{timeRange}</span>
-          )}
-        </p>
+      <div className="space-y-2 min-w-0 flex-1">
+        {group.label && (
+          <p className="text-sm">
+            <span className="font-semibold text-foreground">{group.label}</span>
+            {showTimeRange && (
+              <span className="text-muted-foreground"> · {timeRange}</span>
+            )}
+          </p>
+        )}
 
-        <div className="-mx-1">
+        <div
+          className={cn(
+            "-mx-1",
+
+            !group.label && !showTimeRange && "-my-1.5",
+          )}
+        >
           <div className="relative">
             <div ref={emblaRef} className="overflow-hidden p-1">
               <motion.div variants={container} className="flex gap-3">
@@ -64,7 +67,7 @@ const LabelCarousel: FC<{
                     key={item.id}
                     className="shrink-0 w-72 self-stretch"
                   >
-                    <TimelineItemCard item={item} />
+                    <TimelineCard item={item} />
                   </motion.div>
                 ))}
               </motion.div>

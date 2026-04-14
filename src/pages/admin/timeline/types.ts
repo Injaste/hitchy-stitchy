@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export interface TimelineItem {
+export interface Timeline {
   id: string
   event_id: string
   day: string        // "yyyy-MM-dd"
@@ -16,7 +16,7 @@ export interface TimelineItem {
 
 export interface TimelineLabelGroup {
   label: string | null
-  items: TimelineItem[]
+  items: Timeline[]
 }
 
 export interface TimelineGroupedDay {

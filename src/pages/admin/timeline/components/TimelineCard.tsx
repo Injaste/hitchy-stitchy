@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { Clock, StickyNote } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 import {
   Card,
@@ -10,14 +11,15 @@ import {
 import { formatTimeRange } from "@/lib/utils/utils-time";
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
-import type { TimelineItem } from "../types";
+import type { Timeline } from "../types";
 import { Button } from "@/components/ui/button";
+import Markdown from "@/components/custom/markdown";
 
-interface TimelineItemCardProps {
-  item: TimelineItem;
+interface TimelineCardProps {
+  item: Timeline;
 }
 
-const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
+const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
 
   const timeLabel = formatTimeRange(item.time_start, item.time_end);
@@ -46,15 +48,15 @@ const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
 
             {item.notes && (
               <div
-                className={`flex gap-2 items-center bg-secondary/30 p-2 rounded ${item.description ? "mt-auto pt-1.5" : "mt-2"}`}
+                className={`flex gap-2 items-center bg-secondary/30 p-2 rounded ${item.description ? "mt-auto" : "mt-2"}`}
               >
                 <StickyNote
-                  strokeWidth={2.5}
+                  strokeWidth={3}
                   className="size-3 text-muted-foreground/80"
                 />
-                <span className="line-clamp-1 text-muted-foreground/80 text-xs whitespace-pre-line">
-                  {item.notes}
-                </span>
+                <div className="line-clamp-1 text-muted-foreground/80 text-xs">
+                  <Markdown content={item.notes} />
+                </div>
               </div>
             )}
           </CardHeader>
@@ -64,4 +66,4 @@ const TimelineItemCard: FC<TimelineItemCardProps> = ({ item }) => {
   );
 };
 
-export default TimelineItemCard;
+export default TimelineCard;

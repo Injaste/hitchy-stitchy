@@ -1,13 +1,13 @@
 import { addDays } from "date-fns";
 
 import { parseLocalDate } from "@/lib/utils/utils-time";
-import type { TimelineItem, TimelineGroupedDay } from "./types";
+import type { Timeline, TimelineGroupedDay } from "./types";
 
-export function getEarliestTime(items: TimelineItem[]): string {
+export function getEarliestTime(items: Timeline[]): string {
   return items.reduce((acc, item) => (item.time_start < acc ? item.time_start : acc), items[0]?.time_start ?? "");
 }
 
-export function getLatestTime(items: TimelineItem[]): string {
+export function getLatestTime(items: Timeline[]): string {
   return items.reduce((acc, item) => {
     const t = item.time_end ?? item.time_start;
     return t > acc ? t : acc;
@@ -36,7 +36,7 @@ function groupBy<T>(arr: T[], key: (item: T) => string): Map<string, T[]> {
   }, new Map<string, T[]>());
 }
 
-export function groupTimeline(items: TimelineItem[]): TimelineGroupedDay[] {
+export function groupTimeline(items: Timeline[]): TimelineGroupedDay[] {
   const byDay = groupBy(items, (i) => i.day);
 
   return [...byDay.entries()]

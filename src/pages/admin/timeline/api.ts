@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import type {
-  TimelineItem,
+  Timeline,
   TimelineGroupedDay,
   CreateTimelineItemPayload,
   UpdateTimelineItemPayload,
@@ -18,10 +18,10 @@ export async function fetchTimeline(eventId: string): Promise<TimelineGroupedDay
   if (error) throw new Error(error.message)
   if (!data?.length) return []
 
-  return groupTimeline(data as TimelineItem[])
+  return groupTimeline(data as Timeline[])
 }
 
-export async function createTimelineItem(payload: CreateTimelineItemPayload): Promise<TimelineItem> {
+export async function createTimelineItem(payload: CreateTimelineItemPayload): Promise<Timeline> {
   const { data, error } = await supabase.rpc("create_timeline_item", {
     p_event_id: payload.event_id,
     p_day: payload.day,
@@ -34,7 +34,7 @@ export async function createTimelineItem(payload: CreateTimelineItemPayload): Pr
     p_assignees: payload.assignees,
   })
   if (error) throw new Error(error.message)
-  return data as TimelineItem
+  return data as Timeline
 }
 
 export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Promise<void> {
