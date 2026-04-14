@@ -70,7 +70,7 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
 
   return (
     <Card
-      className={cn("relative cursor-pointer overflow-visible", statusCard[task.status])}
+      className={cn("relative cursor-pointer overflow-visible w-full max-w-md", statusCard[task.status])}
       onClick={() => openDetail(task)}
     >
       <div
