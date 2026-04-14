@@ -4,20 +4,32 @@ import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { parseLocalDate } from "@/lib/utils/utils-time";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
 import type { Task, TaskPriority, TaskStatus } from "../types";
-import NotesMarkdown from "@/components/custom/notes-markdown";
 
 interface TaskCardProps {
   task: Task;
 }
 
-const priorityAccent: Record<TaskPriority, string> = {
+const priorityBar: Record<TaskPriority, string> = {
   high: "bg-destructive/60",
   medium: "bg-primary/50",
   low: "bg-secondary/40",
+};
+
+const statusCard: Record<TaskStatus, string> = {
+  todo: "",
+  in_progress: "ring-primary/30",
+  done: "opacity-60",
 };
 
 const nextStatus: Record<TaskStatus, TaskStatus> = {
@@ -57,51 +69,53 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
   }
 
   return (
-    <div
+    <Card
+      className={cn("relative cursor-pointer overflow-visible", statusCard[task.status])}
       onClick={() => openDetail(task)}
-      className="relative bg-card rounded-xl ring-1 ring-foreground/5 px-5 py-4 cursor-pointer transition-shadow hover:shadow-sm hover:ring-primary/20 overflow-hidden"
     >
       <div
         className={cn(
           "absolute left-0 inset-y-2 w-1 rounded-full",
-          task.priority ? priorityAccent[task.priority] : "bg-border",
+          task.priority ? priorityBar[task.priority] : "bg-border",
         )}
       />
 
-      <div className={cn("flex items-start gap-4", isDone && "opacity-50")}>
-        <button
-          onClick={handleToggle}
-          className="shrink-0 mt-0.5"
-          aria-label="Toggle task status"
-        >
-          {statusEl}
-        </button>
-
-        <div className="flex-1 space-y-1.5">
-          <p
-            className={cn(
-              "font-display text-sm font-medium leading-snug",
-              isDone ? "text-muted-foreground line-through" : "text-foreground",
-            )}
+      <CardHeader className="pl-6">
+        <div className="flex items-start gap-3">
+          <button
+            onClick={handleToggle}
+            className="shrink-0 mt-0.5"
+            aria-label="Toggle task status"
           >
-            {task.title}
-          </p>
+            {statusEl}
+          </button>
 
-          {task.details && (
-            <div className="mt-2">
-              <NotesMarkdown minified={true} content={task.details} />
-            </div>
-          )}
+          <div className="flex-1 space-y-1.5 min-w-0">
+            <CardTitle
+              className={cn(
+                "text-sm",
+                isDone ? "line-through text-muted-foreground" : "text-foreground",
+              )}
+            >
+              {task.title}
+            </CardTitle>
 
-          {task.due_at && (
-            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
-              <Calendar className="w-3 h-3" />
-              {format(parseLocalDate(task.due_at), "d MMM yyyy")}
-            </span>
-          )}
+            {task.details && (
+              <CardDescription>
+                <NotesMarkdown minified content={task.details} />
+              </CardDescription>
+            )}
+
+            {task.due_at && (
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
+                <Calendar className="w-3 h-3" />
+                {format(parseLocalDate(task.due_at), "d MMM yyyy")}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </CardHeader>
+    </Card>
   );
 };
 

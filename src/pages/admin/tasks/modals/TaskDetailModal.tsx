@@ -30,7 +30,7 @@ const TaskDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent className="w-[95vw] max-w-lg">
+      <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
         <DialogHeader>
           <DialogTitle>{task.title}</DialogTitle>
         </DialogHeader>
