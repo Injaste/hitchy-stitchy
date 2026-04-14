@@ -63,7 +63,6 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
       time_end: defaultValues?.time_end ?? "",
       title: defaultValues?.title ?? "",
       description: defaultValues?.description ?? "",
-      notes: defaultValues?.notes ?? "",
       assignees: defaultValues?.assignees ?? [],
     },
     validators: {
@@ -250,30 +249,12 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
 
         <div className="space-y-1.5">
           <Label>
-            Description{" "}
+            Additional Items{" "}
             <span className="text-muted-foreground font-normal">
               (optional)
             </span>
           </Label>
           <form.Field name="description">
-            {(field) => (
-              <Textarea
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                rows={2}
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label>
-            Notes{" "}
-            <span className="text-muted-foreground font-normal">
-              (optional)
-            </span>
-          </Label>
-          <form.Field name="notes">
             {(field) => (
               <Textarea
                 placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}

@@ -32,10 +32,6 @@ const LabelCarousel: FC<{
       : formatTime(groupStart)
     : null;
 
-  const showTimeRange = group.label
-    ? group.items.length > 1 && !!timeRange
-    : false;
-
   return (
     <div className={cn("relative flex gap-4", isNotLastItem && "pb-10")}>
       <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
@@ -45,19 +41,10 @@ const LabelCarousel: FC<{
         {group.label && (
           <p className="text-sm">
             <span className="font-semibold text-foreground">{group.label}</span>
-            {showTimeRange && (
-              <span className="text-muted-foreground"> · {timeRange}</span>
-            )}
           </p>
         )}
 
-        <div
-          className={cn(
-            "-mx-1",
-
-            !group.label && !showTimeRange && "-my-1.5",
-          )}
-        >
+        <div className={cn("-mx-1", !group.label && "-my-1.5")}>
           <div className="relative">
             <div ref={emblaRef} className="overflow-hidden p-1">
               <motion.div variants={container} className="flex gap-3">

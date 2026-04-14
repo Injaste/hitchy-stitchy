@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { parseLocalDate } from "@/lib/utils/utils-time";
 import { motion } from "framer-motion";
 
-import { cn } from "@/lib/utils";
 import { itemFadeIn } from "@/lib/animations";
 
 import type { TimelineGroupedDay } from "../types";
@@ -35,12 +34,11 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                   <Button
                     onClick={() => onSelect(d.day)}
                     variant={active ? "default" : "outline"}
-                    className={cn(
-                      "flex flex-col h-auto! py-3 px-6",
-                      active && "shadow-sm",
-                    )}
+                    className="flex flex-col h-auto! py-3 px-6"
                   >
-                    <span className="font-display text-sm font-bold">{format(date, "d MMM")}</span>
+                    <span className="font-display text-sm font-bold">
+                      {format(date, "d MMM")}
+                    </span>
                     <span className="text-2xs opacity-70">
                       {format(date, "EEE")}
                     </span>

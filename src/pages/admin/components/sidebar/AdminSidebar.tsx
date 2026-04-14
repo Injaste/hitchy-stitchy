@@ -158,7 +158,7 @@ const AdminSidebar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground capitalize">
+                  <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground capitalize">
                     {memberRoleShortName.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">

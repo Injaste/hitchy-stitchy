@@ -5,7 +5,6 @@ import { StickyNote } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -34,12 +33,9 @@ const TimelineDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent className="w-[95vw] max-w-lg">
+      <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
         <DialogHeader>
           <DialogTitle>{item.title}</DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-            {item.description}
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-1">
@@ -62,9 +58,9 @@ const TimelineDetailModal = () => {
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
               <StickyNote strokeWidth={3} className="w-3 h-3" />
-              Notes
+              Additional Items
             </p>
-            <NotesMarkdown content={item.notes} />
+            <NotesMarkdown content={item.description} />
           </div>
 
           {/* Assignees */}
@@ -86,10 +82,7 @@ const TimelineDetailModal = () => {
           <Separator />
 
           {/* Footer — createdAt + actions */}
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">
-              Added {format(new Date(item.created_at), "d MMM yyyy")}
-            </p>
+          <div className="flex items-center justify-end gap-4">
             <div className="flex gap-2">
               {canDelete("timeline") && (
                 <Button variant="destructive" size="sm" onClick={openDelete}>

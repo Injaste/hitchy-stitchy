@@ -3,9 +3,9 @@ import { Clock } from "lucide-react";
 
 import {
   Card,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { formatTimeRange } from "@/lib/utils/utils-time";
 
@@ -33,22 +33,14 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
       <Button variant="card" size="free" className="mt-2 flex-1">
         <Card className="h-full" onClick={() => openDetail(item)}>
           <CardHeader className="flex-1 flex flex-col">
-            <div className="flex items-start justify-between gap-2">
-              <CardTitle className="text-secondary leading-snug">
-                {item.title}
-              </CardTitle>
-            </div>
+            <CardTitle className="text-secondary leading-snug">
+              {item.title}
+            </CardTitle>
 
             {item.description && (
-              <CardDescription className="line-clamp-3 mt-1 leading-relaxed">
-                {item.description}
+              <CardDescription className="pt-1.5 h-full w-full text-accent">
+                <NotesMarkdown content={item.description} minified />
               </CardDescription>
-            )}
-
-            {item.notes && (
-              <div className="mt-auto pt-1.5">
-                <NotesMarkdown content={item.notes} minified />
-              </div>
             )}
           </CardHeader>
         </Card>
