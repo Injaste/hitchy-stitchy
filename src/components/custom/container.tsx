@@ -1,14 +1,24 @@
 import { cn } from "@/lib/utils";
 import { type FC, type ReactNode } from "react";
 
-interface ChildrenProps {
-  size?: "default";
+const sizeMap = {
+  sm: "max-w-xl",
+  md: "max-w-2xl",
+  default: "max-w-5xl",
+  lg: "max-w-6xl",
+  full: "max-w-full",
+} as const;
+
+type ContainerSize = keyof typeof sizeMap;
+
+interface ContainerProps {
+  size?: ContainerSize;
   className?: string;
   children: ReactNode;
   centred?: boolean;
 }
 
-const Container: FC<ChildrenProps> = ({
+const Container: FC<ContainerProps> = ({
   size = "default",
   className,
   children,
@@ -18,8 +28,7 @@ const Container: FC<ChildrenProps> = ({
     <div
       className={cn(
         "w-full",
-        size === "default" && "max-w-5xl",
-        size === "default" && "max-w-5xl",
+        sizeMap[size],
         centred && "mx-auto",
         className,
       )}

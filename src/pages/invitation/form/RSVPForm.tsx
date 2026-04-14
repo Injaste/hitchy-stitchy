@@ -450,7 +450,7 @@ const RSVPForm = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onCancel}
-            className="h-12 rounded-full text-[11px] font-bold text-muted-foreground uppercase tracking-widest hover:bg-primary/10"
+            className="h-12 rounded-full text-xs font-bold text-muted-foreground uppercase tracking-widest hover:bg-primary/10"
           >
             Cancel
           </motion.button>

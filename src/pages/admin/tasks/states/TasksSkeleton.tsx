@@ -14,7 +14,7 @@ const TasksSkeleton = () => (
         {/* Task cards — match px-5 py-4 dimensions */}
         <div className="flex flex-col gap-3">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-[68px] w-full rounded-xl" />
+            <Skeleton key={i} className="h-[72px] w-full rounded-xl" />
           ))}
         </div>
       </div>

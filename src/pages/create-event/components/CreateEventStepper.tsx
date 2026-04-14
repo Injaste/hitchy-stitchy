@@ -58,7 +58,7 @@ const CreateEventStepper: FC<CreateEventStepperProps> = ({ activeStep }) => {
 
               <span
                 className={cn(
-                  "text-[11px] uppercase tracking-widest transition-colors",
+                  "text-xs uppercase tracking-widest transition-colors",
                   isActive ? "text-primary font-bold" : "text-muted-foreground",
                 )}
               >

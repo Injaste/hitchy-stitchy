@@ -1,3 +1,5 @@
+import Container from "@/components/custom/container"
+
 import { useTasksQuery } from "./queries"
 import TasksHeader from "./components/TasksHeader"
 import TasksView from "./components/TasksView"
@@ -15,13 +17,15 @@ const Tasks = () => {
         refetch={refetch}
         data={data}
       />
-      <TasksView
-        data={data}
-        isLoading={isLoading}
-        isError={isError}
-        refetch={refetch}
-        isRefetching={isRefetching}
-      />
+      <Container size="md" centred={false}>
+        <TasksView
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+          refetch={refetch}
+          isRefetching={isRefetching}
+        />
+      </Container>
       <TaskModals />
     </div>
   )

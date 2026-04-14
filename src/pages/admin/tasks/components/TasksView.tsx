@@ -66,7 +66,7 @@ const TasksView: FC<TasksViewProps> = ({
 
     return (
       <ComponentFade key="content">
-        <div className="space-y-10">
+        <div className="space-y-12">
           {grouped.map(({ status, label, tasks }) => (
             <TasksSection key={status} label={label} tasks={tasks} />
           ))}

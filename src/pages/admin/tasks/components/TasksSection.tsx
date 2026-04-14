@@ -16,14 +16,16 @@ const TasksSection: FC<TasksSectionProps> = ({ label, tasks }) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <span className="text-[11px] font-medium text-muted-foreground/50 tracking-widest uppercase shrink-0 font-sans">
-          {label}
-        </span>
-        <div className="flex-1 h-px bg-border/50" />
-        <span className="text-[11px] text-muted-foreground/40 tabular-nums shrink-0">
-          {tasks.length}
-        </span>
+      <div className="space-y-2">
+        <div className="flex items-baseline">
+          <span className="text-sm font-display font-medium text-foreground/70">
+            {label}
+          </span>
+          <span className="ml-2 text-xs text-muted-foreground tabular-nums">
+            {tasks.length}
+          </span>
+        </div>
+        <div className="h-px bg-border/50" />
       </div>
 
       <motion.div
