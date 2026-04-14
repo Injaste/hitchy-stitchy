@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import ReactMarkdown from "react-markdown";
 import { parseLocalDate, formatTimeRange } from "@/lib/utils/utils-time";
 import { StickyNote } from "lucide-react";
 
@@ -16,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
-import Markdown from "@/components/custom/markdown";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 const TimelineDetailModal = () => {
   const isDetailOpen = useTimelineModalStore((s) => s.isDetailOpen);
@@ -65,15 +64,7 @@ const TimelineDetailModal = () => {
               <StickyNote strokeWidth={3} className="w-3 h-3" />
               Notes
             </p>
-            {item.notes ? (
-              <div className="text-sm bg-primary/5 p-3 rounded-md border border-primary/10">
-                <Markdown content={item.notes} />
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground/50 italic">
-                No notes added
-              </p>
-            )}
+            <NotesMarkdown content={item.notes} />
           </div>
 
           {/* Assignees */}

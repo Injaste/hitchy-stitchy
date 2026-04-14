@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
 import { useAccess } from "../../hooks/useAccess"
+import NotesMarkdown from "@/components/custom/notes-markdown"
 import { useTaskModalStore } from "../hooks/useTaskModalStore"
 import { PRIORITY_LABELS, STATUS_LABELS } from "../types"
 
@@ -61,13 +62,7 @@ const TaskDetailModal = () => {
               <StickyNote className="w-3 h-3" />
               Notes
             </p>
-            {task.description ? (
-              <div className="text-sm bg-primary/5 p-3 rounded-md text-primary border border-primary/10 leading-relaxed">
-                {task.description}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground/50 italic">No notes added</p>
-            )}
+            <NotesMarkdown content={task.description} />
           </div>
 
           <Separator />
