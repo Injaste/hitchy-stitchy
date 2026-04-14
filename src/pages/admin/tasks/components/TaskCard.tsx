@@ -86,6 +86,12 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
             {task.title}
           </p>
 
+          {task.description && (
+            <p className="text-xs text-muted-foreground line-clamp-3 mt-1 leading-relaxed">
+              {task.description}
+            </p>
+          )}
+
           {task.due_at && (
             <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
               <Calendar className="w-3 h-3" />

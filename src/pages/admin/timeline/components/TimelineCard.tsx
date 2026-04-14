@@ -1,6 +1,5 @@
 import type { FC } from "react";
-import { Clock, StickyNote } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import { Clock } from "lucide-react";
 
 import {
   Card,
@@ -13,7 +12,7 @@ import { formatTimeRange } from "@/lib/utils/utils-time";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import type { Timeline } from "../types";
 import { Button } from "@/components/ui/button";
-import Markdown from "@/components/custom/markdown";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 interface TimelineCardProps {
   item: Timeline;
@@ -41,22 +40,14 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
             </div>
 
             {item.description && (
-              <CardDescription className="line-clamp-3 mt-1">
+              <CardDescription className="line-clamp-3 mt-1 leading-relaxed">
                 {item.description}
               </CardDescription>
             )}
 
             {item.notes && (
-              <div
-                className={`flex gap-2 items-center bg-secondary/30 p-2 rounded ${item.description ? "mt-auto" : "mt-2"}`}
-              >
-                <StickyNote
-                  strokeWidth={3}
-                  className="size-3 text-muted-foreground/80"
-                />
-                <div className="line-clamp-1 text-muted-foreground/80 text-xs">
-                  <Markdown content={item.notes} />
-                </div>
+              <div className="mt-auto pt-1.5">
+                <NotesMarkdown content={item.notes} minified />
               </div>
             )}
           </CardHeader>
