@@ -40,7 +40,7 @@ const TimelineEditModal = () => {
             time_start: item.time_start,
             time_end: item.time_end ?? "",
             title: item.title,
-            description: item.description ?? "",
+            details: item.details ?? "",
             assignees: item.assignees,
           }}
           onSubmit={handleSubmit}

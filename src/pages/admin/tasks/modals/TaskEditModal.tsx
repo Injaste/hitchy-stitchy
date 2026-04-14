@@ -4,32 +4,32 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { useTaskModalStore } from "../hooks/useTaskModalStore"
-import { useTaskMutations } from "../queries"
-import type { TaskFormValues } from "../types"
+import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useTaskMutations } from "../queries";
+import type { TaskFormValues } from "../types";
 
-import TaskForm from "./TaskForm"
+import TaskForm from "./TaskForm";
 
 const TaskEditModal = () => {
-  const isEditOpen = useTaskModalStore((s) => s.isEditOpen)
-  const selectedItem = useTaskModalStore((s) => s.selectedItem)
-  const closeAll = useTaskModalStore((s) => s.closeAll)
-  const { update } = useTaskMutations()
+  const isEditOpen = useTaskModalStore((s) => s.isEditOpen);
+  const selectedItem = useTaskModalStore((s) => s.selectedItem);
+  const closeAll = useTaskModalStore((s) => s.closeAll);
+  const { update } = useTaskMutations();
 
-  if (!selectedItem) return null
-  const task = selectedItem
+  if (!selectedItem) return null;
+  const task = selectedItem;
 
   const handleSubmit = (values: TaskFormValues) => {
     update.mutate({
       id: task.id,
       title: values.title,
-      description: values.description,
+      details: values.details,
       priority: values.priority,
       due_at: values.due_at,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isEditOpen} onOpenChange={closeAll}>
@@ -41,7 +41,7 @@ const TaskEditModal = () => {
         <TaskForm
           defaultValues={{
             title: task.title,
-            description: task.description ?? "",
+            details: task.details ?? "",
             priority: task.priority,
             due_at: task.due_at,
           }}
@@ -52,7 +52,7 @@ const TaskEditModal = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default TaskEditModal
+export default TaskEditModal;

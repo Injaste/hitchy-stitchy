@@ -1,42 +1,38 @@
-import { format } from "date-fns"
-import { StickyNote, Calendar } from "lucide-react"
+import { format } from "date-fns";
+import { StickyNote, Calendar } from "lucide-react";
 
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-import { useAccess } from "../../hooks/useAccess"
-import NotesMarkdown from "@/components/custom/notes-markdown"
-import { useTaskModalStore } from "../hooks/useTaskModalStore"
-import { PRIORITY_LABELS, STATUS_LABELS } from "../types"
+import { useAccess } from "../../hooks/useAccess";
+import NotesMarkdown from "@/components/custom/notes-markdown";
+import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { PRIORITY_LABELS, STATUS_LABELS } from "../types";
 
 const TaskDetailModal = () => {
-  const isDetailOpen = useTaskModalStore((s) => s.isDetailOpen)
-  const selectedItem = useTaskModalStore((s) => s.selectedItem)
-  const closeAll = useTaskModalStore((s) => s.closeAll)
-  const openEdit = useTaskModalStore((s) => s.openEdit)
-  const openDelete = useTaskModalStore((s) => s.openDelete)
+  const isDetailOpen = useTaskModalStore((s) => s.isDetailOpen);
+  const selectedItem = useTaskModalStore((s) => s.selectedItem);
+  const closeAll = useTaskModalStore((s) => s.closeAll);
+  const openEdit = useTaskModalStore((s) => s.openEdit);
+  const openDelete = useTaskModalStore((s) => s.openDelete);
 
-  const { canUpdate, canDelete } = useAccess()
+  const { canUpdate, canDelete } = useAccess();
 
-  if (!selectedItem) return null
-  const task = selectedItem
+  if (!selectedItem) return null;
+  const task = selectedItem;
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent className="w-[95vw] max-w-lg">
         <DialogHeader>
           <DialogTitle>{task.title}</DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-            {task.description ?? "No description added"}
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-1">
@@ -59,10 +55,10 @@ const TaskDetailModal = () => {
 
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-              <StickyNote className="w-3 h-3" />
-              Notes
+              <StickyNote strokeWidth={3} className="w-3 h-3" />
+              Details
             </p>
-            <NotesMarkdown content={task.description} />
+            <NotesMarkdown content={task.details} />
           </div>
 
           <Separator />
@@ -87,7 +83,7 @@ const TaskDetailModal = () => {
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default TaskDetailModal
+export default TaskDetailModal;

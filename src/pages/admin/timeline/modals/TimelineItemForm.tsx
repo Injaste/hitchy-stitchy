@@ -62,7 +62,7 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
       time_start: defaultValues?.time_start ?? "",
       time_end: defaultValues?.time_end ?? "",
       title: defaultValues?.title ?? "",
-      description: defaultValues?.description ?? "",
+      details: defaultValues?.details ?? "",
       assignees: defaultValues?.assignees ?? [],
     },
     validators: {
@@ -254,7 +254,7 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
               (optional)
             </span>
           </Label>
-          <form.Field name="description">
+          <form.Field name="details">
             {(field) => (
               <Textarea
                 placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}

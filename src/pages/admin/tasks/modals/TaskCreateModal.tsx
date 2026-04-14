@@ -4,37 +4,39 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { useAdminStore } from "@/pages/admin/store/useAdminStore"
-import { useTaskModalStore } from "../hooks/useTaskModalStore"
-import { useTaskMutations } from "../queries"
-import type { TaskFormValues } from "../types"
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useTaskMutations } from "../queries";
+import type { TaskFormValues } from "../types";
 
-import TaskForm from "./TaskForm"
+import TaskForm from "./TaskForm";
 
 const TaskCreateModal = () => {
-  const isCreateOpen = useTaskModalStore((s) => s.isCreateOpen)
-  const closeAll = useTaskModalStore((s) => s.closeAll)
-  const { eventId } = useAdminStore()
-  const { create } = useTaskMutations()
+  const isCreateOpen = useTaskModalStore((s) => s.isCreateOpen);
+  const closeAll = useTaskModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
+  const { create } = useTaskMutations();
 
   const handleSubmit = (values: TaskFormValues) => {
     create.mutate({
       event_id: eventId!,
       title: values.title,
-      description: values.description,
+      details: values.details,
       priority: values.priority,
       due_at: values.due_at,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isCreateOpen} onOpenChange={closeAll}>
       <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
         <DialogHeader>
           <DialogTitle>Add task</DialogTitle>
-          <DialogDescription>Create a new task for this event.</DialogDescription>
+          <DialogDescription>
+            Create a new task for this event.
+          </DialogDescription>
         </DialogHeader>
         <TaskForm
           onSubmit={handleSubmit}
@@ -44,7 +46,7 @@ const TaskCreateModal = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default TaskCreateModal
+export default TaskCreateModal;

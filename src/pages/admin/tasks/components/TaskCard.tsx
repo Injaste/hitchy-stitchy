@@ -1,58 +1,59 @@
-import type { FC, ReactNode } from "react"
-import { Check, Calendar } from "lucide-react"
-import { format } from "date-fns"
+import type { FC, ReactNode } from "react";
+import { Check, Calendar } from "lucide-react";
+import { format } from "date-fns";
 
-import { cn } from "@/lib/utils"
-import { parseLocalDate } from "@/lib/utils/utils-time"
+import { cn } from "@/lib/utils";
+import { parseLocalDate } from "@/lib/utils/utils-time";
 
-import { useTaskModalStore } from "../hooks/useTaskModalStore"
-import { useTaskMutations } from "../queries"
-import type { Task, TaskPriority, TaskStatus } from "../types"
+import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useTaskMutations } from "../queries";
+import type { Task, TaskPriority, TaskStatus } from "../types";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 interface TaskCardProps {
-  task: Task
+  task: Task;
 }
 
 const priorityAccent: Record<TaskPriority, string> = {
   high: "bg-destructive/60",
   medium: "bg-primary/50",
   low: "bg-secondary/40",
-}
+};
 
 const nextStatus: Record<TaskStatus, TaskStatus> = {
   todo: "in_progress",
   in_progress: "done",
   done: "todo",
-}
+};
 
 const TaskCard: FC<TaskCardProps> = ({ task }) => {
-  const openDetail = useTaskModalStore((s) => s.openDetail)
-  const { update } = useTaskMutations()
+  const openDetail = useTaskModalStore((s) => s.openDetail);
+  const { update } = useTaskMutations();
 
   const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    update.mutate({ id: task.id, status: nextStatus[task.status] })
-  }
+    e.stopPropagation();
+    update.mutate({ id: task.id, status: nextStatus[task.status] });
+  };
 
-  const isDone = task.status === "done"
+  const isDone = task.status === "done";
 
-  let statusEl: ReactNode
+  let statusEl: ReactNode;
   if (task.status === "done") {
     statusEl = (
       <div className="w-5 h-5 rounded-full bg-primary/80 flex items-center justify-center shrink-0">
         <Check className="w-3 h-3 text-primary-foreground" strokeWidth={2.5} />
       </div>
-    )
+    );
   } else if (task.status === "in_progress") {
     statusEl = (
       <div className="w-5 h-5 rounded-full bg-primary/30 flex items-center justify-center shrink-0">
         <div className="w-2 h-2 rounded-full bg-primary/70" />
       </div>
-    )
+    );
   } else {
     statusEl = (
       <div className="w-5 h-5 rounded-full border border-border shrink-0" />
-    )
+    );
   }
 
   return (
@@ -86,10 +87,10 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
             {task.title}
           </p>
 
-          {task.description && (
-            <p className="text-xs text-muted-foreground line-clamp-3 mt-1 leading-relaxed">
-              {task.description}
-            </p>
+          {task.details && (
+            <div className="mt-2">
+              <NotesMarkdown minified={true} content={task.details} />
+            </div>
           )}
 
           {task.due_at && (
@@ -101,7 +102,7 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TaskCard
+export default TaskCard;

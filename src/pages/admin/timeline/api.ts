@@ -10,7 +10,7 @@ import { groupTimeline } from "./utils"
 export async function fetchTimeline(eventId: string): Promise<TimelineGroupedDay[]> {
   const { data, error } = await supabase
     .from("event_timelines")
-    .select("id, event_id, day, label, time_start, time_end, title, description, assignees, created_at")
+    .select("id, event_id, day, label, time_start, time_end, title, details, assignees, created_at")
     .eq("event_id", eventId)
     .order("day", { ascending: true })
     .order("time_start", { ascending: true })
@@ -29,7 +29,7 @@ export async function createTimelineItem(payload: CreateTimelineItemPayload): Pr
     p_time_start: payload.time_start,
     p_time_end: payload.time_end,
     p_title: payload.title,
-    p_description: payload.description,
+    p_details: payload.details,
     p_assignees: payload.assignees,
   })
   if (error) throw new Error(error.message)
@@ -45,7 +45,7 @@ export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Pr
       time_start: payload.time_start,
       time_end: payload.time_end,
       title: payload.title,
-      description: payload.description,
+      details: payload.details,
       assignees: payload.assignees,
     })
     .eq("id", payload.id)

@@ -58,9 +58,9 @@ const TimelineDetailModal = () => {
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
               <StickyNote strokeWidth={3} className="w-3 h-3" />
-              Additional Items
+              Details
             </p>
-            <NotesMarkdown content={item.description} />
+            <NotesMarkdown content={item.details} />
           </div>
 
           {/* Assignees */}

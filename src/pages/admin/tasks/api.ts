@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import type { Task, CreateTaskPayload, UpdateTaskPayload } from "./types"
 
-const TASK_FIELDS = "id, event_id, parent_id, created_by, title, description, status, priority, assignees, due_at, start_at, created_at, updated_at"
+const TASK_FIELDS = "id, event_id, parent_id, created_by, title, details, status, priority, assignees, due_at, start_at, created_at, updated_at"
 
 export async function fetchTasks(eventId: string): Promise<Task[]> {
   const { data, error } = await supabase
@@ -21,7 +21,7 @@ export async function createTask(payload: CreateTaskPayload): Promise<Task> {
     .insert({
       event_id: payload.event_id,
       title: payload.title,
-      description: payload.description,
+      details: payload.details,
       priority: payload.priority,
       due_at: payload.due_at,
     })

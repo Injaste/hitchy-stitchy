@@ -1,34 +1,42 @@
-import { useState, type FC } from "react"
-import { useForm } from "@tanstack/react-form"
+import { useState, type FC } from "react";
+import { format, parseISO } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Field,
   FieldContent,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { AnimateItem } from "@/components/animations/forms/field-animate"
-import { DialogClose, DialogFooter } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/field";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
+import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
-import { taskFormSchema, type TaskFormValues } from "../types"
+import { taskFormSchema, type TaskFormValues } from "../types";
 
 interface TaskFormProps {
-  defaultValues?: Partial<TaskFormValues>
-  onSubmit: (values: TaskFormValues) => void
-  onCancel: () => void
-  isPending: boolean
-  submitLabel: string
+  defaultValues?: Partial<TaskFormValues>;
+  onSubmit: (values: TaskFormValues) => void;
+  onCancel: () => void;
+  isPending: boolean;
+  submitLabel: string;
 }
 
 const TaskForm: FC<TaskFormProps> = ({
@@ -38,12 +46,13 @@ const TaskForm: FC<TaskFormProps> = ({
   isPending,
   submitLabel,
 }) => {
-  const [attemptCount, setAttemptCount] = useState(0)
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const form = useForm({
     defaultValues: {
       title: defaultValues?.title ?? "",
-      description: defaultValues?.description ?? "",
+      details: defaultValues?.details ?? "",
       priority: defaultValues?.priority ?? null,
       due_at: defaultValues?.due_at ?? null,
     },
@@ -52,23 +61,23 @@ const TaskForm: FC<TaskFormProps> = ({
       onChange: taskFormSchema,
     },
     onSubmit: ({ value }) => {
-      onSubmit(taskFormSchema.parse(value))
+      onSubmit(taskFormSchema.parse(value));
     },
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setAttemptCount((prev) => prev + 1)
-    form.handleSubmit()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setAttemptCount((prev) => prev + 1);
+    form.handleSubmit();
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 mt-4">
       <FieldGroup className="block space-y-4">
         <form.Field name="title">
           {(field) => {
-            const hasError = Boolean(field.state.meta.errors.length) && attemptCount > 0
+            const hasError = Boolean(field.state.meta.errors.length) && attemptCount > 0;
             return (
               <AnimateItem errors={field.state.meta.errors} hasError={hasError} attemptCount={attemptCount}>
                 <Field data-invalid={hasError} className="gap-2">
@@ -83,19 +92,19 @@ const TaskForm: FC<TaskFormProps> = ({
                   </FieldContent>
                 </Field>
               </AnimateItem>
-            )
+            );
           }}
         </form.Field>
 
         <div className="space-y-1.5">
           <Label>
-            Description{" "}
+            Details{" "}
             <span className="text-muted-foreground font-normal">(optional)</span>
           </Label>
-          <form.Field name="description">
+          <form.Field name="details">
             {(field) => (
               <Textarea
-                placeholder="Additional details…"
+                placeholder="Internal notes, reminders, context…"
                 value={field.state.value ?? ""}
                 onChange={(e) => field.handleChange(e.target.value)}
                 rows={3}
@@ -137,12 +146,31 @@ const TaskForm: FC<TaskFormProps> = ({
                   Due date{" "}
                   <span className="text-muted-foreground font-normal">(optional)</span>
                 </Label>
-                <Input
-                  type="date"
-                  value={field.state.value ?? ""}
-                  onChange={(e) => field.handleChange(e.target.value || null)}
-                  className="[&::-webkit-calendar-picker-indicator]:opacity-50"
-                />
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 font-normal"
+                    >
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      <span className={field.state.value ? "" : "text-muted-foreground"}>
+                        {field.state.value
+                          ? format(parseISO(field.state.value), "d MMM yyyy")
+                          : "Pick a date"}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.state.value ? parseISO(field.state.value) : undefined}
+                      onSelect={(date) => {
+                        field.handleChange(date ? format(date, "yyyy-MM-dd") : null);
+                        setCalendarOpen(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
           </form.Field>
@@ -160,7 +188,7 @@ const TaskForm: FC<TaskFormProps> = ({
         </Button>
       </DialogFooter>
     </form>
-  )
-}
+  );
+};
 
-export default TaskForm
+export default TaskForm;

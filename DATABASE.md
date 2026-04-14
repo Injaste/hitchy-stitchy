@@ -135,7 +135,7 @@ Individual schedule items. Flat — no parent day table.
 | `time_start`  | `time`        | No timezone                                      |
 | `time_end`    | `time`        | Nullable, no timezone                            |
 | `title`       | `text`        |                                                  |
-| `description` | `text`        | Nullable — markdown supported                    |
+| `details`     | `text`        | Nullable — markdown supported                    |
 | `assignees`   | `uuid[]`      | Array of `event_roles.id`, app-level only, no FK |
 | `created_at`  | `timestamptz` | Immutable                                        |
 | `updated_at`  | `timestamptz` | Auto                                             |
@@ -155,7 +155,7 @@ Checklist items. Supports future subtasks via `parent_id`. Ownership tracked via
 | `parent_id`   | `uuid`                | FK → `event_tasks.id`, nullable, cascade delete    |
 | `created_by`  | `uuid`                | FK → `event_members.id`, auto-set via trigger      |
 | `title`       | `text`                |                                                    |
-| `description` | `text`                | Nullable                                           |
+| `details`     | `text`                | Nullable                                           |
 | `status`      | `event_task_status`   | Default `todo`                                     |
 | `priority`    | `event_task_priority` | Nullable                                           |
 | `assignees`   | `uuid[]`              | Array of `event_members.id`, app-level only, no FK |
@@ -326,7 +326,7 @@ event_slugs (slug → id, anon)
 | ---------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------- | --------------- | ------------------------------------------------------ |
 | `create_event`         | `p_slug, p_name, p_date_start, p_date_end, p_display_name, p_role_name, p_role_short_name`           | `TABLE(event_id, member_id, slug)` | definer         | Single transaction: creates event + root role + member |
 | `soft_delete_event`    | `p_event_id uuid`                                                                                    | `void`                             | definer         | Sets `deleted_at = now()`, root only                   |
-| `create_timeline_item` | `p_event_id, p_day, p_label, p_time_start, p_time_end, p_title, p_description, p_assignees` | `event_timelines`                  | definer         | Inserts timeline item, validates event is active       |
+| `create_timeline_item` | `p_event_id, p_day, p_label, p_time_start, p_time_end, p_title, p_details, p_assignees` | `event_timelines`                  | definer         | Inserts timeline item, validates event is active       |
 | `cancel_rsvp`          | `p_event_id uuid, p_phone text, p_cancel_token uuid`                                                 | `void`                             | definer         | Anon guest self-cancellation via token + phone         |
 | `get_rsvp`             | `p_event_id uuid, p_phone text`                                                                      | `event_rsvps`                      | definer, stable | Anon guest reads own RSVP by phone                     |
 

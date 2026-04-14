@@ -9,7 +9,7 @@ export interface Task {
   parent_id: string | null
   created_by: string
   title: string
-  description: string | null
+  details: string | null
   status: TaskStatus
   priority: TaskPriority | null
   assignees: string[]        // event_members.id[]
@@ -21,7 +21,7 @@ export interface Task {
 
 export const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title is too long"),
-  description: z.string().max(2000, "Description is too long").transform((v) => v || null),
+  details: z.string().max(2000, "Details is too long").transform((v) => v || null),
   priority: z.enum(["low", "medium", "high"]).nullable(),
   due_at: z.string().nullable(),
 })
@@ -31,7 +31,7 @@ export type TaskFormValues = z.infer<typeof taskFormSchema>
 export interface CreateTaskPayload {
   event_id: string
   title: string
-  description: string | null
+  details: string | null
   priority: TaskPriority | null
   due_at: string | null
 }
@@ -39,7 +39,7 @@ export interface CreateTaskPayload {
 export interface UpdateTaskPayload {
   id: string
   title?: string
-  description?: string | null
+  details?: string | null
   status?: TaskStatus
   priority?: TaskPriority | null
   due_at?: string | null
