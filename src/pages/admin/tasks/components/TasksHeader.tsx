@@ -35,7 +35,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
 
   return (
     <div className="flex items-center justify-between">
-      <p className="text-sm tracking-wide text-muted-foreground">
+      <p className="text-xs tracking-wide text-muted-foreground/60 font-sans">
         {!isLoading && !isError && total > 0 && (
           <>
             <span>
@@ -50,6 +50,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
           </>
         )}
       </p>
+
       <AnimatePresence mode="wait">
         {showActions && (
           <ComponentFade key="actions">
@@ -57,7 +58,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-muted-foreground"
+                className="text-muted-foreground/60 hover:text-muted-foreground"
                 onClick={handleRefresh}
                 disabled={!canRefresh}
               >

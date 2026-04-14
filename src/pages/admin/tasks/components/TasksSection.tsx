@@ -15,15 +15,22 @@ const TasksSection: FC<TasksSectionProps> = ({ label, tasks }) => {
   if (!tasks.length) return null
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-        {label} <span className="opacity-60">({tasks.length})</span>
-      </h3>
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        <span className="text-[11px] font-medium text-muted-foreground/50 tracking-widest uppercase shrink-0 font-sans">
+          {label}
+        </span>
+        <div className="flex-1 h-px bg-border/50" />
+        <span className="text-[11px] text-muted-foreground/40 tabular-nums shrink-0">
+          {tasks.length}
+        </span>
+      </div>
+
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-3"
       >
         {tasks.map((task) => (
           <motion.div key={task.id} variants={itemFadeUp}>
