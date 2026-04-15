@@ -108,8 +108,14 @@ function TabsList({
   VariantProps<typeof tabsListVariants> & {
     activeValue?: string;
   }) {
-  const { containerRef, hoverIndicatorRef, activeIndicatorRef, setRef, onMouseEnter, onMouseLeave } =
-    useIndicatorSlider("horizontal", activeValue);
+  const {
+    containerRef,
+    hoverIndicatorRef,
+    activeIndicatorRef,
+    setRef,
+    onMouseEnter,
+    onMouseLeave,
+  } = useIndicatorSlider("horizontal", activeValue);
 
   return (
     <TabsIndicatorContext.Provider value={{ setRef, onMouseEnter }}>
@@ -125,14 +131,14 @@ function TabsList({
         {activeValue && (
           <motion.div
             ref={activeIndicatorRef}
-            className="absolute top-1 bottom-1 bg-primary/20 rounded-md z-0 pointer-events-none"
+            className="absolute top-1 bottom-1 bg-secondary/70 rounded-md z-0 pointer-events-none"
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         )}
         {/* Hover slider */}
         <motion.div
           ref={hoverIndicatorRef}
-          className="absolute top-1 bottom-1 bg-background/50 rounded-md z-0 pointer-events-none opacity-0"
+          className="absolute top-1 bottom-1 bg-secondary/40 rounded-md z-0 pointer-events-none opacity-0"
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
         {props.children}
@@ -157,8 +163,8 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       value={value}
       className={cn(
-        "gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg:not([class*='size-'])]:size-4 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground/60 hover:text-foreground relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-        "group-data-[variant=line]/tabs-list:bg-transparent",
+        "gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg:not([class*='size-'])]:size-4 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 cursor-pointer active:bg-secondary",
+        "group-data-[variant=line]/tabs-list:bg-transparent text-muted-foreground data-active:text-foreground",
         "z-10",
         className,
       )}

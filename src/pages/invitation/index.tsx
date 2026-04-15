@@ -28,7 +28,11 @@ const InvitationError = () => (
   </div>
 );
 
-const InvitationContent = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
+const InvitationContent = ({
+  eventConfig,
+}: {
+  eventConfig: PublicEventConfig;
+}) => {
   const containerRef = useRef(null);
 
   const { scrollYProgress } = useScroll({
@@ -65,6 +69,10 @@ const InvitationContent = ({ eventConfig }: { eventConfig: PublicEventConfig }) 
 
 const Invitation = () => {
   const { data: eventConfig, isLoading, error } = usePublicEvent();
+
+  console.log(eventConfig);
+  console.log(error);
+  console.log(isLoading);
 
   if (isLoading) return <InvitationSkeleton />;
   if (error || !eventConfig) return <InvitationError />;

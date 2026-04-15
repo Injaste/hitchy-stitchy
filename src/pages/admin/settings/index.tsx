@@ -9,13 +9,13 @@ import { NotificationsSection } from "./notifications";
 
 const TABS = [
   { id: "event", label: "Event", element: EventSettingsSection },
-  { id: "rsvp", label: "RSVP", element: RSVPConfigSection },
-  { id: "appearance", label: "Appearance", element: AppearanceSection },
-  {
-    id: "notifications",
-    label: "Notifications",
-    element: NotificationsSection,
-  },
+  // { id: "rsvp", label: "RSVP", element: RSVPConfigSection },
+  // { id: "appearance", label: "Appearance", element: AppearanceSection },
+  // {
+  //   id: "notifications",
+  //   label: "Notifications",
+  //   element: NotificationsSection,
+  // },
 ] as const;
 
 type SettingsTabId = (typeof TABS)[number]["id"];
