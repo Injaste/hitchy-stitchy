@@ -32,7 +32,7 @@ export function useTimelineMutations() {
     (payload: CreateTimelineItemPayload) => createTimelineItem(payload),
     {
       successMessage: "Item added",
-      errorMessage: "Failed to add item",
+      errorMessage: (err) => err.message ?? "Failed to add item",
       onSuccess: () => { invalidate(); closeAll() },
     }
   )
