@@ -37,7 +37,7 @@ export const timelineItemFormSchema = z.object({
     "Invalid time format",
   ).transform((val) => (val ? normalizeTime(val) : null)),
   title: z.string().min(1, "Title is required").max(200, "Title is too long"),
-  details: z.string().max(1000, "Description is too long").transform((v) => v || null),
+  details: z.string().max(1000, "Details is too long").transform((v) => v || null),
   assignees: z.array(z.string()),
 }).refine(
   (data) => {
