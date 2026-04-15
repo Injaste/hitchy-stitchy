@@ -35,7 +35,7 @@ const AdminTopbar = () => {
         className="fixed top-0 right-0 z-50"
         style={{ left: isMobile ? 0 : SidebarWidth }}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 h-14 shrink-0">
+        <div className="flex items-center justify-between gap-3 bg-background border-b border-border px-4 h-14 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {isMobile && (
               <>
