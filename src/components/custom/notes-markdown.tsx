@@ -21,7 +21,7 @@ const NotesMarkdown = ({ content, minified = false }: NotesMarkdownProps) => {
     return (
       <div
         className={cn(
-          "text-xs bg-primary/5 px-1.5 py-0.5 rounded-md border border-primary/10 line-clamp-2 h-full",
+          "text-xs bg-primary/5 px-1.5 py-0.5 rounded-md border border-primary/10 h-full",
           markdownClass,
         )}
       >
