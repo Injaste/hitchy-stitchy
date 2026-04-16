@@ -45,7 +45,8 @@ export interface UpdateTaskPayload {
   due_at?: string | null
 }
 
-export const STATUS_ORDER: TaskStatus[] = ["in_progress", "todo", "done"]
+export const STATUS_ORDER_MOBILE: TaskStatus[] = ["in_progress", "todo", "done"]
+export const STATUS_ORDER_DESKTOP: TaskStatus[] = ["todo", "in_progress", "done"]
 
 export const STATUS_LABELS: Record<TaskStatus, string> = {
   in_progress: "In progress",

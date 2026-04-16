@@ -49,25 +49,26 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
     <div className="flex items-center justify-between">
       <p className="text-sm tracking-wide text-muted-foreground">
         {dateStart && dateEnd && (
-          <>
-            <span>{formatDateRange(dateStart, dateEnd)}</span>
-            {dayCount !== null && (
-              <>
-                <span className="mx-1.5">·</span>
-                <span>
+          <span className="flex flex-col">
+            <span className="whitespace-nowrap">
+              {formatDateRange(dateStart, dateEnd)}
+            </span>
+
+            <span className="flex items-center">
+              {dayCount !== null && (
+                <span className="whitespace-nowrap">
                   {dayCount} {dayCount === 1 ? "day" : "days"}
                 </span>
-              </>
-            )}
-            {itemCount !== undefined && itemCount > 0 && (
-              <>
-                <span className="mx-1.5">·</span>
-                <span>
+              )}
+
+              {itemCount !== undefined && itemCount > 0 && (
+                <span className="whitespace-nowrap">
+                  <span className="mx-1.5">·</span>
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </span>
-              </>
-            )}
-          </>
+              )}
+            </span>
+          </span>
         )}
       </p>
       <AnimatePresence mode="wait">

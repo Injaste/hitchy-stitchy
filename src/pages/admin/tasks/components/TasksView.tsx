@@ -1,22 +1,28 @@
-import { useMemo, type FC } from "react"
-import { AnimatePresence } from "framer-motion"
+import { useMemo, type FC } from "react";
+import { AnimatePresence } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/animate-component-fade"
-import ErrorState from "@/components/custom/error-state"
+import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ErrorState from "@/components/custom/error-state";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useTaskModalStore } from "../hooks/useTaskModalStore"
-import { STATUS_LABELS, STATUS_ORDER, type Task } from "../types"
-import TasksSkeleton from "../states/TasksSkeleton"
-import TasksEmpty from "../states/TasksEmpty"
-import TasksSection from "./TasksSection"
+import { useAccess } from "../../hooks/useAccess";
+import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import {
+  STATUS_LABELS,
+  STATUS_ORDER_DESKTOP,
+  STATUS_ORDER_MOBILE,
+  type Task,
+} from "../types";
+import TasksSkeleton from "../states/TasksSkeleton";
+import TasksEmpty from "../states/TasksEmpty";
+import TasksSection from "./TasksSection";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TasksViewProps {
-  data: Task[] | undefined
-  isLoading: boolean
-  isError: boolean
-  isRefetching: boolean
-  refetch: () => void
+  data: Task[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  isRefetching: boolean;
+  refetch: () => void;
 }
 
 const TasksView: FC<TasksViewProps> = ({
@@ -26,17 +32,20 @@ const TasksView: FC<TasksViewProps> = ({
   refetch,
   isRefetching,
 }) => {
-  const openCreate = useTaskModalStore((s) => s.openCreate)
-  const { canCreate } = useAccess()
+  const openCreate = useTaskModalStore((s) => s.openCreate);
+  const isMobile = useIsMobile();
+  const { canCreate } = useAccess();
 
   const grouped = useMemo(() => {
-    if (!data) return []
-    return STATUS_ORDER.map((status) => ({
+    if (!data) return [];
+    const order = isMobile ? STATUS_ORDER_MOBILE : STATUS_ORDER_DESKTOP;
+
+    return order.map((status) => ({
       status,
       label: STATUS_LABELS[status],
       tasks: data.filter((t) => t.status === status),
-    }))
-  }, [data])
+    }));
+  }, [data, isMobile]);
 
   const renderBody = () => {
     if (isLoading)
@@ -44,7 +53,7 @@ const TasksView: FC<TasksViewProps> = ({
         <ComponentFade key="skeleton">
           <TasksSkeleton />
         </ComponentFade>
-      )
+      );
 
     if (isError)
       return (
@@ -55,14 +64,14 @@ const TasksView: FC<TasksViewProps> = ({
             isRetrying={isRefetching}
           />
         </ComponentFade>
-      )
+      );
 
     if (!data?.length)
       return (
         <ComponentFade key="empty">
           <TasksEmpty onAdd={openCreate} canCreate={canCreate("tasks")} />
         </ComponentFade>
-      )
+      );
 
     return (
       <ComponentFade key="content">
@@ -72,10 +81,10 @@ const TasksView: FC<TasksViewProps> = ({
           ))}
         </div>
       </ComponentFade>
-    )
-  }
+    );
+  };
 
-  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
-}
+  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
+};
 
-export default TasksView
+export default TasksView;

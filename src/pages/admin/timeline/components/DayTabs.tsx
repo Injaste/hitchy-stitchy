@@ -34,7 +34,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                   <Button
                     onClick={() => onSelect(d.day)}
                     variant={active ? "default" : "outline"}
-                    className="flex flex-col h-auto! py-3 px-6"
+                    className="flex flex-col h-auto! py-3 px-6 text"
                   >
                     <span className="font-display text-sm font-bold">
                       {format(date, "d MMM")}

@@ -17,20 +17,14 @@ import TimelineCard from "./TimelineCard";
 import { Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const LabelCarousel: FC<{
+interface LabelCarouselProps {
   group: TimelineLabelGroup;
   isNotLastItem: boolean;
-}> = ({ group, isNotLastItem }) => {
+}
+
+const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
-
-  const groupStart = group.items[0]?.time_start ?? "";
-  const groupEnd = getLatestTime(group.items);
-  const timeRange = groupStart
-    ? groupStart !== groupEnd
-      ? formatTimeRange(groupStart, groupEnd)
-      : formatTime(groupStart)
-    : null;
 
   return (
     <div className={cn("relative flex gap-4", isNotLastItem && "pb-10")}>
@@ -82,7 +76,12 @@ const LabelCarousel: FC<{
   );
 };
 
-const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
+interface DayContentProps {
+  day: TimelineGroupedDay;
+  dayIndex: number;
+}
+
+const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
   const allItems = day.labelGroups.flatMap((g) => g.items);
   const earliest = allItems[0]?.time_start ?? "";
   const latest = getLatestTime(allItems);
@@ -90,11 +89,13 @@ const DayContent: FC<{ day: TimelineGroupedDay }> = ({ day }) => {
   return (
     <div className="space-y-10">
       <div className="flex flex-col gap-1 font-medium">
-        <h2 className="text-base">Day 1{`: ${"Event"}`}</h2>
+        <h2>Day {dayIndex + 1}</h2>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="text-foreground">{formatTime(earliest)}</span>
-          <span>–</span>
-          <span className=" text-foreground">{formatTime(latest)}</span>
+          <span className="flex items-center gap-1 text-foreground">
+            <span>{formatTime(earliest)}</span>
+            <span>–</span>
+            <span>{formatTime(latest)}</span>
+          </span>
           <span>·</span>
           <span>{calculateTimeDuration(earliest, latest)}</span>
         </div>

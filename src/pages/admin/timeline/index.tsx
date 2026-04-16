@@ -9,7 +9,7 @@ const Timeline = () => {
     useTimelineQuery();
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="space-y-8">
       <TimelineHeader
         isLoading={isLoading}
         isError={isError}

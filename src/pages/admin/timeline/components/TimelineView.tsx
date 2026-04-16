@@ -34,7 +34,10 @@ const TimelineView: FC<TimelineViewProps> = ({
 
   const days = data ?? [];
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
-  const activeDay = days.find((d) => d.day === activeDayId) ?? days[0] ?? null;
+  const activeDayIndex = activeDayId
+    ? days.findIndex((d) => d.day === activeDayId)
+    : 0;
+  const activeDay = days[activeDayIndex] ?? days[0] ?? null;
 
   useEffect(() => {
     if (activeDayId && !days.some((d) => d.day === activeDayId)) {
@@ -79,7 +82,7 @@ const TimelineView: FC<TimelineViewProps> = ({
           <AnimatePresence mode="wait">
             {activeDay && (
               <ComponentFade key={activeDay.day}>
-                <DayContent day={activeDay} />
+                <DayContent day={activeDay} dayIndex={activeDayIndex} />
               </ComponentFade>
             )}
           </AnimatePresence>

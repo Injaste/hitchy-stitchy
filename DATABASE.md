@@ -2,7 +2,7 @@
 
 > Source of truth for all Supabase tables, functions, triggers, policies, and permissions.
 > Update this file whenever schema changes are made.
-> Last updated: post health-check rebuild.
+> Last updated: registration feature (event_themes, event_invitation, event_pages).
 
 ---
 
@@ -11,7 +11,7 @@
 | Enum                  | Values                                         |
 | --------------------- | ---------------------------------------------- |
 | `event_role_category` | `root`, `admin`, `couple_attendant`, `general` |
-| `event_rsvp_mode`     | `open`, `pool`, `both`                         |
+| `event_rsvp_mode`     | `public`, `private`, `both`                    |
 | `event_rsvp_status`   | `pending`, `confirmed`, `cancelled`            |
 | `event_task_status`   | `todo`, `in_progress`, `done`                  |
 | `event_task_priority` | `low`, `medium`, `high`                        |
@@ -29,12 +29,14 @@ Core event record. One per wedding. Only table with soft delete.
 | `id`         | `uuid`        | PK                                          |
 | `slug`       | `text`        | Unique, immutable                           |
 | `name`       | `text`        |                                             |
-| `date_start` | `date`        | No timezone                                 |
-| `date_end`   | `date`        | No timezone                                 |
+| `date_start` | `date`        | No timezone — internal/admin use only       |
+| `date_end`   | `date`        | No timezone — internal/admin use only       |
 | `created_by` | `uuid`        | FK → `event_members.id`, immutable once set |
 | `deleted_at` | `timestamptz` | Soft delete, immutable once set             |
 | `created_at` | `timestamptz` | Immutable                                   |
 | `updated_at` | `timestamptz` | Auto                                        |
+
+> `date_start` / `date_end` are for internal administrative purposes only. Public-facing event dates live in `event_invitation`.
 
 ---
 
@@ -116,9 +118,13 @@ Only insert rows that grant access — missing row = no access.
 | `admin`            | `announcements` | ✓   | ✓   | ✓   | ✓   |
 | `couple_attendant` | `announcements` | ✓   | ✓   | ✓   | ✓   |
 | `admin`            | `vendors`       | ✓   | ✓   | ✓   | ✓   |
+| `admin`            | `invitation`    |     | ✓   | ✓   |     |
+| `admin`            | `pages`         | ✓   | ✓   | ✓   | ✓   |
 
 > `general` on `tasks` — C and R from this table. U and D on own rows via ownership RLS policy.
 > All other resources — `general` gets read via `is_event_member` on select policies, no explicit row needed.
+> `invitation` — no create/delete from client. Row lifecycle owned by `create_event` RPC and cascade.
+> `pages` — admin full CRUD. Anon SELECT allowed (invitation page needs the published page).
 
 ---
 
@@ -126,19 +132,19 @@ Only insert rows that grant access — missing row = no access.
 
 Individual schedule items. Flat — no parent day table.
 
-| Column        | Type          | Notes                                            |
-| ------------- | ------------- | ------------------------------------------------ |
-| `id`          | `uuid`        | PK                                               |
-| `event_id`    | `uuid`        | FK → `events.id`, cascade delete                 |
-| `day`         | `date`        | No timezone — groups items by date               |
-| `label`       | `text`        | Nullable, e.g. "Nikah", "Sanding"                |
-| `time_start`  | `time`        | No timezone                                      |
-| `time_end`    | `time`        | Nullable, no timezone                            |
-| `title`       | `text`        |                                                  |
-| `details`     | `text`        | Nullable — markdown supported                    |
-| `assignees`   | `uuid[]`      | Array of `event_roles.id`, app-level only, no FK |
-| `created_at`  | `timestamptz` | Immutable                                        |
-| `updated_at`  | `timestamptz` | Auto                                             |
+| Column       | Type          | Notes                                            |
+| ------------ | ------------- | ------------------------------------------------ |
+| `id`         | `uuid`        | PK                                               |
+| `event_id`   | `uuid`        | FK → `events.id`, cascade delete                 |
+| `day`        | `date`        | No timezone — groups items by date               |
+| `label`      | `text`        | Nullable, e.g. "Nikah", "Sanding"                |
+| `time_start` | `time`        | No timezone                                      |
+| `time_end`   | `time`        | Nullable, no timezone                            |
+| `title`      | `text`        |                                                  |
+| `details`    | `text`        | Nullable — markdown supported                    |
+| `assignees`  | `uuid[]`      | Array of `event_roles.id`, app-level only, no FK |
+| `created_at` | `timestamptz` | Immutable                                        |
+| `updated_at` | `timestamptz` | Auto                                             |
 
 **Grouping order:** `day ASC → time_start ASC → label ASC (nulls last) → created_at ASC`
 
@@ -148,21 +154,21 @@ Individual schedule items. Flat — no parent day table.
 
 Checklist items. Supports future subtasks via `parent_id`. Ownership tracked via `created_by`.
 
-| Column        | Type                  | Notes                                              |
-| ------------- | --------------------- | -------------------------------------------------- |
-| `id`          | `uuid`                | PK                                                 |
-| `event_id`    | `uuid`                | FK → `events.id`, cascade delete                   |
-| `parent_id`   | `uuid`                | FK → `event_tasks.id`, nullable, cascade delete    |
-| `created_by`  | `uuid`                | FK → `event_members.id`, auto-set via trigger      |
-| `title`       | `text`                |                                                    |
-| `details`     | `text`                | Nullable                                           |
-| `status`      | `event_task_status`   | Default `todo`                                     |
-| `priority`    | `event_task_priority` | Nullable                                           |
-| `assignees`   | `uuid[]`              | Array of `event_members.id`, app-level only, no FK |
-| `due_at`      | `date`                | Nullable                                           |
-| `start_at`    | `date`                | Nullable                                           |
-| `created_at`  | `timestamptz`         | Immutable                                          |
-| `updated_at`  | `timestamptz`         | Auto                                               |
+| Column       | Type                  | Notes                                              |
+| ------------ | --------------------- | -------------------------------------------------- |
+| `id`         | `uuid`                | PK                                                 |
+| `event_id`   | `uuid`                | FK → `events.id`, cascade delete                   |
+| `parent_id`  | `uuid`                | FK → `event_tasks.id`, nullable, cascade delete    |
+| `created_by` | `uuid`                | FK → `event_members.id`, auto-set via trigger      |
+| `title`      | `text`                |                                                    |
+| `details`    | `text`                | Nullable                                           |
+| `status`     | `event_task_status`   | Default `todo`                                     |
+| `priority`   | `event_task_priority` | Nullable                                           |
+| `assignees`  | `uuid[]`              | Array of `event_members.id`, app-level only, no FK |
+| `due_at`     | `date`                | Nullable                                           |
+| `start_at`   | `date`                | Nullable                                           |
+| `created_at` | `timestamptz`         | Immutable                                          |
+| `updated_at` | `timestamptz`         | Auto                                               |
 
 ---
 
@@ -277,6 +283,93 @@ Per-member notification preferences. Auto-created via trigger on member insert.
 
 ---
 
+### `event_themes`
+
+Read-only design library. Managed by superuser only — no client mutations.
+Each theme defines a visual style. Its `config` holds default visual values for that theme.
+
+| Column        | Type          | Notes                                              |
+| ------------- | ------------- | -------------------------------------------------- |
+| `id`          | `uuid`        | PK                                                 |
+| `name`        | `text`        | e.g. `"Classic Malay"`                             |
+| `slug`        | `text`        | Unique — used by frontend to render the component  |
+| `description` | `text`        | Nullable                                           |
+| `config`      | `jsonb`       | Default `{}` — default visual config for the theme |
+| `is_active`   | `boolean`     | Default `true`                                     |
+| `created_at`  | `timestamptz` | Immutable                                          |
+| `updated_at`  | `timestamptz` | Auto                                               |
+
+**Unique:** `(slug)`
+
+---
+
+### `event_invitation`
+
+Public-facing invitation content. One per event. Created by `create_event` RPC.
+Holds all content guests see on the invitation page plus RSVP configuration.
+
+| Column                | Type              | Notes                                                    |
+| --------------------- | ----------------- | -------------------------------------------------------- |
+| `id`                  | `uuid`            | PK                                                       |
+| `event_id`            | `uuid`            | FK → `events.id`, cascade delete, unique, immutable      |
+| `couple_names`        | `text`            | Nullable — e.g. `"Danish & Nadia"`                       |
+| `event_date`          | `date`            | Nullable — public-facing ceremony date, no tz            |
+| `event_time_start`    | `text`            | Nullable — display string e.g. `"11:00 AM"`              |
+| `event_time_end`      | `text`            | Nullable                                                 |
+| `venue_name`          | `text`            | Nullable                                                 |
+| `venue_address`       | `text`            | Nullable                                                 |
+| `venue_map_embed_url` | `text`            | Nullable                                                 |
+| `venue_map_link`      | `text`            | Nullable                                                 |
+| `rsvp_mode`           | `event_rsvp_mode` | Default `'public'`                                       |
+| `rsvp_deadline`       | `date`            | Nullable — null means no deadline, no tz                 |
+| `config`              | `jsonb`           | Default (see below) — rsvp form schema + optional fields |
+| `created_at`          | `timestamptz`     | Immutable                                                |
+| `updated_at`          | `timestamptz`     | Auto                                                     |
+
+**`config` default:**
+
+```json
+{
+  "rsvp": {
+    "fields": {
+      "name": { "visible": true, "required": true },
+      "phone": { "visible": true, "required": true },
+      "guestCount": { "visible": true, "required": true, "min": 1, "max": 10 },
+      "message": { "visible": false, "required": false }
+    },
+    "confirmation_message": "We look forward to celebrating with you!"
+  }
+}
+```
+
+> Optional cultural/template-specific fields (attire, blessings, gift registry, etc.) are also stored in `config` as needed. They are absent by default — frontend writes them when relevant.
+
+> `rsvp_deadline` — null means no deadline. No separate enabled flag needed; nullability is the gate.
+
+---
+
+### `event_pages`
+
+User-created invitation pages. Many per event, one published at a time.
+Each page is a customised instance of an `event_themes` design.
+
+| Column         | Type          | Notes                                                        |
+| -------------- | ------------- | ------------------------------------------------------------ |
+| `id`           | `uuid`        | PK                                                           |
+| `event_id`     | `uuid`        | FK → `events.id`, cascade delete, immutable                  |
+| `theme_id`     | `uuid`        | FK → `event_themes.id`, set null on delete, nullable         |
+| `name`         | `text`        | Default `'My Invitation'` — user label e.g. "Nikah Page"     |
+| `is_published` | `boolean`     | Default `false` — only one per event can be true             |
+| `config`       | `jsonb`       | Default `{}` — visual/theme overrides copied from theme seed |
+| `created_at`   | `timestamptz` | Immutable                                                    |
+| `updated_at`   | `timestamptz` | Auto                                                         |
+
+> Partial unique index enforces one published page per event at DB level.
+> Pages are created by the user when selecting a theme — not seeded by `create_event`.
+> `theme_id` set null if theme is deleted — page config is preserved.
+
+---
+
 ## Views
 
 ### `event_slugs`
@@ -295,13 +388,13 @@ as
 grant select on event_slugs to anon;
 ```
 
-Invitation page chain:
+**Invitation page read chain:**
 
 ```
-event_slugs (slug → id, anon)
-  → event_appearance (event_id, anon) — deferred
-  → event_rsvp_config (event_id, anon) — deferred
-  → event_templates (via appearance.template_id, anon) — deferred
+event_slugs (slug → event_id, anon)
+  → event_invitation (event_id, anon) — content + rsvp config
+  → event_pages WHERE is_published = true (event_id, anon) — visual layer
+      → event_themes (theme_id, authenticated) — slug used to render component
 ```
 
 ---
@@ -322,13 +415,13 @@ event_slugs (slug → id, anon)
 
 ### Business Logic (RPC)
 
-| Function               | Args                                                                                                 | Returns                            | Security        | Purpose                                                |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------- | --------------- | ------------------------------------------------------ |
-| `create_event`         | `p_slug, p_name, p_date_start, p_date_end, p_display_name, p_role_name, p_role_short_name`           | `TABLE(event_id, member_id, slug)` | definer         | Single transaction: creates event + root role + member |
-| `soft_delete_event`    | `p_event_id uuid`                                                                                    | `void`                             | definer         | Sets `deleted_at = now()`, root only                   |
-| `create_timeline_item` | `p_event_id, p_day, p_label, p_time_start, p_time_end, p_title, p_details, p_assignees` | `event_timelines`                  | definer         | Inserts timeline item, validates event is active       |
-| `cancel_rsvp`          | `p_event_id uuid, p_phone text, p_cancel_token uuid`                                                 | `void`                             | definer         | Anon guest self-cancellation via token + phone         |
-| `get_rsvp`             | `p_event_id uuid, p_phone text`                                                                      | `event_rsvps`                      | definer, stable | Anon guest reads own RSVP by phone                     |
+| Function               | Args                                                                                       | Returns                            | Security        | Purpose                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------- | --------------- | ------------------------------------------------------------------------- |
+| `create_event`         | `p_slug, p_name, p_date_start, p_date_end, p_display_name, p_role_name, p_role_short_name` | `TABLE(event_id, member_id, slug)` | definer         | Single transaction: creates event + root role + member + event_invitation |
+| `soft_delete_event`    | `p_event_id uuid`                                                                          | `void`                             | definer         | Sets `deleted_at = now()`, root only                                      |
+| `create_timeline_item` | `p_event_id, p_day, p_label, p_time_start, p_time_end, p_title, p_details, p_assignees`    | `event_timelines`                  | definer         | Inserts timeline item, validates event is active                          |
+| `cancel_rsvp`          | `p_event_id uuid, p_phone text, p_cancel_token uuid`                                       | `void`                             | definer         | Anon guest self-cancellation via token + phone                            |
+| `get_rsvp`             | `p_event_id uuid, p_phone text`                                                            | `event_rsvps`                      | definer, stable | Anon guest reads own RSVP by phone                                        |
 
 `cancel_rsvp` and `get_rsvp` granted to `anon`.
 
@@ -458,56 +551,90 @@ event_slugs (slug → id, anon)
 | `touch_updated_at_event_member_notification_prefs`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
 | `immutable_event_member_notification_prefs_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
 
+### `event_themes`
+
+Auto-attached by `auto_attach_table_triggers`. No manual triggers needed.
+
+| Trigger                             | Event  | Timing     | Function                                  |
+| ----------------------------------- | ------ | ---------- | ----------------------------------------- |
+| `touch_updated_at_event_themes`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
+| `immutable_event_themes_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
+
+### `event_invitation`
+
+| Trigger                                 | Event  | Timing     | Function                                  |
+| --------------------------------------- | ------ | ---------- | ----------------------------------------- |
+| `touch_updated_at_event_invitation`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
+| `immutable_event_invitation_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
+| `immutable_event_invitation_event_id`   | UPDATE | BEFORE ROW | `enforce_immutable_columns('event_id')`   |
+
+### `event_pages`
+
+| Trigger                            | Event  | Timing     | Function                                  |
+| ---------------------------------- | ------ | ---------- | ----------------------------------------- |
+| `touch_updated_at_event_pages`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
+| `immutable_event_pages_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
+| `immutable_event_pages_event_id`   | UPDATE | BEFORE ROW | `enforce_immutable_columns('event_id')`   |
+
 ---
 
 ## Policies
 
-| Table                             | SELECT                                        | INSERT                                                      | UPDATE                                                 | DELETE                                                 |
-| --------------------------------- | --------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------ |
-| `events`                          | `is_event_member(id)` + `deleted_at IS NULL`  | via RPC only                                                | `has_event_permission(id, 'events', 'update')`         | none                                                   |
-| `event_roles`                     | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'roles', 'create')`         | `has_event_permission(event_id, 'roles', 'update')`    | `has_event_permission(event_id, 'roles', 'delete')`    |
-| `event_members`                   | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'members', 'create')`       | permission + root/admin distinction + self-claim       | permission + root/admin distinction                    |
-| `event_role_permissions`          | `authenticated` read all                      | none                                                        | none                                                   | none                                                   |
-| `event_timelines`                 | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'timeline', 'create')`      | `has_event_permission(event_id, 'timeline', 'update')` | `has_event_permission(event_id, 'timeline', 'delete')` |
-| `event_tasks`                     | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'tasks', 'create')`         | permission OR own (`created_by`)                       | permission OR own (`created_by`)                       |
-| `event_rsvps`                     | `is_event_member(event_id)`                   | anon + authenticated, event active check                    | `has_event_permission(event_id, 'rsvp', 'update')`     | `has_event_permission(event_id, 'rsvp', 'delete')`     |
-| `event_announcements`             | `is_event_member` + target_roles check        | `has_event_permission(event_id, 'announcements', 'create')` | admin permission OR own                                | admin permission OR own                                |
-| `event_announcement_reads`        | `member_id = get_current_member_id(event_id)` | `member_id = get_current_member_id(event_id)`               | none                                                   | none                                                   |
-| `event_vendors`                   | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'vendors', 'create')`       | `has_event_permission(event_id, 'vendors', 'update')`  | `has_event_permission(event_id, 'vendors', 'delete')`  |
-| `event_live_logs`                 | `is_event_member(event_id)`                   | `is_event_member(event_id)`                                 | none                                                   | none                                                   |
-| `event_member_notification_prefs` | self only via `get_current_member_id`         | via trigger                                                 | self only via `get_current_member_id`                  | none                                                   |
-| `event_slugs` (view)              | public anon                                   | —                                                           | —                                                      | —                                                      |
+| Table                             | SELECT                                        | INSERT                                                      | UPDATE                                                   | DELETE                                                 |
+| --------------------------------- | --------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| `events`                          | `is_event_member(id)` + `deleted_at IS NULL`  | via RPC only                                                | `has_event_permission(id, 'events', 'update')`           | none                                                   |
+| `event_roles`                     | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'roles', 'create')`         | `has_event_permission(event_id, 'roles', 'update')`      | `has_event_permission(event_id, 'roles', 'delete')`    |
+| `event_members`                   | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'members', 'create')`       | permission + root/admin distinction + self-claim         | permission + root/admin distinction                    |
+| `event_role_permissions`          | `authenticated` read all                      | none                                                        | none                                                     | none                                                   |
+| `event_timelines`                 | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'timeline', 'create')`      | `has_event_permission(event_id, 'timeline', 'update')`   | `has_event_permission(event_id, 'timeline', 'delete')` |
+| `event_tasks`                     | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'tasks', 'create')`         | permission OR own (`created_by`)                         | permission OR own (`created_by`)                       |
+| `event_rsvps`                     | `is_event_member(event_id)`                   | anon + authenticated, event active check                    | `has_event_permission(event_id, 'rsvp', 'update')`       | `has_event_permission(event_id, 'rsvp', 'delete')`     |
+| `event_announcements`             | `is_event_member` + target_roles check        | `has_event_permission(event_id, 'announcements', 'create')` | admin permission OR own                                  | admin permission OR own                                |
+| `event_announcement_reads`        | `member_id = get_current_member_id(event_id)` | `member_id = get_current_member_id(event_id)`               | none                                                     | none                                                   |
+| `event_vendors`                   | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'vendors', 'create')`       | `has_event_permission(event_id, 'vendors', 'update')`    | `has_event_permission(event_id, 'vendors', 'delete')`  |
+| `event_live_logs`                 | `is_event_member(event_id)`                   | `is_event_member(event_id)`                                 | none                                                     | none                                                   |
+| `event_member_notification_prefs` | self only via `get_current_member_id`         | via trigger                                                 | self only via `get_current_member_id`                    | none                                                   |
+| `event_themes`                    | `authenticated` only, `is_active = true`      | none (superuser only)                                       | none (superuser only)                                    | none (superuser only)                                  |
+| `event_invitation`                | `anon` + `authenticated`                      | via RPC only                                                | `has_event_permission(event_id, 'invitation', 'update')` | none                                                   |
+| `event_pages`                     | `anon` + `authenticated`                      | `has_event_permission(event_id, 'pages', 'create')`         | `has_event_permission(event_id, 'pages', 'update')`      | `has_event_permission(event_id, 'pages', 'delete')`    |
+| `event_slugs` (view)              | public anon                                   | —                                                           | —                                                        | —                                                      |
 
 ---
 
 ## Indexes
 
-| Table                             | Index                          | Type   |
-| --------------------------------- | ------------------------------ | ------ |
-| `events`                          | `(slug)`                       | unique |
-| `event_roles`                     | `(event_id)`                   | perf   |
-| `event_roles`                     | `(event_id, name)`             | unique |
-| `event_role_permissions`          | `(category, resource)`         | unique |
-| `event_members`                   | `(event_id)`                   | perf   |
-| `event_members`                   | `(user_id)`                    | perf   |
-| `event_members`                   | `(event_id, user_id)`          | perf   |
-| `event_timelines`                 | `(event_id)`                   | perf   |
-| `event_timelines`                 | `(event_id, day, time_start)`  | perf   |
-| `event_tasks`                     | `(event_id)`                   | perf   |
-| `event_tasks`                     | `(event_id, status)`           | perf   |
-| `event_rsvps`                     | `(event_id)`                   | perf   |
-| `event_rsvps`                     | `(event_id, status)`           | perf   |
-| `event_rsvps`                     | `(event_id, phone)`            | unique |
-| `event_announcements`             | `(event_id)`                   | perf   |
-| `event_announcements`             | `(expires_at)`                 | perf   |
-| `event_announcement_reads`        | `(announcement_id)`            | perf   |
-| `event_announcement_reads`        | `(member_id)`                  | perf   |
-| `event_announcement_reads`        | `(event_id)`                   | perf   |
-| `event_announcement_reads`        | `(announcement_id, member_id)` | unique |
-| `event_vendors`                   | `(event_id)`                   | perf   |
-| `event_live_logs`                 | `(event_id)`                   | perf   |
-| `event_live_logs`                 | `(expires_at)`                 | perf   |
-| `event_member_notification_prefs` | `(member_id)`                  | unique |
+| Table                             | Index                           | Type           |
+| --------------------------------- | ------------------------------- | -------------- |
+| `events`                          | `(slug)`                        | unique         |
+| `event_roles`                     | `(event_id)`                    | perf           |
+| `event_roles`                     | `(event_id, name)`              | unique         |
+| `event_role_permissions`          | `(category, resource)`          | unique         |
+| `event_members`                   | `(event_id)`                    | perf           |
+| `event_members`                   | `(user_id)`                     | perf           |
+| `event_members`                   | `(event_id, user_id)`           | perf           |
+| `event_timelines`                 | `(event_id)`                    | perf           |
+| `event_timelines`                 | `(event_id, day, time_start)`   | perf           |
+| `event_tasks`                     | `(event_id)`                    | perf           |
+| `event_tasks`                     | `(event_id, status)`            | perf           |
+| `event_rsvps`                     | `(event_id)`                    | perf           |
+| `event_rsvps`                     | `(event_id, status)`            | perf           |
+| `event_rsvps`                     | `(event_id, phone)`             | unique         |
+| `event_announcements`             | `(event_id)`                    | perf           |
+| `event_announcements`             | `(expires_at)`                  | perf           |
+| `event_announcement_reads`        | `(announcement_id)`             | perf           |
+| `event_announcement_reads`        | `(member_id)`                   | perf           |
+| `event_announcement_reads`        | `(event_id)`                    | perf           |
+| `event_announcement_reads`        | `(announcement_id, member_id)`  | unique         |
+| `event_vendors`                   | `(event_id)`                    | perf           |
+| `event_live_logs`                 | `(event_id)`                    | perf           |
+| `event_live_logs`                 | `(expires_at)`                  | perf           |
+| `event_member_notification_prefs` | `(member_id)`                   | unique         |
+| `event_themes`                    | `(slug)`                        | unique         |
+| `event_themes`                    | `(is_active)`                   | perf           |
+| `event_invitation`                | `(event_id)`                    | unique         |
+| `event_pages`                     | `(event_id)`                    | perf           |
+| `event_pages`                     | `(theme_id)`                    | perf           |
+| `event_pages`                     | `(event_id) WHERE is_published` | unique partial |
 
 ---
 
@@ -581,18 +708,18 @@ events
         │     └── event_announcement_reads (event_id, announcement_id, member_id)
         ├── event_vendors (event_id)
         ├── event_live_logs (event_id)
-        └── event_member_notification_prefs (member_id)
+        ├── event_member_notification_prefs (member_id)
+        ├── event_invitation (event_id) ← public-facing content + rsvp config
+        └── event_pages (event_id) ← user-created invitation pages
+              └── event_themes (theme_id) ← design library, superuser-managed
 ```
 
 ---
 
 ## Deferred (Post-Launch)
 
-| Feature             | Tables                                          |
-| ------------------- | ----------------------------------------------- |
-| Appearance / Themes | `event_appearance`, `event_templates`           |
-| RSVP Config         | `event_rsvp_config`                             |
-| Event Settings      | `event_settings`                                |
-| Budget              | `event_budget_categories`, `event_budget_items` |
-| Seating             | `event_seating`                                 |
-| Custom Domain       | —                                               |
+| Feature       | Notes                                           |
+| ------------- | ----------------------------------------------- |
+| Budget        | `event_budget_categories`, `event_budget_items` |
+| Seating       | `event_seating`                                 |
+| Custom Domain | —                                               |

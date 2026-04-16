@@ -34,22 +34,22 @@ const TimelineDetailModal = () => {
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center gap-2">
           <DialogTitle>{item.title}</DialogTitle>
+          {item.label && (
+            <>
+              <span>·</span>
+              <Badge variant="outline">{item.label}</Badge>
+            </>
+          )}
         </DialogHeader>
 
         <div className="space-y-6 mt-1">
           {/* Time, date & label */}
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{timeLabel}</span>
             <span>·</span>
             <span>{dateLabel}</span>
-            {item.label && (
-              <>
-                <span>·</span>
-                <Badge variant="outline">{item.label}</Badge>
-              </>
-            )}
           </div>
 
           <Separator />

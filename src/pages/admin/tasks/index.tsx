@@ -1,13 +1,13 @@
-import { useTasksQuery } from "./queries"
-import TasksHeader from "./components/TasksHeader"
-import TasksView from "./components/TasksView"
-import TaskModals from "./modals"
+import { useTasksQuery } from "./queries";
+import TasksHeader from "./components/TasksHeader";
+import TasksView from "./components/TasksView";
+import TaskModals from "./modals";
 
 const Tasks = () => {
-  const { data, isLoading, isError, refetch, isRefetching } = useTasksQuery()
+  const { data, isLoading, isError, refetch, isRefetching } = useTasksQuery();
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="space-y-8">
       <TasksHeader
         isLoading={isLoading}
         isError={isError}
@@ -24,7 +24,7 @@ const Tasks = () => {
       />
       <TaskModals />
     </div>
-  )
-}
+  );
+};
 
-export default Tasks
+export default Tasks;
