@@ -3,14 +3,11 @@ import {
   Clock,
   CheckSquare,
   Users,
-  Radio,
-  ClipboardList,
-  UserCog,
-  Settings,
+  Shield,
   ChevronsUpDown,
-  ShoppingCart,
   LayoutTemplate,
   ScrollText,
+  ClipboardList,
 } from "lucide-react";
 
 import {
@@ -28,12 +25,10 @@ import {
 } from "@/components/ui/sidebar";
 
 import { useAdminStore } from "../../store/useAdminStore";
-import { useCueStore } from "../../store/useCueStore";
 import useActivePage from "../../hooks/useActivePage";
 import { isAdminMember } from "../../types";
 
 import NavItem from "./NavItem";
-import PulseDot from "./PulseDot";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,7 +46,6 @@ const AdminSidebar = () => {
     memberRoleShortName,
     memberRoleCategory,
   } = useAdminStore();
-  const { activeCue } = useCueStore();
   const activePage = useActivePage();
 
   const showAdmin = isAdminMember(memberRoleCategory);
@@ -100,25 +94,26 @@ const AdminSidebar = () => {
                 to={`${base}/tasks`}
                 isActive={activePage === "tasks"}
               />
-              {/* <NavItem
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Team</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <NavItem
                 icon={Users}
-                label="Team"
-                to={`${base}/team`}
-                isActive={activePage === "team"}
+                label="Members"
+                to={`${base}/members`}
+                isActive={activePage === "members"}
               />
               <NavItem
-                icon={ShoppingCart}
-                label="Vendor"
-                to={`${base}/vendor`}
-                isActive={activePage === "vendor"}
+                icon={Shield}
+                label="Roles"
+                to={`${base}/roles`}
+                isActive={activePage === "roles"}
               />
-              <NavItem
-                icon={Radio}
-                label="Live"
-                to={`${base}/live`}
-                isActive={activePage === "live"}
-                badge={activeCue ? <PulseDot /> : undefined}
-              /> */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -147,26 +142,6 @@ const AdminSidebar = () => {
                     to={`${base}/rsvp`}
                     isActive={activePage === "rsvp"}
                   />
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            <SidebarGroup>
-              <SidebarGroupLabel>Admin</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {/* <NavItem
-                    icon={UserCog}
-                    label="Users"
-                    to={`${base}/users`}
-                    isActive={activePage === "users"}
-                  />
-                  <NavItem
-                    icon={Settings}
-                    label="Settings"
-                    to={`${base}/settings`}
-                    isActive={activePage === "settings"}
-                  /> */}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Clock } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import AssigneeField from "@/pages/admin/components/AssigneeField";
-import { useTeamRolesQuery } from "@/pages/admin/team/queries";
+import { useRolesQuery } from "@/pages/admin/roles/queries";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +50,7 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
   submitLabel,
 }) => {
   const { dateStart, dateEnd } = useAdminStore();
-  const { data: roles = [] } = useTeamRolesQuery();
+  const { data: roles = [] } = useRolesQuery();
   const [attemptCount, setAttemptCount] = useState(0);
 
   const roleItems = roles.map((r) => ({ id: r.id, label: r.name }));

@@ -15,7 +15,7 @@ import { useAccess } from "../../hooks/useAccess";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { PRIORITY_LABELS, STATUS_LABELS } from "../types";
-import { useTeamMembersQuery } from "@/pages/admin/team/queries";
+import { useMembersQuery } from "@/pages/admin/members/queries";
 import { getMemberName } from "@/pages/admin/utils/assigneeDisplay";
 
 const TaskDetailModal = () => {
@@ -26,7 +26,7 @@ const TaskDetailModal = () => {
   const openDelete = useTaskModalStore((s) => s.openDelete);
 
   const { canUpdate, canDelete } = useAccess();
-  const { data: members = [] } = useTeamMembersQuery();
+  const { data: members = [] } = useMembersQuery();
 
   if (!selectedItem) return null;
   const task = selectedItem;

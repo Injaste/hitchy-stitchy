@@ -29,7 +29,7 @@ import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import AssigneeField from "@/pages/admin/components/AssigneeField";
-import { useTeamMembersQuery } from "@/pages/admin/team/queries";
+import { useMembersQuery } from "@/pages/admin/members/queries";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
 
@@ -50,11 +50,11 @@ const TaskForm: FC<TaskFormProps> = ({
 }) => {
   const [attemptCount, setAttemptCount] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const { data: members = [] } = useTeamMembersQuery();
+  const { data: members = [] } = useMembersQuery();
 
   const memberItems = members
-    .filter((m) => m.isActive)
-    .map((m) => ({ id: m.id, label: m.displayName }));
+    .filter((m) => !m.is_frozen)
+    .map((m) => ({ id: m.id, label: m.display_name }));
 
   const form = useForm({
     defaultValues: {

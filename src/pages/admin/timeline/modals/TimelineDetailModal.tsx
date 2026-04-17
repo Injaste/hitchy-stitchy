@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import NotesMarkdown from "@/components/custom/notes-markdown";
-import { useTeamRolesQuery } from "@/pages/admin/team/queries";
+import { useRolesQuery } from "@/pages/admin/roles/queries";
 import { getRoleName } from "@/pages/admin/utils/assigneeDisplay";
 
 const TimelineDetailModal = () => {
@@ -26,7 +26,7 @@ const TimelineDetailModal = () => {
   const openDelete = useTimelineModalStore((s) => s.openDelete);
 
   const { canUpdate, canDelete } = useAccess();
-  const { data: roles = [] } = useTeamRolesQuery();
+  const { data: roles = [] } = useRolesQuery();
 
   if (!selectedItem) return null;
 
