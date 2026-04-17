@@ -9,6 +9,8 @@ import { RSVPTab } from "@/pages/admin/rsvp";
 import { UsersTab } from "@/pages/admin/users";
 import { SettingsTab } from "@/pages/admin/settings";
 import Vendor from "@/pages/admin/vendor";
+import InvitationView from "@/pages/admin/invitation";
+import PagesView from "@/pages/admin/pages";
 
 const adminChildRoutes = [
   { index: true, element: <Navigate to="timeline" replace /> },
@@ -17,6 +19,8 @@ const adminChildRoutes = [
   { path: "team", element: <TeamTab /> },
   { path: "vendor", element: <Vendor /> },
   { path: "live", element: <LiveTab /> },
+  { path: "invitation", element: <InvitationView /> },
+  { path: "pages", element: <PagesView /> },
   { path: "rsvp", element: <RSVPTab /> },
   { path: "users", element: <UsersTab /> },
   { path: "settings", element: <SettingsTab /> },

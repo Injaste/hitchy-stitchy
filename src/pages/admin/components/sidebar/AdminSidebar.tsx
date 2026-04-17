@@ -9,6 +9,8 @@ import {
   Settings,
   ChevronsUpDown,
   ShoppingCart,
+  LayoutTemplate,
+  ScrollText,
 } from "lucide-react";
 
 import {
@@ -122,31 +124,53 @@ const AdminSidebar = () => {
         </SidebarGroup>
 
         {showAdmin && (
-          <SidebarGroup>
-            {/* <SidebarGroupLabel>Admin</SidebarGroupLabel> */}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {/* <NavItem
-                  icon={ClipboardList}
-                  label="RSVPs"
-                  to={`${base}/rsvp`}
-                  isActive={activePage === "rsvp"}
-                />
-                <NavItem
-                  icon={UserCog}
-                  label="Users"
-                  to={`${base}/users`}
-                  isActive={activePage === "users"}
-                /> */}
-                {/* <NavItem
-                  icon={Settings}
-                  label="Settings"
-                  to={`${base}/settings`}
-                  isActive={activePage === "settings"}
-                /> */}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel>Invitation</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <NavItem
+                    icon={LayoutTemplate}
+                    label="Pages"
+                    to={`${base}/pages`}
+                    isActive={activePage === "pages"}
+                  />
+                  <NavItem
+                    icon={ScrollText}
+                    label="Details"
+                    to={`${base}/invitation`}
+                    isActive={activePage === "invitation"}
+                  />
+                  <NavItem
+                    icon={ClipboardList}
+                    label="Guests"
+                    to={`${base}/rsvp`}
+                    isActive={activePage === "rsvp"}
+                  />
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>Admin</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {/* <NavItem
+                    icon={UserCog}
+                    label="Users"
+                    to={`${base}/users`}
+                    isActive={activePage === "users"}
+                  />
+                  <NavItem
+                    icon={Settings}
+                    label="Settings"
+                    to={`${base}/settings`}
+                    isActive={activePage === "settings"}
+                  /> */}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
         )}
       </SidebarContent>
 

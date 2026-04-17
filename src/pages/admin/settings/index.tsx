@@ -3,13 +3,11 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 import { EventSettingsSection } from "./event-config";
-import { RSVPConfigSection } from "./rsvp-config";
 import { AppearanceSection } from "./appearance";
 import { NotificationsSection } from "./notifications";
 
 const TABS = [
   { id: "event", label: "Event", element: EventSettingsSection },
-  // { id: "rsvp", label: "RSVP", element: RSVPConfigSection },
   // { id: "appearance", label: "Appearance", element: AppearanceSection },
   // {
   //   id: "notifications",

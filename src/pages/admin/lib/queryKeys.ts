@@ -4,8 +4,10 @@ export const adminKeys = {
   team: (slug: string) => [slug, 'team'] as const,
   liveLogs: (slug: string) => [slug, 'live-logs'] as const,
   rsvps: (slug: string) => [slug, 'rsvps'] as const,
+  invitation: (slug: string) => [slug, 'invitation'] as const,
+  pages: (slug: string) => [slug, 'pages'] as const,
+  themes: (slug: string) => [slug, 'themes'] as const,
   settingsEvent: (slug: string) => [slug, 'settings', 'event'] as const,
-  settingsRsvpConfig: (slug: string) => [slug, 'settings', 'rsvp-config'] as const,
   settingsAppearance: (slug: string) => [slug, 'settings', 'appearance'] as const,
   settingsNotifications: (slug: string, memberId: string) =>
     [slug, 'settings', 'notifications', memberId] as const,
