@@ -1,10 +1,11 @@
-import { useTasksQuery } from "./queries";
+import { useTasksQuery, useTaskOrderQuery } from "./queries";
 import TasksHeader from "./components/TasksHeader";
 import TasksView from "./components/TasksView";
 import TaskModals from "./modals";
 
 const Tasks = () => {
   const { data, isLoading, isError, refetch, isRefetching } = useTasksQuery();
+  const { data: taskOrder } = useTaskOrderQuery();
 
   return (
     <div className="space-y-8">
@@ -17,6 +18,7 @@ const Tasks = () => {
       />
       <TasksView
         data={data}
+        taskOrder={taskOrder}
         isLoading={isLoading}
         isError={isError}
         refetch={refetch}

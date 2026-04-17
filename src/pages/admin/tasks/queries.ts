@@ -3,8 +3,8 @@ import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { useTaskModalStore } from "./hooks/useTaskModalStore"
-import { fetchTasks, createTask, updateTask, deleteTask } from "./api"
-import type { CreateTaskPayload, UpdateTaskPayload } from "./types"
+import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask } from "./api"
+import type { CreateTaskPayload, UpdateTaskPayload, TaskOrder } from "./types"
 
 export function useTasksQuery() {
   const { slug, eventId } = useAdminStore()
@@ -15,13 +15,24 @@ export function useTasksQuery() {
   })
 }
 
+export function useTaskOrderQuery() {
+  const { slug, eventId } = useAdminStore()
+  return useQuery({
+    queryKey: adminKeys.taskOrder(slug!),
+    queryFn: () => fetchTaskOrder(eventId!),
+    enabled: !!eventId && !!slug,
+  })
+}
+
 export function useTaskMutations() {
   const { slug } = useAdminStore()
   const closeAll = useTaskModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
-  const invalidate = () =>
+  const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: adminKeys.tasks(slug!) })
+    queryClient.invalidateQueries({ queryKey: adminKeys.taskOrder(slug!) })
+  }
 
   const create = useMutation(
     (payload: CreateTaskPayload) => createTask(payload),
@@ -50,5 +61,14 @@ export function useTaskMutations() {
     },
   )
 
-  return { create, update, remove }
+  const saveOrder = useMutation(
+    (order: TaskOrder) => saveTaskOrder(order),
+    {
+      silent: true,
+      onSuccess: () => invalidate(),
+      onError: () => invalidate(),
+    },
+  )
+
+  return { create, update, remove, saveOrder }
 }

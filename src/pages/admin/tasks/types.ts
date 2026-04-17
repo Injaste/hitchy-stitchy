@@ -59,3 +59,10 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   medium: "Medium",
   high: "High",
 }
+
+export interface TaskOrder {
+  event_id: string
+  todo: string[]
+  in_progress: string[]
+  done: string[]
+}
