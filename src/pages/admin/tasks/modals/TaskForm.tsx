@@ -28,6 +28,8 @@ import {
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import AssigneeField from "@/pages/admin/components/AssigneeField";
+import { useMembersQuery } from "@/pages/admin/members/queries";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
 
@@ -48,6 +50,11 @@ const TaskForm: FC<TaskFormProps> = ({
 }) => {
   const [attemptCount, setAttemptCount] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const { data: members = [] } = useMembersQuery();
+
+  const memberItems = members
+    .filter((m) => !m.is_frozen)
+    .map((m) => ({ id: m.id, label: m.display_name }));
 
   const form = useForm({
     defaultValues: {
@@ -55,6 +62,7 @@ const TaskForm: FC<TaskFormProps> = ({
       details: defaultValues?.details ?? "",
       priority: defaultValues?.priority ?? null,
       due_at: defaultValues?.due_at ?? null,
+      assignees: defaultValues?.assignees ?? [],
     },
     validators: {
       onSubmit: taskFormSchema,
@@ -172,6 +180,22 @@ const TaskForm: FC<TaskFormProps> = ({
                   </PopoverContent>
                 </Popover>
               </div>
+            )}
+          </form.Field>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>
+            Assignees{" "}
+            <span className="text-muted-foreground font-normal">(optional)</span>
+          </Label>
+          <form.Field name="assignees">
+            {(field) => (
+              <AssigneeField
+                value={field.state.value}
+                onChange={field.handleChange}
+                items={memberItems}
+              />
             )}
           </form.Field>
         </div>

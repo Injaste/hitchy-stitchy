@@ -28,6 +28,7 @@ const TaskEditModal = () => {
       details: values.details,
       priority: values.priority,
       due_at: values.due_at,
+      assignees: values.assignees,
     });
   };
 
@@ -44,6 +45,7 @@ const TaskEditModal = () => {
             details: task.details ?? "",
             priority: task.priority,
             due_at: task.due_at,
+            assignees: task.assignees,
           }}
           onSubmit={handleSubmit}
           onCancel={closeAll}
