@@ -3,10 +3,10 @@ import { Route, Navigate } from "react-router-dom";
 import Admin from "@/pages/admin";
 import TimelineTab from "@/pages/admin/timeline";
 import Tasks from "@/pages/admin/tasks";
-import { TeamTab } from "@/pages/admin/team";
+import Members from "@/pages/admin/members";
+import Roles from "@/pages/admin/roles";
 import { LiveTab } from "@/pages/admin/live";
 import { RSVPTab } from "@/pages/admin/rsvp";
-import { UsersTab } from "@/pages/admin/users";
 import { SettingsTab } from "@/pages/admin/settings";
 import Vendor from "@/pages/admin/vendor";
 
@@ -14,11 +14,11 @@ const adminChildRoutes = [
   { index: true, element: <Navigate to="timeline" replace /> },
   { path: "timeline", element: <TimelineTab /> },
   { path: "tasks", element: <Tasks /> },
-  { path: "team", element: <TeamTab /> },
+  { path: "members", element: <Members /> },
+  { path: "roles", element: <Roles /> },
   { path: "vendor", element: <Vendor /> },
   { path: "live", element: <LiveTab /> },
   { path: "rsvp", element: <RSVPTab /> },
-  { path: "users", element: <UsersTab /> },
   { path: "settings", element: <SettingsTab /> },
 ];
 

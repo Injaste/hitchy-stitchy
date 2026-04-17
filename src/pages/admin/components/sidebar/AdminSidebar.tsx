@@ -3,12 +3,8 @@ import {
   Clock,
   CheckSquare,
   Users,
-  Radio,
-  ClipboardList,
-  UserCog,
-  Settings,
+  Shield,
   ChevronsUpDown,
-  ShoppingCart,
 } from "lucide-react";
 
 import {
@@ -98,56 +94,29 @@ const AdminSidebar = () => {
                 to={`${base}/tasks`}
                 isActive={activePage === "tasks"}
               />
-              {/* <NavItem
-                icon={Users}
-                label="Team"
-                to={`${base}/team`}
-                isActive={activePage === "team"}
-              />
-              <NavItem
-                icon={ShoppingCart}
-                label="Vendor"
-                to={`${base}/vendor`}
-                isActive={activePage === "vendor"}
-              />
-              <NavItem
-                icon={Radio}
-                label="Live"
-                to={`${base}/live`}
-                isActive={activePage === "live"}
-                badge={activeCue ? <PulseDot /> : undefined}
-              /> */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {showAdmin && (
-          <SidebarGroup>
-            {/* <SidebarGroupLabel>Admin</SidebarGroupLabel> */}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {/* <NavItem
-                  icon={ClipboardList}
-                  label="RSVPs"
-                  to={`${base}/rsvp`}
-                  isActive={activePage === "rsvp"}
-                />
-                <NavItem
-                  icon={UserCog}
-                  label="Users"
-                  to={`${base}/users`}
-                  isActive={activePage === "users"}
-                /> */}
-                {/* <NavItem
-                  icon={Settings}
-                  label="Settings"
-                  to={`${base}/settings`}
-                  isActive={activePage === "settings"}
-                /> */}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        <SidebarGroup>
+          <SidebarGroupLabel>Team</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <NavItem
+                icon={Users}
+                label="Members"
+                to={`${base}/members`}
+                isActive={activePage === "members"}
+              />
+              <NavItem
+                icon={Shield}
+                label="Roles"
+                to={`${base}/roles`}
+                isActive={activePage === "roles"}
+              />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarSeparator />

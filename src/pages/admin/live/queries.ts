@@ -32,7 +32,7 @@ export function useMarkArrivedMutation() {
   return useMutation<string, void>(markArrived, {
     successMessage: 'Marked as arrived',
     errorMessage: 'Failed to mark arrival',
-    onSuccess: () => { qc.invalidateQueries({ queryKey: [...adminKeys.team(slug), 'members'] }) },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: adminKeys.members(slug) }) },
   })
 }
 

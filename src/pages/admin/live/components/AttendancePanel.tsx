@@ -4,17 +4,17 @@ import { Badge } from '@/components/ui/badge'
 
 import { useAdminStore } from '../../store/useAdminStore'
 import { isAdminMember } from '../../types'
-import { useTeamMembersQuery } from '../../team/queries'
+import { useMembersQuery } from '../../members/queries'
 import { useMarkArrivedMutation } from '../queries'
 
 export function AttendancePanel() {
   const { memberId, memberRoleCategory } = useAdminStore()
   const isAdmin = isAdminMember(memberRoleCategory)
-  const { data: members } = useTeamMembersQuery()
+  const { data: members } = useMembersQuery()
   const { mutate: markArrived } = useMarkArrivedMutation()
 
-  const activeMembers = (members ?? []).filter((m) => m.isActive)
-  const arrivedCount = activeMembers.filter((m) => m.arrivedAt).length
+  const activeMembers = (members ?? []).filter((m) => !m.is_frozen)
+  const arrivedCount = activeMembers.filter((m) => m.arrived_at).length
 
   const canMark = (memberIdToMark: string) =>
     isAdmin || memberIdToMark === memberId
@@ -28,13 +28,13 @@ export function AttendancePanel() {
         {activeMembers.map((m) => (
           <div key={m.id} className="flex items-center gap-3 rounded-lg border border-border p-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-              {m.role.shortName.slice(0, 2)}
+              {m.role?.short_name?.slice(0, 2) ?? '–'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-foreground truncate">{m.displayName}</p>
-              <p className="text-xs text-muted-foreground">{m.role.name}</p>
+              <p className="text-sm text-foreground truncate">{m.display_name}</p>
+              <p className="text-xs text-muted-foreground">{m.role?.name ?? 'No role'}</p>
             </div>
-            {m.arrivedAt ? (
+            {m.arrived_at ? (
               <Badge variant="secondary" className="text-xs gap-1">
                 <Check className="h-3 w-3" /> Arrived
               </Badge>
