@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/lib/supabase"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 
-type Resource = "timeline" | "tasks" | "team" | "settings" | "rsvp" | "announcements" | "vendors" | "members" | "roles" | "events"
+type Resource = "timeline" | "tasks" | "team" | "settings" | "rsvp" | "announcements" | "vendors" | "members" | "roles" | "events" | "invitation" | "pages"
 type Action = "create" | "read" | "update" | "delete"
 
 export type Permission = `${Resource}:${Action}`
