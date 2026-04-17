@@ -24,6 +24,7 @@ export const taskFormSchema = z.object({
   details: z.string().max(2000, "Details is too long").transform((v) => v || null),
   priority: z.enum(["low", "medium", "high"]).nullable(),
   due_at: z.string().nullable(),
+  assignees: z.array(z.string()),
 })
 
 export type TaskFormValues = z.infer<typeof taskFormSchema>
@@ -34,6 +35,7 @@ export interface CreateTaskPayload {
   details: string | null
   priority: TaskPriority | null
   due_at: string | null
+  assignees: string[]
 }
 
 export interface UpdateTaskPayload {
@@ -43,6 +45,7 @@ export interface UpdateTaskPayload {
   status?: TaskStatus
   priority?: TaskPriority | null
   due_at?: string | null
+  assignees?: string[]
 }
 
 export const STATUS_ORDER_MOBILE: TaskStatus[] = ["in_progress", "todo", "done"]

@@ -15,6 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import NotesMarkdown from "@/components/custom/notes-markdown";
+import { useTeamRolesQuery } from "@/pages/admin/team/queries";
+import { getRoleName } from "@/pages/admin/utils/assigneeDisplay";
 
 const TimelineDetailModal = () => {
   const isDetailOpen = useTimelineModalStore((s) => s.isDetailOpen);
@@ -24,6 +26,7 @@ const TimelineDetailModal = () => {
   const openDelete = useTimelineModalStore((s) => s.openDelete);
 
   const { canUpdate, canDelete } = useAccess();
+  const { data: roles = [] } = useTeamRolesQuery();
 
   if (!selectedItem) return null;
 
@@ -45,7 +48,6 @@ const TimelineDetailModal = () => {
         </DialogHeader>
 
         <div className="space-y-6 mt-1">
-          {/* Time, date & label */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{timeLabel}</span>
             <span>·</span>
@@ -54,7 +56,6 @@ const TimelineDetailModal = () => {
 
           <Separator />
 
-          {/* Notes */}
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
               <StickyNote strokeWidth={3} className="w-3 h-3" />
@@ -63,25 +64,25 @@ const TimelineDetailModal = () => {
             <NotesMarkdown content={item.details} />
           </div>
 
-          {/* Assignees */}
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Assignees
             </p>
             {item.assignees.length === 0 ? (
-              <p className="text-sm text-muted-foreground/50 italic">
-                No assignees
-              </p>
+              <p className="text-sm text-muted-foreground/50 italic">No assignees</p>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                {item.assignees.length} assigned
-              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {item.assignees.map((id) => (
+                  <Badge key={id} variant="secondary" className="text-xs font-normal">
+                    {getRoleName(id, roles)}
+                  </Badge>
+                ))}
+              </div>
             )}
           </div>
 
           <Separator />
 
-          {/* Footer — createdAt + actions */}
           <div className="flex items-center justify-end gap-4">
             <div className="flex gap-2">
               {canDelete("timeline") && (

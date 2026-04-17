@@ -2,6 +2,8 @@ import { useState, useMemo, type FC } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Clock } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
+import AssigneeField from "@/pages/admin/components/AssigneeField";
+import { useTeamRolesQuery } from "@/pages/admin/team/queries";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +50,10 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
   submitLabel,
 }) => {
   const { dateStart, dateEnd } = useAdminStore();
+  const { data: roles = [] } = useTeamRolesQuery();
   const [attemptCount, setAttemptCount] = useState(0);
+
+  const roleItems = roles.map((r) => ({ id: r.id, label: r.name }));
 
   const eventDays = useMemo(() => {
     if (!dateStart || !dateEnd) return [];
@@ -84,8 +89,6 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6 mt-4">
       <FieldGroup className="block space-y-4">
-        <form.Field name="assignees">{() => null}</form.Field>
-
         <form.Field name="title">
           {(field) => {
             const hasError =
@@ -267,6 +270,22 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
           <p className="text-xs text-muted-foreground">
             Supports markdown — **bold**, *italic*, - lists, 1. numbered
           </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>
+            Assignees{" "}
+            <span className="text-muted-foreground font-normal">(optional)</span>
+          </Label>
+          <form.Field name="assignees">
+            {(field) => (
+              <AssigneeField
+                value={field.state.value}
+                onChange={field.handleChange}
+                items={roleItems}
+              />
+            )}
+          </form.Field>
         </div>
       </FieldGroup>
 
