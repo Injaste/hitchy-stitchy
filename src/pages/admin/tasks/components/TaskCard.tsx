@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from "react";
-import { Check, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { Check, Calendar, GripVertical } from "lucide-react";
+import { format, startOfToday, isBefore } from "date-fns";
 
 import { cn } from "@/lib/utils";
 import { parseLocalDate } from "@/lib/utils/utils-time";
@@ -18,6 +18,8 @@ import type { Task, TaskPriority, TaskStatus } from "../types";
 
 interface TaskCardProps {
   task: Task;
+  dragHandleListeners?: Record<string, unknown>;
+  dragHandleAttributes?: Record<string, unknown>;
 }
 
 const priorityBar: Record<TaskPriority, string> = {
@@ -32,25 +34,22 @@ const statusCard: Record<TaskStatus, string> = {
   done: "opacity-60",
 };
 
-const nextStatus: Record<TaskStatus, TaskStatus> = {
-  todo: "in_progress",
-  in_progress: "done",
-  done: "todo",
-};
-
-const TaskCard: FC<TaskCardProps> = ({ task }) => {
+const TaskCard: FC<TaskCardProps> = ({ task, dragHandleListeners, dragHandleAttributes }) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    update.mutate({ id: task.id, status: nextStatus[task.status] });
+    const next: TaskStatus = task.status === "done" ? "todo" : "done";
+    update.mutate({ id: task.id, status: next });
   };
 
   const isDone = task.status === "done";
+  const isOverdue =
+    !isDone && !!task.due_at && isBefore(parseLocalDate(task.due_at), startOfToday());
 
   let statusEl: ReactNode;
-  if (task.status === "done") {
+  if (isDone) {
     statusEl = (
       <div className="w-5 h-5 rounded-full bg-primary/80 flex items-center justify-center shrink-0">
         <Check className="w-3 h-3 text-primary-foreground" strokeWidth={2.5} />
@@ -70,7 +69,7 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
 
   return (
     <Card
-      className={cn("relative cursor-pointer overflow-visible w-full max-w-md", statusCard[task.status])}
+      className={cn("relative cursor-pointer overflow-visible w-full max-w-md group", statusCard[task.status])}
       onClick={() => openDetail(task)}
     >
       <div
@@ -80,7 +79,19 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
         )}
       />
 
-      <CardHeader className="pl-6">
+      {dragHandleListeners && (
+        <button
+          {...(dragHandleListeners as React.HTMLAttributes<HTMLButtonElement>)}
+          {...(dragHandleAttributes as React.HTMLAttributes<HTMLButtonElement>)}
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-40 transition-opacity cursor-grab active:cursor-grabbing touch-none"
+          aria-label="Drag task"
+        >
+          <GripVertical className="w-4 h-4 text-muted-foreground" />
+        </button>
+      )}
+
+      <CardHeader className="pl-6 pr-8">
         <div className="flex items-start gap-3">
           <button
             onClick={handleToggle}
@@ -107,7 +118,10 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
             )}
 
             {task.due_at && (
-              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
+              <span className={cn(
+                "flex items-center gap-1.5 text-[11px] font-sans",
+                isOverdue ? "text-destructive/70" : "text-muted-foreground",
+              )}>
                 <Calendar className="w-3 h-3" />
                 {format(parseLocalDate(task.due_at), "d MMM yyyy")}
               </span>

@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase"
-import type { Task, CreateTaskPayload, UpdateTaskPayload } from "./types"
+import type { Task, CreateTaskPayload, UpdateTaskPayload, TaskOrder } from "./types"
 
 const TASK_FIELDS = "id, event_id, parent_id, created_by, title, details, status, priority, assignees, due_at, start_at, created_at, updated_at"
 
@@ -13,6 +13,25 @@ export async function fetchTasks(eventId: string): Promise<Task[]> {
 
   if (error) throw new Error(error.message)
   return (data ?? []) as Task[]
+}
+
+export async function fetchTaskOrder(eventId: string): Promise<TaskOrder | null> {
+  const { data, error } = await supabase
+    .from("event_task_orders")
+    .select("event_id, todo, in_progress, done")
+    .eq("event_id", eventId)
+    .maybeSingle()
+
+  if (error) throw new Error(error.message)
+  return data as TaskOrder | null
+}
+
+export async function saveTaskOrder(order: TaskOrder): Promise<void> {
+  const { error } = await supabase
+    .from("event_task_orders")
+    .upsert(order, { onConflict: "event_id" })
+
+  if (error) throw new Error(error.message)
 }
 
 export async function createTask(payload: CreateTaskPayload): Promise<Task> {
