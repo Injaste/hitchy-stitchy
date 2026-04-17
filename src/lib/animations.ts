@@ -83,3 +83,10 @@ export const tabTransition = {
   exit: { opacity: 0, y: -10 },
   transition: { duration: 0.2 },
 };
+
+export const cardLiftStyle = {
+  scale: 1.03,
+  boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+  rotate: "1deg",
+  cursor: "grabbing",
+} as const

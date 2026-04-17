@@ -5,6 +5,9 @@ import {
   Users,
   Shield,
   ChevronsUpDown,
+  LayoutTemplate,
+  ScrollText,
+  ClipboardList,
 } from "lucide-react";
 
 import {
@@ -22,12 +25,10 @@ import {
 } from "@/components/ui/sidebar";
 
 import { useAdminStore } from "../../store/useAdminStore";
-import { useCueStore } from "../../store/useCueStore";
 import useActivePage from "../../hooks/useActivePage";
 import { isAdminMember } from "../../types";
 
 import NavItem from "./NavItem";
-import PulseDot from "./PulseDot";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,7 +46,6 @@ const AdminSidebar = () => {
     memberRoleShortName,
     memberRoleCategory,
   } = useAdminStore();
-  const { activeCue } = useCueStore();
   const activePage = useActivePage();
 
   const showAdmin = isAdminMember(memberRoleCategory);
@@ -117,6 +117,36 @@ const AdminSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {showAdmin && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupLabel>Invitation</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <NavItem
+                    icon={LayoutTemplate}
+                    label="Pages"
+                    to={`${base}/pages`}
+                    isActive={activePage === "pages"}
+                  />
+                  <NavItem
+                    icon={ScrollText}
+                    label="Details"
+                    to={`${base}/invitation`}
+                    isActive={activePage === "invitation"}
+                  />
+                  <NavItem
+                    icon={ClipboardList}
+                    label="Guests"
+                    to={`${base}/rsvp`}
+                    isActive={activePage === "rsvp"}
+                  />
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
 
       <SidebarSeparator />
