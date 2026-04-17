@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Clock } from "lucide-react";
+import { Clock, Users } from "lucide-react";
 
 import {
   Card,
@@ -41,6 +41,13 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
               <CardDescription className="pt-1.5 h-full w-full text-accent">
                 <NotesMarkdown content={item.details} minified />
               </CardDescription>
+            )}
+
+            {item.assignees.length > 0 && (
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans pt-1">
+                <Users className="size-3 shrink-0" />
+                {item.assignees.length}
+              </span>
             )}
           </CardHeader>
         </Card>

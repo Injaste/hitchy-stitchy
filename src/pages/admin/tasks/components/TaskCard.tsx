@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from "react";
-import { Check, Calendar, GripVertical } from "lucide-react";
+import { Check, Calendar, GripVertical, Users } from "lucide-react";
 import { format, startOfToday, isBefore } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -124,6 +124,13 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleListeners, dragHandleAttr
               )}>
                 <Calendar className="w-3 h-3" />
                 {format(parseLocalDate(task.due_at), "d MMM yyyy")}
+              </span>
+            )}
+
+            {task.assignees.length > 0 && (
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
+                <Users className="w-3 h-3" />
+                {task.assignees.length}
               </span>
             )}
           </div>

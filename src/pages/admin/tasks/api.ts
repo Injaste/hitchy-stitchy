@@ -43,6 +43,7 @@ export async function createTask(payload: CreateTaskPayload): Promise<Task> {
       details: payload.details,
       priority: payload.priority,
       due_at: payload.due_at,
+      assignees: payload.assignees,
     })
     .select(TASK_FIELDS)
     .single()

@@ -26,6 +26,7 @@ const TaskCreateModal = () => {
       details: values.details,
       priority: values.priority,
       due_at: values.due_at,
+      assignees: values.assignees,
     });
   };
 

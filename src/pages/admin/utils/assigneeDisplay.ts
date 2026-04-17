@@ -1,6 +1,9 @@
-import type { TeamMember } from "@/pages/admin/team/types";
+import type { TeamMember, Role } from "@/pages/admin/team/types";
 
-export function getAssigneeDisplay(roleName: string, teamRoles: TeamMember[]): string {
-  if (roleName === "All") return "All";
-  return roleName;
+export function getMemberName(id: string, members: TeamMember[]): string {
+  return members.find((m) => m.id === id)?.displayName ?? "Unknown"
+}
+
+export function getRoleName(id: string, roles: Role[]): string {
+  return roles.find((r) => r.id === id)?.name ?? "Unknown"
 }

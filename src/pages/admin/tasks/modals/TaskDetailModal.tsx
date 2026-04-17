@@ -15,6 +15,8 @@ import { useAccess } from "../../hooks/useAccess";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { PRIORITY_LABELS, STATUS_LABELS } from "../types";
+import { useTeamMembersQuery } from "@/pages/admin/team/queries";
+import { getMemberName } from "@/pages/admin/utils/assigneeDisplay";
 
 const TaskDetailModal = () => {
   const isDetailOpen = useTaskModalStore((s) => s.isDetailOpen);
@@ -24,6 +26,7 @@ const TaskDetailModal = () => {
   const openDelete = useTaskModalStore((s) => s.openDelete);
 
   const { canUpdate, canDelete } = useAccess();
+  const { data: members = [] } = useTeamMembersQuery();
 
   if (!selectedItem) return null;
   const task = selectedItem;
@@ -50,6 +53,16 @@ const TaskDetailModal = () => {
               </span>
             )}
           </div>
+
+          {task.assignees.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {task.assignees.map((id) => (
+                <Badge key={id} variant="secondary" className="text-xs font-normal">
+                  {getMemberName(id, members)}
+                </Badge>
+              ))}
+            </div>
+          )}
 
           <Separator />
 
