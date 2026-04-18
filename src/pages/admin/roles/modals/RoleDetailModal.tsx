@@ -3,27 +3,27 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useRoleModalStore } from "../hooks/useRoleModalStore"
-import { CATEGORY_LABELS } from "../types"
+import { useAccess } from "../../hooks/useAccess";
+import { useRoleModalStore } from "../hooks/useRoleModalStore";
+import { CATEGORY_LABELS } from "../types";
 
 const RoleDetailModal = () => {
-  const isDetailOpen = useRoleModalStore((s) => s.isDetailOpen)
-  const selectedItem = useRoleModalStore((s) => s.selectedItem)
-  const closeAll = useRoleModalStore((s) => s.closeAll)
-  const openEdit = useRoleModalStore((s) => s.openEdit)
-  const openDelete = useRoleModalStore((s) => s.openDelete)
+  const isDetailOpen = useRoleModalStore((s) => s.isDetailOpen);
+  const selectedItem = useRoleModalStore((s) => s.selectedItem);
+  const closeAll = useRoleModalStore((s) => s.closeAll);
+  const openEdit = useRoleModalStore((s) => s.openEdit);
+  const openDelete = useRoleModalStore((s) => s.openDelete);
 
-  const { canUpdate, canDelete } = useAccess()
+  const { canUpdate, canDelete } = useAccess();
 
-  if (!selectedItem) return null
-  const role = selectedItem
-  const isRoot = role.category === "root"
+  if (!selectedItem) return null;
+  const role = selectedItem;
+  const isRoot = role.category === "root";
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -62,21 +62,16 @@ const RoleDetailModal = () => {
                 Delete
               </Button>
             )}
-            {canUpdate("roles") && !isRoot && (
+            {canUpdate("roles") && (
               <Button size="sm" onClick={openEdit} autoFocus>
                 Edit
               </Button>
-            )}
-            {isRoot && (
-              <p className="text-xs text-muted-foreground italic">
-                The root role is permanent and cannot be edited or deleted.
-              </p>
             )}
           </div>
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default RoleDetailModal
+export default RoleDetailModal;

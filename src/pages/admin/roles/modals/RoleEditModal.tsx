@@ -4,22 +4,22 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { useRoleModalStore } from "../hooks/useRoleModalStore"
-import { useRoleMutations } from "../queries"
-import type { RoleFormValues } from "../types"
+import { useRoleModalStore } from "../hooks/useRoleModalStore";
+import { useRoleMutations } from "../queries";
+import type { RoleFormValues } from "../types";
 
-import RoleForm from "./RoleForm"
+import RoleForm from "./RoleForm";
 
 const RoleEditModal = () => {
-  const isEditOpen = useRoleModalStore((s) => s.isEditOpen)
-  const selectedItem = useRoleModalStore((s) => s.selectedItem)
-  const closeAll = useRoleModalStore((s) => s.closeAll)
-  const { update } = useRoleMutations()
+  const isEditOpen = useRoleModalStore((s) => s.isEditOpen);
+  const selectedItem = useRoleModalStore((s) => s.selectedItem);
+  const closeAll = useRoleModalStore((s) => s.closeAll);
+  const { update } = useRoleMutations();
 
-  if (!selectedItem) return null
-  const role = selectedItem
+  if (!selectedItem) return null;
+  const role = selectedItem;
 
   const handleSubmit = (values: RoleFormValues) => {
     update.mutate({
@@ -28,8 +28,8 @@ const RoleEditModal = () => {
       short_name: values.short_name,
       category: values.category,
       description: values.description,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isEditOpen} onOpenChange={closeAll}>
@@ -42,10 +42,7 @@ const RoleEditModal = () => {
           defaultValues={{
             name: role.name,
             short_name: role.short_name,
-            category:
-              role.category === "root"
-                ? "admin"
-                : (role.category as RoleFormValues["category"]),
+            category: role.category as RoleFormValues["category"],
             description: role.description ?? "",
           }}
           onSubmit={handleSubmit}
@@ -55,7 +52,7 @@ const RoleEditModal = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default RoleEditModal
+export default RoleEditModal;

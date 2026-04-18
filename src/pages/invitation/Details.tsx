@@ -83,7 +83,7 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
     encodeURIComponent(eventConfig.name) +
     "&dates=" +
     encodeURIComponent(
-      `${formatGCal(eventConfig.dateStart)}/${formatGCal(eventConfig.dateEnd)}`
+      `${formatGCal(eventConfig.dateStart)}/${formatGCal(eventConfig.dateEnd)}`,
     ) +
     "&location=" +
     encodeURIComponent(eventConfig.venueAddress);
@@ -129,7 +129,7 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
         >
           <motion.p
             variants={fadeIn(0)}
-            className="text-muted-foreground mb-3 sm:mb-4 uppercase tracking-[0.4em] text-[10px] sm:text-xs font-bold"
+            className="text-muted-foreground mb-3 sm:mb-4 uppercase tracking-[0.4em] text-2xs sm:text-xs font-bold"
           >
             With the blessings of
           </motion.p>

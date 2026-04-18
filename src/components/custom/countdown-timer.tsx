@@ -65,7 +65,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
             <span className="font-mono text-2xl sm:text-3xl font-bold text-foreground tabular-nums">
               {renderOdometer(timeLeft[unit], 2)}
             </span>
-            <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-muted-foreground font-bold mt-1">
+            <span className="text-3xs sm:text-2xs uppercase tracking-widest text-muted-foreground font-bold mt-1">
               {unit}
             </span>
           </CardContent>

@@ -3,12 +3,31 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Plus, MapPin } from "lucide-react";
 
 const INITIAL_CUES = [
-  { id: 1, time: "09:00", label: "Bridal Preparation", venue: "Bridal Suite", done: true },
-  { id: 2, time: "11:30", label: "Photo Session", venue: "Gardens", done: false, active: true },
+  {
+    id: 1,
+    time: "09:00",
+    label: "Bridal Preparation",
+    venue: "Bridal Suite",
+    done: true,
+  },
+  {
+    id: 2,
+    time: "11:30",
+    label: "Photo Session",
+    venue: "Gardens",
+    done: false,
+    active: true,
+  },
   { id: 3, time: "14:00", label: "Ceremony", venue: "Chapel", done: false },
 ];
 
-const NEW_CUE = { id: 4, time: "17:00", label: "Reception & Dinner", venue: "Ballroom", done: false };
+const NEW_CUE = {
+  id: 4,
+  time: "17:00",
+  label: "Reception & Dinner",
+  venue: "Ballroom",
+  done: false,
+};
 
 export function TimelineMock() {
   // 0: initial, 1: new cue appearing, 2: new cue settled + role assigned, 3: reset
@@ -28,7 +47,7 @@ export function TimelineMock() {
 
     advance(phase);
     return () => clearTimeout(timeout);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showNewCue = phase >= 1;
@@ -53,24 +72,32 @@ export function TimelineMock() {
           <div
             key={cue.id}
             className={`flex items-center gap-3 rounded-xl p-3 transition-colors ${
-              cue.active ? "bg-primary/8 border border-primary/15" : "bg-transparent"
+              cue.active
+                ? "bg-primary/8 border border-primary/15"
+                : "bg-transparent"
             }`}
           >
             {/* Status dot */}
-            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center border ${
-              cue.done
-                ? "bg-secondary/20 border-secondary/40"
-                : cue.active
-                ? "bg-primary/15 border-primary/30"
-                : "bg-muted border-border"
-            }`}>
+            <div
+              className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center border ${
+                cue.done
+                  ? "bg-secondary/20 border-secondary/40"
+                  : cue.active
+                    ? "bg-primary/15 border-primary/30"
+                    : "bg-muted border-border"
+              }`}
+            >
               {cue.done ? (
                 <Check className="w-3 h-3 text-secondary" strokeWidth={2.5} />
               ) : cue.active ? (
                 <motion.div
                   className="w-2 h-2 rounded-full bg-primary"
                   animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-                  transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{
+                    duration: 1.6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 />
               ) : (
                 <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
@@ -80,19 +107,25 @@ export function TimelineMock() {
             {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{cue.time}</span>
-                <span className={`text-sm font-medium truncate ${cue.done ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                <span className="text-xs text-muted-foreground">
+                  {cue.time}
+                </span>
+                <span
+                  className={`text-sm font-medium truncate ${cue.done ? "text-muted-foreground line-through" : "text-foreground"}`}
+                >
                   {cue.label}
                 </span>
               </div>
               <div className="flex items-center gap-1 mt-0.5">
                 <MapPin className="w-2.5 h-2.5 text-muted-foreground/60" />
-                <span className="text-xs text-muted-foreground/70">{cue.venue}</span>
+                <span className="text-xs text-muted-foreground/70">
+                  {cue.venue}
+                </span>
               </div>
             </div>
 
             {cue.active && (
-              <span className="shrink-0 text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+              <span className="shrink-0 text-2xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
                 NOW
               </span>
             )}
@@ -115,8 +148,12 @@ export function TimelineMock() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{NEW_CUE.time}</span>
-                    <span className="text-sm font-medium text-foreground">{NEW_CUE.label}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {NEW_CUE.time}
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      {NEW_CUE.label}
+                    </span>
                     <AnimatePresence>
                       {phase === 2 && (
                         <motion.span
@@ -124,7 +161,7 @@ export function TimelineMock() {
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.3 }}
-                          className="text-[10px] font-semibold text-secondary bg-secondary/10 px-2 py-0.5 rounded-full border border-secondary/20"
+                          className="text-2xs font-semibold text-secondary bg-secondary/10 px-2 py-0.5 rounded-full border border-secondary/20"
                         >
                           Coordinator
                         </motion.span>
@@ -133,7 +170,9 @@ export function TimelineMock() {
                   </div>
                   <div className="flex items-center gap-1 mt-0.5">
                     <MapPin className="w-2.5 h-2.5 text-muted-foreground/60" />
-                    <span className="text-xs text-muted-foreground/70">{NEW_CUE.venue}</span>
+                    <span className="text-xs text-muted-foreground/70">
+                      {NEW_CUE.venue}
+                    </span>
                   </div>
                 </div>
               </div>

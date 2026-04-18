@@ -44,7 +44,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
             )}
 
             {item.assignees.length > 0 && (
-              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans pt-1">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans pt-1">
                 <Users className="size-3 shrink-0" />
                 {item.assignees.length}
               </span>

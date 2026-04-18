@@ -4,20 +4,20 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { useAdminStore } from "@/pages/admin/store/useAdminStore"
-import { useRoleModalStore } from "../hooks/useRoleModalStore"
-import { useRoleMutations } from "../queries"
-import type { RoleFormValues } from "../types"
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useRoleModalStore } from "../hooks/useRoleModalStore";
+import { useRoleMutations } from "../queries";
+import type { RoleFormValues } from "../types";
 
-import RoleForm from "./RoleForm"
+import RoleForm from "./RoleForm";
 
 const RoleCreateModal = () => {
-  const isCreateOpen = useRoleModalStore((s) => s.isCreateOpen)
-  const closeAll = useRoleModalStore((s) => s.closeAll)
-  const { eventId } = useAdminStore()
-  const { create } = useRoleMutations()
+  const isCreateOpen = useRoleModalStore((s) => s.isCreateOpen);
+  const closeAll = useRoleModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
+  const { create } = useRoleMutations();
 
   const handleSubmit = (values: RoleFormValues) => {
     create.mutate({
@@ -26,8 +26,8 @@ const RoleCreateModal = () => {
       short_name: values.short_name,
       category: values.category,
       description: values.description,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isCreateOpen} onOpenChange={closeAll}>
@@ -46,7 +46,7 @@ const RoleCreateModal = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default RoleCreateModal
+export default RoleCreateModal;

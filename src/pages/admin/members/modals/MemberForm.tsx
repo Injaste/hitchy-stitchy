@@ -1,35 +1,38 @@
-import { useState, type FC } from "react"
-import { useForm } from "@tanstack/react-form"
+import { useState, type FC } from "react";
+import { useForm } from "@tanstack/react-form";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Field,
   FieldContent,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { AnimateItem } from "@/components/animations/forms/field-animate"
-import { DialogClose, DialogFooter } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/field";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
+import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
-import { useRolesQuery } from "../../roles/queries"
-import { inviteMemberSchema, type InviteMemberValues } from "../types"
+import { useRolesQuery } from "../../roles/queries";
+import { inviteMemberSchema, type InviteMemberValues } from "../types";
+import { useMembersQuery } from "../queries";
+
+const SINGULAR_ROLES = ["Bride", "Groom"];
 
 interface MemberFormProps {
-  defaultValues?: Partial<InviteMemberValues>
-  onSubmit: (values: InviteMemberValues) => void
-  onCancel: () => void
-  isPending: boolean
-  submitLabel: string
-  emailDisabled?: boolean
+  defaultValues?: Partial<InviteMemberValues>;
+  onSubmit: (values: InviteMemberValues) => void;
+  onCancel: () => void;
+  isPending: boolean;
+  submitLabel: string;
+  emailDisabled?: boolean;
 }
 
 const MemberForm: FC<MemberFormProps> = ({
@@ -40,10 +43,15 @@ const MemberForm: FC<MemberFormProps> = ({
   submitLabel,
   emailDisabled = false,
 }) => {
-  const [attemptCount, setAttemptCount] = useState(0)
-  const { data: roles } = useRolesQuery()
+  const [attemptCount, setAttemptCount] = useState(0);
+  const { data: roles } = useRolesQuery();
+  const { data: members } = useMembersQuery();
 
-  const assignableRoles = (roles ?? []).filter((r) => r.category !== "root")
+  const takenSingularRoleIds = new Set(
+    members!
+      .filter((m) => SINGULAR_ROLES.includes(m.role?.name ?? ""))
+      .map((m) => m.role_id),
+  );
 
   const form = useForm({
     defaultValues: {
@@ -56,16 +64,16 @@ const MemberForm: FC<MemberFormProps> = ({
       onChange: inviteMemberSchema,
     },
     onSubmit: ({ value }) => {
-      onSubmit(inviteMemberSchema.parse(value))
+      onSubmit(inviteMemberSchema.parse(value));
     },
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setAttemptCount((prev) => prev + 1)
-    form.handleSubmit()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setAttemptCount((prev) => prev + 1);
+    form.handleSubmit();
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 mt-4">
@@ -73,7 +81,7 @@ const MemberForm: FC<MemberFormProps> = ({
         <form.Field name="display_name">
           {(field) => {
             const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0
+              Boolean(field.state.meta.errors.length) && attemptCount > 0;
             return (
               <AnimateItem
                 errors={field.state.meta.errors}
@@ -92,14 +100,14 @@ const MemberForm: FC<MemberFormProps> = ({
                   </FieldContent>
                 </Field>
               </AnimateItem>
-            )
+            );
           }}
         </form.Field>
 
         <form.Field name="email">
           {(field) => {
             const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0
+              Boolean(field.state.meta.errors.length) && attemptCount > 0;
             return (
               <AnimateItem
                 errors={field.state.meta.errors}
@@ -120,14 +128,14 @@ const MemberForm: FC<MemberFormProps> = ({
                   </FieldContent>
                 </Field>
               </AnimateItem>
-            )
+            );
           }}
         </form.Field>
 
         <form.Field name="role_id">
           {(field) => {
             const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0
+              Boolean(field.state.meta.errors.length) && attemptCount > 0;
             return (
               <AnimateItem
                 errors={field.state.meta.errors}
@@ -144,16 +152,21 @@ const MemberForm: FC<MemberFormProps> = ({
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {assignableRoles.map((r) => (
-                        <SelectItem key={r.id} value={r.id}>
+                      {roles!.map((r) => (
+                        <SelectItem
+                          key={r.id}
+                          value={r.id}
+                          disabled={takenSingularRoleIds.has(r.id)}
+                        >
                           {r.name}
+                          {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </AnimateItem>
-            )
+            );
           }}
         </form.Field>
       </FieldGroup>
@@ -169,7 +182,7 @@ const MemberForm: FC<MemberFormProps> = ({
         </Button>
       </DialogFooter>
     </form>
-  )
-}
+  );
+};
 
-export default MemberForm
+export default MemberForm;

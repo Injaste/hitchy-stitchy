@@ -20,7 +20,7 @@ export const roleFormSchema = z.object({
     .string()
     .min(1, "Short name is required")
     .max(10, "Short name is too long"),
-  category: z.enum(["admin", "couple_attendant", "general"]),
+  category: z.enum(["root", "admin", "couple_attendant", "general"]),
   description: z
     .string()
     .max(500, "Description is too long")

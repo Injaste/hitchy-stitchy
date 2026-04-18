@@ -34,7 +34,11 @@ const statusCard: Record<TaskStatus, string> = {
   done: "opacity-60",
 };
 
-const TaskCard: FC<TaskCardProps> = ({ task, dragHandleListeners, dragHandleAttributes }) => {
+const TaskCard: FC<TaskCardProps> = ({
+  task,
+  dragHandleListeners,
+  dragHandleAttributes,
+}) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
 
@@ -46,7 +50,9 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleListeners, dragHandleAttr
 
   const isDone = task.status === "done";
   const isOverdue =
-    !isDone && !!task.due_at && isBefore(parseLocalDate(task.due_at), startOfToday());
+    !isDone &&
+    !!task.due_at &&
+    isBefore(parseLocalDate(task.due_at), startOfToday());
 
   let statusEl: ReactNode;
   if (isDone) {
@@ -69,7 +75,10 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleListeners, dragHandleAttr
 
   return (
     <Card
-      className={cn("relative cursor-pointer overflow-visible w-full max-w-md group", statusCard[task.status])}
+      className={cn(
+        "relative cursor-pointer overflow-visible w-full max-w-md group",
+        statusCard[task.status],
+      )}
       onClick={() => openDetail(task)}
     >
       <div
@@ -105,7 +114,9 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleListeners, dragHandleAttr
             <CardTitle
               className={cn(
                 "text-sm",
-                isDone ? "line-through text-muted-foreground" : "text-foreground",
+                isDone
+                  ? "line-through text-muted-foreground"
+                  : "text-foreground",
               )}
             >
               {task.title}
@@ -118,17 +129,19 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleListeners, dragHandleAttr
             )}
 
             {task.due_at && (
-              <span className={cn(
-                "flex items-center gap-1.5 text-[11px] font-sans",
-                isOverdue ? "text-destructive/70" : "text-muted-foreground",
-              )}>
+              <span
+                className={cn(
+                  "flex items-center gap-1.5 text-xs font-sans",
+                  isOverdue ? "text-destructive/70" : "text-muted-foreground",
+                )}
+              >
                 <Calendar className="w-3 h-3" />
                 {format(parseLocalDate(task.due_at), "d MMM yyyy")}
               </span>
             )}
 
             {task.assignees.length > 0 && (
-              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-sans">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
                 <Users className="w-3 h-3" />
                 {task.assignees.length}
               </span>

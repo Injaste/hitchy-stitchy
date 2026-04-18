@@ -1,41 +1,39 @@
-import { useState, type FC } from "react"
-import { useForm } from "@tanstack/react-form"
+import { useState, type FC } from "react";
+import { useForm } from "@tanstack/react-form";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Field,
   FieldContent,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { AnimateItem } from "@/components/animations/forms/field-animate"
-import { DialogClose, DialogFooter } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/field";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
+import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
-import {
-  roleFormSchema,
-  CATEGORY_LABELS,
-  type RoleFormValues,
-} from "../types"
+import { roleFormSchema, CATEGORY_LABELS, type RoleFormValues } from "../types";
 
 interface RoleFormProps {
-  defaultValues?: Partial<RoleFormValues>
-  onSubmit: (values: RoleFormValues) => void
-  onCancel: () => void
-  isPending: boolean
-  submitLabel: string
+  defaultValues?: Partial<RoleFormValues>;
+  onSubmit: (values: RoleFormValues) => void;
+  onCancel: () => void;
+  isPending: boolean;
+  submitLabel: string;
 }
 
-const SELECTABLE_CATEGORIES = ["admin", "couple_attendant", "general"] as const
+const SELECTABLE_CATEGORIES = Object.keys(
+  CATEGORY_LABELS,
+) as (keyof typeof CATEGORY_LABELS)[];
 
 const RoleForm: FC<RoleFormProps> = ({
   defaultValues,
@@ -44,7 +42,7 @@ const RoleForm: FC<RoleFormProps> = ({
   isPending,
   submitLabel,
 }) => {
-  const [attemptCount, setAttemptCount] = useState(0)
+  const [attemptCount, setAttemptCount] = useState(0);
 
   const form = useForm({
     defaultValues: {
@@ -58,16 +56,16 @@ const RoleForm: FC<RoleFormProps> = ({
       onChange: roleFormSchema,
     },
     onSubmit: ({ value }) => {
-      onSubmit(roleFormSchema.parse(value))
+      onSubmit(roleFormSchema.parse(value));
     },
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setAttemptCount((prev) => prev + 1)
-    form.handleSubmit()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setAttemptCount((prev) => prev + 1);
+    form.handleSubmit();
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 mt-4">
@@ -75,7 +73,7 @@ const RoleForm: FC<RoleFormProps> = ({
         <form.Field name="name">
           {(field) => {
             const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0
+              Boolean(field.state.meta.errors.length) && attemptCount > 0;
             return (
               <AnimateItem
                 errors={field.state.meta.errors}
@@ -94,14 +92,14 @@ const RoleForm: FC<RoleFormProps> = ({
                   </FieldContent>
                 </Field>
               </AnimateItem>
-            )
+            );
           }}
         </form.Field>
 
         <form.Field name="short_name">
           {(field) => {
             const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0
+              Boolean(field.state.meta.errors.length) && attemptCount > 0;
             return (
               <AnimateItem
                 errors={field.state.meta.errors}
@@ -123,7 +121,7 @@ const RoleForm: FC<RoleFormProps> = ({
                   </FieldContent>
                 </Field>
               </AnimateItem>
-            )
+            );
           }}
         </form.Field>
 
@@ -137,12 +135,15 @@ const RoleForm: FC<RoleFormProps> = ({
                   field.handleChange(v as RoleFormValues["category"])
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger
+                  className="w-full"
+                  disabled={defaultValues?.category === "root"}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {SELECTABLE_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
+                    <SelectItem key={c} value={c} disabled={c == "root"}>
                       {CATEGORY_LABELS[c]}
                     </SelectItem>
                   ))}
@@ -183,7 +184,7 @@ const RoleForm: FC<RoleFormProps> = ({
         </Button>
       </DialogFooter>
     </form>
-  )
-}
+  );
+};
 
-export default RoleForm
+export default RoleForm;

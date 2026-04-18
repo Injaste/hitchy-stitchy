@@ -4,8 +4,8 @@
 @import "shadcn/tailwind.css";
 
 @theme {
-  --font-sans: 'Noto Sans', sans-serif;
-  --font-display: 'Noto Sans Display', sans-serif;
+  --font-sans: "Noto Sans", sans-serif;
+  --font-display: "Noto Sans Display", sans-serif;
   --font-mono: ui-monospace, monospace;
 
   --color-gold-primary: #d4af37;
@@ -13,6 +13,7 @@
   --color-espresso-accent: #3d3028;
 
   --text-2xs: 10px;
+  --text-3xs: 9px;
 
   --default-transition-duration: 200ms;
 
@@ -86,7 +87,12 @@
     @apply font-sans;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
   }
 

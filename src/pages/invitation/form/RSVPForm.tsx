@@ -96,7 +96,7 @@ const RSVPForm = ({
                     <Field data-invalid={isInvalid}>
                       <FieldLabel
                         htmlFor={f.name}
-                        className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                        className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
                       >
                         Full Name
                         <span className="text-destructive ml-0.5">*</span>
@@ -121,7 +121,7 @@ const RSVPForm = ({
                       {isInvalid && (
                         <FieldError
                           errors={f.state.meta.errors}
-                          className="text-[10px] font-bold uppercase tracking-wide"
+                          className="text-2xs font-bold uppercase tracking-wide"
                         />
                       )}
                     </Field>
@@ -146,7 +146,7 @@ const RSVPForm = ({
                       <Field data-invalid={isInvalid}>
                         <FieldLabel
                           htmlFor={f.name}
-                          className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                          className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
                         >
                           Phone Number
                           {rsvpConfig.fields.phone.required ? (
@@ -177,7 +177,7 @@ const RSVPForm = ({
                         {isInvalid && (
                           <FieldError
                             errors={f.state.meta.errors}
-                            className="text-[10px] font-bold uppercase tracking-wide"
+                            className="text-2xs font-bold uppercase tracking-wide"
                           />
                         )}
                       </Field>
@@ -202,7 +202,7 @@ const RSVPForm = ({
                       <Field data-invalid={isInvalid}>
                         <FieldLabel
                           htmlFor={f.name}
-                          className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                          className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
                         >
                           Email Address
                           {rsvpConfig.fields.email!.required ? (
@@ -232,7 +232,7 @@ const RSVPForm = ({
                         {isInvalid && (
                           <FieldError
                             errors={f.state.meta.errors}
-                            className="text-[10px] font-bold uppercase tracking-wide"
+                            className="text-2xs font-bold uppercase tracking-wide"
                           />
                         )}
                       </Field>
@@ -257,7 +257,7 @@ const RSVPForm = ({
                       <Field data-invalid={isInvalid}>
                         <FieldLabel
                           htmlFor={f.name}
-                          className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                          className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
                         >
                           Number of Guests
                           {rsvpConfig.fields.guestsCount.required ? (
@@ -295,7 +295,7 @@ const RSVPForm = ({
                         {isInvalid && (
                           <FieldError
                             errors={f.state.meta.errors}
-                            className="text-[10px] font-bold uppercase tracking-wide"
+                            className="text-2xs font-bold uppercase tracking-wide"
                           />
                         )}
                       </Field>
@@ -320,7 +320,7 @@ const RSVPForm = ({
                       <Field data-invalid={isInvalid}>
                         <FieldLabel
                           htmlFor={f.name}
-                          className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                          className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
                         >
                           Dietary Requirements
                           {rsvpConfig.fields.dietaryNotes.required ? (
@@ -350,7 +350,7 @@ const RSVPForm = ({
                         {isInvalid && (
                           <FieldError
                             errors={f.state.meta.errors}
-                            className="text-[10px] font-bold uppercase tracking-wide"
+                            className="text-2xs font-bold uppercase tracking-wide"
                           />
                         )}
                       </Field>
@@ -375,7 +375,7 @@ const RSVPForm = ({
                       <Field data-invalid={isInvalid}>
                         <FieldLabel
                           htmlFor={f.name}
-                          className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                          className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
                         >
                           Message
                           {rsvpConfig.fields.message.required ? (
@@ -408,7 +408,7 @@ const RSVPForm = ({
                         {isInvalid && (
                           <FieldError
                             errors={f.state.meta.errors}
-                            className="text-[10px] font-bold uppercase tracking-wide"
+                            className="text-2xs font-bold uppercase tracking-wide"
                           />
                         )}
                       </Field>

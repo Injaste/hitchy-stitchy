@@ -73,24 +73,35 @@ export function LiveMock() {
                 key={cue.id}
                 layout
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
-                  isActive ? "bg-primary/8 border border-primary/15" : "bg-transparent"
+                  isActive
+                    ? "bg-primary/8 border border-primary/15"
+                    : "bg-transparent"
                 }`}
               >
                 {/* Status */}
-                <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center border ${
-                  isDone
-                    ? "bg-secondary/20 border-secondary/30"
-                    : isActive
-                    ? "border-primary/30 bg-primary/10"
-                    : "border-border bg-muted"
-                }`}>
+                <div
+                  className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center border ${
+                    isDone
+                      ? "bg-secondary/20 border-secondary/30"
+                      : isActive
+                        ? "border-primary/30 bg-primary/10"
+                        : "border-border bg-muted"
+                  }`}
+                >
                   {isDone ? (
-                    <Check className="w-3 h-3 text-secondary" strokeWidth={2.5} />
+                    <Check
+                      className="w-3 h-3 text-secondary"
+                      strokeWidth={2.5}
+                    />
                   ) : isActive ? (
                     <motion.div
                       className="w-2 h-2 rounded-full bg-primary"
                       animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
-                      transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                      transition={{
+                        duration: 1.4,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
                     />
                   ) : (
                     <div className="w-2 h-2 rounded-full bg-muted-foreground/25" />
@@ -99,9 +110,13 @@ export function LiveMock() {
 
                 {/* Label */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${
-                    isDone ? "text-muted-foreground line-through" : "text-foreground"
-                  }`}>
+                  <p
+                    className={`text-sm font-medium truncate ${
+                      isDone
+                        ? "text-muted-foreground line-through"
+                        : "text-foreground"
+                    }`}
+                  >
                     {cue.label}
                   </p>
                   <p className="text-xs text-muted-foreground/70">{cue.time}</p>
@@ -112,7 +127,7 @@ export function LiveMock() {
                   <motion.span
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="shrink-0 text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full uppercase tracking-wide"
+                    className="shrink-0 text-2xs font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full uppercase tracking-wide"
                   >
                     Active
                   </motion.span>
@@ -128,12 +143,17 @@ export function LiveMock() {
           <div className="flex items-center gap-1">
             <div className="flex -space-x-1">
               {["EK", "RM"].map((initials) => (
-                <div key={initials} className="w-5 h-5 rounded-full bg-muted border border-card flex items-center justify-center text-[8px] font-bold text-foreground">
+                <div
+                  key={initials}
+                  className="w-5 h-5 rounded-full bg-muted border border-card flex items-center justify-center text-3xsont-bold text-foreground"
+                >
                   {initials}
                 </div>
               ))}
             </div>
-            <span className="text-xs text-foreground font-medium ml-1">2 arrived</span>
+            <span className="text-xs text-foreground font-medium ml-1">
+              2 arrived
+            </span>
           </div>
         </div>
       </div>

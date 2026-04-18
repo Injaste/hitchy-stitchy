@@ -8,7 +8,12 @@ interface FooterProps {
   brideName?: string;
 }
 
-const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, groomName = "Danish", brideName = "Nadhirah" }) => {
+const Footer: FC<FooterProps> = ({
+  fadeIn,
+  fadeUp,
+  groomName = "Danish",
+  brideName = "Nadhirah",
+}) => {
   return (
     <motion.div
       initial="hidden"
@@ -49,7 +54,7 @@ const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, groomName = "Danish", brideNa
       </motion.div>
       <motion.p
         variants={fadeIn(0.5, 0.8)}
-        className="text-muted-foreground/60 text-[10px] uppercase tracking-[0.3em]"
+        className="text-muted-foreground/60 text-2xs uppercase tracking-[0.3em]"
       >
         © 2026 Dannad Wedding
       </motion.p>

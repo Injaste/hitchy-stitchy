@@ -1,41 +1,41 @@
-import { format, parseISO } from "date-fns"
+import { format, parseISO } from "date-fns";
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useMemberModalStore } from "../hooks/useMemberModalStore"
+import { useAccess } from "../../hooks/useAccess";
+import { useMemberModalStore } from "../hooks/useMemberModalStore";
 
 const MemberDetailModal = () => {
-  const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen)
-  const selectedItem = useMemberModalStore((s) => s.selectedItem)
-  const closeAll = useMemberModalStore((s) => s.closeAll)
-  const openEdit = useMemberModalStore((s) => s.openEdit)
-  const openFreeze = useMemberModalStore((s) => s.openFreeze)
+  const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen);
+  const selectedItem = useMemberModalStore((s) => s.selectedItem);
+  const closeAll = useMemberModalStore((s) => s.closeAll);
+  const openEdit = useMemberModalStore((s) => s.openEdit);
+  const openFreeze = useMemberModalStore((s) => s.openFreeze);
 
-  const { canUpdate } = useAccess()
+  const { canUpdate } = useAccess();
 
-  if (!selectedItem) return null
-  const member = selectedItem
+  if (!selectedItem) return null;
+  const member = selectedItem;
 
   const statusLabel = member.is_frozen
     ? "Frozen"
     : !member.joined_at
       ? "Pending invite"
-      : "Active"
+      : "Active";
 
   const joinedLabel = member.joined_at
     ? format(parseISO(member.joined_at), "d MMM yyyy")
     : member.invited_at
       ? `Invited ${format(parseISO(member.invited_at), "d MMM yyyy")}`
-      : null
+      : null;
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -79,9 +79,15 @@ const MemberDetailModal = () => {
           <div className="flex items-center justify-end gap-2">
             {canUpdate("members") && (
               <>
-                <Button variant="outline" size="sm" onClick={openFreeze}>
-                  {member.is_frozen ? "Restore access" : "Freeze access"}
-                </Button>
+                {member.role?.category !== "root" && (
+                  <Button
+                    variant={member.is_frozen ? "outline" : "destructive"}
+                    size="sm"
+                    onClick={openFreeze}
+                  >
+                    {member.is_frozen ? "Restore access" : "Freeze access"}
+                  </Button>
+                )}
                 <Button size="sm" onClick={openEdit} autoFocus>
                   Edit
                 </Button>
@@ -91,7 +97,7 @@ const MemberDetailModal = () => {
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default MemberDetailModal
+export default MemberDetailModal;
