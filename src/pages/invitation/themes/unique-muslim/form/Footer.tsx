@@ -1,15 +1,15 @@
-import type { FC } from "react";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion"
+import { fadeUp, fadeIn, divider } from "../animations"
 
 interface FooterProps {
-  fadeUp: (delay: number, y?: number, duration?: number) => Variants;
-  fadeIn: (delay: number, duration?: number) => Variants;
-  couple_names?: string | null;
+  couple_names?: string | null
 }
 
-const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, couple_names }) => {
-  const year = new Date().getFullYear();
-  const displayName = couple_names ?? "Our Wedding";
+const dividerV = divider()
+
+const Footer = ({ couple_names }: FooterProps) => {
+  const year = new Date().getFullYear()
+  const displayName = couple_names ?? "Our Wedding"
 
   return (
     <motion.div
@@ -19,14 +19,7 @@ const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, couple_names }) => {
       className="mt-12 sm:mt-16 text-center relative"
     >
       <motion.div
-        variants={{
-          hidden: { opacity: 0, scaleX: 0 },
-          show: {
-            opacity: 1,
-            scaleX: 1,
-            transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-          },
-        }}
+        variants={dividerV}
         style={{ originX: "50%" }}
         className="w-10 sm:w-12 h-px bg-primary/30 mx-auto mb-6 sm:mb-8"
       />
@@ -56,7 +49,7 @@ const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, couple_names }) => {
         © {year} {displayName} Wedding
       </motion.p>
     </motion.div>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer

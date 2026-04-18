@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { ArrowLeft } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useInvitationQuery } from "@/pages/admin/invitation/queries"
 import { themeRegistry, FallbackTheme } from "@/pages/invitation/themes"
+import type { ThemeConfigField } from "@/pages/invitation/themes"
 import type { PublicEventConfig } from "@/pages/invitation/types"
 import type { EventPage } from "../types"
 import { useUpdatePageConfigMutation } from "../queries"
@@ -20,13 +20,38 @@ interface Props {
   onBack: () => void
 }
 
+const ConfigField = ({
+  field,
+  value,
+  onChange,
+}: {
+  field: ThemeConfigField
+  value: string
+  onChange: (v: string) => void
+}) => (
+  <div className="space-y-2">
+    <Label>{field.label}</Label>
+    <Input
+      type={field.type === "color" ? "color" : "text"}
+      placeholder={field.placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+    {field.description && (
+      <p className="text-xs text-muted-foreground">{field.description}</p>
+    )}
+  </div>
+)
+
 const PageEditor = ({ page, onBack }: Props) => {
   const { data: invitation, isLoading } = useInvitationQuery()
   const [draftConfig, setDraftConfig] = useState<Record<string, unknown>>(page.config)
   const updateConfig = useUpdatePageConfigMutation()
 
   const themeSlug = (page.config._theme_slug as string) ?? page.theme?.slug ?? null
-  const ThemeComponent = (themeSlug ? themeRegistry[themeSlug] : null) ?? FallbackTheme
+  const definition = themeSlug ? themeRegistry[themeSlug] : null
+  const ThemeComponent = definition?.component ?? FallbackTheme
+  const schema = definition?.schema ?? []
 
   const composed: PublicEventConfig | null = invitation
     ? {
@@ -43,17 +68,9 @@ const PageEditor = ({ page, onBack }: Props) => {
         rsvp_mode: invitation.rsvp_mode as PublicEventConfig["rsvp_mode"],
         rsvp_deadline: invitation.rsvp_deadline,
         config: invitation.config as PublicEventConfig["config"],
-        published_page: {
-          id: page.id,
-          theme_slug: themeSlug,
-          config: draftConfig,
-        },
+        published_page: { id: page.id, theme_slug: themeSlug, config: draftConfig },
       }
     : null
-
-  const handleSave = () => {
-    updateConfig.mutate({ id: page.id, config: draftConfig })
-  }
 
   return (
     <div className="space-y-6">
@@ -69,21 +86,24 @@ const PageEditor = ({ page, onBack }: Props) => {
 
       <div className="flex gap-10 items-start">
         <div className="flex-1 space-y-6 min-w-0">
-          <div className="space-y-2">
-            <Label>Background Image</Label>
-            <Input
-              placeholder="/image.png or https://..."
-              value={(draftConfig.background_image as string) ?? ""}
-              onChange={(e) =>
-                setDraftConfig((prev) => ({ ...prev, background_image: e.target.value }))
-              }
-            />
-            <p className="text-xs text-muted-foreground">
-              Path or URL for the background displayed behind the invitation.
-            </p>
-          </div>
+          {schema.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">This theme has no configurable fields.</p>
+          ) : (
+            schema.map((field) => (
+              <ConfigField
+                key={field.key}
+                field={field}
+                value={(draftConfig[field.key] as string) ?? ""}
+                onChange={(v) => setDraftConfig((prev) => ({ ...prev, [field.key]: v }))}
+              />
+            ))
+          )}
 
-          <Button size="sm" onClick={handleSave} disabled={updateConfig.isPending}>
+          <Button
+            size="sm"
+            onClick={() => updateConfig.mutate({ id: page.id, config: draftConfig })}
+            disabled={updateConfig.isPending || schema.length === 0}
+          >
             Save Changes
           </Button>
         </div>

@@ -1,33 +1,28 @@
-import { useRef } from "react";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { useRef } from "react"
+import { motion, useScroll, useSpring } from "framer-motion"
 
-import type { PublicEventConfig } from "@/pages/invitation/types";
-
-import Hero from "./Hero";
-import Details from "./Details";
-import RSVP from "./RSVP";
-import FloatingIcons from "./FloatingIcons";
-
-export interface ThemeProps {
-  eventConfig: PublicEventConfig;
-  pageConfig?: Record<string, unknown>;
-}
+import type { ThemeProps } from "@/pages/invitation/themes/types"
+import { resolveConfig } from "./config"
+import Hero from "./Hero"
+import Details from "./Details"
+import RSVP from "./RSVP"
+import FloatingIcons from "./FloatingIcons"
 
 const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
-  const containerRef = useRef(null);
+  const containerRef = useRef(null)
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
-  });
+  })
 
   const scaleProgress = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001,
-  });
+  })
 
-  const bgImage = (pageConfig?.background_image as string) ?? "/dannad.png";
+  const { background_image } = resolveConfig(pageConfig)
 
   return (
     <div ref={containerRef} className="font-medium">
@@ -38,7 +33,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
 
       <img
         className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50"
-        src={bgImage}
+        src={background_image}
         alt=""
       />
 
@@ -47,7 +42,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
       <RSVP eventConfig={eventConfig} />
       <FloatingIcons />
     </div>
-  );
-};
+  )
+}
 
-export default UniqueMuslim;
+export default UniqueMuslim

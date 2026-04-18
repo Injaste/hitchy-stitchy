@@ -30,8 +30,8 @@ const Invitation = () => {
   if (error || !eventConfig) return <InvitationError />;
 
   const themeSlug = eventConfig.published_page?.theme_slug ?? null;
-  const ThemeComponent =
-    (themeSlug ? themeRegistry[themeSlug] : null) ?? FallbackTheme;
+  const definition = themeSlug ? themeRegistry[themeSlug] : null;
+  const ThemeComponent = definition?.component ?? FallbackTheme;
 
   return (
     <ThemeComponent
