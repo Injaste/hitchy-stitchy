@@ -1,6 +1,8 @@
+import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
+import { supabase } from "@/lib/supabase"
 import { fetchPublicEvent, fetchRSVP, submitRSVP, updateRSVP, deleteRSVP } from "./api"
 import type { RSVPFormData } from "./types"
 
@@ -17,6 +19,33 @@ export function usePublicEvent() {
     queryFn: () => fetchPublicEvent(slug!),
     enabled: !!slug,
   })
+}
+
+export function usePublicEventRealtime(event_id: string | null) {
+  const { slug } = useParams<{ slug: string }>()
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    if (!event_id || !slug) return
+
+    const channel = supabase
+      .channel(`public-event-${event_id}`)
+      .on("postgres_changes", {
+        event: "UPDATE", schema: "public", table: "event_invitation",
+        filter: `event_id=eq.${event_id}`,
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: publicEventQueryKey(slug) })
+      })
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "event_pages",
+        filter: `event_id=eq.${event_id}`,
+      }, () => {
+        queryClient.invalidateQueries({ queryKey: publicEventQueryKey(slug) })
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [event_id, slug, queryClient])
 }
 
 export function useGuestRSVP(event_id: string | null) {

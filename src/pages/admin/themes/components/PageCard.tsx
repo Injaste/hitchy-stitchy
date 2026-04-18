@@ -1,5 +1,5 @@
 import type { FC } from "react"
-import { MoreHorizontal, Globe, Pencil, Trash2 } from "lucide-react"
+import { MoreHorizontal, Globe, Pencil, Trash2, Settings2 } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Card, CardContent } from "@/components/ui/card"
@@ -22,7 +22,7 @@ interface Props {
 }
 
 const PageCard: FC<Props> = ({ page }) => {
-  const { openRename, openDelete, openPublish } = usePagesModalStore()
+  const { openRename, openDelete, openPublish, openEditor } = usePagesModalStore()
 
   return (
     <motion.div whileHover={cardHover}>
@@ -56,6 +56,10 @@ const PageCard: FC<Props> = ({ page }) => {
                   Publish
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem onClick={() => openEditor(page)}>
+                <Settings2 className="h-4 w-4 mr-2" />
+                Edit Config
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => openRename(page)}>
                 <Pencil className="h-4 w-4 mr-2" />
                 Rename

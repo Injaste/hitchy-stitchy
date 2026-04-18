@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { CalendarHeart } from "lucide-react";
 
-import { usePublicEvent } from "./queries";
+import { usePublicEvent, usePublicEventRealtime } from "./queries";
 import { themeRegistry, FallbackTheme } from "./themes";
 
 const InvitationSkeleton = () => (
@@ -24,6 +24,7 @@ const InvitationError = () => (
 
 const Invitation = () => {
   const { data: eventConfig, isLoading, error } = usePublicEvent();
+  usePublicEventRealtime(eventConfig?.event_id ?? null);
 
   if (isLoading) return <InvitationSkeleton />;
   if (error || !eventConfig) return <InvitationError />;

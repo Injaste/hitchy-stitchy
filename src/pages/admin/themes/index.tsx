@@ -8,11 +8,16 @@ import ErrorState from "@/components/custom/error-state"
 import { usePagesQuery } from "./queries"
 import { usePagesModalStore } from "./hooks/usePagesModalStore"
 import PageCard from "./components/PageCard"
+import PageEditor from "./components/PageEditor"
 import PagesModals from "./modals"
 
 const PagesView = () => {
   const { data: pages, isLoading, isError, refetch, isRefetching } = usePagesQuery()
-  const openThemePicker = usePagesModalStore((s) => s.openThemePicker)
+  const { openThemePicker, editingPage, closeEditor } = usePagesModalStore()
+
+  if (editingPage) {
+    return <PageEditor page={editingPage} onBack={closeEditor} />
+  }
 
   return (
     <div className="space-y-6">
