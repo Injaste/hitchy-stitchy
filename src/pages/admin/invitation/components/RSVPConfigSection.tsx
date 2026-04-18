@@ -61,6 +61,7 @@ const RSVPConfigSection: FC<Props> = ({ invitation }) => {
       rsvp_mode,
       rsvp_deadline: rsvp_deadline || null,
       config: {
+        ...invitation.config,
         rsvp: {
           fields: {
             name: { visible: true, required: true },

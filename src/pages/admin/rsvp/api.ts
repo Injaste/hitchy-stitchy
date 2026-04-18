@@ -1,17 +1,24 @@
+import { supabase } from "@/lib/supabase"
 import type { RSVPEntry, RSVPStatus } from './types'
-import { mockRSVPs } from './data'
 
-// TODO: replace with live Supabase query
+const FIELDS = "id, event_id, name, phone, guest_count, message, status, source, cancel_token, created_at, updated_at"
+
 export async function fetchRSVPs(eventId: string): Promise<RSVPEntry[]> {
-  await new Promise((r) => setTimeout(r, 200))
-  return mockRSVPs
+  const { data, error } = await supabase
+    .from("event_rsvps")
+    .select(FIELDS)
+    .eq("event_id", eventId)
+    .order("created_at", { ascending: false })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as RSVPEntry[]
 }
 
-// TODO: replace with live Supabase query
-export async function updateRSVPStatus(
-  payload: { id: string; status: RSVPStatus },
-): Promise<RSVPEntry> {
-  await new Promise((r) => setTimeout(r, 200))
-  const entry = mockRSVPs.find((r) => r.id === payload.id)!
-  return { ...entry, status: payload.status, updatedAt: new Date().toISOString() }
+export async function updateRSVPStatus({ id, status }: { id: string; status: RSVPStatus }): Promise<void> {
+  const { error } = await supabase
+    .from("event_rsvps")
+    .update({ status })
+    .eq("id", id)
+
+  if (error) throw new Error(error.message)
 }

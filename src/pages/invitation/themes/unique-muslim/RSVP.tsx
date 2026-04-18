@@ -6,8 +6,8 @@ import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useGuestRSVP, useRSVPMutations } from "./queries";
-import type { RSVPFormData, PublicEventConfig } from "./types";
+import { useGuestRSVP, useRSVPMutations } from "@/pages/invitation/queries";
+import type { RSVPFormData, PublicEventConfig } from "@/pages/invitation/types";
 import RSVPForm from "./form/RSVPForm";
 import Footer from "./form/Footer";
 import RSVPDelete from "./form/RSVPDelete";
@@ -38,7 +38,6 @@ const fireConfetti = () => {
   });
 };
 
-/** Tracks the height of a child element via ResizeObserver */
 const useContentHeight = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number | "auto">("auto");
@@ -59,37 +58,32 @@ const useContentHeight = () => {
 };
 
 const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
-  const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.id);
-  const { submit, remove } = useRSVPMutations(eventConfig.id);
+  const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.event_id);
+  const { submit, update, remove } = useRSVPMutations(eventConfig.event_id);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { ref: bodyRef, height: bodyHeight } = useContentHeight();
 
-  const rsvpConfig = eventConfig.rsvpForm;
+  const rsvpConfig = eventConfig.config.rsvp;
 
-  // Check if RSVP is closed (past deadline)
   const isDeadlinePassed =
-    eventConfig.rsvpDeadlineEnabled &&
-    eventConfig.rsvpDeadline !== null &&
-    isAfter(startOfDay(new Date()), startOfDay(eventConfig.rsvpDeadline));
+    eventConfig.rsvp_deadline !== null &&
+    isAfter(startOfDay(new Date()), startOfDay(new Date(eventConfig.rsvp_deadline!)));
 
   const handleSubmit = async (value: RSVPFormData) => {
-    await submit.mutate({
-      name: value.name,
-      phone: value.phone ?? "",
-      guestsCount: value.guestsCount ?? 1,
-      dietaryNotes: value.dietaryNotes,
-      message: value.message,
-      cancelToken: "",
-    });
+    if (isEditing) {
+      await update.mutate(value);
+    } else {
+      await submit.mutate(value);
+    }
     setIsEditing(false);
     fireConfetti();
   };
 
   const handleDeleteConfirm = async () => {
     setShowDeleteDialog(false);
-    await remove.mutate({ id: existingRSVP!.id });
+    await remove.mutate();
     setIsEditing(false);
   };
 
@@ -107,7 +101,6 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
       className="pt-20 sm:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 relative bg-white/10 backdrop-blur-sm z-10"
     >
       <div className="max-w-sm sm:max-w-md mx-auto">
-        {/* Card */}
         <motion.div
           layout
           initial="hidden"
@@ -140,16 +133,13 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             </motion.p>
           </motion.div>
 
-          {/* Animated height wrapper */}
           <motion.div
             variants={fadeUp(0.35, 16, 0.7)}
             animate={{ height: bodyHeight }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Inner div measured by ResizeObserver */}
             <div ref={bodyRef}>
-              {/* Pool-only closed state */}
-              {rsvpConfig.mode === "pool" ? (
+              {eventConfig.rsvp_mode === "private" ? (
                 <motion.div
                   key="pool-closed"
                   initial={{ opacity: 0 }}
@@ -187,11 +177,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 200,
-                          damping: 20,
-                        }}
+                        transition={{ type: "spring", stiffness: 200, damping: 20 }}
                       >
                         <CheckCircle2
                           className="text-green-400 mx-auto mb-4 sm:mb-6"
@@ -202,13 +188,10 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                         Alhamdulillah!
                       </h3>
                       <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base">
-                        {rsvpConfig.confirmationMessage}
+                        {rsvpConfig.confirmation_message}
                       </p>
                       <div className="flex gap-3 justify-center">
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                           <Button
                             variant="outline"
                             size="sm"
@@ -218,10 +201,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                             <Edit2 size={14} className="text-primary" /> Edit
                           </Button>
                         </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                           <Button
                             variant="outline"
                             size="sm"
@@ -250,16 +230,13 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                             ? {
                                 name: existingRSVP.name,
                                 phone: existingRSVP.phone,
-                                guestsCount: existingRSVP.guestsCount,
-                                dietaryNotes: existingRSVP.dietaryNotes,
-                                message: existingRSVP.message,
+                                guestCount: existingRSVP.guest_count,
+                                message: existingRSVP.message ?? undefined,
                               }
                             : undefined
                         }
                         onSubmit={handleSubmit}
-                        onCancel={
-                          isEditing ? () => setIsEditing(false) : undefined
-                        }
+                        onCancel={isEditing ? () => setIsEditing(false) : undefined}
                         isEditing={isEditing}
                         rsvpConfig={rsvpConfig}
                       />
@@ -271,7 +248,11 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
           </motion.div>
         </motion.div>
 
-        <Footer fadeUp={fadeUp} fadeIn={fadeIn} groomName={eventConfig.groomName} brideName={eventConfig.brideName} />
+        <Footer
+          fadeUp={fadeUp}
+          fadeIn={fadeIn}
+          couple_names={eventConfig.couple_names}
+        />
       </div>
 
       <RSVPDelete

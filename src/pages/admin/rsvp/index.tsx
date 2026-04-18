@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import { ComponentFade } from '@/components/animations/animate-component-fade'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { useRSVPQuery } from './queries'
+import { useRSVPQuery, useRSVPRealtime } from './queries'
 import type { RSVPEntry } from './types'
 
 import { RSVPStats } from './components/RSVPStats'
@@ -12,6 +12,7 @@ import { RSVPDetailModal } from './components/modals/RSVPDetailModal'
 
 export function RSVPTab() {
   const { data: rsvps, isLoading } = useRSVPQuery()
+  useRSVPRealtime()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [selectedRSVP, setSelectedRSVP] = useState<RSVPEntry | null>(null)
 

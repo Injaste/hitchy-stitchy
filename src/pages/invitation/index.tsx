@@ -1,14 +1,8 @@
-import { useRef } from "react";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { CalendarHeart } from "lucide-react";
 
-import { usePublicEvent } from "./queries";
-import type { PublicEventConfig } from "./types";
-
-import Hero from "./Hero";
-import Details from "./Details";
-import RSVP from "./RSVP";
-import FloatingIcons from "./FloatingIcons";
+import { usePublicEvent, usePublicEventRealtime } from "./queries";
+import { themeRegistry, FallbackTheme } from "./themes";
 
 const InvitationSkeleton = () => (
   <motion.div
@@ -28,56 +22,23 @@ const InvitationError = () => (
   </div>
 );
 
-const InvitationContent = ({
-  eventConfig,
-}: {
-  eventConfig: PublicEventConfig;
-}) => {
-  const containerRef = useRef(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const scaleProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
-
-  return (
-    <div ref={containerRef} className="font-medium">
-      <motion.div
-        className="fixed top-0 bottom-0 right-0 w-1 bg-primary z-50 origin-top"
-        style={{ scaleY: scaleProgress }}
-      />
-
-      <img
-        className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50"
-        src="/dannad.png"
-        alt="dannad"
-      />
-
-      <Hero eventConfig={eventConfig} />
-      <Details eventConfig={eventConfig} />
-      <RSVP eventConfig={eventConfig} />
-      <FloatingIcons />
-    </div>
-  );
-};
-
 const Invitation = () => {
   const { data: eventConfig, isLoading, error } = usePublicEvent();
-
-  console.log(eventConfig);
-  console.log(error);
-  console.log(isLoading);
+  usePublicEventRealtime(eventConfig?.event_id ?? null);
 
   if (isLoading) return <InvitationSkeleton />;
   if (error || !eventConfig) return <InvitationError />;
 
-  return <InvitationContent eventConfig={eventConfig} />;
+  const themeSlug = eventConfig.published_page?.theme_slug ?? null;
+  const ThemeComponent =
+    (themeSlug ? themeRegistry[themeSlug] : null) ?? FallbackTheme;
+
+  return (
+    <ThemeComponent
+      eventConfig={eventConfig}
+      pageConfig={eventConfig.published_page?.config}
+    />
+  );
 };
 
 export default Invitation;

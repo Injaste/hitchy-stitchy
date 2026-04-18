@@ -12,7 +12,7 @@ interface RSVPTableProps {
 const statusBadge: Record<RSVPStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' }> = {
   confirmed: { label: 'Confirmed', variant: 'default' },
   pending: { label: 'Pending', variant: 'secondary' },
-  declined: { label: 'Declined', variant: 'destructive' },
+  cancelled: { label: 'Cancelled', variant: 'destructive' },
 }
 
 export function RSVPTable({ rsvps, onViewDetail }: RSVPTableProps) {
@@ -41,12 +41,12 @@ export function RSVPTable({ rsvps, onViewDetail }: RSVPTableProps) {
                   onClick={() => onViewDetail(rsvp)}
                 >
                   <td className="px-4 py-3 font-medium text-foreground">{rsvp.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{rsvp.guestsCount}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{rsvp.guest_count}</td>
                   <td className="px-4 py-3">
                     <Badge variant={badge.variant}>{badge.label}</Badge>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">
-                    {format(new Date(rsvp.submittedAt), 'MMM d, yyyy')}
+                    {format(new Date(rsvp.created_at), 'MMM d, yyyy')}
                   </td>
                   <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     {rsvp.status !== 'confirmed' && (
@@ -57,12 +57,12 @@ export function RSVPTable({ rsvps, onViewDetail }: RSVPTableProps) {
                         Confirm
                       </Button>
                     )}
-                    {rsvp.status !== 'declined' && (
+                    {rsvp.status !== 'cancelled' && (
                       <Button
                         size="sm" variant="ghost" className="text-xs h-7 text-destructive"
-                        onClick={() => updateStatus({ id: rsvp.id, status: 'declined' })}
+                        onClick={() => updateStatus({ id: rsvp.id, status: 'cancelled' })}
                       >
-                        Decline
+                        Cancel
                       </Button>
                     )}
                   </td>

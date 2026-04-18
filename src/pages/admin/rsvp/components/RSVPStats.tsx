@@ -8,14 +8,14 @@ interface RSVPStatsProps {
 export function RSVPStats({ rsvps }: RSVPStatsProps) {
   const confirmed = rsvps.filter((r) => r.status === 'confirmed')
   const pending = rsvps.filter((r) => r.status === 'pending')
-  const declined = rsvps.filter((r) => r.status === 'declined')
-  const totalGuests = confirmed.reduce((sum, r) => sum + r.guestsCount, 0)
+  const cancelled = rsvps.filter((r) => r.status === 'cancelled')
+  const totalGuests = confirmed.reduce((sum, r) => sum + r.guest_count, 0)
 
   const stats = [
     { label: 'Total', value: rsvps.length, icon: Users, className: 'text-foreground' },
     { label: 'Confirmed', value: confirmed.length, icon: CheckCircle2, className: 'text-primary' },
     { label: 'Pending', value: pending.length, icon: Clock, className: 'text-amber-500' },
-    { label: 'Declined', value: declined.length, icon: XCircle, className: 'text-destructive' },
+    { label: 'Cancelled', value: cancelled.length, icon: XCircle, className: 'text-destructive' },
   ]
 
   return (

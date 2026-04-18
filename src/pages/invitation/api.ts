@@ -1,135 +1,112 @@
 import { supabase } from "@/lib/supabase"
-import type { PublicEventConfig, RSVPSubmission, NewRSVPSubmission } from "./types"
-
-const DEFAULT_RSVP_FORM = {
-  fields: {
-    name: { visible: true, required: true },
-    phone: { visible: true, required: true },
-    guestsCount: { visible: true, required: true },
-    dietaryNotes: { visible: false, required: false },
-    mealChoice: { visible: false, required: false },
-    message: { visible: false, required: false },
-  },
-  mode: "open",
-  guestMin: 1,
-  guestMax: 10,
-  confirmationMessage: "We look forward to celebrating with you!",
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function derivePublicEventConfig(row: any): PublicEventConfig {
-  const s = (row.settings ?? {}) as Record<string, unknown>
-  return {
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    dateStart: new Date(row.date_start),
-    dateEnd: new Date(row.date_end),
-    groomName: (s.groom_name as string) ?? "",
-    brideName: (s.bride_name as string) ?? "",
-    venueName: (s.venue_name as string) ?? "",
-    venueAddress: (s.venue_address as string) ?? "",
-    venueMapEmbedUrl: (s.venue_map_embed_url as string) ?? "",
-    venueMapLink: (s.venue_map_link as string) ?? "",
-    startTime: (s.start_time as string) ?? "",
-    endTime: (s.end_time as string) ?? "",
-    attire: (s.attire as string) ?? "",
-    blessingsName: (s.blessings_name as string) ?? "",
-    blessingsLabel: (s.blessings_label as string) ?? "",
-    rsvpForm: (s.rsvp_form) ?? DEFAULT_RSVP_FORM,
-    rsvpDeadlineEnabled: (s.rsvp_deadline_enabled as boolean) ?? false,
-    rsvpDeadline: s.rsvp_deadline ? new Date(s.rsvp_deadline as string) : null,
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapRsvpRow(row: any): RSVPSubmission {
-  return {
-    id: row.id,
-    name: row.name,
-    phone: row.phone ?? "",
-    guestsCount: row.guests_count ?? row.guestsCount ?? 0,
-    dietaryNotes: row.dietary_notes ?? row.dietaryNotes,
-    message: row.message,
-    status: row.status ?? "Pending",
-    cancelToken: row.cancel_token ?? row.cancelToken ?? "",
-    submittedAt: row.submitted_at ?? row.submittedAt ?? "",
-  }
-}
+import type { PublicEventConfig, RSVPSubmission, RSVPFormData, InvitationConfig } from "./types"
 
 export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig> {
-  const { data, error } = await supabase
-    .from("events")
-    .select("id, slug, name, date_start, date_end, settings")
+  const { data: slugRow, error: slugError } = await supabase
+    .from("event_slugs")
+    .select("id")
     .eq("slug", slug)
     .single()
-  if (error || !data) throw new Error("Event not found")
-  return derivePublicEventConfig(data)
+
+  if (slugError || !slugRow) throw new Error("Event not found")
+
+  const event_id = slugRow.id as string
+
+  const [invResult, pageResult] = await Promise.all([
+    supabase.from("event_invitation").select("*").eq("event_id", event_id).single(),
+    supabase.from("event_pages").select("id, config").eq("event_id", event_id).eq("is_published", true).maybeSingle(),
+  ])
+
+  if (invResult.error || !invResult.data) throw new Error("Invitation not found")
+
+  const inv = invResult.data
+  const page = pageResult.data ?? null
+
+  return {
+    id: inv.id,
+    event_id: inv.event_id,
+    couple_names: inv.couple_names,
+    event_date: inv.event_date,
+    event_time_start: inv.event_time_start,
+    event_time_end: inv.event_time_end,
+    venue_name: inv.venue_name,
+    venue_address: inv.venue_address,
+    venue_map_embed_url: inv.venue_map_embed_url,
+    venue_map_link: inv.venue_map_link,
+    rsvp_mode: inv.rsvp_mode,
+    rsvp_deadline: inv.rsvp_deadline,
+    config: inv.config as InvitationConfig,
+    published_page: page
+      ? {
+          id: page.id,
+          theme_slug: ((page.config as Record<string, unknown>)._theme_slug as string) ?? null,
+          config: page.config as Record<string, unknown>,
+        }
+      : null,
+  }
 }
 
-export async function fetchRSVP(
-  eventId: string,
-  phone: string
-): Promise<RSVPSubmission | null> {
-  const { data } = await supabase
-    .from("rsvps")
-    .select("*")
-    .eq("event_id", eventId)
-    .eq("phone", phone)
-    .maybeSingle()
-  return data ? mapRsvpRow(data) : null
+export async function fetchRSVP(event_id: string, phone: string): Promise<RSVPSubmission | null> {
+  const { data, error } = await supabase.rpc("get_rsvp", {
+    p_event_id: event_id,
+    p_phone: phone,
+  })
+  if (error) throw new Error(error.message)
+  return (data as RSVPSubmission) ?? null
 }
 
-export async function submitRSVP(
-  eventId: string,
-  submission: NewRSVPSubmission
-): Promise<RSVPSubmission> {
-  const cancelToken = crypto.randomUUID()
+export async function submitRSVP(event_id: string, formData: RSVPFormData): Promise<RSVPSubmission> {
+  const cancel_token = crypto.randomUUID()
   const { data, error } = await supabase
-    .from("rsvps")
-    .upsert(
-      {
-        name: submission.name,
-        phone: submission.phone,
-        guests_count: submission.guestsCount,
-        dietary_notes: submission.dietaryNotes,
-        message: submission.message,
-        event_id: eventId,
-        cancel_token: cancelToken,
-      },
-      { onConflict: "event_id,phone" }
-    )
+    .from("event_rsvps")
+    .insert({
+      event_id,
+      name: formData.name,
+      phone: formData.phone ?? null,
+      guest_count: formData.guestCount ?? 1,
+      message: formData.message ?? null,
+      cancel_token,
+      source: "public",
+    })
     .select()
     .single()
+
   if (error) throw new Error(error.message)
-  return mapRsvpRow(data)
+  return data as RSVPSubmission
 }
 
 export async function updateRSVP(
-  id: string,
-  patch: Partial<NewRSVPSubmission>
+  event_id: string,
+  phone: string,
+  cancel_token: string,
+  formData: Partial<RSVPFormData>
 ): Promise<RSVPSubmission> {
+  await deleteRSVP(event_id, phone, cancel_token)
+
+  const new_cancel_token = crypto.randomUUID()
   const { data, error } = await supabase
-    .from("rsvps")
-    .update({
-      ...(patch.name !== undefined && { name: patch.name }),
-      ...(patch.phone !== undefined && { phone: patch.phone }),
-      ...(patch.guestsCount !== undefined && { guests_count: patch.guestsCount }),
-      ...(patch.dietaryNotes !== undefined && { dietary_notes: patch.dietaryNotes }),
-      ...(patch.message !== undefined && { message: patch.message }),
+    .from("event_rsvps")
+    .insert({
+      event_id,
+      name: formData.name!,
+      phone: formData.phone ?? phone,
+      guest_count: formData.guestCount ?? 1,
+      message: formData.message ?? null,
+      cancel_token: new_cancel_token,
+      source: "public",
     })
-    .eq("id", id)
     .select()
     .single()
+
   if (error) throw new Error(error.message)
-  return mapRsvpRow(data)
+  return data as RSVPSubmission
 }
 
-export async function deleteRSVP(id: string, cancelToken: string): Promise<void> {
-  const { error } = await supabase
-    .from("rsvps")
-    .delete()
-    .eq("id", id)
-    .eq("cancel_token", cancelToken)
+export async function deleteRSVP(event_id: string, phone: string, cancel_token: string): Promise<void> {
+  const { error } = await supabase.rpc("cancel_rsvp", {
+    p_event_id: event_id,
+    p_phone: phone,
+    p_cancel_token: cancel_token,
+  })
   if (error) throw new Error(error.message)
 }

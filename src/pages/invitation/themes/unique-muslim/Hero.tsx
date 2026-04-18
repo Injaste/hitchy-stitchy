@@ -1,15 +1,13 @@
 import { motion, type Variants } from "framer-motion";
-import CountdownTimer from "../../components/custom/countdown-timer";
-import type { PublicEventConfig } from "./types";
+import CountdownTimer from "@/components/custom/countdown-timer";
+import type { PublicEventConfig } from "@/pages/invitation/types";
 
-// Timing constants — easy to tune
 const T = {
   greeting: 0.2,
   divider: 0.7,
   name1: 1.1,
   amp: 1.5,
   name2: 1.7,
-  // name2 duration is 1.1s, so it finishes at ~2.8s
   countdown: 2.5,
   verse: 2.8,
   cta: 3,
@@ -47,11 +45,21 @@ const verse: Variants = make(T.verse, 16, 0.8);
 const cta: Variants = make(T.cta, 12, 0.7);
 
 const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
-  const weddingDate = new Date(eventConfig.dateStart);
+  const appearance = eventConfig.config.appearance;
+
+  const greetingText = appearance?.greeting ?? "السلام عليكم ورحمة الله وبركاته";
+  const quoteText = appearance?.quote ?? "And We created you in pairs.";
+  const quoteSource = appearance?.quote_source ?? "Surah An-Naba 78:8";
+
+  const names = (eventConfig.couple_names ?? "").split("&").map((s) => s.trim());
+  const personName1 = names[0] ?? "";
+  const personName2 = names[1] ?? "";
+
+  const parts = eventConfig.event_date?.split("-").map(Number);
+  const weddingDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
 
   return (
     <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10 backdrop-blur-sm">
-      {/* Single shared initial/animate context */}
       <motion.div
         initial="hidden"
         animate="show"
@@ -61,7 +69,7 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
           variants={greeting}
           className="text-foreground/80 text-lg sm:text-2xl tracking-wider mb-14 sm:mb-20"
         >
-          السلام عليكم ورحمة الله وبركاته
+          {greetingText}
         </motion.p>
 
         <motion.div
@@ -81,7 +89,7 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             variants={name1}
             className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            {eventConfig.groomName}
+            {personName1}
           </motion.h1>
 
           <motion.div
@@ -99,21 +107,23 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             variants={name2}
             className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            {eventConfig.brideName}
+            {personName2}
           </motion.h1>
         </div>
 
-        <motion.div variants={countdown} className="mb-14 sm:mb-20">
-          <CountdownTimer targetDate={weddingDate} />
-        </motion.div>
+        {weddingDate && (
+          <motion.div variants={countdown} className="mb-14 sm:mb-20">
+            <CountdownTimer targetDate={weddingDate} />
+          </motion.div>
+        )}
 
         <motion.div variants={verse} className="mb-14 sm:mb-20">
           <div className="border-t border-primary/20 pt-6 sm:pt-8">
             <p className="text-foreground leading-relaxed text-base sm:text-lg">
-              "And We created you in pairs."
+              "{quoteText}"
             </p>
             <span className="block mt-3 text-foreground/80 text-xs tracking-widest uppercase font-medium">
-              Surah An-Naba 78:8
+              {quoteSource}
             </span>
           </div>
         </motion.div>

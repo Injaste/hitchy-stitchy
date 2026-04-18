@@ -31,7 +31,7 @@ const ThemePickerModal: FC<Props> = ({ open, onOpenChange }) => {
       event_id: eventId,
       theme_id: selectedTheme.id,
       name: "My Invitation",
-      config: selectedTheme.config,
+      config: { ...selectedTheme.config, _theme_slug: selectedTheme.slug },
     })
   }
 

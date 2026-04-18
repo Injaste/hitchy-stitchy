@@ -124,11 +124,11 @@ const AdminSidebar = () => {
               <SidebarGroupLabel>Invitation</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {/* <NavItem
+                  <NavItem
                     icon={LayoutTemplate}
-                    label="Pages"
-                    to={`${base}/pages`}
-                    isActive={activePage === "pages"}
+                    label="Themes"
+                    to={`${base}/themes`}
+                    isActive={activePage === "themes"}
                   />
                   <NavItem
                     icon={ScrollText}
@@ -141,7 +141,7 @@ const AdminSidebar = () => {
                     label="Guests"
                     to={`${base}/rsvp`}
                     isActive={activePage === "rsvp"}
-                  /> */}
+                  />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

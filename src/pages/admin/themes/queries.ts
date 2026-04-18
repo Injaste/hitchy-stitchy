@@ -71,3 +71,18 @@ export function usePagesMutations() {
 
   return { create, rename, remove, publish }
 }
+
+export function useUpdatePageConfigMutation() {
+  const { slug } = useAdminStore()
+  const queryClient = useQueryClient()
+
+  return useMutation(
+    (payload: UpdatePagePayload) => updatePage(payload),
+    {
+      toast: { loading: "Saving...", success: "Saved", error: "Failed to save" },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: adminKeys.pages(slug!) })
+      },
+    },
+  )
+}

@@ -342,7 +342,22 @@ Holds all content guests see on the invitation page plus RSVP configuration.
 }
 ```
 
-> Optional cultural/template-specific fields (attire, blessings, gift registry, etc.) are also stored in `config` as needed. They are absent by default — frontend writes them when relevant.
+**`config.appearance` — optional, absent by default, written by frontend when set:**
+
+```json
+{
+  "appearance": {
+    "greeting": null,
+    "quote": null,
+    "quote_source": null,
+    "section_title": null,
+    "invitation_body": null,
+    "attire": null,
+    "blessings_name": null,
+    "blessings_label": null
+  }
+}
+```
 
 > `rsvp_deadline` — null means no deadline. No separate enabled flag needed; nullability is the gate.
 

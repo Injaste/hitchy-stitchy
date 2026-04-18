@@ -1,15 +1,15 @@
-export type RSVPStatus = 'pending' | 'confirmed' | 'declined'
+export type RSVPStatus = 'pending' | 'confirmed' | 'cancelled'
 
 export interface RSVPEntry {
   id: string
-  eventId: string
+  event_id: string
   name: string
-  phone?: string
-  email?: string
-  guestsCount: number
-  dietaryNotes?: string
-  message?: string
+  phone: string
+  guest_count: number
+  message: string | null
   status: RSVPStatus
-  submittedAt: string
-  updatedAt: string
+  source: 'pool' | 'public'
+  cancel_token: string
+  created_at: string
+  updated_at: string
 }
