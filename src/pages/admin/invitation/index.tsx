@@ -5,6 +5,7 @@ import ErrorState from "@/components/custom/error-state"
 
 import { useInvitationQuery } from "./queries"
 import InvitationDetailsForm from "./components/InvitationDetailsForm"
+import AppearanceConfigSection from "./components/AppearanceConfigSection"
 import RSVPConfigSection from "./components/RSVPConfigSection"
 
 const InvitationView = () => {
@@ -31,6 +32,7 @@ const InvitationView = () => {
         <ComponentFade key="content">
           <div className="space-y-6 max-w-2xl">
             <InvitationDetailsForm invitation={data} />
+            <AppearanceConfigSection invitation={data} />
             <RSVPConfigSection invitation={data} />
           </div>
         </ComponentFade>

@@ -10,16 +10,30 @@ export interface RSVPFieldConfigWithCount extends RSVPFieldConfig {
   max: number
 }
 
-export interface RSVPConfig {
-  rsvp: {
-    fields: {
-      name: RSVPFieldConfig
-      phone: RSVPFieldConfig
-      guestCount: RSVPFieldConfigWithCount
-      message: RSVPFieldConfig
-    }
-    confirmation_message: string
+export interface RSVPSectionConfig {
+  fields: {
+    name: RSVPFieldConfig
+    phone: RSVPFieldConfig
+    guestCount: RSVPFieldConfigWithCount
+    message: RSVPFieldConfig
   }
+  confirmation_message: string
+}
+
+export interface AppearanceConfig {
+  greeting?: string | null
+  quote?: string | null
+  quote_source?: string | null
+  section_title?: string | null
+  invitation_body?: string | null
+  attire?: string | null
+  blessings_name?: string | null
+  blessings_label?: string | null
+}
+
+export interface InvitationConfig {
+  rsvp: RSVPSectionConfig
+  appearance?: AppearanceConfig
 }
 
 export interface EventInvitation {
@@ -35,7 +49,7 @@ export interface EventInvitation {
   venue_map_link: string | null
   rsvp_mode: RSVPMode
   rsvp_deadline: string | null     // "yyyy-MM-dd", null = no deadline
-  config: RSVPConfig
+  config: InvitationConfig
   created_at: string
   updated_at: string
 }
@@ -52,5 +66,5 @@ export interface UpdateInvitationPayload {
   venue_map_link?: string | null
   rsvp_mode?: RSVPMode
   rsvp_deadline?: string | null
-  config?: RSVPConfig
+  config?: InvitationConfig
 }
