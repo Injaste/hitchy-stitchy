@@ -6,8 +6,8 @@ import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useGuestRSVP, useRSVPMutations } from "./queries";
-import type { RSVPFormData, PublicEventConfig } from "./types";
+import { useGuestRSVP, useRSVPMutations } from "@/pages/invitation/queries";
+import type { RSVPFormData, PublicEventConfig } from "@/pages/invitation/types";
 import RSVPForm from "./form/RSVPForm";
 import Footer from "./form/Footer";
 import RSVPDelete from "./form/RSVPDelete";

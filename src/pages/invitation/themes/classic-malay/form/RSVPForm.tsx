@@ -16,8 +16,7 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group";
 
-
-import { buildRsvpSchema, type RSVPFormData, type RSVPConfig } from "../types";
+import { buildRsvpSchema, type RSVPFormData, type RSVPConfig } from "@/pages/invitation/types";
 
 const fieldVariant: Variants = {
   hidden: { opacity: 0, y: 14 },

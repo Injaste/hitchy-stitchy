@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { PublicEventConfig } from "./types";
+import type { PublicEventConfig } from "@/pages/invitation/types";
 
 const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },

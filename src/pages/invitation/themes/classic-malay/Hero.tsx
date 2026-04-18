@@ -1,6 +1,6 @@
 import { motion, type Variants } from "framer-motion";
-import CountdownTimer from "../../components/custom/countdown-timer";
-import type { PublicEventConfig } from "./types";
+import CountdownTimer from "@/components/custom/countdown-timer";
+import type { PublicEventConfig } from "@/pages/invitation/types";
 
 const T = {
   greeting: 0.2,
