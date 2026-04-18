@@ -15,6 +15,8 @@ interface RSVPDetailModalProps {
 export function RSVPDetailModal({ open, onOpenChange, rsvp }: RSVPDetailModalProps) {
   if (!rsvp) return null
 
+  const statusVariant = rsvp.status === 'confirmed' ? 'default' : rsvp.status === 'cancelled' ? 'destructive' : 'secondary'
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -25,16 +27,13 @@ export function RSVPDetailModal({ open, onOpenChange, rsvp }: RSVPDetailModalPro
 
         <div className="space-y-3 py-2">
           <Row label="Status">
-            <Badge variant={rsvp.status === 'confirmed' ? 'default' : rsvp.status === 'declined' ? 'destructive' : 'secondary'}>
-              {rsvp.status}
-            </Badge>
+            <Badge variant={statusVariant}>{rsvp.status}</Badge>
           </Row>
-          <Row label="Guests">{rsvp.guestsCount}</Row>
+          <Row label="Guests">{rsvp.guest_count}</Row>
           {rsvp.phone && <Row label="Phone">{rsvp.phone}</Row>}
-          {rsvp.email && <Row label="Email">{rsvp.email}</Row>}
-          {rsvp.dietaryNotes && <Row label="Dietary">{rsvp.dietaryNotes}</Row>}
           {rsvp.message && <Row label="Message">{rsvp.message}</Row>}
-          <Row label="Submitted">{format(new Date(rsvp.submittedAt), 'MMM d, yyyy h:mm a')}</Row>
+          <Row label="Source">{rsvp.source}</Row>
+          <Row label="Submitted">{format(new Date(rsvp.created_at), 'MMM d, yyyy h:mm a')}</Row>
         </div>
 
         <div className="flex justify-end">
