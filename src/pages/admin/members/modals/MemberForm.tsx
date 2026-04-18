@@ -53,6 +53,9 @@ const MemberForm: FC<MemberFormProps> = ({
       .map((m) => m.role_id),
   );
 
+  const assignableRoles = roles ?? [];
+  const allTaken = assignableRoles.every((r) => takenSingularRoleIds.has(r.id));
+
   const form = useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
@@ -152,16 +155,22 @@ const MemberForm: FC<MemberFormProps> = ({
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {roles!.map((r) => (
-                        <SelectItem
-                          key={r.id}
-                          value={r.id}
-                          disabled={takenSingularRoleIds.has(r.id)}
-                        >
-                          {r.name}
-                          {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
-                        </SelectItem>
-                      ))}
+                      {allTaken ? (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">
+                          All roles are filled.
+                        </div>
+                      ) : (
+                        assignableRoles.map((r) => (
+                          <SelectItem
+                            key={r.id}
+                            value={r.id}
+                            disabled={takenSingularRoleIds.has(r.id)}
+                          >
+                            {r.name}
+                            {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

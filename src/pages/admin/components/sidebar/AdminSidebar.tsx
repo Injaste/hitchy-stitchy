@@ -102,7 +102,7 @@ const AdminSidebar = () => {
           <SidebarGroupLabel>Team</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <NavItem
+              {/* <NavItem
                 icon={Users}
                 label="Members"
                 to={`${base}/members`}
@@ -113,7 +113,7 @@ const AdminSidebar = () => {
                 label="Roles"
                 to={`${base}/roles`}
                 isActive={activePage === "roles"}
-              />
+              /> */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -124,7 +124,7 @@ const AdminSidebar = () => {
               <SidebarGroupLabel>Invitation</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <NavItem
+                  {/* <NavItem
                     icon={LayoutTemplate}
                     label="Pages"
                     to={`${base}/pages`}
@@ -141,7 +141,7 @@ const AdminSidebar = () => {
                     label="Guests"
                     to={`${base}/rsvp`}
                     isActive={activePage === "rsvp"}
-                  />
+                  /> */}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
