@@ -1,10 +1,10 @@
 import type { ComponentType } from "react";
-import ClassicMalay, { type ThemeProps } from "./classic-malay";
+import UniqueMuslim, { type ThemeProps } from "./unique-muslim";
 
 export type { ThemeProps };
 
 export const themeRegistry: Record<string, ComponentType<ThemeProps>> = {
-  "classic-malay": ClassicMalay,
+  "unique-muslim": UniqueMuslim,
 };
 
-export const FallbackTheme = ClassicMalay;
+export const FallbackTheme = UniqueMuslim;

@@ -13,7 +13,7 @@ export interface ThemeProps {
   pageConfig?: Record<string, unknown>;
 }
 
-const ClassicMalay = ({ eventConfig, pageConfig }: ThemeProps) => {
+const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
   const containerRef = useRef(null);
 
   const { scrollYProgress } = useScroll({
@@ -50,4 +50,4 @@ const ClassicMalay = ({ eventConfig, pageConfig }: ThemeProps) => {
   );
 };
 
-export default ClassicMalay;
+export default UniqueMuslim;
