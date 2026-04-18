@@ -70,10 +70,6 @@ const InvitationContent = ({
 const Invitation = () => {
   const { data: eventConfig, isLoading, error } = usePublicEvent();
 
-  console.log(eventConfig);
-  console.log(error);
-  console.log(isLoading);
-
   if (isLoading) return <InvitationSkeleton />;
   if (error || !eventConfig) return <InvitationError />;
 

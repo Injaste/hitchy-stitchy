@@ -1,12 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import {
-  Users,
-  Phone,
-  User,
-  Mail,
-  Utensils,
-  MessageSquare,
-} from "lucide-react";
+import { Users, Phone, User, MessageSquare } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +16,8 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group";
 
-import { buildRsvpSchema, type RSVPFormData } from "../types";
+
+import { buildRsvpSchema, type RSVPFormData, type RSVPConfig } from "../types";
 
 const fieldVariant: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -45,18 +39,16 @@ const RSVPForm = ({
   onSubmit: (value: RSVPFormData) => Promise<void>;
   onCancel?: () => void;
   isEditing: boolean;
-  rsvpConfig: any;
+  rsvpConfig: RSVPConfig;
 }) => {
   const schema = buildRsvpSchema(rsvpConfig);
 
   const builtDefaults: RSVPFormData = {
     name: "",
     ...(rsvpConfig.fields.phone.visible && { phone: "" }),
-    ...(rsvpConfig.fields.email?.visible && { email: "" }),
-    ...(rsvpConfig.fields.guestsCount.visible && {
-      guestsCount: rsvpConfig.guestMin,
+    ...(rsvpConfig.fields.guestCount.visible && {
+      guestCount: rsvpConfig.fields.guestCount.min,
     }),
-    ...(rsvpConfig.fields.dietaryNotes.visible && { dietaryNotes: "" }),
     ...(rsvpConfig.fields.message.visible && { message: "" }),
   };
 
@@ -188,68 +180,14 @@ const RSVPForm = ({
             );
           })()}
 
-        {/* Email — conditional */}
-        {rsvpConfig.fields.email?.visible &&
-          (() => {
-            const delay = fieldIndex++ * 0.1;
-            return (
-              <motion.div variants={fieldVariant} custom={delay}>
-                <form.Field name="email">
-                  {(f) => {
-                    const isInvalid =
-                      f.state.meta.isTouched && !f.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel
-                          htmlFor={f.name}
-                          className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
-                        >
-                          Email Address
-                          {rsvpConfig.fields.email!.required ? (
-                            <span className="text-destructive ml-0.5">*</span>
-                          ) : (
-                            <span className="ml-1 normal-case tracking-normal font-normal">
-                              (Optional)
-                            </span>
-                          )}
-                        </FieldLabel>
-                        <InputGroup className="gap-1 h-12 rounded-full bg-muted/40 border-border px-1.5">
-                          <InputGroupInput
-                            id={f.name}
-                            name={f.name}
-                            type="email"
-                            value={(f.state.value as string | undefined) ?? ""}
-                            onChange={(e) => f.handleChange(e.target.value)}
-                            onBlur={f.handleBlur}
-                            aria-invalid={isInvalid}
-                            placeholder="e.g. ahmad@email.com"
-                            className="rounded-tr-full rounded-br-full text-sm focus-visible:ring-primary focus-visible:border-primary bg-transparent border-0"
-                          />
-                          <InputGroupAddon className="mt-0.5">
-                            <Mail size={15} className="text-primary/40" />
-                          </InputGroupAddon>
-                        </InputGroup>
-                        {isInvalid && (
-                          <FieldError
-                            errors={f.state.meta.errors}
-                            className="text-2xs font-bold uppercase tracking-wide"
-                          />
-                        )}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-              </motion.div>
-            );
-          })()}
-
         {/* Guests — conditional */}
-        {rsvpConfig.fields.guestsCount.visible &&
+        {rsvpConfig.fields.guestCount.visible &&
           (() => {
             const delay = fieldIndex++ * 0.1;
+            const { min, max } = rsvpConfig.fields.guestCount;
             return (
               <motion.div variants={fieldVariant} custom={delay}>
-                <form.Field name="guestsCount">
+                <form.Field name="guestCount">
                   {(f) => {
                     const isInvalid =
                       f.state.meta.isTouched && !f.state.meta.isValid;
@@ -260,7 +198,7 @@ const RSVPForm = ({
                           className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
                         >
                           Number of Guests
-                          {rsvpConfig.fields.guestsCount.required ? (
+                          {rsvpConfig.fields.guestCount.required ? (
                             <span className="text-destructive ml-0.5">*</span>
                           ) : (
                             <span className="ml-1 normal-case tracking-normal font-normal">
@@ -274,78 +212,22 @@ const RSVPForm = ({
                             name={f.name}
                             type="number"
                             inputMode="numeric"
-                            min={rsvpConfig.guestMin}
-                            max={rsvpConfig.guestMax}
+                            min={min}
+                            max={max}
                             value={
-                              (f.state.value as number | undefined) ??
-                              rsvpConfig.guestMin
+                              (f.state.value as number | undefined) ?? min
                             }
                             onChange={(e) =>
                               f.handleChange(Number(e.target.value))
                             }
                             onBlur={f.handleBlur}
                             aria-invalid={isInvalid}
-                            placeholder={`1 – ${rsvpConfig.guestMax}`}
+                            placeholder={`1 – ${max}`}
                             className="rounded-tr-full rounded-br-full text-sm focus-visible:ring-primary focus-visible:border-primary bg-transparent border-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
                           <InputGroupAddon className="mt-0.5">
                             <Users size={15} className="text-primary/40" />
                           </InputGroupAddon>
-                        </InputGroup>
-                        {isInvalid && (
-                          <FieldError
-                            errors={f.state.meta.errors}
-                            className="text-2xs font-bold uppercase tracking-wide"
-                          />
-                        )}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-              </motion.div>
-            );
-          })()}
-
-        {/* Dietary Notes — conditional */}
-        {rsvpConfig.fields.dietaryNotes.visible &&
-          (() => {
-            const delay = fieldIndex++ * 0.1;
-            return (
-              <motion.div variants={fieldVariant} custom={delay}>
-                <form.Field name="dietaryNotes">
-                  {(f) => {
-                    const isInvalid =
-                      f.state.meta.isTouched && !f.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel
-                          htmlFor={f.name}
-                          className="text-2xs font-bold uppercase tracking-widest text-muted-foreground"
-                        >
-                          Dietary Requirements
-                          {rsvpConfig.fields.dietaryNotes.required ? (
-                            <span className="text-destructive ml-0.5">*</span>
-                          ) : (
-                            <span className="ml-1 normal-case tracking-normal font-normal">
-                              (Optional)
-                            </span>
-                          )}
-                        </FieldLabel>
-                        <InputGroup className="gap-1 rounded-2xl bg-muted/40 border-border px-1.5">
-                          <InputGroupAddon className="self-start mt-2.5">
-                            <Utensils size={15} className="text-primary/40" />
-                          </InputGroupAddon>
-                          <InputGroupTextarea
-                            id={f.name}
-                            name={f.name}
-                            rows={2}
-                            value={(f.state.value as string | undefined) ?? ""}
-                            onChange={(e) => f.handleChange(e.target.value)}
-                            onBlur={f.handleBlur}
-                            aria-invalid={isInvalid}
-                            placeholder="Any dietary requirements or allergies?"
-                            className="text-sm focus-visible:ring-primary focus-visible:border-primary rounded-r-2xl"
-                          />
                         </InputGroup>
                         {isInvalid && (
                           <FieldError

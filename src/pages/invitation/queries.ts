@@ -1,74 +1,79 @@
-import { useParams } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMutation } from "@/lib/query/useMutation";
-import { fetchPublicEvent, fetchRSVP, submitRSVP, updateRSVP, deleteRSVP } from "./api";
-import type { NewRSVPSubmission } from "./types";
+import { useParams } from "react-router-dom"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@/lib/query/useMutation"
+import { fetchPublicEvent, fetchRSVP, submitRSVP, updateRSVP, deleteRSVP } from "./api"
+import type { RSVPFormData } from "./types"
 
-const PHONE_KEY = "rsvp_phone";
-const TOKEN_KEY = "rsvp_cancel_token";
+const PHONE_KEY = "rsvp_phone"
+const TOKEN_KEY = "rsvp_cancel_token"
 
-export const publicEventQueryKey = (slug: string) => ["public", slug, "event"] as const;
-export const guestRSVPQueryKey = (eventId: string, phone: string) => ["public", eventId, "rsvp", phone] as const;
+export const publicEventQueryKey = (slug: string) => ["public", slug, "event"] as const
+export const guestRSVPQueryKey = (event_id: string, phone: string) => ["public", event_id, "rsvp", phone] as const
 
 export function usePublicEvent() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug } = useParams<{ slug: string }>()
   return useQuery({
     queryKey: publicEventQueryKey(slug!),
     queryFn: () => fetchPublicEvent(slug!),
     enabled: !!slug,
-  });
+  })
 }
 
-export function useGuestRSVP(eventId: string | null) {
-  const phone = localStorage.getItem(PHONE_KEY);
+export function useGuestRSVP(event_id: string | null) {
+  const phone = localStorage.getItem(PHONE_KEY)
   return useQuery({
-    queryKey: guestRSVPQueryKey(eventId!, phone!),
-    queryFn: () => fetchRSVP(eventId!, phone!),
-    enabled: !!eventId && !!phone,
-  });
+    queryKey: guestRSVPQueryKey(event_id!, phone!),
+    queryFn: () => fetchRSVP(event_id!, phone!),
+    enabled: !!event_id && !!phone,
+  })
 }
 
-export function useRSVPMutations(eventId: string | null) {
-  const queryClient = useQueryClient();
+export function useRSVPMutations(event_id: string | null) {
+  const queryClient = useQueryClient()
 
   const submit = useMutation(
-    (submission: NewRSVPSubmission) => submitRSVP(eventId!, submission),
+    (formData: RSVPFormData) => submitRSVP(event_id!, formData),
     {
       silent: true,
       onSuccess: (result) => {
-        localStorage.setItem(PHONE_KEY, result.phone);
-        localStorage.setItem(TOKEN_KEY, result.cancelToken);
-        // invalidate so useGuestRSVP refetches with the new phone
-        queryClient.invalidateQueries({ queryKey: ["public", eventId] });
+        if (result.phone) localStorage.setItem(PHONE_KEY, result.phone)
+        localStorage.setItem(TOKEN_KEY, result.cancel_token)
+        queryClient.invalidateQueries({ queryKey: ["public", event_id] })
       },
     }
-  );
+  )
 
   const update = useMutation(
-    ({ id, patch }: { id: string; patch: Partial<NewRSVPSubmission> }) =>
-      updateRSVP(id, patch),
+    (formData: Partial<RSVPFormData>) => {
+      const phone = localStorage.getItem(PHONE_KEY) ?? ""
+      const cancel_token = localStorage.getItem(TOKEN_KEY) ?? ""
+      return updateRSVP(event_id!, phone, cancel_token, formData)
+    },
     {
       silent: true,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["public", eventId] });
+      onSuccess: (result) => {
+        if (result.phone) localStorage.setItem(PHONE_KEY, result.phone)
+        localStorage.setItem(TOKEN_KEY, result.cancel_token)
+        queryClient.invalidateQueries({ queryKey: ["public", event_id] })
       },
     }
-  );
+  )
 
   const remove = useMutation(
-    ({ id }: { id: string }) => {
-      const cancelToken = localStorage.getItem(TOKEN_KEY) ?? "";
-      return deleteRSVP(id, cancelToken);
+    () => {
+      const phone = localStorage.getItem(PHONE_KEY) ?? ""
+      const cancel_token = localStorage.getItem(TOKEN_KEY) ?? ""
+      return deleteRSVP(event_id!, phone, cancel_token)
     },
     {
       silent: true,
       onSuccess: () => {
-        localStorage.removeItem(PHONE_KEY);
-        localStorage.removeItem(TOKEN_KEY);
-        queryClient.removeQueries({ queryKey: ["public", eventId] });
+        localStorage.removeItem(PHONE_KEY)
+        localStorage.removeItem(TOKEN_KEY)
+        queryClient.removeQueries({ queryKey: ["public", event_id] })
       },
     }
-  );
+  )
 
-  return { submit, update, remove };
+  return { submit, update, remove }
 }
