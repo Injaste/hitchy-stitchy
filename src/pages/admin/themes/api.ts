@@ -12,7 +12,7 @@ export async function fetchPages(eventId: string): Promise<EventPage[]> {
     .order("created_at", { ascending: true })
 
   if (error) throw new Error(error.message)
-  return (data ?? []) as EventPage[]
+  return (data ?? []) as unknown as EventPage[]
 }
 
 export async function fetchThemes(): Promise<EventTheme[]> {
@@ -39,7 +39,7 @@ export async function createPage(payload: CreatePagePayload): Promise<EventPage>
     .single()
 
   if (error) throw new Error(error.message)
-  return data as EventPage
+  return data as unknown as EventPage
 }
 
 export async function updatePage({ id, ...fields }: UpdatePagePayload): Promise<void> {
