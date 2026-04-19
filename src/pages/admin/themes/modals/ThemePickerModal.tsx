@@ -29,7 +29,7 @@ const ThemePickerModal: FC<Props> = ({ open, onOpenChange }) => {
     if (!selectedTheme || !eventId) return
     create.mutate({
       event_id: eventId,
-      theme_id: selectedTheme.id,
+      template_id: selectedTheme.id,
       name: "My Invitation",
       config: { ...selectedTheme.config, _theme_slug: selectedTheme.slug },
     })

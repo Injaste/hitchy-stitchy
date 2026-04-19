@@ -36,7 +36,7 @@ export interface InvitationConfig {
   appearance?: AppearanceConfig
 }
 
-// Matches event_invitation + published event_pages — snake_case = DB columns
+// Matches event_invitation + published event_themes — snake_case = DB columns
 export interface PublicEventConfig {
   id: string
   event_id: string

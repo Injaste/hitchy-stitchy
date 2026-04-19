@@ -1,6 +1,6 @@
 import { motion, type Variants } from "framer-motion";
 import CountdownTimer from "@/components/custom/countdown-timer";
-import type { PublicEventConfig } from "@/pages/invitation/types";
+import type { PublicEventConfig } from "@/pages/templates/types";
 
 const T = {
   greeting: 0.2,
@@ -47,11 +47,14 @@ const cta: Variants = make(T.cta, 12, 0.7);
 const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const appearance = eventConfig.config.appearance;
 
-  const greetingText = appearance?.greeting ?? "السلام عليكم ورحمة الله وبركاته";
+  const greetingText =
+    appearance?.greeting ?? "السلام عليكم ورحمة الله وبركاته";
   const quoteText = appearance?.quote ?? "And We created you in pairs.";
   const quoteSource = appearance?.quote_source ?? "Surah An-Naba 78:8";
 
-  const names = (eventConfig.couple_names ?? "").split("&").map((s) => s.trim());
+  const names = (eventConfig.couple_names ?? "")
+    .split("&")
+    .map((s) => s.trim());
   const personName1 = names[0] ?? "";
   const personName2 = names[1] ?? "";
 

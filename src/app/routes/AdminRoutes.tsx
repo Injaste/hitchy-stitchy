@@ -20,9 +20,9 @@ const adminChildRoutes = [
   { path: "roles", element: <Roles /> },
   { path: "vendor", element: <Vendor /> },
   { path: "live", element: <LiveTab /> },
-  { path: "invitation", element: <InvitationView /> },
+  { path: "details", element: <InvitationView /> },
   { path: "themes", element: <ThemesView /> },
-  { path: "rsvp", element: <RSVPTab /> },
+  { path: "guests", element: <RSVPTab /> },
   { path: "settings", element: <SettingsTab /> },
 ];
 

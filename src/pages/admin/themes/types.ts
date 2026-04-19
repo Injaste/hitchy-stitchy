@@ -12,7 +12,7 @@ export interface EventTheme {
 export interface EventPage {
   id: string
   event_id: string
-  theme_id: string | null
+  template_id: string | null
   name: string
   is_published: boolean
   config: Record<string, unknown>
@@ -23,7 +23,7 @@ export interface EventPage {
 
 export interface CreatePagePayload {
   event_id: string
-  theme_id: string
+  template_id: string
   name: string
   config: Record<string, unknown>
 }

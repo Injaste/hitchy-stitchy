@@ -16,7 +16,11 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group";
 
-import { buildRsvpSchema, type RSVPFormData, type RSVPConfig } from "@/pages/invitation/types";
+import {
+  buildRsvpSchema,
+  type RSVPFormData,
+  type RSVPConfig,
+} from "@/pages/templates/types";
 
 const fieldVariant: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -213,9 +217,7 @@ const RSVPForm = ({
                             inputMode="numeric"
                             min={min}
                             max={max}
-                            value={
-                              (f.state.value as number | undefined) ?? min
-                            }
+                            value={(f.state.value as number | undefined) ?? min}
                             onChange={(e) =>
                               f.handleChange(Number(e.target.value))
                             }

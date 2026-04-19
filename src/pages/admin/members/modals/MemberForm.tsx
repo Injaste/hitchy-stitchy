@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { useRolesQuery } from "../../roles/queries";
 import { inviteMemberSchema, type InviteMemberValues } from "../types";
 import { useMembersQuery } from "../queries";
+import { cn } from "@/lib/utils";
 
 const SINGULAR_ROLES = ["Bride", "Groom"];
 
@@ -53,8 +54,15 @@ const MemberForm: FC<MemberFormProps> = ({
       .map((m) => m.role_id),
   );
 
-  const assignableRoles = roles ?? [];
-  const allTaken = assignableRoles.every((r) => takenSingularRoleIds.has(r.id));
+  const isFilled = takenSingularRoleIds.size === roles?.length;
+  const assignableRoles = isFilled
+    ? [
+        {
+          id: "0",
+          name: "Please add roles",
+        },
+      ]
+    : (roles ?? []);
 
   const form = useForm({
     defaultValues: {
@@ -155,22 +163,17 @@ const MemberForm: FC<MemberFormProps> = ({
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {allTaken ? (
-                        <div className="px-3 py-2 text-sm text-muted-foreground">
-                          All roles are filled.
-                        </div>
-                      ) : (
-                        assignableRoles.map((r) => (
-                          <SelectItem
-                            key={r.id}
-                            value={r.id}
-                            disabled={takenSingularRoleIds.has(r.id)}
-                          >
-                            {r.name}
-                            {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
-                          </SelectItem>
-                        ))
-                      )}
+                      {assignableRoles.map((r) => (
+                        <SelectItem
+                          key={r.id}
+                          value={r.id}
+                          disabled={takenSingularRoleIds.has(r.id)}
+                          className={cn(r.id === "0" && "pointer-events-auto")}
+                        >
+                          {r.name}
+                          {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

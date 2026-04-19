@@ -14,7 +14,7 @@ export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig>
 
   const [invResult, pageResult] = await Promise.all([
     supabase.from("event_invitation").select("*").eq("event_id", event_id).single(),
-    supabase.from("event_pages").select("id, config").eq("event_id", event_id).eq("is_published", true).maybeSingle(),
+    supabase.from("event_themes").select("id, config").eq("event_id", event_id).eq("is_published", true).maybeSingle(),
   ])
 
   if (invResult.error || !invResult.data) throw new Error("Invitation not found")

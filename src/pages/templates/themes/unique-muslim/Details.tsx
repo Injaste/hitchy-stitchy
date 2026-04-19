@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { PublicEventConfig } from "@/pages/invitation/types";
+import type { PublicEventConfig } from "@/pages/templates/types";
 
 const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },
@@ -78,7 +78,9 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             icon: Clock,
             title: "Time",
             detail: eventConfig.event_time_start,
-            sub: eventConfig.event_time_end ? `to ${eventConfig.event_time_end}` : "",
+            sub: eventConfig.event_time_end
+              ? `to ${eventConfig.event_time_end}`
+              : "",
           },
         ]
       : []),
@@ -109,7 +111,9 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
       "&text=" +
       encodeURIComponent(eventConfig.couple_names ?? "Wedding") +
       "&dates=" +
-      encodeURIComponent(`${format(eventDate, "yyyyMMdd")}/${format(eventDate, "yyyyMMdd")}`) +
+      encodeURIComponent(
+        `${format(eventDate, "yyyyMMdd")}/${format(eventDate, "yyyyMMdd")}`,
+      ) +
       "&location=" +
       encodeURIComponent(eventConfig.venue_address ?? "")
     : null;
@@ -225,13 +229,20 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             className="mb-12 sm:mb-16"
           >
             <motion.div variants={fadeUp(0, 12, 0.7)}>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button
                   asChild
                   variant="outline"
                   className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs sm:text-sm tracking-wide uppercase h-10 sm:h-11 px-5 sm:px-6"
                 >
-                  <a href={googleCalendarUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={googleCalendarUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <CalendarCheck size={16} className="text-primary" />
                     Add to Google Calendar
                   </a>
@@ -269,14 +280,21 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                 {eventConfig.venue_address}
               </p>
               {eventConfig.venue_map_link && (
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <Button
                     asChild
                     variant="outline"
                     size="sm"
                     className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
                   >
-                    <a href={eventConfig.venue_map_link} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={eventConfig.venue_map_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <MapPinCheck size={14} className="text-primary" />
                       View Map
                     </a>

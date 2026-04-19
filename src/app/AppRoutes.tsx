@@ -9,7 +9,7 @@ import Home from "@/pages/home";
 import Signup from "@/pages/signup";
 import CreateEvent from "@/pages/create-event";
 import Dashboard from "@/pages/dashboard";
-import Invitation from "@/pages/invitation";
+import Invitation from "@/pages/templates";
 
 const standaloneRoutes = [
   { path: "/", element: Home },

@@ -2,7 +2,7 @@
 
 > Source of truth for all Supabase tables, functions, triggers, policies, and permissions.
 > Update this file whenever schema changes are made.
-> Last updated: registration feature (event_themes, event_invitation, event_pages).
+> Last updated: registration feature (event_templates, event_invitation, event_themes).
 
 ---
 
@@ -283,7 +283,7 @@ Per-member notification preferences. Auto-created via trigger on member insert.
 
 ---
 
-### `event_themes`
+### `event_templates`
 
 Read-only design library. Managed by superuser only — no client mutations.
 Each theme defines a visual style. Its `config` holds default visual values for that theme.
@@ -363,16 +363,16 @@ Holds all content guests see on the invitation page plus RSVP configuration.
 
 ---
 
-### `event_pages`
+### `event_themes`
 
 User-created invitation pages. Many per event, one published at a time.
-Each page is a customised instance of an `event_themes` design.
+Each page is a customised instance of an `event_templates` design.
 
 | Column         | Type          | Notes                                                        |
 | -------------- | ------------- | ------------------------------------------------------------ |
 | `id`           | `uuid`        | PK                                                           |
 | `event_id`     | `uuid`        | FK → `events.id`, cascade delete, immutable                  |
-| `theme_id`     | `uuid`        | FK → `event_themes.id`, set null on delete, nullable         |
+| `template_id`     | `uuid`        | FK → `event_templates.id`, set null on delete, nullable         |
 | `name`         | `text`        | Default `'My Invitation'` — user label e.g. "Nikah Page"     |
 | `is_published` | `boolean`     | Default `false` — only one per event can be true             |
 | `config`       | `jsonb`       | Default `{}` — visual/theme overrides copied from theme seed |
@@ -381,7 +381,7 @@ Each page is a customised instance of an `event_themes` design.
 
 > Partial unique index enforces one published page per event at DB level.
 > Pages are created by the user when selecting a theme — not seeded by `create_event`.
-> `theme_id` set null if theme is deleted — page config is preserved.
+> `template_id` set null if theme is deleted — page config is preserved.
 
 ---
 
@@ -408,8 +408,8 @@ grant select on event_slugs to anon;
 ```
 event_slugs (slug → event_id, anon)
   → event_invitation (event_id, anon) — content + rsvp config
-  → event_pages WHERE is_published = true (event_id, anon) — visual layer
-      → event_themes (theme_id, authenticated) — slug used to render component
+  → event_themes WHERE is_published = true (event_id, anon) — visual layer
+      → event_templates (template_id, authenticated) — slug used to render component
 ```
 
 ---
@@ -566,14 +566,14 @@ event_slugs (slug → event_id, anon)
 | `touch_updated_at_event_member_notification_prefs`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
 | `immutable_event_member_notification_prefs_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
 
-### `event_themes`
+### `event_templates`
 
 Auto-attached by `auto_attach_table_triggers`. No manual triggers needed.
 
 | Trigger                             | Event  | Timing     | Function                                  |
 | ----------------------------------- | ------ | ---------- | ----------------------------------------- |
-| `touch_updated_at_event_themes`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
-| `immutable_event_themes_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
+| `touch_updated_at_event_templates`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
+| `immutable_event_templates_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
 
 ### `event_invitation`
 
@@ -583,13 +583,13 @@ Auto-attached by `auto_attach_table_triggers`. No manual triggers needed.
 | `immutable_event_invitation_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
 | `immutable_event_invitation_event_id`   | UPDATE | BEFORE ROW | `enforce_immutable_columns('event_id')`   |
 
-### `event_pages`
+### `event_themes`
 
 | Trigger                            | Event  | Timing     | Function                                  |
 | ---------------------------------- | ------ | ---------- | ----------------------------------------- |
-| `touch_updated_at_event_pages`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
-| `immutable_event_pages_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
-| `immutable_event_pages_event_id`   | UPDATE | BEFORE ROW | `enforce_immutable_columns('event_id')`   |
+| `touch_updated_at_event_themes`     | UPDATE | BEFORE ROW | `touch_updated_at()`                      |
+| `immutable_event_themes_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')` |
+| `immutable_event_themes_event_id`   | UPDATE | BEFORE ROW | `enforce_immutable_columns('event_id')`   |
 
 ---
 
@@ -609,9 +609,9 @@ Auto-attached by `auto_attach_table_triggers`. No manual triggers needed.
 | `event_vendors`                   | `is_event_member(event_id)`                   | `has_event_permission(event_id, 'vendors', 'create')`       | `has_event_permission(event_id, 'vendors', 'update')`    | `has_event_permission(event_id, 'vendors', 'delete')`  |
 | `event_live_logs`                 | `is_event_member(event_id)`                   | `is_event_member(event_id)`                                 | none                                                     | none                                                   |
 | `event_member_notification_prefs` | self only via `get_current_member_id`         | via trigger                                                 | self only via `get_current_member_id`                    | none                                                   |
-| `event_themes`                    | `authenticated` only, `is_active = true`      | none (superuser only)                                       | none (superuser only)                                    | none (superuser only)                                  |
+| `event_templates`                    | `authenticated` only, `is_active = true`      | none (superuser only)                                       | none (superuser only)                                    | none (superuser only)                                  |
 | `event_invitation`                | `anon` + `authenticated`                      | via RPC only                                                | `has_event_permission(event_id, 'invitation', 'update')` | none                                                   |
-| `event_pages`                     | `anon` + `authenticated`                      | `has_event_permission(event_id, 'pages', 'create')`         | `has_event_permission(event_id, 'pages', 'update')`      | `has_event_permission(event_id, 'pages', 'delete')`    |
+| `event_themes`                     | `anon` + `authenticated`                      | `has_event_permission(event_id, 'pages', 'create')`         | `has_event_permission(event_id, 'pages', 'update')`      | `has_event_permission(event_id, 'pages', 'delete')`    |
 | `event_slugs` (view)              | public anon                                   | —                                                           | —                                                        | —                                                      |
 
 ---
@@ -644,12 +644,12 @@ Auto-attached by `auto_attach_table_triggers`. No manual triggers needed.
 | `event_live_logs`                 | `(event_id)`                    | perf           |
 | `event_live_logs`                 | `(expires_at)`                  | perf           |
 | `event_member_notification_prefs` | `(member_id)`                   | unique         |
-| `event_themes`                    | `(slug)`                        | unique         |
-| `event_themes`                    | `(is_active)`                   | perf           |
+| `event_templates`                    | `(slug)`                        | unique         |
+| `event_templates`                    | `(is_active)`                   | perf           |
 | `event_invitation`                | `(event_id)`                    | unique         |
-| `event_pages`                     | `(event_id)`                    | perf           |
-| `event_pages`                     | `(theme_id)`                    | perf           |
-| `event_pages`                     | `(event_id) WHERE is_published` | unique partial |
+| `event_themes`                     | `(event_id)`                    | perf           |
+| `event_themes`                     | `(template_id)`                    | perf           |
+| `event_themes`                     | `(event_id) WHERE is_published` | unique partial |
 
 ---
 
@@ -725,8 +725,8 @@ events
         ├── event_live_logs (event_id)
         ├── event_member_notification_prefs (member_id)
         ├── event_invitation (event_id) ← public-facing content + rsvp config
-        └── event_pages (event_id) ← user-created invitation pages
-              └── event_themes (theme_id) ← design library, superuser-managed
+        └── event_themes (event_id) ← user-created invitation pages
+              └── event_templates (template_id) ← design library, superuser-managed
 ```
 
 ---

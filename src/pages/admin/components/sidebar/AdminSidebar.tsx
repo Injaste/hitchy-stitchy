@@ -71,7 +71,7 @@ const AdminSidebar = () => {
 
       <SidebarContent activeId={activePage}>
         <SidebarGroup>
-          <SidebarGroupLabel>Events</SidebarGroupLabel>
+          <SidebarGroupLabel>Operations</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <NavItem
@@ -80,14 +80,6 @@ const AdminSidebar = () => {
                 to={`${base}/timeline`}
                 isActive={activePage === "timeline"}
               />
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Operations</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
               <NavItem
                 icon={CheckSquare}
                 label="Tasks"
@@ -102,7 +94,7 @@ const AdminSidebar = () => {
           <SidebarGroupLabel>Team</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* <NavItem
+              <NavItem
                 icon={Users}
                 label="Members"
                 to={`${base}/members`}
@@ -113,7 +105,7 @@ const AdminSidebar = () => {
                 label="Roles"
                 to={`${base}/roles`}
                 isActive={activePage === "roles"}
-              /> */}
+              />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -133,14 +125,14 @@ const AdminSidebar = () => {
                   <NavItem
                     icon={ScrollText}
                     label="Details"
-                    to={`${base}/invitation`}
-                    isActive={activePage === "invitation"}
+                    to={`${base}/details`}
+                    isActive={activePage === "details"}
                   />
                   <NavItem
                     icon={ClipboardList}
                     label="Guests"
-                    to={`${base}/rsvp`}
-                    isActive={activePage === "rsvp"}
+                    to={`${base}/guests`}
+                    isActive={activePage === "guests"}
                   />
                 </SidebarMenu>
               </SidebarGroupContent>

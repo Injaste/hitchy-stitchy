@@ -37,7 +37,7 @@ export function usePublicEventRealtime(event_id: string | null) {
         queryClient.invalidateQueries({ queryKey: publicEventQueryKey(slug) })
       })
       .on("postgres_changes", {
-        event: "*", schema: "public", table: "event_pages",
+        event: "*", schema: "public", table: "event_themes",
         filter: `event_id=eq.${event_id}`,
       }, () => {
         queryClient.invalidateQueries({ queryKey: publicEventQueryKey(slug) })

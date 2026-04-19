@@ -6,8 +6,8 @@ import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useGuestRSVP, useRSVPMutations } from "@/pages/invitation/queries";
-import type { RSVPFormData, PublicEventConfig } from "@/pages/invitation/types";
+import { useGuestRSVP, useRSVPMutations } from "@/pages/templates/queries";
+import type { RSVPFormData, PublicEventConfig } from "@/pages/templates/types";
 import RSVPForm from "./form/RSVPForm";
 import Footer from "./form/Footer";
 import RSVPDelete from "./form/RSVPDelete";
@@ -69,7 +69,10 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
 
   const isDeadlinePassed =
     eventConfig.rsvp_deadline !== null &&
-    isAfter(startOfDay(new Date()), startOfDay(new Date(eventConfig.rsvp_deadline!)));
+    isAfter(
+      startOfDay(new Date()),
+      startOfDay(new Date(eventConfig.rsvp_deadline!)),
+    );
 
   const handleSubmit = async (value: RSVPFormData) => {
     if (isEditing) {
@@ -147,8 +150,8 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                   className="text-center py-8"
                 >
                   <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
-                    RSVPs are by invitation only.{" "}
-                    Please contact us directly to confirm your attendance.
+                    RSVPs are by invitation only. Please contact us directly to
+                    confirm your attendance.
                   </p>
                 </motion.div>
               ) : isDeadlinePassed ? (
@@ -159,8 +162,8 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                   className="text-center py-8"
                 >
                   <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
-                    RSVP submissions are now closed.{" "}
-                    Thank you to everyone who responded.
+                    RSVP submissions are now closed. Thank you to everyone who
+                    responded.
                   </p>
                 </motion.div>
               ) : (
@@ -177,7 +180,11 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 20,
+                        }}
                       >
                         <CheckCircle2
                           className="text-green-400 mx-auto mb-4 sm:mb-6"
@@ -191,7 +198,10 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                         {rsvpConfig.confirmation_message}
                       </p>
                       <div className="flex gap-3 justify-center">
-                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
                           <Button
                             variant="outline"
                             size="sm"
@@ -201,7 +211,10 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                             <Edit2 size={14} className="text-primary" /> Edit
                           </Button>
                         </motion.div>
-                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
                           <Button
                             variant="outline"
                             size="sm"
@@ -236,7 +249,9 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                             : undefined
                         }
                         onSubmit={handleSubmit}
-                        onCancel={isEditing ? () => setIsEditing(false) : undefined}
+                        onCancel={
+                          isEditing ? () => setIsEditing(false) : undefined
+                        }
                         isEditing={isEditing}
                         rsvpConfig={rsvpConfig}
                       />

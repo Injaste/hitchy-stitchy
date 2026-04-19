@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 
-import type { PublicEventConfig } from "@/pages/invitation/types";
+import type { PublicEventConfig } from "@/pages/templates/types";
 
 import Hero from "./Hero";
 import Details from "./Details";
