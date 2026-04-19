@@ -97,7 +97,7 @@ const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
             <span>{formatTime(latest)}</span>
           </span>
           <span>·</span>
-          <span>{calculateTimeDuration(earliest, latest)}</span>
+          <span>{calculateTimeDuration(earliest, latest, "long")}</span>
         </div>
       </div>
 

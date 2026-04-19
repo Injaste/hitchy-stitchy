@@ -14,6 +14,13 @@ import {
 } from "date-fns";
 import type { EventStatus } from "../types/types-time";
 
+const label = {
+  day: {short: "d", long: "day"},
+  hour: {short: "h", long: "hour"},
+  minute: {short: "m", long: "minute"},
+  second: {short: "s", long: "second"}
+}
+
 export function formatDateRange(from: string, to: string): string {
   const start = new Date(from);
   const end = new Date(to);
@@ -83,14 +90,29 @@ export function formatTime(time: string, hour24: boolean = false) {
   return `${hour}:${min}${ampm}`;
 }
 
-export const calculateTimeDuration = (start: string, end: string): string => {
-  const [sh, sm] = start.split(":").map(Number)
-  const [eh, em] = end.split(":").map(Number)
-  const total = (eh * 60 + em) - (sh * 60 + sm)
+const fmt = (value: number, unit: keyof typeof label, format: "short" | "long") => {
+  if (value === 0) return ""
+  const l = label[unit][format]
+  return format === "short" ? `${value}${l}` : `${value} ${l}${value !== 1 ? "s" : ""}`
+}
+
+export const calculateTimeDuration = (
+  start: string,
+  end: string,
+  format: "short" | "long" = "short"
+): string => {
+  const toMinutes = (t: string) => {
+    const [h, m] = t.split(":").map(Number)
+    return h * 60 + m
+  }
+
+  const total = toMinutes(end) - toMinutes(start)
   if (total <= 0) return ""
+
   const h = Math.floor(total / 60)
   const m = total % 60
-  if (h === 0) return `${m}m`
-  if (m === 0) return `${h}h`
-  return `${h}h ${m}m`
+
+  return [fmt(h, "hour", format), fmt(m, "minute", format)]
+    .filter(Boolean)
+    .join(" ")
 }

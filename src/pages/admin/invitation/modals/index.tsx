@@ -1,11 +1,11 @@
-import { usePagesModalStore } from "../hooks/usePagesModalStore"
+import { usePagesModalStore } from "../store/usePagesModalStore"
 import { usePagesQuery } from "../queries"
 import ThemePickerModal from "./ThemePickerModal"
 import PageNameModal from "./PageNameModal"
 import ConfirmDeletePageModal from "./ConfirmDeletePageModal"
 import ConfirmPublishModal from "./ConfirmPublishModal"
 
-const PagesModals = () => {
+const InvitationModals = () => {
   const {
     isThemePickerOpen,
     isRenameOpen,
@@ -33,4 +33,4 @@ const PagesModals = () => {
   )
 }
 
-export default PagesModals
+export default InvitationModals

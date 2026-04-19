@@ -1,5 +1,5 @@
-import { useState, useEffect, type FC } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -13,83 +13,66 @@ import {
 } from "@/components/ui/select"
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
+import { useInvitationDraftStore } from "../store/useInvitationDraftStore"
 import { useUpdateInvitationMutation } from "../queries"
-import type { EventInvitation, RSVPMode } from "../types"
+import type { RSVPMode, RSVPSectionConfig } from "../types"
 
-interface Props {
-  invitation: EventInvitation
+type DraftShape = {
+  rsvp_mode: RSVPMode
+  rsvp_deadline: string
+  config: RSVPSectionConfig
 }
 
-const RSVPConfigSection: FC<Props> = ({ invitation }) => {
+const RSVPTab = () => {
   const { eventId } = useAdminStore()
+  const invitation = useInvitationDraftStore((s) => s.serverInvitation)
+  const draft = useInvitationDraftStore((s) => s.rsvpDraft)
+  const setRSVP = useInvitationDraftStore((s) => s.setRSVP)
+  const clearRSVP = useInvitationDraftStore((s) => s.clearRSVP)
   const { mutate, isPending } = useUpdateInvitationMutation()
 
-  const fields = invitation.config.rsvp.fields
-  const [rsvp_mode, setRsvpMode] = useState<RSVPMode>(invitation.rsvp_mode)
-  const [rsvp_deadline, setRsvpDeadline] = useState(invitation.rsvp_deadline ?? "")
-  const [showPhone, setShowPhone] = useState(fields.phone.visible)
-  const [requirePhone, setRequirePhone] = useState(fields.phone.required)
-  const [showGuestCount, setShowGuestCount] = useState(fields.guestCount.visible)
-  const [requireGuestCount, setRequireGuestCount] = useState(fields.guestCount.required)
-  const [guestMin, setGuestMin] = useState(String(fields.guestCount.min))
-  const [guestMax, setGuestMax] = useState(String(fields.guestCount.max))
-  const [showMessage, setShowMessage] = useState(fields.message.visible)
-  const [requireMessage, setRequireMessage] = useState(fields.message.required)
-  const [confirmationMessage, setConfirmationMessage] = useState(
-    invitation.config.rsvp.confirmation_message,
-  )
-
   useEffect(() => {
-    const f = invitation.config.rsvp.fields
-    setRsvpMode(invitation.rsvp_mode)
-    setRsvpDeadline(invitation.rsvp_deadline ?? "")
-    setShowPhone(f.phone.visible)
-    setRequirePhone(f.phone.required)
-    setShowGuestCount(f.guestCount.visible)
-    setRequireGuestCount(f.guestCount.required)
-    setGuestMin(String(f.guestCount.min))
-    setGuestMax(String(f.guestCount.max))
-    setShowMessage(f.message.visible)
-    setRequireMessage(f.message.required)
-    setConfirmationMessage(invitation.config.rsvp.confirmation_message)
-  }, [invitation])
+    if (!invitation || draft) return
+    setRSVP({
+      rsvp_mode: invitation.rsvp_mode,
+      rsvp_deadline: invitation.rsvp_deadline ?? "",
+      config: invitation.config.rsvp,
+    })
+  }, [invitation, draft, setRSVP])
+
+  if (!draft) return null
+
+  const update = (next: DraftShape) => setRSVP(next)
+  const { rsvp_mode, rsvp_deadline, config } = draft
+  const f = config.fields
+
+  const setMode = (v: RSVPMode) => update({ ...draft, rsvp_mode: v })
+  const setDeadline = (v: string) => update({ ...draft, rsvp_deadline: v })
+  const setField = (key: keyof typeof f, patch: Partial<typeof f[typeof key]>) =>
+    update({ ...draft, config: { ...config, fields: { ...f, [key]: { ...f[key], ...patch } } } })
+  const setConfirmationMessage = (v: string) =>
+    update({ ...draft, config: { ...config, confirmation_message: v } })
 
   const handleSave = () => {
-    if (!eventId) return
-    mutate({
-      event_id: eventId,
-      rsvp_mode,
-      rsvp_deadline: rsvp_deadline || null,
-      config: {
-        ...invitation.config,
-        rsvp: {
-          fields: {
-            name: { visible: true, required: true },
-            phone: { visible: showPhone, required: requirePhone },
-            guestCount: {
-              visible: showGuestCount,
-              required: requireGuestCount,
-              min: Number(guestMin) || 1,
-              max: Number(guestMax) || 10,
-            },
-            message: { visible: showMessage, required: requireMessage },
-          },
-          confirmation_message: confirmationMessage,
-        },
+    if (!eventId || !invitation) return
+    mutate(
+      {
+        event_id: eventId,
+        rsvp_mode,
+        rsvp_deadline: rsvp_deadline || null,
+        config: { ...invitation.config, rsvp: config },
       },
-    })
+      { onSuccess: () => clearRSVP() },
+    )
   }
 
   return (
     <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base">RSVP Configuration</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="px-5 py-4 space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>RSVP Mode</Label>
-            <Select value={rsvp_mode} onValueChange={(v) => setRsvpMode(v as RSVPMode)}>
+            <Select value={rsvp_mode} onValueChange={(v) => setMode(v as RSVPMode)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -107,7 +90,7 @@ const RSVPConfigSection: FC<Props> = ({ invitation }) => {
               id="rsvp-deadline"
               type="date"
               value={rsvp_deadline}
-              onChange={(e) => setRsvpDeadline(e.target.value)}
+              onChange={(e) => setDeadline(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">Leave empty for no deadline</p>
           </div>
@@ -126,28 +109,28 @@ const RSVPConfigSection: FC<Props> = ({ invitation }) => {
 
           <FieldToggleRow
             label="Phone number"
-            visible={showPhone}
-            required={requirePhone}
-            onVisibleChange={setShowPhone}
-            onRequiredChange={setRequirePhone}
+            visible={f.phone.visible}
+            required={f.phone.required}
+            onVisibleChange={(v) => setField("phone", { visible: v })}
+            onRequiredChange={(v) => setField("phone", { required: v })}
           />
 
           <FieldToggleRow
             label="Guest count"
-            visible={showGuestCount}
-            required={requireGuestCount}
-            onVisibleChange={setShowGuestCount}
-            onRequiredChange={setRequireGuestCount}
+            visible={f.guestCount.visible}
+            required={f.guestCount.required}
+            onVisibleChange={(v) => setField("guestCount", { visible: v })}
+            onRequiredChange={(v) => setField("guestCount", { required: v })}
           >
-            {showGuestCount && (
+            {f.guestCount.visible && (
               <div className="flex items-center gap-3 mt-2">
                 <div className="space-y-1 flex-1">
                   <Label className="text-xs">Min</Label>
                   <Input
                     type="number"
                     min={1}
-                    value={guestMin}
-                    onChange={(e) => setGuestMin(e.target.value)}
+                    value={f.guestCount.min}
+                    onChange={(e) => setField("guestCount", { min: Number(e.target.value) || 1 })}
                     className="h-8 text-sm"
                   />
                 </div>
@@ -156,8 +139,8 @@ const RSVPConfigSection: FC<Props> = ({ invitation }) => {
                   <Input
                     type="number"
                     min={1}
-                    value={guestMax}
-                    onChange={(e) => setGuestMax(e.target.value)}
+                    value={f.guestCount.max}
+                    onChange={(e) => setField("guestCount", { max: Number(e.target.value) || 10 })}
                     className="h-8 text-sm"
                   />
                 </div>
@@ -167,10 +150,10 @@ const RSVPConfigSection: FC<Props> = ({ invitation }) => {
 
           <FieldToggleRow
             label="Message"
-            visible={showMessage}
-            required={requireMessage}
-            onVisibleChange={setShowMessage}
-            onRequiredChange={setRequireMessage}
+            visible={f.message.visible}
+            required={f.message.required}
+            onVisibleChange={(v) => setField("message", { visible: v })}
+            onRequiredChange={(v) => setField("message", { required: v })}
           />
         </div>
 
@@ -178,7 +161,7 @@ const RSVPConfigSection: FC<Props> = ({ invitation }) => {
           <Label htmlFor="confirmation-msg">Confirmation Message</Label>
           <Input
             id="confirmation-msg"
-            value={confirmationMessage}
+            value={config.confirmation_message}
             onChange={(e) => setConfirmationMessage(e.target.value)}
             placeholder="We look forward to celebrating with you!"
           />
@@ -229,4 +212,4 @@ const FieldToggleRow = ({
   </div>
 )
 
-export default RSVPConfigSection
+export default RSVPTab

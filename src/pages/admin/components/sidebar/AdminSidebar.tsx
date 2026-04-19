@@ -5,8 +5,7 @@ import {
   Users,
   Shield,
   ChevronsUpDown,
-  LayoutTemplate,
-  ScrollText,
+  Mail,
   ClipboardList,
 } from "lucide-react";
 
@@ -91,7 +90,7 @@ const AdminSidebar = () => {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Team</SidebarGroupLabel>
+          <SidebarGroupLabel>Teams</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <NavItem
@@ -113,20 +112,14 @@ const AdminSidebar = () => {
         {showAdmin && (
           <>
             <SidebarGroup>
-              <SidebarGroupLabel>Invitation</SidebarGroupLabel>
+              <SidebarGroupLabel>RSVP</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <NavItem
-                    icon={LayoutTemplate}
-                    label="Themes"
-                    to={`${base}/themes`}
-                    isActive={activePage === "themes"}
-                  />
-                  <NavItem
-                    icon={ScrollText}
-                    label="Details"
-                    to={`${base}/details`}
-                    isActive={activePage === "details"}
+                    icon={Mail}
+                    label="Invitation"
+                    to={`${base}/invitation`}
+                    isActive={activePage === "invitation"}
                   />
                   <NavItem
                     icon={ClipboardList}
