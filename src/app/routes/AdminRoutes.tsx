@@ -6,7 +6,7 @@ import Tasks from "@/pages/admin/tasks";
 import Members from "@/pages/admin/members";
 import Roles from "@/pages/admin/roles";
 import { LiveTab } from "@/pages/admin/live";
-import { RSVPTab } from "@/pages/admin/rsvp";
+import Guests from "@/pages/admin/guests";
 import { SettingsTab } from "@/pages/admin/settings";
 import Vendor from "@/pages/admin/vendor";
 import Invitation from "@/pages/admin/invitation";
@@ -22,7 +22,7 @@ const adminChildRoutes = [
   { path: "invitation", element: <Invitation /> },
   { path: "details", element: <Navigate to="../invitation" replace /> },
   { path: "themes", element: <Navigate to="../invitation" replace /> },
-  { path: "guests", element: <RSVPTab /> },
+  { path: "guests", element: <Guests /> },
   { path: "settings", element: <SettingsTab /> },
 ];
 

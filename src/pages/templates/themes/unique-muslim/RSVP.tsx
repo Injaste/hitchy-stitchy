@@ -86,7 +86,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
 
   const handleDeleteConfirm = async () => {
     setShowDeleteDialog(false);
-    await remove.mutate();
+    await remove.mutate({});
     setIsEditing(false);
   };
 

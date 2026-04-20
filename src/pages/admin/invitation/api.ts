@@ -12,6 +12,12 @@ const INVITATION_FIELDS = "id, event_id, couple_names, event_date, event_time_st
 const PAGE_FIELDS = "id, event_id, template_id, name, is_published, config, created_at, updated_at, theme:event_templates(id, name, slug)"
 const THEME_FIELDS = "id, name, slug, description, config, is_active, created_at, updated_at"
 
+type RawPage = Omit<EventPage, "theme"> & { theme: Pick<EventTheme, "id" | "name" | "slug">[] | null }
+
+function normalizePage(raw: RawPage): EventPage {
+  return { ...raw, theme: raw.theme?.[0] ?? null }
+}
+
 export async function fetchInvitation(eventId: string): Promise<EventInvitation> {
   const { data, error } = await supabase
     .from("event_invitation")
@@ -40,7 +46,7 @@ export async function fetchPages(eventId: string): Promise<EventPage[]> {
     .order("created_at", { ascending: true })
 
   if (error) throw new Error(error.message)
-  return (data ?? []) as EventPage[]
+  return (data ?? [] as RawPage[]).map(normalizePage)
 }
 
 export async function fetchThemes(): Promise<EventTheme[]> {
@@ -67,7 +73,7 @@ export async function createPage(payload: CreatePagePayload): Promise<EventPage>
     .single()
 
   if (error) throw new Error(error.message)
-  return data as EventPage
+  return normalizePage(data as unknown as RawPage)
 }
 
 export async function updatePage({ id, ...fields }: UpdatePagePayload): Promise<void> {
