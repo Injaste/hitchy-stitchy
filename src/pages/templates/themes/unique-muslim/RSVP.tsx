@@ -101,7 +101,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   return (
     <section
       id="rsvp"
-      className="pt-20 sm:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 relative bg-white/10 backdrop-blur-sm z-10"
+      className="pt-20 sm:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 relative bg-white/10 z-10"
     >
       <div className="max-w-sm sm:max-w-md mx-auto">
         <motion.div

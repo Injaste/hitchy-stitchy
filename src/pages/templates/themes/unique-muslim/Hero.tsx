@@ -47,10 +47,9 @@ const cta: Variants = make(T.cta, 12, 0.7);
 const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const appearance = eventConfig.config.appearance;
 
-  const greetingText =
-    appearance?.greeting ?? "السلام عليكم ورحمة الله وبركاته";
-  const quoteText = appearance?.quote ?? "And We created you in pairs.";
-  const quoteSource = appearance?.quote_source ?? "Surah An-Naba 78:8";
+  const greetingText = appearance?.greeting ?? "";
+  const quoteText = appearance?.quote ?? "";
+  const quoteSource = appearance?.quote_source ?? "";
 
   const names = (eventConfig.couple_names ?? "")
     .split("&")
@@ -62,7 +61,7 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const weddingDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
 
   return (
-    <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10 backdrop-blur-sm">
+    <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10">
       <motion.div
         initial="hidden"
         animate="show"

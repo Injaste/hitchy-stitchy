@@ -1,16 +1,22 @@
-import { createContext, useContext, useRef } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 
 const PortalContext = createContext<HTMLDivElement | null>(null);
 
 export const usePortalContainer = () => useContext(PortalContext);
 
 const AppPortals = ({ children }: { children?: React.ReactNode }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const [portalNode, setPortalNode] = useState<HTMLDivElement | null>(null);
+
+  const onRefChange = useCallback((node: HTMLDivElement) => {
+    if (node !== null) {
+      setPortalNode(node);
+    }
+  }, []);
 
   return (
-    <PortalContext.Provider value={ref.current}>
+    <PortalContext.Provider value={portalNode}>
       {children}
-      <div ref={ref} id="app-portal" />
+      <div ref={onRefChange} id="app-portal" />
     </PortalContext.Provider>
   );
 };

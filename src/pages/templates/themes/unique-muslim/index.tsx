@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 import type { PublicEventConfig } from "@/pages/templates/types";
 
@@ -7,6 +7,7 @@ import Hero from "./Hero";
 import Details from "./Details";
 import RSVP from "./RSVP";
 import FloatingIcons from "./FloatingIcons";
+import PortalToApp from "@/components/custom/portal-to-app";
 
 export interface ThemeProps {
   eventConfig: PublicEventConfig;
@@ -21,11 +22,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
     offset: ["start start", "end end"],
   });
 
-  const scaleProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
+  const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   const bgImage = (pageConfig?.background_image as string) ?? "/dannad.png";
 
@@ -36,16 +33,18 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
         style={{ scaleY: scaleProgress }}
       />
 
-      <img
-        className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50"
-        src={bgImage}
-        alt=""
-      />
+      <PortalToApp>
+        <img
+          className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50 -z-10 blur-sm"
+          src={bgImage}
+          alt=""
+        />
+        <FloatingIcons />
+      </PortalToApp>
 
       <Hero eventConfig={eventConfig} />
       <Details eventConfig={eventConfig} />
       <RSVP eventConfig={eventConfig} />
-      <FloatingIcons />
     </div>
   );
 };

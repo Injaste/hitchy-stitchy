@@ -22,9 +22,7 @@ const standaloneRoutes = [
 const AppRoutes = () => {
   const location = useLocation();
 
-  const rootSegment = location.pathname.split("/")[1]; // "", "dashboard", "create-event", "slug"
-  // For admin routes, the key is always "admin" regardless of sub-path
-  // For standalone routes, the key is the first segment
+  const rootSegment = location.pathname.split("/")[1];
   const animationKey = location.pathname.includes("/admin")
     ? "admin"
     : rootSegment;
@@ -32,17 +30,27 @@ const AppRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={animationKey}>
-        {standaloneRoutes.map((r) => (
-          <Route
-            key={r.path}
-            path={r.path}
-            element={
-              <ComponentFade>
-                <r.element />
-              </ComponentFade>
-            }
-          />
-        ))}
+        {standaloneRoutes.map((r) => {
+          // ignore fade for slug, as it handles it internally on its own
+          const isInvitation = r.path === "/:slug";
+          const Component = r.element;
+
+          return (
+            <Route
+              key={r.path}
+              path={r.path}
+              element={
+                isInvitation ? (
+                  <Component />
+                ) : (
+                  <ComponentFade>
+                    <Component />
+                  </ComponentFade>
+                )
+              }
+            />
+          );
+        })}
 
         {AdminRoutes()}
       </Routes>

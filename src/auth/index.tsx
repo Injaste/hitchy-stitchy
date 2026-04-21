@@ -3,7 +3,6 @@ import { useForm } from "@tanstack/react-form";
 import { motion } from "framer-motion";
 import { CalendarHeart, Eye, EyeOff, NotebookPen } from "lucide-react";
 import { z } from "zod";
-import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -50,16 +50,14 @@ const divider: Variants = {
 const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const appearance = eventConfig.config.appearance;
 
-  const sectionTitle = appearance?.section_title ?? "A Journey of Love";
-  const invitationBody =
-    appearance?.invitation_body ??
-    "In the name of Allah, the Most Gracious, the Most Merciful. We invite you to witness the beginning of our forever. A day where two souls become one, guided by faith and bound by love.";
-  const blessingsName = appearance?.blessings_name ?? null;
-  const blessingsLabel = appearance?.blessings_label ?? null;
-  const attire = appearance?.attire ?? null;
+  const sectionTitle = appearance?.section_title ?? "";
+  const invitationBody = appearance?.invitation_body ?? "";
+  const blessingsName = appearance?.blessings_name ?? "";
+  const blessingsLabel = appearance?.blessings_label ?? "";
+  const attire = appearance?.attire ?? "";
 
   const parts = eventConfig.event_date?.split("-").map(Number);
-  const eventDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
+  const eventDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : "";
 
   const detailsList = [
     ...(eventDate
@@ -109,7 +107,7 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const googleCalendarUrl = eventDate
     ? "https://calendar.google.com/calendar/render?action=TEMPLATE" +
       "&text=" +
-      encodeURIComponent(eventConfig.couple_names ?? "Wedding") +
+      encodeURIComponent(eventConfig.couple_names ?? "") +
       "&dates=" +
       encodeURIComponent(
         `${format(eventDate, "yyyyMMdd")}/${format(eventDate, "yyyyMMdd")}`,
@@ -121,7 +119,7 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   return (
     <section
       id="details"
-      className="py-20 sm:py-32 px-4 sm:px-6 bg-card/60 backdrop-blur-sm relative z-10"
+      className="py-20 sm:py-32 px-4 sm:px-6 bg-card/60 relative z-10"
     >
       <div className="max-w-4xl mx-auto text-center">
         {/* Intro */}
