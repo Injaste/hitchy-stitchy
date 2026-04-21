@@ -46,7 +46,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   );
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-4">
       <p className="text-sm tracking-wide text-muted-foreground">
         {dateStart && dateEnd && (
           <span className="flex flex-col">

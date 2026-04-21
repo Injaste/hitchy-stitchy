@@ -26,6 +26,9 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
 
   const bgImage = (pageConfig?.background_image as string) ?? "/dannad.png";
 
+  // WHY IS THIS COMPONENT RUNNING IN ADMIN DASHBOARD?
+  console.log("asdasdad");
+
   return (
     <div ref={containerRef} className="font-medium">
       <motion.div

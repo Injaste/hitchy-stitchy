@@ -21,6 +21,8 @@ const Invitation = () => {
   const ThemeComponent =
     (themeSlug ? themeRegistry[themeSlug] : null) ?? FallbackTheme;
 
+  console.log(themeSlug);
+
   return (
     <AnimatePresence mode="wait">
       {showStateWrapper ? (

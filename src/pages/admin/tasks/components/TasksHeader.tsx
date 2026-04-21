@@ -34,7 +34,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
   const done = data?.filter((t) => t.status === "done").length ?? 0;
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-4">
       <p className="text-xs tracking-wide text-muted-foreground/60 font-sans">
         {!isLoading && !isError && total > 0 && (
           <>

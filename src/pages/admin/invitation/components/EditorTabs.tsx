@@ -1,30 +1,46 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import DetailsTab from "./DetailsTab"
-import AppearanceTab from "./AppearanceTab"
-import RSVPTab from "./RSVPTab"
-import ThemeTab from "./ThemeTab"
+import { useState } from "react";
 
-const EditorTabs = () => (
-  <Tabs defaultValue="details" className="w-full">
-    <TabsList className="grid w-full grid-cols-4">
-      <TabsTrigger value="details">Details</TabsTrigger>
-      <TabsTrigger value="appearance">Appearance</TabsTrigger>
-      <TabsTrigger value="rsvp">RSVP</TabsTrigger>
-      <TabsTrigger value="theme">Theme</TabsTrigger>
-    </TabsList>
-    <TabsContent value="details" className="mt-5">
-      <DetailsTab />
-    </TabsContent>
-    <TabsContent value="appearance" className="mt-5">
-      <AppearanceTab />
-    </TabsContent>
-    <TabsContent value="rsvp" className="mt-5">
-      <RSVPTab />
-    </TabsContent>
-    <TabsContent value="theme" className="mt-5">
-      <ThemeTab />
-    </TabsContent>
-  </Tabs>
-)
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default EditorTabs
+import DetailsTab from "./DetailsTab";
+import AppearanceTab from "./AppearanceTab";
+import RSVPTab from "./RSVPTab";
+import ThemeTab from "./ThemeTab";
+
+const TABS = [
+  { id: "details", label: "Details", element: DetailsTab },
+  { id: "appearance", label: "Appearance", element: AppearanceTab },
+  { id: "rsvp", label: "RSVP", element: RSVPTab },
+  { id: "theme", label: "Theme", element: ThemeTab },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
+const EditorTabs = () => {
+  const [active, setActive] = useState<TabId>("details");
+
+  const ActiveElement = TABS.find((tab) => tab.id === active)!.element;
+
+  return (
+    <Tabs
+      value={active}
+      onValueChange={(v) => setActive(v as TabId)}
+      tabOrder={TABS.map((t) => t.id)}
+      className="gap-6"
+    >
+      <TabsList activeValue={active}>
+        {TABS.map((tab) => (
+          <TabsTrigger key={tab.id} value={tab.id}>
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+
+      <TabsContent value={active}>
+        <ActiveElement />
+      </TabsContent>
+    </Tabs>
+  );
+};
+
+export default EditorTabs;
