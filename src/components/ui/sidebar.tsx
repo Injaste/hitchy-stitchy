@@ -418,7 +418,7 @@ function SidebarContent({
           <motion.div
             ref={activeIndicatorRef}
             className={cn(
-              "absolute left-2 right-2 bg-primary/70 rounded-xl -z-10 pointer-events-none",
+              "absolute left-2 right-2 bg-primary/70 rounded-lg -z-10 pointer-events-none",
               indicatorClassName,
             )}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -428,7 +428,7 @@ function SidebarContent({
         <motion.div
           ref={hoverIndicatorRef}
           className={cn(
-            "absolute left-2 right-2 bg-primary/40 rounded-xl -z-10 pointer-events-none opacity-0",
+            "absolute left-2 right-2 bg-primary/40 rounded-lg -z-10 pointer-events-none opacity-0",
             indicatorClassName,
           )}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}

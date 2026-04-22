@@ -17,6 +17,7 @@ import {
   useInvitationDraftStore,
   composeEventConfig,
 } from "../store/useInvitationDraftStore";
+import PortalToApp from "@/components/custom/portal-to-app";
 
 const PHONE_W = 400;
 const PHONE_H = 867;
@@ -69,19 +70,8 @@ const PreviewPanel = () => {
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">
-          Live Preview
+          Theme Preview
         </p>
-        {slug && (
-          <a
-            href={`/${slug}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-          >
-            Open live
-            <ExternalLink className="h-3 w-3" />
-          </a>
-        )}
       </div>
 
       {serverPages.length > 0 && (
@@ -100,7 +90,7 @@ const PreviewPanel = () => {
                   {page.is_published && (
                     <Badge
                       variant="default"
-                      className="text-[10px] gap-1 h-4 px-1.5"
+                      className="text-2xs gap-1 h-4 px-1.5"
                     >
                       <Globe className="h-2.5 w-2.5" />
                       Published
@@ -146,6 +136,22 @@ const PreviewPanel = () => {
             <ThemeComponent
               eventConfig={composed}
               pageConfig={composed.published_page?.config ?? {}}
+            />
+
+            {/* Bottom mobile swiping thing */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "6px",
+                left: "0",
+                right: "0",
+                width: "100px",
+                height: "2px",
+                marginInline: "auto",
+                backgroundColor: "#aaaaaa",
+                zIndex: "500",
+                borderRadius: "100px",
+              }}
             />
           </Frame>
         )}
