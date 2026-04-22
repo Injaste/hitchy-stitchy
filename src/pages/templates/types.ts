@@ -40,7 +40,8 @@ export interface InvitationConfig {
 export interface PublicEventConfig {
   id: string
   event_id: string
-  couple_names: string | null
+  groom_name: string | null
+  bride_name: string | null
   event_date: string | null        // "yyyy-MM-dd"
   event_time_start: string | null
   event_time_end: string | null

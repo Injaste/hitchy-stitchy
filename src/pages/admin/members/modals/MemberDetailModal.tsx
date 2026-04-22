@@ -52,7 +52,7 @@ const MemberDetailModal = () => {
 
         <div className="space-y-6 mt-1">
           <div className="space-y-1.5">
-            <p className="text-sm text-muted-foreground">{member.email}</p>
+            {/* <p className="text-sm text-muted-foreground">{member.email}</p> */}
             <p className="text-xs tracking-wide text-muted-foreground">
               {statusLabel}
               {joinedLabel ? ` · ${joinedLabel}` : ""}

@@ -1,16 +1,17 @@
-import { useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
-import { useAdminStore } from "@/pages/admin/store/useAdminStore"
-import { useInvitationDraftStore } from "../store/useInvitationDraftStore"
-import { useUpdateInvitationMutation } from "../queries"
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useInvitationDraftStore } from "../store/useInvitationDraftStore";
+import { useUpdateInvitationMutation } from "../queries";
 
 const emptyDraft = {
-  couple_names: "",
+  groom_name: "",
+  bride_name: "",
   event_date: "",
   event_time_start: "",
   event_time_end: "",
@@ -18,20 +19,21 @@ const emptyDraft = {
   venue_address: "",
   venue_map_link: "",
   venue_map_embed_url: "",
-}
+};
 
 const DetailsTab = () => {
-  const { eventId } = useAdminStore()
-  const invitation = useInvitationDraftStore((s) => s.serverInvitation)
-  const draft = useInvitationDraftStore((s) => s.detailsDraft)
-  const setDetails = useInvitationDraftStore((s) => s.setDetails)
-  const clearDetails = useInvitationDraftStore((s) => s.clearDetails)
-  const { mutate, isPending } = useUpdateInvitationMutation()
+  const { eventId } = useAdminStore();
+  const invitation = useInvitationDraftStore((s) => s.serverInvitation);
+  const draft = useInvitationDraftStore((s) => s.detailsDraft);
+  const setDetails = useInvitationDraftStore((s) => s.setDetails);
+  const clearDetails = useInvitationDraftStore((s) => s.clearDetails);
+  const { mutate, isPending } = useUpdateInvitationMutation();
 
   useEffect(() => {
-    if (!invitation || draft) return
+    if (!invitation || draft) return;
     setDetails({
-      couple_names: invitation.couple_names ?? "",
+      groom_name: invitation.groom_name ?? "",
+      bride_name: invitation.bride_name ?? "",
       event_date: invitation.event_date ?? "",
       event_time_start: invitation.event_time_start ?? "",
       event_time_end: invitation.event_time_end ?? "",
@@ -39,19 +41,20 @@ const DetailsTab = () => {
       venue_address: invitation.venue_address ?? "",
       venue_map_link: invitation.venue_map_link ?? "",
       venue_map_embed_url: invitation.venue_map_embed_url ?? "",
-    })
-  }, [invitation, draft, setDetails])
+    });
+  }, [invitation, draft, setDetails]);
 
-  const current = draft ?? emptyDraft
+  const current = draft ?? emptyDraft;
   const update = (patch: Partial<typeof emptyDraft>) =>
-    setDetails({ ...current, ...patch })
+    setDetails({ ...current, ...patch });
 
   const handleSave = () => {
-    if (!eventId || !draft) return
+    if (!eventId || !draft) return;
     mutate(
       {
         event_id: eventId,
-        couple_names: draft.couple_names || null,
+        groom_name: draft.groom_name || null,
+        bride_name: draft.bride_name || null,
         event_date: draft.event_date || null,
         event_time_start: draft.event_time_start || null,
         event_time_end: draft.event_time_end || null,
@@ -61,20 +64,31 @@ const DetailsTab = () => {
         venue_map_embed_url: draft.venue_map_embed_url || null,
       },
       { onSuccess: () => clearDetails() },
-    )
-  }
+    );
+  };
 
   return (
     <Card>
       <CardContent className="px-5 py-4 space-y-5">
-        <div className="space-y-2">
-          <Label htmlFor="couple-names">Couple Names</Label>
-          <Input
-            id="couple-names"
-            placeholder="e.g. Danish & Nadia"
-            value={current.couple_names}
-            onChange={(e) => update({ couple_names: e.target.value })}
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="couple-names">Couple Names</Label>
+            <Input
+              id="couple-names"
+              placeholder="e.g. Danish & Nadia"
+              value={current.groom_name}
+              onChange={(e) => update({ groom_name: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="couple-names">Couple Names</Label>
+            <Input
+              id="couple-names"
+              placeholder="e.g. Danish & Nadia"
+              value={current.bride_name}
+              onChange={(e) => update({ bride_name: e.target.value })}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -153,7 +167,7 @@ const DetailsTab = () => {
         </Button>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default DetailsTab
+export default DetailsTab;

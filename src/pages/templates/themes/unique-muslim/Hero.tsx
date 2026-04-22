@@ -51,11 +51,8 @@ const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const quoteText = appearance?.quote ?? "";
   const quoteSource = appearance?.quote_source ?? "";
 
-  const names = (eventConfig.couple_names ?? "")
-    .split("&")
-    .map((s) => s.trim());
-  const personName1 = names[0] ?? "";
-  const personName2 = names[1] ?? "";
+  const personName1 = eventConfig.groom_name ?? "";
+  const personName2 = eventConfig.bride_name ?? "";
 
   const parts = eventConfig.event_date?.split("-").map(Number);
   const weddingDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;

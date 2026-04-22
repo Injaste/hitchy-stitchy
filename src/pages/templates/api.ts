@@ -25,7 +25,8 @@ export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig>
   return {
     id: inv.id,
     event_id: inv.event_id,
-    couple_names: inv.couple_names,
+    groom_name: inv.groom_name,
+    bride_name: inv.bride_name,
     event_date: inv.event_date,
     event_time_start: inv.event_time_start,
     event_time_end: inv.event_time_end,
@@ -38,10 +39,10 @@ export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig>
     config: inv.config as InvitationConfig,
     published_page: page
       ? {
-          id: page.id,
-          theme_slug: ((page.config as Record<string, unknown>)._theme_slug as string) ?? null,
-          config: page.config as Record<string, unknown>,
-        }
+        id: page.id,
+        theme_slug: ((page.config as Record<string, unknown>)._theme_slug as string) ?? null,
+        config: page.config as Record<string, unknown>,
+      }
       : null,
   }
 }

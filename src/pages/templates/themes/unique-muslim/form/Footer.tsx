@@ -4,12 +4,21 @@ import { motion, type Variants } from "framer-motion";
 interface FooterProps {
   fadeUp: (delay: number, y?: number, duration?: number) => Variants;
   fadeIn: (delay: number, duration?: number) => Variants;
-  couple_names?: string | null;
+  groom_name?: string | null;
+  bride_name?: string | null;
 }
 
-const Footer: FC<FooterProps> = ({ fadeIn, fadeUp, couple_names }) => {
+const Footer: FC<FooterProps> = ({
+  fadeIn,
+  fadeUp,
+  groom_name,
+  bride_name,
+}) => {
   const year = new Date().getFullYear();
-  const displayName = couple_names ?? "Our Wedding";
+  const displayName =
+    !groom_name && !bride_name
+      ? "Our Wedding"
+      : `${groom_name} & ${bride_name}`;
 
   return (
     <motion.div

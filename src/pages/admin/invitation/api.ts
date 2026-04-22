@@ -8,7 +8,7 @@ import type {
   UpdatePagePayload,
 } from "./types"
 
-const INVITATION_FIELDS = "id, event_id, couple_names, event_date, event_time_start, event_time_end, venue_name, venue_address, venue_map_embed_url, venue_map_link, rsvp_mode, rsvp_deadline, config, created_at, updated_at"
+const INVITATION_FIELDS = "id, event_id, groom_name, bride_name, event_date, event_time_start, event_time_end, venue_name, venue_address, venue_map_embed_url, venue_map_link, rsvp_mode, rsvp_deadline, config, created_at, updated_at"
 const PAGE_FIELDS = "id, event_id, template_id, name, is_published, config, created_at, updated_at, theme:event_templates(id, name, slug)"
 const THEME_FIELDS = "id, name, slug, description, config, is_active, created_at, updated_at"
 

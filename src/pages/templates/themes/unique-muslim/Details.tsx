@@ -107,7 +107,9 @@ const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   const googleCalendarUrl = eventDate
     ? "https://calendar.google.com/calendar/render?action=TEMPLATE" +
       "&text=" +
-      encodeURIComponent(eventConfig.couple_names ?? "") +
+      encodeURIComponent(
+        `${eventConfig.groom_name} ${eventConfig.bride_name}`,
+      ) +
       "&dates=" +
       encodeURIComponent(
         `${format(eventDate, "yyyyMMdd")}/${format(eventDate, "yyyyMMdd")}`,

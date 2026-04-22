@@ -1,8 +1,8 @@
-import EditorTabs from "./EditorTabs"
-import PreviewPanel from "./PreviewPanel"
+import EditorTabs from "./EditorTabs";
+import PreviewPanel from "./PreviewPanel";
 
 const EditorLayout = () => (
-  <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+  <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
     <div className="min-w-0">
       <EditorTabs />
     </div>
@@ -10,6 +10,6 @@ const EditorLayout = () => (
       <PreviewPanel />
     </div>
   </div>
-)
+);
 
-export default EditorLayout
+export default EditorLayout;

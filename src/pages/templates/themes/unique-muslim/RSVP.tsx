@@ -266,7 +266,8 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
         <Footer
           fadeUp={fadeUp}
           fadeIn={fadeIn}
-          couple_names={eventConfig.couple_names}
+          groom_name={eventConfig.groom_name}
+          bride_name={eventConfig.bride_name}
         />
       </div>
 

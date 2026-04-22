@@ -9,7 +9,8 @@ import type {
 } from "../types"
 
 type DetailsDraft = {
-  couple_names: string
+  groom_name: string
+  bride_name: string
   event_date: string
   event_time_start: string
   event_time_end: string
@@ -108,7 +109,8 @@ export function composeEventConfig(args: {
   return {
     id: inv.id,
     event_id: inv.event_id,
-    couple_names: details ? (details.couple_names || null) : inv.couple_names,
+    groom_name: details ? (details.groom_name || null) : inv.groom_name,
+    bride_name: details ? (details.bride_name || null) : inv.bride_name,
     event_date: details ? (details.event_date || null) : inv.event_date,
     event_time_start: details ? (details.event_time_start || null) : inv.event_time_start,
     event_time_end: details ? (details.event_time_end || null) : inv.event_time_end,

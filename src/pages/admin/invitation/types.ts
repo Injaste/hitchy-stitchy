@@ -39,7 +39,8 @@ export interface InvitationConfig {
 export interface EventInvitation {
   id: string
   event_id: string
-  couple_names: string | null
+  groom_name: string | null
+  bride_name: string | null
   event_date: string | null        // "yyyy-MM-dd"
   event_time_start: string | null  // display string e.g. "11:00 AM"
   event_time_end: string | null
@@ -56,7 +57,8 @@ export interface EventInvitation {
 
 export interface UpdateInvitationPayload {
   event_id: string
-  couple_names?: string | null
+  groom_name?: string | null
+  bride_name?: string | null
   event_date?: string | null
   event_time_start?: string | null
   event_time_end?: string | null

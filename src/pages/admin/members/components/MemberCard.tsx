@@ -39,9 +39,9 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
               <p className="font-display text-base text-foreground truncate">
                 {member.display_name}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
+              {/* <p className="text-xs text-muted-foreground truncate">
                 {member.email}
-              </p>
+              </p> */}
             </div>
           </div>
 
