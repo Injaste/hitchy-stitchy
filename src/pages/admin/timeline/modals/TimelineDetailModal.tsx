@@ -5,6 +5,7 @@ import { StickyNote } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -47,7 +48,7 @@ const TimelineDetailModal = () => {
           )}
         </DialogHeader>
 
-        <div className="space-y-6 mt-1">
+        <div className="space-y-6 mt-1 max-h-[50vh]">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{timeLabel}</span>
             <span>·</span>
@@ -69,11 +70,17 @@ const TimelineDetailModal = () => {
               Assignees
             </p>
             {item.assignees.length === 0 ? (
-              <p className="text-sm text-muted-foreground/50 italic">No assignees</p>
+              <p className="text-sm text-muted-foreground/50 italic">
+                No assignees
+              </p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {item.assignees.map((id) => (
-                  <Badge key={id} variant="secondary" className="text-xs font-normal">
+                  <Badge
+                    key={id}
+                    variant="secondary"
+                    className="text-xs font-normal"
+                  >
                     {getRoleName(id, roles)}
                   </Badge>
                 ))}
@@ -81,9 +88,9 @@ const TimelineDetailModal = () => {
             )}
           </div>
 
-          <Separator />
+          <Separator className="mb-0" />
 
-          <div className="flex items-center justify-end gap-4">
+          <DialogFooter>
             <div className="flex gap-2">
               {canDelete("timeline") && (
                 <Button variant="destructive" size="sm" onClick={openDelete}>
@@ -96,7 +103,7 @@ const TimelineDetailModal = () => {
                 </Button>
               )}
             </div>
-          </div>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

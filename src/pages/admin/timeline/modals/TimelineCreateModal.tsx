@@ -26,9 +26,9 @@ const CreateTimelineItemModal = () => {
 
   return (
     <Dialog open={isCreateOpen} onOpenChange={closeAll}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle >Add schedule item</DialogTitle>
+          <DialogTitle>Add schedule item</DialogTitle>
           <DialogDescription>Timeline Description</DialogDescription>
         </DialogHeader>
         <TimelineItemForm

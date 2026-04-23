@@ -87,6 +87,15 @@
     @apply font-sans;
   }
 
+  body[data-scroll-locked="1"] {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  body[data-scroll-locked="1"] [data-lenis-prevent] {
+    touch-action: pan-y;
+  }
+
   h1,
   h2,
   h3,

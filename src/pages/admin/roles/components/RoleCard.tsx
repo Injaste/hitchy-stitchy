@@ -34,7 +34,7 @@ const RoleCard: FC<RoleCardProps> = ({ role, members }) => {
                 <h3 className="font-display text-base text-foreground truncate">
                   {role.name}
                 </h3>
-                <Badge variant="outline" className="text-2xs tracking-wide">
+                <Badge variant="secondary" className="text-2xs tracking-wide">
                   {role.short_name}
                 </Badge>
               </div>
@@ -62,12 +62,9 @@ const RoleCard: FC<RoleCardProps> = ({ role, members }) => {
             {activeMembers.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {activeMembers.map((m) => (
-                  <span
-                    key={m.id}
-                    className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground"
-                  >
+                  <Badge key={m.id} variant="outline">
                     {m.display_name}
-                  </span>
+                  </Badge>
                 ))}
               </div>
             )}

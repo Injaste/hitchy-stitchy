@@ -33,6 +33,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { generateEventDays } from "../utils";
+import { Separator } from "@/components/ui/separator";
 
 interface TimelineItemFormProps {
   defaultValues?: Partial<TimelineItemFormValues>;
@@ -87,100 +88,13 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-      <FieldGroup className="block space-y-4">
-        <form.Field name="title">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Title</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      placeholder="e.g. Bridal prep"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
-
-        <div className="space-y-1.5">
-          <Label>
-            Label{" "}
-            <span className="text-muted-foreground font-normal">
-              (optional)
-            </span>
-          </Label>
-          <form.Field name="label">
-            {(field) => (
-              <Input
-                placeholder="e.g. Nikah, Sanding"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <form.Field name="day">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Day</FieldLabel>
-                  <FieldContent>
-                    <Select
-                      value={field.state.value}
-                      onValueChange={field.handleChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        {field.state.value ? (
-                          <SelectValue />
-                        ) : (
-                          <span className="flex items-center gap-1.5 text-muted-foreground">
-                            <CalendarIcon className="size-4 shrink-0" />
-                            <span>Select a day</span>
-                          </span>
-                        )}
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        {eventDays.map((d) => {
-                          const val = format(d, "yyyy-MM-dd");
-                          return (
-                            <SelectItem key={val} value={val}>
-                              <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
-                              {format(d, "d MMM yyyy (EEE)")}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
-
-        <div className="grid grid-cols-2 gap-3">
-          <form.Field name="time_start">
+    <div className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 no-scrollbar px-1 -mx-1 max-h-[50vh] overflow-y-auto"
+      >
+        <FieldGroup className="block space-y-4">
+          <form.Field name="title">
             {(field) => {
               const hasError =
                 Boolean(field.state.meta.errors.length) && attemptCount > 0;
@@ -191,20 +105,14 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
                   attemptCount={attemptCount}
                 >
                   <Field data-invalid={hasError} className="gap-2">
-                    <FieldLabel>Start time</FieldLabel>
+                    <FieldLabel>Title</FieldLabel>
                     <FieldContent>
-                      <InputGroup>
-                        <InputGroupAddon>
-                          <Clock className="size-4" />
-                        </InputGroupAddon>
-                        <InputGroupInput
-                          type="time"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          className="[&::-webkit-calendar-picker-indicator]:hidden"
-                        />
-                      </InputGroup>
+                      <Input
+                        placeholder="e.g. Bridal prep"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
                     </FieldContent>
                   </Field>
                 </AnimateItem>
@@ -212,7 +120,25 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             }}
           </form.Field>
 
-          <form.Field name="time_end">
+          <div className="space-y-1.5">
+            <Label>
+              Label{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
+            </Label>
+            <form.Field name="label">
+              {(field) => (
+                <Input
+                  placeholder="e.g. Nikah, Sanding"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              )}
+            </form.Field>
+          </div>
+
+          <form.Field name="day">
             {(field) => {
               const hasError =
                 Boolean(field.state.meta.errors.length) && attemptCount > 0;
@@ -223,73 +149,159 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
                   attemptCount={attemptCount}
                 >
                   <Field data-invalid={hasError} className="gap-2">
-                    <FieldLabel>
-                      End time{" "}
-                      <span className="text-muted-foreground font-normal">
-                        (optional)
-                      </span>
-                    </FieldLabel>
+                    <FieldLabel>Day</FieldLabel>
                     <FieldContent>
-                      <InputGroup>
-                        <InputGroupAddon>
-                          <Clock className="size-4" />
-                        </InputGroupAddon>
-                        <InputGroupInput
-                          type="time"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          className="[&::-webkit-calendar-picker-indicator]:hidden"
-                        />
-                      </InputGroup>
+                      <Select
+                        value={field.state.value}
+                        onValueChange={field.handleChange}
+                      >
+                        <SelectTrigger className="w-full">
+                          {field.state.value ? (
+                            <SelectValue />
+                          ) : (
+                            <span className="flex items-center gap-1.5 text-muted-foreground">
+                              <CalendarIcon className="size-4 shrink-0" />
+                              <span>Select a day</span>
+                            </span>
+                          )}
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          {eventDays.map((d) => {
+                            const val = format(d, "yyyy-MM-dd");
+                            return (
+                              <SelectItem key={val} value={val}>
+                                <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
+                                {format(d, "d MMM yyyy (EEE)")}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
                     </FieldContent>
                   </Field>
                 </AnimateItem>
               );
             }}
           </form.Field>
-        </div>
 
-        <div className="space-y-1.5">
-          <Label>
-            Additional Items{" "}
-            <span className="text-muted-foreground font-normal">
-              (optional)
-            </span>
-          </Label>
-          <form.Field name="details">
-            {(field) => (
-              <Textarea
-                placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                rows={3}
-              />
-            )}
-          </form.Field>
-          <p className="text-xs text-muted-foreground">
-            Supports markdown — **bold**, *italic*, - lists, 1. numbered
-          </p>
-        </div>
+          <div className="grid grid-cols-2 gap-3">
+            <form.Field name="time_start">
+              {(field) => {
+                const hasError =
+                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
+                return (
+                  <AnimateItem
+                    errors={field.state.meta.errors}
+                    hasError={hasError}
+                    attemptCount={attemptCount}
+                  >
+                    <Field data-invalid={hasError} className="gap-2">
+                      <FieldLabel>Start time</FieldLabel>
+                      <FieldContent>
+                        <InputGroup>
+                          <InputGroupAddon>
+                            <Clock className="size-4" />
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            type="time"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            className="[&::-webkit-calendar-picker-indicator]:hidden"
+                          />
+                        </InputGroup>
+                      </FieldContent>
+                    </Field>
+                  </AnimateItem>
+                );
+              }}
+            </form.Field>
 
-        <div className="space-y-1.5">
-          <Label>
-            Assignees{" "}
-            <span className="text-muted-foreground font-normal">(optional)</span>
-          </Label>
-          <form.Field name="assignees">
-            {(field) => (
-              <AssigneeField
-                value={field.state.value}
-                onChange={field.handleChange}
-                items={roleItems}
-              />
-            )}
-          </form.Field>
-        </div>
-      </FieldGroup>
+            <form.Field name="time_end">
+              {(field) => {
+                const hasError =
+                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
+                return (
+                  <AnimateItem
+                    errors={field.state.meta.errors}
+                    hasError={hasError}
+                    attemptCount={attemptCount}
+                  >
+                    <Field data-invalid={hasError} className="gap-2">
+                      <FieldLabel>
+                        End time{" "}
+                        <span className="text-muted-foreground font-normal">
+                          (optional)
+                        </span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <InputGroup>
+                          <InputGroupAddon>
+                            <Clock className="size-4" />
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            type="time"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            className="[&::-webkit-calendar-picker-indicator]:hidden"
+                          />
+                        </InputGroup>
+                      </FieldContent>
+                    </Field>
+                  </AnimateItem>
+                );
+              }}
+            </form.Field>
+          </div>
 
-      <DialogFooter className="flex justify-end gap-2 pt-2">
+          <div className="space-y-1.5">
+            <Label>
+              Additional Items{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
+            </Label>
+            <form.Field name="details">
+              {(field) => (
+                <Textarea
+                  placeholder={
+                    "- Item one\n- Item two\n**Bold text**, *italic*"
+                  }
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  rows={3}
+                />
+              )}
+            </form.Field>
+            <p className="text-xs text-muted-foreground">
+              Supports markdown — **bold**, *italic*, - lists, 1. numbered
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>
+              Assignees{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
+            </Label>
+            <form.Field name="assignees">
+              {(field) => (
+                <AssigneeField
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  items={roleItems}
+                />
+              )}
+            </form.Field>
+          </div>
+        </FieldGroup>
+      </form>
+
+      <Separator className="mb-0" />
+
+      <DialogFooter>
         <DialogClose asChild>
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
@@ -299,7 +311,7 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
           {isPending ? "Saving…" : submitLabel}
         </Button>
       </DialogFooter>
-    </form>
+    </div>
   );
 };
 

@@ -28,9 +28,9 @@ const TimelineEditModal = () => {
 
   return (
     <Dialog open={isEditOpen} onOpenChange={closeAll}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle >Edit item</DialogTitle>
+          <DialogTitle>Edit item</DialogTitle>
           <DialogDescription>Timeline Description</DialogDescription>
         </DialogHeader>
         <TimelineItemForm
