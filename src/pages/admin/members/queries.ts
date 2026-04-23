@@ -8,11 +8,13 @@ import {
   inviteMember,
   updateMember,
   setMemberFrozen,
+  deleteMember,
 } from "./api"
 import type {
   InviteMemberPayload,
   UpdateMemberPayload,
   SetMemberFrozenPayload,
+  DeleteMemberPayload,
 } from "./types"
 
 export function useMembersQuery() {
@@ -50,6 +52,15 @@ export function useMemberMutations() {
     },
   )
 
+  const remove = useMutation(
+    (payload: DeleteMemberPayload) => deleteMember(payload),
+    {
+      successMessage: "Member delete",
+      errorMessage: "Failed to delete member",
+      onSuccess: () => { invalidate(); closeAll() },
+    },
+  )
+
   const freeze = useMutation(
     (payload: SetMemberFrozenPayload) => setMemberFrozen(payload),
     {
@@ -60,5 +71,5 @@ export function useMemberMutations() {
     },
   )
 
-  return { invite, update, freeze }
+  return { invite, update, remove, freeze }
 }

@@ -18,6 +18,7 @@ const MemberDetailModal = () => {
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const openEdit = useMemberModalStore((s) => s.openEdit);
+  const openDelete = useMemberModalStore((s) => s.openDelete);
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
 
   const { canUpdate } = useAccess();
@@ -79,6 +80,11 @@ const MemberDetailModal = () => {
           <div className="flex items-center justify-end gap-2">
             {canUpdate("members") && (
               <>
+                {member.role?.category !== "root" && (
+                  <Button variant="destructive" size="sm" onClick={openDelete}>
+                    Delete
+                  </Button>
+                )}
                 {member.role?.category !== "root" && (
                   <Button
                     variant={member.is_frozen ? "outline" : "destructive"}

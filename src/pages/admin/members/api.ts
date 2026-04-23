@@ -4,6 +4,7 @@ import type {
   InviteMemberPayload,
   UpdateMemberPayload,
   SetMemberFrozenPayload,
+  DeleteMemberPayload,
 } from "./types"
 
 const MEMBER_FIELDS = `
@@ -33,7 +34,6 @@ export async function inviteMember(
       display_name: payload.display_name,
       email: payload.email,
       role_id: payload.role_id,
-      invited_at: new Date().toISOString(),
     })
     .select(MEMBER_FIELDS)
     .single()
@@ -47,6 +47,16 @@ export async function updateMember(payload: UpdateMemberPayload): Promise<void> 
   const { error } = await supabase
     .from("event_members")
     .update(fields)
+    .eq("id", id)
+
+  if (error) throw new Error(error.message)
+}
+
+export async function deleteMember(payload: DeleteMemberPayload): Promise<void> {
+  const { id } = payload
+  const { error } = await supabase
+    .from("event_members")
+    .delete()
     .eq("id", id)
 
   if (error) throw new Error(error.message)

@@ -56,3 +56,7 @@ export interface SetMemberFrozenPayload {
   id: string
   is_frozen: boolean
 }
+
+export interface DeleteMemberPayload {
+  id: string
+}
