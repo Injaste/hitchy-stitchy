@@ -88,13 +88,8 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
   };
 
   return (
-    <>
-      <DialogBody>
-        <form
-          id="timeline-item-form"
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+    <form onSubmit={handleSubmit}>
+      <DialogBody className="space-y-6">
         <FieldGroup className="block space-y-4">
           <form.Field name="title">
             {(field) => {
@@ -299,10 +294,9 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             </form.Field>
           </div>
         </FieldGroup>
-        </form>
       </DialogBody>
 
-      <Separator className="shrink-0" />
+      <Separator />
 
       <DialogFooter>
         <DialogClose asChild>
@@ -310,11 +304,11 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             Cancel
           </Button>
         </DialogClose>
-        <Button type="submit" form="timeline-item-form" disabled={isPending}>
+        <Button type="submit" disabled={isPending}>
           {isPending ? "Saving…" : submitLabel}
         </Button>
       </DialogFooter>
-    </>
+    </form>
   );
 };
 
