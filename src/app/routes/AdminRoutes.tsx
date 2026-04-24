@@ -10,6 +10,7 @@ import Guests from "@/pages/admin/guests";
 import { SettingsTab } from "@/pages/admin/settings";
 import Vendor from "@/pages/admin/vendor";
 import Invitation from "@/pages/admin/invitation";
+import Permissions from "@/pages/admin/permissions";
 
 const adminChildRoutes = [
   { index: true, element: <Navigate to="timeline" replace /> },
@@ -17,6 +18,7 @@ const adminChildRoutes = [
   { path: "tasks", element: <Tasks /> },
   { path: "members", element: <Members /> },
   { path: "roles", element: <Roles /> },
+  { path: "permissions", element: <Permissions /> },
   { path: "vendor", element: <Vendor /> },
   { path: "live", element: <LiveTab /> },
   { path: "invitation", element: <Invitation /> },

@@ -4,6 +4,7 @@ import {
   CheckSquare,
   Users,
   Shield,
+  KeyRound,
   ChevronsUpDown,
   Mail,
   ClipboardList,
@@ -104,6 +105,12 @@ const AdminSidebar = () => {
                 label="Roles"
                 to={`${base}/roles`}
                 isActive={activePage === "roles"}
+              />
+              <NavItem
+                icon={KeyRound}
+                label="Permissions"
+                to={`${base}/permissions`}
+                isActive={activePage === "permissions"}
               />
             </SidebarMenu>
           </SidebarGroupContent>
