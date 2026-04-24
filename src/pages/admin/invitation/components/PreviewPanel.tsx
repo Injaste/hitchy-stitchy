@@ -64,7 +64,7 @@ const PreviewPanel = () => {
 
   const themeSlug = composed?.published_page?.theme_slug ?? null;
   const ThemeComponent =
-    (themeSlug ? themeRegistry[themeSlug] : null) ?? FallbackTheme;
+    (themeSlug ? themeRegistry[themeSlug]?.component : null) ?? FallbackTheme;
 
   return (
     <div className="space-y-3">

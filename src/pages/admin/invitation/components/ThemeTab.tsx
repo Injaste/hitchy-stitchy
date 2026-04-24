@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
+import { themeRegistry } from "@/pages/templates/themes"
 import type { ThemePageConfig } from "@/pages/templates/themes"
 import { useInvitationDraftStore } from "../store/useInvitationDraftStore"
 import { usePagesModalStore } from "../store/usePagesModalStore"
@@ -181,18 +182,12 @@ const ThemeTab = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bg-image">Background Image</Label>
-                <Input
-                  id="bg-image"
-                  placeholder="/image.png or https://..."
-                  value={currentPage.background_image ?? ""}
-                  onChange={(e) => updatePage({ background_image: e.target.value })}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Path or URL for the background displayed behind the invitation.
-                </p>
-              </div>
+              {(() => {
+                const entry = currentPage._theme_slug ? themeRegistry[currentPage._theme_slug] : null
+                return entry?.ConfigEditor
+                  ? <entry.ConfigEditor config={currentPage} onChange={updatePage} />
+                  : null
+              })()}
 
               <Button size="sm" onClick={handleSavePage} disabled={updatePageConfig.isPending}>
                 Save Theme
