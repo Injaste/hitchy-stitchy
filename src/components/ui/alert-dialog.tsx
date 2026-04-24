@@ -75,7 +75,7 @@ function AlertDialogContent({
         {...props}
       >
         <motion.div
-          className="flex flex-col gap-4 overflow-hidden rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none max-h-[90svh]"
+          className="rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none"
           variants={itemShake}
           animate={animate}
           onAnimationComplete={() => setAnimate("idle")}
