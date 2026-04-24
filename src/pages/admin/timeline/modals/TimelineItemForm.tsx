@@ -88,7 +88,7 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="grid gap-4" onSubmit={handleSubmit}>
       <DialogBody className="space-y-6">
         <FieldGroup className="block space-y-4">
           <form.Field name="title">

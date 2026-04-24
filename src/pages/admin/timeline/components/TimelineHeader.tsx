@@ -1,23 +1,21 @@
 import type { FC } from "react";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus } from "lucide-react";
 import { differenceInDays } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 
+import {
+  PageHeader,
+  type BaseHeaderProps,
+} from "@/components/custom/page-header";
+
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
-import { AnimatePresence } from "framer-motion";
-import { useRefetch } from "../../hooks/useRefetch";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange } from "@/lib/utils/utils-time";
 import type { TimelineGroupedDay } from "../types";
 
-interface TimelineHeaderProps {
-  isLoading: boolean;
-  isError: boolean;
-  isRefetching: boolean;
-  refetch: () => void;
+interface TimelineHeaderProps extends BaseHeaderProps {
   data?: TimelineGroupedDay[];
 }
 
@@ -28,12 +26,9 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   refetch,
   data,
 }) => {
-  const { handleRefresh, canRefresh } = useRefetch(refetch);
   const { canCreate } = useAccess();
   const openCreate = useTimelineModalStore((s) => s.openCreate);
   const { dateStart, dateEnd } = useAdminStore();
-
-  const showActions = !isLoading && !isError;
 
   const dayCount =
     dateStart && dateEnd
@@ -46,62 +41,43 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   );
 
   return (
-    <div className="flex items-center justify-between gap-4">
-      <p className="text-sm tracking-wide text-muted-foreground">
-        {dateStart && dateEnd && (
+    <PageHeader
+      description="Track and manage scheduled events across your selected date range."
+      isLoading={isLoading}
+      isError={isError}
+      isRefetching={isRefetching}
+      refetch={refetch}
+      meta={
+        dateStart &&
+        dateEnd && (
           <span className="flex flex-col">
             <span className="whitespace-nowrap">
               {formatDateRange(dateStart, dateEnd)}
             </span>
-
             <span className="flex items-center">
               {dayCount !== null && (
-                <span className="whitespace-nowrap">
+                <span>
                   {dayCount} {dayCount === 1 ? "day" : "days"}
                 </span>
               )}
-
               {itemCount !== undefined && itemCount > 0 && (
-                <span className="whitespace-nowrap">
+                <span>
                   <span className="mx-1.5">·</span>
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </span>
               )}
             </span>
           </span>
-        )}
-      </p>
-      <AnimatePresence mode="wait">
-        {showActions && (
-          <ComponentFade key={showActions.toString()}>
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-muted-foreground"
-                onClick={handleRefresh}
-                disabled={!canRefresh}
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-                />
-              </Button>
-              {canCreate("timeline") && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={openCreate}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Timeline
-                </Button>
-              )}
-            </div>
-          </ComponentFade>
-        )}
-      </AnimatePresence>
-    </div>
+        )
+      }
+      action={
+        canCreate("timeline") && (
+          <Button size="sm" onClick={openCreate} className="gap-2">
+            <Plus className="w-4 h-4" /> Add Timeline
+          </Button>
+        )
+      }
+    />
   );
 };
 

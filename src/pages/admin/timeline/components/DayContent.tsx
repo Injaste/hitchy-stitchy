@@ -2,11 +2,7 @@ import { type FC } from "react";
 import { motion } from "framer-motion";
 
 import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
-import {
-  calculateTimeDuration,
-  formatTime,
-  formatTimeRange,
-} from "@/lib/utils/utils-time";
+import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
 import { getLatestTime } from "../utils";
 
 import type { TimelineGroupedDay, TimelineLabelGroup } from "../types";

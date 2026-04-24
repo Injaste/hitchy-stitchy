@@ -1,88 +1,66 @@
-import type { FC } from "react"
-import { Plus, RefreshCw } from "lucide-react"
-import { AnimatePresence } from "framer-motion"
+import type { FC } from "react";
+import { Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { ComponentFade } from "@/components/animations/animate-component-fade"
+import { Button } from "@/components/ui/button";
+import {
+  PageHeader,
+  type BaseHeaderProps,
+} from "@/components/custom/page-header";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useRefetch } from "../../hooks/useRefetch"
-import { useMemberModalStore } from "../hooks/useMemberModalStore"
-import type { Member } from "../types"
+import { useAccess } from "../../hooks/useAccess";
+import { useMemberModalStore } from "../hooks/useMemberModalStore";
+import type { Member } from "../types";
 
-interface MembersHeaderProps {
-  isLoading: boolean
-  isError: boolean
-  isRefetching: boolean
-  refetch: () => void
-  data?: Member[]
+interface MembersHeaderProps extends BaseHeaderProps {
+  data?: Member[];
 }
 
 const MembersHeader: FC<MembersHeaderProps> = ({
-  isLoading,
+  data,
   isError,
+  isLoading,
   isRefetching,
   refetch,
-  data,
 }) => {
-  const { handleRefresh, canRefresh } = useRefetch(refetch)
-  const { canCreate } = useAccess()
-  const openInvite = useMemberModalStore((s) => s.openInvite)
-
-  const showActions = !isLoading && !isError
-  const total = data?.length ?? 0
-  const active = data?.filter((m) => !m.is_frozen).length ?? 0
+  const { canCreate } = useAccess();
+  const openInvite = useMemberModalStore((s) => s.openInvite);
+  const total = data?.length ?? 0;
+  const active = data?.filter((m) => !m.is_frozen).length ?? 0;
 
   return (
-    <div className="flex items-center justify-between">
-      <p className="text-xs tracking-wide text-muted-foreground/60 font-sans">
-        {!isLoading && !isError && total > 0 && (
-          <>
-            <span>
-              {total} {total === 1 ? "member" : "members"}
-            </span>
+    <PageHeader
+      isLoading={isLoading}
+      isError={isError}
+      isRefetching={isRefetching}
+      refetch={refetch}
+      description="Everyone with access to this event. Manage who's on your team and control their active status."
+      meta={
+        total > 0 && (
+          <span>
+            {total} {total === 1 ? "member" : "members"}
             {active !== total && (
               <>
                 <span className="mx-1.5">·</span>
-                <span>{active} active</span>
+                {active} active
               </>
             )}
-          </>
-        )}
-      </p>
+          </span>
+        )
+      }
+      action={
+        canCreate("members") && (
+          <Button
+            size="sm"
+            variant="default"
+            onClick={openInvite}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" /> Invite member
+          </Button>
+        )
+      }
+    />
+  );
+};
 
-      <AnimatePresence mode="wait">
-        {showActions && (
-          <ComponentFade key="actions">
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-muted-foreground/60 hover:text-muted-foreground"
-                onClick={handleRefresh}
-                disabled={!canRefresh}
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-                />
-              </Button>
-              {canCreate("members") && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={openInvite}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Invite member
-                </Button>
-              )}
-            </div>
-          </ComponentFade>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-export default MembersHeader
+export default MembersHeader;

@@ -1,79 +1,59 @@
-import type { FC } from "react"
-import { Plus, RefreshCw } from "lucide-react"
-import { AnimatePresence } from "framer-motion"
+import type { FC } from "react";
+import { Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { ComponentFade } from "@/components/animations/animate-component-fade"
+import { Button } from "@/components/ui/button";
+import {
+  PageHeader,
+  type BaseHeaderProps,
+} from "@/components/custom/page-header";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useRefetch } from "../../hooks/useRefetch"
-import { useRoleModalStore } from "../hooks/useRoleModalStore"
-import type { Role } from "../types"
+import { useAccess } from "../../hooks/useAccess";
+import { useRoleModalStore } from "../hooks/useRoleModalStore";
+import type { Role } from "../types";
 
-interface RolesHeaderProps {
-  isLoading: boolean
-  isError: boolean
-  isRefetching: boolean
-  refetch: () => void
-  data?: Role[]
+interface RolesHeaderProps extends BaseHeaderProps {
+  data?: Role[];
 }
 
 const RolesHeader: FC<RolesHeaderProps> = ({
-  isLoading,
+  data,
   isError,
+  isLoading,
   isRefetching,
   refetch,
-  data,
 }) => {
-  const { handleRefresh, canRefresh } = useRefetch(refetch)
-  const { canCreate } = useAccess()
-  const openCreate = useRoleModalStore((s) => s.openCreate)
-
-  const showActions = !isLoading && !isError
-  const total = data?.length ?? 0
+  const { canCreate } = useAccess();
+  const openCreate = useRoleModalStore((s) => s.openCreate);
+  const total = data?.length ?? 0;
 
   return (
-    <div className="flex items-center justify-between">
-      <p className="text-xs tracking-wide text-muted-foreground/60 font-sans">
-        {!isLoading && !isError && total > 0 && (
+    <PageHeader
+      isLoading={isLoading}
+      isError={isError}
+      isRefetching={isRefetching}
+      refetch={refetch}
+      description="Define the roles that shape your team's structure and permissions. Each member is assigned one role."
+      meta={
+        total > 0 && (
           <span>
             {total} {total === 1 ? "role" : "roles"}
           </span>
-        )}
-      </p>
+        )
+      }
+      action={
+        canCreate("roles") && (
+          <Button
+            size="sm"
+            variant="default"
+            onClick={openCreate}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" /> Add role
+          </Button>
+        )
+      }
+    />
+  );
+};
 
-      <AnimatePresence mode="wait">
-        {showActions && (
-          <ComponentFade key="actions">
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-muted-foreground/60 hover:text-muted-foreground"
-                onClick={handleRefresh}
-                disabled={!canRefresh}
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-                />
-              </Button>
-              {canCreate("roles") && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={openCreate}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add role
-                </Button>
-              )}
-            </div>
-          </ComponentFade>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-export default RolesHeader
+export default RolesHeader;

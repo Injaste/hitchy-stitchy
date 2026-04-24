@@ -19,7 +19,7 @@ const Invitation = () => {
 
   const themeSlug = eventConfig?.published_page?.theme_slug ?? null;
   const ThemeComponent =
-    (themeSlug ? themeRegistry[themeSlug] : null) ?? FallbackTheme;
+    (themeSlug ? themeRegistry[themeSlug].component : null) ?? FallbackTheme;
 
   console.log(themeSlug);
 

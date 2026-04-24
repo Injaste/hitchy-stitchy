@@ -1,20 +1,17 @@
 import type { FC } from "react";
-import { Plus, RefreshCw } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import {
+  PageHeader,
+  type BaseHeaderProps,
+} from "@/components/custom/page-header";
 
 import { useAccess } from "../../hooks/useAccess";
-import { useRefetch } from "../../hooks/useRefetch";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import type { Task } from "../types";
 
-interface TasksHeaderProps {
-  isLoading: boolean;
-  isError: boolean;
-  isRefetching: boolean;
-  refetch: () => void;
+interface TasksHeaderProps extends BaseHeaderProps {
   data?: Task[];
 }
 
@@ -25,64 +22,41 @@ const TasksHeader: FC<TasksHeaderProps> = ({
   refetch,
   data,
 }) => {
-  const { handleRefresh, canRefresh } = useRefetch(refetch);
   const { canCreate } = useAccess();
   const openCreate = useTaskModalStore((s) => s.openCreate);
-
-  const showActions = !isLoading && !isError;
   const total = data?.length ?? 0;
   const done = data?.filter((t) => t.status === "done").length ?? 0;
 
   return (
-    <div className="flex items-center justify-between gap-4">
-      <p className="text-xs tracking-wide text-muted-foreground/60 font-sans">
-        {!isLoading && !isError && total > 0 && (
-          <>
-            <span>
-              {total} {total === 1 ? "task" : "tasks"}
-            </span>
+    <PageHeader
+      description="Assign, track, and manage to-dos across your team. Stay on top of what needs to get done before the big day."
+      isLoading={isLoading}
+      isError={isError}
+      isRefetching={isRefetching}
+      refetch={refetch}
+      meta={
+        !isLoading &&
+        !isError &&
+        total > 0 && (
+          <span>
+            {total} {total === 1 ? "task" : "tasks"}
             {done > 0 && (
               <>
                 <span className="mx-1.5">·</span>
-                <span>{done} done</span>
+                {done} done
               </>
             )}
-          </>
-        )}
-      </p>
-
-      <AnimatePresence mode="wait">
-        {showActions && (
-          <ComponentFade key="actions">
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-muted-foreground/60 hover:text-muted-foreground"
-                onClick={handleRefresh}
-                disabled={!canRefresh}
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-                />
-              </Button>
-              {canCreate("tasks") && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={openCreate}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add task
-                </Button>
-              )}
-            </div>
-          </ComponentFade>
-        )}
-      </AnimatePresence>
-    </div>
+          </span>
+        )
+      }
+      action={
+        canCreate("tasks") && (
+          <Button size="sm" onClick={openCreate} className="gap-2">
+            <Plus className="w-4 h-4" /> Add task
+          </Button>
+        )
+      }
+    />
   );
 };
-
 export default TasksHeader;
