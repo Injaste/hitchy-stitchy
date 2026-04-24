@@ -2,6 +2,7 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -29,9 +30,10 @@ const RoleDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent aria-describedby="">
+      <DialogContent>
         <DialogHeader className="flex flex-row items-center gap-2">
           <DialogTitle>{role.name}</DialogTitle>
+          <DialogDescription>Role details and category.</DialogDescription>
           <span>·</span>
           <Badge variant="outline">{role.short_name}</Badge>
         </DialogHeader>

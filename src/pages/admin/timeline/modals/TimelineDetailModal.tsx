@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -38,9 +39,10 @@ const TimelineDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent aria-describedby="">
+      <DialogContent>
         <DialogHeader className="flex flex-row items-center gap-2">
           <DialogTitle>{item.title}</DialogTitle>
+          <DialogDescription>Schedule item details and assignees.</DialogDescription>
           {item.label && (
             <>
               <span>·</span>

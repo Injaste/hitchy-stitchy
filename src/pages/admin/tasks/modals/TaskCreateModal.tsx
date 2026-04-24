@@ -12,6 +12,7 @@ import { useTaskMutations } from "../queries";
 import type { TaskFormValues } from "../types";
 
 import TaskForm from "./TaskForm";
+import { Separator } from "@/components/ui/separator";
 
 const TaskCreateModal = () => {
   const isCreateOpen = useTaskModalStore((s) => s.isCreateOpen);

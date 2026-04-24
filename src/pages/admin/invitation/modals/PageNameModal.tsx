@@ -2,6 +2,7 @@ import { useState, useEffect, type FC } from "react"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -38,6 +39,7 @@ const PageNameModal: FC<Props> = ({ open, onOpenChange, page }) => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Rename Page</DialogTitle>
+          <DialogDescription>Update the name of this page.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

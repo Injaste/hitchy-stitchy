@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -12,6 +13,7 @@ import { useTimelineMutations } from "../queries";
 import type { TimelineItemFormValues } from "../types";
 
 import TimelineItemForm from "./TimelineItemForm";
+import { Separator } from "@/components/ui/separator";
 
 const CreateTimelineItemModal = () => {
   const isCreateOpen = useTimelineModalStore((state) => state.isCreateOpen);
@@ -28,6 +30,7 @@ const CreateTimelineItemModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add schedule item</DialogTitle>
+          <DialogDescription>Add a new item to the event timeline.</DialogDescription>
         </DialogHeader>
         <TimelineItemForm
           onSubmit={handleSubmit}

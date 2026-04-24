@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -38,9 +39,10 @@ const GuestDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent aria-describedby="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{guest.name}</DialogTitle>
+          <DialogDescription>Guest RSVP details.</DialogDescription>
         </DialogHeader>
 
         <DialogBody className="space-y-6">

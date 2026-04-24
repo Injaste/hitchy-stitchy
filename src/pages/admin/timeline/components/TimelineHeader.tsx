@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Plus } from "lucide-react";
+import { Dot, Plus } from "lucide-react";
 import { differenceInDays } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -61,8 +61,8 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
                 </span>
               )}
               {itemCount !== undefined && itemCount > 0 && (
-                <span>
-                  <span className="mx-1.5">·</span>
+                <span className="flex items-center">
+                  <Dot />
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </span>
               )}

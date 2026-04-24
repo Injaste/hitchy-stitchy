@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -42,15 +43,21 @@ const MemberDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent aria-describedby="">
-        <DialogHeader className="flex flex-row items-center gap-2">
-          <DialogTitle>{member.display_name}</DialogTitle>
-          {member.role && (
-            <>
-              <span>·</span>
-              <Badge variant="outline">{member.role.short_name}</Badge>
-            </>
-          )}
+      <DialogContent>
+        <DialogHeader className="gap-2">
+          <DialogTitle>
+            {member.display_name}
+
+            {member.role && (
+              <>
+                <span>·</span>
+                <Badge variant="outline">{member.role.short_name}</Badge>
+              </>
+            )}
+          </DialogTitle>
+          <DialogDescription>
+            Member profile and access details.
+          </DialogDescription>
         </DialogHeader>
 
         <DialogBody className="space-y-6">
