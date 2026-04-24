@@ -11,6 +11,7 @@ import { useAccess } from "../../hooks/useAccess";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { downloadGuestTemplate } from "../utils";
 import type { Guest } from "../types";
+import ArraySeparator from "@/components/custom/array-separator";
 
 interface GuestsHeaderProps extends BaseHeaderProps {
   data?: Guest[];
@@ -39,15 +40,12 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
       description="Your full guest list and their RSVP responses. See who's coming, who's pending, and who's declined."
       meta={
         total > 0 && (
-          <span>
-            {total} {total === 1 ? "guest" : "guests"}
-            {confirmed > 0 && (
-              <>
-                <span className="mx-1.5">·</span>
-                {confirmed} confirmed
-              </>
-            )}
-          </span>
+          <ArraySeparator
+            items={[
+              `${total} ${total === 1 ? "guest" : "guests"}`,
+              confirmed > 0 && `${confirmed} confirmed`,
+            ]}
+          />
         )
       }
       action={

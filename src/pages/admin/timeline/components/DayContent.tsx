@@ -10,8 +10,9 @@ import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
 import TimelineCard from "./TimelineCard";
-import { Circle, Dot } from "lucide-react";
+import { Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ArraySeparator from "@/components/custom/array-separator";
 
 interface LabelCarouselProps {
   group: TimelineLabelGroup;
@@ -86,15 +87,19 @@ const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
     <div className="space-y-10">
       <div className="flex flex-col gap-1 font-medium">
         <h2>Day {dayIndex + 1}</h2>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <span className="flex items-center gap-1 text-foreground">
-            <span>{formatTime(earliest)}</span>
-            <span>-</span>
-            <span>{formatTime(latest)}</span>
-          </span>
-          <Dot />
-          <span>{calculateTimeDuration(earliest, latest, "long")}</span>
-        </div>
+        <ArraySeparator
+          items={[
+            earliest && latest && (
+              <ArraySeparator
+                items={[formatTime(earliest), formatTime(latest)]}
+                separator="-"
+                className="text-foreground gap-1"
+              />
+            ),
+            calculateTimeDuration(earliest, latest, "long"),
+          ]}
+          className="flex text-sm text-muted-foreground"
+        />
       </div>
 
       <motion.div variants={container}>

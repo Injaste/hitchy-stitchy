@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { parseLocalDate, formatTimeRange } from "@/lib/utils/utils-time";
 import { StickyNote } from "lucide-react";
+import ArraySeparator from "@/components/custom/array-separator";
 
 import {
   Dialog,
@@ -40,23 +41,26 @@ const TimelineDetailModal = () => {
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent>
-        <DialogHeader className="flex flex-row items-center gap-2">
+        <DialogHeader>
           <DialogTitle>{item.title}</DialogTitle>
-          <DialogDescription>Schedule item details and assignees.</DialogDescription>
-          {item.label && (
-            <>
-              <span>·</span>
-              <Badge variant="outline">{item.label}</Badge>
-            </>
-          )}
+          <DialogDescription>
+            Schedule item details and assignees.
+          </DialogDescription>
         </DialogHeader>
 
         <DialogBody className="space-y-6">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{timeLabel}</span>
-            <span>·</span>
-            <span>{dateLabel}</span>
-          </div>
+          {item.label && <Badge variant="outline">{item.label}</Badge>}
+          <ArraySeparator
+            items={[
+              <ArraySeparator
+                items={timeLabel}
+                separator="-"
+                className="gap-1"
+              />,
+              dateLabel,
+            ]}
+            className="text-sm text-muted-foreground gap-2"
+          />
 
           <Separator />
 

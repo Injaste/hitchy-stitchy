@@ -10,6 +10,7 @@ import {
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import type { Task } from "../types";
+import ArraySeparator from "@/components/custom/array-separator";
 
 interface TasksHeaderProps extends BaseHeaderProps {
   data?: Task[];
@@ -38,15 +39,12 @@ const TasksHeader: FC<TasksHeaderProps> = ({
         !isLoading &&
         !isError &&
         total > 0 && (
-          <span>
-            {total} {total === 1 ? "task" : "tasks"}
-            {done > 0 && (
-              <>
-                <span className="mx-1.5">·</span>
-                {done} done
-              </>
-            )}
-          </span>
+          <ArraySeparator
+            items={[
+              `${total} ${total === 1 ? "task" : "tasks"}`,
+              done > 0 && `${done} done`,
+            ]}
+          />
         )
       }
       action={

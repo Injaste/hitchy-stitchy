@@ -13,6 +13,7 @@ import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import type { Timeline } from "../types";
 import { Button } from "@/components/ui/button";
 import NotesMarkdown from "@/components/custom/notes-markdown";
+import ArraySeparator from "@/components/custom/array-separator";
 
 interface TimelineCardProps {
   item: Timeline;
@@ -21,13 +22,13 @@ interface TimelineCardProps {
 const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
 
-  const timeLabel = formatTimeRange(item.time_start, item.time_end);
+  const timeItems = formatTimeRange(item.time_start, item.time_end);
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-1.5 text-base text-primary">
         <Clock className="size-4 shrink-0" />
-        <span>{timeLabel}</span>
+        <ArraySeparator items={timeItems} separator="-" className="gap-1" />
       </div>
 
       <Button variant="card" size="free" className="mt-2 flex-1">

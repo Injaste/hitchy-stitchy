@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Dot, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { differenceInDays } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange } from "@/lib/utils/utils-time";
 import type { TimelineGroupedDay } from "../types";
+import ArraySeparator from "@/components/custom/array-separator";
 
 interface TimelineHeaderProps extends BaseHeaderProps {
   data?: TimelineGroupedDay[];
@@ -35,10 +36,12 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
       ? differenceInDays(new Date(dateEnd), new Date(dateStart)) + 1
       : null;
 
-  const itemCount = data?.reduce(
-    (sum, day) => sum + day.labelGroups.reduce((s, g) => s + g.items.length, 0),
-    0,
-  );
+  const itemCount =
+    data?.reduce(
+      (sum, day) =>
+        sum + day.labelGroups.reduce((s, g) => s + g.items.length, 0),
+      0,
+    ) ?? 0;
 
   return (
     <PageHeader
@@ -51,22 +54,18 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
         dateStart &&
         dateEnd && (
           <span className="flex flex-col">
-            <span className="whitespace-nowrap">
-              {formatDateRange(dateStart, dateEnd)}
-            </span>
-            <span className="flex items-center">
-              {dayCount !== null && (
-                <span>
-                  {dayCount} {dayCount === 1 ? "day" : "days"}
-                </span>
-              )}
-              {itemCount !== undefined && itemCount > 0 && (
-                <span className="flex items-center">
-                  <Dot />
-                  {itemCount} {itemCount === 1 ? "item" : "items"}
-                </span>
-              )}
-            </span>
+            <ArraySeparator
+              items={formatDateRange(dateStart, dateEnd)}
+              separator="-"
+              className="gap-1 whitespace-nowrap"
+            />
+            <ArraySeparator
+              items={[
+                dayCount && `${dayCount} ${dayCount === 1 ? "day" : "days"}`,
+                itemCount > 0 &&
+                  `${itemCount} ${itemCount === 1 ? "item" : "items"}`,
+              ]}
+            />
           </span>
         )
       }

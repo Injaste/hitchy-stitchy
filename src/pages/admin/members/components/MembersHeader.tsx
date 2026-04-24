@@ -10,6 +10,7 @@ import {
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import type { Member } from "../types";
+import ArraySeparator from "@/components/custom/array-separator";
 
 interface MembersHeaderProps extends BaseHeaderProps {
   data?: Member[];
@@ -36,15 +37,12 @@ const MembersHeader: FC<MembersHeaderProps> = ({
       description="Everyone with access to this event. Manage who's on your team and control their active status."
       meta={
         total > 0 && (
-          <span>
-            {total} {total === 1 ? "member" : "members"}
-            {active !== total && (
-              <>
-                <span className="mx-1.5">·</span>
-                {active} active
-              </>
-            )}
-          </span>
+          <ArraySeparator
+            items={[
+              `${total} ${total === 1 ? "member" : "members"}`,
+              active !== total && `${active} active`,
+            ]}
+          />
         )
       }
       action={

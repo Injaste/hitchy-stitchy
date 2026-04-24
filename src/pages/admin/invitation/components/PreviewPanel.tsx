@@ -1,4 +1,5 @@
 import Frame from "react-frame-component";
+import cssText from "/src/index.css?inline";
 import { useMemo } from "react";
 import { ExternalLink, Globe } from "lucide-react";
 
@@ -118,7 +119,6 @@ const PreviewPanel = () => {
             </p>
           </div>
         ) : (
-          // ... inside your component
           <Frame
             style={{
               width: PHONE_W,
@@ -127,11 +127,7 @@ const PreviewPanel = () => {
               transform: `scale(${PREVIEW_SCALE})`,
               transformOrigin: "top left",
             }}
-            head={
-              <>
-                <link rel="stylesheet" href="/src/index.css" />
-              </>
-            }
+            head={<style dangerouslySetInnerHTML={{ __html: cssText }} />}
           >
             <ThemeComponent
               eventConfig={composed}

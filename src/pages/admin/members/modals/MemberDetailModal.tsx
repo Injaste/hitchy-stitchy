@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
+import ArraySeparator from "@/components/custom/array-separator";
 
 const MemberDetailModal = () => {
   const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen);
@@ -44,27 +45,18 @@ const MemberDetailModal = () => {
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent>
-        <DialogHeader className="gap-2">
-          <DialogTitle>
-            {member.display_name}
-
-            {member.role && (
-              <>
-                <span>·</span>
-                <Badge variant="outline">{member.role.short_name}</Badge>
-              </>
-            )}
-          </DialogTitle>
+        <DialogHeader>
+          <DialogTitle>{member.display_name}</DialogTitle>
           <DialogDescription>
             Member profile and access details.
           </DialogDescription>
         </DialogHeader>
 
         <DialogBody className="space-y-6">
-          <p className="text-xs tracking-wide text-muted-foreground">
-            {statusLabel}
-            {joinedLabel ? ` · ${joinedLabel}` : ""}
-          </p>
+          <ArraySeparator
+            items={[statusLabel, joinedLabel]}
+            className="text-xs tracking-wide text-muted-foreground"
+          />
 
           <Separator />
 
@@ -73,11 +65,16 @@ const MemberDetailModal = () => {
               Role
             </p>
             {member.role ? (
-              <p className="text-sm">{member.role.name}</p>
+              <Badge variant="outline" className="text-2xs tracking-wide">
+                {member.role.short_name} · {member.role.name}
+              </Badge>
             ) : (
-              <p className="text-sm text-muted-foreground/50 italic">
-                No role assigned
-              </p>
+              <Badge
+                variant="outline"
+                className="text-2xs text-muted-foreground italic"
+              >
+                No role
+              </Badge>
             )}
           </div>
         </DialogBody>

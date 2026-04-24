@@ -15,25 +15,25 @@ import {
 import type { EventStatus } from "../types/types-time";
 
 const label = {
-  day: {short: "d", long: "day"},
-  hour: {short: "h", long: "hour"},
-  minute: {short: "m", long: "minute"},
-  second: {short: "s", long: "second"}
+  day: { short: "d", long: "day" },
+  hour: { short: "h", long: "hour" },
+  minute: { short: "m", long: "minute" },
+  second: { short: "s", long: "second" }
 }
 
-export function formatDateRange(from: string, to: string): string {
+export function formatDateRange(from: string, to: string): string[] {
   const start = new Date(from);
   const end = new Date(to);
 
   if (isSameDay(start, end)) {
-    return format(start, "MMM d, yyyy");
+    return [format(start, "MMM d, yyyy")];
   }
 
   if (isSameYear(start, end)) {
-    return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
+    return [format(start, "MMM d"), format(end, "MMM d, yyyy")];
   }
 
-  return `${format(start, "MMM d, yyyy")} – ${format(end, "MMM d, yyyy")}`;
+  return [format(start, "MMM d, yyyy"), format(end, "MMM d, yyyy")];
 }
 
 export function getDaysUntil(dateStr: string): string {
@@ -69,8 +69,8 @@ export function parseLocalDate(dateStr: string): Date {
   return new Date(y, m - 1, d);
 }
 
-export function formatTimeRange(start: string, end?: string | null): string {
-  return end ? `${formatTime(start)} – ${formatTime(end)}` : formatTime(start);
+export function formatTimeRange(start: string, end?: string | null): string[] {
+  return end ? [formatTime(start), formatTime(end)] : [formatTime(start)];
 }
 
 export function formatTime(time: string, hour24: boolean = false) {
