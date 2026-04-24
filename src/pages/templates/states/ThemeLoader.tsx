@@ -10,6 +10,16 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
   loadedCompleted,
 }) => {
   const headingRef = useRef(null);
+  const animationDone = useRef(false);
+
+  const tryComplete = () => {
+    if (!animationDone.current) return;
+    if (document.readyState === "complete") {
+      loadedCompleted();
+    } else {
+      window.addEventListener("load", loadedCompleted, { once: true });
+    }
+  };
 
   useEffect(() => {
     if (!headingRef.current) return;
@@ -77,7 +87,10 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: CONTENT_DELAY + 1.5 }}
           className="mt-10 flex flex-col items-center gap-4"
-          onAnimationComplete={() => setTimeout(loadedCompleted, 100)}
+          onAnimationComplete={() => {
+            animationDone.current = true;
+            tryComplete();
+          }}
         >
           <div className="h-px w-8 bg-accent/50" />
 
