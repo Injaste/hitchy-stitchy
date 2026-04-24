@@ -4,6 +4,7 @@ import { StickyNote } from "lucide-react";
 
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -48,7 +49,7 @@ const TimelineDetailModal = () => {
           )}
         </DialogHeader>
 
-        <div className="space-y-6 mt-1 max-h-[50vh]">
+        <DialogBody className="space-y-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{timeLabel}</span>
             <span>·</span>
@@ -87,24 +88,24 @@ const TimelineDetailModal = () => {
               </div>
             )}
           </div>
+        </DialogBody>
 
-          <Separator className="mb-0" />
+        <Separator className="shrink-0" />
 
-          <DialogFooter>
-            <div className="flex gap-2">
-              {canDelete("timeline") && (
-                <Button variant="destructive" size="sm" onClick={openDelete}>
-                  Delete
-                </Button>
-              )}
-              {canUpdate("timeline") && (
-                <Button size="sm" onClick={openEdit} autoFocus>
-                  Edit
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </div>
+        <DialogFooter>
+          <div className="flex gap-2">
+            {canDelete("timeline") && (
+              <Button variant="destructive" size="sm" onClick={openDelete}>
+                Delete
+              </Button>
+            )}
+            {canUpdate("timeline") && (
+              <Button size="sm" onClick={openEdit} autoFocus>
+                Edit
+              </Button>
+            )}
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

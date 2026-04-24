@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
@@ -88,11 +88,13 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6 no-scrollbar px-1 -mx-1 max-h-[50vh] overflow-y-auto"
-      >
+    <>
+      <DialogBody>
+        <form
+          id="timeline-item-form"
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
         <FieldGroup className="block space-y-4">
           <form.Field name="title">
             {(field) => {
@@ -297,9 +299,10 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             </form.Field>
           </div>
         </FieldGroup>
-      </form>
+        </form>
+      </DialogBody>
 
-      <Separator className="mb-0" />
+      <Separator className="shrink-0" />
 
       <DialogFooter>
         <DialogClose asChild>
@@ -307,11 +310,11 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             Cancel
           </Button>
         </DialogClose>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" form="timeline-item-form" disabled={isPending}>
           {isPending ? "Saving…" : submitLabel}
         </Button>
       </DialogFooter>
-    </div>
+    </>
   );
 };
 
