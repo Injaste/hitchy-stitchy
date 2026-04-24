@@ -3,15 +3,13 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import DetailsTab from "./DetailsTab";
-import AppearanceTab from "./AppearanceTab";
 import RSVPTab from "./RSVPTab";
 import ThemeTab from "./ThemeTab";
 
 const TABS = [
   { id: "details", label: "Details", element: DetailsTab },
-  { id: "appearance", label: "Appearance", element: AppearanceTab },
-  { id: "rsvp", label: "RSVP", element: RSVPTab },
   { id: "theme", label: "Theme", element: ThemeTab },
+  { id: "rsvp", label: "RSVP", element: RSVPTab },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
