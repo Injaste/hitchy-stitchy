@@ -110,7 +110,7 @@ function AlertDialogBody({
   return (
     <div
       data-slot="alert-dialog-body"
-      className={cn("flex-1 min-h-0 overflow-y-auto", className)}
+      className={cn("max-h-[50vh] overflow-y-auto", className)}
       {...props}
     />
   );
