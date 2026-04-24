@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import { themeRegistry } from "@/pages/templates/themes"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { useThemesQuery, usePagesMutations } from "../queries"
 import type { EventTheme } from "../types"
@@ -27,11 +28,12 @@ const ThemePickerModal: FC<Props> = ({ open, onOpenChange }) => {
 
   const handleCreate = () => {
     if (!selectedTheme || !eventId) return
+    const entry = themeRegistry[selectedTheme.slug]
     create.mutate({
       event_id: eventId,
       template_id: selectedTheme.id,
       name: "My Invitation",
-      config: { ...selectedTheme.config, _theme_slug: selectedTheme.slug },
+      config: entry?.defaultConfig ?? { _theme_slug: selectedTheme.slug },
     })
   }
 

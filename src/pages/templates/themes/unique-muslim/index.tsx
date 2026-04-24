@@ -8,13 +8,11 @@ import Details from "./Details";
 import RSVP from "./RSVP";
 import FloatingIcons from "./FloatingIcons";
 import PortalToApp from "@/components/custom/portal-to-app";
-import type { UniqueMuslimPageConfig } from "./types";
-
-export type { UniqueMuslimPageConfig };
+import type { ThemePageConfig } from "@/pages/templates/themes";
 
 export interface ThemeProps {
   eventConfig: PublicEventConfig;
-  pageConfig?: UniqueMuslimPageConfig;
+  pageConfig?: ThemePageConfig;
 }
 
 const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
@@ -27,7 +25,8 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
 
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
-  const bgImage = pageConfig?.background_image ?? "/dannad.png";
+  const config = pageConfig?._theme_slug === "unique-muslim" ? pageConfig : undefined;
+  const bgImage = config?.background_image ?? "/dannad.png";
 
   return (
     <div ref={containerRef} className="font-medium">
