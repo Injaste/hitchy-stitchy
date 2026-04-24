@@ -1,7 +1,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -31,7 +30,6 @@ const TimelineEditModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit item</DialogTitle>
-          <DialogDescription>Timeline Description</DialogDescription>
         </DialogHeader>
         <TimelineItemForm
           defaultValues={{

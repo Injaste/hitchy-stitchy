@@ -38,7 +38,7 @@ const TimelineDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
+      <DialogContent aria-describedby="">
         <DialogHeader className="flex flex-row items-center gap-2">
           <DialogTitle>{item.title}</DialogTitle>
           {item.label && (
@@ -90,7 +90,7 @@ const TimelineDetailModal = () => {
           </div>
         </DialogBody>
 
-        <Separator className="shrink-0" />
+        <Separator />
 
         <DialogFooter>
           <div className="flex gap-2">

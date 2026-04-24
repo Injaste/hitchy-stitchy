@@ -26,7 +26,8 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
-import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import AssigneeField from "@/pages/admin/components/AssigneeField";
 import { useMembersQuery } from "@/pages/admin/members/queries";
@@ -81,7 +82,8 @@ const TaskForm: FC<TaskFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      <DialogBody className="space-y-6">
       <FieldGroup className="block space-y-4">
         <form.Field name="title">
           {(field) => {
@@ -200,8 +202,11 @@ const TaskForm: FC<TaskFormProps> = ({
           </form.Field>
         </div>
       </FieldGroup>
+      </DialogBody>
 
-      <DialogFooter className="flex justify-end gap-2 pt-2">
+      <Separator />
+
+      <DialogFooter>
         <DialogClose asChild>
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel

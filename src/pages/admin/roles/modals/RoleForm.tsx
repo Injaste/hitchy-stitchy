@@ -18,7 +18,8 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
-import { DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 
 import { roleFormSchema, CATEGORY_LABELS, type RoleFormValues } from "../types";
@@ -68,7 +69,8 @@ const RoleForm: FC<RoleFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      <DialogBody className="space-y-6">
       <FieldGroup className="block space-y-4">
         <form.Field name="name">
           {(field) => {
@@ -172,8 +174,11 @@ const RoleForm: FC<RoleFormProps> = ({
           </form.Field>
         </div>
       </FieldGroup>
+      </DialogBody>
 
-      <DialogFooter className="flex justify-end gap-2 pt-2">
+      <Separator />
+
+      <DialogFooter>
         <DialogClose asChild>
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel

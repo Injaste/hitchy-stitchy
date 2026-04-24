@@ -4,20 +4,20 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { useAdminStore } from "@/pages/admin/store/useAdminStore"
-import { useMemberModalStore } from "../hooks/useMemberModalStore"
-import { useMemberMutations } from "../queries"
-import type { InviteMemberValues } from "../types"
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useMemberModalStore } from "../hooks/useMemberModalStore";
+import { useMemberMutations } from "../queries";
+import type { InviteMemberValues } from "../types";
 
-import MemberForm from "./MemberForm"
+import MemberForm from "./MemberForm";
 
 const MemberInviteModal = () => {
-  const isInviteOpen = useMemberModalStore((s) => s.isInviteOpen)
-  const closeAll = useMemberModalStore((s) => s.closeAll)
-  const { eventId } = useAdminStore()
-  const { invite } = useMemberMutations()
+  const isInviteOpen = useMemberModalStore((s) => s.isInviteOpen);
+  const closeAll = useMemberModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
+  const { invite } = useMemberMutations();
 
   const handleSubmit = (values: InviteMemberValues) => {
     invite.mutate({
@@ -25,12 +25,12 @@ const MemberInviteModal = () => {
       display_name: values.display_name,
       email: values.email,
       role_id: values.role_id,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isInviteOpen} onOpenChange={closeAll}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite member</DialogTitle>
           <DialogDescription>
@@ -45,7 +45,7 @@ const MemberInviteModal = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default MemberInviteModal
+export default MemberInviteModal;

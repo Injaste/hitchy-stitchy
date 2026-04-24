@@ -3,7 +3,9 @@ import { StickyNote, Calendar } from "lucide-react";
 
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -33,12 +35,12 @@ const TaskDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
+      <DialogContent aria-describedby="">
         <DialogHeader>
           <DialogTitle>{task.title}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 mt-1">
+        <DialogBody className="space-y-6">
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <Badge variant="outline">{STATUS_LABELS[task.status]}</Badge>
             {task.priority && (
@@ -57,7 +59,11 @@ const TaskDetailModal = () => {
           {task.assignees.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {task.assignees.map((id) => (
-                <Badge key={id} variant="secondary" className="text-xs font-normal">
+                <Badge
+                  key={id}
+                  variant="secondary"
+                  className="text-xs font-normal"
+                >
                   {getMemberName(id, members)}
                 </Badge>
               ))}
@@ -73,27 +79,27 @@ const TaskDetailModal = () => {
             </p>
             <NotesMarkdown content={task.details} />
           </div>
+        </DialogBody>
 
-          <Separator />
+        <Separator />
 
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">
-              Added {format(new Date(task.created_at), "d MMM yyyy")}
-            </p>
-            <div className="flex gap-2">
-              {canDelete("tasks") && (
-                <Button variant="destructive" size="sm" onClick={openDelete}>
-                  Delete
-                </Button>
-              )}
-              {canUpdate("tasks") && (
-                <Button size="sm" onClick={openEdit} autoFocus>
-                  Edit
-                </Button>
-              )}
-            </div>
+        <DialogFooter className="sm:justify-between">
+          <p className="text-xs text-muted-foreground">
+            Added {format(new Date(task.created_at), "d MMM yyyy")}
+          </p>
+          <div className="flex gap-2">
+            {canDelete("tasks") && (
+              <Button variant="destructive" size="sm" onClick={openDelete}>
+                Delete
+              </Button>
+            )}
+            {canUpdate("tasks") && (
+              <Button size="sm" onClick={openEdit} autoFocus>
+                Edit
+              </Button>
+            )}
           </div>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

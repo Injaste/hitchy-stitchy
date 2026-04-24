@@ -4,22 +4,22 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { useMemberModalStore } from "../hooks/useMemberModalStore"
-import { useMemberMutations } from "../queries"
-import type { InviteMemberValues } from "../types"
+import { useMemberModalStore } from "../hooks/useMemberModalStore";
+import { useMemberMutations } from "../queries";
+import type { InviteMemberValues } from "../types";
 
-import MemberForm from "./MemberForm"
+import MemberForm from "./MemberForm";
 
 const MemberEditModal = () => {
-  const isEditOpen = useMemberModalStore((s) => s.isEditOpen)
-  const selectedItem = useMemberModalStore((s) => s.selectedItem)
-  const closeAll = useMemberModalStore((s) => s.closeAll)
-  const { update } = useMemberMutations()
+  const isEditOpen = useMemberModalStore((s) => s.isEditOpen);
+  const selectedItem = useMemberModalStore((s) => s.selectedItem);
+  const closeAll = useMemberModalStore((s) => s.closeAll);
+  const { update } = useMemberMutations();
 
-  if (!selectedItem) return null
-  const member = selectedItem
+  if (!selectedItem) return null;
+  const member = selectedItem;
 
   const handleSubmit = (values: InviteMemberValues) => {
     update.mutate({
@@ -27,12 +27,12 @@ const MemberEditModal = () => {
       display_name: values.display_name,
       email: values.email,
       role_id: values.role_id,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isEditOpen} onOpenChange={closeAll}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit member</DialogTitle>
           <DialogDescription>
@@ -53,7 +53,7 @@ const MemberEditModal = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default MemberEditModal
+export default MemberEditModal;

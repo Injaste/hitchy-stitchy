@@ -1,47 +1,49 @@
-import { format } from "date-fns"
-import { Phone, Users, StickyNote } from "lucide-react"
+import { format } from "date-fns";
+import { Phone, Users, StickyNote } from "lucide-react";
 
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useGuestModalStore } from "../hooks/useGuestModalStore"
-import { STATUS_LABELS, SOURCE_LABELS } from "../types"
+import { useAccess } from "../../hooks/useAccess";
+import { useGuestModalStore } from "../hooks/useGuestModalStore";
+import { STATUS_LABELS, SOURCE_LABELS } from "../types";
 
 const GuestDetailModal = () => {
-  const isDetailOpen = useGuestModalStore((s) => s.isDetailOpen)
-  const selectedItem = useGuestModalStore((s) => s.selectedItem)
-  const closeAll = useGuestModalStore((s) => s.closeAll)
-  const openEdit = useGuestModalStore((s) => s.openEdit)
-  const openDelete = useGuestModalStore((s) => s.openDelete)
+  const isDetailOpen = useGuestModalStore((s) => s.isDetailOpen);
+  const selectedItem = useGuestModalStore((s) => s.selectedItem);
+  const closeAll = useGuestModalStore((s) => s.closeAll);
+  const openEdit = useGuestModalStore((s) => s.openEdit);
+  const openDelete = useGuestModalStore((s) => s.openDelete);
 
-  const { canUpdate, canDelete } = useAccess()
+  const { canUpdate, canDelete } = useAccess();
 
-  if (!selectedItem) return null
-  const guest = selectedItem
+  if (!selectedItem) return null;
+  const guest = selectedItem;
 
   const statusVariant =
     guest.status === "confirmed"
       ? "default"
       : guest.status === "cancelled"
         ? "destructive"
-        : "secondary"
+        : "secondary";
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
+      <DialogContent aria-describedby="">
         <DialogHeader>
           <DialogTitle>{guest.name}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 mt-1">
+        <DialogBody className="space-y-6">
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <Badge variant={statusVariant}>{STATUS_LABELS[guest.status]}</Badge>
             <Badge variant="outline" className="text-muted-foreground">
@@ -62,36 +64,36 @@ const GuestDetailModal = () => {
               </Row>
             )}
           </div>
+        </DialogBody>
 
-          <Separator />
+        <Separator />
 
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-xs text-muted-foreground">
-              Added {format(new Date(guest.created_at), "d MMM yyyy")}
-            </p>
-            <div className="flex gap-2">
-              {canDelete("rsvp") && (
-                <Button variant="destructive" size="sm" onClick={openDelete}>
-                  Delete
-                </Button>
-              )}
-              {canUpdate("rsvp") && (
-                <Button size="sm" onClick={openEdit} autoFocus>
-                  Edit
-                </Button>
-              )}
-            </div>
+        <DialogFooter>
+          <p className="text-xs text-muted-foreground">
+            Added {format(new Date(guest.created_at), "d MMM yyyy")}
+          </p>
+          <div className="flex gap-2">
+            {canDelete("rsvp") && (
+              <Button variant="destructive" size="sm" onClick={openDelete}>
+                Delete
+              </Button>
+            )}
+            {canUpdate("rsvp") && (
+              <Button size="sm" onClick={openEdit} autoFocus>
+                Edit
+              </Button>
+            )}
           </div>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
 interface RowProps {
-  icon: React.ReactNode
-  label: string
-  children: React.ReactNode
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
 }
 
 const Row = ({ icon, label, children }: RowProps) => (
@@ -102,6 +104,6 @@ const Row = ({ icon, label, children }: RowProps) => (
     </span>
     <span className="text-foreground">{children}</span>
   </div>
-)
+);
 
-export default GuestDetailModal
+export default GuestDetailModal;

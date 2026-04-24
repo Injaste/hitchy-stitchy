@@ -2,7 +2,9 @@ import { format, parseISO } from "date-fns";
 
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -40,7 +42,7 @@ const MemberDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
+      <DialogContent aria-describedby="">
         <DialogHeader className="flex flex-row items-center gap-2">
           <DialogTitle>{member.display_name}</DialogTitle>
           {member.role && (
@@ -51,14 +53,11 @@ const MemberDetailModal = () => {
           )}
         </DialogHeader>
 
-        <div className="space-y-6 mt-1">
-          <div className="space-y-1.5">
-            {/* <p className="text-sm text-muted-foreground">{member.email}</p> */}
-            <p className="text-xs tracking-wide text-muted-foreground">
-              {statusLabel}
-              {joinedLabel ? ` · ${joinedLabel}` : ""}
-            </p>
-          </div>
+        <DialogBody className="space-y-6">
+          <p className="text-xs tracking-wide text-muted-foreground">
+            {statusLabel}
+            {joinedLabel ? ` · ${joinedLabel}` : ""}
+          </p>
 
           <Separator />
 
@@ -74,33 +73,33 @@ const MemberDetailModal = () => {
               </p>
             )}
           </div>
+        </DialogBody>
 
-          <Separator />
+        <Separator />
 
-          <div className="flex items-center justify-end gap-2">
-            {canUpdate("members") && (
-              <>
-                {member.role?.category !== "root" && (
-                  <Button variant="destructive" size="sm" onClick={openDelete}>
-                    Delete
-                  </Button>
-                )}
-                {member.role?.category !== "root" && (
-                  <Button
-                    variant={member.is_frozen ? "outline" : "destructive"}
-                    size="sm"
-                    onClick={openFreeze}
-                  >
-                    {member.is_frozen ? "Restore access" : "Freeze access"}
-                  </Button>
-                )}
-                <Button size="sm" onClick={openEdit} autoFocus>
-                  Edit
+        <DialogFooter>
+          {canUpdate("members") && (
+            <>
+              {member.role?.category !== "root" && (
+                <Button variant="destructive" size="sm" onClick={openDelete}>
+                  Delete
                 </Button>
-              </>
-            )}
-          </div>
-        </div>
+              )}
+              {member.role?.category !== "root" && (
+                <Button
+                  variant={member.is_frozen ? "outline" : "destructive"}
+                  size="sm"
+                  onClick={openFreeze}
+                >
+                  {member.is_frozen ? "Restore access" : "Freeze access"}
+                </Button>
+              )}
+              <Button size="sm" onClick={openEdit} autoFocus>
+                Edit
+              </Button>
+            </>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -34,7 +34,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
   return (
     <div className="flex justify-between gap-4">
       <div className="space-y-6">
-        <p className="text-sm text-muted-foreground/60">{description}</p>
+        <p className="text-sm text-muted-foreground/80">{description}</p>
         {meta && (
           <div className="text-sm tracking-wide text-muted-foreground">
             {meta}

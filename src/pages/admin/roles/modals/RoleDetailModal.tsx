@@ -1,6 +1,8 @@
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -27,14 +29,14 @@ const RoleDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent className="w-[95vw] max-w-lg" aria-describedby="">
+      <DialogContent aria-describedby="">
         <DialogHeader className="flex flex-row items-center gap-2">
           <DialogTitle>{role.name}</DialogTitle>
           <span>·</span>
           <Badge variant="outline">{role.short_name}</Badge>
         </DialogHeader>
 
-        <div className="space-y-6 mt-1">
+        <DialogBody className="space-y-6">
           <p className="text-sm text-muted-foreground tracking-wide">
             {CATEGORY_LABELS[role.category]}
           </p>
@@ -53,22 +55,22 @@ const RoleDetailModal = () => {
               </p>
             )}
           </div>
+        </DialogBody>
 
-          <Separator />
+        <Separator />
 
-          <div className="flex items-center justify-end gap-2">
-            {canDelete("roles") && !isRoot && (
-              <Button variant="destructive" size="sm" onClick={openDelete}>
-                Delete
-              </Button>
-            )}
-            {canUpdate("roles") && (
-              <Button size="sm" onClick={openEdit} autoFocus>
-                Edit
-              </Button>
-            )}
-          </div>
-        </div>
+        <DialogFooter>
+          {canDelete("roles") && !isRoot && (
+            <Button variant="destructive" size="sm" onClick={openDelete}>
+              Delete
+            </Button>
+          )}
+          {canUpdate("roles") && (
+            <Button size="sm" onClick={openEdit} autoFocus>
+              Edit
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

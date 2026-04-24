@@ -32,7 +32,7 @@ const TaskCreateModal = () => {
 
   return (
     <Dialog open={isCreateOpen} onOpenChange={closeAll}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add task</DialogTitle>
           <DialogDescription>

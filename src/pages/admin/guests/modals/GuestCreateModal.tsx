@@ -4,20 +4,20 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { useAdminStore } from "@/pages/admin/store/useAdminStore"
-import { useGuestModalStore } from "../hooks/useGuestModalStore"
-import { useGuestMutations } from "../queries"
-import type { GuestFormValues } from "../types"
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useGuestModalStore } from "../hooks/useGuestModalStore";
+import { useGuestMutations } from "../queries";
+import type { GuestFormValues } from "../types";
 
-import GuestForm from "./GuestForm"
+import GuestForm from "./GuestForm";
 
 const GuestCreateModal = () => {
-  const isCreateOpen = useGuestModalStore((s) => s.isCreateOpen)
-  const closeAll = useGuestModalStore((s) => s.closeAll)
-  const { eventId } = useAdminStore()
-  const { create } = useGuestMutations()
+  const isCreateOpen = useGuestModalStore((s) => s.isCreateOpen);
+  const closeAll = useGuestModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
+  const { create } = useGuestMutations();
 
   const handleSubmit = (values: GuestFormValues) => {
     create.mutate({
@@ -26,16 +26,17 @@ const GuestCreateModal = () => {
       phone: values.phone,
       guest_count: values.guest_count,
       message: values.message,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={isCreateOpen} onOpenChange={closeAll}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-lg">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add guest</DialogTitle>
           <DialogDescription>
-            Add a new guest to your list. You can update their RSVP status later.
+            Add a new guest to your list. You can update their RSVP status
+            later.
           </DialogDescription>
         </DialogHeader>
         <GuestForm
@@ -46,7 +47,7 @@ const GuestCreateModal = () => {
         />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default GuestCreateModal
+export default GuestCreateModal;

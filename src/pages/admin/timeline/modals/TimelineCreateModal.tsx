@@ -1,7 +1,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -29,7 +28,6 @@ const CreateTimelineItemModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add schedule item</DialogTitle>
-          <DialogDescription>Timeline Description</DialogDescription>
         </DialogHeader>
         <TimelineItemForm
           onSubmit={handleSubmit}
