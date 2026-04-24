@@ -1,4 +1,5 @@
 import { z } from "zod"
+import type { ThemePageConfig } from "./themes"
 
 interface RSVPFieldConfig {
   visible: boolean
@@ -55,7 +56,7 @@ export interface PublicEventConfig {
   published_page: {
     id: string
     theme_slug: string | null      // read from page config._theme_slug
-    config: Record<string, unknown>
+    config: ThemePageConfig
   } | null
 }
 

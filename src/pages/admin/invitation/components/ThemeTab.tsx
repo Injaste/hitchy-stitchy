@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
+import type { ThemePageConfig } from "@/pages/templates/themes"
 import { useInvitationDraftStore } from "../store/useInvitationDraftStore"
 import { usePagesModalStore } from "../store/usePagesModalStore"
 import {
@@ -74,8 +75,8 @@ const ThemeTab = () => {
     })
   }, [invitation, appearanceDraft, setAppearance])
 
-  const currentPage = pageDraft ?? selectedPage?.config ?? {}
-  const updatePage = (patch: Record<string, unknown>) =>
+  const currentPage: ThemePageConfig = pageDraft ?? selectedPage?.config ?? {}
+  const updatePage = (patch: Partial<ThemePageConfig>) =>
     setPage({ ...currentPage, ...patch })
 
   const handleSavePage = () => {
@@ -185,7 +186,7 @@ const ThemeTab = () => {
                 <Input
                   id="bg-image"
                   placeholder="/image.png or https://..."
-                  value={(currentPage.background_image as string) ?? ""}
+                  value={currentPage.background_image ?? ""}
                   onChange={(e) => updatePage({ background_image: e.target.value })}
                 />
                 <p className="text-xs text-muted-foreground">

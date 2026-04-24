@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import type { PublicEventConfig } from "@/pages/templates/types"
+import type { ThemePageConfig } from "@/pages/templates/themes"
 import type {
   EventInvitation,
   EventPage,
@@ -33,7 +34,7 @@ interface DraftState {
   detailsDraft: DetailsDraft | null
   appearanceDraft: AppearanceConfig | null
   rsvpDraft: RSVPDraft | null
-  pageDraft: Record<string, unknown> | null
+  pageDraft: ThemePageConfig | null
 
   selectedPageId: string | null
 
@@ -44,7 +45,7 @@ interface DraftState {
   setDetails: (draft: DetailsDraft) => void
   setAppearance: (draft: AppearanceConfig) => void
   setRSVP: (draft: RSVPDraft) => void
-  setPage: (draft: Record<string, unknown>) => void
+  setPage: (draft: ThemePageConfig) => void
 
   clearDetails: () => void
   clearAppearance: () => void
@@ -91,20 +92,19 @@ export function composeEventConfig(args: {
   details: DetailsDraft | null
   appearance: AppearanceConfig | null
   rsvp: RSVPDraft | null
-  pageDraft: Record<string, unknown> | null
+  pageDraft: ThemePageConfig | null
 }): PublicEventConfig | null {
   const { invitation: inv, page, details, appearance, rsvp, pageDraft } = args
   if (!inv) return null
 
-  const pageConfig = pageDraft ?? page?.config ?? {}
+  const pageConfig: ThemePageConfig = pageDraft ?? page?.config ?? {}
   const appearanceValue = appearance ?? inv.config.appearance
   const rsvpMode = (rsvp?.rsvp_mode ?? inv.rsvp_mode) as PublicEventConfig["rsvp_mode"]
   const rsvpDeadline = rsvp
     ? (rsvp.rsvp_deadline || null)
     : inv.rsvp_deadline
   const rsvpConfig = rsvp?.config ?? inv.config.rsvp
-  const themeSlug =
-    (pageConfig._theme_slug as string | undefined) ?? page?.theme?.slug ?? null
+  const themeSlug = pageConfig._theme_slug ?? page?.theme?.slug ?? null
 
   return {
     id: inv.id,
