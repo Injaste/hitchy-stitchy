@@ -1,3 +1,5 @@
+import type { ThemePageConfig } from "@/pages/templates/themes"
+
 export type RSVPMode = 'public' | 'private' | 'both'
 
 export interface RSVPFieldConfig {
@@ -88,7 +90,7 @@ export interface EventPage {
   template_id: string | null
   name: string
   is_published: boolean
-  config: Record<string, unknown>
+  config: ThemePageConfig
   created_at: string
   updated_at: string
   theme?: Pick<EventTheme, 'id' | 'name' | 'slug'> | null
@@ -98,11 +100,11 @@ export interface CreatePagePayload {
   event_id: string
   template_id: string
   name: string
-  config: Record<string, unknown>
+  config: ThemePageConfig
 }
 
 export interface UpdatePagePayload {
   id: string
   name?: string
-  config?: Record<string, unknown>
+  config?: ThemePageConfig
 }
