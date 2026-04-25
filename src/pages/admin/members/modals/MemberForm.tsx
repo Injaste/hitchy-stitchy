@@ -49,6 +49,7 @@ const MemberForm: FC<MemberFormProps> = ({
   const { data: roles } = useRolesQuery();
   const { data: members } = useMembersQuery();
 
+  // TODO CHECK CANNOT SUBMIT ROLE ROOT
   const takenSingularRoleIds = new Set(
     members!
       .filter((m) => SINGULAR_ROLES.includes(m.role?.name ?? ""))
@@ -90,100 +91,102 @@ const MemberForm: FC<MemberFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       <DialogBody className="space-y-6">
-      <FieldGroup className="block space-y-4">
-        <form.Field name="display_name">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Display name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      placeholder="e.g. Sarah Tan"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
+        <FieldGroup className="block space-y-4">
+          <form.Field name="display_name">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>Display name</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder="e.g. Sarah Tan"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
+                    </FieldContent>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
+          </form.Field>
 
-        <form.Field name="email">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Email</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      type="email"
-                      placeholder="sarah@example.com"
-                      value={field.state.value}
-                      disabled={emailDisabled}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
+          <form.Field name="email">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>Email</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        type="email"
+                        placeholder="sarah@example.com"
+                        value={field.state.value}
+                        disabled={emailDisabled}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
+                    </FieldContent>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
+          </form.Field>
 
-        <form.Field name="role_id">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <div className="space-y-1.5">
-                  <Label>Role</Label>
-                  <Select
-                    value={field.state.value}
-                    onValueChange={field.handleChange}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {assignableRoles.map((r) => (
-                        <SelectItem
-                          key={r.id}
-                          value={r.id}
-                          disabled={takenSingularRoleIds.has(r.id)}
-                          className={cn(r.id === "0" && "pointer-events-auto")}
-                        >
-                          {r.name}
-                          {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
-      </FieldGroup>
+          <form.Field name="role_id">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <div className="space-y-1.5">
+                    <Label>Role</Label>
+                    <Select
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {assignableRoles.map((r) => (
+                          <SelectItem
+                            key={r.id}
+                            value={r.id}
+                            disabled={takenSingularRoleIds.has(r.id)}
+                            className={cn(
+                              r.id === "0" && "pointer-events-auto",
+                            )}
+                          >
+                            {r.name}
+                            {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </AnimateItem>
+              );
+            }}
+          </form.Field>
+        </FieldGroup>
       </DialogBody>
 
       <Separator />

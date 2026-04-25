@@ -72,19 +72,19 @@ const DetailsTab = () => {
       <CardContent className="px-5 py-4 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="couple-names">Couple Names</Label>
+            <Label htmlFor="groom-name">Couple Names</Label>
             <Input
-              id="couple-names"
-              placeholder="e.g. Danish & Nadia"
+              id="groom-name"
+              placeholder="e.g. Danny"
               value={current.groom_name}
               onChange={(e) => update({ groom_name: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="couple-names">Couple Names</Label>
+            <Label htmlFor="bride-name">Couple Names</Label>
             <Input
-              id="couple-names"
-              placeholder="e.g. Danish & Nadia"
+              id="bride-name"
+              placeholder="e.g. Naddy"
               value={current.bride_name}
               onChange={(e) => update({ bride_name: e.target.value })}
             />

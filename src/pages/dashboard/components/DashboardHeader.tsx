@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from "react";
+import { type FC } from "react";
 import { Link } from "react-router-dom";
 import { Plus, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,6 +13,7 @@ import { useRefetch } from "@/pages/admin/hooks/useRefetch";
 
 interface DashboardHeaderProps {
   eventsCount: EventsCount;
+  pendingCount: number;
   isLoading: boolean;
   isFetching: boolean;
   refetch: () => void;
@@ -20,11 +21,15 @@ interface DashboardHeaderProps {
 
 const DashboardHeader: FC<DashboardHeaderProps> = ({
   eventsCount,
+  pendingCount,
   isLoading,
   isFetching,
   refetch,
 }) => {
   const { handleRefresh, canRefresh } = useRefetch(refetch);
+
+  const hasStats =
+    pendingCount > 0 || eventsCount.active > 0 || eventsCount.upcoming > 0;
 
   return (
     <div className="flex not-md:flex-col gap-4 justify-between items-start">
@@ -73,34 +78,49 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
             </Link>
           </div>
 
-          <div className="flex items-center gap-3 text-right">
-            {eventsCount.active > 0 && (
-              <>
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                    Active
-                  </p>
-                  <p className="font-display text-lg font-bold text-foreground leading-none">
-                    {eventsCount.active}
-                  </p>
-                </div>
-                <div className="w-px h-8 bg-border" />
-              </>
-            )}
-            {eventsCount.upcoming > 0 && (
-              <>
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-                    Upcoming
-                  </p>
-                  <p className="font-display text-lg font-bold text-foreground leading-none">
-                    {eventsCount.upcoming}
-                  </p>
-                </div>
-                <div className="w-px h-8 bg-border" />
-              </>
-            )}
-          </div>
+          {hasStats && (
+            <div className="flex items-center gap-3 text-right">
+              {pendingCount > 0 && (
+                <>
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+                      Invited
+                    </p>
+                    <p className="text-lg font-bold text-foreground leading-none">
+                      {pendingCount}
+                    </p>
+                  </div>
+                  <div className="w-px h-8 bg-border" />
+                </>
+              )}
+              {eventsCount.active > 0 && (
+                <>
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+                      Active
+                    </p>
+                    <p className="text-lg font-bold text-foreground leading-none">
+                      {eventsCount.active}
+                    </p>
+                  </div>
+                  <div className="w-px h-8 bg-border" />
+                </>
+              )}
+              {eventsCount.upcoming > 0 && (
+                <>
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+                      Upcoming
+                    </p>
+                    <p className="text-lg font-bold text-foreground leading-none">
+                      {eventsCount.upcoming}
+                    </p>
+                  </div>
+                  <div className="w-px h-8 bg-border" />
+                </>
+              )}
+            </div>
+          )}
         </motion.div>
       )}
     </div>

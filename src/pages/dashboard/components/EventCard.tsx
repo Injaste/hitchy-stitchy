@@ -16,11 +16,11 @@ import { cardHover, itemFadeUp } from "@/lib/animations";
 
 import type { Event } from "../types";
 
-interface EventWidgetProps {
+interface EventCardProps {
   event: Event;
 }
 
-const EventWidget: FC<EventWidgetProps> = ({ event }) => {
+const EventCard: FC<EventCardProps> = ({ event }) => {
   const countdown = getDaysUntil(event.date_start);
   const status = getEventStatus(event.date_start, event.date_end);
 
@@ -75,4 +75,4 @@ const EventWidget: FC<EventWidgetProps> = ({ event }) => {
   );
 };
 
-export default EventWidget;
+export default EventCard;

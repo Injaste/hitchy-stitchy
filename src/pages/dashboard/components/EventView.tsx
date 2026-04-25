@@ -5,7 +5,7 @@ import { container } from "@/lib/animations";
 
 import type { Event } from "../types";
 
-import EventWidget from "./EventWidget";
+import EventCard from "./EventCard";
 import CreateEvent from "./EventCreate";
 
 interface EventViewProps {
@@ -20,7 +20,7 @@ const EventView: FC<EventViewProps> = ({ events }) => (
     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
   >
     {events.map((event) => (
-      <EventWidget key={event.id} event={event} />
+      <EventCard key={event.id} event={event} />
     ))}
     <CreateEvent />
   </motion.div>

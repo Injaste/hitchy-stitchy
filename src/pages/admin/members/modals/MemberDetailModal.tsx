@@ -53,13 +53,6 @@ const MemberDetailModal = () => {
         </DialogHeader>
 
         <DialogBody className="space-y-6">
-          <ArraySeparator
-            items={[statusLabel, joinedLabel]}
-            className="text-xs tracking-wide text-muted-foreground"
-          />
-
-          <Separator />
-
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Role
@@ -77,6 +70,11 @@ const MemberDetailModal = () => {
               </Badge>
             )}
           </div>
+
+          <ArraySeparator
+            items={[statusLabel, joinedLabel]}
+            className="text-xs tracking-wide text-muted-foreground"
+          />
         </DialogBody>
 
         <Separator />

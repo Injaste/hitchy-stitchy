@@ -44,6 +44,7 @@ import {
   type SlugStatus,
 } from "../hooks/useSlugCheck";
 import { formatDateRange } from "@/lib/utils/utils-time";
+import ArraySeparator from "@/components/custom/array-separator";
 
 const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -280,7 +281,11 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                           className="w-full justify-start gap-2 font-normal"
                         >
                           <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{dateLabel}</span>
+                          <ArraySeparator
+                            items={[...dateLabel]}
+                            separator="-"
+                            className="text-sm"
+                          />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
