@@ -124,7 +124,7 @@ const TaskCard: FC<TaskCardProps> = ({
 
             {task.details && (
               <CardDescription>
-                <NotesMarkdown minified content={task.details} />
+                <NotesMarkdown size="sm" content={task.details} />
               </CardDescription>
             )}
 

@@ -13,7 +13,6 @@ import { useRefetch } from "@/pages/admin/hooks/useRefetch";
 
 interface DashboardHeaderProps {
   eventsCount: EventsCount;
-  pendingCount: number;
   isLoading: boolean;
   isFetching: boolean;
   refetch: () => void;
@@ -21,7 +20,6 @@ interface DashboardHeaderProps {
 
 const DashboardHeader: FC<DashboardHeaderProps> = ({
   eventsCount,
-  pendingCount,
   isLoading,
   isFetching,
   refetch,
@@ -29,7 +27,9 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
   const { handleRefresh, canRefresh } = useRefetch(refetch);
 
   const hasStats =
-    pendingCount > 0 || eventsCount.active > 0 || eventsCount.upcoming > 0;
+    eventsCount.pending > 0 ||
+    eventsCount.active > 0 ||
+    eventsCount.upcoming > 0;
 
   return (
     <div className="flex not-md:flex-col gap-4 justify-between items-start">
@@ -80,14 +80,14 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
 
           {hasStats && (
             <div className="flex items-center gap-3 text-right">
-              {pendingCount > 0 && (
+              {eventsCount.pending > 0 && (
                 <>
                   <div>
                     <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
                       Invited
                     </p>
                     <p className="text-lg font-bold text-foreground leading-none">
-                      {pendingCount}
+                      {eventsCount.pending}
                     </p>
                   </div>
                   <div className="w-px h-8 bg-border" />

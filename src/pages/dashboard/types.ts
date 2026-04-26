@@ -4,11 +4,13 @@ export interface Event {
   name: string
   date_start: string
   date_end: string
+  is_pending: boolean
 }
 
 export interface EventsCount {
   active: number
   upcoming: number
+  pending: number
 }
 
 export interface PendingInvite {

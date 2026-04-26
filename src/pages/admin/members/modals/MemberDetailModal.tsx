@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import ArraySeparator from "@/components/custom/array-separator";
+import { MailPlus } from "lucide-react";
 
 const MemberDetailModal = () => {
   const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen);
@@ -72,7 +73,33 @@ const MemberDetailModal = () => {
           </div>
 
           <ArraySeparator
-            items={[statusLabel, joinedLabel]}
+            items={[
+              <span>
+                <MailPlus />
+                {statusLabel}
+              </span>,
+              joinedLabel,
+            ]}
+            className="text-xs tracking-wide text-muted-foreground"
+          />
+          <ArraySeparator
+            items={[
+              <span>
+                <MailPlus />
+                {statusLabel}
+              </span>,
+              joinedLabel,
+            ]}
+            className="text-xs tracking-wide text-muted-foreground"
+          />
+          <ArraySeparator
+            items={[
+              <span>
+                <MailPlus />
+                {statusLabel}
+              </span>,
+              joinedLabel,
+            ]}
             className="text-xs tracking-wide text-muted-foreground"
           />
         </DialogBody>

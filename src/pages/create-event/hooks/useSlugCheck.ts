@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getExistingSlug } from "../api";
+import { checkSlugAvailable } from "../api";
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 
@@ -97,7 +97,7 @@ export function useSlugCheck(): UseSlugCheckReturn {
 
     timerRef.current = setTimeout(async () => {
       try {
-        const exists = await getExistingSlug(slug);
+        const exists = await checkSlugAvailable(slug);
         // Discard if a newer check fired while this one was in-flight.
         if (requestIdRef.current !== id) return;
         setStatus(exists ? "taken" : "available");
@@ -121,7 +121,7 @@ export function useSlugCheck(): UseSlugCheckReturn {
 
     setStatus("checking");
     try {
-      const exists = await getExistingSlug(slug);
+      const exists = await checkSlugAvailable(slug);
       setStatus(exists ? "taken" : "available");
       return exists;
     } catch {

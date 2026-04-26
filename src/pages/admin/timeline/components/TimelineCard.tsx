@@ -40,7 +40,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
 
             {item.details && (
               <CardDescription className="pt-1.5 h-full w-full text-accent">
-                <NotesMarkdown content={item.details} minified />
+                <NotesMarkdown content={item.details} size="sm" />
               </CardDescription>
             )}
 

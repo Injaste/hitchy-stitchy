@@ -117,23 +117,36 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             }}
           </form.Field>
 
-          <div className="space-y-1.5">
-            <Label>
-              Label{" "}
-              <span className="text-muted-foreground font-normal">
-                (optional)
-              </span>
-            </Label>
-            <form.Field name="label">
-              {(field) => (
-                <Input
-                  placeholder="e.g. Nikah, Sanding"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              )}
-            </form.Field>
-          </div>
+          <form.Field name="label">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>
+                      Label{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (optional)
+                      </span>
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder="e.g. Nikah, Sanding"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
+                    </FieldContent>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
+          </form.Field>
 
           <form.Field name="day">
             {(field) => {
@@ -252,29 +265,43 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             </form.Field>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>
-              Additional Items{" "}
-              <span className="text-muted-foreground font-normal">
-                (optional)
-              </span>
-            </Label>
-            <form.Field name="details">
-              {(field) => (
-                <Textarea
-                  placeholder={
-                    "- Item one\n- Item two\n**Bold text**, *italic*"
-                  }
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  rows={3}
-                />
-              )}
-            </form.Field>
-            <p className="text-xs text-muted-foreground">
-              Supports markdown — **bold**, *italic*, - lists, 1. numbered
-            </p>
-          </div>
+          <form.Field name="details">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>
+                      Additional Items{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (optional)
+                      </span>
+                    </FieldLabel>
+                    <FieldContent>
+                      <Textarea
+                        placeholder={
+                          "- Item one\n- Item two\n**Bold text**, *italic*"
+                        }
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        rows={3}
+                      />
+                    </FieldContent>
+                    <p className="text-xs text-muted-foreground">
+                      Supports markdown — **bold**, *italic*, - lists, 1.
+                      numbered
+                    </p>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
+          </form.Field>
 
           <div className="space-y-1.5">
             <Label>

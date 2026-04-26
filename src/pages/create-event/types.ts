@@ -17,7 +17,7 @@ export interface CreateRoleData {
 export interface CreateEventPayload extends CreateEventData, CreateRoleData { }
 
 export interface CreateEventResult {
-  slug: string
   eventId: string
   memberId: string
+  slug: string
 }

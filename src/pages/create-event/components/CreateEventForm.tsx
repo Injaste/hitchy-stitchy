@@ -30,7 +30,7 @@ const CreateEventForm = () => {
     reset: resetCreateEvent,
   } = useCreateEventMutation({
     onSuccess: (data) => {
-      navigate(`/${data.slug}/admin`);
+      navigate(`/${data.slug}/admin`, { replace: true });
     },
   });
 

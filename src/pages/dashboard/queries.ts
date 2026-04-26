@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
-import { fetchUserEvents, fetchPendingInvites, acceptInvite, rejectInvite } from "./api"
+import { fetchUserEvents, claimInvite } from "./api"
 import type { EventsCount } from "./types"
 import { getEventStatus } from "@/lib/utils/utils-time"
 
 export const eventsQueryKey = ["events"] as const
-export const pendingInvitesQueryKey = ["invites", "pending"] as const
+export const pendingInvitesQueryKey = ["events", "invites"] as const
 
 export function useEventsQuery(enabled = true) {
   return useQuery({
@@ -21,45 +21,25 @@ export function useCountEventsQuery(enabled = true) {
     queryFn: fetchUserEvents,
     select: (events) => {
       const active = events.filter(
-        (e) => getEventStatus(e.date_start, e.date_end) === "active"
+        (e) => getEventStatus(e.date_start, e.date_end) === "active" && !e.is_pending
       ).length
       const upcoming = events.filter(
-        (e) => getEventStatus(e.date_start, e.date_end) === "upcoming"
+        (e) => getEventStatus(e.date_start, e.date_end) === "upcoming" && !e.is_pending
       ).length
-      return { active, upcoming } as EventsCount
+      const pending = events.filter(
+        (e) => e.is_pending
+      ).length
+      return { active, upcoming, pending } as EventsCount
     },
     enabled,
   })
 }
 
-export function usePendingInvitesQuery(enabled = true) {
-  return useQuery({
-    queryKey: pendingInvitesQueryKey,
-    queryFn: fetchPendingInvites,
-    enabled,
-  })
-}
-
-export function useAcceptInviteMutation() {
+export function useClaimInviteMutation() {
   const qc = useQueryClient()
-  return useMutation<string, void>(acceptInvite, {
-    successMessage: "Invite accepted! Welcome to the team.",
-    errorMessage: "Failed to accept invite",
-    onSuccess: () => {
-      // Refresh both: invite disappears, event appears in the grid
-      qc.invalidateQueries({ queryKey: pendingInvitesQueryKey })
-      qc.invalidateQueries({ queryKey: eventsQueryKey })
-    },
-  })
-}
-
-export function useRejectInviteMutation() {
-  const qc = useQueryClient()
-  return useMutation<string, void>(rejectInvite, {
-    successMessage: "Invite declined",
-    errorMessage: "Failed to decline invite",
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: pendingInvitesQueryKey })
-    },
+  return useMutation<{ eventId: string; action: "accept" | "reject" }, void>(claimInvite, {
+    successMessage: (_result, args) => args.action === "accept" ? "Invite accepted!" : "Invite declined",
+    errorMessage: "Failed to update invite",
+    onSuccess: () => qc.invalidateQueries({ queryKey: eventsQueryKey }),
   })
 }

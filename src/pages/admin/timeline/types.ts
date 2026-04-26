@@ -29,23 +29,43 @@ const TIME_REGEX = /^\d{2}:\d{2}(:\d{2})?$/
 const normalizeTime = (val: string) => val.slice(0, 5)
 
 export const timelineItemFormSchema = z.object({
-  day: z.string().min(1, "Day is required"),
-  label: z.string().transform((v) => v || null),
-  time_start: z.string().regex(TIME_REGEX, "Invalid time format").transform(normalizeTime),
-  time_end: z.string().refine(
-    (val) => val === "" || TIME_REGEX.test(val),
-    "Invalid time format",
-  ).transform((val) => (val ? normalizeTime(val) : null)),
-  title: z.string().min(1, "Title is required").max(200, "Title is too long"),
-  details: z.string().max(1000, "Details is too long").transform((v) => v || null),
-  assignees: z.array(z.string()),
+  day: z.string().min(1, "Please select a day"),
+
+  label: z
+    .string()
+    .max(100, "Please keep label short")
+    .transform((v) => v.trim() || null),
+
+  time_start: z
+    .string()
+    .regex(TIME_REGEX, "Please enter a start time"),
+
+  time_end: z
+    .string()
+    .refine((val) => val === "" || TIME_REGEX.test(val), "Please enter a valid time")
+    .transform((val) => val.trim() || null),
+
+  title: z
+    .string()
+    .min(1, "Please give this item a title")
+    .max(200, "Please keep title short"),
+
+  details: z
+    .string()
+    .max(1000, "Best to split to multiple timelines for long description")
+    .transform((v) => v.trim() || null),
+
+  assignees: z
+    .array(z.string())
+    .max(20, "You can only assign up to 20 roles"),
+
 }).refine(
   (data) => {
-    if (!data.time_end) return true
-    return data.time_end >= data.time_start
+    if (!data.time_end) return true;
+    return data.time_end > data.time_start;
   },
-  { message: "End time must be after start time", path: ["time_end"] },
-)
+  { message: "End time must be later than the start time", path: ["time_end"] },
+);
 
 export type TimelineItemFormValues = z.infer<typeof timelineItemFormSchema>
 
@@ -63,11 +83,10 @@ export interface CreateTimelineItemPayload {
 export interface UpdateTimelineItemPayload {
   id: string
   day: string
-  label?: string | null
-  time_start?: string
-  time_end?: string | null
-  title?: string
-  details?: string | null
-  assignees?: string[]
+  label: string | null
+  time_start: string
+  time_end: string | null
+  title: string
+  details: string | null
+  assignees: string[]
 }
-

@@ -2,26 +2,29 @@ import { supabase } from "@/lib/supabase"
 import type { CreateEventPayload, CreateEventResult } from "./types"
 import type { PostgrestError } from "@supabase/supabase-js";
 
-export function getFriendlyErrorMessage(error: PostgrestError | null): string {
-  const message = error?.message || "";
-
-  if (message.includes('unique constraint "events_slug_key"')) {
-    return "An event with this URL slug already exists. Please try a different slug.";
-  }
-
-  return "Something went wrong. Please try again.";
+const ERROR_MAP: Record<string, string> = {
+  events_slug_key: "This URL slug is already taken. Please choose a different one.",
 }
 
-export async function getExistingSlug(slug: string): Promise<boolean> {
+export function getFriendlyErrorMessage(error: PostgrestError | null): string {
+  if (!error?.message) return "Something went wrong. Please try again."
+
+  for (const [constraint, message] of Object.entries(ERROR_MAP)) {
+    if (error.message.includes(constraint)) return message
+  }
+
+  return "Something went wrong. Please try again."
+}
+
+export async function checkSlugAvailable(slug: string): Promise<boolean> {
   const { data, error } = await supabase
     .from("event_slugs")
-    .select("*")
+    .select("slug")
     .eq("slug", slug)
 
   if (error || !data) throw new Error(getFriendlyErrorMessage(error))
 
   return data.length > 0;
-
 }
 
 export async function createEvent(

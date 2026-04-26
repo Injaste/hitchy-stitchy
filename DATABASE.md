@@ -74,6 +74,7 @@ All people associated with an event. Only table referencing `auth.users`.
 | `is_frozen`    | `boolean`     | Default `false` — freezes event access              |
 | `invited_at`   | `timestamptz` | Immutable                                           |
 | `joined_at`    | `timestamptz` | Immutable once set                                  |
+| `rejected_at`  | `timestamptz` | Immutable once set                                  |
 | `created_at`   | `timestamptz` | Immutable                                           |
 | `updated_at`   | `timestamptz` | Auto                                                |
 
@@ -491,13 +492,14 @@ event_slugs (slug → event_id, anon)
 
 ### `event_members`
 
-| Trigger                              | Event  | Timing     | Function                                          |
-| ------------------------------------ | ------ | ---------- | ------------------------------------------------- |
-| `initialize_member_rows`             | INSERT | AFTER ROW  | `initialize_member_rows()`                        |
-| `touch_updated_at_event_members`     | UPDATE | BEFORE ROW | `touch_updated_at()`                              |
-| `immutable_event_members_created_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')`         |
-| `immutable_event_members_invited_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns('invited_at')`         |
-| `immutable_event_members_joined_at`  | UPDATE | BEFORE ROW | `enforce_immutable_columns_once_set('joined_at')` |
+| Trigger                               | Event  | Timing     | Function                                            |
+| ------------------------------------- | ------ | ---------- | --------------------------------------------------- |
+| `initialize_member_rows`              | INSERT | AFTER ROW  | `initialize_member_rows()`                          |
+| `touch_updated_at_event_members`      | UPDATE | BEFORE ROW | `touch_updated_at()`                                |
+| `immutable_event_members_created_at`  | UPDATE | BEFORE ROW | `enforce_immutable_columns('created_at')`           |
+| `immutable_event_members_invited_at`  | UPDATE | BEFORE ROW | `enforce_immutable_columns('invited_at')`           |
+| `immutable_event_members_joined_at`   | UPDATE | BEFORE ROW | `enforce_immutable_columns_once_set('joined_at')`   |
+| `immutable_event_members_rejected_at` | UPDATE | BEFORE ROW | `enforce_immutable_columns_once_set('rejected_at')` |
 
 ### `event_role_permissions`
 
@@ -614,6 +616,8 @@ Auto-attached by `auto_attach_table_triggers`. No manual triggers needed.
 | `event_invitation`                | `anon` + `authenticated`                      | via RPC only                                                | `has_event_permission(event_id, 'invitation', 'update')` | none                                                   |
 | `event_themes`                    | `anon` + `authenticated`                      | `has_event_permission(event_id, 'pages', 'create')`         | `has_event_permission(event_id, 'pages', 'update')`      | `has_event_permission(event_id, 'pages', 'delete')`    |
 | `event_slugs` (view)              | public anon                                   | —                                                           | —                                                        | —                                                      |
+| `events`                          | `is_event_member(id)`                         | via RPC only                                                | `has_event_permission(id, 'events', 'update')`           | none                                                   |
+| `event_members`                   | `is_event_member(event_id)`                   | via RPC only                                                | via RPC only                                             | `has_event_permission(event_id, 'members', 'delete')`  |
 
 ---
 
@@ -687,6 +691,7 @@ Auto-attached by `auto_attach_table_triggers`. No manual triggers needed.
 | `initialize_*`                               | Trigger: create companion rows on insert           |
 | `derive_*`                                   | Trigger: auto-derive column values                 |
 | `set_*`                                      | Trigger: auto-set column values on insert          |
+| `claim_*`                                    | Invite acceptance/rejection via RPC                |
 
 ### Triggers
 

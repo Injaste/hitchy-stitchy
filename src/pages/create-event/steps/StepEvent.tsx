@@ -75,15 +75,13 @@ const stepEventSchema = z
 
 function SlugStatusIcon({ status }: { status: SlugStatus }) {
   if (status === "checking")
-    return (
-      <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-    );
+    return <Loader2 className="size-4.5 animate-spin text-muted-foreground" />;
   if (status === "available")
-    return <CheckCircle2 className="h-3.5 w-3.5 text-secondary" />;
+    return <CheckCircle2 className="size-4.5 text-primary" />;
   if (status === "taken")
-    return <XCircle className="h-3.5 w-3.5 text-destructive" />;
+    return <XCircle className="size-4.5 text-destructive" />;
   if (status === "error")
-    return <AlertCircle className="h-3.5 w-3.5 text-muted-foreground" />;
+    return <AlertCircle className="size-4.5 text-muted-foreground" />;
   return null;
 }
 
@@ -121,7 +119,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
       event_name: defaultValues?.event_name ?? "",
       slug: defaultValues?.slug ?? "",
       date_start: defaultValues?.date_start ?? dateRange?.from?.toString()!,
-      date_end: defaultValues?.date_end ?? dateRange?.from?.toString()!,
+      date_end: defaultValues?.date_end ?? dateRange?.to?.toString()!,
     },
     validators: {
       onSubmit: stepEventSchema,
@@ -135,8 +133,8 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
         display_name: value.display_name.trim(),
         event_name: value.event_name.trim(),
         slug: value.slug,
-        date_start: value.date_start,
-        date_end: value.date_end,
+        date_start: format(value.date_start, "yyyy-MM-dd"),
+        date_end: format(value.date_end, "yyyy-MM-dd"),
       });
 
       goTo("Role");
