@@ -130,7 +130,7 @@ function AlertDialogBody({
   }, [updateScrollState]);
 
   return (
-    <div className="relative -mx-1">
+    <div className="relative -m-1">
       <div
         className={cn(
           "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b from-popover to-transparent transition-opacity duration-200",
@@ -141,7 +141,7 @@ function AlertDialogBody({
         ref={scrollRef}
         data-slot="dialog-body"
         onScroll={updateScrollState}
-        className={cn("max-h-[50vh] overflow-y-auto px-1", className)}
+        className={cn("max-h-[50vh] overflow-y-auto p-1", className)}
         {...props}
       >
         {children}
