@@ -20,7 +20,7 @@ export const roleFormSchema = z.object({
     .string()
     .min(1, "Short name is required")
     .max(10, "Short name is too long"),
-  category: z.enum(["root", "admin", "couple_attendant", "general"]),
+  category: z.enum(["root", "admin", "general"]),
   description: z
     .string()
     .max(500, "Description is too long")
@@ -48,6 +48,5 @@ export interface UpdateRolePayload {
 export const CATEGORY_LABELS: Record<RoleCategory, string> = {
   root: "Root",
   admin: "Admin",
-  couple_attendant: "Couple attendant",
   general: "General",
 }

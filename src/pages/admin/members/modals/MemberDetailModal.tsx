@@ -12,11 +12,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { CheckCircle2, Clock, Snowflake, UserX } from "lucide-react";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import ArraySeparator from "@/components/custom/array-separator";
-import { MailPlus } from "lucide-react";
 
 const MemberDetailModal = () => {
   const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen);
@@ -31,17 +30,40 @@ const MemberDetailModal = () => {
   if (!selectedItem) return null;
   const member = selectedItem;
 
-  const statusLabel = member.is_frozen
-    ? "Frozen"
-    : !member.joined_at
-      ? "Pending invite"
-      : "Active";
+  const canFreeze = canUpdate("members.freeze");
+  const isRoot = member.role.category === "root";
+  const isRejected = !!member.rejected_at;
+  const isFrozen = member.is_frozen;
+  const isPending = !member.joined_at && !isRejected;
 
-  const joinedLabel = member.joined_at
-    ? format(parseISO(member.joined_at), "d MMM yyyy")
-    : member.invited_at
-      ? `Invited ${format(parseISO(member.invited_at), "d MMM yyyy")}`
-      : null;
+  const statusConfig = isRejected
+    ? { icon: UserX, label: "Declined", className: "text-destructive/60" }
+    : isFrozen
+      ? { icon: Snowflake, label: "Frozen", className: "text-muted-foreground" }
+      : isPending
+        ? {
+            icon: Clock,
+            label: "Pending invite",
+            className: "text-muted-foreground",
+          }
+        : { icon: CheckCircle2, label: "Active", className: "text-primary" };
+
+  const StatusIcon = statusConfig.icon;
+
+  const timelineItems = [
+    member.invited_at && {
+      label: "Invited",
+      date: format(parseISO(member.invited_at), "d MMM yyyy"),
+    },
+    member.joined_at && {
+      label: "Accepted",
+      date: format(parseISO(member.joined_at), "d MMM yyyy"),
+    },
+    member.rejected_at && {
+      label: "Declined",
+      date: format(parseISO(member.rejected_at), "d MMM yyyy"),
+    },
+  ].filter(Boolean) as { label: string; date: string }[];
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -54,73 +76,64 @@ const MemberDetailModal = () => {
         </DialogHeader>
 
         <DialogBody className="space-y-6">
+          {/* Role */}
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Role
             </p>
-            {member.role ? (
-              <Badge variant="outline" className="text-2xs tracking-wide">
-                {member.role.short_name} · {member.role.name}
-              </Badge>
-            ) : (
-              <Badge
-                variant="outline"
-                className="text-2xs text-muted-foreground italic"
-              >
-                No role
-              </Badge>
-            )}
+            <Badge variant="outline" className="text-2xs tracking-wide">
+              {member.role.short_name} · {member.role.name}
+            </Badge>
           </div>
 
-          <ArraySeparator
-            items={[
-              <span>
-                <MailPlus />
-                {statusLabel}
-              </span>,
-              joinedLabel,
-            ]}
-            className="text-xs tracking-wide text-muted-foreground"
-          />
-          <ArraySeparator
-            items={[
-              <span>
-                <MailPlus />
-                {statusLabel}
-              </span>,
-              joinedLabel,
-            ]}
-            className="text-xs tracking-wide text-muted-foreground"
-          />
-          <ArraySeparator
-            items={[
-              <span>
-                <MailPlus />
-                {statusLabel}
-              </span>,
-              joinedLabel,
-            ]}
-            className="text-xs tracking-wide text-muted-foreground"
-          />
+          {/* Status */}
+          <div className="flex items-center gap-2">
+            <StatusIcon
+              className={`w-4 h-4 shrink-0 ${statusConfig.className}`}
+            />
+            <span className={`text-sm font-medium ${statusConfig.className}`}>
+              {statusConfig.label}
+            </span>
+          </div>
+
+          {/* History */}
+          {timelineItems.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                History
+              </p>
+              <div className="space-y-1">
+                {timelineItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between text-xs text-muted-foreground"
+                  >
+                    <span>{item.label}</span>
+                    <span>{item.date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </DialogBody>
 
         <Separator />
 
         <DialogFooter>
-          {canUpdate("members") && (
+          {!isRejected && canUpdate("members") && (
             <>
-              {member.role?.category !== "root" && (
+              {!isRoot && (
                 <Button variant="destructive" size="sm" onClick={openDelete}>
                   Delete
                 </Button>
               )}
-              {member.role?.category !== "root" && (
+              {!isRoot && canFreeze && (
                 <Button
-                  variant={member.is_frozen ? "outline" : "destructive"}
+                  variant={isFrozen ? "outline" : "destructive"}
                   size="sm"
                   onClick={openFreeze}
                 >
-                  {member.is_frozen ? "Restore access" : "Freeze access"}
+                  {isFrozen ? "Restore access" : "Freeze access"}
                 </Button>
               )}
               <Button size="sm" onClick={openEdit} autoFocus>

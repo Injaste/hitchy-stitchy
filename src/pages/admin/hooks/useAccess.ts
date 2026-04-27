@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/lib/supabase"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
+import type { RoleCategory } from "../types"
+import type { Resource } from "../permissions/types"
 
-type Resource = "timeline" | "tasks" | "team" | "settings" | "rsvp" | "announcements" | "vendors" | "members" | "roles" | "events" | "invitation" | "pages"
 type Action = "create" | "read" | "update" | "delete"
 
 export type Permission = `${Resource}:${Action}`
-export type RoleCategory = "root" | "admin" | "couple_attendant" | "general"
 
 async function fetchPermissions(category: RoleCategory): Promise<Permission[]> {
   if (category === "root") return [];
@@ -57,7 +57,6 @@ export function useAccess() {
     canRead, canCreate, canUpdate, canDelete, canManage,
     isRoot: roleCategory === "root",
     isAdmin: roleCategory === "admin",
-    isCoupleAttendant: roleCategory === "couple_attendant",
     isGeneral: roleCategory === "general",
   }
 }

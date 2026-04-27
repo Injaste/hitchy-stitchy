@@ -3,8 +3,9 @@ import type { RoleCategory } from "../types"
 import type { Resource, ResourcePermission, CategoryPermissions } from "./types"
 
 const ALL_RESOURCES: Resource[] = [
-  "timeline", "tasks", "members", "roles", "vendors",
-  "rsvp", "invitation", "settings", "events", "announcements", "pages",
+  "timeline", "tasks", "members", "members.freeze",
+  "roles", "vendors", "rsvp", "invitation",
+  "events", "announcements", "pages",
 ]
 
 const rootPermissions: ResourcePermission[] = ALL_RESOURCES.map((resource) => ({
@@ -15,9 +16,8 @@ const rootPermissions: ResourcePermission[] = ALL_RESOURCES.map((resource) => ({
   can_delete: true,
 }))
 
-// TODO: replace with live Supabase query
 export async function fetchAllPermissions(): Promise<CategoryPermissions[]> {
-  const categories: RoleCategory[] = ["admin", "couple_attendant", "general"]
+  const categories: RoleCategory[] = ["admin", "general"]
 
   const { data, error } = await supabase
     .from("event_role_permissions")

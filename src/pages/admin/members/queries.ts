@@ -7,13 +7,15 @@ import {
   fetchMembers,
   inviteMember,
   updateMember,
-  setMemberFrozen,
+  updateMyDisplayName,
+  freezeMember,
   deleteMember,
 } from "./api"
 import type {
   InviteMemberPayload,
   UpdateMemberPayload,
-  SetMemberFrozenPayload,
+  UpdateMyDisplayNamePayload,
+  FreezeMemberPayload,
   DeleteMemberPayload,
 } from "./types"
 
@@ -27,7 +29,7 @@ export function useMembersQuery() {
 }
 
 export function useMemberMutations() {
-  const { slug } = useAdminStore()
+  const { slug, eventId } = useAdminStore()
   const closeAll = useMemberModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
@@ -52,17 +54,17 @@ export function useMemberMutations() {
     },
   )
 
-  const remove = useMutation(
-    (payload: DeleteMemberPayload) => deleteMember(payload),
+  const updateMyName = useMutation(
+    (display_name: string) => updateMyDisplayName({ event_id: eventId!, display_name }),
     {
-      successMessage: "Member delete",
-      errorMessage: "Failed to delete member",
+      successMessage: "Name updated",
+      errorMessage: "Failed to update name",
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
 
   const freeze = useMutation(
-    (payload: SetMemberFrozenPayload) => setMemberFrozen(payload),
+    (payload: FreezeMemberPayload) => freezeMember(payload),
     {
       successMessage: (_r, args) =>
         args.is_frozen ? "Access frozen" : "Access restored",
@@ -71,5 +73,14 @@ export function useMemberMutations() {
     },
   )
 
-  return { invite, update, remove, freeze }
+  const remove = useMutation(
+    (payload: DeleteMemberPayload) => deleteMember(payload),
+    {
+      successMessage: "Member removed",
+      errorMessage: "Failed to remove member",
+      onSuccess: () => { invalidate(); closeAll() },
+    },
+  )
+
+  return { invite, update, updateMyName, freeze, remove }
 }

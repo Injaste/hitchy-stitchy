@@ -1,4 +1,4 @@
-export type RoleCategory = 'root' | 'admin' | 'couple_attendant' | 'general'
+export type RoleCategory = 'root' | 'admin' | 'general'
 
 export interface AdminBootstrapContext {
   slug: string
@@ -16,6 +16,3 @@ export interface AdminBootstrapContext {
 
 export const isAdminMember = (category: RoleCategory): boolean =>
   category === 'root' || category === 'admin'
-
-export const isCoupleAttendant = (category: RoleCategory): boolean =>
-  category === 'root' || category === 'admin' || category === 'couple_attendant'

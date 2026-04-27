@@ -15,7 +15,7 @@ import { cardHover, itemFadeUp } from "@/lib/animations";
 import type { Event } from "../types";
 import ArraySeparator from "@/components/custom/array-separator";
 
-const MemberCard: FC<{ event: Event }> = ({ event }) => {
+const JoinedCard: FC<{ event: Event }> = ({ event }) => {
   const countdown = getDaysUntil(event.date_start);
   const status = getEventStatus(event.date_start, event.date_end);
 
@@ -69,4 +69,4 @@ const MemberCard: FC<{ event: Event }> = ({ event }) => {
   );
 };
 
-export default MemberCard;
+export default JoinedCard;

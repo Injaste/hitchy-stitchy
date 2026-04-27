@@ -1,10 +1,7 @@
-import type { FC } from "react";
-import { AnimatePresence } from "framer-motion";
+import { Fragment, type FC } from "react";
 import { CheckCircle2, Eye, Minus, PenLine } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
-import type { RoleCategory } from "../../types";
 import { cn } from "@/lib/utils";
+import type { RoleCategory } from "../../types";
 
 import {
   type CategoryPermissions,
@@ -16,12 +13,6 @@ import {
   RESOURCE_LABELS,
   deriveAccessLevel,
 } from "../types";
-
-interface PermissionsMatrixProps {
-  data: CategoryPermissions[] | undefined;
-  isLoading: boolean;
-  isError: boolean;
-}
 
 const ACCESS_CONFIG: Record<
   AccessLevel,
@@ -48,21 +39,22 @@ const AccessCell = ({ level }: { level: AccessLevel }) => {
   );
 };
 
-const MatrixSkeleton = () => (
-  <div className="space-y-1">
-    {[...Array(6)].map((_, i) => (
-      <Skeleton key={i} className="h-10 w-full rounded-md" />
-    ))}
-  </div>
-);
-
-const MatrixTable: FC<{ data: CategoryPermissions[] }> = ({ data }) => {
+const PermissionsTable: FC<{ data: CategoryPermissions[] }> = ({ data }) => {
   const permMap = new Map<RoleCategory, Map<Resource, AccessLevel>>();
+
   for (const cat of data) {
     const resourceMap = new Map<Resource, AccessLevel>();
-    for (const perm of cat.permissions) {
-      resourceMap.set(perm.resource, deriveAccessLevel(perm));
+
+    if (cat.category === "root") {
+      for (const resource of Object.keys(RESOURCE_LABELS) as Resource[]) {
+        resourceMap.set(resource, "full");
+      }
+    } else {
+      for (const perm of cat.permissions) {
+        resourceMap.set(perm.resource as Resource, deriveAccessLevel(perm));
+      }
     }
+
     permMap.set(cat.category, resourceMap);
   }
 
@@ -77,7 +69,7 @@ const MatrixTable: FC<{ data: CategoryPermissions[] }> = ({ data }) => {
             {CATEGORY_ORDER.map((cat) => {
               const { label, description } = CATEGORY_DISPLAY[cat];
               return (
-                <th key={cat} className="px-4 py-3.5 text-left w-[16%]">
+                <th key={cat} className="px-4 py-3.5 text-left w-[21%]">
                   <span className="block text-xs font-semibold text-foreground">
                     {label}
                   </span>
@@ -91,13 +83,10 @@ const MatrixTable: FC<{ data: CategoryPermissions[] }> = ({ data }) => {
         </thead>
         <tbody>
           {RESOURCE_GROUPS.map((group, gi) => (
-            <>
-              <tr
-                key={`group-${gi}`}
-                className="border-t border-border/40 bg-muted/20"
-              >
+            <Fragment key={`group-${gi}`}>
+              <tr className="border-t border-border/40 bg-muted/20">
                 <td
-                  colSpan={5}
+                  colSpan={4}
                   className="px-5 py-2 text-[11px] font-semibold tracking-widest uppercase text-muted-foreground/50"
                 >
                   {group.label}
@@ -125,7 +114,7 @@ const MatrixTable: FC<{ data: CategoryPermissions[] }> = ({ data }) => {
                   })}
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
@@ -136,66 +125,21 @@ const MatrixTable: FC<{ data: CategoryPermissions[] }> = ({ data }) => {
             AccessLevel,
             (typeof ACCESS_CONFIG)[AccessLevel],
           ][]
-        ).map(([level, { icon: Icon, label, className }]) =>
-          level !== "none" ? (
-            <span
-              key={level}
-              className={cn(
-                "inline-flex items-center gap-1.5 text-xs",
-                className,
-              )}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              {label}
-            </span>
-          ) : (
-            <span
-              key={level}
-              className={cn(
-                "inline-flex items-center gap-1.5 text-xs",
-                className,
-              )}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              No access
-            </span>
-          ),
-        )}
+        ).map(([level, { icon: Icon, label, className }]) => (
+          <span
+            key={level}
+            className={cn(
+              "inline-flex items-center gap-1.5 text-xs",
+              className,
+            )}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {level === "none" ? "No access" : label}
+          </span>
+        ))}
       </div>
     </div>
   );
 };
 
-const PermissionsMatrix: FC<PermissionsMatrixProps> = ({
-  data,
-  isLoading,
-  isError,
-}) => {
-  const renderBody = () => {
-    if (isLoading)
-      return (
-        <ComponentFade key="skeleton">
-          <MatrixSkeleton />
-        </ComponentFade>
-      );
-
-    if (isError || !data)
-      return (
-        <ComponentFade key="error">
-          <p className="text-sm text-muted-foreground py-8 text-center">
-            Could not load permission data.
-          </p>
-        </ComponentFade>
-      );
-
-    return (
-      <ComponentFade key="content">
-        <MatrixTable data={data} />
-      </ComponentFade>
-    );
-  };
-
-  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
-};
-
-export default PermissionsMatrix;
+export default PermissionsTable;

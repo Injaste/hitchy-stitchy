@@ -13,6 +13,7 @@ import {
 import {
   Field,
   FieldContent,
+  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -22,62 +23,62 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 
 import { useRolesQuery } from "../../roles/queries";
-import { inviteMemberSchema, type InviteMemberValues } from "../types";
-import { useMembersQuery } from "../queries";
-import { cn } from "@/lib/utils";
+import {
+  inviteMemberSchema,
+  editMemberSchema,
+  type InviteMemberValues,
+  type EditMemberValues,
+} from "../types";
 
-const SINGULAR_ROLES = ["Bride", "Groom"];
-
-interface MemberFormProps {
+interface MemberFormPropsInvite {
+  mode: "invite";
   defaultValues?: Partial<InviteMemberValues>;
   onSubmit: (values: InviteMemberValues) => void;
   onCancel: () => void;
   isPending: boolean;
   submitLabel: string;
-  emailDisabled?: boolean;
 }
 
+interface MemberFormPropsEdit {
+  mode: "edit";
+  defaultValues?: Partial<EditMemberValues>;
+  onSubmit: (values: EditMemberValues) => void;
+  onCancel: () => void;
+  isPending: boolean;
+  submitLabel: string;
+}
+
+type MemberFormProps = MemberFormPropsInvite | MemberFormPropsEdit;
+
 const MemberForm: FC<MemberFormProps> = ({
+  mode,
   defaultValues,
   onSubmit,
   onCancel,
   isPending,
   submitLabel,
-  emailDisabled = false,
 }) => {
   const [attemptCount, setAttemptCount] = useState(0);
   const { data: roles } = useRolesQuery();
-  const { data: members } = useMembersQuery();
 
-  // TODO CHECK CANNOT SUBMIT ROLE ROOT
-  const takenSingularRoleIds = new Set(
-    members!
-      .filter((m) => SINGULAR_ROLES.includes(m.role?.name ?? ""))
-      .map((m) => m.role_id),
-  );
+  const schema = mode === "invite" ? inviteMemberSchema : editMemberSchema;
 
-  const isFilled = takenSingularRoleIds.size === roles?.length;
-  const assignableRoles = isFilled
-    ? [
-        {
-          id: "0",
-          name: "Please add roles",
-        },
-      ]
-    : (roles ?? []);
+  const assignableRoles = (roles ?? []).filter((r) => r.category !== "root");
 
   const form = useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
-      email: defaultValues?.email ?? "",
+      ...(mode === "invite" && {
+        email: (defaultValues as Partial<InviteMemberValues>)?.email ?? "",
+      }),
       role_id: defaultValues?.role_id ?? "",
     },
     validators: {
-      onSubmit: inviteMemberSchema,
-      onChange: inviteMemberSchema,
+      onSubmit: schema,
+      onChange: schema,
     },
     onSubmit: ({ value }) => {
-      onSubmit(inviteMemberSchema.parse(value));
+      onSubmit(schema.parse(value) as any);
     },
   });
 
@@ -118,33 +119,37 @@ const MemberForm: FC<MemberFormProps> = ({
             }}
           </form.Field>
 
-          <form.Field name="email">
-            {(field) => {
-              const hasError =
-                Boolean(field.state.meta.errors.length) && attemptCount > 0;
-              return (
-                <AnimateItem
-                  errors={field.state.meta.errors}
-                  hasError={hasError}
-                  attemptCount={attemptCount}
-                >
-                  <Field data-invalid={hasError} className="gap-2">
-                    <FieldLabel>Email</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        type="email"
-                        placeholder="sarah@example.com"
-                        value={field.state.value}
-                        disabled={emailDisabled}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </FieldContent>
-                  </Field>
-                </AnimateItem>
-              );
-            }}
-          </form.Field>
+          {mode === "invite" && (
+            <form.Field name="email">
+              {(field) => {
+                const hasError =
+                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
+                return (
+                  <AnimateItem
+                    errors={field.state.meta.errors}
+                    hasError={hasError}
+                    attemptCount={attemptCount}
+                  >
+                    <Field data-invalid={hasError} className="gap-2">
+                      <FieldLabel>Email</FieldLabel>
+                      <FieldContent>
+                        <Input
+                          type="email"
+                          placeholder="sarah@example.com"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                        />
+                      </FieldContent>
+                      <FieldDescription className="text-xs text-muted-foreground">
+                        Email cannot be changed once assigned.
+                      </FieldDescription>
+                    </Field>
+                  </AnimateItem>
+                );
+              }}
+            </form.Field>
+          )}
 
           <form.Field name="role_id">
             {(field) => {
@@ -166,19 +171,17 @@ const MemberForm: FC<MemberFormProps> = ({
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                       <SelectContent>
-                        {assignableRoles.map((r) => (
-                          <SelectItem
-                            key={r.id}
-                            value={r.id}
-                            disabled={takenSingularRoleIds.has(r.id)}
-                            className={cn(
-                              r.id === "0" && "pointer-events-auto",
-                            )}
-                          >
-                            {r.name}
-                            {takenSingularRoleIds.has(r.id) ? " (taken)" : ""}
+                        {assignableRoles.length === 0 ? (
+                          <SelectItem value="0" disabled>
+                            No roles available — add roles first
                           </SelectItem>
-                        ))}
+                        ) : (
+                          assignableRoles.map((r) => (
+                            <SelectItem key={r.id} value={r.id}>
+                              {r.name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>

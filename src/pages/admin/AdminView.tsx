@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 
 import { useAdminStore } from "./store/useAdminStore";
-import { useBootstrap } from "./hooks/useBootstrap";
+import { useBootstrap } from "./bootstrap/hooks/useBootstrap";
 import useActivePage from "./hooks/useActivePage";
 import { isAdminMember } from "./types";
 

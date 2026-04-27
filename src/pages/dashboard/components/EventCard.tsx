@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import type { Event } from "../types";
 import InvitedCard from "./InvitedCard";
-import MemberCard from "./MemberCard";
+import JoinedCard from "./JoinedCard";
 
 interface EventCardProps {
   event: Event;
@@ -9,7 +9,7 @@ interface EventCardProps {
 
 const EventCard: FC<EventCardProps> = ({ event }) => {
   if (event.is_pending) return <InvitedCard event={event} />;
-  return <MemberCard event={event} />;
+  return <JoinedCard event={event} />;
 };
 
 export default EventCard;

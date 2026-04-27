@@ -38,6 +38,7 @@ const MemberInviteModal = () => {
           </DialogDescription>
         </DialogHeader>
         <MemberForm
+          mode="invite"
           onSubmit={handleSubmit}
           onCancel={closeAll}
           isPending={invite.isPending}

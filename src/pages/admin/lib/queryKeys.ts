@@ -1,4 +1,5 @@
 export const adminKeys = {
+  bootstrap: (slug: string) => [slug, 'bootstrap'] as const,
   timeline: (slug: string) => [slug, 'timeline'] as const,
   tasks: (slug: string) => [slug, 'tasks'] as const,
   taskOrder: (slug: string) => [slug, 'task-order'] as const,

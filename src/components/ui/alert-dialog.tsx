@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 import { motion } from "framer-motion";
 
@@ -103,13 +104,55 @@ function AlertDialogHeader({
   );
 }
 
-function AlertDialogBody({ className, ...props }: React.ComponentProps<"div">) {
+function AlertDialogBody({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 0);
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollState();
+    const ro = new ResizeObserver(updateScrollState);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [updateScrollState]);
+
   return (
-    <div
-      data-slot="alert-dialog-body"
-      className={cn("max-h-[50vh] overflow-y-auto px-1 -mx-1", className)}
-      {...props}
-    />
+    <div className="relative -mx-1">
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b from-popover to-transparent transition-opacity duration-200",
+          canScrollUp ? "opacity-100" : "opacity-0",
+        )}
+      />
+      <div
+        ref={scrollRef}
+        data-slot="dialog-body"
+        onScroll={updateScrollState}
+        className={cn("max-h-[50vh] overflow-y-auto px-1", className)}
+        {...props}
+      >
+        {children}
+      </div>
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t from-popover to-transparent transition-opacity duration-200",
+          canScrollDown ? "opacity-100" : "opacity-0",
+        )}
+      />
+    </div>
   );
 }
 

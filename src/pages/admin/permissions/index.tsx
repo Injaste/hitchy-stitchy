@@ -1,16 +1,16 @@
-import { usePermissionsQuery } from "./queries"
-import PermissionsHeader from "./components/PermissionsHeader"
-import PermissionsMatrix from "./components/PermissionsMatrix"
+import { usePermissionsQuery } from "./queries";
+import PermissionsHeader from "./components/PermissionsHeader";
+import PermissionsView from "./components/PermissionsView";
 
 const Permissions = () => {
-  const { data, isLoading, isError } = usePermissionsQuery()
+  const { data, isLoading, isError } = usePermissionsQuery();
 
   return (
     <div className="space-y-8">
       <PermissionsHeader />
-      <PermissionsMatrix data={data} isLoading={isLoading} isError={isError} />
+      <PermissionsView data={data} isLoading={isLoading} isError={isError} />
     </div>
-  )
-}
+  );
+};
 
-export default Permissions
+export default Permissions;

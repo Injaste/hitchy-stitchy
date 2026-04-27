@@ -8,7 +8,7 @@ import {
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
-import type { InviteMemberValues } from "../types";
+import type { EditMemberValues } from "../types";
 
 import MemberForm from "./MemberForm";
 
@@ -21,11 +21,10 @@ const MemberEditModal = () => {
   if (!selectedItem) return null;
   const member = selectedItem;
 
-  const handleSubmit = (values: InviteMemberValues) => {
+  const handleSubmit = (values: EditMemberValues) => {
     update.mutate({
       id: member.id,
       display_name: values.display_name,
-      email: values.email,
       role_id: values.role_id,
     });
   };
@@ -40,16 +39,15 @@ const MemberEditModal = () => {
           </DialogDescription>
         </DialogHeader>
         <MemberForm
+          mode="edit"
           defaultValues={{
             display_name: member.display_name,
-            email: member.email,
             role_id: member.role_id ?? "",
           }}
           onSubmit={handleSubmit}
           onCancel={closeAll}
           isPending={update.isPending}
           submitLabel="Save changes"
-          emailDisabled={!!member.user_id}
         />
       </DialogContent>
     </Dialog>
