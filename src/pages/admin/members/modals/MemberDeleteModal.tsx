@@ -35,7 +35,7 @@ const MemberDeleteModal = () => {
             <span className="font-semibold text-foreground">
               {member.display_name}
             </span>{" "}
-            will be permanently removed from this event.
+            will be permanently removed from this event. Tasks they are assigned to will remain, but their name will be removed from those assignments.
           </AlertDialogDescription>
         </AlertDialogHeader>
 

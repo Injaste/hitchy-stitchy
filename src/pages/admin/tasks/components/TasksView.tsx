@@ -10,8 +10,10 @@ import {
   type DragStartEvent,
   type DragOverEvent,
   type DragEndEvent,
+  type Modifier,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { getEventCoordinates } from "@dnd-kit/utilities";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ComponentFade } from "@/components/animations/animate-component-fade";
@@ -36,6 +38,7 @@ import TasksEmpty from "../states/TasksEmpty";
 import TasksSection from "./TasksSection";
 import TaskCard from "./TaskCard";
 import { useIsMobile } from "@/hooks/use-mobile";
+import PortalToApp from "@/components/custom/portal-to-app";
 
 interface TasksViewProps {
   data: Task[] | undefined;
@@ -46,7 +49,10 @@ interface TasksViewProps {
   refetch: () => void;
 }
 
-function applyOrder(tasks: Task[], order: TaskOrder | null | undefined): Task[] {
+function applyOrder(
+  tasks: Task[],
+  order: TaskOrder | null | undefined,
+): Task[] {
   if (!order) return tasks;
   const orderMap: Record<TaskStatus, string[]> = {
     todo: order.todo,
@@ -89,7 +95,9 @@ const TasksView: FC<TasksViewProps> = ({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 8 },
+    }),
   );
 
   const grouped = useMemo(() => {
@@ -101,89 +109,100 @@ const TasksView: FC<TasksViewProps> = ({
     }));
   }, [localTasks, isMobile]);
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const task = localTasks.find((t) => t.id === event.active.id);
-    setActiveTask(task ?? null);
-  }, [localTasks]);
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const task = localTasks.find((t) => t.id === event.active.id);
+      setActiveTask(task ?? null);
+    },
+    [localTasks],
+  );
 
-  const handleDragOver = useCallback((event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event;
+      if (!over) return;
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
+      const activeId = active.id as string;
+      const overId = over.id as string;
 
-    const activeTask = localTasks.find((t) => t.id === activeId);
-    if (!activeTask) return;
+      const activeTask = localTasks.find((t) => t.id === activeId);
+      if (!activeTask) return;
 
-    // over.id is either a task id or a column status id
-    const overTask = localTasks.find((t) => t.id === overId);
-    const destStatus: TaskStatus = overTask
-      ? overTask.status
-      : (overId as TaskStatus);
+      // over.id is either a task id or a column status id
+      const overTask = localTasks.find((t) => t.id === overId);
+      const destStatus: TaskStatus = overTask
+        ? overTask.status
+        : (overId as TaskStatus);
 
-    setOverColumnId(destStatus);
+      setOverColumnId(destStatus);
 
-    if (activeTask.status === destStatus) {
-      // Reorder within same column
-      if (overTask && activeId !== overId) {
-        setLocalTasks((prev) => {
-          const srcIdx = prev.findIndex((t) => t.id === activeId);
-          const dstIdx = prev.findIndex((t) => t.id === overId);
-          return arrayMove(prev, srcIdx, dstIdx);
-        });
+      if (activeTask.status === destStatus) {
+        // Reorder within same column
+        if (overTask && activeId !== overId) {
+          setLocalTasks((prev) => {
+            const srcIdx = prev.findIndex((t) => t.id === activeId);
+            const dstIdx = prev.findIndex((t) => t.id === overId);
+            return arrayMove(prev, srcIdx, dstIdx);
+          });
+        }
+        return;
       }
-      return;
-    }
 
-    // Move to different column — insert before the over task (or append)
-    setLocalTasks((prev) => {
-      const withUpdatedStatus = prev.map((t) =>
-        t.id === activeId ? { ...t, status: destStatus } : t,
-      );
-      if (overTask) {
-        const srcIdx = withUpdatedStatus.findIndex((t) => t.id === activeId);
-        const dstIdx = withUpdatedStatus.findIndex((t) => t.id === overId);
-        return arrayMove(withUpdatedStatus, srcIdx, dstIdx);
-      }
-      return withUpdatedStatus;
-    });
-  }, [localTasks]);
+      // Move to different column — insert before the over task (or append)
+      setLocalTasks((prev) => {
+        const withUpdatedStatus = prev.map((t) =>
+          t.id === activeId ? { ...t, status: destStatus } : t,
+        );
+        if (overTask) {
+          const srcIdx = withUpdatedStatus.findIndex((t) => t.id === activeId);
+          const dstIdx = withUpdatedStatus.findIndex((t) => t.id === overId);
+          return arrayMove(withUpdatedStatus, srcIdx, dstIdx);
+        }
+        return withUpdatedStatus;
+      });
+    },
+    [localTasks],
+  );
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveTask(null);
-    setOverColumnId(null);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveTask(null);
+      setOverColumnId(null);
 
-    if (!over) return;
+      if (!over) return;
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
-    const activeTaskFinal = localTasks.find((t) => t.id === activeId);
-    if (!activeTaskFinal) return;
+      const activeId = active.id as string;
+      const overId = over.id as string;
+      const activeTaskFinal = localTasks.find((t) => t.id === activeId);
+      if (!activeTaskFinal) return;
 
-    const overTask = localTasks.find((t) => t.id === overId);
-    const destStatus: TaskStatus = overTask
-      ? overTask.status
-      : (overId as TaskStatus);
+      const overTask = localTasks.find((t) => t.id === overId);
+      const destStatus: TaskStatus = overTask
+        ? overTask.status
+        : (overId as TaskStatus);
 
-    // If same column and same position, no-op
-    if (activeTaskFinal.status === destStatus && activeId === overId) return;
+      // If same column and same position, no-op
+      if (activeTaskFinal.status === destStatus && activeId === overId) return;
 
-    // Build order from current localTasks state
-    const newOrder: TaskOrder = {
-      event_id: eventId ?? "",
-      todo: localTasks.filter((t) => t.status === "todo").map((t) => t.id),
-      in_progress: localTasks.filter((t) => t.status === "in_progress").map((t) => t.id),
-      done: localTasks.filter((t) => t.status === "done").map((t) => t.id),
-    };
+      // Build order from current localTasks state
+      const newOrder: TaskOrder = {
+        event_id: eventId ?? "",
+        todo: localTasks.filter((t) => t.status === "todo").map((t) => t.id),
+        in_progress: localTasks
+          .filter((t) => t.status === "in_progress")
+          .map((t) => t.id),
+        done: localTasks.filter((t) => t.status === "done").map((t) => t.id),
+      };
 
-    // Commit optimistically to cache
-    queryClient.setQueryData(adminKeys.tasks(slug!), localTasks);
-    queryClient.setQueryData(adminKeys.taskOrder(slug!), newOrder);
+      // Commit optimistically to cache
+      queryClient.setQueryData(adminKeys.tasks(slug!), localTasks);
+      queryClient.setQueryData(adminKeys.taskOrder(slug!), newOrder);
 
-    saveOrder.mutate(newOrder);
-  }, [localTasks, queryClient, slug, eventId, saveOrder]);
+      saveOrder.mutate(newOrder);
+    },
+    [localTasks, queryClient, slug, eventId, saveOrder],
+  );
 
   const renderBody = () => {
     if (isLoading)
@@ -226,18 +245,20 @@ const TasksView: FC<TasksViewProps> = ({
                 status={status}
                 label={label}
                 tasks={tasks}
-                isDragTarget={overColumnId === status && activeTask?.status !== status}
+                isDragTarget={
+                  overColumnId === status && activeTask?.status !== status
+                }
               />
             ))}
           </div>
 
-          <DragOverlay dropAnimation={null}>
-            {activeTask && (
+          {activeTask && (
+            <PortalToApp>
               <motion.div animate={cardLiftStyle} initial={false}>
                 <TaskCard task={activeTask} />
               </motion.div>
-            )}
-          </DragOverlay>
+            </PortalToApp>
+          )}
         </DndContext>
       </ComponentFade>
     );

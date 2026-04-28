@@ -1,24 +1,32 @@
-import type { FC } from "react"
-import { motion } from "framer-motion"
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { useDroppable } from "@dnd-kit/core"
+import type { FC } from "react";
+import { motion } from "framer-motion";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
 
-import { cn } from "@/lib/utils"
-import { container, itemFadeUp } from "@/lib/animations"
+import { cn } from "@/lib/utils";
+import { container, itemFadeUp } from "@/lib/animations";
 
-import type { Task } from "../types"
-import DraggableTaskCard from "./DraggableTaskCard"
+import type { Task } from "../types";
+import DraggableTaskCard from "./DraggableTaskCard";
 
 interface TasksSectionProps {
-  status: string
-  label: string
-  tasks: Task[]
-  isDragTarget?: boolean
+  status: string;
+  label: string;
+  tasks: Task[];
+  isDragTarget?: boolean;
 }
 
-const TasksSection: FC<TasksSectionProps> = ({ status, label, tasks, isDragTarget }) => {
-  const { setNodeRef } = useDroppable({ id: status })
-  const taskIds = tasks.map((t) => t.id)
+const TasksSection: FC<TasksSectionProps> = ({
+  status,
+  label,
+  tasks,
+  isDragTarget,
+}) => {
+  const { setNodeRef } = useDroppable({ id: status });
+  const taskIds = tasks.map((t) => t.id);
 
   return (
     <div
@@ -46,12 +54,14 @@ const TasksSection: FC<TasksSectionProps> = ({ status, label, tasks, isDragTarge
           ref={setNodeRef}
           className={cn(
             "flex flex-col gap-3 min-h-[60px] rounded-xl transition-colors duration-150",
-            isDragTarget && "ring-1 ring-primary/30 bg-primary/[0.03] p-2",
+            isDragTarget && "ring-1 ring-primary/30 bg-primary/30 p-2",
           )}
         >
           {tasks.length === 0 ? (
             <div className="hidden lg:flex flex-col items-center justify-center py-12 px-4 rounded-xl border border-dashed border-border/40">
-              <p className="text-xs text-muted-foreground/50 text-center">No tasks yet</p>
+              <p className="text-xs text-muted-foreground/50 text-center">
+                No tasks yet
+              </p>
             </div>
           ) : (
             <motion.div
@@ -70,7 +80,7 @@ const TasksSection: FC<TasksSectionProps> = ({ status, label, tasks, isDragTarge
         </div>
       </SortableContext>
     </div>
-  )
-}
+  );
+};
 
-export default TasksSection
+export default TasksSection;

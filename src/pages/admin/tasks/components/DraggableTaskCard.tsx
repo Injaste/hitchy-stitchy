@@ -22,7 +22,7 @@ const DraggableTaskCard: FC<DraggableTaskCardProps> = ({ task }) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.25 : 1,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (

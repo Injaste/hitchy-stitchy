@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Clock, Snowflake, UserX } from "lucide-react";
+import { Calendar, CheckCircle2, Clock, Snowflake, UserX } from "lucide-react";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
@@ -50,20 +50,25 @@ const MemberDetailModal = () => {
 
   const StatusIcon = statusConfig.icon;
 
+  const formatDate = "d MMM yyyy";
+  const formatTime = "hh:mm";
   const timelineItems = [
     member.invited_at && {
       label: "Invited",
-      date: format(parseISO(member.invited_at), "d MMM yyyy"),
+      date: format(parseISO(member.invited_at), formatDate),
+      time: format(parseISO(member.invited_at), formatTime),
     },
     member.joined_at && {
       label: "Accepted",
-      date: format(parseISO(member.joined_at), "d MMM yyyy"),
+      date: format(parseISO(member.joined_at), formatDate),
+      time: format(parseISO(member.joined_at), formatTime),
     },
     member.rejected_at && {
       label: "Declined",
-      date: format(parseISO(member.rejected_at), "d MMM yyyy"),
+      date: format(parseISO(member.rejected_at), formatDate),
+      time: format(parseISO(member.rejected_at), formatTime),
     },
-  ].filter(Boolean) as { label: string; date: string }[];
+  ].filter(Boolean) as { label: string; date: string; time: string }[];
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -109,7 +114,16 @@ const MemberDetailModal = () => {
                     className="flex items-center justify-between text-xs text-muted-foreground"
                   >
                     <span>{item.label}</span>
-                    <span>{item.date}</span>
+                    <span className="flex gap-2">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="size-3" />
+                        {item.date}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="size-3" />
+                        {item.time}
+                      </span>
+                    </span>
                   </div>
                 ))}
               </div>

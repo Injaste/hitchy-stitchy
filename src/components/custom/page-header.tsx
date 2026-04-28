@@ -31,17 +31,8 @@ export const PageHeader: FC<PageHeaderProps> = ({
   const { handleRefresh, canRefresh } = useRefetch(refetch);
   const showActions = !isLoading && !isError;
 
-  return (
-    <div className="flex justify-between gap-4">
-      <div className="space-y-6">
-        <p className="text-sm text-muted-foreground/80">{description}</p>
-        {meta && (
-          <div className="text-sm tracking-wide text-muted-foreground">
-            {meta}
-          </div>
-        )}
-      </div>
-
+  function renderActions() {
+    return (
       <AnimatePresence mode="wait">
         {showActions && (
           <ComponentFade key="actions">
@@ -62,6 +53,22 @@ export const PageHeader: FC<PageHeaderProps> = ({
           </ComponentFade>
         )}
       </AnimatePresence>
+    );
+  }
+
+  return (
+    <div className="flex justify-between gap-4">
+      <div className="space-y-6">
+        <p className="text-sm text-muted-foreground/80">{description}</p>
+        {meta && (
+          <div className="text-sm tracking-wide text-muted-foreground flex justify-between">
+            {meta}
+            <div className="block lg:hidden">{renderActions()}</div>
+          </div>
+        )}
+      </div>
+
+      <div className="hidden lg:block shrink-0">{renderActions()}</div>
     </div>
   );
 };

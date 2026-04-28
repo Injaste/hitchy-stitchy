@@ -35,38 +35,35 @@ export async function saveTaskOrder(order: TaskOrder): Promise<void> {
 }
 
 export async function createTask(payload: CreateTaskPayload): Promise<Task> {
-  const { data, error } = await supabase
-    .from("event_tasks")
-    .insert({
-      event_id: payload.event_id,
-      title: payload.title,
-      details: payload.details,
-      priority: payload.priority,
-      due_at: payload.due_at,
-      assignees: payload.assignees,
-    })
-    .select(TASK_FIELDS)
-    .single()
+  const { data, error } = await supabase.rpc("create_task", {
+    p_event_id:  payload.event_id,
+    p_title:     payload.title,
+    p_details:   payload.details,
+    p_priority:  payload.priority,
+    p_due_at:    payload.due_at,
+    p_assignees: payload.assignees,
+  })
 
   if (error) throw new Error(error.message)
   return data as Task
 }
 
 export async function updateTask(payload: UpdateTaskPayload): Promise<void> {
-  const { id, ...fields } = payload
-  const { error } = await supabase
-    .from("event_tasks")
-    .update(fields)
-    .eq("id", id)
+  const { error } = await supabase.rpc("update_task", {
+    p_id:        payload.id,
+    p_title:     payload.title,
+    p_details:   payload.details,
+    p_priority:  payload.priority,
+    p_due_at:    payload.due_at,
+    p_assignees: payload.assignees,
+    p_status:    payload.status,
+  })
 
   if (error) throw new Error(error.message)
 }
 
 export async function deleteTask(id: string): Promise<void> {
-  const { error } = await supabase
-    .from("event_tasks")
-    .delete()
-    .eq("id", id)
+  const { error } = await supabase.rpc("delete_task", { p_id: id })
 
   if (error) throw new Error(error.message)
 }
