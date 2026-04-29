@@ -35,6 +35,23 @@ export const itemFadeIn = {
 
 export const cardHover = { y: -3, transition: { duration: 0.4 } };
 
+export const taskContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 },
+  },
+};
+
+export const taskItem: Variants = {
+  hidden: { opacity: 0, y: 6 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.2 },
+  },
+};
+
 export const itemShake = {
   idle: { x: 0 },
   shake: {

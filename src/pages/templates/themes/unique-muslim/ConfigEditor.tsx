@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import type { ConfigEditorProps } from "@/pages/templates/themes"
+import type { ConfigEditorProps } from "@/pages/templates/themes/types"
 
 const UniqueMuslimConfigEditor = ({ config, onChange }: ConfigEditorProps) => {
   if (config._theme_slug !== "unique-muslim") return null

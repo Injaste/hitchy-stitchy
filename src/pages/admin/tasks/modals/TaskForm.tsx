@@ -179,6 +179,22 @@ const TaskForm: FC<TaskFormProps> = ({
                         setCalendarOpen(false);
                       }}
                     />
+                    {field.state.value && (
+                      <div className="border-t border-border/50 p-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-muted-foreground text-xs h-7"
+                          onClick={() => {
+                            field.handleChange(null);
+                            setCalendarOpen(false);
+                          }}
+                        >
+                          Clear date
+                        </Button>
+                      </div>
+                    )}
                   </PopoverContent>
                 </Popover>
               </div>

@@ -19,9 +19,7 @@ const Invitation = () => {
 
   const themeSlug = eventConfig?.published_page?.theme_slug ?? null;
   const ThemeComponent =
-    (themeSlug ? themeRegistry[themeSlug].component : null) ?? FallbackTheme;
-
-  console.log(themeSlug);
+    (themeSlug ? themeRegistry[themeSlug]?.component : null) ?? FallbackTheme;
 
   return (
     <AnimatePresence mode="wait">

@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import type { PublicEventConfig } from "@/pages/templates/types"
-import type { ThemePageConfig } from "@/pages/templates/themes"
+import type { ThemePageConfig } from "@/pages/templates/themes/types"
 import type {
   EventInvitation,
   EventPage,

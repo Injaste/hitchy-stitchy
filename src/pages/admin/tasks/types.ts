@@ -63,6 +63,12 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   high: "High",
 }
 
+export const PRIORITY_BADGE_CLASS: Record<TaskPriority, string> = {
+  high: "bg-destructive/10 text-destructive ring-1 ring-destructive/25",
+  medium: "bg-warning/10 text-warning ring-1 ring-warning/30",
+  low: "bg-secondary/15 text-secondary ring-1 ring-secondary/30",
+}
+
 export interface TaskOrder {
   event_id: string
   todo: string[]

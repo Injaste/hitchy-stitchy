@@ -1,4 +1,4 @@
-import type { ThemePageConfig } from "@/pages/templates/themes"
+import type { ThemePageConfig } from "@/pages/templates/themes/types"
 
 export type RSVPMode = 'public' | 'private' | 'both'
 

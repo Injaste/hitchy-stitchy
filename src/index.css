@@ -49,6 +49,10 @@
   --color-destructive: oklch(0.6 0.18 25);
   --color-destructive-foreground: oklch(0.98 0 0);
 
+  /* ── Warning (amber — used for medium priority) ── */
+  --color-warning: oklch(0.72 0.15 65);
+  --color-warning-foreground: oklch(0.98 0 0);
+
   /* ── Forms & Focus ── */
   --color-border: oklch(0.92 0.02 85);
   --color-input: oklch(0.92 0.02 85);

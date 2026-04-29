@@ -14,7 +14,13 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
-import type { Task, TaskPriority, TaskStatus } from "../types";
+import {
+  PRIORITY_LABELS,
+  PRIORITY_BADGE_CLASS,
+  type Task,
+  type TaskPriority,
+  type TaskStatus,
+} from "../types";
 
 interface TaskCardProps {
   task: Task;
@@ -23,10 +29,11 @@ interface TaskCardProps {
 }
 
 const priorityBar: Record<TaskPriority, string> = {
-  high: "bg-destructive/60",
-  medium: "bg-primary/50",
-  low: "bg-secondary/40",
+  high: "bg-destructive/70",
+  medium: "bg-warning/60",
+  low: "bg-secondary/50",
 };
+
 
 const statusCard: Record<TaskStatus, string> = {
   todo: "",
@@ -128,24 +135,37 @@ const TaskCard: FC<TaskCardProps> = ({
               </CardDescription>
             )}
 
-            {task.due_at && (
-              <span
-                className={cn(
-                  "flex items-center gap-1.5 text-xs font-sans",
-                  isOverdue ? "text-destructive/70" : "text-muted-foreground",
-                )}
-              >
-                <Calendar className="w-3 h-3" />
-                {format(parseLocalDate(task.due_at), "d MMM yyyy")}
-              </span>
-            )}
+            <div className="flex flex-wrap items-center gap-2 mt-0.5">
+              {task.priority && (
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
+                    PRIORITY_BADGE_CLASS[task.priority],
+                  )}
+                >
+                  {PRIORITY_LABELS[task.priority]}
+                </span>
+              )}
 
-            {task.assignees.length > 0 && (
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
-                <Users className="w-3 h-3" />
-                {task.assignees.length}
-              </span>
-            )}
+              {task.due_at && (
+                <span
+                  className={cn(
+                    "flex items-center gap-1.5 text-xs font-sans",
+                    isOverdue ? "text-destructive/70" : "text-muted-foreground",
+                  )}
+                >
+                  <Calendar className="w-3 h-3" />
+                  {format(parseLocalDate(task.due_at), "d MMM yyyy")}
+                </span>
+              )}
+
+              {task.assignees.length > 0 && (
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
+                  <Users className="w-3 h-3" />
+                  {task.assignees.length}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>

@@ -14,10 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+import { cn } from "@/lib/utils";
 import { useAccess } from "../../hooks/useAccess";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
-import { PRIORITY_LABELS, STATUS_LABELS } from "../types";
+import { PRIORITY_LABELS, PRIORITY_BADGE_CLASS, STATUS_LABELS } from "../types";
+import TaskStatusIcon from "../components/TaskStatusIcon";
 import { useMembersQuery } from "@/pages/admin/members/queries";
 import { getMemberName } from "@/pages/admin/utils/assigneeDisplay";
 
@@ -44,11 +46,19 @@ const TaskDetailModal = () => {
 
         <DialogBody className="space-y-6">
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <Badge variant="outline">{STATUS_LABELS[task.status]}</Badge>
+            <Badge variant="outline" className="gap-1.5">
+              <TaskStatusIcon status={task.status} />
+              {STATUS_LABELS[task.status]}
+            </Badge>
             {task.priority && (
-              <Badge variant="outline" className="text-muted-foreground">
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
+                  PRIORITY_BADGE_CLASS[task.priority],
+                )}
+              >
                 {PRIORITY_LABELS[task.priority]}
-              </Badge>
+              </span>
             )}
             {task.due_at && (
               <span className="flex items-center gap-1 text-muted-foreground text-xs">

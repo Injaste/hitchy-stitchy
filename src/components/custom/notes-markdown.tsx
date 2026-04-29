@@ -12,7 +12,7 @@ const markdownClass =
 const NotesMarkdown = ({ content, size = "default" }: NotesMarkdownProps) => {
   if (!content) {
     return (
-      <p className="text-sm text-muted-foreground/50 italic">No notes added</p>
+      <p className="text-xs text-muted-foreground/50 italic">No notes added</p>
     );
   }
 

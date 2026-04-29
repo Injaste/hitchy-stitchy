@@ -1,5 +1,13 @@
-import { useState, useEffect, useMemo, useCallback, type FC } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  type CSSProperties,
+  type FC,
+} from "react";
+import { AnimatePresence } from "framer-motion";
 import {
   DndContext,
   DragOverlay,
@@ -10,10 +18,8 @@ import {
   type DragStartEvent,
   type DragOverEvent,
   type DragEndEvent,
-  type Modifier,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { getEventCoordinates } from "@dnd-kit/utilities";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ComponentFade } from "@/components/animations/animate-component-fade";
@@ -32,6 +38,7 @@ import {
   type Task,
   type TaskOrder,
   type TaskStatus,
+  type UpdateTaskPayload,
 } from "../types";
 import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
@@ -83,11 +90,33 @@ const TasksView: FC<TasksViewProps> = ({
   const { canCreate } = useAccess();
   const { slug, eventId } = useAdminStore();
   const queryClient = useQueryClient();
-  const { saveOrder } = useTaskMutations();
+  const { saveOrder, saveStatuses } = useTaskMutations();
 
   const [localTasks, setLocalTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [overColumnId, setOverColumnId] = useState<TaskStatus | null>(null);
+  const dragStartOrderRef = useRef<TaskOrder | null>(null);
+  const dragStartStatusesRef = useRef<Map<string, TaskStatus> | null>(null);
+
+  const buildOrder = useCallback(
+    (tasks: Task[]): TaskOrder => ({
+      event_id: eventId ?? "",
+      todo: tasks.filter((t) => t.status === "todo").map((t) => t.id),
+      in_progress: tasks
+        .filter((t) => t.status === "in_progress")
+        .map((t) => t.id),
+      done: tasks.filter((t) => t.status === "done").map((t) => t.id),
+    }),
+    [eventId],
+  );
+
+  const ordersEqual = (a: TaskOrder, b: TaskOrder) =>
+    a.todo.length === b.todo.length &&
+    a.in_progress.length === b.in_progress.length &&
+    a.done.length === b.done.length &&
+    a.todo.every((id, i) => id === b.todo[i]) &&
+    a.in_progress.every((id, i) => id === b.in_progress[i]) &&
+    a.done.every((id, i) => id === b.done[i]);
 
   useEffect(() => {
     if (data) setLocalTasks(applyOrder(data, taskOrder));
@@ -113,8 +142,12 @@ const TasksView: FC<TasksViewProps> = ({
     (event: DragStartEvent) => {
       const task = localTasks.find((t) => t.id === event.active.id);
       setActiveTask(task ?? null);
+      dragStartOrderRef.current = buildOrder(localTasks);
+      dragStartStatusesRef.current = new Map(
+        localTasks.map((t) => [t.id, t.status]),
+      );
     },
-    [localTasks],
+    [localTasks, buildOrder],
   );
 
   const handleDragOver = useCallback(
@@ -165,43 +198,40 @@ const TasksView: FC<TasksViewProps> = ({
   );
 
   const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
+    (_event: DragEndEvent) => {
       setActiveTask(null);
       setOverColumnId(null);
 
-      if (!over) return;
+      const startOrder = dragStartOrderRef.current;
+      const startStatuses = dragStartStatusesRef.current;
+      dragStartOrderRef.current = null;
+      dragStartStatusesRef.current = null;
+      if (!startOrder) return;
 
-      const activeId = active.id as string;
-      const overId = over.id as string;
-      const activeTaskFinal = localTasks.find((t) => t.id === activeId);
-      if (!activeTaskFinal) return;
+      const newOrder = buildOrder(localTasks);
+      if (ordersEqual(startOrder, newOrder)) return;
 
-      const overTask = localTasks.find((t) => t.id === overId);
-      const destStatus: TaskStatus = overTask
-        ? overTask.status
-        : (overId as TaskStatus);
-
-      // If same column and same position, no-op
-      if (activeTaskFinal.status === destStatus && activeId === overId) return;
-
-      // Build order from current localTasks state
-      const newOrder: TaskOrder = {
-        event_id: eventId ?? "",
-        todo: localTasks.filter((t) => t.status === "todo").map((t) => t.id),
-        in_progress: localTasks
-          .filter((t) => t.status === "in_progress")
-          .map((t) => t.id),
-        done: localTasks.filter((t) => t.status === "done").map((t) => t.id),
-      };
-
-      // Commit optimistically to cache
       queryClient.setQueryData(adminKeys.tasks(slug!), localTasks);
       queryClient.setQueryData(adminKeys.taskOrder(slug!), newOrder);
 
+      const statusChanges: UpdateTaskPayload[] = startStatuses
+        ? localTasks
+            .filter((t) => startStatuses.get(t.id) !== t.status)
+            .map((t) => ({
+              id: t.id,
+              title: t.title,
+              details: t.details,
+              priority: t.priority,
+              due_at: t.due_at,
+              assignees: t.assignees,
+              status: t.status,
+            }))
+        : [];
+
+      if (statusChanges.length > 0) saveStatuses.mutate(statusChanges);
       saveOrder.mutate(newOrder);
     },
-    [localTasks, queryClient, slug, eventId, saveOrder],
+    [localTasks, queryClient, slug, saveOrder, saveStatuses, buildOrder],
   );
 
   const renderBody = () => {
@@ -238,7 +268,7 @@ const TasksView: FC<TasksViewProps> = ({
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-6 lg:overflow-x-auto lg:pb-2">
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-6 lg:overflow-x-auto lg:px-1 lg:-mx-1 lg:pb-2">
             {grouped.map(({ status, label, tasks }) => (
               <TasksSection
                 key={status}
@@ -248,17 +278,25 @@ const TasksView: FC<TasksViewProps> = ({
                 isDragTarget={
                   overColumnId === status && activeTask?.status !== status
                 }
+                isDragSource={!!activeTask && activeTask.status === status}
               />
             ))}
           </div>
 
-          {activeTask && (
-            <PortalToApp>
-              <motion.div animate={cardLiftStyle} initial={false}>
-                <TaskCard task={activeTask} />
-              </motion.div>
-            </PortalToApp>
-          )}
+          <PortalToApp>
+            <DragOverlay
+              dropAnimation={{
+                duration: 180,
+                easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+              }}
+            >
+              {activeTask ? (
+                <div style={cardLiftStyle as CSSProperties}>
+                  <TaskCard task={activeTask} />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </PortalToApp>
         </DndContext>
       </ComponentFade>
     );

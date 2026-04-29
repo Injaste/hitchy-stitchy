@@ -7,16 +7,18 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 
 import { cn } from "@/lib/utils";
-import { container, itemFadeUp } from "@/lib/animations";
+import { taskContainer, taskItem } from "@/lib/animations";
 
-import type { Task } from "../types";
+import type { Task, TaskStatus } from "../types";
 import DraggableTaskCard from "./DraggableTaskCard";
+import TaskStatusIcon from "./TaskStatusIcon";
 
 interface TasksSectionProps {
   status: string;
   label: string;
   tasks: Task[];
   isDragTarget?: boolean;
+  isDragSource?: boolean;
 }
 
 const TasksSection: FC<TasksSectionProps> = ({
@@ -24,6 +26,7 @@ const TasksSection: FC<TasksSectionProps> = ({
   label,
   tasks,
   isDragTarget,
+  isDragSource,
 }) => {
   const { setNodeRef } = useDroppable({ id: status });
   const taskIds = tasks.map((t) => t.id);
@@ -36,7 +39,8 @@ const TasksSection: FC<TasksSectionProps> = ({
       )}
     >
       <div className="space-y-2">
-        <div className="flex items-baseline">
+        <div className="flex items-center gap-1.5">
+          <TaskStatusIcon status={status as TaskStatus} />
           <span className="text-sm font-display font-medium text-foreground/70">
             {label}
           </span>
@@ -53,8 +57,9 @@ const TasksSection: FC<TasksSectionProps> = ({
         <div
           ref={setNodeRef}
           className={cn(
-            "flex flex-col gap-3 min-h-[60px] rounded-xl transition-colors duration-150",
-            isDragTarget && "ring-1 ring-primary/30 bg-primary/30 p-2",
+            "flex flex-col gap-3 min-h-[60px] rounded-xl p-2 ring-1 ring-transparent transition-colors duration-150",
+            isDragTarget && "ring-primary/40 bg-primary/10",
+            isDragSource && "ring-border bg-muted/30",
           )}
         >
           {tasks.length === 0 ? (
@@ -65,13 +70,13 @@ const TasksSection: FC<TasksSectionProps> = ({
             </div>
           ) : (
             <motion.div
-              variants={container}
+              variants={taskContainer}
               initial="hidden"
               animate="show"
               className="flex flex-col gap-3"
             >
               {tasks.map((task) => (
-                <motion.div key={task.id} variants={itemFadeUp}>
+                <motion.div key={task.id} variants={taskItem}>
                   <DraggableTaskCard task={task} />
                 </motion.div>
               ))}

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { isAfter, startOfDay } from "date-fns";
 import confetti from "canvas-confetti";
-import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
+import { Star, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -39,7 +39,7 @@ const fireConfetti = () => {
     particleCount: 200,
     spread: 80,
     origin: { y: 0.6 },
-    colors: ["#ff4d8f", "#e8003a", "#ffb3c6", "#d4af37", "#ffd700"],
+    colors: ["#d4af37", "#b8860b", "#ffd700", "#0d3b2e", "#1a5d4a"],
   });
 };
 
@@ -50,11 +50,9 @@ const useContentHeight = () => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
     const observer = new ResizeObserver(([entry]) => {
       setHeight(entry.contentRect.height);
     });
-
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
@@ -97,7 +95,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
 
   if (isLoading) {
     return (
-      <div className="py-32 text-center text-primary font-bold italic">
+      <div className="py-32 text-center text-primary font-bold uppercase tracking-widest font-display">
         Checking RSVP status…
       </div>
     );
@@ -106,7 +104,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
   return (
     <section
       id="rsvp"
-      className="pt-20 sm:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 relative bg-white/10 z-10"
+      className="pt-20 sm:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 relative bg-background/20 z-10"
     >
       <div className="max-w-sm sm:max-w-md mx-auto">
         <motion.div
@@ -114,30 +112,37 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
-          className="bg-card/80 backdrop-blur-md p-6 sm:p-10 rounded-[1.75rem] sm:rounded-[2.5rem] shadow-xl border border-primary/20 overflow-hidden"
+          className="bg-card/85 backdrop-blur-md p-6 sm:p-10 rounded-none border-2 border-primary/40 shadow-xl overflow-hidden"
         >
-          {/* Header */}
           <motion.div
             variants={fadeIn(0)}
             className="text-center mb-8 sm:mb-10"
           >
             <motion.div variants={fadeIn(0.05)}>
-              <Heart
-                className="text-primary mx-auto mb-4 sm:mb-6 fill-primary/10"
-                size={40}
+              <Star
+                className="text-primary mx-auto mb-4 sm:mb-6 fill-primary/20"
+                size={36}
               />
             </motion.div>
             <motion.h2
               variants={fadeUp(0.15, 16, 0.7)}
-              className="text-3xl sm:text-4xl font-bold text-primary mb-2 sm:mb-3 italic"
+              className="text-3xl sm:text-4xl font-bold text-primary mb-3 uppercase tracking-[0.25em] font-display"
             >
               RSVP
             </motion.h2>
+            <motion.div
+              variants={fadeIn(0.2)}
+              className="flex items-center justify-center gap-3 mb-3"
+            >
+              <div className="h-px w-10 bg-primary/40" />
+              <span className="text-primary text-sm">✦</span>
+              <div className="h-px w-10 bg-primary/40" />
+            </motion.div>
             <motion.p
               variants={fadeUp(0.25, 12, 0.7)}
-              className="text-muted-foreground italic text-sm sm:text-base"
+              className="text-muted-foreground text-sm sm:text-base font-display"
             >
-              Your presence would mean the world to us.
+              Your presence will honour our celebration.
             </motion.p>
           </motion.div>
 
@@ -154,7 +159,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                   animate={{ opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
+                  <p className="text-foreground/80 text-sm sm:text-base leading-relaxed font-display">
                     RSVPs are by invitation only. Please contact us directly to
                     confirm your attendance.
                   </p>
@@ -166,9 +171,9 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                   animate={{ opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
-                    RSVP submissions are now closed. Thank you to everyone who
-                    responded.
+                  <p className="text-foreground/80 text-sm sm:text-base leading-relaxed font-display">
+                    RSVP submissions are now closed. Jazakum Allah khairan to
+                    everyone who responded.
                   </p>
                 </motion.div>
               ) : (
@@ -192,14 +197,14 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                         }}
                       >
                         <CheckCircle2
-                          className="text-green-400 mx-auto mb-4 sm:mb-6"
+                          className="text-primary mx-auto mb-4 sm:mb-6"
                           size={64}
                         />
                       </motion.div>
-                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-foreground">
-                        Alhamdulillah!
+                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-primary uppercase tracking-widest font-display">
+                        Alhamdulillah
                       </h3>
-                      <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base">
+                      <p className="text-foreground/80 leading-relaxed mb-6 sm:mb-8 text-sm sm:text-base font-display">
                         {rsvpConfig.confirmation_message}
                       </p>
                       <div className="flex gap-3 justify-center">
@@ -211,7 +216,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                             variant="outline"
                             size="sm"
                             onClick={() => setIsEditing(true)}
-                            className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                            className="rounded-none border-2 border-primary/40 hover:border-primary gap-2 font-bold text-xs tracking-widest uppercase shrink-0 font-display"
                           >
                             <Edit2 size={14} className="text-primary" /> Edit
                           </Button>
@@ -225,7 +230,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                             size="sm"
                             disabled={remove.isPending}
                             onClick={() => setShowDeleteDialog(true)}
-                            className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                            className="rounded-none border-2 border-primary/40 hover:border-destructive hover:text-destructive gap-2 font-bold text-xs tracking-widest uppercase shrink-0 font-display"
                           >
                             <Trash2 size={14} className="text-primary" />
                             {remove.isPending ? "Removing…" : "Delete"}

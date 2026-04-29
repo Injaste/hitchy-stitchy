@@ -3,9 +3,9 @@ import type {
   RSVPFormLabels,
   RSVPDeleteClassNames,
   RSVPDeleteLabels,
-} from "@/pages/templates/form";
+} from "@/pages/templates/form"
 
-export const themeRsvpClassNames: RSVPFormClassNames = {
+export const rsvpClassNames: RSVPFormClassNames = {
   fieldGroup: "gap-5",
   fieldLabel:
     "text-2xs font-bold uppercase tracking-widest text-muted-foreground",
@@ -32,9 +32,9 @@ export const themeRsvpClassNames: RSVPFormClassNames = {
         "rounded-tr-full rounded-br-full text-sm focus-visible:ring-primary focus-visible:border-primary bg-transparent border-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
     },
   },
-};
+}
 
-export const themeRsvpLabels: RSVPFormLabels = {
+export const rsvpLabels: RSVPFormLabels = {
   name: { label: "Full Name", placeholder: "e.g. Ahmad Bin Ali" },
   phone: {
     label: "Phone Number",
@@ -58,20 +58,21 @@ export const themeRsvpLabels: RSVPFormLabels = {
     submitting: "Sending Love...",
   },
   cancel: "Cancel",
-};
+}
 
-export const themeRsvpDeleteClassNames: RSVPDeleteClassNames = {
+export const rsvpDeleteClassNames: RSVPDeleteClassNames = {
   content:
     "rounded-2xl border border-primary/20 bg-card/95 backdrop-blur-md max-w-sm font-medium",
   title: "italic text-primary text-xl",
   description: "italic text-muted-foreground",
   cancel: "rounded-xl border-primary/30 font-bold",
   confirm: "rounded-xl bg-destructive hover:bg-destructive/90 font-bold",
-};
+}
 
-export const themeRsvpDeleteLabels: RSVPDeleteLabels = {
+export const rsvpDeleteLabels: RSVPDeleteLabels = {
   title: "Remove your RSVP?",
-  description: "We'd hate to see you go. Are you sure you want to remove your RSVP?",
+  description:
+    "We'd hate to see you go. Are you sure you want to remove your RSVP?",
   cancel: "Keep it",
   confirm: "Yes, remove",
-};
+}

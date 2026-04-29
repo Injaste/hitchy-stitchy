@@ -16,7 +16,7 @@ import {
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { themeRegistry } from "@/pages/templates/themes"
-import type { ThemePageConfig } from "@/pages/templates/themes"
+import type { ThemePageConfig } from "@/pages/templates/themes/types"
 import { useInvitationDraftStore } from "../store/useInvitationDraftStore"
 import { usePagesModalStore } from "../store/usePagesModalStore"
 import {

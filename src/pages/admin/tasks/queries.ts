@@ -70,5 +70,16 @@ export function useTaskMutations() {
     },
   )
 
-  return { create, update, remove, saveOrder }
+  const saveStatuses = useMutation(
+    async (payloads: UpdateTaskPayload[]) => {
+      await Promise.all(payloads.map((p) => updateTask(p)))
+    },
+    {
+      silent: true,
+      onSuccess: () => invalidate(),
+      onError: () => invalidate(),
+    },
+  )
+
+  return { create, update, remove, saveOrder, saveStatuses }
 }
