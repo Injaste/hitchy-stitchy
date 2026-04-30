@@ -57,10 +57,6 @@ export interface UpdateTaskPayload {
   assignees: string[];
 }
 
-export interface UpdateTaskOrderPayload {
-  id: string;
-  status: TaskStatus;
-}
 
 export const STATUS_ORDER_MOBILE: TaskStatus[] = [
   "in_progress",

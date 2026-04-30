@@ -38,7 +38,6 @@ import {
   type Task,
   type TaskOrder,
   type TaskStatus,
-  type UpdateTaskOrderPayload,
 } from "../types";
 import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
@@ -99,14 +98,11 @@ const TasksView: FC<TasksViewProps> = ({
   const dragStartStatusesRef = useRef<Map<string, TaskStatus> | null>(null);
 
   const buildOrder = useCallback(
-    (tasks: Task[]): TaskOrder => ({
-      event_id: eventId ?? "",
-      todo: tasks.filter((t) => t.status === "todo").map((t) => t.id),
-      in_progress: tasks
-        .filter((t) => t.status === "in_progress")
-        .map((t) => t.id),
-      done: tasks.filter((t) => t.status === "done").map((t) => t.id),
-    }),
+    (tasks: Task[]): TaskOrder => {
+      const order: TaskOrder = { event_id: eventId ?? "", todo: [], in_progress: [], done: [] };
+      for (const t of tasks) order[t.status].push(t.id);
+      return order;
+    },
     [eventId],
   );
 
@@ -214,13 +210,21 @@ const TasksView: FC<TasksViewProps> = ({
       queryClient.setQueryData(adminKeys.tasks(slug!), localTasks);
       queryClient.setQueryData(adminKeys.taskOrder(slug!), newOrder);
 
-      const statusChanges: UpdateTaskOrderPayload[] = startStatuses
-        ? localTasks
-            .filter((t) => startStatuses.get(t.id) !== t.status)
-            .map((t) => ({ id: t.id, status: t.status }))
-        : [];
-
-      if (statusChanges.length > 0) saveStatuses.mutate(statusChanges);
+      if (startStatuses) {
+        const changed = localTasks.find((t) => startStatuses.get(t.id) !== t.status);
+        if (changed) {
+          saveStatuses.mutate({
+            id: changed.id,
+            title: changed.title,
+            details: changed.details,
+            label: changed.label,
+            status: changed.status,
+            priority: changed.priority,
+            due_at: changed.due_at,
+            assignees: changed.assignees,
+          });
+        }
+      }
       saveOrder.mutate(newOrder);
     },
     [localTasks, queryClient, slug, saveOrder, saveStatuses, buildOrder],

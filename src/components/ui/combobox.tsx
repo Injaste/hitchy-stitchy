@@ -99,8 +99,20 @@ function ComboboxContent({
     ComboboxPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
   >) {
+  const sentinelRef = React.useRef<HTMLSpanElement>(null);
+  const [container, setContainer] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    setContainer(
+      sentinelRef.current?.closest<HTMLElement>('[data-slot="dialog-content"]') ??
+        null,
+    );
+  }, []);
+
   return (
-    <ComboboxPrimitive.Portal>
+    <>
+      <span ref={sentinelRef} style={{ display: "none" }} />
+      <ComboboxPrimitive.Portal container={container ?? undefined}>
       <ComboboxPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}
@@ -120,6 +132,7 @@ function ComboboxContent({
         />
       </ComboboxPrimitive.Positioner>
     </ComboboxPrimitive.Portal>
+    </>
   );
 }
 

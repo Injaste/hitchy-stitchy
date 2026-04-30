@@ -13,7 +13,6 @@ import {
   ComboboxList,
   ComboboxSeparator,
 } from "@/components/ui/combobox";
-import { Button } from "@/components/ui/button";
 
 import type { TimelineGroupedDay, TimelineLabelGroup } from "../types";
 

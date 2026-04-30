@@ -4,7 +4,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { useTaskModalStore } from "./hooks/useTaskModalStore"
 import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask } from "./api"
-import type { CreateTaskPayload, UpdateTaskPayload, UpdateTaskOrderPayload, TaskOrder } from "./types"
+import type { CreateTaskPayload, UpdateTaskPayload, TaskOrder } from "./types"
 
 export function useTasksQuery() {
   const { slug, eventId } = useAdminStore()
@@ -71,9 +71,7 @@ export function useTaskMutations() {
   )
 
   const saveStatuses = useMutation(
-    async (payloads: UpdateTaskOrderPayload[]) => {
-      await Promise.all(payloads.map((p) => updateTask(p)))
-    },
+    (payload: UpdateTaskPayload) => updateTask(payload),
     {
       silent: true,
       onSuccess: () => invalidate(),
