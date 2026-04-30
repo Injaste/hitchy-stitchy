@@ -23,6 +23,11 @@ export interface TimelineGroupedDay {
   labelGroups: TimelineLabelGroup[]
 }
 
+export interface TimelineGrouped {
+  days: TimelineGroupedDay[]
+  labels: string[]
+}
+
 
 const TIME_REGEX = /^\d{2}:\d{2}(:\d{2})?$/
 

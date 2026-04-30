@@ -13,11 +13,11 @@ import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange } from "@/lib/utils/utils-time";
-import type { TimelineGroupedDay } from "../types";
+import type { TimelineGrouped } from "../types";
 import ArraySeparator from "@/components/custom/array-separator";
 
 interface TimelineHeaderProps extends BaseHeaderProps {
-  data?: TimelineGroupedDay[];
+  data?: TimelineGrouped;
 }
 
 const TimelineHeader: FC<TimelineHeaderProps> = ({
@@ -37,7 +37,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
       : null;
 
   const itemCount =
-    data?.reduce(
+    data?.days.reduce(
       (sum, day) =>
         sum + day.labelGroups.reduce((s, g) => s + g.items.length, 0),
       0,

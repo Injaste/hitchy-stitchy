@@ -33,6 +33,8 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { generateEventDays } from "../utils";
+import { useTimelineQuery } from "../queries";
+import LabelCombobox from "../components/LabelCombobox";
 import { Separator } from "@/components/ui/separator";
 
 interface TimelineItemFormProps {
@@ -52,6 +54,9 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
 }) => {
   const { dateStart, dateEnd } = useAdminStore();
   const { data: roles = [] } = useRolesQuery();
+  const { data: timelineData } = useTimelineQuery();
+  const labelDays = timelineData?.days ?? [];
+  const labelOptions = timelineData?.labels ?? [];
   const [attemptCount, setAttemptCount] = useState(0);
 
   const roleItems = roles.map((r) => ({ id: r.id, label: r.name }));
@@ -135,11 +140,13 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
                       </span>
                     </FieldLabel>
                     <FieldContent>
-                      <Input
-                        placeholder="e.g. Nikah, Sanding"
+                      <LabelCombobox
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={field.handleChange}
                         onBlur={field.handleBlur}
+                        days={labelDays}
+                        labels={labelOptions}
+                        placeholder="e.g. Nikah, Sanding"
                       />
                     </FieldContent>
                   </Field>

@@ -9,13 +9,13 @@ import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import TimelineSkeleton from "../states/TimelineSkeleton";
 import TimelineEmpty from "../states/TimelineEmpty";
 
-import type { TimelineGroupedDay } from "../types";
+import type { TimelineGrouped } from "../types";
 
 import DayTabs from "./DayTabs";
 import DayContent from "./DayContent";
 
 interface TimelineViewProps {
-  data: TimelineGroupedDay[] | undefined;
+  data: TimelineGrouped | undefined;
   isLoading: boolean;
   isError: boolean;
   isRefetching: boolean;
@@ -32,7 +32,7 @@ const TimelineView: FC<TimelineViewProps> = ({
   const openCreate = useTimelineModalStore((s) => s.openCreate);
   const { canCreate } = useAccess();
 
-  const days = data ?? [];
+  const days = data?.days ?? [];
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const activeDayIndex = activeDayId
     ? days.findIndex((d) => d.day === activeDayId)

@@ -1,13 +1,13 @@
 import { supabase } from "@/lib/supabase"
 import type {
   Timeline,
-  TimelineGroupedDay,
+  TimelineGrouped,
   CreateTimelineItemPayload,
   UpdateTimelineItemPayload,
 } from "./types"
 import { groupTimeline } from "./utils"
 
-export async function fetchTimeline(eventId: string): Promise<TimelineGroupedDay[]> {
+export async function fetchTimeline(eventId: string): Promise<TimelineGrouped> {
   const { data, error } = await supabase
     .from("event_timelines")
     .select("id, event_id, day, label, time_start, time_end, title, details, assignees, created_at")
@@ -16,7 +16,7 @@ export async function fetchTimeline(eventId: string): Promise<TimelineGroupedDay
     .order("time_start", { ascending: true })
 
   if (error) throw new Error(error.message)
-  if (!data?.length) return []
+  if (!data?.length) return { days: [], labels: [] }
 
   return groupTimeline(data as Timeline[])
 }
