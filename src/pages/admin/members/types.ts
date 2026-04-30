@@ -1,21 +1,23 @@
-import { z } from "zod"
-import type { Role } from "../roles/types"
+import { z } from "zod";
+import type { Role } from "../roles/types";
+
+export type MemberStatusLabel = "active" | "pending" | "frozen" | "rejected";
 
 export interface Member {
-  id: string
-  event_id: string
-  user_id: string | null
-  role_id: string
-  email: string
-  display_name: string
-  is_frozen: boolean
-  invited_at: string
-  joined_at: string | null
-  rejected_at: string | null
-  created_at: string
-  updated_at: string
-  preferences: Record<string, unknown>
-  role: Role
+  id: string;
+  event_id: string;
+  user_id: string | null;
+  role_id: string;
+  email: string;
+  display_name: string;
+  is_frozen: boolean;
+  invited_at: string;
+  joined_at: string | null;
+  rejected_at: string | null;
+  created_at: string;
+  updated_at: string;
+  preferences: Record<string, unknown>;
+  role: Role;
 }
 
 export const inviteMemberSchema = z.object({
@@ -25,7 +27,7 @@ export const inviteMemberSchema = z.object({
     .max(80, "Name is too long"),
   email: z.email("Enter a valid email"),
   role_id: z.string().min(1, "Select a role"),
-})
+});
 
 export const editMemberSchema = z.object({
   display_name: z
@@ -33,34 +35,34 @@ export const editMemberSchema = z.object({
     .min(1, "Name is required")
     .max(80, "Name is too long"),
   role_id: z.string().min(1, "Select a role"),
-})
+});
 
-export type InviteMemberValues = z.infer<typeof inviteMemberSchema>
-export type EditMemberValues = z.infer<typeof editMemberSchema>
+export type InviteMemberValues = z.infer<typeof inviteMemberSchema>;
+export type EditMemberValues = z.infer<typeof editMemberSchema>;
 
 export interface InviteMemberPayload {
-  event_id: string
-  display_name: string
-  email: string
-  role_id: string
+  event_id: string;
+  display_name: string;
+  email: string;
+  role_id: string;
 }
 
 export interface UpdateMemberPayload {
-  id: string
-  display_name: string
-  role_id: string
+  id: string;
+  display_name: string;
+  role_id: string;
 }
 
 export interface UpdateMyDisplayNamePayload {
-  event_id: string
-  display_name: string
+  event_id: string;
+  display_name: string;
 }
 
 export interface FreezeMemberPayload {
-  id: string
-  is_frozen: boolean
+  id: string;
+  is_frozen: boolean;
 }
 
 export interface DeleteMemberPayload {
-  id: string
+  id: string;
 }

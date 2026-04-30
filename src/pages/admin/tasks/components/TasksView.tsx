@@ -291,7 +291,10 @@ const TasksView: FC<TasksViewProps> = ({
               }}
             >
               {activeTask ? (
-                <div style={cardLiftStyle as CSSProperties}>
+                <div
+                  className="rounded-lg"
+                  style={cardLiftStyle as CSSProperties}
+                >
                   <TaskCard task={activeTask} />
                 </div>
               ) : null}

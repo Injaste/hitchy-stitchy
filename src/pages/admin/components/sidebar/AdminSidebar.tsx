@@ -26,7 +26,6 @@ import {
 
 import { useAdminStore } from "../../store/useAdminStore";
 import useActivePage from "../../hooks/useActivePage";
-import { isAdminMember } from "../../types";
 
 import NavItem from "./NavItem";
 import {
@@ -44,11 +43,10 @@ const AdminSidebar = () => {
     memberDisplayName,
     memberRoleName,
     memberRoleShortName,
-    memberRoleCategory,
+    isAdmin,
   } = useAdminStore();
   const activePage = useActivePage();
 
-  const showAdmin = isAdminMember(memberRoleCategory);
   const base = `/${slug}/admin`;
 
   return (
@@ -116,7 +114,7 @@ const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {showAdmin && (
+        {isAdmin && (
           <>
             <SidebarGroup>
               <SidebarGroupLabel>RSVP</SidebarGroupLabel>

@@ -3,13 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import { useAdminStore } from "../../store/useAdminStore";
-import { isAdminMember } from "../../types";
 import { useMembersQuery } from "../../members/queries";
 import { useMarkArrivedMutation } from "../queries";
 
 export function AttendancePanel() {
-  const { memberId, memberRoleCategory } = useAdminStore();
-  const isAdmin = isAdminMember(memberRoleCategory);
+  const { memberId, isAdmin } = useAdminStore();
   const { data: members } = useMembersQuery();
   const { mutate: markArrived } = useMarkArrivedMutation();
 

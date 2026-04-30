@@ -6,7 +6,6 @@ import { ComponentFade } from "@/components/animations/animate-component-fade";
 import { useAdminStore } from "./store/useAdminStore";
 import { useBootstrap } from "./bootstrap/hooks/useBootstrap";
 import useActivePage from "./hooks/useActivePage";
-import { isAdminMember } from "./types";
 
 import AdminSidebar from "./components/sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";

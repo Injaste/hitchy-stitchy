@@ -39,14 +39,14 @@ const TasksSection: FC<TasksSectionProps> = ({
       )}
     >
       <div className="space-y-2">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <TaskStatusIcon status={status as TaskStatus} />
           <span className="text-sm font-display font-medium text-foreground/70">
             {label}
           </span>
           {tasks.length > 0 && (
             <span className="ml-2 text-xs text-muted-foreground tabular-nums">
-              {tasks.length}
+              {tasks.length} tasks
             </span>
           )}
         </div>

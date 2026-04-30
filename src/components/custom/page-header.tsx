@@ -58,7 +58,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
 
   return (
     <div className="flex justify-between gap-4">
-      <div className="space-y-6">
+      <div className="space-y-6 w-full">
         <p className="text-sm text-muted-foreground/80">{description}</p>
         {meta && (
           <div className="text-sm tracking-wide text-muted-foreground flex justify-between">

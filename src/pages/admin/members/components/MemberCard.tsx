@@ -8,7 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import type { Member } from "../types";
+import { type Member } from "../types";
+import MemberStatus from "./MemberStatus";
+import { getMemberStatus } from "../utils";
 
 interface MemberCardProps {
   member: Member;
@@ -25,17 +27,9 @@ const getInitials = (name: string) =>
 const MemberCard: FC<MemberCardProps> = ({ member }) => {
   const openDetail = useMemberModalStore((s) => s.openDetail);
 
-  const isRejected = !!member.rejected_at;
-  const isFrozen = member.is_frozen;
-  const isPending = !member.joined_at && !isRejected;
-
-  const statusLabel = isRejected
-    ? `Declined`
-    : isFrozen
-      ? "Frozen"
-      : isPending
-        ? "Pending"
-        : null;
+  const status = getMemberStatus(member);
+  const isRejected = status === "rejected";
+  const isFrozen = status === "frozen";
 
   return (
     <Button variant="card" size="free" onClick={() => openDetail(member)}>
@@ -74,16 +68,8 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
               {member.role.short_name} · {member.role.name}
             </Badge>
 
-            {statusLabel && (
-              <span
-                className={cn(
-                  "flex items-center gap-1 text-xs text-muted-foreground",
-                  (isRejected || isFrozen) && "text-destructive/60 italic",
-                )}
-              >
-                {isFrozen && <Snowflake className="w-3 h-3" />}
-                {statusLabel}
-              </span>
+            {status !== "active" && (
+              <MemberStatus member={member} className="text-xs italic" />
             )}
           </div>
         </CardContent>

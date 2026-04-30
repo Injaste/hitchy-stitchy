@@ -10,7 +10,6 @@ import {
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import type { Task } from "../types";
-import ArraySeparator from "@/components/custom/array-separator";
 
 interface TasksHeaderProps extends BaseHeaderProps {
   data?: Task[];
@@ -27,6 +26,8 @@ const TasksHeader: FC<TasksHeaderProps> = ({
   const openCreate = useTaskModalStore((s) => s.openCreate);
   const total = data?.length ?? 0;
   const done = data?.filter((t) => t.status === "done").length ?? 0;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const circumference = 2 * Math.PI * 19; // r=19
 
   return (
     <PageHeader
@@ -39,12 +40,51 @@ const TasksHeader: FC<TasksHeaderProps> = ({
         !isLoading &&
         !isError &&
         total > 0 && (
-          <ArraySeparator
-            items={[
-              `${total} ${total === 1 ? "task" : "tasks"}`,
-              done > 0 && `${done} done`,
-            ]}
-          />
+          <div className="flex items-center gap-3">
+            <div className="relative size-[50px] shrink-0">
+              <svg
+                className="-rotate-90"
+                width="48"
+                height="48"
+                viewBox="0 0 56 56"
+              >
+                <circle
+                  cx="28"
+                  cy="28"
+                  r="22"
+                  fill="none"
+                  className="stroke-muted"
+                  strokeWidth="5"
+                />
+                <circle
+                  cx="28"
+                  cy="28"
+                  r="22"
+                  fill="none"
+                  className="stroke-secondary"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={circumference * (1 - pct / 100)}
+                />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-2xs font-semibold">
+                {pct}%
+              </span>
+            </div>
+            <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+              <span>
+                <span className="text-foreground font-medium">{done}</span> of{" "}
+                {total} tasks done
+              </span>
+              <span>
+                <span className="text-foreground font-medium">
+                  {total - done}
+                </span>{" "}
+                remaining
+              </span>
+            </div>
+          </div>
         )
       }
       action={
@@ -57,4 +97,5 @@ const TasksHeader: FC<TasksHeaderProps> = ({
     />
   );
 };
+
 export default TasksHeader;

@@ -21,6 +21,8 @@ import {
   type TaskPriority,
   type TaskStatus,
 } from "../types";
+import { Button } from "@/components/ui/button";
+import TaskStatusIcon from "./TaskStatusIcon";
 
 interface TaskCardProps {
   task: Task;
@@ -33,7 +35,6 @@ const priorityBar: Record<TaskPriority, string> = {
   medium: "bg-warning/60",
   low: "bg-secondary/50",
 };
-
 
 const statusCard: Record<TaskStatus, string> = {
   todo: "",
@@ -61,25 +62,6 @@ const TaskCard: FC<TaskCardProps> = ({
     !!task.due_at &&
     isBefore(parseLocalDate(task.due_at), startOfToday());
 
-  let statusEl: ReactNode;
-  if (isDone) {
-    statusEl = (
-      <div className="w-5 h-5 rounded-full bg-primary/80 flex items-center justify-center shrink-0">
-        <Check className="w-3 h-3 text-primary-foreground" strokeWidth={2.5} />
-      </div>
-    );
-  } else if (task.status === "in_progress") {
-    statusEl = (
-      <div className="w-5 h-5 rounded-full bg-primary/30 flex items-center justify-center shrink-0">
-        <div className="w-2 h-2 rounded-full bg-primary/70" />
-      </div>
-    );
-  } else {
-    statusEl = (
-      <div className="w-5 h-5 rounded-full border border-border shrink-0" />
-    );
-  }
-
   return (
     <Card
       className={cn(
@@ -96,26 +78,26 @@ const TaskCard: FC<TaskCardProps> = ({
       />
 
       {dragHandleListeners && (
-        <button
+        <Button
           {...(dragHandleListeners as React.HTMLAttributes<HTMLButtonElement>)}
           {...(dragHandleAttributes as React.HTMLAttributes<HTMLButtonElement>)}
           onClick={(e) => e.stopPropagation()}
           className="absolute top-2 right-2 opacity-0 group-hover:opacity-40 transition-opacity cursor-grab active:cursor-grabbing touch-none"
-          aria-label="Drag task"
+          variant="ghost"
         >
           <GripVertical className="w-4 h-4 text-muted-foreground" />
-        </button>
+        </Button>
       )}
 
       <CardHeader className="pl-6 pr-8">
         <div className="flex items-start gap-3">
-          <button
+          <Button
             onClick={handleToggle}
-            className="shrink-0 mt-0.5"
-            aria-label="Toggle task status"
+            className="shrink-0 items-start p-0"
+            variant="empty"
           >
-            {statusEl}
-          </button>
+            <TaskStatusIcon status={task.status} />
+          </Button>
 
           <div className="flex-1 space-y-1.5 min-w-0">
             <CardTitle

@@ -1,22 +1,20 @@
-import { Play, SkipForward, ListOrdered } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Play, SkipForward, ListOrdered } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-import { useAdminStore } from '../../store/useAdminStore'
-import { useCueStore } from '../../store/useCueStore'
-import { isAdminMember } from '../../types'
+import { useAdminStore } from "../../store/useAdminStore";
+import { useCueStore } from "../../store/useCueStore";
 
 export function CueTracker() {
-  const { memberRoleCategory, eventId } = useAdminStore()
-  const { activeCue } = useCueStore()
-  const isAdmin = isAdminMember(memberRoleCategory)
+  const { memberRoleCategory, isAdmin } = useAdminStore();
+  const { activeCue } = useCueStore();
 
   if (!activeCue) {
     return (
       <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-center">
         <p className="text-sm text-muted-foreground">No active cue</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -26,23 +24,33 @@ export function CueTracker() {
           <Play className="h-4 w-4 text-primary fill-primary" />
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground truncate">{activeCue.title}</p>
+          <p className="text-sm font-semibold text-foreground truncate">
+            {activeCue.title}
+          </p>
           <p className="text-xs text-muted-foreground">{activeCue.timeStart}</p>
         </div>
       </div>
 
       {isAdmin && (
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="flex-1 gap-1.5 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 gap-1.5 text-xs"
+          >
             <SkipForward className="h-3.5 w-3.5" />
             Advance Cue
           </Button>
-          <Button size="sm" variant="outline" className="flex-1 gap-1.5 text-xs">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 gap-1.5 text-xs"
+          >
             <ListOrdered className="h-3.5 w-3.5" />
             Override
           </Button>
         </div>
       )}
     </div>
-  )
+  );
 }
