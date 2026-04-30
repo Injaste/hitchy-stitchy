@@ -53,7 +53,7 @@ const TaskCard: FC<TaskCardProps> = ({
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     const next: TaskStatus = task.status === "done" ? "todo" : "done";
-    update.mutate({ id: task.id, status: next });
+    update.mutate({ ...task, status: next });
   };
 
   const isDone = task.status === "done";
@@ -67,9 +67,14 @@ const TaskCard: FC<TaskCardProps> = ({
       className={cn(
         "relative cursor-pointer overflow-visible w-full max-w-md group",
         statusCard[task.status],
+        isOverdue && "ring-1 ring-destructive/30",
       )}
       onClick={() => openDetail(task)}
     >
+      {isOverdue && (
+        <span className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-destructive animate-pulse" />
+      )}
+
       <div
         className={cn(
           "absolute left-0 inset-y-2 w-1 rounded-full",

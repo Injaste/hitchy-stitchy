@@ -10,11 +10,11 @@ export interface Task {
   created_by: string;
   title: string;
   details: string | null;
+  label: string | null;
   status: TaskStatus;
   priority: TaskPriority | null;
   assignees: string[]; // event_members.id[]
   due_at: string | null; // "yyyy-MM-dd"
-  start_at: string | null; // "yyyy-MM-dd"
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +25,10 @@ export const taskFormSchema = z.object({
     .string()
     .max(2000, "Details is too long")
     .transform((v) => v || null),
+  label: z
+    .string()
+    .max(100, "Please keep label short")
+    .transform((v) => v.trim() || null),
   priority: z.enum(["low", "medium", "high"]).nullable(),
   due_at: z.string().nullable(),
   assignees: z.array(z.string()),
@@ -36,6 +40,7 @@ export interface CreateTaskPayload {
   event_id: string;
   title: string;
   details: string | null;
+  label: string | null;
   priority: TaskPriority | null;
   due_at: string | null;
   assignees: string[];
@@ -43,12 +48,18 @@ export interface CreateTaskPayload {
 
 export interface UpdateTaskPayload {
   id: string;
-  title?: string;
-  details?: string | null;
-  status?: TaskStatus;
-  priority?: TaskPriority | null;
-  due_at?: string | null;
-  assignees?: string[];
+  title: string;
+  details: string | null;
+  label: string | null;
+  status: TaskStatus;
+  priority: TaskPriority | null;
+  due_at: string | null;
+  assignees: string[];
+}
+
+export interface UpdateTaskOrderPayload {
+  id: string;
+  status: TaskStatus;
 }
 
 export const STATUS_ORDER_MOBILE: TaskStatus[] = [

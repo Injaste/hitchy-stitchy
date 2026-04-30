@@ -3,11 +3,12 @@ import type {
   Task,
   CreateTaskPayload,
   UpdateTaskPayload,
+  UpdateTaskOrderPayload,
   TaskOrder,
 } from "./types";
 
 const TASK_FIELDS =
-  "id, event_id, parent_id, created_by, title, details, status, priority, assignees, due_at, start_at, created_at, updated_at";
+  "id, event_id, parent_id, created_by, title, details, label, status, priority, assignees, due_at, created_at, updated_at";
 
 export async function fetchTasks(eventId: string): Promise<Task[]> {
   const { data, error } = await supabase
@@ -38,8 +39,6 @@ export async function fetchTaskOrder(
 
 export async function saveTaskOrder(order: TaskOrder): Promise<void> {
   const { event_id, ...task_order } = order;
-  console.log(order);
-
   const { error } = await supabase.rpc("update_task_order", {
     p_event_id: event_id,
     p_task_order: task_order,
@@ -56,13 +55,14 @@ export async function createTask(payload: CreateTaskPayload): Promise<Task> {
     p_priority: payload.priority,
     p_due_at: payload.due_at,
     p_assignees: payload.assignees,
+    p_label: payload.label ?? null,
   });
 
   if (error) throw new Error(error.message);
   return data as Task;
 }
 
-export async function updateTask(payload: UpdateTaskPayload): Promise<void> {
+export async function updateTask(payload: UpdateTaskPayload | UpdateTaskOrderPayload): Promise<void> {
   const { error } = await supabase.rpc("update_task", {
     p_id: payload.id,
     p_title: payload.title,
@@ -71,6 +71,7 @@ export async function updateTask(payload: UpdateTaskPayload): Promise<void> {
     p_due_at: payload.due_at,
     p_assignees: payload.assignees,
     p_status: payload.status,
+    p_label: payload.label ?? null,
   });
 
   if (error) throw new Error(error.message);

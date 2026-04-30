@@ -167,7 +167,6 @@ Checklist items. Supports future subtasks via `parent_id`. Ownership tracked via
 | `priority`   | `event_task_priority` | Nullable                                           |
 | `assignees`  | `uuid[]`              | Array of `event_members.id`, app-level only, no FK |
 | `due_at`     | `date`                | Nullable                                           |
-| `start_at`   | `date`                | Nullable                                           |
 | `created_at` | `timestamptz`         | Immutable                                          |
 | `updated_at` | `timestamptz`         | Auto                                               |
 

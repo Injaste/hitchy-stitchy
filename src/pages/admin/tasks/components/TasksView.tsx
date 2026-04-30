@@ -38,7 +38,7 @@ import {
   type Task,
   type TaskOrder,
   type TaskStatus,
-  type UpdateTaskPayload,
+  type UpdateTaskOrderPayload,
 } from "../types";
 import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
@@ -214,18 +214,10 @@ const TasksView: FC<TasksViewProps> = ({
       queryClient.setQueryData(adminKeys.tasks(slug!), localTasks);
       queryClient.setQueryData(adminKeys.taskOrder(slug!), newOrder);
 
-      const statusChanges: UpdateTaskPayload[] = startStatuses
+      const statusChanges: UpdateTaskOrderPayload[] = startStatuses
         ? localTasks
             .filter((t) => startStatuses.get(t.id) !== t.status)
-            .map((t) => ({
-              id: t.id,
-              title: t.title,
-              details: t.details,
-              priority: t.priority,
-              due_at: t.due_at,
-              assignees: t.assignees,
-              status: t.status,
-            }))
+            .map((t) => ({ id: t.id, status: t.status }))
         : [];
 
       if (statusChanges.length > 0) saveStatuses.mutate(statusChanges);

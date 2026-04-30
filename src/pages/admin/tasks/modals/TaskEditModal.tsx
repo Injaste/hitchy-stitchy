@@ -26,6 +26,8 @@ const TaskEditModal = () => {
       id: task.id,
       title: values.title,
       details: values.details,
+      label: values.label,
+      status: selectedItem.status,
       priority: values.priority,
       due_at: values.due_at,
       assignees: values.assignees,

@@ -61,6 +61,7 @@ const TaskForm: FC<TaskFormProps> = ({
     defaultValues: {
       title: defaultValues?.title ?? "",
       details: defaultValues?.details ?? "",
+      label: defaultValues?.label ?? "",
       priority: defaultValues?.priority ?? null,
       due_at: defaultValues?.due_at ?? null,
       assignees: defaultValues?.assignees ?? [],
@@ -84,140 +85,251 @@ const TaskForm: FC<TaskFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       <DialogBody className="space-y-6">
-      <FieldGroup className="block space-y-4">
-        <form.Field name="title">
-          {(field) => {
-            const hasError = Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem errors={field.state.meta.errors} hasError={hasError} attemptCount={attemptCount}>
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Title</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      placeholder="e.g. Confirm florist delivery time"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
-
-        <div className="space-y-1.5">
-          <Label>
-            Details{" "}
-            <span className="text-muted-foreground font-normal">(optional)</span>
-          </Label>
-          <form.Field name="details">
-            {(field) => (
-              <Textarea
-                placeholder="Internal notes, reminders, context…"
-                value={field.state.value ?? ""}
-                onChange={(e) => field.handleChange(e.target.value)}
-                rows={3}
-              />
-            )}
-          </form.Field>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <form.Field name="priority">
-            {(field) => (
-              <div className="space-y-1.5">
-                <Label>
-                  Priority{" "}
-                  <span className="text-muted-foreground font-normal">(optional)</span>
-                </Label>
-                <Select
-                  value={field.state.value ?? ""}
-                  onValueChange={(v) => field.handleChange(v === "none" ? null : v as "low" | "medium" | "high")}
+        <FieldGroup className="block space-y-4">
+          <form.Field name="title">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="None" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>Title</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder="e.g. Confirm florist delivery time"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
+                    </FieldContent>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
           </form.Field>
 
-          <form.Field name="due_at">
-            {(field) => (
-              <div className="space-y-1.5">
-                <Label>
-                  Due date{" "}
-                  <span className="text-muted-foreground font-normal">(optional)</span>
-                </Label>
-                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start gap-2 font-normal"
-                    >
-                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                      <span className={field.state.value ? "" : "text-muted-foreground"}>
-                        {field.state.value
-                          ? format(parseISO(field.state.value), "d MMM yyyy")
-                          : "Pick a date"}
+          <form.Field name="label">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>
+                      Label{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (optional)
                       </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.state.value ? parseISO(field.state.value) : undefined}
-                      onSelect={(date) => {
-                        field.handleChange(date ? format(date, "yyyy-MM-dd") : null);
-                        setCalendarOpen(false);
-                      }}
-                    />
-                    {field.state.value && (
-                      <div className="border-t border-border/50 p-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="w-full text-muted-foreground text-xs h-7"
-                          onClick={() => {
-                            field.handleChange(null);
-                            setCalendarOpen(false);
-                          }}
-                        >
-                          Clear date
-                        </Button>
-                      </div>
-                    )}
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        placeholder="e.g. Nikah, Sanding"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
+                    </FieldContent>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
           </form.Field>
-        </div>
 
-        <div className="space-y-1.5">
-          <Label>
-            Assignees{" "}
-            <span className="text-muted-foreground font-normal">(optional)</span>
-          </Label>
-          <form.Field name="assignees">
-            {(field) => (
-              <AssigneeField
-                value={field.state.value}
-                onChange={field.handleChange}
-                items={memberItems}
-              />
-            )}
+          <div className="grid grid-cols-2 gap-3">
+            <form.Field name="priority">
+              {(field) => {
+                const hasError =
+                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
+                return (
+                  <AnimateItem
+                    errors={field.state.meta.errors}
+                    hasError={hasError}
+                    attemptCount={attemptCount}
+                  >
+                    <Field data-invalid={hasError} className="gap-2">
+                      <FieldLabel>
+                        Priority{" "}
+                        <span className="text-muted-foreground font-normal">
+                          (optional)
+                        </span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Select
+                          value={field.state.value ?? ""}
+                          onValueChange={(v) =>
+                            field.handleChange(
+                              v === "none"
+                                ? null
+                                : (v as "low" | "medium" | "high"),
+                            )
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="None" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FieldContent>
+                    </Field>
+                  </AnimateItem>
+                );
+              }}
+            </form.Field>
+
+            <form.Field name="due_at">
+              {(field) => {
+                const hasError =
+                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
+                return (
+                  <AnimateItem
+                    errors={field.state.meta.errors}
+                    hasError={hasError}
+                    attemptCount={attemptCount}
+                  >
+                    <Field data-invalid={hasError} className="gap-2">
+                      <FieldLabel>
+                        Due date{" "}
+                        <span className="text-muted-foreground font-normal">
+                          (optional)
+                        </span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Popover
+                          open={calendarOpen}
+                          onOpenChange={setCalendarOpen}
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start gap-2 font-normal"
+                            >
+                              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                              <span
+                                className={
+                                  field.state.value
+                                    ? ""
+                                    : "text-muted-foreground"
+                                }
+                              >
+                                {field.state.value
+                                  ? format(
+                                      parseISO(field.state.value),
+                                      "d MMM yyyy",
+                                    )
+                                  : "Pick a date"}
+                              </span>
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={
+                                field.state.value
+                                  ? parseISO(field.state.value)
+                                  : undefined
+                              }
+                              onSelect={(date) => {
+                                field.handleChange(
+                                  date ? format(date, "yyyy-MM-dd") : null,
+                                );
+                                setCalendarOpen(false);
+                              }}
+                            />
+                            {field.state.value && (
+                              <div className="border-t border-border/50 p-2">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full text-muted-foreground text-xs h-7"
+                                  onClick={() => {
+                                    field.handleChange(null);
+                                    setCalendarOpen(false);
+                                  }}
+                                >
+                                  Clear date
+                                </Button>
+                              </div>
+                            )}
+                          </PopoverContent>
+                        </Popover>
+                      </FieldContent>
+                    </Field>
+                  </AnimateItem>
+                );
+              }}
+            </form.Field>
+          </div>
+
+          <form.Field name="details">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>
+                      Additional Items{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (optional)
+                      </span>
+                    </FieldLabel>
+                    <FieldContent>
+                      <Textarea
+                        placeholder={
+                          "- Item one\n- Item two\n**Bold text**, *italic*"
+                        }
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        rows={3}
+                      />
+                    </FieldContent>
+                    <p className="text-xs text-muted-foreground">
+                      Supports markdown — **bold**, *italic*, - lists, 1.
+                      numbered
+                    </p>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
           </form.Field>
-        </div>
-      </FieldGroup>
+
+          <div className="space-y-1.5">
+            <Label>
+              Assignees{" "}
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
+            </Label>
+            <form.Field name="assignees">
+              {(field) => (
+                <AssigneeField
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  items={memberItems}
+                />
+              )}
+            </form.Field>
+          </div>
+        </FieldGroup>
       </DialogBody>
 
       <Separator />
