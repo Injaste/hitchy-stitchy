@@ -45,27 +45,29 @@ const TaskDetailModal = () => {
         </DialogHeader>
 
         <DialogBody className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <Badge variant="outline" className="gap-1.5">
+          <div className="flex flex-col gap-2 text-sm">
+            <div className="flex gap-2">
               <TaskStatusIcon status={task.status} />
               {STATUS_LABELS[task.status]}
-            </Badge>
-            {task.priority && (
-              <span
-                className={cn(
-                  "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
-                  PRIORITY_BADGE_CLASS[task.priority],
-                )}
-              >
-                {PRIORITY_LABELS[task.priority]}
-              </span>
-            )}
-            {task.due_at && (
-              <span className="flex items-center gap-1 text-muted-foreground text-xs">
-                <Calendar className="w-3 h-3" />
-                Due {format(new Date(task.due_at), "d MMM yyyy")}
-              </span>
-            )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              {task.priority && (
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
+                    PRIORITY_BADGE_CLASS[task.priority],
+                  )}
+                >
+                  {PRIORITY_LABELS[task.priority]}
+                </span>
+              )}
+              {task.due_at && (
+                <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                  <Calendar className="w-3 h-3" />
+                  Due {format(new Date(task.due_at), "d MMM yyyy")}
+                </span>
+              )}
+            </div>
           </div>
 
           {task.assignees.length > 0 && (

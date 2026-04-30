@@ -39,6 +39,7 @@ import {
   type TaskOrder,
   type TaskStatus,
 } from "../types";
+import { applyOrder, buildOrder, ordersEqual } from "../utils";
 import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
 import TasksSection from "./TasksSection";
@@ -55,26 +56,6 @@ interface TasksViewProps {
   refetch: () => void;
 }
 
-function applyOrder(
-  tasks: Task[],
-  order: TaskOrder | null | undefined,
-): Task[] {
-  if (!order) return tasks;
-  const orderMap: Record<TaskStatus, string[]> = {
-    todo: order.todo,
-    in_progress: order.in_progress,
-    done: order.done,
-  };
-  return [...tasks].sort((a, b) => {
-    const aList = orderMap[a.status];
-    const bList = orderMap[b.status];
-    const aIdx = aList.indexOf(a.id);
-    const bIdx = bList.indexOf(b.id);
-    const aPos = aIdx === -1 ? Infinity : aIdx;
-    const bPos = bIdx === -1 ? Infinity : bIdx;
-    return aPos - bPos;
-  });
-}
 
 const TasksView: FC<TasksViewProps> = ({
   data,
@@ -96,23 +77,6 @@ const TasksView: FC<TasksViewProps> = ({
   const [overColumnId, setOverColumnId] = useState<TaskStatus | null>(null);
   const dragStartOrderRef = useRef<TaskOrder | null>(null);
   const dragStartStatusesRef = useRef<Map<string, TaskStatus> | null>(null);
-
-  const buildOrder = useCallback(
-    (tasks: Task[]): TaskOrder => {
-      const order: TaskOrder = { event_id: eventId ?? "", todo: [], in_progress: [], done: [] };
-      for (const t of tasks) order[t.status].push(t.id);
-      return order;
-    },
-    [eventId],
-  );
-
-  const ordersEqual = (a: TaskOrder, b: TaskOrder) =>
-    a.todo.length === b.todo.length &&
-    a.in_progress.length === b.in_progress.length &&
-    a.done.length === b.done.length &&
-    a.todo.every((id, i) => id === b.todo[i]) &&
-    a.in_progress.every((id, i) => id === b.in_progress[i]) &&
-    a.done.every((id, i) => id === b.done[i]);
 
   useEffect(() => {
     if (data) setLocalTasks(applyOrder(data, taskOrder));
@@ -138,12 +102,10 @@ const TasksView: FC<TasksViewProps> = ({
     (event: DragStartEvent) => {
       const task = localTasks.find((t) => t.id === event.active.id);
       setActiveTask(task ?? null);
-      dragStartOrderRef.current = buildOrder(localTasks);
-      dragStartStatusesRef.current = new Map(
-        localTasks.map((t) => [t.id, t.status]),
-      );
+      dragStartOrderRef.current = buildOrder(localTasks, eventId ?? "");
+      dragStartStatusesRef.current = new Map(localTasks.map((t) => [t.id, t.status]));
     },
-    [localTasks, buildOrder],
+    [localTasks, eventId],
   );
 
   const handleDragOver = useCallback(
@@ -204,7 +166,7 @@ const TasksView: FC<TasksViewProps> = ({
       dragStartStatusesRef.current = null;
       if (!startOrder) return;
 
-      const newOrder = buildOrder(localTasks);
+      const newOrder = buildOrder(localTasks, eventId ?? "");
       if (ordersEqual(startOrder, newOrder)) return;
 
       queryClient.setQueryData(adminKeys.tasks(slug!), localTasks);
@@ -227,7 +189,7 @@ const TasksView: FC<TasksViewProps> = ({
       }
       saveOrder.mutate(newOrder);
     },
-    [localTasks, queryClient, slug, saveOrder, saveStatuses, buildOrder],
+    [localTasks, queryClient, slug, eventId, saveOrder, saveStatuses],
   );
 
   const renderBody = () => {

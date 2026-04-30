@@ -45,6 +45,7 @@ const TaskEditModal = () => {
           defaultValues={{
             title: task.title,
             details: task.details ?? "",
+            label: task.label ?? "",
             priority: task.priority,
             due_at: task.due_at,
             assignees: task.assignees,
