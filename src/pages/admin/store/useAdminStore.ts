@@ -8,9 +8,6 @@ interface AdminState extends AdminBootstrapContext {
   setBootstrapError: (msg: string) => void;
 }
 
-const isAdminMember = (category: RoleCategory): boolean =>
-  category === "root" || category === "admin";
-
 export const useAdminStore = create<AdminState>((set) => ({
   slug: "",
   eventId: "",
@@ -30,7 +27,6 @@ export const useAdminStore = create<AdminState>((set) => ({
   setContext: (ctx) =>
     set({
       ...ctx,
-      isAdmin: isAdminMember(ctx.memberRoleCategory),
       isBootstrapped: true,
       bootstrapError: null,
     }),

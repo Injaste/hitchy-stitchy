@@ -1,15 +1,19 @@
-import { supabase } from '@/lib/supabase'
-import type { AdminBootstrapContext } from '../types'
+import { supabase } from "@/lib/supabase";
+import type { AdminBootstrapContext } from "../types";
+import { isAdminMember } from "./utils";
 
-export async function fetchBootstrapContext(slug: string): Promise<AdminBootstrapContext> {
-  const { data, error } = await supabase.rpc('get_bootstrap_context', {
+export async function fetchBootstrapContext(
+  slug: string,
+): Promise<AdminBootstrapContext> {
+  const { data, error } = await supabase.rpc("get_bootstrap_context", {
     p_slug: slug,
-  })
+  });
 
-  if (error) throw new Error(error.message)
-  if (!data?.length) throw new Error('You are not an active member of this event')
+  if (error) throw new Error(error.message);
+  if (!data?.length)
+    throw new Error("You are not an active member of this event");
 
-  const row = data[0]
+  const row = data[0];
 
   return {
     slug: row.slug,
@@ -23,5 +27,6 @@ export async function fetchBootstrapContext(slug: string): Promise<AdminBootstra
     memberRoleName: row.member_role_name,
     memberRoleShortName: row.member_role_short_name,
     memberRoleCategory: row.member_role_category,
-  }
+    isAdmin: isAdminMember(row.member_role_category),
+  };
 }
