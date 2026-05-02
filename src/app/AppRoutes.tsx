@@ -1,60 +1,54 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-
 import { ComponentFade } from "@/components/animations/animate-component-fade";
-
 import AdminRoutes from "./routes/AdminRoutes";
 
-import Home from "@/pages/home";
-import Signup from "@/pages/signup";
-import CreateEvent from "@/pages/create-event";
-import Dashboard from "@/pages/dashboard";
-import Invitation from "@/pages/templates";
+const Home = lazy(() => import("@/pages/home"));
+const Signup = lazy(() => import("@/pages/signup"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const CreateEvent = lazy(() => import("@/pages/create-event"));
+const Templates = lazy(() => import("@/pages/templates"));
 
 const standaloneRoutes = [
-  { path: "/", element: Home },
-  { path: "/signup", element: Signup },
-  { path: "/dashboard", element: Dashboard },
-  { path: "/create-event", element: CreateEvent },
-  { path: "/:slug", element: Invitation },
+  { path: "/", element: Home, fade: true },
+  { path: "/signup", element: Signup, fade: true },
+  { path: "/dashboard", element: Dashboard, fade: true },
+  { path: "/create-event", element: CreateEvent, fade: true },
+  { path: "/:slug", element: Templates, fade: false },
 ];
 
 const AppRoutes = () => {
   const location = useLocation();
-
   const rootSegment = location.pathname.split("/")[1];
   const animationKey = location.pathname.includes("/admin")
     ? "admin"
     : rootSegment;
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={animationKey}>
-        {standaloneRoutes.map((r) => {
-          // ignore fade for slug, as it handles it internally on its own
-          const isInvitation = r.path === "/:slug";
-          const Component = r.element;
-
-          return (
+    <Suspense fallback={null}>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={animationKey}>
+          {standaloneRoutes.map(({ path, element: Component, fade }) => (
             <Route
-              key={r.path}
-              path={r.path}
+              key={path}
+              path={path}
               element={
-                isInvitation ? (
-                  <Component />
-                ) : (
+                fade ? (
                   <ComponentFade>
                     <Component />
                   </ComponentFade>
+                ) : (
+                  <Component />
                 )
               }
             />
-          );
-        })}
+          ))}
 
-        {AdminRoutes()}
-      </Routes>
-    </AnimatePresence>
+          {AdminRoutes()}
+        </Routes>
+      </AnimatePresence>
+    </Suspense>
   );
 };
 
