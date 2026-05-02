@@ -8,7 +8,6 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { cn } from "@/lib/utils";
 import { taskContainer, taskItem } from "@/lib/animations";
-import OdometerDigit from "@/components/animations/animate-odometer-digit";
 
 import type { Task, TaskStatus } from "../types";
 import DraggableTaskCard from "./DraggableTaskCard";
@@ -54,14 +53,9 @@ const TasksSection: FC<TasksSectionProps> = ({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="ml-2 inline-flex items-center gap-[1px] text-xs text-muted-foreground"
+                className="ml-2 text-xs text-muted-foreground tabular-nums"
               >
-                {String(tasks.length).split("").map((d, i) => (
-                  <OdometerDigit key={i} value={Number(d)} />
-                ))}
-                <span className="ml-0.5">
-                  {tasks.length === 1 ? "task" : "tasks"}
-                </span>
+                {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
               </motion.span>
             )}
           </AnimatePresence>

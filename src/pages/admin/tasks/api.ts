@@ -7,7 +7,7 @@ import type {
 } from "./types";
 
 const TASK_FIELDS =
-  "id, event_id, parent_id, created_by, title, details, label, status, priority, assignees, due_at, created_at, updated_at";
+  "id, event_id, parent_id, created_by, title, details, label, status, priority, assignees, due_at, completed_at, created_at, updated_at";
 
 export async function fetchTasks(eventId: string): Promise<Task[]> {
   const { data, error } = await supabase

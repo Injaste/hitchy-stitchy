@@ -62,19 +62,9 @@ const TimelineDetailModal = () => {
             className="text-sm text-muted-foreground gap-2"
           />
 
-          <Separator />
-
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-              <StickyNote strokeWidth={3} className="w-3 h-3" />
-              Details
-            </p>
-            <NotesMarkdown content={item.details} />
-          </div>
-
           <div className="space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Assignees
+              Assigned roles
             </p>
             {item.assignees.length === 0 ? (
               <p className="text-sm text-muted-foreground/50 italic">
@@ -94,9 +84,19 @@ const TimelineDetailModal = () => {
               </div>
             )}
           </div>
-        </DialogBody>
 
-        <Separator />
+          <Separator />
+
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+              <StickyNote strokeWidth={3} className="w-3 h-3" />
+              Details
+            </p>
+            <NotesMarkdown content={item.details} />
+          </div>
+
+          <Separator />
+        </DialogBody>
 
         <DialogFooter>
           <div className="flex gap-2">

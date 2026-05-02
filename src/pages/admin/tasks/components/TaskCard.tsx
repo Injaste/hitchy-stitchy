@@ -14,6 +14,8 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
+import { useMembersQuery } from "@/pages/admin/members/queries";
+import { getMemberName } from "@/pages/admin/utils/assigneeDisplay";
 import {
   PRIORITY_LABELS,
   PRIORITY_BADGE_CLASS,
@@ -49,6 +51,7 @@ const TaskCard: FC<TaskCardProps> = ({
 }) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
+  const { data: members = [] } = useMembersQuery();
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -117,39 +120,52 @@ const TaskCard: FC<TaskCardProps> = ({
             </CardTitle>
 
             {task.details && (
-              <CardDescription>
+              <CardDescription className="mb-2.5">
                 <NotesMarkdown size="sm" content={task.details} />
               </CardDescription>
             )}
 
-            <div className="flex flex-wrap items-center gap-2 mt-0.5">
-              {task.priority && (
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
-                    PRIORITY_BADGE_CLASS[task.priority],
+            <div className="space-y-1.5 mt-0.5">
+              {(task.priority || task.due_at) && (
+                <div className="flex items-center justify-between gap-2">
+                  {task.priority ? (
+                    <span
+                      className={cn(
+                        "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
+                        PRIORITY_BADGE_CLASS[task.priority],
+                      )}
+                    >
+                      {PRIORITY_LABELS[task.priority]}
+                    </span>
+                  ) : (
+                    <span />
                   )}
-                >
-                  {PRIORITY_LABELS[task.priority]}
-                </span>
-              )}
 
-              {task.due_at && (
-                <span
-                  className={cn(
-                    "flex items-center gap-1.5 text-xs font-sans",
-                    isOverdue ? "text-destructive/70" : "text-muted-foreground",
+                  {task.due_at && (
+                    <span
+                      className={cn(
+                        "flex items-center gap-1 text-xs font-sans",
+                        isOverdue
+                          ? "text-destructive/70"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      <Calendar className="w-3 h-3 shrink-0" />
+                      {format(parseLocalDate(task.due_at), "d MMM yyyy")}
+                    </span>
                   )}
-                >
-                  <Calendar className="w-3 h-3" />
-                  {format(parseLocalDate(task.due_at), "d MMM yyyy")}
-                </span>
+                </div>
               )}
 
               {task.assignees.length > 0 && (
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans">
-                  <Users className="w-3 h-3" />
-                  {task.assignees.length}
+                <span className="flex items-center gap-1 text-xs text-muted-foreground font-sans">
+                  <Users className="w-3 h-3 shrink-0" />
+                  {task.assignees
+                    .slice(0, 2)
+                    .map((id) => getMemberName(id, members))
+                    .join(", ")}
+                  {task.assignees.length > 2 &&
+                    ` +${task.assignees.length - 2}`}
                 </span>
               )}
             </div>

@@ -30,7 +30,7 @@ const LabelTabs: FC<LabelTabsProps> = ({ labels, activeLabel, onSelect }) => {
                   key={label}
                   onClick={() => onSelect(label)}
                   variant={active ? "default" : "outline"}
-                  className="h-auto! py-2.5 px-5"
+                  className="h-auto! py-1.5 px-3 lg:py-2.5 lg:px-5"
                 >
                   <span className="font-display text-sm font-medium">
                     {label}

@@ -71,7 +71,8 @@ const TasksHeader: FC<TasksHeaderProps> = ({
                   strokeLinecap="round"
                   strokeDasharray={circumference}
                   animate={{
-                    strokeDashoffset: circumference * (1 - Math.max(pct, 1) / 100),
+                    strokeDashoffset:
+                      circumference * (1 - Math.max(pct, 1) / 100),
                   }}
                   transition={{ type: "spring", stiffness: 80, damping: 18 }}
                 />
@@ -81,32 +82,32 @@ const TasksHeader: FC<TasksHeaderProps> = ({
               </span>
             </div>
             <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-flex items-center gap-[1px] text-foreground font-medium">
+              <span>
+                <span className="inline-flex items-center text-foreground font-medium">
                   {String(done)
                     .split("")
                     .map((d, i) => (
                       <OdometerDigit key={i} value={Number(d)} />
                     ))}
-                </span>
+                </span>{" "}
                 of{" "}
-                <span className="inline-flex items-center gap-[1px]">
+                <span className="inline-flex items-center">
                   {String(total)
                     .split("")
                     .map((d, i) => (
                       <OdometerDigit key={i} value={Number(d)} />
                     ))}
-                </span>
+                </span>{" "}
                 tasks done
               </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-flex items-center gap-[1px] text-foreground font-medium">
+              <span>
+                <span className="inline-flex items-center text-foreground font-medium">
                   {String(total - done)
                     .split("")
                     .map((d, i) => (
                       <OdometerDigit key={i} value={Number(d)} />
                     ))}
-                </span>
+                </span>{" "}
                 remaining
               </span>
             </div>

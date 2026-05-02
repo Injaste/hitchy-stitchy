@@ -28,7 +28,6 @@ import {
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
 import AssigneeField from "@/pages/admin/components/AssigneeField";
 import { useMembersQuery } from "@/pages/admin/members/queries";
 
@@ -324,23 +323,38 @@ const TaskForm: FC<TaskFormProps> = ({
             }}
           </form.Field>
 
-          <div className="space-y-1.5">
-            <Label>
-              Assignees{" "}
-              <span className="text-muted-foreground font-normal">
-                (optional)
-              </span>
-            </Label>
-            <form.Field name="assignees">
-              {(field) => (
-                <AssigneeField
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                  items={memberItems}
-                />
-              )}
-            </form.Field>
-          </div>
+          <form.Field name="assignees">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>
+                      Assigned members{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (optional)
+                      </span>
+                    </FieldLabel>
+                    <p className="text-xs text-muted-foreground -mt-1">
+                      Which team members are accountable for this task?
+                    </p>
+                    <FieldContent>
+                      <AssigneeField
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                        items={memberItems}
+                      />
+                    </FieldContent>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
+          </form.Field>
         </FieldGroup>
       </DialogBody>
 

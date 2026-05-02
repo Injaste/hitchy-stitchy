@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Clock, Users } from "lucide-react";
+import { Clock, Tag } from "lucide-react";
 
 import {
   Card,
@@ -11,6 +11,8 @@ import { formatTimeRange } from "@/lib/utils/utils-time";
 
 import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import type { Timeline } from "../types";
+import { useRolesQuery } from "@/pages/admin/roles/queries";
+import { getRoleName } from "@/pages/admin/utils/assigneeDisplay";
 import { Button } from "@/components/ui/button";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ArraySeparator from "@/components/custom/array-separator";
@@ -21,6 +23,7 @@ interface TimelineCardProps {
 
 const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
+  const { data: roles = [] } = useRolesQuery();
 
   const timeItems = formatTimeRange(item.time_start, item.time_end);
 
@@ -45,9 +48,10 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
             )}
 
             {item.assignees.length > 0 && (
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-sans pt-1">
-                <Users className="size-3 shrink-0" />
-                {item.assignees.length}
+              <span className="flex items-center gap-1 text-xs text-muted-foreground font-sans pt-1">
+                <Tag className="size-3 shrink-0" />
+                {item.assignees.slice(0, 2).map((id) => getRoleName(id, roles)).join(", ")}
+                {item.assignees.length > 2 && ` +${item.assignees.length - 2}`}
               </span>
             )}
           </CardHeader>

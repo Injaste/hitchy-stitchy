@@ -12,7 +12,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Field,
@@ -310,23 +309,38 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
             }}
           </form.Field>
 
-          <div className="space-y-1.5">
-            <Label>
-              Assignees{" "}
-              <span className="text-muted-foreground font-normal">
-                (optional)
-              </span>
-            </Label>
-            <form.Field name="assignees">
-              {(field) => (
-                <AssigneeField
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                  items={roleItems}
-                />
-              )}
-            </form.Field>
-          </div>
+          <form.Field name="assignees">
+            {(field) => {
+              const hasError =
+                Boolean(field.state.meta.errors.length) && attemptCount > 0;
+              return (
+                <AnimateItem
+                  errors={field.state.meta.errors}
+                  hasError={hasError}
+                  attemptCount={attemptCount}
+                >
+                  <Field data-invalid={hasError} className="gap-2">
+                    <FieldLabel>
+                      Assigned roles{" "}
+                      <span className="text-muted-foreground font-normal">
+                        (optional)
+                      </span>
+                    </FieldLabel>
+                    <p className="text-xs text-muted-foreground -mt-1">
+                      Which roles are responsible for this item?
+                    </p>
+                    <FieldContent>
+                      <AssigneeField
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                        items={roleItems}
+                      />
+                    </FieldContent>
+                  </Field>
+                </AnimateItem>
+              );
+            }}
+          </form.Field>
         </FieldGroup>
       </DialogBody>
 

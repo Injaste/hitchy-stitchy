@@ -1,49 +1,57 @@
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface AssigneeItem {
-  id: string
-  label: string
+  id: string;
+  label: string;
 }
 
 interface AssigneeFieldProps {
-  value: string[]
-  onChange: (ids: string[]) => void
-  items: AssigneeItem[]
+  value: string[];
+  onChange: (ids: string[]) => void;
+  items: AssigneeItem[];
 }
 
 const AssigneeField = ({ value, onChange, items }: AssigneeFieldProps) => {
   const toggle = (id: string) => {
-    onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id])
-  }
+    onChange(
+      value.includes(id) ? value.filter((v) => v !== id) : [...value, id],
+    );
+  };
 
   if (!items.length) {
     return (
-      <p className="text-sm text-muted-foreground/60 italic">No members available</p>
-    )
+      <p className="text-sm text-muted-foreground/60 italic">
+        No members available
+      </p>
+    );
   }
 
   return (
-    <div className="bg-card border border-border rounded-md p-3 max-h-40 overflow-y-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center gap-2">
-            <Checkbox
-              id={`assignee-${item.id}`}
-              checked={value.includes(item.id)}
-              onCheckedChange={() => toggle(item.id)}
-            />
-            <Label
-              htmlFor={`assignee-${item.id}`}
-              className="text-sm font-normal cursor-pointer"
-            >
-              {item.label}
-            </Label>
-          </div>
-        ))}
-      </div>
+    <div className="grid grid-cols-2 gap-2">
+      {items.map((item) => {
+        const checked = value.includes(item.id);
+        return (
+          <Button
+            key={item.id}
+            type="button"
+            variant="outline"
+            size="lg"
+            role="checkbox"
+            aria-checked={checked}
+            onClick={() => toggle(item.id)}
+            className={cn(
+              "text-muted-foreground hover:border-border",
+              checked &&
+                "border-foreground/40! bg-foreground/10! text-foreground",
+            )}
+          >
+            <span className="min-w-0 truncate">{item.label}</span>
+          </Button>
+        );
+      })}
     </div>
-  )
-}
+  );
+};
 
-export default AssigneeField
+export default AssigneeField;
