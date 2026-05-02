@@ -33,6 +33,8 @@ import AssigneeField from "@/pages/admin/components/AssigneeField";
 import { useMembersQuery } from "@/pages/admin/members/queries";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
+import { useTasksQuery } from "../queries";
+import LabelCombobox from "../components/LabelCombobox";
 
 interface TaskFormProps {
   defaultValues?: Partial<TaskFormValues>;
@@ -52,10 +54,19 @@ const TaskForm: FC<TaskFormProps> = ({
   const [attemptCount, setAttemptCount] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { data: members = [] } = useMembersQuery();
+  const { data: tasks = [] } = useTasksQuery();
 
   const memberItems = members
     .filter((m) => !m.is_frozen)
     .map((m) => ({ id: m.id, label: m.display_name }));
+
+  const labelOptions = Array.from(
+    new Set(
+      tasks
+        .map((t) => t.label)
+        .filter((l): l is string => !!l && l.trim().length > 0),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
 
   const form = useForm({
     defaultValues: {
@@ -130,11 +141,12 @@ const TaskForm: FC<TaskFormProps> = ({
                       </span>
                     </FieldLabel>
                     <FieldContent>
-                      <Input
-                        placeholder="e.g. Nikah, Sanding"
+                      <LabelCombobox
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={field.handleChange}
                         onBlur={field.handleBlur}
+                        labels={labelOptions}
+                        placeholder="e.g. Nikah, Sanding"
                       />
                     </FieldContent>
                   </Field>

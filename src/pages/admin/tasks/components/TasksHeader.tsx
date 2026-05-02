@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { Plus } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -7,8 +8,10 @@ import {
   type BaseHeaderProps,
 } from "@/components/custom/page-header";
 
+import OdometerDigit from "@/components/animations/animate-odometer-digit";
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useTaskLabelFilter } from "../hooks/useTaskLabelFilter";
 import type { Task } from "../types";
 
 interface TasksHeaderProps extends BaseHeaderProps {
@@ -24,10 +27,12 @@ const TasksHeader: FC<TasksHeaderProps> = ({
 }) => {
   const { canCreate } = useAccess();
   const openCreate = useTaskModalStore((s) => s.openCreate);
-  const total = data?.length ?? 0;
-  const done = data?.filter((t) => t.status === "done").length ?? 0;
+  const { filteredTasks } = useTaskLabelFilter(data ?? []);
+  const total = filteredTasks.length;
+  const done = filteredTasks.filter((t) => t.status === "done").length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const circumference = 2 * Math.PI * 19; // r=19
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
 
   return (
     <PageHeader
@@ -51,21 +56,24 @@ const TasksHeader: FC<TasksHeaderProps> = ({
                 <circle
                   cx="28"
                   cy="28"
-                  r="22"
+                  r={radius}
                   fill="none"
                   className="stroke-muted"
                   strokeWidth="5"
                 />
-                <circle
+                <motion.circle
                   cx="28"
                   cy="28"
-                  r="22"
+                  r={radius}
                   fill="none"
                   className="stroke-secondary"
                   strokeWidth="5"
                   strokeLinecap="round"
                   strokeDasharray={circumference}
-                  strokeDashoffset={circumference * (1 - pct / 100)}
+                  animate={{
+                    strokeDashoffset: circumference * (1 - Math.max(pct, 1) / 100),
+                  }}
+                  transition={{ type: "spring", stiffness: 80, damping: 18 }}
                 />
               </svg>
               <span className="absolute inset-0 flex items-center justify-center text-2xs font-semibold">
@@ -73,14 +81,32 @@ const TasksHeader: FC<TasksHeaderProps> = ({
               </span>
             </div>
             <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
-              <span>
-                <span className="text-foreground font-medium">{done}</span> of{" "}
-                {total} tasks done
+              <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-[1px] text-foreground font-medium">
+                  {String(done)
+                    .split("")
+                    .map((d, i) => (
+                      <OdometerDigit key={i} value={Number(d)} />
+                    ))}
+                </span>
+                of{" "}
+                <span className="inline-flex items-center gap-[1px]">
+                  {String(total)
+                    .split("")
+                    .map((d, i) => (
+                      <OdometerDigit key={i} value={Number(d)} />
+                    ))}
+                </span>
+                tasks done
               </span>
-              <span>
-                <span className="text-foreground font-medium">
-                  {total - done}
-                </span>{" "}
+              <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-[1px] text-foreground font-medium">
+                  {String(total - done)
+                    .split("")
+                    .map((d, i) => (
+                      <OdometerDigit key={i} value={Number(d)} />
+                    ))}
+                </span>
                 remaining
               </span>
             </div>

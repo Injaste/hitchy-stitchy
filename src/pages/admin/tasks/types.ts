@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const ALL_LABEL = "All";
+
 export type TaskStatus = "todo" | "in_progress" | "done";
 export type TaskPriority = "low" | "medium" | "high";
 
@@ -28,6 +30,14 @@ export const taskFormSchema = z.object({
   label: z
     .string()
     .max(100, "Please keep label short")
+    .superRefine((v, ctx) => {
+      if (v.trim().toLowerCase() === ALL_LABEL.toLowerCase()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `'${ALL_LABEL}' is reserved — pick a different label.`,
+        });
+      }
+    })
     .transform((v) => v.trim() || null),
   priority: z.enum(["low", "medium", "high"]).nullable(),
   due_at: z.string().nullable(),

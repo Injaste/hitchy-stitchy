@@ -28,6 +28,7 @@ const OdometerDigit: FC<OdometerDigitProps> = ({ value, className }) => {
 
         // Contain the blur within this digit so it doesn't bleed into siblings.
         isolation: "isolate",
+        userSelect: "none",
 
         paddingInline: `${inline}em`,
         marginInline: `-${inline}em`,

@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -8,6 +8,7 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { cn } from "@/lib/utils";
 import { taskContainer, taskItem } from "@/lib/animations";
+import OdometerDigit from "@/components/animations/animate-odometer-digit";
 
 import type { Task, TaskStatus } from "../types";
 import DraggableTaskCard from "./DraggableTaskCard";
@@ -19,6 +20,7 @@ interface TasksSectionProps {
   tasks: Task[];
   isDragTarget?: boolean;
   isDragSource?: boolean;
+  isDragActive?: boolean;
 }
 
 const TasksSection: FC<TasksSectionProps> = ({
@@ -27,6 +29,7 @@ const TasksSection: FC<TasksSectionProps> = ({
   tasks,
   isDragTarget,
   isDragSource,
+  isDragActive,
 }) => {
   const { setNodeRef } = useDroppable({ id: status });
   const taskIds = tasks.map((t) => t.id);
@@ -34,7 +37,7 @@ const TasksSection: FC<TasksSectionProps> = ({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 min-w-0 lg:min-w-[280px] lg:flex-1",
+        "flex flex-col gap-4 min-w-0 lg:min-w-[360px]",
         tasks.length === 0 && "hidden lg:flex",
       )}
     >
@@ -44,11 +47,24 @@ const TasksSection: FC<TasksSectionProps> = ({
           <span className="text-sm font-display font-medium text-foreground/70">
             {label}
           </span>
-          {tasks.length > 0 && (
-            <span className="ml-2 text-xs text-muted-foreground tabular-nums">
-              {tasks.length} tasks
-            </span>
-          )}
+          <AnimatePresence>
+            {tasks.length > 0 && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="ml-2 inline-flex items-center gap-[1px] text-xs text-muted-foreground"
+              >
+                {String(tasks.length).split("").map((d, i) => (
+                  <OdometerDigit key={i} value={Number(d)} />
+                ))}
+                <span className="ml-0.5">
+                  {tasks.length === 1 ? "task" : "tasks"}
+                </span>
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
         <div className="h-px bg-border/50" />
       </div>
@@ -63,7 +79,7 @@ const TasksSection: FC<TasksSectionProps> = ({
           )}
         >
           {tasks.length === 0 ? (
-            <div className="hidden lg:flex flex-col items-center justify-center py-12 px-4 rounded-xl border border-dashed border-border/40">
+            <div className="hidden lg:flex w-full max-w-md min-h-[68px] flex-col items-center justify-center px-4 rounded-xl border border-dashed border-border">
               <p className="text-xs text-muted-foreground/50 text-center">
                 No tasks yet
               </p>
@@ -75,11 +91,21 @@ const TasksSection: FC<TasksSectionProps> = ({
               animate="show"
               className="flex flex-col gap-3"
             >
-              {tasks.map((task) => (
-                <motion.div key={task.id} variants={taskItem}>
-                  <DraggableTaskCard task={task} />
-                </motion.div>
-              ))}
+              <AnimatePresence mode="popLayout" initial={false}>
+                {tasks.map((task) => (
+                  <motion.div
+                    key={task.id}
+                    variants={taskItem}
+                    exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
+                    layout={!isDragActive}
+                    transition={{
+                      layout: { duration: 0.2, ease: [0.2, 0, 0, 1] },
+                    }}
+                  >
+                    <DraggableTaskCard task={task} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </motion.div>
           )}
         </div>
