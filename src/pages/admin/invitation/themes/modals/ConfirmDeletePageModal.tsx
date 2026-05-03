@@ -9,17 +9,17 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
-import { usePagesMutations } from "../queries"
-import type { EventPage } from "../types"
+import { useThemesMutations } from "../queries"
+import type { Themes } from "../types"
 
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
-  page: EventPage | null
+  page: Themes | null
 }
 
 const ConfirmDeletePageModal: FC<Props> = ({ open, onOpenChange, page }) => {
-  const { remove } = usePagesMutations()
+  const { remove } = useThemesMutations()
 
   const handleConfirm = () => {
     if (!page) return

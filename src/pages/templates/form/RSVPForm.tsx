@@ -20,32 +20,29 @@ const RSVPForm = ({
   onCancel,
   isEditing,
   rsvpConfig,
+  limits,
   classNames,
   labels,
 }: RSVPFormProps) => {
-  const { phone, guestCount, message } = rsvpConfig.fields;
+  const { message } = rsvpConfig.fields;
 
-  // Compute stagger delays once — order matches render order below
   const delays = {
     name: 0,
-    phone: phone.visible ? 1 : null,
-    guestCount: guestCount.visible ? (phone.visible ? 2 : 1) : null,
-    message: message.visible
-      ? [phone.visible, guestCount.visible].filter(Boolean).length + 1
-      : null,
+    phone: 1,
+    guestCount: 2,
+    message: message.visible ? 3 : null,
   };
-  const submitDelay =
-    1 + [phone.visible, guestCount.visible, message.visible].filter(Boolean).length;
+  const submitDelay = message.visible ? 4 : 3;
 
   const form = useForm({
     defaultValues: {
       name: "",
-      ...(phone.visible && { phone: "" }),
-      ...(guestCount.visible && { guestCount: guestCount.min }),
+      phone: "",
+      guestCount: limits.min,
       ...(message.visible && { message: "" }),
       ...propsDefaults,
     } as RSVPFormData,
-    validators: { onSubmit: buildRsvpSchema(rsvpConfig) },
+    validators: { onSubmit: buildRsvpSchema(rsvpConfig, limits) },
     onSubmit: async ({ value }) => {
       await onSubmit(value as RSVPFormData);
     },
@@ -82,53 +79,45 @@ const RSVPForm = ({
           )}
         </form.Field>
 
-        {phone.visible && (
-          <form.Field name="phone">
-            {(f) => (
-              <PhoneField
-                field={{
-                  name: f.name,
-                  value: (f.state.value as string | undefined) ?? "",
-                  onChange: (v) => f.handleChange(v),
-                  onBlur: f.handleBlur,
-                  isInvalid: f.state.meta.isTouched && !f.state.meta.isValid,
-                  errors: f.state.meta.errors,
-                }}
-                required={phone.required}
-                optionalLabel={!phone.required ? labels.phone.optional : undefined}
-                classNames={classNames}
-                labels={labels}
-                delay={delays.phone! * 0.1}
-              />
-            )}
-          </form.Field>
-        )}
+        <form.Field name="phone">
+          {(f) => (
+            <PhoneField
+              field={{
+                name: f.name,
+                value: (f.state.value as string | undefined) ?? "",
+                onChange: (v) => f.handleChange(v),
+                onBlur: f.handleBlur,
+                isInvalid: f.state.meta.isTouched && !f.state.meta.isValid,
+                errors: f.state.meta.errors,
+              }}
+              required
+              classNames={classNames}
+              labels={labels}
+              delay={delays.phone * 0.1}
+            />
+          )}
+        </form.Field>
 
-        {guestCount.visible && (
-          <form.Field name="guestCount">
-            {(f) => (
-              <GuestCountField
-                field={{
-                  name: f.name,
-                  value: (f.state.value as number | undefined) ?? guestCount.min,
-                  onChange: (v) => f.handleChange(v),
-                  onBlur: f.handleBlur,
-                  isInvalid: f.state.meta.isTouched && !f.state.meta.isValid,
-                  errors: f.state.meta.errors,
-                  min: guestCount.min,
-                  max: guestCount.max,
-                }}
-                required={guestCount.required}
-                optionalLabel={
-                  !guestCount.required ? labels.guestCount.optional : undefined
-                }
-                classNames={classNames}
-                labels={labels}
-                delay={delays.guestCount! * 0.1}
-              />
-            )}
-          </form.Field>
-        )}
+        <form.Field name="guestCount">
+          {(f) => (
+            <GuestCountField
+              field={{
+                name: f.name,
+                value: (f.state.value as number | undefined) ?? limits.min,
+                onChange: (v) => f.handleChange(v),
+                onBlur: f.handleBlur,
+                isInvalid: f.state.meta.isTouched && !f.state.meta.isValid,
+                errors: f.state.meta.errors,
+                min: limits.min,
+                max: limits.max,
+              }}
+              required
+              classNames={classNames}
+              labels={labels}
+              delay={delays.guestCount * 0.1}
+            />
+          )}
+        </form.Field>
 
         {message.visible && (
           <form.Field name="message">

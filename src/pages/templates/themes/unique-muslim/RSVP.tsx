@@ -200,7 +200,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                         Alhamdulillah!
                       </h3>
                       <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base">
-                        {rsvpConfig.confirmation_message}
+                        {eventConfig.confirmation_message}
                       </p>
                       <div className="flex gap-3 justify-center">
                         <motion.div
@@ -259,6 +259,10 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
                         }
                         isEditing={isEditing}
                         rsvpConfig={rsvpConfig}
+                        limits={{
+                          min: eventConfig.guest_count_min,
+                          max: eventConfig.guest_count_max,
+                        }}
                         classNames={rsvpClassNames}
                         labels={rsvpLabels}
                       />

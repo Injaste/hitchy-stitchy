@@ -1,109 +1,72 @@
 import { create } from "zustand"
 import type { PublicEventConfig } from "@/pages/templates/types"
-import type { ThemePageConfig } from "@/pages/templates/themes/types"
-import type {
-  EventInvitation,
-  EventPage,
-  AppearanceConfig,
-  RSVPSectionConfig,
-  RSVPMode,
-} from "../types"
-
-type DetailsDraft = {
-  groom_name: string
-  bride_name: string
-  event_date: string
-  event_time_start: string
-  event_time_end: string
-  venue_name: string
-  venue_address: string
-  venue_map_link: string
-  venue_map_embed_url: string
-}
-
-type RSVPDraft = {
-  rsvp_mode: RSVPMode
-  rsvp_deadline: string
-  config: RSVPSectionConfig
-}
+import type { EventInvitation, DetailsDraft, RSVPDraft } from "../types"
+import type { Themes, ThemeConfig } from "../themes/types"
 
 interface DraftState {
   serverInvitation: EventInvitation | null
-  serverPages: EventPage[]
+  serverThemes: Themes[]
 
   detailsDraft: DetailsDraft | null
-  appearanceDraft: AppearanceConfig | null
   rsvpDraft: RSVPDraft | null
-  pageDraft: ThemePageConfig | null
+  pageDraft: ThemeConfig | null
 
   selectedPageId: string | null
 
   setServerInvitation: (inv: EventInvitation | null) => void
-  setServerPages: (pages: EventPage[]) => void
+  setServerThemes: (themes: Themes[]) => void
   setSelectedPageId: (id: string | null) => void
 
   setDetails: (draft: DetailsDraft) => void
-  setAppearance: (draft: AppearanceConfig) => void
   setRSVP: (draft: RSVPDraft) => void
-  setPage: (draft: ThemePageConfig) => void
+  setPage: (draft: ThemeConfig) => void
 
   clearDetails: () => void
-  clearAppearance: () => void
   clearRSVP: () => void
   clearPage: () => void
 }
 
 export const useInvitationDraftStore = create<DraftState>((set) => ({
   serverInvitation: null,
-  serverPages: [],
+  serverThemes: [],
 
   detailsDraft: null,
-  appearanceDraft: null,
   rsvpDraft: null,
   pageDraft: null,
 
   selectedPageId: null,
 
   setServerInvitation: (inv) => set({ serverInvitation: inv }),
-  setServerPages: (pages) => set((state) => {
-    const next: Partial<DraftState> = { serverPages: pages }
-    if (!state.selectedPageId || !pages.some((p) => p.id === state.selectedPageId)) {
-      const published = pages.find((p) => p.is_published)
-      next.selectedPageId = published?.id ?? pages[0]?.id ?? null
+  setServerThemes: (themes) => set((state) => {
+    const next: Partial<DraftState> = { serverThemes: themes }
+    if (!state.selectedPageId || !themes.some((t) => t.id === state.selectedPageId)) {
+      const published = themes.find((t) => t.is_published)
+      next.selectedPageId = published?.id ?? themes[0]?.id ?? null
     }
     return next
   }),
   setSelectedPageId: (id) => set({ selectedPageId: id, pageDraft: null }),
 
   setDetails: (draft) => set({ detailsDraft: draft }),
-  setAppearance: (draft) => set({ appearanceDraft: draft }),
   setRSVP: (draft) => set({ rsvpDraft: draft }),
   setPage: (draft) => set({ pageDraft: draft }),
 
   clearDetails: () => set({ detailsDraft: null }),
-  clearAppearance: () => set({ appearanceDraft: null }),
   clearRSVP: () => set({ rsvpDraft: null }),
   clearPage: () => set({ pageDraft: null }),
 }))
 
 export function composeEventConfig(args: {
   invitation: EventInvitation | null
-  page: EventPage | null
+  page: Themes | null
   details: DetailsDraft | null
-  appearance: AppearanceConfig | null
   rsvp: RSVPDraft | null
-  pageDraft: ThemePageConfig | null
+  pageDraft: ThemeConfig | null
 }): PublicEventConfig | null {
-  const { invitation: inv, page, details, appearance, rsvp, pageDraft } = args
+  const { invitation: inv, page, details, rsvp, pageDraft } = args
   if (!inv) return null
 
-  const pageConfig: ThemePageConfig = pageDraft ?? page?.config ?? {}
-  const appearanceValue = appearance ?? inv.config.appearance
-  const rsvpMode = (rsvp?.rsvp_mode ?? inv.rsvp_mode) as PublicEventConfig["rsvp_mode"]
-  const rsvpDeadline = rsvp
-    ? (rsvp.rsvp_deadline || null)
-    : inv.rsvp_deadline
-  const rsvpConfig = rsvp?.config ?? inv.config.rsvp
+  const pageConfig: ThemeConfig = pageDraft ?? page?.config ?? {}
   const themeSlug = pageConfig._theme_slug ?? page?.theme?.slug ?? null
 
   return {
@@ -118,11 +81,14 @@ export function composeEventConfig(args: {
     venue_address: details ? (details.venue_address || null) : inv.venue_address,
     venue_map_embed_url: details ? (details.venue_map_embed_url || null) : inv.venue_map_embed_url,
     venue_map_link: details ? (details.venue_map_link || null) : inv.venue_map_link,
-    rsvp_mode: rsvpMode,
-    rsvp_deadline: rsvpDeadline,
+    rsvp_mode: rsvp?.rsvp_mode ?? inv.rsvp_mode,
+    rsvp_deadline: rsvp ? (rsvp.rsvp_deadline || null) : inv.rsvp_deadline,
+    max_guests: details ? details.max_guests : inv.max_guests,
+    guest_count_min: details ? details.guest_count_min : inv.guest_count_min,
+    guest_count_max: details ? details.guest_count_max : inv.guest_count_max,
+    confirmation_message: details ? details.confirmation_message : inv.confirmation_message,
     config: {
-      rsvp: rsvpConfig,
-      appearance: appearanceValue ?? undefined,
+      rsvp: rsvp?.config ?? inv.config.rsvp,
     },
     published_page: page
       ? { id: page.id, theme_slug: themeSlug, config: pageConfig }

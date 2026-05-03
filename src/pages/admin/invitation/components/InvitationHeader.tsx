@@ -35,7 +35,8 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
               target="_blank"
               className="inline-flex items-center gap-1.5"
             >
-              Open live page <ExternalLink />
+              Open live page
+              <ExternalLink />
             </Link>
           </Button>
         )

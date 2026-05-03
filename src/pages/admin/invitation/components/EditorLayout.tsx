@@ -1,12 +1,12 @@
-import EditorTabs from "./EditorTabs";
+import EditorPanel from "./EditorPanel";
 import PreviewPanel from "./PreviewPanel";
 
 const EditorLayout = () => (
-  <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
-    <div className="min-w-0">
-      <EditorTabs />
+  <div className="flex">
+    <div className="flex-1 shrink-0 flex flex-col max-w-2xl">
+      <EditorPanel />
     </div>
-    <div className="lg:sticky lg:top-24 lg:self-start">
+    <div className="mx-auto px-8">
       <PreviewPanel />
     </div>
   </div>

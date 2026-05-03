@@ -1,5 +1,6 @@
 import type { ComponentType } from "react"
 import type { PublicEventConfig } from "@/pages/templates/types"
+import type { UniqueMuslimPageConfig } from "./unique-muslim/types"
 import type {
   RSVPFormClassNames,
   RSVPFormLabels,
@@ -7,25 +8,19 @@ import type {
   RSVPDeleteLabels,
 } from "@/pages/templates/form"
 
-import type { UniqueMuslimPageConfig } from "./unique-muslim/types"
 
-export type ThemePageConfig =
-  | ({ _theme_slug: "unique-muslim" } & UniqueMuslimPageConfig)
+export type ThemeConfig =
+  | UniqueMuslimPageConfig
   | { _theme_slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<
-  ThemePageConfig,
+  ThemeConfig,
   { _theme_slug: TSlug }
 >
 
 export interface ThemeProps {
   eventConfig: PublicEventConfig
-  pageConfig?: ThemePageConfig
-}
-
-export interface ConfigEditorProps {
-  config: ThemePageConfig
-  onChange: (patch: Partial<ThemePageConfig>) => void
+  pageConfig?: ThemeConfig
 }
 
 export interface ThemeFormConfig {
@@ -37,7 +32,6 @@ export interface ThemeFormConfig {
 
 export interface ThemeRegistryEntry {
   component: ComponentType<ThemeProps>
-  defaultConfig: ThemePageConfig
-  ConfigEditor: ComponentType<ConfigEditorProps>
+  defaultConfig: ThemeConfig
   form: ThemeFormConfig
 }

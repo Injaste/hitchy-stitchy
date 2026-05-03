@@ -37,8 +37,8 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
         <FloatingIcons />
       </PortalToApp>
 
-      <Hero eventConfig={eventConfig} />
-      <Details eventConfig={eventConfig} />
+      <Hero eventConfig={eventConfig} pageConfig={pageConfig} />
+      <Details eventConfig={eventConfig} pageConfig={pageConfig} />
       <RSVP eventConfig={eventConfig} />
     </div>
   );

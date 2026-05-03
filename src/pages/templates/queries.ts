@@ -80,9 +80,7 @@ export function useRSVPMutations(event_id: string | null) {
     },
     {
       silent: true,
-      onSuccess: (result) => {
-        if (result.phone) localStorage.setItem(PHONE_KEY, result.phone)
-        localStorage.setItem(TOKEN_KEY, result.cancel_token)
+      onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["public", event_id] })
       },
     }

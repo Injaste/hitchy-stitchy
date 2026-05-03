@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { motion, type Variants } from "framer-motion";
+import type { ThemeProps } from "@/pages/templates/themes/types";
 import {
   Calendar,
   CalendarCheck,
@@ -10,7 +11,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { PublicEventConfig } from "@/pages/templates/types";
 
 const fadeUp = (delay: number, y = 24, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },
@@ -47,14 +47,14 @@ const divider: Variants = {
   },
 };
 
-const Details = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
-  const appearance = eventConfig.config.appearance;
+const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
+  const config = pageConfig?._theme_slug === "unique-muslim" ? pageConfig : undefined;
 
-  const sectionTitle = appearance?.section_title ?? "";
-  const invitationBody = appearance?.invitation_body ?? "";
-  const blessingsName = appearance?.blessings_name ?? "";
-  const blessingsLabel = appearance?.blessings_label ?? "";
-  const attire = appearance?.attire ?? "";
+  const sectionTitle = config?.section_title ?? "";
+  const invitationBody = config?.invitation_body ?? "";
+  const blessingsName = config?.blessings_name ?? "";
+  const blessingsLabel = config?.blessings_label ?? "";
+  const attire = config?.attire ?? "";
 
   const parts = eventConfig.event_date?.split("-").map(Number);
   const eventDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : "";

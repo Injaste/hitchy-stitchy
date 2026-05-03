@@ -5,7 +5,7 @@ import * as uniqueMuslimForm from "./unique-muslim/form"
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
-  ThemePageConfig,
+  ThemeConfig as ThemePageConfig,
   ThemeConfigFor,
   ThemeProps,
   ConfigEditorProps,

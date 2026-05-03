@@ -11,17 +11,17 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
-import { usePagesMutations } from "../queries"
-import type { EventPage } from "../types"
+import { useThemesMutations } from "../queries"
+import type { Themes } from "../types"
 
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
-  page: EventPage | null
+  page: Themes | null
 }
 
 const PageNameModal: FC<Props> = ({ open, onOpenChange, page }) => {
-  const { rename } = usePagesMutations()
+  const { rename } = useThemesMutations()
   const [name, setName] = useState(page?.name ?? "")
 
   useEffect(() => {

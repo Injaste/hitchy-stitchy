@@ -1,26 +1,27 @@
 import { useEffect } from "react";
 
-import { useInvitationQuery, usePagesQuery } from "./queries";
-import InvitationModals from "./modals";
+import { useInvitationQuery } from "./queries";
+import ThemesModals from "./themes/modals";
 import { useInvitationDraftStore } from "./store/useInvitationDraftStore";
 import InvitationHeader from "./components/InvitationHeader";
 import InvitationView from "./components/InvitationView";
+import { useThemesQuery } from "./themes/queries";
 
 const Invitation = () => {
   const invitation = useInvitationQuery();
-  const pages = usePagesQuery();
+  const pages = useThemesQuery();
   const setServerInvitation = useInvitationDraftStore(
     (s) => s.setServerInvitation,
   );
-  const setServerPages = useInvitationDraftStore((s) => s.setServerPages);
+  const setServerThemes = useInvitationDraftStore((s) => s.setServerThemes);
 
   useEffect(() => {
     setServerInvitation(invitation.data ?? null);
   }, [invitation.data, setServerInvitation]);
 
   useEffect(() => {
-    setServerPages(pages.data ?? []);
-  }, [pages.data, setServerPages]);
+    setServerThemes(pages.data ?? []);
+  }, [pages.data, setServerThemes]);
 
   const isLoading = invitation.isLoading || pages.isLoading;
   const isError = invitation.isError || pages.isError;
@@ -44,7 +45,7 @@ const Invitation = () => {
         refetch={refetch}
         isRefetching={isRefetching}
       />
-      <InvitationModals />
+      <ThemesModals />
     </div>
   );
 };

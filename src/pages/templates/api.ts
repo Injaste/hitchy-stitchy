@@ -37,6 +37,10 @@ export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig>
     venue_map_link: inv.venue_map_link,
     rsvp_mode: inv.rsvp_mode,
     rsvp_deadline: inv.rsvp_deadline,
+    max_guests: inv.max_guests,
+    guest_count_min: inv.guest_count_min,
+    guest_count_max: inv.guest_count_max,
+    confirmation_message: inv.confirmation_message,
     config: inv.config as InvitationConfig,
     published_page: page
       ? {
@@ -58,20 +62,13 @@ export async function fetchRSVP(event_id: string, phone: string): Promise<RSVPSu
 }
 
 export async function submitRSVP(event_id: string, formData: RSVPFormData): Promise<RSVPSubmission> {
-  const cancel_token = crypto.randomUUID()
-  const { data, error } = await supabase
-    .from("event_rsvps")
-    .insert({
-      event_id,
-      name: formData.name,
-      phone: formData.phone ?? null,
-      guest_count: formData.guestCount ?? 1,
-      message: formData.message ?? null,
-      cancel_token,
-      source: "public",
-    })
-    .select()
-    .single()
+  const { data, error } = await supabase.rpc("submit_rsvp", {
+    p_event_id: event_id,
+    p_name: formData.name,
+    p_phone: formData.phone ?? null,
+    p_guest_count: formData.guestCount ?? 1,
+    p_message: formData.message ?? null,
+  })
 
   if (error) throw new Error(error.message)
   return data as RSVPSubmission
@@ -82,33 +79,24 @@ export async function updateRSVP(
   phone: string,
   cancel_token: string,
   formData: Partial<RSVPFormData>
-): Promise<RSVPSubmission> {
-  await deleteRSVP(event_id, phone, cancel_token)
-
-  const new_cancel_token = crypto.randomUUID()
-  const { data, error } = await supabase
-    .from("event_rsvps")
-    .insert({
-      event_id,
-      name: formData.name!,
-      phone: formData.phone ?? phone,
-      guest_count: formData.guestCount ?? 1,
-      message: formData.message ?? null,
-      cancel_token: new_cancel_token,
-      source: "public",
-    })
-    .select()
-    .single()
+): Promise<void> {
+  const { error } = await supabase.rpc("update_rsvp", {
+    p_event_id: event_id,
+    p_phone: phone,
+    p_token: cancel_token,
+    p_name: formData.name ?? null,
+    p_guest_count: formData.guestCount ?? null,
+    p_message: formData.message ?? null,
+  })
 
   if (error) throw new Error(error.message)
-  return data as RSVPSubmission
 }
 
 export async function deleteRSVP(event_id: string, phone: string, cancel_token: string): Promise<void> {
   const { error } = await supabase.rpc("cancel_rsvp", {
     p_event_id: event_id,
     p_phone: phone,
-    p_cancel_token: cancel_token,
+    p_token: cancel_token,
   })
   if (error) throw new Error(error.message)
 }

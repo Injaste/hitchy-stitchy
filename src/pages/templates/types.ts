@@ -1,24 +1,17 @@
 import { z } from "zod"
 import type { ThemePageConfig } from "./themes"
 
-interface RSVPFieldConfig {
+export type RSVPMode = "public" | "private" | "both"
+
+export interface RSVPFieldConfig {
   visible: boolean
   required: boolean
 }
 
-interface RSVPFieldConfigWithCount extends RSVPFieldConfig {
-  min: number
-  max: number
-}
-
-export interface RSVPConfig {
+export interface RSVPSectionConfig {
   fields: {
-    name: RSVPFieldConfig
-    phone: RSVPFieldConfig
-    guestCount: RSVPFieldConfigWithCount
     message: RSVPFieldConfig
   }
-  confirmation_message: string
 }
 
 export interface AppearanceConfig {
@@ -33,34 +26,35 @@ export interface AppearanceConfig {
 }
 
 export interface InvitationConfig {
-  rsvp: RSVPConfig
-  appearance?: AppearanceConfig
+  rsvp: RSVPSectionConfig
 }
 
-// Matches event_invitation + published event_themes — snake_case = DB columns
 export interface PublicEventConfig {
   id: string
   event_id: string
   groom_name: string | null
   bride_name: string | null
-  event_date: string | null        // "yyyy-MM-dd"
+  event_date: string | null
   event_time_start: string | null
   event_time_end: string | null
   venue_name: string | null
   venue_address: string | null
   venue_map_embed_url: string | null
   venue_map_link: string | null
-  rsvp_mode: "public" | "private" | "both"
-  rsvp_deadline: string | null     // null = no deadline
+  rsvp_mode: RSVPMode
+  rsvp_deadline: string | null
+  max_guests: number | null
+  guest_count_min: number
+  guest_count_max: number
+  confirmation_message: string
   config: InvitationConfig
   published_page: {
     id: string
-    theme_slug: string | null      // read from page config._theme_slug
+    theme_slug: string | null
     config: ThemePageConfig
   } | null
 }
 
-// Matches event_rsvps row — snake_case = DB columns
 export interface RSVPSubmission {
   id: string
   event_id: string
@@ -69,13 +63,12 @@ export interface RSVPSubmission {
   guest_count: number
   message: string | null
   status: "pending" | "confirmed" | "cancelled"
-  source: "pool" | "public"
+  source: "private" | "public"
   cancel_token: string
   created_at: string
   updated_at: string
 }
 
-// Form field names — guestCount aligns with rsvpConfig.fields key
 export interface RSVPFormData {
   name: string
   phone?: string
@@ -83,26 +76,25 @@ export interface RSVPFormData {
   message?: string
 }
 
-export function buildRsvpSchema(config: RSVPConfig) {
+export function buildRsvpSchema(
+  config: RSVPSectionConfig,
+  limits: { min: number; max: number }
+) {
   return z.object({
-    name: z.string().min(2, "Name must be at least 2 characters").max(100),
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters")
+      .max(100),
 
-    phone: config.fields.phone.visible
-      ? config.fields.phone.required
-        ? z.string().min(1, "Phone number is required").regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number")
-        : z.string().regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number").optional().or(z.literal(""))
-      : z.string().optional(),
+    phone: z
+      .string()
+      .min(1, "Phone number is required")
+      .regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number"),
 
-    guestCount: config.fields.guestCount.visible
-      ? config.fields.guestCount.required
-        ? z.number()
-          .min(config.fields.guestCount.min, `Minimum ${config.fields.guestCount.min} guest`)
-          .max(config.fields.guestCount.max, `Maximum ${config.fields.guestCount.max} guests`)
-        : z.number()
-          .min(config.fields.guestCount.min)
-          .max(config.fields.guestCount.max)
-          .optional()
-      : z.number().optional(),
+    guestCount: z
+      .number()
+      .min(limits.min, `Minimum ${limits.min} guest`)
+      .max(limits.max, `Maximum ${limits.max} guests`),
 
     message: config.fields.message.visible
       ? config.fields.message.required

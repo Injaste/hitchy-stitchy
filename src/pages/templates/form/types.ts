@@ -1,4 +1,4 @@
-import type { RSVPConfig, RSVPFormData } from "@/pages/templates/types";
+import type { RSVPSectionConfig, RSVPFormData } from "@/pages/templates/types";
 
 export type RSVPFieldKey = "name" | "phone" | "guestCount" | "message";
 
@@ -89,7 +89,8 @@ export interface RSVPFormProps {
   onSubmit: (value: RSVPFormData) => Promise<void>;
   onCancel?: () => void;
   isEditing: boolean;
-  rsvpConfig: RSVPConfig;
+  rsvpConfig: RSVPSectionConfig;
+  limits: { min: number; max: number };
   classNames: RSVPFormClassNames;
   labels: RSVPFormLabels;
 }

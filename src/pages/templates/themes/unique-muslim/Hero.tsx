@@ -1,6 +1,6 @@
 import { motion, type Variants } from "framer-motion";
 import CountdownTimer from "@/components/custom/countdown-timer";
-import type { PublicEventConfig } from "@/pages/templates/types";
+import type { ThemeProps } from "@/pages/templates/themes/types";
 
 const T = {
   greeting: 0.2,
@@ -44,12 +44,12 @@ const countdown: Variants = make(T.countdown, 20, 0.8);
 const verse: Variants = make(T.verse, 16, 0.8);
 const cta: Variants = make(T.cta, 12, 0.7);
 
-const Hero = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
-  const appearance = eventConfig.config.appearance;
+const Hero = ({ eventConfig, pageConfig }: ThemeProps) => {
+  const config = pageConfig?._theme_slug === "unique-muslim" ? pageConfig : undefined;
 
-  const greetingText = appearance?.greeting ?? "";
-  const quoteText = appearance?.quote ?? "";
-  const quoteSource = appearance?.quote_source ?? "";
+  const greetingText = config?.greeting ?? "";
+  const quoteText = config?.quote ?? "";
+  const quoteSource = config?.quote_source ?? "";
 
   const personName1 = eventConfig.groom_name ?? "";
   const personName2 = eventConfig.bride_name ?? "";
