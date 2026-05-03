@@ -8,6 +8,7 @@ import {
   ChevronsUpDown,
   Mail,
   ClipboardList,
+  LayoutDashboard,
 } from "lucide-react";
 
 import {
@@ -35,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AdminLogout from "./AdminLogout";
+import { Link } from "react-router-dom";
 
 const AdminSidebar = () => {
   const {
@@ -161,8 +163,12 @@ const AdminSidebar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start">
                 <DropdownMenuItem asChild>
-                  <AdminLogout />
+                  <Link to="/dashboard">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
                 </DropdownMenuItem>
+                <AdminLogout />
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
