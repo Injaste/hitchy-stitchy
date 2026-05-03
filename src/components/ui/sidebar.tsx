@@ -403,37 +403,41 @@ function SidebarContent({
   return (
     <SidebarHoverContext.Provider value={{ setRef, onMouseEnter }}>
       <div
-        ref={containerRef as React.Ref<HTMLDivElement>}
         data-slot="sidebar-content"
         data-sidebar="content"
-        onMouseLeave={onMouseLeave}
         className={cn(
-          "no-scrollbar flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden overflow-auto relative z-0",
+          "no-scrollbar flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden overflow-auto",
           className,
         )}
         {...props}
       >
-        {/* Active slider */}
-        {activeId && (
+        <div
+          ref={containerRef as React.Ref<HTMLDivElement>}
+          onMouseLeave={onMouseLeave}
+          className="relative z-0"
+        >
+          {/* Active slider */}
+          {activeId && (
+            <motion.div
+              ref={activeIndicatorRef}
+              className={cn(
+                "absolute left-2 right-2 bg-primary/70 rounded-lg -z-10 pointer-events-none",
+                indicatorClassName,
+              )}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            />
+          )}
+          {/* Hover slider */}
           <motion.div
-            ref={activeIndicatorRef}
+            ref={hoverIndicatorRef}
             className={cn(
-              "absolute left-2 right-2 bg-primary/70 rounded-lg -z-10 pointer-events-none",
+              "absolute left-2 right-2 bg-primary/40 rounded-lg -z-10 pointer-events-none opacity-0",
               indicatorClassName,
             )}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
-        )}
-        {/* Hover slider */}
-        <motion.div
-          ref={hoverIndicatorRef}
-          className={cn(
-            "absolute left-2 right-2 bg-primary/40 rounded-lg -z-10 pointer-events-none opacity-0",
-            indicatorClassName,
-          )}
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        />
-        {children}
+          {children}
+        </div>
       </div>
     </SidebarHoverContext.Provider>
   );

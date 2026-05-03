@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Clock, Tag } from "lucide-react";
+import { Clock } from "lucide-react";
 
 import {
   Card,
@@ -13,7 +13,6 @@ import { useTimelineModalStore } from "../hooks/useTimelineStore";
 import type { Timeline } from "../types";
 import { useRolesQuery } from "@/pages/admin/roles/queries";
 import { getRoleName } from "@/pages/admin/utils/assigneeDisplay";
-import { Button } from "@/components/ui/button";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -34,29 +33,34 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
         <ArraySeparator items={timeItems} separator="-" className="gap-1" />
       </div>
 
-      <Button variant="card" size="free" className="mt-2 flex-1">
-        <Card className="h-full" onClick={() => openDetail(item)}>
-          <CardHeader className="flex-1 flex flex-col">
-            <CardTitle className="text-secondary leading-snug">
-              {item.title}
-            </CardTitle>
+      <Card className="relative mt-2 flex-1 h-full hover:ring-secondary hover:shadow-sm">
+        <button
+          onClick={() => openDetail(item)}
+          aria-label={item.title}
+          className="absolute inset-0 rounded-[inherit] z-0 cursor-pointer"
+        />
+        <CardHeader className="flex-1 flex flex-col">
+          <CardTitle className="text-secondary leading-snug">
+            {item.title}
+          </CardTitle>
 
-            {item.details && (
-              <CardDescription className="pt-1.5 h-full w-full text-accent">
-                <NotesMarkdown content={item.details} size="sm" />
-              </CardDescription>
-            )}
+          {item.details && (
+            <CardDescription className="pt-1.5 h-full w-full text-accent">
+              <NotesMarkdown content={item.details} size="sm" />
+            </CardDescription>
+          )}
 
-            {item.assignees.length > 0 && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground font-sans pt-1">
-                <Tag className="size-3 shrink-0" />
-                {item.assignees.slice(0, 2).map((id) => getRoleName(id, roles)).join(", ")}
-                {item.assignees.length > 2 && ` +${item.assignees.length - 2}`}
-              </span>
-            )}
-          </CardHeader>
-        </Card>
-      </Button>
+          {item.assignees.length > 0 && (
+            <span className="text-xs text-muted-foreground font-sans pt-1">
+              {item.assignees
+                .slice(0, 2)
+                .map((id) => getRoleName(id, roles))
+                .join(", ")}
+              {item.assignees.length > 2 && ` +${item.assignees.length - 2}`}
+            </span>
+          )}
+        </CardHeader>
+      </Card>
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import type { FC, ReactNode } from "react";
-import { Check, Calendar, GripVertical, Users } from "lucide-react";
+import type { FC } from "react";
+import { Calendar, GripVertical, Users } from "lucide-react";
 import { format, startOfToday, isBefore } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -35,7 +35,7 @@ interface TaskCardProps {
 const priorityBar: Record<TaskPriority, string> = {
   high: "bg-destructive/70",
   medium: "bg-warning/60",
-  low: "bg-secondary/50",
+  low: "bg-foreground/30",
 };
 
 const statusCard: Record<TaskStatus, string> = {
@@ -68,12 +68,17 @@ const TaskCard: FC<TaskCardProps> = ({
   return (
     <Card
       className={cn(
-        "relative cursor-pointer overflow-visible w-full max-w-md group",
+        "relative group hover:ring-secondary hover:shadow-sm",
         statusCard[task.status],
         isOverdue && "ring-1 ring-destructive/30",
       )}
-      onClick={() => openDetail(task)}
     >
+      <button
+        onClick={() => openDetail(task)}
+        aria-label={task.title}
+        className="absolute inset-0 rounded-[inherit] z-0 cursor-pointer"
+      />
+
       {isOverdue && (
         <span className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-destructive animate-pulse" />
       )}
@@ -90,7 +95,7 @@ const TaskCard: FC<TaskCardProps> = ({
           {...(dragHandleListeners as React.HTMLAttributes<HTMLButtonElement>)}
           {...(dragHandleAttributes as React.HTMLAttributes<HTMLButtonElement>)}
           onClick={(e) => e.stopPropagation()}
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-40 transition-opacity cursor-grab active:cursor-grabbing touch-none"
+          className="absolute top-1 right-1 opacity-40 lg:opacity-0 group-hover:opacity-40 transition-opacity cursor-grab active:cursor-grabbing touch-none"
           variant="ghost"
         >
           <GripVertical className="w-4 h-4 text-muted-foreground" />
@@ -101,7 +106,7 @@ const TaskCard: FC<TaskCardProps> = ({
         <div className="flex items-start gap-3">
           <Button
             onClick={handleToggle}
-            className="shrink-0 items-start p-0"
+            className="relative shrink-0 items-start p-0"
             variant="empty"
           >
             <TaskStatusIcon status={task.status} />

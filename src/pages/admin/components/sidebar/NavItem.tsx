@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { toSlug } from "@/pages/create-event/hooks/useSlugCheck";
 
 interface NavItemProps {
@@ -11,6 +11,8 @@ interface NavItemProps {
 }
 
 const NavItem = ({ icon: Icon, label, to, isActive, badge }: NavItemProps) => {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <SidebarMenuItem id={toSlug(label)}>
       <SidebarMenuButton
@@ -19,7 +21,7 @@ const NavItem = ({ icon: Icon, label, to, isActive, badge }: NavItemProps) => {
         isActive={isActive}
         tooltip={label}
       >
-        <Link to={to}>
+        <Link to={to} onClick={() => { if (isMobile) setOpenMobile(false); }}>
           <Icon className="h-4 w-4" />
           <span>{label}</span>
           {badge}
