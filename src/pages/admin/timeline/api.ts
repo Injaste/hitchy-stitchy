@@ -22,7 +22,7 @@ export async function fetchTimeline(eventId: string): Promise<TimelineGrouped> {
 }
 
 export async function createTimelineItem(payload: CreateTimelineItemPayload): Promise<Timeline> {
-  const { data, error } = await supabase.rpc("create_timeline_item", {
+  const { data, error } = await supabase.rpc("create_timeline", {
     p_event_id: payload.event_id,
     p_day: payload.day,
     p_label: payload.label,
@@ -37,7 +37,7 @@ export async function createTimelineItem(payload: CreateTimelineItemPayload): Pr
 }
 
 export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_timeline_item", {
+  const { error } = await supabase.rpc("update_timeline", {
     p_id: payload.id,
     p_day: payload.day,
     p_label: payload.label,
@@ -52,6 +52,6 @@ export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Pr
 }
 
 export async function deleteTimelineItem(id: string): Promise<void> {
-  const { error } = await supabase.rpc("delete_timeline_item", { p_id: id })
+  const { error } = await supabase.rpc("delete_timeline", { p_id: id })
   if (error) throw new Error(error.message)
 }
