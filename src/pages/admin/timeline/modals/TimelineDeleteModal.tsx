@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { TriangleAlert } from "lucide-react";
 
 import { useTimelineMutations } from "../queries";
-import { useTimelineModalStore } from "../hooks/useTimelineStore";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 
 const TimelineDeleteModal = () => {
   const isDeleteOpen = useTimelineModalStore((s) => s.isDeleteOpen);

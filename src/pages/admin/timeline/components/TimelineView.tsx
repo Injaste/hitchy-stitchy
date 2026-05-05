@@ -5,7 +5,7 @@ import { ComponentFade } from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/error-state";
 
 import { useAccess } from "../../hooks/useAccess";
-import { useTimelineModalStore } from "../hooks/useTimelineStore";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import TimelineSkeleton from "../states/TimelineSkeleton";
 import TimelineEmpty from "../states/TimelineEmpty";
 

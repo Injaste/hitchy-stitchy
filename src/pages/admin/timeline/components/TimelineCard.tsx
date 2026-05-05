@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { formatTimeRange } from "@/lib/utils/utils-time";
 
-import { useTimelineModalStore } from "../hooks/useTimelineStore";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import type { Timeline } from "../types";
 import { useRolesQuery } from "@/pages/admin/roles/queries";
 import { getRoleName } from "@/pages/admin/utils/assigneeDisplay";

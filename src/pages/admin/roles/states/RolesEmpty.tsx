@@ -1,12 +1,12 @@
-import type { FC } from "react"
-import { Plus, Shield } from "lucide-react"
+import type { FC } from "react";
+import { Plus, Shield } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface RolesEmptyProps {
-  onAdd: () => void
-  canCreate: boolean
+  onAdd: () => void;
+  canCreate: boolean;
 }
 
 const RolesEmpty: FC<RolesEmptyProps> = ({ onAdd, canCreate }) => (
@@ -20,7 +20,8 @@ const RolesEmpty: FC<RolesEmptyProps> = ({ onAdd, canCreate }) => (
         No roles yet
       </h2>
       <p className="text-muted-foreground text-sm max-w-[30ch] leading-relaxed mb-8">
-        Shape the team around your day. Add roles for anyone helping bring your wedding to life.
+        Shape the team around your day. Add roles for anyone helping bring your
+        wedding to life.
       </p>
 
       {canCreate && (
@@ -31,6 +32,6 @@ const RolesEmpty: FC<RolesEmptyProps> = ({ onAdd, canCreate }) => (
       )}
     </CardContent>
   </Card>
-)
+);
 
-export default RolesEmpty
+export default RolesEmpty;

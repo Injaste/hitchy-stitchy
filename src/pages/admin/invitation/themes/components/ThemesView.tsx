@@ -1,12 +1,8 @@
-import { useMemo, type FC } from "react";
+import { type FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { ComponentFade } from "@/components/animations/animate-component-fade";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useInvitationDraftStore } from "../../store/useInvitationDraftStore";
-import { useThemesModalStore } from "../../store/useThemesModalStore";
-import { useThemesMutations } from "../queries";
-import type { Template } from "../types";
+import type { Template, Theme } from "../types";
 import ThemesSkeleton from "../states/ThemesSkeleton";
 import ErrorState from "@/components/custom/error-state";
 import { container, itemFadeUp } from "@/lib/animations";
@@ -14,6 +10,7 @@ import ThemeCard from "./ThemeCard";
 
 interface ThemesViewProps {
   templates: Template[];
+  themes: Theme[];
   isLoading: boolean;
   isError: boolean;
   isRefetching: boolean;
@@ -22,15 +19,12 @@ interface ThemesViewProps {
 
 const ThemesView: FC<ThemesViewProps> = ({
   templates,
+  themes,
   isLoading,
   isError,
   refetch,
   isRefetching,
 }) => {
-  const themes = useInvitationDraftStore((s) => s.serverThemes);
-
-  const { openDelete, openPublish } = useThemesModalStore();
-
   const renderBody = () => {
     if (isLoading)
       return (

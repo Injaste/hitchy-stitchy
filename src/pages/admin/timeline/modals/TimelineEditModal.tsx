@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { useTimelineModalStore } from "../hooks/useTimelineStore";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineMutations } from "../queries";
 import type { TimelineItemFormValues } from "../types";
 
@@ -31,7 +31,9 @@ const TimelineEditModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit item</DialogTitle>
-          <DialogDescription>Update the details of this schedule item.</DialogDescription>
+          <DialogDescription>
+            Update the details of this schedule item.
+          </DialogDescription>
         </DialogHeader>
         <TimelineItemForm
           defaultValues={{

@@ -8,7 +8,7 @@ import {
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
-import { useTimelineModalStore } from "../hooks/useTimelineStore";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineMutations } from "../queries";
 import type { TimelineItemFormValues } from "../types";
 
@@ -30,7 +30,9 @@ const CreateTimelineItemModal = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add schedule item</DialogTitle>
-          <DialogDescription>Add a new item to the event timeline.</DialogDescription>
+          <DialogDescription>
+            Add a new item to the event timeline.
+          </DialogDescription>
         </DialogHeader>
         <TimelineItemForm
           onSubmit={handleSubmit}

@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
-import { useTimelineModalStore } from "./hooks/useTimelineStore"
+import { useTimelineModalStore } from "./hooks/useTimelineModalStore"
 import {
   fetchTimeline,
   createTimelineItem,

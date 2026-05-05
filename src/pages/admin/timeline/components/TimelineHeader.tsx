@@ -10,7 +10,7 @@ import {
 } from "@/components/custom/page-header";
 
 import { useAccess } from "../../hooks/useAccess";
-import { useTimelineModalStore } from "../hooks/useTimelineStore";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange } from "@/lib/utils/utils-time";
 import type { TimelineGrouped } from "../types";

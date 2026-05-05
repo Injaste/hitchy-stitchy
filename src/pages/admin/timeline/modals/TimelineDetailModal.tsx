@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
-import { useTimelineModalStore } from "../hooks/useTimelineStore";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useRolesQuery } from "@/pages/admin/roles/queries";
 import { getRoleName } from "@/pages/admin/utils/assigneeDisplay";
