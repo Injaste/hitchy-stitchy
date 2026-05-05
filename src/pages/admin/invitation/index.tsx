@@ -2,18 +2,17 @@ import { useEffect } from "react";
 
 import { useInvitationQuery } from "./queries";
 import ThemesModals from "./themes/modals";
-import { useInvitationDraftStore } from "./store/useInvitationDraftStore";
+import { useInvitationStore } from "./store/useInvitationDraftStore";
 import InvitationHeader from "./components/InvitationHeader";
 import InvitationView from "./components/InvitationView";
 import { useThemesQuery } from "./themes/queries";
+import Container from "@/components/custom/container";
 
 const Invitation = () => {
   const invitation = useInvitationQuery();
   const pages = useThemesQuery();
-  const setServerInvitation = useInvitationDraftStore(
-    (s) => s.setServerInvitation,
-  );
-  const setServerThemes = useInvitationDraftStore((s) => s.setServerThemes);
+  const setServerInvitation = useInvitationStore((s) => s.setServerInvitation);
+  const setServerThemes = useInvitationStore((s) => s.setServerThemes);
 
   useEffect(() => {
     setServerInvitation(invitation.data ?? null);
@@ -32,7 +31,7 @@ const Invitation = () => {
   const isRefetching = invitation.isRefetching || pages.isRefetching;
 
   return (
-    <div className="space-y-8">
+    <Container className="space-y-8">
       <InvitationHeader
         isLoading={isLoading}
         isError={isError}
@@ -46,7 +45,7 @@ const Invitation = () => {
         isRefetching={isRefetching}
       />
       <ThemesModals />
-    </div>
+    </Container>
   );
 };
 

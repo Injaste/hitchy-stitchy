@@ -1,4 +1,4 @@
-import type { FC } from "react"
+import type { FC } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,25 +6,25 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-import { useThemesMutations } from "../queries"
-import type { Themes } from "../types"
+import { useThemesMutations } from "../queries";
+import type { Theme } from "../types";
 
 interface Props {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  page: Themes | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  page: Theme | null;
 }
 
 const ConfirmDeletePageModal: FC<Props> = ({ open, onOpenChange, page }) => {
-  const { remove } = useThemesMutations()
+  const { remove } = useThemesMutations();
 
   const handleConfirm = () => {
-    if (!page) return
-    remove.mutate(page.id)
-  }
+    if (!page) return;
+    remove.mutate(page.id);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,7 +50,7 @@ const ConfirmDeletePageModal: FC<Props> = ({ open, onOpenChange, page }) => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default ConfirmDeletePageModal
+export default ConfirmDeletePageModal;

@@ -1,27 +1,34 @@
-import { useTemplatesQuery } from "./queries"
-import ThemesHeader from "./components/ThemesHeader"
-import ThemesView from "./components/ThemesView"
+import { useTemplatesQuery, useThemesQuery } from "./queries";
+import ThemesView from "./components/ThemesView";
 
-const ThemesSection = () => {
-  const { data: templates, isLoading, isError, refetch, isRefetching } = useTemplatesQuery()
+const Themes = () => {
+  const {
+    data: templates,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useTemplatesQuery();
+  const {
+    data: themes,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useThemesQuery();
 
   return (
     <div className="space-y-8">
-      <ThemesHeader
-        isLoading={isLoading}
-        isError={isError}
-        isRefetching={isRefetching}
-        refetch={refetch}
-      />
       <ThemesView
         templates={templates ?? []}
+        themes={themes ?? []}
         isLoading={isLoading}
         isError={isError}
         refetch={refetch}
         isRefetching={isRefetching}
       />
     </div>
-  )
-}
+  );
+};
 
-export default ThemesSection
+export default Themes;

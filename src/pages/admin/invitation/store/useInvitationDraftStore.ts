@@ -1,11 +1,12 @@
 import { create } from "zustand"
 import type { PublicEventConfig } from "@/pages/templates/types"
 import type { EventInvitation, DetailsDraft, RSVPDraft } from "../types"
-import type { Themes, ThemeConfig } from "../themes/types"
+import type { Theme } from "../themes/types"
+import type { ThemeConfig } from "@/pages/templates/themes/types"
 
-interface DraftState {
+interface invitationStore {
   serverInvitation: EventInvitation | null
-  serverThemes: Themes[]
+  serverThemes: Theme[]
 
   detailsDraft: DetailsDraft | null
   rsvpDraft: RSVPDraft | null
@@ -14,7 +15,7 @@ interface DraftState {
   selectedPageId: string | null
 
   setServerInvitation: (inv: EventInvitation | null) => void
-  setServerThemes: (themes: Themes[]) => void
+  setServerThemes: (themes: Theme[]) => void
   setSelectedPageId: (id: string | null) => void
 
   setDetails: (draft: DetailsDraft) => void
@@ -26,7 +27,7 @@ interface DraftState {
   clearPage: () => void
 }
 
-export const useInvitationDraftStore = create<DraftState>((set) => ({
+const useInvitationStore = create<invitationStore>((set) => ({
   serverInvitation: null,
   serverThemes: [],
 
@@ -38,7 +39,7 @@ export const useInvitationDraftStore = create<DraftState>((set) => ({
 
   setServerInvitation: (inv) => set({ serverInvitation: inv }),
   setServerThemes: (themes) => set((state) => {
-    const next: Partial<DraftState> = { serverThemes: themes }
+    const next: Partial<invitationStore> = { serverThemes: themes }
     if (!state.selectedPageId || !themes.some((t) => t.id === state.selectedPageId)) {
       const published = themes.find((t) => t.is_published)
       next.selectedPageId = published?.id ?? themes[0]?.id ?? null
@@ -58,7 +59,7 @@ export const useInvitationDraftStore = create<DraftState>((set) => ({
 
 export function composeEventConfig(args: {
   invitation: EventInvitation | null
-  page: Themes | null
+  page: Theme | null
   details: DetailsDraft | null
   rsvp: RSVPDraft | null
   pageDraft: ThemeConfig | null
@@ -95,3 +96,5 @@ export function composeEventConfig(args: {
       : null,
   }
 }
+
+export default useInvitationStore;

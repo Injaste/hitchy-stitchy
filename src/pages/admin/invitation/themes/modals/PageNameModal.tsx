@@ -1,4 +1,4 @@
-import { useState, useEffect, type FC } from "react"
+import { useState, useEffect, type FC } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,33 +6,33 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
-import { useThemesMutations } from "../queries"
-import type { Themes } from "../types"
+import { useThemesMutations } from "../queries";
+import type { Theme } from "../types";
 
 interface Props {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  page: Themes | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  page: Theme | null;
 }
 
 const PageNameModal: FC<Props> = ({ open, onOpenChange, page }) => {
-  const { rename } = useThemesMutations()
-  const [name, setName] = useState(page?.name ?? "")
+  const { rename } = useThemesMutations();
+  const [name, setName] = useState(page?.name ?? "");
 
   useEffect(() => {
-    if (open) setName(page?.name ?? "")
-  }, [open, page?.name])
+    if (open) setName(page?.name ?? "");
+  }, [open, page?.name]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!page || !name.trim()) return
-    rename.mutate({ id: page.id, name: name.trim() })
-  }
+    e.preventDefault();
+    if (!page || !name.trim()) return;
+    rename.mutate({ id: page.id, name: name.trim() });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -55,7 +55,11 @@ const PageNameModal: FC<Props> = ({ open, onOpenChange, page }) => {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={!name.trim() || rename.isPending}>
@@ -65,7 +69,7 @@ const PageNameModal: FC<Props> = ({ open, onOpenChange, page }) => {
         </form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default PageNameModal
+export default PageNameModal;

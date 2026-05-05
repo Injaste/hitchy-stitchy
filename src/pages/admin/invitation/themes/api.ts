@@ -1,13 +1,13 @@
 import { supabase } from "@/lib/supabase"
-import type { Templates, Themes, CreateThemePayload, UpdateThemePayload } from "./types"
+import type { Template, Theme, CreateThemePayload, UpdateThemePayload } from "./types"
 
-type RawTheme = Omit<Themes, "theme"> & { theme: Pick<Templates, "id" | "name" | "slug">[] | null }
+type RawTheme = Omit<Theme, "theme"> & { theme: Pick<Template, "id" | "name" | "slug">[] | null }
 
-function normalizeTheme(raw: RawTheme): Themes {
+function normalizeTheme(raw: RawTheme): Theme {
   return { ...raw, theme: raw.theme?.[0] ?? null }
 }
 
-export async function fetchTemplates(): Promise<Templates[]> {
+export async function fetchTemplates(): Promise<Template[]> {
   const { data, error } = await supabase
     .from("event_templates")
     .select("id, name, slug, description, config, is_active, created_at, updated_at")
@@ -15,10 +15,10 @@ export async function fetchTemplates(): Promise<Templates[]> {
     .order("name", { ascending: true })
 
   if (error) throw new Error(error.message)
-  return (data ?? []) as Templates[]
+  return (data ?? []) as Template[]
 }
 
-export async function fetchThemes(eventId: string): Promise<Themes[]> {
+export async function fetchThemes(eventId: string): Promise<Theme[]> {
   const { data, error } = await supabase
     .from("event_themes")
     .select("id, event_id, template_id, name, is_published, config, created_at, updated_at, theme:event_templates(id, name, slug)")

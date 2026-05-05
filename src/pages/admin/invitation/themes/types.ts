@@ -1,6 +1,6 @@
 import type { ThemeConfig } from "@/pages/templates/themes/types"
 
-export interface Templates {
+export interface Template {
   id: string
   name: string
   slug: string
@@ -11,7 +11,7 @@ export interface Templates {
   updated_at: string
 }
 
-export interface Themes {
+export interface Theme {
   id: string
   event_id: string
   template_id: string | null
@@ -20,7 +20,7 @@ export interface Themes {
   config: ThemeConfig
   created_at: string
   updated_at: string
-  theme?: Pick<Templates, "id" | "name" | "slug"> | null
+  theme?: Pick<Template, "id" | "name" | "slug"> | null
 }
 
 export interface CreateThemePayload {

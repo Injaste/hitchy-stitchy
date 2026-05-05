@@ -3,7 +3,7 @@ import cssText from "/src/index.css?inline";
 import { useMemo } from "react";
 import { themeRegistry, FallbackTheme } from "@/pages/templates/themes";
 import {
-  useInvitationDraftStore,
+  useInvitationStore,
   composeEventConfig,
 } from "../store/useInvitationDraftStore";
 
@@ -14,12 +14,12 @@ const PREVIEW_W = Math.round(PHONE_W * PREVIEW_SCALE);
 const PREVIEW_H = Math.round(PHONE_H * PREVIEW_SCALE);
 
 const PreviewPanel = () => {
-  const serverInvitation = useInvitationDraftStore((s) => s.serverInvitation);
-  const serverThemes = useInvitationDraftStore((s) => s.serverThemes);
-  const selectedPageId = useInvitationDraftStore((s) => s.selectedPageId);
-  const detailsDraft = useInvitationDraftStore((s) => s.detailsDraft);
-  const rsvpDraft = useInvitationDraftStore((s) => s.rsvpDraft);
-  const pageDraft = useInvitationDraftStore((s) => s.pageDraft);
+  const serverInvitation = useInvitationStore((s) => s.serverInvitation);
+  const serverThemes = useInvitationStore((s) => s.serverThemes);
+  const selectedPageId = useInvitationStore((s) => s.selectedPageId);
+  const detailsDraft = useInvitationStore((s) => s.detailsDraft);
+  const rsvpDraft = useInvitationStore((s) => s.rsvpDraft);
+  const pageDraft = useInvitationStore((s) => s.pageDraft);
 
   const selectedPage = useMemo(
     () => serverThemes.find((p) => p.id === selectedPageId) ?? null,

@@ -1,15 +1,15 @@
 import { create } from "zustand"
-import type { Themes } from "../themes/types"
+import type { Theme } from "../themes/types"
 
 interface ThemesModalState {
   isRenameOpen: boolean
   isDeleteOpen: boolean
   isPublishOpen: boolean
-  selectedTheme: Themes | null
+  selectedTheme: Theme | null
 
-  openRename: (theme: Themes) => void
-  openDelete: (theme: Themes) => void
-  openPublish: (theme: Themes) => void
+  openRename: (theme: Theme) => void
+  openDelete: (theme: Theme) => void
+  openPublish: (theme: Theme) => void
   closeAll: () => void
 }
 

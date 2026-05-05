@@ -1,41 +1,46 @@
-import { useEffect } from "react"
-import { AnimateItem } from "@/components/animations/forms/field-animate"
-import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+import { useEffect } from "react";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
+import {
+  Field,
+  FieldContent,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { useInvitationDraftStore } from "../../store/useInvitationDraftStore"
-import type { RSVPDraft } from "../../types"
-import type { RSVPMode } from "@/pages/templates/types"
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useInvitationStore } from "../../store/useInvitationDraftStore";
+import type { RSVPDraft } from "../../types";
+import type { RSVPMode } from "@/pages/templates/types";
 
 const RSVPSection = () => {
-  const invitation = useInvitationDraftStore((s) => s.serverInvitation)
-  const draft = useInvitationDraftStore((s) => s.rsvpDraft)
-  const setRSVP = useInvitationDraftStore((s) => s.setRSVP)
+  const invitation = useInvitationStore((s) => s.serverInvitation);
+  const draft = useInvitationStore((s) => s.rsvpDraft);
+  const setRSVP = useInvitationStore((s) => s.setRSVP);
 
   useEffect(() => {
-    if (!invitation || draft) return
+    if (!invitation || draft) return;
     setRSVP({
       rsvp_mode: invitation.rsvp_mode,
       rsvp_deadline: invitation.rsvp_deadline ?? "",
       config: invitation.config.rsvp,
-    })
-  }, [invitation, draft, setRSVP])
+    });
+  }, [invitation, draft, setRSVP]);
 
-  if (!draft) return null
+  if (!draft) return null;
 
-  const { rsvp_mode, rsvp_deadline, config } = draft
-  const msg = config.fields.message
+  const { rsvp_mode, rsvp_deadline, config } = draft;
+  const msg = config.fields.message;
 
-  const upd = (patch: Partial<RSVPDraft>) => setRSVP({ ...draft, ...patch })
+  const upd = (patch: Partial<RSVPDraft>) => setRSVP({ ...draft, ...patch });
   const setMsgField = (patch: Partial<typeof msg>) =>
-    upd({ config: { ...config, fields: { message: { ...msg, ...patch } } } })
+    upd({ config: { ...config, fields: { message: { ...msg, ...patch } } } });
 
   return (
     <div className="p-4">
@@ -52,7 +57,9 @@ const RSVPSection = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  <SelectItem value="public">Public — anyone can RSVP</SelectItem>
+                  <SelectItem value="public">
+                    Public — anyone can RSVP
+                  </SelectItem>
                   <SelectItem value="private">Private — pool only</SelectItem>
                   <SelectItem value="both">Both</SelectItem>
                 </SelectContent>
@@ -65,7 +72,9 @@ const RSVPSection = () => {
           <Field>
             <FieldLabel>
               RSVP Deadline{" "}
-              <span className="text-muted-foreground font-normal">(optional)</span>
+              <span className="text-muted-foreground font-normal">
+                (optional)
+              </span>
             </FieldLabel>
             <FieldContent>
               <Input
@@ -96,7 +105,7 @@ const RSVPSection = () => {
         )}
       </FieldGroup>
     </div>
-  )
-}
+  );
+};
 
-export default RSVPSection
+export default RSVPSection;

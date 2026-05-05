@@ -8,15 +8,15 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useInvitationDraftStore } from "../../store/useInvitationDraftStore";
+import { useInvitationStore } from "../../store/useInvitationDraftStore";
 import type { ThemeConfig } from "@/pages/templates/themes/types";
 import type { UniqueMuslimPageConfig } from "@/pages/templates/themes/unique-muslim/types";
 
 const ContentSection = () => {
-  const pages = useInvitationDraftStore((s) => s.serverThemes);
-  const selectedPageId = useInvitationDraftStore((s) => s.selectedPageId);
-  const pageDraft = useInvitationDraftStore((s) => s.pageDraft);
-  const setPage = useInvitationDraftStore((s) => s.setPage);
+  const pages = useInvitationStore((s) => s.serverThemes);
+  const selectedPageId = useInvitationStore((s) => s.selectedPageId);
+  const pageDraft = useInvitationStore((s) => s.pageDraft);
+  const setPage = useInvitationStore((s) => s.setPage);
 
   const selectedPage = useMemo(
     () => pages.find((p) => p.id === selectedPageId) ?? null,
