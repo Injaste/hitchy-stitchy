@@ -45,7 +45,7 @@ const verse: Variants = make(T.verse, 16, 0.8);
 const cta: Variants = make(T.cta, 12, 0.7);
 
 const Hero = ({ eventConfig, pageConfig }: ThemeProps) => {
-  const config = pageConfig?._theme_slug === "unique-muslim" ? pageConfig : undefined;
+  const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
 
   const greetingText = config?.greeting ?? "";
   const quoteText = config?.quote ?? "";

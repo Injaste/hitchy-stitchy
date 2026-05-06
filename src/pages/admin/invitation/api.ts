@@ -1,17 +1,23 @@
 import { supabase } from "@/lib/supabase"
-import type { EventInvitation, UpdateInvitationPayload } from "./types"
+import type {
+  Invitation,
+  UpdateInvitationPayload,
+  Template,
+  Theme,
+  CreateThemePayload,
+  UpdateThemePayload,
+} from "./types"
 
-const INVITATION_FIELDS = "id, event_id, groom_name, bride_name, event_date, event_time_start, event_time_end, venue_name, venue_address, venue_map_embed_url, venue_map_link, rsvp_mode, rsvp_deadline, max_guests, guest_count_min, guest_count_max, confirmation_message, config, created_at, updated_at"
-
-export async function fetchInvitation(eventId: string): Promise<EventInvitation> {
+// Invitation
+export async function fetchInvitation(eventId: string): Promise<Invitation> {
   const { data, error } = await supabase
     .from("event_invitation")
-    .select(INVITATION_FIELDS)
+    .select("id, event_id, groom_name, bride_name, event_date, event_time_start, event_time_end, venue_name, venue_address, venue_map_embed_url, venue_map_link, rsvp_mode, rsvp_deadline, max_guests, guest_count_min, guest_count_max, confirmation_message, config, created_at, updated_at")
     .eq("event_id", eventId)
     .single()
 
   if (error) throw new Error(error.message)
-  return data as EventInvitation
+  return data as Invitation
 }
 
 export async function updateInvitation(payload: UpdateInvitationPayload): Promise<void> {
@@ -38,3 +44,67 @@ export async function updateInvitation(payload: UpdateInvitationPayload): Promis
   if (error) throw new Error(error.message)
 }
 
+// Templates
+export async function fetchTemplates(): Promise<Omit<Template, "themeId" | "isPublished">[]> {
+  const { data, error } = await supabase
+    .from("event_templates")
+    .select("id, name, slug, description, config, is_active, created_at, updated_at")
+    .eq("is_active", true)
+    .order("name", { ascending: true })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as Omit<Template, "themeId" | "isPublished">[]
+}
+
+// Themes
+export async function fetchThemes(eventId: string): Promise<Theme[]> {
+  const { data, error } = await supabase
+    .from("event_themes")
+    .select("id, event_id, template_id, name, is_published, config, created_at, updated_at")
+    .eq("event_id", eventId)
+    .order("created_at", { ascending: true })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as Theme[]
+}
+
+export async function createTheme(payload: CreateThemePayload): Promise<Theme> {
+  const { data, error } = await supabase.rpc("create_event_theme", {
+    p_event_id: payload.event_id,
+    p_template_id: payload.template_id,
+    p_name: payload.name,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as Theme
+}
+
+export async function updateTheme(payload: UpdateThemePayload): Promise<Theme> {
+  const { data, error } = await supabase.rpc("update_event_theme", {
+    p_event_id: payload.event_id,
+    p_theme_id: payload.id,
+    p_name: payload.name ?? null,
+    p_config: payload.config ?? null,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as Theme
+}
+
+export async function deleteTheme(eventId: string, themeId: string): Promise<void> {
+  const { error } = await supabase.rpc("delete_event_theme", {
+    p_event_id: eventId,
+    p_theme_id: themeId,
+  })
+
+  if (error) throw new Error(error.message)
+}
+
+export async function publishTheme(eventId: string, themeId: string): Promise<void> {
+  const { error } = await supabase.rpc("publish_theme", {
+    p_event_id: eventId,
+    p_theme_id: themeId,
+  })
+
+  if (error) throw new Error(error.message)
+}

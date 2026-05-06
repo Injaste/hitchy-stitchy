@@ -11,11 +11,11 @@ import type {
 
 export type ThemeConfig =
   | UniqueMuslimPageConfig
-  | { _theme_slug?: null | undefined }
+  | { slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<
   ThemeConfig,
-  { _theme_slug: TSlug }
+  { slug: TSlug }
 >
 
 export interface ThemeProps {

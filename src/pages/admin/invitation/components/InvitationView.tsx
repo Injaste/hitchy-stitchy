@@ -18,13 +18,16 @@ const InvitationView: FC<InvitationViewProps> = ({
   isRefetching,
   refetch,
 }) => {
-  return (
-    <AnimatePresence mode="wait">
-      {isLoading ? (
+  const renderBody = () => {
+    if (isLoading)
+      return (
         <ComponentFade key="skeleton">
           <InvitationSkeleton />
         </ComponentFade>
-      ) : isError ? (
+      );
+
+    if (isError)
+      return (
         <ComponentFade key="error">
           <ErrorState
             message="We couldn't load your invitation. Please try again."
@@ -32,13 +35,16 @@ const InvitationView: FC<InvitationViewProps> = ({
             isRetrying={isRefetching}
           />
         </ComponentFade>
-      ) : (
-        <ComponentFade key="content">
-          <EditorLayout />
-        </ComponentFade>
-      )}
-    </AnimatePresence>
-  );
+      );
+
+    return (
+      <ComponentFade key="content">
+        <EditorLayout />
+      </ComponentFade>
+    );
+  };
+
+  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
 };
 
 export default InvitationView;

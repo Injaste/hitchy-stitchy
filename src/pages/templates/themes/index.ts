@@ -23,7 +23,7 @@ const formFor = (mod: typeof uniqueMuslimForm) => ({
 export const themeRegistry: Record<string, ThemeRegistryEntry> = {
   "unique-muslim": {
     component: UniqueMuslim,
-    defaultConfig: { _theme_slug: "unique-muslim", background_image: null },
+    defaultConfig: { slug: "unique-muslim", background_image: null },
     ConfigEditor: UniqueMuslimConfigEditor,
     form: formFor(uniqueMuslimForm),
   },

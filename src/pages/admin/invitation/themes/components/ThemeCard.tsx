@@ -1,89 +1,85 @@
 import { type FC } from "react";
-import { Check, Globe, MoreHorizontal, Plus, Trash2 } from "lucide-react";
-
-import { useInvitationStore } from "../../store/useInvitationDraftStore";
-import type { Template } from "../types";
-import { useThemesMutations } from "../queries";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { MoreHorizontal, Plus, Globe, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useInvitationStore } from "../../store/useInvitationStore";
+import { useInvitationModalStore } from "../../store/useInvitationModalStore";
+import { useThemesMutations } from "../../queries";
+import { cn } from "@/lib/utils";
+import type { Template, Theme } from "../../types";
 
-interface ThemeCardProp {
+interface ThemeCardProps {
   template: Template;
-  created: boolean;
 }
 
-const ThemeCard: FC<ThemeCardProp> = ({ template, created }) => {
+const ThemeCard: FC<ThemeCardProps> = ({ template }) => {
   const { eventId } = useAdminStore();
+  const selectedThemeId = useInvitationStore((s) => s.selectedThemeId);
+  const setSelectedThemeId = useInvitationStore((s) => s.setSelectedThemeId);
+  const openCreate = useInvitationModalStore((s) => s.openCreate);
+  const openDelete = useInvitationModalStore((s) => s.openDelete);
+  const openPublish = useInvitationModalStore((s) => s.openPublish);
+  const { create } = useThemesMutations();
 
-  const selectedThemeId = useInvitationStore((s) => s.selectedPageId);
-  const setSelectedThemeId = useInvitationStore((s) => s.setSelectedPageId);
+  const isCreated = template.themeId !== null;
+  const isActive = selectedThemeId === template.themeId;
+  const isPublished = template.isPublished;
 
-  const { create, remove, publish } = useThemesMutations();
-
-  if (!created) {
-    return (
-      <div
-        key={template.id}
-        className="rounded-xl border border-dashed border-border px-3 py-3"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground/60 truncate">
-              {template.name}
-            </p>
-            {template.description && (
-              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                {template.description}
-              </p>
-            )}
-          </div>
-          <button
-            type="button"
-            disabled={create.isPending}
-            onClick={() =>
-              create.mutate({
-                event_id: eventId!,
-                template_id: template.id,
-              })
-            }
-            className="shrink-0 flex items-center gap-1 h-7 px-2.5 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors disabled:opacity-50"
-          >
-            <Plus size={12} />
-            Create
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const theme: Theme = {
+    id: template.themeId!,
+    event_id: eventId!,
+    template_id: template.id,
+    name: template.name,
+    is_published: isPublished,
+    config: {},
+    created_at: "",
+    updated_at: "",
+  };
 
   return (
-    <div
-      key={template.id}
-      // onClick={() => !selectedThemeId && setSelectedThemeId(matchingPage.id)}
-      onClick={() => !selectedThemeId}
-      className={[
-        "rounded-xl border px-3 py-3 transition-colors",
-        selectedThemeId
-          ? "border-primary bg-primary/5"
-          : "border-border cursor-pointer hover:border-primary/40",
-      ].join(" ")}
+    <Card
+      onClick={() =>
+        isCreated && !isActive && setSelectedThemeId(template.themeId!)
+      }
+      className={cn(
+        "px-3 py-3 transition-colors",
+        !isCreated && "border-dashed opacity-60",
+        isCreated && !isActive && "cursor-pointer hover:border-primary/40",
+        isActive && "border-primary bg-primary/5 cursor-default",
+      )}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-medium truncate">{template.name}</p>
-            {selectedThemeId ? (
-              <span className="shrink-0 text-2xs font-bold uppercase tracking-wide text-primary">
-                Active
+            <p
+              className={cn(
+                "text-sm font-medium truncate",
+                !isCreated && "text-foreground/60",
+              )}
+            >
+              {template.name}
+            </p>
+            {isPublished && (
+              <Badge
+                variant="outline"
+                className="shrink-0 text-2xs font-bold uppercase tracking-wide text-primary border-primary/30"
+              >
+                Live
+              </Badge>
+            )}
+            {isActive && !isPublished && (
+              <span className="shrink-0 text-2xs font-bold uppercase tracking-wide text-muted-foreground">
+                Editing
               </span>
-            ) : (
-              <Check size={13} className="shrink-0 text-muted-foreground" />
             )}
           </div>
           {template.description && (
@@ -93,43 +89,59 @@ const ThemeCard: FC<ThemeCardProp> = ({ template, created }) => {
           )}
         </div>
 
-        {selectedThemeId && (
+        {!isCreated && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={create.isPending}
+            onClick={(e) => {
+              e.stopPropagation();
+              openCreate(template.id);
+            }}
+            className="shrink-0 gap-1"
+          >
+            <Plus size={12} />
+            Use
+          </Button>
+        )}
+
+        {isActive && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition-colors"
+              <Button
+                size="icon"
+                variant="ghost"
+                className="shrink-0 h-7 w-7"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MoreHorizontal className="h-4 w-4" />
-              </button>
+              </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              sideOffset={4}
-              className="z-50 min-w-[140px] rounded-xl border border-border bg-background shadow-md p-1 text-sm"
-            >
-              {/* {!matchingPage.is_published && ( */}
-              <DropdownMenuItem
-              // onClick={() => openPublish(matchingPage)}
-              >
-                <Globe className="h-3.5 w-3.5" /> Publish
-              </DropdownMenuItem>
-              {/* )} */}
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // openDelete(matchingPage);
-                }}
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            <DropdownMenuPortal>
+              <DropdownMenuContent align="end" sideOffset={4}>
+                {!isPublished && (
+                  <DropdownMenuItem onClick={() => openPublish(theme)}>
+                    <Globe className="h-3.5 w-3.5" />
+                    Publish
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  disabled={isPublished}
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isPublished) openDelete(theme);
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenuPortal>
           </DropdownMenu>
         )}
       </div>
-    </div>
+    </Card>
   );
 };
 

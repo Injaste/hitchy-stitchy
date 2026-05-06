@@ -48,7 +48,7 @@ const divider: Variants = {
 };
 
 const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
-  const config = pageConfig?._theme_slug === "unique-muslim" ? pageConfig : undefined;
+  const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
 
   const sectionTitle = config?.section_title ?? "";
   const invitationBody = config?.invitation_body ?? "";

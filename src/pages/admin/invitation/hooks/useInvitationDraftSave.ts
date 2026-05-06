@@ -1,29 +1,26 @@
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
-import { useInvitationStore } from "../store/useInvitationDraftStore"
-import { useUpdateInvitationMutation } from "../queries"
-import { useUpdateThemeConfigMutation } from "../themes/queries"
+import { useInvitationStore } from "../store/useInvitationStore"
+import { useUpdateInvitationMutation, useThemesMutations } from "../queries"
 
-export function useInvitationSave() {
+export function useInvitationDraftSave() {
   const { eventId } = useAdminStore()
 
-  const serverInvitation = useInvitationStore((s) => s.serverInvitation)
-  const selectedPageId = useInvitationStore((s) => s.selectedPageId)
   const detailsDraft = useInvitationStore((s) => s.detailsDraft)
   const rsvpDraft = useInvitationStore((s) => s.rsvpDraft)
-  const pageDraft = useInvitationStore((s) => s.pageDraft)
+  const themeDraft = useInvitationStore((s) => s.themeDraft)
+  const selectedThemeId = useInvitationStore((s) => s.selectedThemeId)
+
   const clearDetails = useInvitationStore((s) => s.clearDetails)
   const clearRSVP = useInvitationStore((s) => s.clearRSVP)
-  const clearPage = useInvitationStore((s) => s.clearPage)
+  const clearTheme = useInvitationStore((s) => s.clearTheme)
 
   const updateInvitation = useUpdateInvitationMutation()
-  const updateTheme = useUpdateThemeConfigMutation()
+  const { update: updateTheme } = useThemesMutations()
 
-  const isDirty = !!(detailsDraft || rsvpDraft || pageDraft)
+  const isDirty = !!(detailsDraft || rsvpDraft || themeDraft)
   const isSaving = updateInvitation.isPending || updateTheme.isPending
 
   const save = () => {
-    if (!eventId || !serverInvitation) return
-
     if (detailsDraft || rsvpDraft) {
       updateInvitation.mutate(
         {
@@ -33,9 +30,7 @@ export function useInvitationSave() {
             ? {
               rsvp_mode: rsvpDraft.rsvp_mode,
               rsvp_deadline: rsvpDraft.rsvp_deadline || null,
-              config: rsvpDraft.config
-                ? { rsvp: rsvpDraft.config }
-                : undefined,
+              config: { rsvp: rsvpDraft.config },
             }
             : {}),
         },
@@ -43,10 +38,10 @@ export function useInvitationSave() {
       )
     }
 
-    if (pageDraft && selectedPageId) {
+    if (themeDraft) {
       updateTheme.mutate(
-        { id: selectedPageId, config: pageDraft },
-        { onSuccess: () => clearPage() },
+        { event_id: eventId, id: selectedThemeId!, config: themeDraft },
+        { onSuccess: () => clearTheme() },
       )
     }
   }

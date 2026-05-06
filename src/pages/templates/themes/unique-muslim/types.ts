@@ -1,5 +1,5 @@
 export interface UniqueMuslimPageConfig {
-  _theme_slug: 'unique-muslim'
+  slug: 'unique-muslim'
   greeting?: string | null
   quote?: string | null
   quote_source?: string | null

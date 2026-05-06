@@ -1,34 +1,37 @@
 import { useEffect } from "react";
-
-import { useInvitationQuery } from "./queries";
-import ThemesModals from "./themes/modals";
-import { useInvitationStore } from "./store/useInvitationDraftStore";
+import { useInvitationQuery, useThemesQuery } from "./queries";
+import { useInvitationStore } from "./store/useInvitationStore";
+import { useInvitationModalStore } from "./store/useInvitationModalStore";
 import InvitationHeader from "./components/InvitationHeader";
 import InvitationView from "./components/InvitationView";
-import { useThemesQuery } from "./themes/queries";
+import ThemeModals from "./themes/modals";
 import Container from "@/components/custom/container";
 
 const Invitation = () => {
-  const invitation = useInvitationQuery();
-  const pages = useThemesQuery();
-  const setServerInvitation = useInvitationStore((s) => s.setServerInvitation);
-  const setServerThemes = useInvitationStore((s) => s.setServerThemes);
+  const invitationQuery = useInvitationQuery();
+  const themesQuery = useThemesQuery();
+
+  const setSelectedThemeId = useInvitationStore((s) => s.setSelectedThemeId);
+  const selectedThemeId = useInvitationStore((s) => s.selectedThemeId);
 
   useEffect(() => {
-    setServerInvitation(invitation.data ?? null);
-  }, [invitation.data, setServerInvitation]);
+    if (!themesQuery.data) return;
+    if (
+      selectedThemeId &&
+      themesQuery.data.some((t) => t.id === selectedThemeId)
+    )
+      return;
+    const published = themesQuery.data.find((t) => t.is_published);
+    setSelectedThemeId(published?.id ?? themesQuery.data[0]?.id ?? null);
+  }, [themesQuery.data]);
 
-  useEffect(() => {
-    setServerThemes(pages.data ?? []);
-  }, [pages.data, setServerThemes]);
-
-  const isLoading = invitation.isLoading || pages.isLoading;
-  const isError = invitation.isError || pages.isError;
+  const isLoading = invitationQuery.isLoading || themesQuery.isLoading;
+  const isError = invitationQuery.isError || themesQuery.isError;
+  const isRefetching = invitationQuery.isRefetching || themesQuery.isRefetching;
   const refetch = () => {
-    invitation.refetch();
-    pages.refetch();
+    invitationQuery.refetch();
+    themesQuery.refetch();
   };
-  const isRefetching = invitation.isRefetching || pages.isRefetching;
 
   return (
     <Container className="space-y-8">
@@ -41,10 +44,10 @@ const Invitation = () => {
       <InvitationView
         isLoading={isLoading}
         isError={isError}
-        refetch={refetch}
         isRefetching={isRefetching}
+        refetch={refetch}
       />
-      <ThemesModals />
+      <ThemeModals />
     </Container>
   );
 };

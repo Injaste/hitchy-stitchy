@@ -1,33 +1,20 @@
-import { useThemesModalStore } from "../../store/useThemesModalStore"
-import { useThemesQuery } from "../queries"
-import PageNameModal from "./PageNameModal"
-import ConfirmDeletePageModal from "./ConfirmDeletePageModal"
-import ConfirmPublishModal from "./ConfirmPublishModal"
+import { useInvitationModalStore } from "../../store/useInvitationModalStore";
+import CreateThemeModal from "./CreateThemeModal";
+import DeleteThemeModal from "./DeleteThemeModal";
+import PublishThemeModal from "./PublishThemeModal";
 
-const ThemesModals = () => {
-  const {
-    isRenameOpen,
-    isDeleteOpen,
-    isPublishOpen,
-    selectedTheme,
-    closeAll,
-  } = useThemesModalStore()
-
-  const { data: themes } = useThemesQuery()
-  const hasPublishedTheme = themes?.some((t) => t.is_published) ?? false
+const ThemeModals = () => {
+  const isCreateOpen = useInvitationModalStore((s) => s.isCreateOpen);
+  const isDeleteOpen = useInvitationModalStore((s) => s.isDeleteOpen);
+  const isPublishOpen = useInvitationModalStore((s) => s.isPublishOpen);
 
   return (
     <>
-      <PageNameModal open={isRenameOpen} onOpenChange={(o) => !o && closeAll()} page={selectedTheme} />
-      <ConfirmDeletePageModal open={isDeleteOpen} onOpenChange={(o) => !o && closeAll()} page={selectedTheme} />
-      <ConfirmPublishModal
-        open={isPublishOpen}
-        onOpenChange={(o) => !o && closeAll()}
-        page={selectedTheme}
-        hasPublishedPage={hasPublishedTheme}
-      />
+      {isCreateOpen && <CreateThemeModal />}
+      {isDeleteOpen && <DeleteThemeModal />}
+      {isPublishOpen && <PublishThemeModal />}
     </>
-  )
-}
+  );
+};
 
-export default ThemesModals
+export default ThemeModals;

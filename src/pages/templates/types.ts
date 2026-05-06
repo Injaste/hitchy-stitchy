@@ -1,33 +1,6 @@
 import { z } from "zod"
-import type { ThemePageConfig } from "./themes"
-
-export type RSVPMode = "public" | "private" | "both"
-
-export interface RSVPFieldConfig {
-  visible: boolean
-  required: boolean
-}
-
-export interface RSVPSectionConfig {
-  fields: {
-    message: RSVPFieldConfig
-  }
-}
-
-export interface AppearanceConfig {
-  greeting?: string | null
-  quote?: string | null
-  quote_source?: string | null
-  section_title?: string | null
-  invitation_body?: string | null
-  attire?: string | null
-  blessings_name?: string | null
-  blessings_label?: string | null
-}
-
-export interface InvitationConfig {
-  rsvp: RSVPSectionConfig
-}
+import type { InvitationConfig, RSVPMode, RSVPSectionConfig } from "../admin/invitation/types"
+import type { ThemeConfig } from "./themes/types"
 
 export interface PublicEventConfig {
   id: string
@@ -51,8 +24,16 @@ export interface PublicEventConfig {
   published_page: {
     id: string
     theme_slug: string | null
-    config: ThemePageConfig
+    config: ThemeConfig
   } | null
+}
+
+
+export interface RSVPFormData {
+  name: string
+  phone: string
+  guestCount: number
+  message?: string
 }
 
 export interface RSVPSubmission {
@@ -67,13 +48,6 @@ export interface RSVPSubmission {
   cancel_token: string
   created_at: string
   updated_at: string
-}
-
-export interface RSVPFormData {
-  name: string
-  phone?: string
-  guestCount?: number
-  message?: string
 }
 
 export function buildRsvpSchema(

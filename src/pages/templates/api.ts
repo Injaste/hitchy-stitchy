@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase"
-import type { PublicEventConfig, RSVPSubmission, RSVPFormData, InvitationConfig } from "./types"
+import type { PublicEventConfig, RSVPSubmission, RSVPFormData } from "./types"
 import type { ThemePageConfig } from "./themes"
+import type { InvitationConfig } from "../admin/invitation/types"
 
 export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig> {
   const { data: slugRow, error: slugError } = await supabase
@@ -45,7 +46,7 @@ export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig>
     published_page: page
       ? {
         id: page.id,
-        theme_slug: (page.config as ThemePageConfig)._theme_slug ?? null,
+        theme_slug: (page.config as ThemePageConfig).slug ?? null,
         config: page.config as ThemePageConfig,
       }
       : null,

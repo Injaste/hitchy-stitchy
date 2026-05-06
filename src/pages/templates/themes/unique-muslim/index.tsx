@@ -18,7 +18,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
 
   const scaleProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
-  const config = pageConfig?._theme_slug === "unique-muslim" ? pageConfig : undefined;
+  const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const bgImage = config?.background_image ?? "/dannad.png";
 
   return (
