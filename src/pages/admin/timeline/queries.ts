@@ -9,7 +9,7 @@ import {
   updateTimelineItem,
   deleteTimelineItem,
 } from "./api"
-import type { CreateTimelineItemPayload, UpdateTimelineItemPayload } from "./types"
+import type { CreateTimelineItemPayload, DeleteTimelineItemPayload, UpdateTimelineItemPayload } from "./types"
 
 export function useTimelineQuery() {
   const { slug, eventId } = useAdminStore()
@@ -32,7 +32,7 @@ export function useTimelineMutations() {
     (payload: CreateTimelineItemPayload) => createTimelineItem(payload),
     {
       successMessage: "Item added",
-      errorMessage: "Failed to add item",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     }
   )
@@ -41,16 +41,16 @@ export function useTimelineMutations() {
     (payload: UpdateTimelineItemPayload) => updateTimelineItem(payload),
     {
       successMessage: "Item updated",
-      errorMessage: "Failed to update item",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     }
   )
 
   const remove = useMutation(
-    (id: string) => deleteTimelineItem(id),
+    (payload: DeleteTimelineItemPayload) => deleteTimelineItem(payload),
     {
       successMessage: "Item deleted",
-      errorMessage: "Failed to delete item",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     }
   )

@@ -71,7 +71,7 @@ All people associated with an event. Only table referencing `auth.users`.
 | `role_id`      | `uuid`        | FK → `event_roles.id`, nullable, set null on delete |
 | `email`        | `text`        | Used for invite/self-claim flow                     |
 | `display_name` | `text`        |                                                     |
-| `is_frozen`    | `boolean`     | Default `false` — freezes event access              |
+| `frozen_at`    | `timestamptz` | Default `null` — freezes event access               |
 | `invited_at`   | `timestamptz` | Immutable                                           |
 | `joined_at`    | `timestamptz` | Immutable once set                                  |
 | `rejected_at`  | `timestamptz` | Immutable once set                                  |

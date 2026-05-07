@@ -1,5 +1,4 @@
 import type { ComponentType } from "react"
-import type { PublicEventConfig } from "@/pages/templates/types"
 import type { UniqueMuslimPageConfig } from "./unique-muslim/types"
 import type {
   RSVPFormClassNames,
@@ -7,20 +6,37 @@ import type {
   RSVPDeleteClassNames,
   RSVPDeleteLabels,
 } from "@/pages/templates/form"
+import type { PublicEventConfig } from "../types"
 
+export type FieldType = "text" | "textarea" | "select" | "switch" | "image"
+
+export interface FieldOption {
+  label: string
+  value: string
+}
+
+export interface ThemeFieldSchema {
+  key: string
+  label: string
+  type: FieldType
+  placeholder?: string
+  options?: FieldOption[]
+}
+
+export interface ThemeFieldGroup {
+  title: string
+  fields: ThemeFieldSchema[]
+}
 
 export type ThemeConfig =
   | UniqueMuslimPageConfig
   | { slug?: null | undefined }
 
-export type ThemeConfigFor<TSlug extends string> = Extract<
-  ThemeConfig,
-  { slug: TSlug }
->
+export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: TSlug }>
 
 export interface ThemeProps {
   eventConfig: PublicEventConfig
-  pageConfig?: ThemeConfig
+  pageConfig: ThemeConfig
 }
 
 export interface ThemeFormConfig {
@@ -34,4 +50,5 @@ export interface ThemeRegistryEntry {
   component: ComponentType<ThemeProps>
   defaultConfig: ThemeConfig
   form: ThemeFormConfig
+  schema: ThemeFieldGroup[]
 }

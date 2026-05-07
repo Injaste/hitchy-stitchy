@@ -58,6 +58,7 @@ export interface CreateTaskPayload {
 }
 
 export interface UpdateTaskPayload {
+  event_id: string;
   id: string;
   title: string;
   details: string | null;
@@ -66,6 +67,11 @@ export interface UpdateTaskPayload {
   priority: TaskPriority | null;
   due_at: string | null;
   assignees: string[];
+}
+
+export interface DeleteTaskPayload {
+  event_id: string;
+  id: string;
 }
 
 

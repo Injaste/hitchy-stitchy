@@ -30,10 +30,10 @@ const MembersHeader: FC<MembersHeaderProps> = ({
 
   const total = data?.length ?? 0;
   const active =
-    data?.filter((m) => !m.is_frozen && m.joined_at !== null).length ?? 0;
+    data?.filter((m) => !m.frozen_at && m.joined_at !== null).length ?? 0;
   const pending =
-    data?.filter((m) => !m.is_frozen && m.joined_at === null).length ?? 0;
-  const frozen = data?.filter((m) => m.is_frozen).length ?? 0;
+    data?.filter((m) => !m.frozen_at && m.joined_at === null).length ?? 0;
+  const frozen = data?.filter((m) => m.frozen_at).length ?? 0;
   const rejected = data?.filter((m) => m.rejected_at !== null).length ?? 0;
 
   const metaItems =

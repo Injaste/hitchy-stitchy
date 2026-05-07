@@ -11,7 +11,7 @@ export function AttendancePanel() {
   const { data: members } = useMembersQuery();
   const { mutate: markArrived } = useMarkArrivedMutation();
 
-  const activeMembers = (members ?? []).filter((m) => !m.is_frozen);
+  const activeMembers = (members ?? []).filter((m) => !m.frozen_at);
   // const arrivedCount = activeMembers.filter((m) => m.arrived_at).length;
 
   const canMark = (memberIdToMark: string) =>

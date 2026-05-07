@@ -2,7 +2,7 @@ import { useEffect, useState, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 
 import { ComponentFade } from "@/components/animations/animate-component-fade";
-import ErrorState from "@/components/custom/error-state";
+import ErrorState from "@/components/custom/states/error-state";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";

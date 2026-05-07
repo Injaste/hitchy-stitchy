@@ -11,19 +11,21 @@ import { useTimelineMutations } from "../queries";
 import type { TimelineItemFormValues } from "../types";
 
 import TimelineItemForm from "./TimelineItemForm";
+import { useAdminStore } from "../../store/useAdminStore";
 
 const TimelineEditModal = () => {
   const isEditOpen = useTimelineModalStore((s) => s.isEditOpen);
   const selectedItem = useTimelineModalStore((s) => s.selectedItem);
   const closeAll = useTimelineModalStore((s) => s.closeAll);
 
+  const { eventId } = useAdminStore();
   const { update } = useTimelineMutations();
 
   if (!selectedItem) return null;
   const item = selectedItem;
 
   const handleSubmit = (values: TimelineItemFormValues) => {
-    update.mutate({ id: item.id, ...values });
+    update.mutate({ event_id: eventId, id: item.id, ...values });
   };
 
   return (

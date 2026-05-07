@@ -86,6 +86,7 @@ export interface CreateTimelineItemPayload {
 }
 
 export interface UpdateTimelineItemPayload {
+  event_id: string
   id: string
   day: string
   label: string | null
@@ -94,4 +95,9 @@ export interface UpdateTimelineItemPayload {
   title: string
   details: string | null
   assignees: string[]
+}
+
+export interface DeleteTimelineItemPayload {
+  event_id: string
+  id: string
 }

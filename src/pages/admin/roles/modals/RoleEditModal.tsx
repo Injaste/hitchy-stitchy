@@ -8,6 +8,7 @@ import {
 
 import { useRoleModalStore } from "../hooks/useRoleModalStore";
 import { useRoleMutations } from "../queries";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import type { RoleFormValues } from "../types";
 
 import RoleForm from "./RoleForm";
@@ -16,6 +17,7 @@ const RoleEditModal = () => {
   const isEditOpen = useRoleModalStore((s) => s.isEditOpen);
   const selectedItem = useRoleModalStore((s) => s.selectedItem);
   const closeAll = useRoleModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
   const { update } = useRoleMutations();
 
   if (!selectedItem) return null;
@@ -23,6 +25,7 @@ const RoleEditModal = () => {
 
   const handleSubmit = (values: RoleFormValues) => {
     update.mutate({
+      event_id: eventId!,
       id: role.id,
       name: values.name,
       short_name: values.short_name,

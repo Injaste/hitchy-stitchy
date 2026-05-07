@@ -13,7 +13,6 @@ import { useTimelineMutations } from "../queries";
 import type { TimelineItemFormValues } from "../types";
 
 import TimelineItemForm from "./TimelineItemForm";
-import { Separator } from "@/components/ui/separator";
 
 const CreateTimelineItemModal = () => {
   const isCreateOpen = useTimelineModalStore((state) => state.isCreateOpen);

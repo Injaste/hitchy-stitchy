@@ -1,23 +1,23 @@
-import type { FC } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import type { FC } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/animate-component-fade"
-import ErrorState from "@/components/custom/error-state"
-import { container, itemFadeUp } from "@/lib/animations"
+import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ErrorState from "@/components/custom/states/error-state";
+import { container, itemFadeUp } from "@/lib/animations";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useMemberModalStore } from "../hooks/useMemberModalStore"
-import MembersSkeleton from "../states/MembersSkeleton"
-import MembersEmpty from "../states/MembersEmpty"
-import type { Member } from "../types"
-import MemberCard from "./MemberCard"
+import { useAccess } from "../../hooks/useAccess";
+import { useMemberModalStore } from "../hooks/useMemberModalStore";
+import MembersSkeleton from "../states/MembersSkeleton";
+import MembersEmpty from "../states/MembersEmpty";
+import type { Member } from "../types";
+import MemberCard from "./MemberCard";
 
 interface MembersViewProps {
-  data: Member[] | undefined
-  isLoading: boolean
-  isError: boolean
-  isRefetching: boolean
-  refetch: () => void
+  data: Member[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  isRefetching: boolean;
+  refetch: () => void;
 }
 
 const MembersView: FC<MembersViewProps> = ({
@@ -27,8 +27,8 @@ const MembersView: FC<MembersViewProps> = ({
   refetch,
   isRefetching,
 }) => {
-  const openInvite = useMemberModalStore((s) => s.openInvite)
-  const { canCreate } = useAccess()
+  const openInvite = useMemberModalStore((s) => s.openInvite);
+  const { canCreate } = useAccess();
 
   const renderBody = () => {
     if (isLoading)
@@ -36,7 +36,7 @@ const MembersView: FC<MembersViewProps> = ({
         <ComponentFade key="skeleton">
           <MembersSkeleton />
         </ComponentFade>
-      )
+      );
 
     if (isError)
       return (
@@ -47,14 +47,17 @@ const MembersView: FC<MembersViewProps> = ({
             isRetrying={isRefetching}
           />
         </ComponentFade>
-      )
+      );
 
     if (!data?.length)
       return (
         <ComponentFade key="empty">
-          <MembersEmpty onInvite={openInvite} canCreate={canCreate("members")} />
+          <MembersEmpty
+            onInvite={openInvite}
+            canCreate={canCreate("members")}
+          />
         </ComponentFade>
-      )
+      );
 
     return (
       <ComponentFade key="content">
@@ -71,10 +74,10 @@ const MembersView: FC<MembersViewProps> = ({
           ))}
         </motion.div>
       </ComponentFade>
-    )
-  }
+    );
+  };
 
-  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
-}
+  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
+};
 
-export default MembersView
+export default MembersView;

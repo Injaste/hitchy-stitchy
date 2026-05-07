@@ -56,7 +56,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
                 .slice(0, 2)
                 .map((id) => getRoleName(id, roles))
                 .join(", ")}
-              {item.assignees.length > 2 && ` +${item.assignees.length - 2}`}
+              {item.assignees.length > 2 && `, +${item.assignees.length - 2}`}
             </span>
           )}
         </CardHeader>

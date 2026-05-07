@@ -4,6 +4,7 @@ import type {
   TimelineGrouped,
   CreateTimelineItemPayload,
   UpdateTimelineItemPayload,
+  DeleteTimelineItemPayload,
 } from "./types"
 import { groupTimeline } from "./utils"
 
@@ -32,12 +33,14 @@ export async function createTimelineItem(payload: CreateTimelineItemPayload): Pr
     p_details: payload.details,
     p_assignees: payload.assignees,
   })
+
   if (error) throw new Error(error.message)
   return data as Timeline
 }
 
 export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Promise<void> {
   const { error } = await supabase.rpc("update_timeline", {
+    p_event_id: payload.event_id,
     p_id: payload.id,
     p_day: payload.day,
     p_label: payload.label,
@@ -51,7 +54,11 @@ export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Pr
   if (error) throw new Error(error.message)
 }
 
-export async function deleteTimelineItem(id: string): Promise<void> {
-  const { error } = await supabase.rpc("delete_timeline", { p_id: id })
+export async function deleteTimelineItem(payload: DeleteTimelineItemPayload): Promise<void> {
+  const { error } = await supabase.rpc("delete_timeline", {
+    p_event_id: payload.event_id,
+    p_id: payload.id
+  })
+
   if (error) throw new Error(error.message)
 }

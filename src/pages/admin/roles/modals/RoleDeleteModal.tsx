@@ -13,15 +13,21 @@ import {
 
 import { useRoleModalStore } from "../hooks/useRoleModalStore"
 import { useRoleMutations } from "../queries"
+import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 
 const RoleDeleteModal = () => {
   const isDeleteOpen = useRoleModalStore((s) => s.isDeleteOpen)
   const selectedItem = useRoleModalStore((s) => s.selectedItem)
   const closeAll = useRoleModalStore((s) => s.closeAll)
+  const { eventId } = useAdminStore()
   const { remove } = useRoleMutations()
 
   if (!selectedItem) return null
   const role = selectedItem
+
+  const handleSubmit = () => {
+    remove.mutate({ event_id: eventId!, id: role.id });
+  };
 
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
@@ -51,7 +57,7 @@ const RoleDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={() => remove.mutate(role.id)}
+            onClick={handleSubmit}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Deleting…" : "Delete"}

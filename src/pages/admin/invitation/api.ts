@@ -69,7 +69,7 @@ export async function fetchThemes(eventId: string): Promise<Theme[]> {
 }
 
 export async function createTheme(payload: CreateThemePayload): Promise<Theme> {
-  const { data, error } = await supabase.rpc("create_event_theme", {
+  const { data, error } = await supabase.rpc("create_theme", {
     p_event_id: payload.event_id,
     p_template_id: payload.template_id,
     p_name: payload.name,
@@ -80,7 +80,7 @@ export async function createTheme(payload: CreateThemePayload): Promise<Theme> {
 }
 
 export async function updateTheme(payload: UpdateThemePayload): Promise<Theme> {
-  const { data, error } = await supabase.rpc("update_event_theme", {
+  const { data, error } = await supabase.rpc("update_theme", {
     p_event_id: payload.event_id,
     p_theme_id: payload.id,
     p_name: payload.name ?? null,
@@ -92,7 +92,7 @@ export async function updateTheme(payload: UpdateThemePayload): Promise<Theme> {
 }
 
 export async function deleteTheme(eventId: string, themeId: string): Promise<void> {
-  const { error } = await supabase.rpc("delete_event_theme", {
+  const { error } = await supabase.rpc("delete_theme", {
     p_event_id: eventId,
     p_theme_id: themeId,
   })

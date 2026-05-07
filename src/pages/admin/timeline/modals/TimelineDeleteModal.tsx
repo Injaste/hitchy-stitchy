@@ -13,16 +13,22 @@ import { TriangleAlert } from "lucide-react";
 
 import { useTimelineMutations } from "../queries";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useAdminStore } from "../../store/useAdminStore";
 
 const TimelineDeleteModal = () => {
   const isDeleteOpen = useTimelineModalStore((s) => s.isDeleteOpen);
   const selectedItem = useTimelineModalStore((s) => s.selectedItem);
   const closeAll = useTimelineModalStore((s) => s.closeAll);
 
+  const { eventId } = useAdminStore();
   const { remove } = useTimelineMutations();
 
   if (!selectedItem) return null;
   const item = selectedItem;
+
+  const handleSubmit = () => {
+    remove.mutate({ event_id: eventId!, id: item.id });
+  };
 
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
@@ -54,7 +60,7 @@ const TimelineDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={() => remove.mutate(item.id)}
+            onClick={handleSubmit}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Deleting…" : "Delete"}

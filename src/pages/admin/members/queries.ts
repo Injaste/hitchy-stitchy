@@ -33,14 +33,16 @@ export function useMemberMutations() {
   const closeAll = useMemberModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
-  const invalidate = () =>
+  const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
+    queryClient.invalidateQueries({ queryKey: adminKeys.tasks(slug!) })
+  }
 
   const invite = useMutation(
     (payload: InviteMemberPayload) => inviteMember(payload),
     {
       successMessage: "Invite sent",
-      errorMessage: "Failed to send invite",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
@@ -49,7 +51,7 @@ export function useMemberMutations() {
     (payload: UpdateMemberPayload) => updateMember(payload),
     {
       successMessage: "Member updated",
-      errorMessage: "Failed to update member",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
@@ -58,7 +60,7 @@ export function useMemberMutations() {
     (display_name: string) => updateMyDisplayName({ event_id: eventId!, display_name }),
     {
       successMessage: "Name updated",
-      errorMessage: "Failed to update name",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
@@ -67,8 +69,8 @@ export function useMemberMutations() {
     (payload: FreezeMemberPayload) => freezeMember(payload),
     {
       successMessage: (_r, args) =>
-        args.is_frozen ? "Access frozen" : "Access restored",
-      errorMessage: "Failed to update access",
+        args.freeze ? "Access frozen" : "Access restored",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
@@ -77,7 +79,7 @@ export function useMemberMutations() {
     (payload: DeleteMemberPayload) => deleteMember(payload),
     {
       successMessage: "Member removed",
-      errorMessage: "Failed to remove member",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )

@@ -13,16 +13,22 @@ import {
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 const MemberFreezeModal = () => {
   const isFreezeOpen = useMemberModalStore((s) => s.isFreezeOpen);
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
   const { freeze } = useMemberMutations();
 
   if (!selectedItem) return null;
   const member = selectedItem;
-  const willFreeze = !member.is_frozen;
+  const willFreeze = !member.frozen_at;
+
+  const handleSubmit = () => {
+    freeze.mutate({ event_id: eventId!, id: member.id, freeze: willFreeze });
+  };
 
   return (
     <AlertDialog open={isFreezeOpen} onOpenChange={closeAll}>
@@ -70,9 +76,7 @@ const MemberFreezeModal = () => {
           <AlertDialogAction
             variant={willFreeze ? "destructive" : "default"}
             size="sm"
-            onClick={() =>
-              freeze.mutate({ id: member.id, is_frozen: willFreeze })
-            }
+            onClick={handleSubmit}
             disabled={freeze.isPending}
           >
             {freeze.isPending

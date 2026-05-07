@@ -10,7 +10,7 @@ export interface Member {
   role_id: string;
   email: string;
   display_name: string;
-  is_frozen: boolean;
+  frozen_at: string | null;
   invited_at: string;
   joined_at: string | null;
   rejected_at: string | null;
@@ -48,6 +48,7 @@ export interface InviteMemberPayload {
 }
 
 export interface UpdateMemberPayload {
+  event_id: string;
   id: string;
   display_name: string;
   role_id: string;
@@ -59,10 +60,12 @@ export interface UpdateMyDisplayNamePayload {
 }
 
 export interface FreezeMemberPayload {
+  event_id: string;
   id: string;
-  is_frozen: boolean;
+  freeze: boolean;
 }
 
 export interface DeleteMemberPayload {
+  event_id: string;
   id: string;
 }

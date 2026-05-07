@@ -3,6 +3,7 @@ import type {
   Task,
   CreateTaskPayload,
   UpdateTaskPayload,
+  DeleteTaskPayload,
   TaskOrder,
 } from "./types";
 
@@ -63,6 +64,7 @@ export async function createTask(payload: CreateTaskPayload): Promise<Task> {
 
 export async function updateTask(payload: UpdateTaskPayload): Promise<void> {
   const { error } = await supabase.rpc("update_task", {
+    p_event_id: payload.event_id,
     p_id: payload.id,
     p_title: payload.title,
     p_details: payload.details,
@@ -76,9 +78,11 @@ export async function updateTask(payload: UpdateTaskPayload): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
-
-export async function deleteTask(id: string): Promise<void> {
-  const { error } = await supabase.rpc("delete_task", { p_id: id });
+export async function deleteTask(payload: DeleteTaskPayload): Promise<void> {
+  const { error } = await supabase.rpc("delete_task", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+  });
 
   if (error) throw new Error(error.message);
 }

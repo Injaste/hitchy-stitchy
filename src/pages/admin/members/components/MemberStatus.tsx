@@ -5,7 +5,7 @@ import { type Member, type MemberStatusLabel } from "../types";
 import { getMemberStatus } from "../utils";
 
 interface MemberStatusProps {
-  member: Pick<Member, "joined_at" | "rejected_at" | "is_frozen">;
+  member: Pick<Member, "joined_at" | "rejected_at" | "frozen_at">;
   className?: string;
 }
 
@@ -23,7 +23,7 @@ const MemberStatus = ({ member, className }: MemberStatusProps) => {
     frozen: {
       icon: Snowflake,
       label: "Frozen",
-      className: "text-muted-foreground",
+      className: "text-destructive",
     },
     rejected: {
       icon: UserX,

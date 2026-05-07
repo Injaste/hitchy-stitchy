@@ -11,7 +11,7 @@ interface InvitationModalState {
   closeAll: () => void
 }
 
-export const useInvitationModalStore = createModalStore<InvitationModalState>((set) => ({
+export const useInvitationModalStore = createModalStore<Theme, InvitationModalState>((set) => ({
   isCreateOpen: false,
   isDeleteOpen: false,
   isPublishOpen: false,

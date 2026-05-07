@@ -38,11 +38,17 @@ export interface CreateRolePayload {
 }
 
 export interface UpdateRolePayload {
+  event_id: string
   id: string
   name?: string
   short_name?: string
   category?: RoleCategory
   description?: string | null
+}
+
+export interface DeleteRolePayload {
+  event_id: string
+  id: string
 }
 
 export const CATEGORY_LABELS: Record<RoleCategory, string> = {

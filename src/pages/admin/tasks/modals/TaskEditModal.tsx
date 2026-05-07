@@ -8,6 +8,7 @@ import {
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import type { TaskFormValues } from "../types";
 
 import TaskForm from "./TaskForm";
@@ -16,6 +17,7 @@ const TaskEditModal = () => {
   const isEditOpen = useTaskModalStore((s) => s.isEditOpen);
   const selectedItem = useTaskModalStore((s) => s.selectedItem);
   const closeAll = useTaskModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
   const { update } = useTaskMutations();
 
   if (!selectedItem) return null;
@@ -23,6 +25,7 @@ const TaskEditModal = () => {
 
   const handleSubmit = (values: TaskFormValues) => {
     update.mutate({
+      event_id: eventId!,
       id: task.id,
       title: values.title,
       details: values.details,

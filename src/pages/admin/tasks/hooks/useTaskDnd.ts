@@ -119,6 +119,7 @@ export function useTaskDnd({ localTasks, setLocalTasks }: UseTaskDndArgs) {
         );
         if (changed) {
           saveStatuses.mutate({
+            event_id: eventId ?? "",
             id: changed.id,
             title: changed.title,
             details: changed.details,

@@ -13,15 +13,21 @@ import {
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore"
 import { useTaskMutations } from "../queries"
+import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 
 const TaskDeleteModal = () => {
   const isDeleteOpen = useTaskModalStore((s) => s.isDeleteOpen)
   const selectedItem = useTaskModalStore((s) => s.selectedItem)
   const closeAll = useTaskModalStore((s) => s.closeAll)
+  const { eventId } = useAdminStore()
   const { remove } = useTaskMutations()
 
   if (!selectedItem) return null
   const task = selectedItem
+
+  const handleSubmit = () => {
+    remove.mutate({ event_id: eventId!, id: task.id });
+  };
 
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
@@ -51,7 +57,7 @@ const TaskDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={() => remove.mutate(task.id)}
+            onClick={handleSubmit}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Deleting…" : "Delete"}

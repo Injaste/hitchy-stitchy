@@ -8,6 +8,7 @@ import {
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import type { EditMemberValues } from "../types";
 
 import MemberForm from "./MemberForm";
@@ -16,6 +17,7 @@ const MemberEditModal = () => {
   const isEditOpen = useMemberModalStore((s) => s.isEditOpen);
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
   const { update } = useMemberMutations();
 
   if (!selectedItem) return null;
@@ -23,6 +25,7 @@ const MemberEditModal = () => {
 
   const handleSubmit = (values: EditMemberValues) => {
     update.mutate({
+      event_id: eventId!,
       id: member.id,
       display_name: values.display_name,
       role_id: values.role_id,

@@ -5,7 +5,7 @@ import { ComponentFade } from "@/components/animations/animate-component-fade";
 import { useAuthListener, useIsAuthenticatedQuery } from "./queries";
 
 import SignIn from ".";
-import LoadingState from "@/components/custom/loading-state";
+import LoadingState from "@/components/custom/states/loading-state";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { data: isAuthenticated, isLoading } = useIsAuthenticatedQuery();

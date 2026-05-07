@@ -1,26 +1,16 @@
-import { useState, type FC } from "react";
+import type { FC } from "react";
 import { useForm } from "@tanstack/react-form";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
+import { FieldGroup } from "@/components/ui/field";
 import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
+import {
+  FormShell,
+  TextField,
+  SelectField,
+  type SelectFieldOption,
+} from "@/components/custom/fields";
 
 import { useRolesQuery } from "../../roles/queries";
 import {
@@ -58,12 +48,21 @@ const MemberForm: FC<MemberFormProps> = ({
   isPending,
   submitLabel,
 }) => {
-  const [attemptCount, setAttemptCount] = useState(0);
   const { data: roles } = useRolesQuery();
 
   const schema = mode === "invite" ? inviteMemberSchema : editMemberSchema;
 
   const assignableRoles = (roles ?? []).filter((r) => r.category !== "root");
+
+  const roleOptions: SelectFieldOption[] = assignableRoles.length
+    ? assignableRoles.map((r) => ({ value: r.id, label: r.name }))
+    : [
+        {
+          value: "0",
+          label: "No roles available — add roles first",
+          disabled: true,
+        },
+      ];
 
   const form = useForm({
     defaultValues: {
@@ -82,113 +81,32 @@ const MemberForm: FC<MemberFormProps> = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAttemptCount((prev) => prev + 1);
-    form.handleSubmit();
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="grid gap-4">
+    <FormShell form={form} className="grid gap-4">
       <DialogBody className="space-y-6">
         <FieldGroup className="block space-y-4">
-          <form.Field name="display_name">
-            {(field) => {
-              const hasError =
-                Boolean(field.state.meta.errors.length) && attemptCount > 0;
-              return (
-                <AnimateItem
-                  errors={field.state.meta.errors}
-                  hasError={hasError}
-                  attemptCount={attemptCount}
-                >
-                  <Field data-invalid={hasError} className="gap-2">
-                    <FieldLabel>Display name</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        placeholder="e.g. Sarah Tan"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </FieldContent>
-                  </Field>
-                </AnimateItem>
-              );
-            }}
-          </form.Field>
+          <TextField
+            name="display_name"
+            label="Display name"
+            placeholder="e.g. Sarah Tan"
+          />
 
           {mode === "invite" && (
-            <form.Field name="email">
-              {(field) => {
-                const hasError =
-                  Boolean(field.state.meta.errors.length) && attemptCount > 0;
-                return (
-                  <AnimateItem
-                    errors={field.state.meta.errors}
-                    hasError={hasError}
-                    attemptCount={attemptCount}
-                  >
-                    <Field data-invalid={hasError} className="gap-2">
-                      <FieldLabel>Email</FieldLabel>
-                      <FieldContent>
-                        <Input
-                          type="email"
-                          placeholder="sarah@example.com"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                        />
-                      </FieldContent>
-                      <FieldDescription className="text-xs text-muted-foreground">
-                        Email cannot be changed once assigned.
-                      </FieldDescription>
-                    </Field>
-                  </AnimateItem>
-                );
-              }}
-            </form.Field>
+            <TextField
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="sarah@example.com"
+              description="Email cannot be changed once assigned."
+            />
           )}
 
-          <form.Field name="role_id">
-            {(field) => {
-              const hasError =
-                Boolean(field.state.meta.errors.length) && attemptCount > 0;
-              return (
-                <AnimateItem
-                  errors={field.state.meta.errors}
-                  hasError={hasError}
-                  attemptCount={attemptCount}
-                >
-                  <div className="space-y-1.5">
-                    <Label>Role</Label>
-                    <Select
-                      value={field.state.value}
-                      onValueChange={field.handleChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {assignableRoles.length === 0 ? (
-                          <SelectItem value="0" disabled>
-                            No roles available — add roles first
-                          </SelectItem>
-                        ) : (
-                          assignableRoles.map((r) => (
-                            <SelectItem key={r.id} value={r.id}>
-                              {r.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </AnimateItem>
-              );
-            }}
-          </form.Field>
+          <SelectField
+            name="role_id"
+            label="Role"
+            options={roleOptions}
+            placeholder="Select a role"
+          />
         </FieldGroup>
       </DialogBody>
 
@@ -204,7 +122,7 @@ const MemberForm: FC<MemberFormProps> = ({
           {isPending ? "Saving…" : submitLabel}
         </Button>
       </DialogFooter>
-    </form>
+    </FormShell>
   );
 };
 

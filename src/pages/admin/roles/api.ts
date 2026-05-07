@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { Role, CreateRolePayload, UpdateRolePayload } from "./types";
+import type { Role, CreateRolePayload, UpdateRolePayload, DeleteRolePayload } from "./types";
 
 const ROLE_FIELDS =
   "id, event_id, name, short_name, category, description, created_at, updated_at";
@@ -30,6 +30,7 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
 
 export async function updateRole(payload: UpdateRolePayload): Promise<void> {
   const { error } = await supabase.rpc("update_role", {
+    p_event_id: payload.event_id,
     p_id: payload.id,
     p_name: payload.name,
     p_short_name: payload.short_name,
@@ -40,7 +41,10 @@ export async function updateRole(payload: UpdateRolePayload): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
-export async function deleteRole(id: string): Promise<void> {
-  const { error } = await supabase.rpc("delete_role", { p_id: id });
+export async function deleteRole(payload: DeleteRolePayload): Promise<void> {
+  const { error } = await supabase.rpc("delete_role", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+  });
   if (error) throw new Error(error.message);
 }

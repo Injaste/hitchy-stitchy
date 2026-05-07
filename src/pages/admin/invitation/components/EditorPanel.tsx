@@ -46,7 +46,7 @@ const EditorPanel = () => {
   const ActiveElement = activeTabConfig.element;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-1 flex-col h-full">
       <Tabs
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as EditorTabId)}

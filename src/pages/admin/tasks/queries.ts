@@ -4,7 +4,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { useTaskModalStore } from "./hooks/useTaskModalStore"
 import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask } from "./api"
-import type { CreateTaskPayload, UpdateTaskPayload, TaskOrder } from "./types"
+import type { CreateTaskPayload, UpdateTaskPayload, DeleteTaskPayload, TaskOrder } from "./types"
 
 export function useTasksQuery() {
   const { slug, eventId } = useAdminStore()
@@ -38,7 +38,7 @@ export function useTaskMutations() {
     (payload: CreateTaskPayload) => createTask(payload),
     {
       successMessage: "Task added",
-      errorMessage: "Failed to add task",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
@@ -47,16 +47,16 @@ export function useTaskMutations() {
     (payload: UpdateTaskPayload) => updateTask(payload),
     {
       successMessage: "Task updated",
-      errorMessage: "Failed to update task",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
 
   const remove = useMutation(
-    (id: string) => deleteTask(id),
+    (payload: DeleteTaskPayload) => deleteTask(payload),
     {
       successMessage: "Task deleted",
-      errorMessage: "Failed to delete task",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )

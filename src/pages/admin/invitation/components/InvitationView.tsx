@@ -1,7 +1,7 @@
 import { type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
-import ErrorState from "@/components/custom/error-state";
+import ErrorState from "@/components/custom/states/error-state";
 import InvitationSkeleton from "../states/InvitationSkeleton";
 import EditorLayout from "./EditorLayout";
 

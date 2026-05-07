@@ -4,7 +4,6 @@ import { CalendarHeart } from "lucide-react";
 import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
 
 import CreateEventForm from "./CreateEventForm";
-import { Link } from "react-router-dom";
 import BackLink from "@/components/custom/back-link";
 
 const CreateEventView = () => {

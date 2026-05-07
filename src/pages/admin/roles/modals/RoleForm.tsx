@@ -1,26 +1,17 @@
-import { useState, type FC } from "react";
+import type { FC } from "react";
 import { useForm } from "@tanstack/react-form";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Field,
-  FieldContent,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
+import { FieldGroup } from "@/components/ui/field";
 import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
+import {
+  FormShell,
+  TextField,
+  TextareaField,
+  SelectField,
+  type SelectFieldOption,
+} from "@/components/custom/fields";
 
 import { roleFormSchema, CATEGORY_LABELS, type RoleFormValues } from "../types";
 
@@ -36,6 +27,12 @@ const SELECTABLE_CATEGORIES = Object.keys(
   CATEGORY_LABELS,
 ) as (keyof typeof CATEGORY_LABELS)[];
 
+const CATEGORY_OPTIONS: SelectFieldOption[] = SELECTABLE_CATEGORIES.map((c) => ({
+  value: c,
+  label: CATEGORY_LABELS[c],
+  disabled: c === "root",
+}));
+
 const RoleForm: FC<RoleFormProps> = ({
   defaultValues,
   onSubmit,
@@ -43,8 +40,6 @@ const RoleForm: FC<RoleFormProps> = ({
   isPending,
   submitLabel,
 }) => {
-  const [attemptCount, setAttemptCount] = useState(0);
-
   const form = useForm({
     defaultValues: {
       name: defaultValues?.name ?? "",
@@ -61,119 +56,37 @@ const RoleForm: FC<RoleFormProps> = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAttemptCount((prev) => prev + 1);
-    form.handleSubmit();
-  };
+  const lockCategory = defaultValues?.category === "root";
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-4">
+    <FormShell form={form} className="grid gap-4">
       <DialogBody className="space-y-6">
-      <FieldGroup className="block space-y-4">
-        <form.Field name="name">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      placeholder="e.g. Coordinator"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
+        <FieldGroup className="block space-y-4">
+          <TextField name="name" label="Name" placeholder="e.g. Coordinator" />
 
-        <form.Field name="short_name">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Short name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      placeholder="e.g. CO"
-                      maxLength={10}
-                      value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(e.target.value.toUpperCase())
-                      }
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
+          <TextField
+            name="short_name"
+            label="Short name"
+            placeholder="e.g. CO"
+            maxLength={10}
+            transform={(v) => v.toUpperCase()}
+          />
 
-        <form.Field name="category">
-          {(field) => (
-            <div className="space-y-1.5">
-              <Label>Category</Label>
-              <Select
-                value={field.state.value}
-                onValueChange={(v) =>
-                  field.handleChange(v as RoleFormValues["category"])
-                }
-              >
-                <SelectTrigger
-                  className="w-full"
-                  disabled={defaultValues?.category === "root"}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SELECTABLE_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c} disabled={c == "root"}>
-                      {CATEGORY_LABELS[c]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </form.Field>
+          <SelectField
+            name="category"
+            label="Category"
+            options={CATEGORY_OPTIONS}
+            disabled={lockCategory}
+          />
 
-        <div className="space-y-1.5">
-          <Label>
-            Description{" "}
-            <span className="text-muted-foreground font-normal">
-              (optional)
-            </span>
-          </Label>
-          <form.Field name="description">
-            {(field) => (
-              <Textarea
-                placeholder="What this role covers on the day…"
-                value={field.state.value ?? ""}
-                onChange={(e) => field.handleChange(e.target.value)}
-                rows={3}
-              />
-            )}
-          </form.Field>
-        </div>
-      </FieldGroup>
+          <TextareaField
+            name="description"
+            label="Description"
+            optional
+            rows={3}
+            placeholder="What this role covers on the day…"
+          />
+        </FieldGroup>
       </DialogBody>
 
       <Separator />
@@ -188,7 +101,7 @@ const RoleForm: FC<RoleFormProps> = ({
           {isPending ? "Saving…" : submitLabel}
         </Button>
       </DialogFooter>
-    </form>
+    </FormShell>
   );
 };
 

@@ -1,24 +1,24 @@
-import type { FC } from "react"
-import { AnimatePresence } from "framer-motion"
+import type { FC } from "react";
+import { AnimatePresence } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/animate-component-fade"
-import ErrorState from "@/components/custom/error-state"
+import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ErrorState from "@/components/custom/states/error-state";
 
-import { useAccess } from "../../hooks/useAccess"
-import { useGuestModalStore } from "../hooks/useGuestModalStore"
-import type { Guest } from "../types"
+import { useAccess } from "../../hooks/useAccess";
+import { useGuestModalStore } from "../hooks/useGuestModalStore";
+import type { Guest } from "../types";
 
-import GuestsSkeleton from "../states/GuestsSkeleton"
-import GuestsEmpty from "../states/GuestsEmpty"
-import GuestsStats from "./GuestsStats"
-import GuestsTable from "./GuestsTable"
+import GuestsSkeleton from "../states/GuestsSkeleton";
+import GuestsEmpty from "../states/GuestsEmpty";
+import GuestsStats from "./GuestsStats";
+import GuestsTable from "./GuestsTable";
 
 interface GuestsViewProps {
-  data: Guest[] | undefined
-  isLoading: boolean
-  isError: boolean
-  isRefetching: boolean
-  refetch: () => void
+  data: Guest[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  isRefetching: boolean;
+  refetch: () => void;
 }
 
 const GuestsView: FC<GuestsViewProps> = ({
@@ -28,9 +28,9 @@ const GuestsView: FC<GuestsViewProps> = ({
   isRefetching,
   refetch,
 }) => {
-  const openCreate = useGuestModalStore((s) => s.openCreate)
-  const openImport = useGuestModalStore((s) => s.openImport)
-  const { canCreate } = useAccess()
+  const openCreate = useGuestModalStore((s) => s.openCreate);
+  const openImport = useGuestModalStore((s) => s.openImport);
+  const { canCreate } = useAccess();
 
   const renderBody = () => {
     if (isLoading) {
@@ -38,7 +38,7 @@ const GuestsView: FC<GuestsViewProps> = ({
         <ComponentFade key="skeleton">
           <GuestsSkeleton />
         </ComponentFade>
-      )
+      );
     }
 
     if (isError) {
@@ -50,7 +50,7 @@ const GuestsView: FC<GuestsViewProps> = ({
             isRetrying={isRefetching}
           />
         </ComponentFade>
-      )
+      );
     }
 
     if (!data?.length) {
@@ -62,7 +62,7 @@ const GuestsView: FC<GuestsViewProps> = ({
             canCreate={canCreate("rsvp")}
           />
         </ComponentFade>
-      )
+      );
     }
 
     return (
@@ -70,10 +70,10 @@ const GuestsView: FC<GuestsViewProps> = ({
         <GuestsStats guests={data} />
         <GuestsTable guests={data} />
       </ComponentFade>
-    )
-  }
+    );
+  };
 
-  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
-}
+  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
+};
 
-export default GuestsView
+export default GuestsView;

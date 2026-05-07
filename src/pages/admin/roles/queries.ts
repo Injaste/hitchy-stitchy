@@ -4,7 +4,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { useRoleModalStore } from "./hooks/useRoleModalStore"
 import { fetchRoles, createRole, updateRole, deleteRole } from "./api"
-import type { CreateRolePayload, UpdateRolePayload } from "./types"
+import type { CreateRolePayload, UpdateRolePayload, DeleteRolePayload } from "./types"
 
 export function useRolesQuery() {
   const { slug, eventId } = useAdminStore()
@@ -23,13 +23,14 @@ export function useRoleMutations() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: adminKeys.roles(slug!) })
     queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
+    queryClient.invalidateQueries({ queryKey: adminKeys.timeline(slug!) })
   }
 
   const create = useMutation(
     (payload: CreateRolePayload) => createRole(payload),
     {
       successMessage: "Role created",
-      errorMessage: "Failed to create role",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
@@ -38,16 +39,16 @@ export function useRoleMutations() {
     (payload: UpdateRolePayload) => updateRole(payload),
     {
       successMessage: "Role updated",
-      errorMessage: "Failed to update role",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )
 
   const remove = useMutation(
-    (id: string) => deleteRole(id),
+    (payload: DeleteRolePayload) => deleteRole(payload),
     {
       successMessage: "Role deleted",
-      errorMessage: "Failed to delete role",
+      errorMessage: (err) => err.message,
       onSuccess: () => { invalidate(); closeAll() },
     },
   )

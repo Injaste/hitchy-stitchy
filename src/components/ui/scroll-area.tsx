@@ -41,7 +41,7 @@ function ScrollArea({
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
-      className={cn("relative", className)}
+      className={cn("relative -m-1", className)}
       {...props}
     >
       {gradient && (
@@ -56,7 +56,7 @@ function ScrollArea({
       <ScrollAreaPrimitive.Viewport
         ref={gradient ? scrollRef : undefined}
         data-slot="scroll-area-viewport"
-        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 p-1"
         onScroll={gradient ? updateScrollState : undefined}
       >
         {children}

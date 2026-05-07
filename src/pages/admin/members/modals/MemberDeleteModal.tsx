@@ -13,15 +13,21 @@ import {
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 const MemberDeleteModal = () => {
   const isDeleteOpen = useMemberModalStore((s) => s.isDeleteOpen);
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
   const { remove } = useMemberMutations();
 
   if (!selectedItem) return null;
   const member = selectedItem;
+
+  const handleSubmit = () => {
+    remove.mutate({ event_id: eventId!, id: member.id });
+  };
 
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
@@ -52,7 +58,7 @@ const MemberDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={() => remove.mutate({ id: member.id })}
+            onClick={handleSubmit}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Saving…" : "Delete access"}

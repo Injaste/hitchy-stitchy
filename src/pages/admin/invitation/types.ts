@@ -51,15 +51,16 @@ export type DetailsDraft = Pick<
   | "venue_address"
   | "venue_map_link"
   | "venue_map_embed_url"
-  | "max_guests"
-  | "guest_count_min"
-  | "guest_count_max"
-  | "confirmation_message"
 >
 
 export type RSVPDraft = Pick<
   Invitation,
-  "rsvp_mode" | "rsvp_deadline"
+  | "max_guests"
+  | "guest_count_min"
+  | "guest_count_max"
+  | "confirmation_message"
+  | "rsvp_mode"
+  | "rsvp_deadline"
 > & {
   config: RSVPSectionConfig
 }

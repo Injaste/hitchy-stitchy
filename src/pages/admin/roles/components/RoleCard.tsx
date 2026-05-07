@@ -16,7 +16,7 @@ interface RoleCardProps {
 const RoleCard: FC<RoleCardProps> = ({ role, members }) => {
   const openDetail = useRoleModalStore((s) => s.openDetail);
 
-  const activeMembers = members.filter((m) => !m.is_frozen);
+  const activeMembers = members.filter((m) => !m.frozen_at);
 
   return (
     <Card className="relative h-full hover:ring-secondary hover:shadow-sm">

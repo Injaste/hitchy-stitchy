@@ -33,13 +33,13 @@ const MemberDetailModal = () => {
   const canFreeze = canUpdate("members.freeze");
   const isRoot = member.role.category === "root";
   const isRejected = !!member.rejected_at;
-  const isFrozen = member.is_frozen;
+  const isFrozen = !!member.frozen_at;
   const isPending = !member.joined_at && !isRejected;
 
   const statusConfig = isRejected
     ? { icon: UserX, label: "Declined", className: "text-destructive/60" }
     : isFrozen
-      ? { icon: Snowflake, label: "Frozen", className: "text-muted-foreground" }
+      ? { icon: Snowflake, label: "Frozen", className: "text-destructive" }
       : isPending
         ? {
             icon: Clock,
@@ -67,6 +67,11 @@ const MemberDetailModal = () => {
       label: "Declined",
       date: format(parseISO(member.rejected_at), formatDate),
       time: format(parseISO(member.rejected_at), formatTime),
+    },
+    member.frozen_at && {
+      label: "Frozen",
+      date: format(parseISO(member.frozen_at), formatDate),
+      time: format(parseISO(member.frozen_at), formatTime),
     },
   ].filter(Boolean) as { label: string; date: string; time: string }[];
 
