@@ -41,7 +41,7 @@ const JoinedCard: FC<{ event: Event }> = ({ event }) => {
           )}
         </CardHeader>
         <CardContent className="flex-1 pt-4">
-          <h3 className="font-bold text-foreground text-xl leading-snug mb-1">
+          <h3 className="font-bold text-foreground text-xl leading-snug mb-1 truncate">
             {event.name}
           </h3>
           <ArraySeparator

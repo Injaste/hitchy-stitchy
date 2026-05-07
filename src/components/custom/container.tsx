@@ -4,7 +4,7 @@ import { type FC, type ReactNode } from "react";
 const sizeMap = {
   sm: "max-w-xl",
   md: "max-w-2xl",
-  default: "max-w-5xl",
+  default: "max-w-6xl",
   lg: "max-w-6xl",
   full: "max-w-full",
 } as const;
@@ -27,7 +27,7 @@ const Container: FC<ContainerProps> = ({
   return (
     <div
       className={cn(
-        "w-full space-y-8",
+        "w-full space-y-8 transitional-[max-width]",
         sizeMap[size],
         centred && "mx-auto",
         className,

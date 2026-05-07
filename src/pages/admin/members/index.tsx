@@ -3,12 +3,13 @@ import { useMembersQuery } from "./queries"
 import MembersHeader from "./components/MembersHeader"
 import MembersView from "./components/MembersView"
 import MemberModals from "./modals"
+import Container from "@/components/custom/container"
 
 const Members = () => {
   const { data, isLoading, isError, refetch, isRefetching } = useMembersQuery()
 
   return (
-    <div className="space-y-8">
+    <Container>
       <MembersHeader
         isLoading={isLoading}
         isError={isError}
@@ -24,7 +25,7 @@ const Members = () => {
         isRefetching={isRefetching}
       />
       <MemberModals />
-    </div>
+    </Container>
   )
 }
 

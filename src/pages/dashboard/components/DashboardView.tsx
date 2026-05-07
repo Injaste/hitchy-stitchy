@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import Container from "@/components/custom/container";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ErrorState from "@/components/custom/states/error-state";
 
 import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
 
@@ -18,8 +19,48 @@ import EventView from "../components/EventView";
 const EMPTY_COUNT: EventsCount = { active: 0, upcoming: 0, pending: 0 };
 
 const DashboardView = () => {
-  const { data: events, isLoading, isFetching, refetch } = useEventsQuery();
+  const {
+    data: events,
+    isLoading,
+    isFetching,
+    isError,
+    isRefetching,
+    refetch,
+  } = useEventsQuery();
   const { data: eventsCount = EMPTY_COUNT } = useCountEventsQuery();
+
+  const renderBody = () => {
+    if (isLoading)
+      return (
+        <ComponentFade key="skeleton">
+          <EventSkeleton />
+        </ComponentFade>
+      );
+
+    if (isError)
+      return (
+        <ComponentFade key="error">
+          <ErrorState
+            message="We couldn't load your events. Please try again."
+            onRetry={refetch}
+            isRetrying={isRefetching}
+          />
+        </ComponentFade>
+      );
+
+    if (!events?.length)
+      return (
+        <ComponentFade key="empty">
+          <EventEmpty />
+        </ComponentFade>
+      );
+
+    return (
+      <ComponentFade key="events">
+        <EventView events={events} />
+      </ComponentFade>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,33 +69,19 @@ const DashboardView = () => {
           <DashboardTopbar />
         </motion.div>
 
-        <motion.div variants={itemFadeUp}>
-          <Container className="px-6 md:px-10 py-8 md:py-12">
-            <DashboardHeader
-              eventsCount={eventsCount}
-              isLoading={isLoading}
-              isFetching={isFetching}
-              refetch={refetch}
-            />
-          </Container>
-        </motion.div>
+        <Container>
+          <div className="px-6 md:px-10 py-8 md:py-12 space-y-8">
+            <motion.div variants={itemFadeUp}>
+              <DashboardHeader
+                eventsCount={eventsCount}
+                isLoading={isLoading}
+                isFetching={isFetching}
+                refetch={refetch}
+              />
+            </motion.div>
 
-        <Container className="px-6 md:px-10 py-8 md:py-12">
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              <ComponentFade key="skeleton">
-                <EventSkeleton />
-              </ComponentFade>
-            ) : !events?.length ? (
-              <ComponentFade key="empty">
-                <EventEmpty />
-              </ComponentFade>
-            ) : (
-              <ComponentFade key="events">
-                <EventView events={events} />
-              </ComponentFade>
-            )}
-          </AnimatePresence>
+            <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
+          </div>
         </Container>
       </motion.div>
     </div>
@@ -62,3 +89,10 @@ const DashboardView = () => {
 };
 
 export default DashboardView;
+
+// TODOS
+/*
+  implement a way to display ur user name that is project based on and event based.. 
+  implement project settings, can handle invites all etc...
+  implement...
+*/

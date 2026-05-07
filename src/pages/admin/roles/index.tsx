@@ -4,6 +4,7 @@ import { useMembersQuery } from "../members/queries"
 import RolesHeader from "./components/RolesHeader"
 import RolesView from "./components/RolesView"
 import RoleModals from "./modals"
+import Container from "@/components/custom/container"
 
 const Roles = () => {
   const {
@@ -16,7 +17,7 @@ const Roles = () => {
   const { data: members } = useMembersQuery()
 
   return (
-    <div className="space-y-8">
+    <Container>
       <RolesHeader
         isLoading={isLoading}
         isError={isError}
@@ -33,7 +34,7 @@ const Roles = () => {
         isRefetching={isRefetching}
       />
       <RoleModals />
-    </div>
+    </Container>
   )
 }
 

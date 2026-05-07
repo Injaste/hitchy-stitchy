@@ -2,13 +2,14 @@ import { useTasksQuery, useTaskOrderQuery } from "./queries";
 import TasksHeader from "./components/TasksHeader";
 import TasksView from "./components/TasksView";
 import TaskModals from "./modals";
+import Container from "@/components/custom/container";
 
 const Tasks = () => {
   const { data, isLoading, isError, refetch, isRefetching } = useTasksQuery();
   const { data: taskOrder } = useTaskOrderQuery();
 
   return (
-    <div className="space-y-8">
+    <Container>
       <TasksHeader
         isLoading={isLoading}
         isError={isError}
@@ -25,7 +26,7 @@ const Tasks = () => {
         isRefetching={isRefetching}
       />
       <TaskModals />
-    </div>
+    </Container>
   );
 };
 

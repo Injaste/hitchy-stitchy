@@ -2,13 +2,14 @@ import { useGuestsQuery, useGuestsRealtime } from "./queries"
 import GuestsHeader from "./components/GuestsHeader"
 import GuestsView from "./components/GuestsView"
 import GuestModals from "./modals"
+import Container from "@/components/custom/container"
 
 const Guests = () => {
   const { data, isLoading, isError, refetch, isRefetching } = useGuestsQuery()
   useGuestsRealtime()
 
   return (
-    <div className="space-y-8">
+    <Container>
       <GuestsHeader
         isLoading={isLoading}
         isError={isError}
@@ -24,7 +25,7 @@ const Guests = () => {
         isRefetching={isRefetching}
       />
       <GuestModals />
-    </div>
+    </Container>
   )
 }
 
