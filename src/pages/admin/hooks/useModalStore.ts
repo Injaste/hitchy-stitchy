@@ -38,7 +38,6 @@ export function createModalStore<T, U extends object = {}>(
       isEditOpen: false,
       isDeleteOpen: false,
       isDetailOpen: false,
-      selectedItem: null,
     } as Partial<ModalState<T> & U>),
 
     ...(additionalState ? additionalState(set, get) : {}),

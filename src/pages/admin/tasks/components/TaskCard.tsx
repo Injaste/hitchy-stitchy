@@ -15,7 +15,7 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
 import { useMembersQuery } from "@/pages/admin/members/queries";
-import { getMemberName } from "@/pages/admin/utils/assigneeDisplay";
+import { getMemberName } from "@/pages/admin/utils/memberUtils";
 import {
   PRIORITY_LABELS,
   PRIORITY_BADGE_CLASS,

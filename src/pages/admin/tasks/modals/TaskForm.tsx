@@ -16,6 +16,7 @@ import {
 } from "@/components/custom/fields";
 import AssigneeField from "@/pages/admin/components/AssigneeField";
 import { useMembersQuery } from "@/pages/admin/members/queries";
+import { isActiveMember } from "@/pages/admin/utils/memberUtils";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
 import { useTasksQuery } from "../queries";
@@ -46,7 +47,7 @@ const TaskForm: FC<TaskFormProps> = ({
   const { data: tasks = [] } = useTasksQuery();
 
   const memberItems = members
-    .filter((m) => m.joined_at !== null && !m.frozen_at)
+    .filter(isActiveMember)
     .map((m) => ({ id: m.id, label: m.display_name }));
 
   const labelOptions = Array.from(

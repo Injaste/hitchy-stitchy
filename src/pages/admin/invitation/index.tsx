@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useInvitationQuery, useThemesQuery } from "./queries";
 import { useInvitationStore } from "./store/useInvitationStore";
-import { useInvitationModalStore } from "./store/useInvitationModalStore";
 import InvitationHeader from "./components/InvitationHeader";
 import InvitationView from "./components/InvitationView";
 import ThemeModals from "./themes/modals";
@@ -34,7 +33,7 @@ const Invitation = () => {
   };
 
   return (
-    <Container className="space-y-8">
+    <Container>
       <InvitationHeader
         isLoading={isLoading}
         isError={isError}

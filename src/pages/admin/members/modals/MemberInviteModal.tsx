@@ -14,7 +14,7 @@ import type { InviteMemberValues } from "../types";
 import MemberForm from "./MemberForm";
 
 const MemberInviteModal = () => {
-  const isInviteOpen = useMemberModalStore((s) => s.isInviteOpen);
+  const isInviteOpen = useMemberModalStore((s) => s.isCreateOpen);
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { invite } = useMemberMutations();

@@ -1,6 +1,10 @@
 import type { Member } from "@/pages/admin/members/types"
 import type { Role } from "@/pages/admin/roles/types"
 
+export function isActiveMember(m: Pick<Member, "joined_at" | "frozen_at">): boolean {
+  return m.joined_at !== null && !m.frozen_at
+}
+
 export function getMemberName(id: string, members: Member[]): string {
   return members.find((m) => m.id === id)?.display_name ?? "Unknown"
 }

@@ -27,7 +27,7 @@ const MembersView: FC<MembersViewProps> = ({
   refetch,
   isRefetching,
 }) => {
-  const openInvite = useMemberModalStore((s) => s.openInvite);
+  const openInvite = useMemberModalStore((s) => s.openCreate);
   const { canCreate } = useAccess();
 
   const renderBody = () => {

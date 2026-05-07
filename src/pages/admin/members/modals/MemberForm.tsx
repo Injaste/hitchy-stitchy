@@ -52,17 +52,20 @@ const MemberForm: FC<MemberFormProps> = ({
 
   const schema = mode === "invite" ? inviteMemberSchema : editMemberSchema;
 
-  const assignableRoles = (roles ?? []).filter((r) => r.category !== "root");
+  const allRoles = roles ?? [];
+  const isRootMember = mode === "edit" &&
+    allRoles.find((r) => r.id === defaultValues?.role_id)?.category === "root";
 
-  const roleOptions: SelectFieldOption[] = assignableRoles.length
-    ? assignableRoles.map((r) => ({ value: r.id, label: r.name }))
-    : [
-        {
-          value: "0",
-          label: "No roles available — add roles first",
-          disabled: true,
-        },
-      ];
+  const roleOptions: SelectFieldOption[] = (() => {
+    if (mode === "edit" && allRoles.length)
+      return allRoles.map((r) => ({ value: r.id, label: r.name, disabled: r.category === "root" }));
+
+    const assignable = allRoles.filter((r) => r.category !== "root");
+    if (assignable.length)
+      return assignable.map((r) => ({ value: r.id, label: r.name }));
+
+    return [{ value: "0", label: "No roles available — add roles first", disabled: true }];
+  })();
 
   const form = useForm({
     defaultValues: {
@@ -106,6 +109,7 @@ const MemberForm: FC<MemberFormProps> = ({
             label="Role"
             options={roleOptions}
             placeholder="Select a role"
+            disabled={isRootMember}
           />
         </FieldGroup>
       </DialogBody>

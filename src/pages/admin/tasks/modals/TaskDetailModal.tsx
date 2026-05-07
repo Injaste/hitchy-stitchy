@@ -21,7 +21,7 @@ import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { PRIORITY_LABELS, PRIORITY_BADGE_CLASS, STATUS_LABELS } from "../types";
 import TaskStatusIcon from "../components/TaskStatusIcon";
 import { useMembersQuery } from "@/pages/admin/members/queries";
-import { getMemberName } from "@/pages/admin/utils/assigneeDisplay";
+import { getMemberName } from "@/pages/admin/utils/memberUtils";
 
 const TaskDetailModal = () => {
   const isDetailOpen = useTaskModalStore((s) => s.isDetailOpen);

@@ -20,7 +20,7 @@ import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useRolesQuery } from "@/pages/admin/roles/queries";
-import { getRoleName } from "@/pages/admin/utils/assigneeDisplay";
+import { getRoleName } from "@/pages/admin/utils/memberUtils";
 
 const TimelineDetailModal = () => {
   const isDetailOpen = useTimelineModalStore((s) => s.isDetailOpen);

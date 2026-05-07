@@ -3,13 +3,14 @@ import { useTimelineQuery } from "./queries";
 import TimelineHeader from "./components/TimelineHeader";
 import TimelineView from "./components/TimelineView";
 import TimelineModals from "./modals";
+import Container from "@/components/custom/container";
 
 const Timeline = () => {
   const { data, isLoading, isError, refetch, isRefetching } =
     useTimelineQuery();
 
   return (
-    <div className="space-y-8">
+    <Container>
       <TimelineHeader
         isLoading={isLoading}
         isError={isError}
@@ -25,7 +26,7 @@ const Timeline = () => {
         isRefetching={isRefetching}
       />
       <TimelineModals />
-    </div>
+    </Container>
   );
 };
 
