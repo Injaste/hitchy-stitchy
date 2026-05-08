@@ -34,7 +34,7 @@ export const taskFormSchema = z.object({
     .superRefine((v, ctx) => {
       if (v.trim().toLowerCase() === ALL_LABEL.toLowerCase()) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: `'${ALL_LABEL}' is reserved — pick a different label.`,
         });
       }

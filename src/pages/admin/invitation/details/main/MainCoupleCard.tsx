@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { useRef, type FC } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,12 +19,22 @@ interface MainCoupleCardProps {
 }
 
 const MainCoupleCard: FC<MainCoupleCardProps> = ({ draft, onUpdate }) => {
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
   const form = useForm({
     defaultValues: {
       groom_name: draft.groom_name ?? "",
       bride_name: draft.bride_name ?? "",
     },
     validators: { onChange: schema },
+    listeners: {
+      onChange: ({ formApi }) => {
+        const parsed = schema.safeParse(formApi.state.values);
+        if (!parsed.success) return;
+        onUpdateRef.current(parsed.data);
+      },
+    },
   });
 
   return (
@@ -36,7 +46,7 @@ const MainCoupleCard: FC<MainCoupleCardProps> = ({ draft, onUpdate }) => {
         <CardContent>
           <FieldGroup className="block space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <FieldShell name="groom_name" label="Groom / Person 1">
+              <FieldShell name="groom_name" label="Groom">
                 {(field) => (
                   <Input
                     placeholder="e.g. Danny"
@@ -49,7 +59,7 @@ const MainCoupleCard: FC<MainCoupleCardProps> = ({ draft, onUpdate }) => {
                   />
                 )}
               </FieldShell>
-              <FieldShell name="bride_name" label="Bride / Person 2">
+              <FieldShell name="bride_name" label="Bride">
                 {(field) => (
                   <Input
                     placeholder="e.g. Naddy"
@@ -71,3 +81,8 @@ const MainCoupleCard: FC<MainCoupleCardProps> = ({ draft, onUpdate }) => {
 };
 
 export default MainCoupleCard;
+
+// TODO
+/*
+  TO ALLOW GROOM AND BRIDE TO SWAP POSITIONS IN THE THEME
+*/

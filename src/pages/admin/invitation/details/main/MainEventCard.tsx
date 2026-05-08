@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { useRef, type FC } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,9 +9,18 @@ import { FormShellContext } from "@/components/custom/fields/form-context";
 import type { DetailsDraft } from "../../types";
 
 const schema = z.object({
-  event_date: z.string().max(100, "Please keep this under 100 characters"),
-  event_time_start: z.string().max(100, "Please keep this under 100 characters"),
-  event_time_end: z.string().max(100, "Please keep this under 100 characters"),
+  event_date: z
+    .string()
+    .max(100, "Please keep this under 100 characters")
+    .transform((v) => v.trim() || null),
+  event_time_start: z
+    .string()
+    .max(100, "Please keep this under 100 characters")
+    .transform((v) => v.trim() || null),
+  event_time_end: z
+    .string()
+    .max(100, "Please keep this under 100 characters")
+    .transform((v) => v.trim() || null),
 });
 
 interface MainEventCardProps {
@@ -20,6 +29,9 @@ interface MainEventCardProps {
 }
 
 const MainEventCard: FC<MainEventCardProps> = ({ draft, onUpdate }) => {
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
   const form = useForm({
     defaultValues: {
       event_date: draft.event_date ?? "",
@@ -27,8 +39,14 @@ const MainEventCard: FC<MainEventCardProps> = ({ draft, onUpdate }) => {
       event_time_end: draft.event_time_end ?? "",
     },
     validators: { onChange: schema },
+    listeners: {
+      onChange: ({ formApi }) => {
+        const parsed = schema.safeParse(formApi.state.values);
+        if (!parsed.success) return;
+        onUpdateRef.current(parsed.data);
+      },
+    },
   });
-
   return (
     <FormShellContext.Provider value={{ attemptCount: 1, form }}>
       <Card>

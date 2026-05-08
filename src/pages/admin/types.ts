@@ -14,3 +14,5 @@ export interface AdminBootstrapContext {
   memberRoleCategory: RoleCategory;
   isAdmin: boolean;
 }
+
+export const TIME_REGEX = /^\d{2}:\d{2}(:\d{2})?$/

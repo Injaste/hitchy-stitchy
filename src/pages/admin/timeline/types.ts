@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { TIME_REGEX } from "../types"
 
 export interface Timeline {
   id: string
@@ -27,11 +28,6 @@ export interface TimelineGrouped {
   days: TimelineGroupedDay[]
   labels: string[]
 }
-
-
-const TIME_REGEX = /^\d{2}:\d{2}(:\d{2})?$/
-
-const normalizeTime = (val: string) => val.slice(0, 5)
 
 export const timelineItemFormSchema = z.object({
   day: z.string().min(1, "Please select a day"),

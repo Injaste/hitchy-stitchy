@@ -7,9 +7,10 @@ import { useFormShell } from "./form-context";
 interface SwitchFieldProps {
   name: string;
   label: ReactNode;
+  disabled?: boolean;
 }
 
-const SwitchField = ({ name, label }: SwitchFieldProps) => {
+const SwitchField = ({ name, label, disabled = false }: SwitchFieldProps) => {
   const { form } = useFormShell();
   const FormField = form.Field;
 
@@ -21,6 +22,7 @@ const SwitchField = ({ name, label }: SwitchFieldProps) => {
           <Switch
             checked={!!field.state.value}
             onCheckedChange={(v) => field.handleChange(v)}
+            disabled={disabled}
           />
         </Field>
       )}

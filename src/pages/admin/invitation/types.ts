@@ -34,7 +34,7 @@ export interface Invitation {
   max_guests: number | null
   guest_count_min: number
   guest_count_max: number
-  confirmation_message: string
+  confirmation_message: string | null
   config: InvitationConfig
   created_at: string
   updated_at: string
@@ -81,7 +81,7 @@ export interface UpdateInvitationPayload {
   max_guests?: number | null
   guest_count_min?: number
   guest_count_max?: number
-  confirmation_message?: string
+  confirmation_message?: string | null
   config?: InvitationConfig
 }
 

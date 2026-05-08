@@ -1,4 +1,4 @@
-import { useEffect, useRef, type FC } from "react";
+import { useRef, type FC } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import {
 } from "@/components/custom/fields";
 import { FormShellContext } from "@/components/custom/fields/form-context";
 import type { RSVPDraft, RSVPMode } from "../../types";
+import { TIME_REGEX } from "@/pages/admin/types";
 
 const RSVP_MODE_OPTIONS: SelectFieldOption[] = [
   { value: "public", label: "Public — anyone can RSVP" },
@@ -20,8 +21,14 @@ const RSVP_MODE_OPTIONS: SelectFieldOption[] = [
 
 const schema = z.object({
   rsvp_mode: z.enum(["public", "private", "both"]),
-  rsvp_deadline_date: z.string().nullable(),
-  rsvp_deadline_time: z.string().max(20, "Please keep this under 20 characters"),
+  rsvp_deadline_date: z.string().transform((v) => v.trim() || null),
+  rsvp_deadline_time: z
+    .string()
+    .refine(
+      (val) => val === "" || TIME_REGEX.test(val),
+      "Please enter a valid time",
+    )
+    .transform((val) => val.trim() || null),
 });
 
 const combine = (date: string | null, time: string): string | null =>
@@ -33,32 +40,26 @@ interface RSVPSettingsCardProps {
 }
 
 const RSVPSettingsCard: FC<RSVPSettingsCardProps> = ({ draft, onUpdate }) => {
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
   const [initDate, initTime = ""] = (draft.rsvp_deadline ?? "").split(" ");
 
   const form = useForm({
     defaultValues: {
       rsvp_mode: draft.rsvp_mode,
-      rsvp_deadline_date: initDate ?? null,
+      rsvp_deadline_date: (initDate ?? null) as string | null,
       rsvp_deadline_time: initTime || "23:59",
     },
     validators: { onChange: schema },
+    listeners: {
+      onChange: ({ formApi }) => {
+        const parsed = schema.safeParse(formApi.state.values);
+        if (!parsed.success) return;
+        onUpdateRef.current(parsed.data);
+      },
+    },
   });
-
-  const mode = form.useStore((s) => s.values.rsvp_mode);
-  const date = form.useStore((s) => s.values.rsvp_deadline_date);
-  const time = form.useStore((s) => s.values.rsvp_deadline_time);
-
-  const onUpdateRef = useRef(onUpdate);
-  onUpdateRef.current = onUpdate;
-  const mounted = useRef(false);
-
-  useEffect(() => {
-    if (!mounted.current) { mounted.current = true; return; }
-    onUpdateRef.current({
-      rsvp_mode: mode as RSVPMode,
-      rsvp_deadline: combine(date, time),
-    });
-  }, [mode, date, time]);
 
   return (
     <FormShellContext.Provider value={{ attemptCount: 1, form }}>
@@ -74,16 +75,8 @@ const RSVPSettingsCard: FC<RSVPSettingsCardProps> = ({ draft, onUpdate }) => {
               options={RSVP_MODE_OPTIONS}
             />
             <div className="grid grid-cols-2 gap-3">
-              <DateField
-                name="rsvp_deadline_date"
-                label="Deadline Date"
-                optional
-              />
-              <TimeField
-                name="rsvp_deadline_time"
-                label="Deadline Time"
-                optional
-              />
+              <DateField name="rsvp_deadline_date" label="Deadline date" />
+              <TimeField name="rsvp_deadline_time" label="Deadline time" />
             </div>
           </FieldGroup>
         </CardContent>

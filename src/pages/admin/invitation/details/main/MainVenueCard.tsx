@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { useRef, type FC } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,14 +11,20 @@ import type { DetailsDraft } from "../../types";
 
 const urlField = z.union([
   z.literal(""),
-  z.string().url("Paste a full link starting with https://"),
+  z.url("Paste a full link starting with https://"),
 ]);
 
 const schema = z.object({
-  venue_name: z.string().max(100, "Please keep this under 100 characters"),
-  venue_address: z.string().max(100, "Please keep this under 100 characters"),
-  venue_map_link: urlField,
-  venue_map_embed_url: urlField,
+  venue_name: z
+    .string()
+    .max(100, "Please keep this under 100 characters")
+    .transform((v) => v.trim() || null),
+  venue_address: z
+    .string()
+    .max(100, "Please keep this under 100 characters")
+    .transform((v) => v.trim() || null),
+  venue_map_link: urlField.transform((v) => v.trim() || null),
+  venue_map_embed_url: urlField.transform((v) => v.trim() || null),
 });
 
 interface MainVenueCardProps {
@@ -27,6 +33,9 @@ interface MainVenueCardProps {
 }
 
 const MainVenueCard: FC<MainVenueCardProps> = ({ draft, onUpdate }) => {
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
   const form = useForm({
     defaultValues: {
       venue_name: draft.venue_name ?? "",
@@ -35,6 +44,13 @@ const MainVenueCard: FC<MainVenueCardProps> = ({ draft, onUpdate }) => {
       venue_map_embed_url: draft.venue_map_embed_url ?? "",
     },
     validators: { onChange: schema },
+    listeners: {
+      onChange: ({ formApi }) => {
+        const parsed = schema.safeParse(formApi.state.values);
+        if (!parsed.success) return;
+        onUpdateRef.current(parsed.data);
+      },
+    },
   });
 
   return (
