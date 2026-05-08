@@ -18,6 +18,7 @@ function ScrollArea({
   ...props
 }: ScrollAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
 
@@ -31,10 +32,12 @@ function ScrollArea({
   useEffect(() => {
     if (!gradient) return;
     const el = scrollRef.current;
+    const content = contentRef.current;
     if (!el) return;
     updateScrollState();
     const ro = new ResizeObserver(updateScrollState);
     ro.observe(el);
+    if (content) ro.observe(content);
     return () => ro.disconnect();
   }, [gradient, updateScrollState]);
 
@@ -59,7 +62,7 @@ function ScrollArea({
         className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 p-1"
         onScroll={gradient ? updateScrollState : undefined}
       >
-        {children}
+        {gradient ? <div ref={contentRef}>{children}</div> : children}
       </ScrollAreaPrimitive.Viewport>
       {gradient && (
         <div

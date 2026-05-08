@@ -14,11 +14,12 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useInvitationStore } from "../../store/useInvitationStore";
 import { useInvitationModalStore } from "../../store/useInvitationModalStore";
 import { useThemesMutations } from "../../queries";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { Template, Theme } from "../../types";
+import type { TemplateTheme, Theme } from "../../types";
 
 interface ThemeCardProps {
-  template: Template;
+  template: TemplateTheme;
 }
 
 const ThemeCard: FC<ThemeCardProps> = ({ template }) => {
@@ -30,12 +31,12 @@ const ThemeCard: FC<ThemeCardProps> = ({ template }) => {
   const openPublish = useInvitationModalStore((s) => s.openPublish);
   const { create } = useThemesMutations();
 
-  const isCreated = template.themeId !== null;
-  const isActive = selectedThemeId === template.themeId;
-  const isPublished = template.isPublished;
+  const isCreated = template.theme_id !== null;
+  const isActive = selectedThemeId === template.theme_id;
+  const isPublished = template.is_published;
 
   const theme: Theme = {
-    id: template.themeId!,
+    id: template.theme_id!,
     event_id: eventId!,
     template_id: template.id,
     name: template.name,
@@ -48,7 +49,7 @@ const ThemeCard: FC<ThemeCardProps> = ({ template }) => {
   return (
     <Card
       onClick={() =>
-        isCreated && !isActive && setSelectedThemeId(template.themeId!)
+        isCreated && !isActive && setSelectedThemeId(template.theme_id!)
       }
       className={cn(
         "px-3 py-3 transition-colors",
@@ -126,11 +127,13 @@ const ThemeCard: FC<ThemeCardProps> = ({ template }) => {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
-                  disabled={isPublished}
                   variant="destructive"
+                  className={cn(isPublished && "opacity-50 cursor-not-allowed")}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!isPublished) openDelete(theme);
+                    if (isPublished)
+                      toast.error("Can't delete a published theme");
+                    else openDelete(theme);
                   }}
                 >
                   <Trash2 className="h-3.5 w-3.5" />

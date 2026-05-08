@@ -18,6 +18,7 @@ import type {
   CreateThemePayload,
   UpdateThemePayload,
   Template,
+  TemplateTheme,
 } from "./types"
 import { useInvitationStore } from "./store/useInvitationStore"
 
@@ -51,7 +52,7 @@ export function useTemplatesWithThemesQuery() {
   const { slug, eventId } = useAdminStore()
 
   const templatesQuery = useQuery({
-    queryKey: adminKeys.themes(slug!),
+    queryKey: adminKeys.templates(slug!),
     queryFn: fetchTemplates,
     enabled: !!slug,
     staleTime: Infinity,
@@ -63,14 +64,15 @@ export function useTemplatesWithThemesQuery() {
     enabled: !!eventId && !!slug,
   })
 
-  const data: Template[] | undefined =
+  const data: TemplateTheme[] | undefined =
     templatesQuery.data && themesQuery.data
       ? templatesQuery.data.map((template) => {
         const match = themesQuery.data.find((t) => t.template_id === template.id)
+
         return {
           ...template,
-          themeId: match?.id ?? null,
-          isPublished: match?.is_published ?? false,
+          theme_id: match?.id ?? null,
+          is_published: match?.is_published ?? false,
         }
       })
       : undefined

@@ -18,7 +18,6 @@ const EDITOR_TABS = [
     element: () => (
       <>
         <Content />
-        <div className="h-px bg-border mx-4 my-1" />
         <Details />
       </>
     ),
@@ -46,12 +45,12 @@ const EditorPanel = () => {
   const ActiveElement = activeTabConfig.element;
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <div className="flex flex-1 flex-col gap-4">
       <Tabs
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as EditorTabId)}
         tabOrder={EDITOR_TABS.map((t) => t.id)}
-        className="flex-1 min-h-0 gap-0"
+        className="gap-4"
       >
         <TabsList activeValue={activeTab} className="w-full shrink-0">
           {EDITOR_TABS.map((tab) => (
@@ -70,7 +69,7 @@ const EditorPanel = () => {
 
         <TabsContent value={activeTab} className="flex-1 min-h-0">
           <ScrollArea
-            className="h-full"
+            className="h-[759px]"
             gradient
             gradientFrom="from-background"
           >
@@ -82,7 +81,7 @@ const EditorPanel = () => {
       </Tabs>
 
       {activeTab !== "themes" && (
-        <div className="shrink-0 px-4 py-3 border-t border-border bg-background">
+        <div className="shrink-0 px-4 py-3 bg-background">
           <Button
             className="w-full"
             onClick={save}

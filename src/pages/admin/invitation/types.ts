@@ -94,8 +94,6 @@ export interface Template {
   is_active: boolean
   created_at: string
   updated_at: string
-  themeId: string | null
-  isPublished: boolean
 }
 
 export interface Theme {
@@ -108,6 +106,20 @@ export interface Theme {
   created_at: string
   updated_at: string
   template?: Pick<Template, "id" | "name" | "slug"> | null
+}
+
+export interface TemplateTheme {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  config: Record<string, unknown>
+  is_active: boolean
+  created_at: string
+  updated_at: string
+
+  theme_id: string | null
+  is_published: boolean
 }
 
 export interface CreateThemePayload {

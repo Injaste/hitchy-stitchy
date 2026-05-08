@@ -70,7 +70,7 @@ const DashboardView = () => {
         </motion.div>
 
         <Container>
-          <div className="px-6 md:px-10 py-8 md:py-12 space-y-8">
+          <div className="px-6 md:px-10 pt-8 pb-22 md:py-12 space-y-8">
             <motion.div variants={itemFadeUp}>
               <DashboardHeader
                 eventsCount={eventsCount}

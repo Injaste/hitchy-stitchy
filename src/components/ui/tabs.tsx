@@ -193,7 +193,7 @@ function TabsContent({
       {...props}
     >
       <AnimatePresence mode="wait">
-        <ComponentSlide key={value} direction={direction}>
+        <ComponentSlide key={value} direction={direction} className="h-full">
           {props.children}
         </ComponentSlide>
       </AnimatePresence>

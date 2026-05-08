@@ -38,7 +38,7 @@ const AdminTopbar = () => {
       >
         <div className="bg-background border-b border-border ">
           <Container>
-            <div className="flex items-center justify-between gap-3 h-14">
+            <div className="flex items-center justify-between gap-3 h-14 px-4 lg:px-0">
               <div className="flex items-center gap-3 min-w-0">
                 {isMobile && (
                   <>

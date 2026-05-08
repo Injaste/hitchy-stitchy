@@ -9,6 +9,7 @@ export const adminKeys = {
   invitation: (slug: string) => [slug, 'invitation'] as const,
   guests: (slug: string) => [slug, 'guests'] as const,
   pages: (slug: string) => [slug, 'pages'] as const,
+  templates: (slug: string) => [slug, 'templates'] as const,
   themes: (slug: string) => [slug, 'themes'] as const,
   settingsEvent: (slug: string) => [slug, 'settings', 'event'] as const,
   settingsAppearance: (slug: string) => [slug, 'settings', 'appearance'] as const,

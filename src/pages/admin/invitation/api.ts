@@ -45,15 +45,14 @@ export async function updateInvitation(payload: UpdateInvitationPayload): Promis
 }
 
 // Templates
-export async function fetchTemplates(): Promise<Omit<Template, "themeId" | "isPublished">[]> {
+export async function fetchTemplates(): Promise<Template[]> {
   const { data, error } = await supabase
     .from("event_templates")
     .select("id, name, slug, description, config, is_active, created_at, updated_at")
-    .eq("is_active", true)
     .order("name", { ascending: true })
 
   if (error) throw new Error(error.message)
-  return (data ?? []) as Omit<Template, "themeId" | "isPublished">[]
+  return (data ?? []) as Template[]
 }
 
 // Themes
