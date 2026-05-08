@@ -3,24 +3,19 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import {
-  SelectField,
-  DateField,
-  TimeField,
-  type SelectFieldOption,
-} from "@/components/custom/fields";
+import { SelectField, DateField, TimeField } from "@/components/custom/fields";
 import { FormShellContext } from "@/components/custom/fields/form-context";
-import type { RSVPDraft, RSVPMode } from "../../types";
+import { RSVP_MODES, type RSVPDraft, type RSVPMode } from "../../types";
 import { TIME_REGEX } from "@/pages/admin/types";
 
-const RSVP_MODE_OPTIONS: SelectFieldOption[] = [
+const RSVP_MODE_OPTIONS: { value: RSVPMode; label: string }[] = [
   { value: "public", label: "Public — anyone can RSVP" },
   { value: "private", label: "Private — pool only" },
   { value: "both", label: "Both" },
 ];
 
 const schema = z.object({
-  rsvp_mode: z.enum(["public", "private", "both"]),
+  rsvp_mode: z.enum(RSVP_MODES),
   rsvp_deadline_date: z.string().transform((v) => v.trim() || null),
   rsvp_deadline_time: z
     .string()
@@ -30,9 +25,6 @@ const schema = z.object({
     )
     .transform((val) => val.trim() || null),
 });
-
-const combine = (date: string | null, time: string): string | null =>
-  date ? (time ? `${date} ${time}` : date) : null;
 
 interface RSVPSettingsCardProps {
   draft: RSVPDraft;

@@ -1,6 +1,7 @@
 import type { ThemeConfig } from "@/pages/templates/themes/types"
 
-export type RSVPMode = "public" | "private" | "both"
+export const RSVP_MODES = ["public", "private", "both"] as const;
+export type RSVPMode = typeof RSVP_MODES[number];
 
 export interface RSVPFieldConfig {
   visible: boolean
