@@ -10,12 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { UniqueMuslimPageConfig } from "@/pages/templates/themes/unique-muslim/types";
 
-interface ContentViewProps {
+interface ConfigViewProps {
   config: UniqueMuslimPageConfig | undefined;
   onUpdate: (patch: Partial<UniqueMuslimPageConfig>) => void;
 }
 
-const ContentView: FC<ContentViewProps> = ({ config, onUpdate }) => (
+const ConfigView: FC<ConfigViewProps> = ({ config, onUpdate }) => (
   <div className="space-y-3 px-4">
     <Card>
       <CardHeader>
@@ -165,4 +165,4 @@ const ContentView: FC<ContentViewProps> = ({ config, onUpdate }) => (
   </div>
 );
 
-export default ContentView;
+export default ConfigView;

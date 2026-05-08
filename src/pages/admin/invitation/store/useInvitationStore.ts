@@ -4,7 +4,9 @@ import type { ThemeConfig } from "@/pages/templates/themes/types"
 
 interface InvitationState {
   detailsDraft: DetailsDraft | null
+  rsvpIsDirty: boolean
   rsvpDraft: RSVPDraft | null
+  themeIsDirty: boolean
   themeDraft: ThemeConfig | null
   selectedThemeId: string | null
 
@@ -20,7 +22,9 @@ interface InvitationState {
 
 export const useInvitationStore = create<InvitationState>((set) => ({
   detailsDraft: null,
+  rsvpIsDirty: false,
   rsvpDraft: null,
+  themeIsDirty: false,
   themeDraft: null,
   selectedThemeId: null,
 

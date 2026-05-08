@@ -10,8 +10,9 @@ const Invitation = () => {
   const invitationQuery = useInvitationQuery();
   const themesQuery = useThemesQuery();
 
-  const setSelectedThemeId = useInvitationStore((s) => s.setSelectedThemeId);
   const selectedThemeId = useInvitationStore((s) => s.selectedThemeId);
+  const setSelectedThemeId = useInvitationStore((s) => s.setSelectedThemeId);
+  const setTheme = useInvitationStore((s) => s.setTheme);
 
   useEffect(() => {
     if (!themesQuery.data) return;
@@ -21,7 +22,10 @@ const Invitation = () => {
     )
       return;
     const published = themesQuery.data.find((t) => t.is_published);
-    setSelectedThemeId(published?.id ?? themesQuery.data[0]?.id ?? null);
+    if (!published) return;
+
+    setSelectedThemeId(themesQuery.data[0].id);
+    setTheme(themesQuery.data[0].config);
   }, [themesQuery.data]);
 
   const isLoading = invitationQuery.isLoading || themesQuery.isLoading;

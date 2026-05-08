@@ -2,26 +2,16 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useInvitationStore } from "../store/useInvitationStore";
 import { useInvitationDraftSave } from "../hooks/useInvitationDraftSave";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 
 import Themes from "../themes";
-import Content from "../content";
 import Details from "../details";
 import RSVP from "../rsvp";
 
 const EDITOR_TABS = [
   { id: "themes", label: "Themes", element: Themes },
-  {
-    id: "details",
-    label: "Details",
-    element: () => (
-      <>
-        <Content />
-        <Details />
-      </>
-    ),
-  },
+  { id: "details", label: "Details", element: Details },
   { id: "rsvp", label: "RSVP", element: RSVP },
 ] as const;
 
@@ -35,6 +25,7 @@ const EditorPanel = () => {
 
   const { isDirty, isSaving, save } = useInvitationDraftSave();
 
+  // to only update when fields are updated.. doesnt matter if draft exist, as it may match the original.. but as long a single instance of onUpdateDraft is called, dirty dot is enabled, so likely it needs to be in the store instead.
   const hasDirtyDot: Record<EditorTabId, boolean> = {
     themes: false,
     details: !!detailsDraft,
@@ -68,14 +59,11 @@ const EditorPanel = () => {
         </TabsList>
 
         <TabsContent value={activeTab} className="flex-1 min-h-0">
-          <ScrollArea
-            className="h-[759px]"
-            gradient
-            gradientFrom="from-background"
-          >
+          <ScrollArea className="h-[759px]" gradient>
             <div className="pt-4">
               <ActiveElement />
             </div>
+            <ScrollBar />
           </ScrollArea>
         </TabsContent>
       </Tabs>

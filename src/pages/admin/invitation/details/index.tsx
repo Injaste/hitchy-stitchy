@@ -1,13 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useInvitationStore } from "../store/useInvitationStore";
-import { useInvitationQuery } from "../queries";
+import { useInvitationQuery, useThemesQuery } from "../queries";
 import type { DetailsDraft } from "../types";
-import DetailsView from "./components/DetailsView";
+import type { ThemeConfig } from "@/pages/templates/themes/types";
+import type { UniqueMuslimPageConfig } from "@/pages/templates/themes/unique-muslim/types";
+import MainView from "./main/MainView";
+import ConfigView from "./config/ConfigView";
 
 const Details = () => {
   const { data: invitation } = useInvitationQuery();
+  const { data: themes } = useThemesQuery();
+
   const draft = useInvitationStore((s) => s.detailsDraft);
   const setDetails = useInvitationStore((s) => s.setDetails);
+  const selectedThemeId = useInvitationStore((s) => s.selectedThemeId);
+  const themeDraft = useInvitationStore((s) => s.themeDraft);
+  const setTheme = useInvitationStore((s) => s.setTheme);
 
   useEffect(() => {
     if (!invitation || draft) return;
@@ -24,12 +32,38 @@ const Details = () => {
     });
   }, [invitation, draft, setDetails]);
 
-  if (!draft) return null;
+  const selectedTheme = useMemo(
+    () => themes?.find((t) => t.id === selectedThemeId) ?? null,
+    [themes, selectedThemeId],
+  );
 
-  const upd = (patch: Partial<DetailsDraft>) =>
-    setDetails({ ...draft, ...patch });
+  useEffect(() => {
+    if (!selectedTheme || themeDraft) return;
+    setTheme(selectedTheme.config);
+  }, [selectedTheme?.id, themeDraft, setTheme, selectedTheme]);
 
-  return <DetailsView draft={draft} onUpdate={upd} />;
+  const themeSlug = themeDraft?.slug ?? selectedTheme?.config?.slug;
+  const cur = (
+    themeDraft?.slug === "unique-muslim" ? themeDraft : selectedTheme?.config
+  ) as UniqueMuslimPageConfig | undefined;
+
+  const updDetails = (patch: Partial<DetailsDraft>) =>
+    draft && setDetails({ ...draft, ...patch });
+
+  const updTheme = (patch: Partial<UniqueMuslimPageConfig>) => {
+    const base: ThemeConfig = themeDraft ??
+      selectedTheme?.config ?? { slug: "unique-muslim" };
+    setTheme({ ...base, ...patch });
+  };
+
+  return (
+    <>
+      {themeSlug === "unique-muslim" && (
+        <ConfigView config={cur} onUpdate={updTheme} />
+      )}
+      {draft && <MainView draft={draft} onUpdate={updDetails} />}
+    </>
+  );
 };
 
 export default Details;
