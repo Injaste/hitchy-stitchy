@@ -30,6 +30,7 @@ const ConfigGroupCard: FC<ConfigGroupCardProps> = ({ group, config, onUpdate }) 
       ]),
     ),
     listeners: {
+      onChangeDebounceMs: 150,
       onChange: ({ formApi }) => {
         const values = formApi.state.values as Record<string, string | boolean | null>;
         const patch: ThemeDraftValues = {};

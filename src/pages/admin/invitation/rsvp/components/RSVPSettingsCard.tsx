@@ -45,6 +45,7 @@ const RSVPSettingsCard: FC<RSVPSettingsCardProps> = ({ draft, onUpdate }) => {
     },
     validators: { onChange: schema },
     listeners: {
+      onChangeDebounceMs: 150,
       onChange: ({ formApi }) => {
         const parsed = schema.safeParse(formApi.state.values);
         if (!parsed.success) return;

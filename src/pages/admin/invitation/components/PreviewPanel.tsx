@@ -1,6 +1,6 @@
 import Frame from "react-frame-component";
 import cssText from "/src/index.css?inline";
-import { useMemo } from "react";
+import { useDeferredValue, useMemo } from "react";
 import { themeRegistry, FallbackTheme } from "@/pages/wedding/templates";
 import { useInvitationStore } from "../store/useInvitationStore";
 import { useInvitationQuery, useSelectedTemplateTheme } from "../queries";
@@ -25,6 +25,10 @@ const PreviewPanel = () => {
   const rsvpDraft = useInvitationStore((s) => s.rsvpDraft);
   const themeDraft = useInvitationStore((s) => s.themeDraft);
 
+  const deferredDetails = useDeferredValue(detailsDraft);
+  const deferredRSVP = useDeferredValue(rsvpDraft);
+  const deferredTheme = useDeferredValue(themeDraft);
+
   const { data: invitation } = useInvitationQuery();
   const selected = useSelectedTemplateTheme();
 
@@ -36,11 +40,11 @@ const PreviewPanel = () => {
         invitation!,
         selected?.theme ?? null,
         selected?.template ?? null,
-        detailsDraft,
-        rsvpDraft,
-        themeDraft,
+        deferredDetails,
+        deferredRSVP,
+        deferredTheme,
       ),
-    [invitation, selected, detailsDraft, rsvpDraft, themeDraft],
+    [invitation, selected, deferredDetails, deferredRSVP, deferredTheme],
   );
 
   const themeSlug = composed.published_page?.theme_slug ?? null;

@@ -63,6 +63,7 @@ const RSVPGuestLimitsCard: FC<RSVPGuestLimitsCardProps> = ({
       },
     },
     listeners: {
+      onChangeDebounceMs: 150,
       onChange: ({ formApi }) => {
         const parsed = schema.safeParse(formApi.state.values);
         if (!parsed.success) return;
