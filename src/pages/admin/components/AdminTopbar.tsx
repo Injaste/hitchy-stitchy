@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Bell, Radio } from "lucide-react";
+import { motion } from "framer-motion";
 import {
   SidebarSeparator,
   SidebarTrigger,
@@ -11,50 +12,42 @@ import { cn } from "@/lib/utils";
 import { useAdminStore } from "../store/useAdminStore";
 import { useCueStore } from "../store/useCueStore";
 import { usePingStore } from "../store/usePingStore";
-import useActivePage from "../hooks/useActivePage";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PortalToApp from "@/components/custom/portal-to-app";
 import Container from "@/components/custom/container";
-
-const formatPageLabel = (page: string): string => {
-  return page.replaceAll("-", " ");
-};
+import { ActiveCueBanner } from "./ActiveCueBanner";
 
 const AdminTopbar = () => {
   const { slug } = useAdminStore();
   const isMobile = useIsMobile();
-  const { activeCue } = useCueStore();
+  const { activeCue, hasCue } = useCueStore();
   const openPing = usePingStore((s) => s.open);
-  const activePage = useActivePage();
-
-  const pageLabel = formatPageLabel(activePage);
-  const hasCue = !!activeCue;
 
   return (
     <PortalToApp>
-      <header
-        className="fixed top-0 right-0 z-50"
-        style={{ left: isMobile ? 0 : SidebarWidth }}
+      <motion.header
+        initial={false}
+        animate={{ height: hasCue ? 56 : 0, opacity: hasCue ? 1 : 0 }}
+        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+        className="fixed top-2 right-2 z-50 rounded-xl overflow-hidden shadow-sm ring-1 ring-sidebar-border bg-background"
+        style={{ left: isMobile ? 8 : SidebarWidth }}
       >
-        <div className="bg-background border-b border-border ">
+        <div className="bg-background/50 backdrop-blur-md">
           <Container>
             <div className="flex items-center justify-between gap-3 h-14 px-4 lg:px-0">
-              <div className="flex items-center gap-3 min-w-0">
-                {isMobile && (
-                  <>
-                    <SidebarTrigger className="-mx-1" />
-                    <SidebarSeparator
-                      orientation="vertical"
-                      className="mx-0 h-5 my-auto!"
-                    />
-                  </>
-                )}
-                <h1 className="text-sm font-semibold text-foreground capitalize">
-                  {pageLabel}
-                </h1>
-              </div>
+              {isMobile && (
+                <div className="flex items-center gap-3">
+                  <SidebarTrigger className="-mx-1" />
+                  <SidebarSeparator
+                    orientation="vertical"
+                    className="mx-0 h-5 my-auto!"
+                  />
+                </div>
+              )}
 
-              <div className="flex items-center gap-2 shrink-0">
+              <ActiveCueBanner />
+
+              {/* <div className="flex items-center gap-2 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -90,11 +83,11 @@ const AdminTopbar = () => {
                     )}
                   </Link>
                 </Button>
-              </div>
+              </div> */}
             </div>
           </Container>
         </div>
-      </header>
+      </motion.header>
     </PortalToApp>
   );
 };

@@ -60,7 +60,7 @@ const RSVPSettingsCard: FC<RSVPSettingsCardProps> = ({ draft, onUpdate }) => {
           <CardTitle className="text-sm">Settings</CardTitle>
         </CardHeader>
         <CardContent>
-          <FieldGroup className="block space-y-4">
+          <FieldGroup>
             <SelectField
               name="rsvp_mode"
               label="RSVP Mode"

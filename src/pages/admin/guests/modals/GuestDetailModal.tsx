@@ -45,30 +45,33 @@ const GuestDetailModal = () => {
           <DialogDescription>Guest RSVP details.</DialogDescription>
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <Badge variant={statusVariant}>{STATUS_LABELS[guest.status]}</Badge>
-            <Badge variant="outline" className="text-muted-foreground">
-              {SOURCE_LABELS[guest.source]}
-            </Badge>
-          </div>
+        <DialogBody>
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <Badge variant={statusVariant}>
+                {STATUS_LABELS[guest.status]}
+              </Badge>
+              <Badge variant="outline" className="text-muted-foreground">
+                {SOURCE_LABELS[guest.source]}
+              </Badge>
+            </div>
 
-          <div className="space-y-3">
-            <Row icon={<Phone className="w-3 h-3" />} label="Phone">
-              {guest.phone}
-            </Row>
-            <Row icon={<Users className="w-3 h-3" />} label="Party size">
-              {guest.guest_count}
-            </Row>
-            {guest.message && (
-              <Row icon={<StickyNote className="w-3 h-3" />} label="Message">
-                {guest.message}
+            <div className="space-y-3">
+              <Row icon={<Phone className="w-3 h-3" />} label="Phone">
+                {guest.phone}
               </Row>
-            )}
+              <Row icon={<Users className="w-3 h-3" />} label="Party size">
+                {guest.guest_count}
+              </Row>
+              {guest.message && (
+                <Row icon={<StickyNote className="w-3 h-3" />} label="Message">
+                  {guest.message}
+                </Row>
+              )}
+            </div>
+            <Separator />
           </div>
         </DialogBody>
-
-        <Separator />
 
         <DialogFooter>
           <p className="text-xs text-muted-foreground">

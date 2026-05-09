@@ -62,7 +62,7 @@ const RSVPFormFieldsCard: FC<RSVPFormFieldsCardProps> = ({
           <CardTitle className="text-sm">Form Fields</CardTitle>
         </CardHeader>
         <CardContent>
-          <FieldGroup className="block space-y-4">
+          <FieldGroup>
             <Field orientation="horizontal">
               <FieldTitle>Message</FieldTitle>
               <div className="flex gap-4">

@@ -73,6 +73,7 @@ const MembersHeader: FC<MembersHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
+      title="Members"
       description="Everyone with access to this event. Manage who's on your team and control their active status."
       meta={meta || undefined}
       action={

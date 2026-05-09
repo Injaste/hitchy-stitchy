@@ -1,14 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 
 import { usePublicEvent, usePublicEventRealtime } from "./queries";
-import { themeRegistry, FallbackTheme } from "./themes";
+import { themeRegistry, FallbackTheme } from "./templates";
 import ThemeLoader from "./states/ThemeLoader";
 import { useState } from "react";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 import ThemeError from "./states/ThemeError";
 import ThemeState from "./states/ThemeState";
 
-const Invitation = () => {
+const Wedding = () => {
   const [isReady, setIsReady] = useState(false);
   const { data: eventConfig, isLoading, error } = usePublicEvent();
 
@@ -43,7 +43,7 @@ const Invitation = () => {
         <ComponentFade key="theme-content">
           <ThemeComponent
             eventConfig={eventConfig}
-            pageConfig={eventConfig?.published_page?.config}
+            pageConfig={eventConfig.published_page?.config ?? {}}
           />
         </ComponentFade>
       )}
@@ -51,4 +51,4 @@ const Invitation = () => {
   );
 };
 
-export default Invitation;
+export default Wedding;

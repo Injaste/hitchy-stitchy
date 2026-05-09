@@ -32,6 +32,7 @@ const RolesHeader: FC<RolesHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
+      title="Roles"
       description="Define the roles that shape your team's structure and permissions. Each member is assigned one role."
       meta={
         total > 0 && (

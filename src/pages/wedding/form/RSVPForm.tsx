@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { fieldVariant } from "./animations";
 
 import { FieldGroup } from "@/components/ui/field";
-import { buildRsvpSchema, type RSVPFormData } from "@/pages/templates/types";
+import { buildRsvpSchema, type RSVPFormData } from "@/pages/wedding/types";
 
 import type { RSVPFormProps } from "./types";
 import NameField from "./fields/NameField";

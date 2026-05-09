@@ -80,9 +80,13 @@ const TimelineItemForm: FC<TimelineItemFormProps> = ({
 
   return (
     <FormShell form={form} className="grid gap-4">
-      <DialogBody className="space-y-6">
-        <FieldGroup className="block space-y-4">
-          <TextField name="title" label="Title" placeholder="e.g. Bridal prep" />
+      <DialogBody>
+        <FieldGroup>
+          <TextField
+            name="title"
+            label="Title"
+            placeholder="e.g. Bridal prep"
+          />
 
           <FieldShell name="label" label="Label" optional>
             {(field) => (

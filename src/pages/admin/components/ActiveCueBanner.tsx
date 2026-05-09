@@ -1,11 +1,11 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { Play } from 'lucide-react'
+import { AnimatePresence, motion } from "framer-motion";
+import { Play } from "lucide-react";
 
-import { useCueStore } from '../store/useCueStore'
-import { itemRevealIn } from '@/lib/animations'
+import { useCueStore } from "../store/useCueStore";
+import { itemRevealIn } from "@/lib/animations";
 
 export function ActiveCueBanner() {
-  const { activeCue, openCueModal } = useCueStore()
+  const { activeCue, openCueModal } = useCueStore();
 
   return (
     <AnimatePresence>
@@ -14,7 +14,7 @@ export function ActiveCueBanner() {
           key="cue-banner"
           {...itemRevealIn}
           onClick={openCueModal}
-          className="w-full flex items-center gap-3 px-4 py-2.5 bg-primary/10 border-b border-primary/20 text-sm cursor-pointer hover:bg-primary/15 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/15 transition-colors pointer-events-none"
         >
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
             <Play className="h-3 w-3 text-primary fill-primary" />
@@ -27,5 +27,5 @@ export function ActiveCueBanner() {
         </motion.button>
       )}
     </AnimatePresence>
-  )
+  );
 }

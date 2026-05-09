@@ -88,7 +88,6 @@ export default function useIndicatorSlider(
     [applyHoverValues],
   );
 
-  // Update active slider when activeId changes
   useEffect(() => {
     if (!activeId) return;
     applyActiveValues(activeId);
@@ -99,6 +98,21 @@ export default function useIndicatorSlider(
       hoverAnimate(hoverScope.current, { opacity: 0 }, { duration: 0.15 });
     }
   }, [hoverAnimate, hoverScope]);
+
+  useEffect(() => {
+    if (!activeId) return;
+    const handleResize = () => {
+      const values = getValuesForId(activeId);
+      if (!values || !activeScope.current) return;
+      const target =
+        direction === "horizontal"
+          ? { left: values.primary, width: values.secondary }
+          : { top: values.primary, height: values.secondary };
+      activeAnimate(activeScope.current, target, { duration: 0 });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [activeId, direction, getValuesForId, activeAnimate, activeScope]);
 
   const setRef = useCallback(
     (id: string) => (el: HTMLElement | null) => {

@@ -27,11 +27,13 @@ const SELECTABLE_CATEGORIES = Object.keys(
   CATEGORY_LABELS,
 ) as (keyof typeof CATEGORY_LABELS)[];
 
-const CATEGORY_OPTIONS: SelectFieldOption[] = SELECTABLE_CATEGORIES.map((c) => ({
-  value: c,
-  label: CATEGORY_LABELS[c],
-  disabled: c === "root",
-}));
+const CATEGORY_OPTIONS: SelectFieldOption[] = SELECTABLE_CATEGORIES.map(
+  (c) => ({
+    value: c,
+    label: CATEGORY_LABELS[c],
+    disabled: c === "root",
+  }),
+);
 
 const RoleForm: FC<RoleFormProps> = ({
   defaultValues,
@@ -60,8 +62,8 @@ const RoleForm: FC<RoleFormProps> = ({
 
   return (
     <FormShell form={form} className="grid gap-4">
-      <DialogBody className="space-y-6">
-        <FieldGroup className="block space-y-4">
+      <DialogBody>
+        <FieldGroup>
           <TextField name="name" label="Name" placeholder="e.g. Coordinator" />
 
           <TextField

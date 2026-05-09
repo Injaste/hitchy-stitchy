@@ -12,8 +12,10 @@ interface MainViewProps {
 const MainView: FC<MainViewProps> = ({ draft, onUpdate }) => (
   <div className="space-y-3">
     <MainCoupleCard draft={draft} onUpdate={onUpdate} />
-    <MainEventCard draft={draft} onUpdate={onUpdate} />
-    <MainVenueCard draft={draft} onUpdate={onUpdate} />
+    <div className="grid xl:grid-cols-2 gap-3">
+      <MainEventCard draft={draft} onUpdate={onUpdate} />
+      <MainVenueCard draft={draft} onUpdate={onUpdate} />
+    </div>
   </div>
 );
 

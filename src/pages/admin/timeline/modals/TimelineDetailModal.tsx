@@ -48,54 +48,56 @@ const TimelineDetailModal = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
-          {item.label && <Badge variant="outline">{item.label}</Badge>}
-          <ArraySeparator
-            items={[
-              <ArraySeparator
-                items={timeLabel}
-                separator="-"
-                className="gap-1"
-              />,
-              dateLabel,
-            ]}
-            className="text-sm text-muted-foreground gap-2"
-          />
+        <DialogBody>
+          <div className="space-y-6">
+            {item.label && <Badge variant="outline">{item.label}</Badge>}
+            <ArraySeparator
+              items={[
+                <ArraySeparator
+                  items={timeLabel}
+                  separator="-"
+                  className="gap-1"
+                />,
+                dateLabel,
+              ]}
+              className="text-sm text-muted-foreground gap-2"
+            />
 
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Assigned roles
-            </p>
-            {item.assignees.length === 0 ? (
-              <p className="text-sm text-muted-foreground/50 italic">
-                No assignees
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Assigned roles
               </p>
-            ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {item.assignees.map((id) => (
-                  <Badge
-                    key={id}
-                    variant="secondary"
-                    className="text-xs font-normal"
-                  >
-                    {getRoleName(id, roles)}
-                  </Badge>
-                ))}
-              </div>
-            )}
+              {item.assignees.length === 0 ? (
+                <p className="text-sm text-muted-foreground/50 italic">
+                  No assignees
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {item.assignees.map((id) => (
+                    <Badge
+                      key={id}
+                      variant="secondary"
+                      className="text-xs font-normal"
+                    >
+                      {getRoleName(id, roles)}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                <StickyNote strokeWidth={3} className="w-3 h-3" />
+                Details
+              </p>
+              <NotesMarkdown content={item.details} />
+            </div>
+
+            <Separator />
           </div>
-
-          <Separator />
-
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-              <StickyNote strokeWidth={3} className="w-3 h-3" />
-              Details
-            </p>
-            <NotesMarkdown content={item.details} />
-          </div>
-
-          <Separator />
         </DialogBody>
 
         <DialogFooter>

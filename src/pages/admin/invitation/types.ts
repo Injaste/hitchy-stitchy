@@ -1,4 +1,4 @@
-import type { ThemeConfig } from "@/pages/templates/themes/types"
+import type { ThemeConfig } from "@/pages/wedding/templates/types"
 
 export const RSVP_MODES = ["public", "private", "both"] as const;
 export type RSVPMode = typeof RSVP_MODES[number];

@@ -121,7 +121,7 @@ export function EventSettingsSection() {
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <FieldGroup className="block space-y-4">
+          <FieldGroup>
             {/* Event name */}
             <form.Field name="name">
               {(field) => {

@@ -1,7 +1,7 @@
 import Frame from "react-frame-component";
 import cssText from "/src/index.css?inline";
 import { useMemo } from "react";
-import { themeRegistry, FallbackTheme } from "@/pages/templates/themes";
+import { themeRegistry, FallbackTheme } from "@/pages/wedding/templates";
 import { useInvitationStore } from "../store/useInvitationStore";
 import { useInvitationQuery, useSelectedThemeQuery } from "../queries";
 import { useInvitationDraftSave } from "../hooks/useInvitationDraftSave";

@@ -5,7 +5,7 @@ import type {
   RSVPFormLabels,
   RSVPDeleteClassNames,
   RSVPDeleteLabels,
-} from "@/pages/templates/form"
+} from "@/pages/wedding/form"
 import type { PublicEventConfig } from "../types"
 
 export type FieldType = "text" | "textarea" | "select" | "switch" | "image"

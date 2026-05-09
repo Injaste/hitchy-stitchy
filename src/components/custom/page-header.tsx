@@ -14,12 +14,14 @@ export interface BaseHeaderProps {
 }
 
 interface PageHeaderProps extends BaseHeaderProps {
+  title: string;
   description: string;
   meta?: ReactNode;
   action?: ReactNode;
 }
 
 export const PageHeader: FC<PageHeaderProps> = ({
+  title,
   description,
   meta,
   action,
@@ -59,7 +61,10 @@ export const PageHeader: FC<PageHeaderProps> = ({
   return (
     <div className="flex justify-between gap-4">
       <div className="space-y-6 w-full">
-        <p className="text-sm text-muted-foreground/80">{description}</p>
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold">{title}</h1>
+          <p className="text-sm text-muted-foreground/80">{description}</p>
+        </div>
         {meta && (
           <div className="text-sm tracking-wide text-muted-foreground flex justify-between">
             {meta}

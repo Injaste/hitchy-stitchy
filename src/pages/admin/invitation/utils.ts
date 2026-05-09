@@ -3,9 +3,9 @@ import type {
   Invitation,
   RSVPDraft,
 } from "./types"
-import type { ThemeConfig } from "@/pages/templates/themes/types"
+import type { ThemeConfig } from "@/pages/wedding/templates/types"
 import type { Theme } from "./types"
-import type { PublicEventConfig } from "@/pages/templates/types"
+import type { PublicEventConfig } from "@/pages/wedding/types"
 
 export function mapToPublicEventConfig(
   inv: Invitation,

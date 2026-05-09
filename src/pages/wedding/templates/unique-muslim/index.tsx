@@ -6,7 +6,7 @@ import Details from "./Details";
 import RSVP from "./RSVP";
 import FloatingIcons from "./FloatingIcons";
 import PortalToApp from "@/components/custom/portal-to-app";
-import type { ThemeProps } from "@/pages/templates/themes/types";
+import type { ThemeProps } from "@/pages/wedding/templates/types";
 
 const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
   const containerRef = useRef(null);

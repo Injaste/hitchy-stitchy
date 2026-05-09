@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { XIcon } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { SmoothScroll, type SmoothScrollProps } from "../custom/smooth-scroll";
 
 function Dialog({
   ...props
@@ -96,55 +96,16 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function DialogBody({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"div">) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
-
-  const updateScrollState = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollUp(el.scrollTop > 0);
-    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
-  }, []);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    updateScrollState();
-    const ro = new ResizeObserver(updateScrollState);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [updateScrollState]);
-
+function DialogBody({ className, children, ...props }: SmoothScrollProps) {
   return (
-    <div className="relative -m-1">
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b from-popover to-transparent transition-opacity duration-200",
-          canScrollUp ? "opacity-100" : "opacity-0",
-        )}
-      />
-      <div
-        ref={scrollRef}
-        data-slot="dialog-body"
-        onScroll={updateScrollState}
-        className={cn("max-h-[50vh] overflow-y-auto p-1", className)}
-        {...props}
-      >
-        {children}
-      </div>
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t from-popover to-transparent transition-opacity duration-200",
-          canScrollDown ? "opacity-100" : "opacity-0",
-        )}
-      />
-    </div>
+    <SmoothScroll
+      gradient
+      gradientClass="from-popover"
+      className={cn("max-h-[50vh]", className)}
+      {...props}
+    >
+      {children}
+    </SmoothScroll>
   );
 }
 

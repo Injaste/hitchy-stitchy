@@ -43,7 +43,7 @@ const MainCoupleCard: FC<MainCoupleCardProps> = ({ draft, onUpdate }) => {
           <CardTitle className="text-sm">Couple</CardTitle>
         </CardHeader>
         <CardContent>
-          <FieldGroup className="block space-y-4">
+          <FieldGroup>
             <div className="grid grid-cols-2 gap-3">
               <TextField
                 name="groom_name"

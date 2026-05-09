@@ -10,6 +10,7 @@ export interface ActiveCue {
 interface CueState {
   activeCue: ActiveCue | null
   isCueModalOpen: boolean
+  hasCue: boolean;
   setActiveCue: (cue: ActiveCue | null) => void
   openCueModal: () => void
   closeCueModal: () => void
@@ -18,7 +19,8 @@ interface CueState {
 export const useCueStore = create<CueState>((set) => ({
   activeCue: null,
   isCueModalOpen: false,
-  setActiveCue: (cue) => set({ activeCue: cue }),
+  hasCue: false,
+  setActiveCue: (cue) => set({ activeCue: cue, hasCue: !!cue }),
   openCueModal: () => set({ isCueModalOpen: true }),
   closeCueModal: () => set({ isCueModalOpen: false }),
 }))

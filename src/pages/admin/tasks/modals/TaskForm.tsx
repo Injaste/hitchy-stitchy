@@ -78,8 +78,8 @@ const TaskForm: FC<TaskFormProps> = ({
 
   return (
     <FormShell form={form} className="grid gap-4">
-      <DialogBody className="space-y-6">
-        <FieldGroup className="block space-y-4">
+      <DialogBody>
+        <FieldGroup>
           <TextField
             name="title"
             label="Title"

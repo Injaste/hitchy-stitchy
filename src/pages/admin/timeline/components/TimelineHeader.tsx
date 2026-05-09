@@ -45,6 +45,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
 
   return (
     <PageHeader
+      title="Timeline"
       description="Track and manage scheduled events across your selected date range."
       isLoading={isLoading}
       isError={isError}

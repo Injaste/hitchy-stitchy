@@ -39,24 +39,26 @@ const RoleDetailModal = () => {
           <DialogDescription>Role details and category.</DialogDescription>
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
-          <p className="text-sm text-muted-foreground tracking-wide">
-            {CATEGORY_LABELS[role.category]}
-          </p>
-
-          <Separator />
-
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Description
+        <DialogBody>
+          <div className="space-y-6">
+            <p className="text-sm text-muted-foreground tracking-wide">
+              {CATEGORY_LABELS[role.category]}
             </p>
-            {role.description ? (
-              <p className="text-sm leading-relaxed">{role.description}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground/50 italic">
-                No description
+
+            <Separator />
+
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Description
               </p>
-            )}
+              {role.description ? (
+                <p className="text-sm leading-relaxed">{role.description}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground/50 italic">
+                  No description
+                </p>
+              )}
+            </div>
           </div>
         </DialogBody>
 

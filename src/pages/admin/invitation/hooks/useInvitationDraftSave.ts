@@ -1,6 +1,6 @@
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { useInvitationStore } from "../store/useInvitationStore"
-import { useUpdateInvitationMutation, useThemesMutations } from "../queries"
+import { useInvitationMutation, useThemesMutations } from "../queries"
 
 export function useInvitationDraftSave() {
   const { eventId } = useAdminStore()
@@ -14,7 +14,7 @@ export function useInvitationDraftSave() {
   const clearRSVP = useInvitationStore((s) => s.clearRSVP)
   const clearTheme = useInvitationStore((s) => s.clearTheme)
 
-  const updateInvitation = useUpdateInvitationMutation()
+  const { update: updateInvitation } = useInvitationMutation()
   const { update: updateTheme } = useThemesMutations()
 
   const isDirty = !!(detailsDraft || rsvpDraft || themeDraft)

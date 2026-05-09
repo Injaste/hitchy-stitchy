@@ -1,6 +1,6 @@
 import UniqueMuslim from "./unique-muslim"
-import UniqueMuslimConfigEditor from "./unique-muslim/ConfigEditor"
 import * as uniqueMuslimForm from "./unique-muslim/form"
+import { uniqueMuslimSchema } from "./unique-muslim/types"
 
 import type { ThemeRegistryEntry } from "./types"
 
@@ -8,7 +8,6 @@ export type {
   ThemeConfig as ThemePageConfig,
   ThemeConfigFor,
   ThemeProps,
-  ConfigEditorProps,
   ThemeFormConfig,
   ThemeRegistryEntry,
 } from "./types"
@@ -24,8 +23,8 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
   "unique-muslim": {
     component: UniqueMuslim,
     defaultConfig: { slug: "unique-muslim", background_image: null },
-    ConfigEditor: UniqueMuslimConfigEditor,
     form: formFor(uniqueMuslimForm),
+    schema: uniqueMuslimSchema as ThemeRegistryEntry["schema"],
   },
 }
 

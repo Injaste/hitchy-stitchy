@@ -58,17 +58,11 @@ const MainVenueCard: FC<MainVenueCardProps> = ({ draft, onUpdate }) => {
           <CardTitle className="text-sm">Venue</CardTitle>
         </CardHeader>
         <CardContent>
-          <FieldGroup className="block space-y-4">
+          <FieldGroup>
             <TextField
               name="venue_name"
               label="Venue Name"
               placeholder="e.g. Dewan Merak Kayangan"
-            />
-            <TextareaField
-              name="venue_address"
-              label="Venue Address"
-              placeholder="Full address"
-              rows={2}
             />
             <TextField
               name="venue_map_link"
@@ -79,6 +73,12 @@ const MainVenueCard: FC<MainVenueCardProps> = ({ draft, onUpdate }) => {
               name="venue_map_embed_url"
               label="Map Embed URL"
               placeholder="https://maps.google.com/maps?..."
+            />
+            <TextareaField
+              name="venue_address"
+              label="Venue Address"
+              placeholder="Full address"
+              rows={2}
             />
           </FieldGroup>
         </CardContent>

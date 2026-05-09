@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import type { DetailsDraft, RSVPDraft } from "../types"
-import type { ThemeConfig } from "@/pages/templates/themes/types"
+import type { ThemeConfig } from "@/pages/wedding/templates/types"
 
 interface InvitationState {
   detailsDraft: DetailsDraft | null

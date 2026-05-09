@@ -6,9 +6,9 @@ import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { useGuestRSVP, useRSVPMutations } from "@/pages/templates/queries";
-import type { RSVPFormData, PublicEventConfig } from "@/pages/templates/types";
-import { RSVPForm, RSVPDelete } from "@/pages/templates/form";
+import { useGuestRSVP, useRSVPMutations } from "@/pages/wedding/queries";
+import type { RSVPFormData, PublicEventConfig } from "@/pages/wedding/types";
+import { RSVPForm, RSVPDelete } from "@/pages/wedding/form";
 import {
   rsvpClassNames,
   rsvpLabels,

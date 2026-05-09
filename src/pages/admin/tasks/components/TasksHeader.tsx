@@ -36,6 +36,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
 
   return (
     <PageHeader
+      title="Tasks"
       description="Assign, track, and manage to-dos across your team. Stay on top of what needs to get done before the big day."
       isLoading={isLoading}
       isError={isError}

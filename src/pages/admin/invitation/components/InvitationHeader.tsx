@@ -22,6 +22,7 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
 
   return (
     <PageHeader
+      title="Invitation"
       description="Send and track invitations to your team. Pending invites will appear here until accepted."
       isLoading={isLoading}
       isError={isError}

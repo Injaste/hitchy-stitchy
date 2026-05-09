@@ -1,6 +1,6 @@
 import { motion, type Variants } from "framer-motion";
 import CountdownTimer from "@/components/custom/countdown-timer";
-import type { ThemeProps } from "@/pages/templates/themes/types";
+import type { ThemeProps } from "@/pages/wedding/templates/types";
 
 const T = {
   greeting: 0.2,

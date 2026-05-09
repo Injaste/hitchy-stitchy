@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import type { PublicEventConfig, RSVPSubmission, RSVPFormData } from "./types"
-import type { ThemePageConfig } from "./themes"
+import type { ThemePageConfig } from "./templates"
 import type { InvitationConfig } from "../admin/invitation/types"
 
 export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig> {

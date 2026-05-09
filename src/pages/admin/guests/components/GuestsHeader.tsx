@@ -37,6 +37,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
+      title="Guests"
       description="Your full guest list and their RSVP responses. See who's coming, who's pending, and who's declined."
       meta={
         total > 0 && (

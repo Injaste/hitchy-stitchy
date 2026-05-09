@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { motion, type Variants } from "framer-motion";
-import type { ThemeProps } from "@/pages/templates/themes/types";
+import type { ThemeProps } from "@/pages/wedding/templates/types";
 import {
   Calendar,
   CalendarCheck,
@@ -47,6 +47,14 @@ const divider: Variants = {
   },
 };
 
+const safeFormat = (date: Date, fmt: string) => {
+  try {
+    return format(date, fmt);
+  } catch {
+    return null;
+  }
+};
+
 const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
 
@@ -65,8 +73,8 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           {
             icon: Calendar,
             title: "Date",
-            detail: format(eventDate, "do MMMM yyyy"),
-            sub: format(eventDate, "EEEE"),
+            detail: safeFormat(eventDate, "do MMMM yyyy"),
+            sub: safeFormat(eventDate, "EEEE"),
           },
         ]
       : []),
@@ -112,7 +120,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
       ) +
       "&dates=" +
       encodeURIComponent(
-        `${format(eventDate, "yyyyMMdd")}/${format(eventDate, "yyyyMMdd")}`,
+        `${safeFormat(eventDate, "yyyyMMdd")}/${safeFormat(eventDate, "yyyyMMdd")}`,
       ) +
       "&location=" +
       encodeURIComponent(eventConfig.venue_address ?? "")

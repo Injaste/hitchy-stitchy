@@ -1,6 +1,6 @@
 import { z } from "zod"
 import type { InvitationConfig, RSVPMode, RSVPSectionConfig } from "../admin/invitation/types"
-import type { ThemeConfig } from "./themes/types"
+import type { ThemeConfig } from "./templates/types"
 
 export interface PublicEventConfig {
   id: string

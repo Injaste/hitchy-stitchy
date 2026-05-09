@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useInvitationStore } from "../store/useInvitationStore";
 import { useInvitationDraftSave } from "../hooks/useInvitationDraftSave";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 
 import Themes from "../themes";
 import Details from "../details";
 import RSVP from "../rsvp";
+import { SmoothScroll } from "@/components/custom/smooth-scroll";
 
 const EDITOR_TABS = [
   { id: "themes", label: "Themes", element: Themes },
@@ -58,13 +58,12 @@ const EditorPanel = () => {
           ))}
         </TabsList>
 
-        <TabsContent value={activeTab} className="flex-1 min-h-0">
-          <ScrollArea className="h-[759px]" gradient>
-            <div className="pt-4">
+        <TabsContent value={activeTab}>
+          <div className="pt-4">
+            <SmoothScroll className="h-[759px]" gradient>
               <ActiveElement />
-            </div>
-            <ScrollBar />
-          </ScrollArea>
+            </SmoothScroll>
+          </div>
         </TabsContent>
       </Tabs>
 

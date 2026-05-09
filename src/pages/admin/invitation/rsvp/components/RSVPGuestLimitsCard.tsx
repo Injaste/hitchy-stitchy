@@ -80,7 +80,7 @@ const RSVPGuestLimitsCard: FC<RSVPGuestLimitsCardProps> = ({
           <CardTitle className="text-sm">Guest Limits</CardTitle>
         </CardHeader>
         <CardContent>
-          <FieldGroup className="block space-y-4">
+          <FieldGroup>
             <div className="grid grid-cols-3 gap-3">
               <TextField
                 name="max_guests"

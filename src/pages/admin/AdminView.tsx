@@ -9,12 +9,10 @@ import useActivePage from "./hooks/useActivePage";
 
 import AdminSidebar from "./components/sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";
-import { ActiveCueBanner } from "./components/ActiveCueBanner";
 import AdminSkeletonLayout from "./components/AdminSkeletonLayout";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import { PingModal } from "./modals/PingModal";
 import { ActiveCueModal } from "./modals/ActiveCueModal";
-import PortalToApp from "@/components/custom/portal-to-app";
 
 const AdminView = () => {
   useBootstrap();
@@ -35,13 +33,10 @@ const AdminView = () => {
       ) : (
         <ComponentFade key="app">
           <SidebarProvider>
-            <PortalToApp>
-              <AdminSidebar />
-            </PortalToApp>
-            <SidebarInset className="flex flex-col flex-1 min-w-0 overflow-hidden">
-              <ActiveCueBanner />
+            <AdminSidebar />
+            <SidebarInset className="flex flex-col flex-1 ">
               <AdminTopbar />
-              <div className="px-4 md:px-6 py-6 md:py-8 mt-14">
+              <div className="px-4 md:px-6 py-6 md:py-8">
                 <AnimatePresence mode="wait">
                   <ComponentFade key={activePage}>
                     {currentOutlet}

@@ -8,7 +8,7 @@ const Home = lazy(() => import("@/pages/home"));
 const Signup = lazy(() => import("@/pages/signup"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const CreateEvent = lazy(() => import("@/pages/create-event"));
-const Templates = lazy(() => import("@/pages/templates"));
+const Templates = lazy(() => import("@/pages/wedding"));
 
 const standaloneRoutes = [
   { path: "/", element: Home, fade: true },

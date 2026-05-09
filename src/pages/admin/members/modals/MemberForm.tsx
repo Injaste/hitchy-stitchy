@@ -53,18 +53,29 @@ const MemberForm: FC<MemberFormProps> = ({
   const schema = mode === "invite" ? inviteMemberSchema : editMemberSchema;
 
   const allRoles = roles ?? [];
-  const isRootMember = mode === "edit" &&
+  const isRootMember =
+    mode === "edit" &&
     allRoles.find((r) => r.id === defaultValues?.role_id)?.category === "root";
 
   const roleOptions: SelectFieldOption[] = (() => {
     if (mode === "edit" && allRoles.length)
-      return allRoles.map((r) => ({ value: r.id, label: r.name, disabled: r.category === "root" }));
+      return allRoles.map((r) => ({
+        value: r.id,
+        label: r.name,
+        disabled: r.category === "root",
+      }));
 
     const assignable = allRoles.filter((r) => r.category !== "root");
     if (assignable.length)
       return assignable.map((r) => ({ value: r.id, label: r.name }));
 
-    return [{ value: "0", label: "No roles available — add roles first", disabled: true }];
+    return [
+      {
+        value: "0",
+        label: "No roles available — add roles first",
+        disabled: true,
+      },
+    ];
   })();
 
   const form = useForm({
@@ -86,8 +97,8 @@ const MemberForm: FC<MemberFormProps> = ({
 
   return (
     <FormShell form={form} className="grid gap-4">
-      <DialogBody className="space-y-6">
-        <FieldGroup className="block space-y-4">
+      <DialogBody>
+        <FieldGroup>
           <TextField
             name="display_name"
             label="Display name"

@@ -10,7 +10,7 @@ interface RSVPViewProps {
 }
 
 const RSVPView: FC<RSVPViewProps> = ({ draft, onUpdate }) => (
-  <div className="space-y-3 px-4">
+  <div className="space-y-3">
     <RSVPSettingsCard draft={draft} onUpdate={onUpdate} />
     <RSVPFormFieldsCard draft={draft} onUpdate={onUpdate} />
     <RSVPGuestLimitsCard draft={draft} onUpdate={onUpdate} />

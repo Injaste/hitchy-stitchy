@@ -3,7 +3,7 @@ import type {
   RSVPFormLabels,
   RSVPDeleteClassNames,
   RSVPDeleteLabels,
-} from "@/pages/templates/form"
+} from "@/pages/wedding/form"
 
 export const rsvpClassNames: RSVPFormClassNames = {
   fieldGroup: "gap-5",

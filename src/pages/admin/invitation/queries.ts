@@ -32,11 +32,11 @@ export function useInvitationQuery() {
   })
 }
 
-export function useUpdateInvitationMutation() {
+export function useInvitationMutation() {
   const { slug } = useAdminStore()
   const queryClient = useQueryClient()
 
-  return useMutation(
+  const update = useMutation(
     (payload: UpdateInvitationPayload) => updateInvitation(payload),
     {
       toast: { loading: "Saving...", success: "Saved", error: "Failed to save" },
@@ -45,6 +45,8 @@ export function useUpdateInvitationMutation() {
       },
     },
   )
+
+  return { update }
 }
 
 // Templates + Themes
@@ -119,6 +121,7 @@ export function useThemesMutations() {
     queryClient.invalidateQueries({ queryKey: adminKeys.themes(slug!) })
 
   const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: adminKeys.templates(slug!) })
     queryClient.invalidateQueries({ queryKey: adminKeys.themes(slug!) })
   }
 

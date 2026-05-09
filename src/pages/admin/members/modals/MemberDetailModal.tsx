@@ -85,55 +85,56 @@ const MemberDetailModal = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <DialogBody className="space-y-6">
-          {/* Role */}
-          <div className="space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Role
-            </p>
-            <Badge variant="outline" className="text-2xs tracking-wide">
-              {member.role.short_name} · {member.role.name}
-            </Badge>
-          </div>
-
-          {/* Status */}
-          <div className="flex items-center gap-2">
-            <StatusIcon
-              className={`w-4 h-4 shrink-0 ${statusConfig.className}`}
-            />
-            <span className={`text-sm font-medium ${statusConfig.className}`}>
-              {statusConfig.label}
-            </span>
-          </div>
-
-          {/* History */}
-          {timelineItems.length > 0 && (
+        <DialogBody>
+          <div className="space-y-6">
             <div className="space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                History
+                Role
               </p>
-              <div className="space-y-1">
-                {timelineItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center justify-between text-xs text-muted-foreground"
-                  >
-                    <span>{item.label}</span>
-                    <span className="flex gap-2">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="size-3" />
-                        {item.date}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="size-3" />
-                        {item.time}
-                      </span>
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <Badge variant="outline" className="text-2xs tracking-wide">
+                {member.role.short_name} · {member.role.name}
+              </Badge>
             </div>
-          )}
+
+            {/* Status */}
+            <div className="flex items-center gap-2">
+              <StatusIcon
+                className={`w-4 h-4 shrink-0 ${statusConfig.className}`}
+              />
+              <span className={`text-sm font-medium ${statusConfig.className}`}>
+                {statusConfig.label}
+              </span>
+            </div>
+
+            {/* History */}
+            {timelineItems.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  History
+                </p>
+                <div className="space-y-1">
+                  {timelineItems.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center justify-between text-xs text-muted-foreground"
+                    >
+                      <span>{item.label}</span>
+                      <span className="flex gap-2">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="size-3" />
+                          {item.date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="size-3" />
+                          {item.time}
+                        </span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </DialogBody>
 
         <Separator />

@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { useInvitationStore } from "../store/useInvitationStore";
 import { useInvitationQuery, useThemesQuery } from "../queries";
+import { themeRegistry } from "@/pages/wedding/templates";
 import type { DetailsDraft } from "../types";
-import type { ThemeConfig } from "@/pages/templates/themes/types";
-import type { UniqueMuslimPageConfig } from "@/pages/templates/themes/unique-muslim/types";
+import type { ThemeConfig } from "@/pages/wedding/templates/types";
 import MainView from "./main/MainView";
 import ConfigView from "./config/ConfigView";
 
@@ -37,31 +37,44 @@ const Details = () => {
     [themes, selectedThemeId],
   );
 
-  useEffect(() => {
-    if (!selectedTheme || themeDraft) return;
-    setTheme(selectedTheme.config);
-  }, [selectedTheme?.id, themeDraft, setTheme, selectedTheme]);
+  const slug = selectedTheme?.config?.slug;
+  const entry = slug ? (themeRegistry[slug] ?? null) : null;
 
-  const themeSlug = themeDraft?.slug ?? selectedTheme?.config?.slug;
-  const cur = (
-    themeDraft?.slug === "unique-muslim" ? themeDraft : selectedTheme?.config
-  ) as UniqueMuslimPageConfig | undefined;
+  console.log(slug);
+  console.log(selectedTheme);
+  console.log(entry);
+  console.log(themeRegistry);
+
+  useEffect(() => {
+    if (!entry || themeDraft) return;
+    const seed = Object.fromEntries(
+      entry.schema.flatMap((g) => g.fields).map((f) => [f.key, null]),
+    );
+    setTheme({
+      ...seed,
+      ...(selectedTheme?.config ?? {}),
+      slug,
+    } as ThemeConfig);
+  }, [selectedTheme?.id, themeDraft, setTheme]);
 
   const updDetails = (patch: Partial<DetailsDraft>) =>
     draft && setDetails({ ...draft, ...patch });
 
-  const updTheme = (patch: Partial<UniqueMuslimPageConfig>) => {
-    const base: ThemeConfig = themeDraft ??
-      selectedTheme?.config ?? { slug: "unique-muslim" };
+  const updTheme = (patch: Partial<ThemeConfig>) => {
+    const base = themeDraft ?? ({ slug } as ThemeConfig);
     setTheme({ ...base, ...patch });
   };
 
   return (
     <>
-      {themeSlug === "unique-muslim" && (
-        <ConfigView config={cur} onUpdate={updTheme} />
-      )}
       {draft && <MainView draft={draft} onUpdate={updDetails} />}
+      {entry && themeDraft && (
+        <ConfigView
+          schema={entry.schema}
+          config={themeDraft}
+          onUpdate={updTheme}
+        />
+      )}
     </>
   );
 };
