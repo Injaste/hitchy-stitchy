@@ -11,15 +11,18 @@ const RSVP = () => {
 
   useEffect(() => {
     if (!invitation || draft) return;
-    setRSVP({
-      rsvp_mode: invitation.rsvp_mode,
-      rsvp_deadline: invitation.rsvp_deadline ?? "",
-      config: invitation.config.rsvp,
-      max_guests: invitation.max_guests,
-      guest_count_min: invitation.guest_count_min,
-      guest_count_max: invitation.guest_count_max,
-      confirmation_message: invitation.confirmation_message,
-    });
+    setRSVP(
+      {
+        rsvp_mode: invitation.rsvp_mode,
+        rsvp_deadline: invitation.rsvp_deadline ?? "",
+        config: invitation.config.rsvp,
+        max_guests: invitation.max_guests,
+        guest_count_min: invitation.guest_count_min,
+        guest_count_max: invitation.guest_count_max,
+        confirmation_message: invitation.confirmation_message,
+      },
+      false,
+    );
   }, [invitation, draft, setRSVP]);
 
   if (!draft) return null;

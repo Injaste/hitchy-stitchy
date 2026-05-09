@@ -25,7 +25,7 @@ const Invitation = () => {
     if (!published) return;
 
     setSelectedThemeId(themesQuery.data[0].id);
-    setTheme(themesQuery.data[0].config);
+    setTheme(themesQuery.data[0].config, false);
   }, [themesQuery.data]);
 
   const isLoading = invitationQuery.isLoading || themesQuery.isLoading;

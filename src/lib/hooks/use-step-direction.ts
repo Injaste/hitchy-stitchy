@@ -19,8 +19,6 @@ export function useStepDirection<T>(
         setDirection(nextIdx > prevIdx ? 1 : -1);
       }
       prevValueRef.current = newValue;
-      console.log(newValue);
-
       setValue(newValue);
     },
     [order],

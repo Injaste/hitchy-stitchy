@@ -3,7 +3,7 @@ import cssText from "/src/index.css?inline";
 import { useMemo } from "react";
 import { themeRegistry, FallbackTheme } from "@/pages/wedding/templates";
 import { useInvitationStore } from "../store/useInvitationStore";
-import { useInvitationQuery, useSelectedThemeQuery } from "../queries";
+import { useInvitationQuery, useSelectedTemplateTheme } from "../queries";
 import { useInvitationDraftSave } from "../hooks/useInvitationDraftSave";
 import { composeEventConfig } from "../utils";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ const PreviewPanel = () => {
   const themeDraft = useInvitationStore((s) => s.themeDraft);
 
   const { data: invitation } = useInvitationQuery();
-  const { data: selectedTheme } = useSelectedThemeQuery();
+  const selected = useSelectedTemplateTheme();
 
   const { isDirty, isSaving, save } = useInvitationDraftSave();
 
@@ -34,12 +34,13 @@ const PreviewPanel = () => {
     () =>
       composeEventConfig(
         invitation!,
-        selectedTheme!,
+        selected?.theme ?? null,
+        selected?.template ?? null,
         detailsDraft,
         rsvpDraft,
         themeDraft,
       ),
-    [invitation, selectedTheme, detailsDraft, rsvpDraft, themeDraft],
+    [invitation, selected, detailsDraft, rsvpDraft, themeDraft],
   );
 
   const themeSlug = composed.published_page?.theme_slug ?? null;
@@ -51,18 +52,18 @@ const PreviewPanel = () => {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-sm font-medium text-foreground truncate">
-            {selectedTheme?.name}
+            {selected?.theme?.name}
           </span>
-          {selectedTheme?.template?.name && (
+          {selected?.template?.name && (
             <>
               <span className="text-muted-foreground/40 text-xs">·</span>
               <span className="text-xs text-muted-foreground truncate">
-                {selectedTheme.template.name}
+                {selected.template.name}
               </span>
             </>
           )}
         </div>
-        {selectedTheme?.is_published && (
+        {selected?.theme?.is_published && (
           <Badge
             variant="outline"
             className="shrink-0 text-2xs font-bold uppercase tracking-wide text-primary border-primary/30"

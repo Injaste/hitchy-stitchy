@@ -30,9 +30,6 @@ export async function checkSlugAvailable(slug: string): Promise<boolean> {
 export async function createEvent(
   payload: CreateEventPayload
 ): Promise<CreateEventResult> {
-  console.log(payload);
-
-
   const { data, error } = await supabase.rpc("create_event", {
     p_slug: payload.slug,
     p_name: payload.event_name,

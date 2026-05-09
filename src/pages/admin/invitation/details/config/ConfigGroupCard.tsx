@@ -10,31 +10,29 @@ import {
 } from "@/components/custom/fields";
 import { FormShellContext } from "@/components/custom/fields/form-context";
 import type { ThemeFieldGroup } from "@/pages/wedding/templates/types";
-import type { ThemeConfig } from "@/pages/wedding/templates/types";
+import type { ThemeDraftValues } from "../../store/useInvitationStore";
 
 interface ConfigGroupCardProps {
   group: ThemeFieldGroup;
-  config: ThemeConfig;
-  onUpdate: (patch: Partial<ThemeConfig>) => void;
+  config: ThemeDraftValues;
+  onUpdate: (patch: ThemeDraftValues) => void;
 }
 
 const ConfigGroupCard: FC<ConfigGroupCardProps> = ({ group, config, onUpdate }) => {
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 
-  const record = config as Record<string, string | null | undefined>;
-
   const form = useForm({
     defaultValues: Object.fromEntries(
       group.fields.map((f) => [
         f.key,
-        f.type === "switch" ? record[f.key] === "true" : (record[f.key] ?? ""),
+        f.type === "switch" ? config[f.key] === "true" : (config[f.key] ?? ""),
       ]),
     ),
     listeners: {
       onChange: ({ formApi }) => {
         const values = formApi.state.values as Record<string, string | boolean | null>;
-        const patch: Record<string, string | null> = {};
+        const patch: ThemeDraftValues = {};
         for (const f of group.fields) {
           const v = values[f.key];
           patch[f.key] =
@@ -42,7 +40,7 @@ const ConfigGroupCard: FC<ConfigGroupCardProps> = ({ group, config, onUpdate }) 
               ? v ? "true" : null
               : typeof v === "string" ? v.trim() || null : null;
         }
-        onUpdateRef.current(patch as Partial<ThemeConfig>);
+        onUpdateRef.current(patch);
       },
     },
   });

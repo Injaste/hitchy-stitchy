@@ -18,9 +18,18 @@ import type {
   CreateThemePayload,
   UpdateThemePayload,
   Template,
+  Theme,
   TemplateTheme,
 } from "./types"
 import { useInvitationStore } from "./store/useInvitationStore"
+import { themeRegistry } from "@/pages/wedding/templates"
+import type { ThemeRegistryEntry } from "@/pages/wedding/templates/types"
+
+export interface SelectedTemplateTheme {
+  theme: Theme
+  template: Template
+  entry: ThemeRegistryEntry
+}
 
 // Invitation
 export function useInvitationQuery() {
@@ -100,16 +109,35 @@ export function useThemesQuery() {
   })
 }
 
-export function useSelectedThemeQuery() {
+export function useSelectedTemplateTheme(): SelectedTemplateTheme | null {
   const { slug, eventId } = useAdminStore()
   const selectedThemeId = useInvitationStore((s) => s.selectedThemeId)
 
-  return useQuery({
+  const themesQuery = useQuery({
     queryKey: adminKeys.themes(slug!),
     queryFn: () => fetchThemes(eventId!),
     enabled: !!eventId && !!slug,
-    select: (themes) => themes.find((t) => t.id === selectedThemeId) ?? null,
   })
+
+  const templatesQuery = useQuery({
+    queryKey: adminKeys.templates(slug!),
+    queryFn: fetchTemplates,
+    enabled: !!slug,
+    staleTime: Infinity,
+  })
+
+  if (!selectedThemeId || !themesQuery.data || !templatesQuery.data) return null
+
+  const theme = themesQuery.data.find((t) => t.id === selectedThemeId)
+  if (!theme || !theme.template_id) return null
+
+  const template = templatesQuery.data.find((t) => t.id === theme.template_id)
+  if (!template) return null
+
+  const entry = themeRegistry[template.slug]
+  if (!entry) return null
+
+  return { theme, template, entry }
 }
 
 export function useThemesMutations() {

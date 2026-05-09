@@ -19,7 +19,7 @@ export interface PublicEventConfig {
   max_guests: number | null
   guest_count_min: number
   guest_count_max: number
-  confirmation_message: string
+  confirmation_message: string | null
   config: InvitationConfig
   published_page: {
     id: string

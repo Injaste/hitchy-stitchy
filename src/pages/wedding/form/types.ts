@@ -1,4 +1,5 @@
-import type { RSVPSectionConfig, RSVPFormData } from "@/pages/wedding/types";
+import type { RSVPSectionConfig } from "@/pages/admin/invitation/types";
+import type { RSVPFormData } from "@/pages/wedding/types";
 
 export type RSVPFieldKey = "name" | "phone" | "guestCount" | "message";
 

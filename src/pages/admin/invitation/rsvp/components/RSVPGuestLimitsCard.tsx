@@ -58,8 +58,6 @@ const RSVPGuestLimitsCard: FC<RSVPGuestLimitsCardProps> = ({
               .map(([key, tree]) => [key, { message: tree!.errors[0] }]),
           );
 
-          console.log(fields);
-
           return { fields };
         }
       },

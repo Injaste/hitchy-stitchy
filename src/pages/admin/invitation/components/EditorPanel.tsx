@@ -20,16 +20,16 @@ type EditorTabId = (typeof EDITOR_TABS)[number]["id"];
 const EditorPanel = () => {
   const [activeTab, setActiveTab] = useState<EditorTabId>("themes");
 
-  const detailsDraft = useInvitationStore((s) => s.detailsDraft);
-  const rsvpDraft = useInvitationStore((s) => s.rsvpDraft);
+  const detailsIsDirty = useInvitationStore((s) => s.detailsIsDirty);
+  const rsvpIsDirty = useInvitationStore((s) => s.rsvpIsDirty);
+  const themeIsDirty = useInvitationStore((s) => s.themeIsDirty);
 
   const { isDirty, isSaving, save } = useInvitationDraftSave();
 
-  // to only update when fields are updated.. doesnt matter if draft exist, as it may match the original.. but as long a single instance of onUpdateDraft is called, dirty dot is enabled, so likely it needs to be in the store instead.
   const hasDirtyDot: Record<EditorTabId, boolean> = {
     themes: false,
-    details: !!detailsDraft,
-    rsvp: !!rsvpDraft,
+    details: detailsIsDirty || themeIsDirty,
+    rsvp: rsvpIsDirty,
   };
 
   const activeTabConfig = EDITOR_TABS.find((t) => t.id === activeTab)!;

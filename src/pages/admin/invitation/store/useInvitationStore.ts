@@ -1,39 +1,46 @@
 import { create } from "zustand"
 import type { DetailsDraft, RSVPDraft } from "../types"
-import type { ThemeConfig } from "@/pages/wedding/templates/types"
+
+export type ThemeDraftValues = Record<string, string | null>
 
 interface InvitationState {
   detailsDraft: DetailsDraft | null
-  rsvpIsDirty: boolean
+  detailsIsDirty: boolean
   rsvpDraft: RSVPDraft | null
+  rsvpIsDirty: boolean
+  themeDraft: ThemeDraftValues | null
   themeIsDirty: boolean
-  themeDraft: ThemeConfig | null
   selectedThemeId: string | null
 
   setSelectedThemeId: (id: string | null) => void
-  setDetails: (draft: DetailsDraft) => void
-  setRSVP: (draft: RSVPDraft) => void
-  setTheme: (draft: ThemeConfig) => void
+  setDetails: (draft: DetailsDraft, dirty?: boolean) => void
+  setRSVP: (draft: RSVPDraft, dirty?: boolean) => void
+  setTheme: (draft: ThemeDraftValues, dirty?: boolean) => void
 
-  clearDetails: () => void
-  clearRSVP: () => void
-  clearTheme: () => void
+  setDetailsDirty: (dirty: boolean) => void
+  setRSVPDirty: (dirty: boolean) => void
+  setThemeDirty: (dirty: boolean) => void
 }
 
 export const useInvitationStore = create<InvitationState>((set) => ({
   detailsDraft: null,
-  rsvpIsDirty: false,
+  detailsIsDirty: false,
   rsvpDraft: null,
-  themeIsDirty: false,
+  rsvpIsDirty: false,
   themeDraft: null,
+  themeIsDirty: false,
   selectedThemeId: null,
 
-  setSelectedThemeId: (id) => set({ selectedThemeId: id, themeDraft: null }),
-  setDetails: (draft) => set({ detailsDraft: draft }),
-  setRSVP: (draft) => set({ rsvpDraft: draft }),
-  setTheme: (draft) => set({ themeDraft: draft }),
+  setSelectedThemeId: (id) =>
+    set({ selectedThemeId: id, themeDraft: null, themeIsDirty: false }),
+  setDetails: (draft, dirty = true) =>
+    set({ detailsDraft: draft, detailsIsDirty: dirty }),
+  setRSVP: (draft, dirty = true) =>
+    set({ rsvpDraft: draft, rsvpIsDirty: dirty }),
+  setTheme: (draft, dirty = true) =>
+    set({ themeDraft: draft, themeIsDirty: dirty }),
 
-  clearDetails: () => set({ detailsDraft: null }),
-  clearRSVP: () => set({ rsvpDraft: null }),
-  clearTheme: () => set({ themeDraft: null }),
+  setDetailsDirty: (dirty) => set({ detailsIsDirty: dirty }),
+  setRSVPDirty: (dirty) => set({ rsvpIsDirty: dirty }),
+  setThemeDirty: (dirty) => set({ themeIsDirty: dirty }),
 }))

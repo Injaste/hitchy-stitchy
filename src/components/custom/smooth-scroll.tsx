@@ -27,7 +27,7 @@ export const SmoothScroll = forwardRef<LenisRef, SmoothScrollProps>(
         {gradient && (
           <div
             className={cn(
-              "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b to-transparent transition-opacity duration-200",
+              "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b to-transparent transition-opacity duration-500",
               gradientClass,
               canScrollUp ? "opacity-100" : "opacity-0",
             )}
@@ -45,7 +45,7 @@ export const SmoothScroll = forwardRef<LenisRef, SmoothScrollProps>(
         {gradient && (
           <div
             className={cn(
-              "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t to-transparent transition-opacity duration-200",
+              "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t to-transparent transition-opacity duration-500",
               gradientClass,
               canScrollDown ? "opacity-100" : "opacity-0",
             )}

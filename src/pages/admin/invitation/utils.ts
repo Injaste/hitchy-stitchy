@@ -2,18 +2,18 @@ import type {
   DetailsDraft,
   Invitation,
   RSVPDraft,
+  Template,
 } from "./types"
 import type { ThemeConfig } from "@/pages/wedding/templates/types"
 import type { Theme } from "./types"
 import type { PublicEventConfig } from "@/pages/wedding/types"
+import type { ThemeDraftValues } from "./store/useInvitationStore"
 
 export function mapToPublicEventConfig(
   inv: Invitation,
   theme: Theme | null,
+  templateSlug: string | null,
 ): PublicEventConfig {
-  const themeConfig: ThemeConfig = theme?.config ?? {}
-  const themeSlug = themeConfig.slug ?? null
-
   return {
     id: inv.id,
     event_id: inv.event_id,
@@ -34,7 +34,7 @@ export function mapToPublicEventConfig(
     confirmation_message: inv.confirmation_message,
     config: inv.config,
     published_page: theme
-      ? { id: theme.id, theme_slug: themeSlug, config: themeConfig }
+      ? { id: theme.id, theme_slug: templateSlug, config: theme.config ?? {} }
       : null,
   }
 }
@@ -42,9 +42,10 @@ export function mapToPublicEventConfig(
 export function composeEventConfig(
   inv: Invitation,
   theme: Theme | null,
+  template: Template | null,
   details: DetailsDraft | null,
   rsvp: RSVPDraft | null,
-  themeDraft: ThemeConfig | null,
+  themeDraft: ThemeDraftValues | null,
 ): PublicEventConfig {
   const merged: Invitation = {
     ...inv,
@@ -56,9 +57,10 @@ export function composeEventConfig(
     },
   }
 
-  const mergedTheme: Theme | null = theme && themeDraft
-    ? { ...theme, config: themeDraft }
+  const slug = template?.slug ?? null
+  const mergedTheme: Theme | null = theme && themeDraft && slug
+    ? { ...theme, config: { slug, ...themeDraft } as ThemeConfig }
     : theme
 
-  return mapToPublicEventConfig(merged, mergedTheme)
+  return mapToPublicEventConfig(merged, mergedTheme, slug)
 }
