@@ -116,7 +116,7 @@ const ImportPreviewStep: FC<ImportPreviewStepProps> = ({
       .filter(
         (r) => r.action === "update" && r.conflictWith && r.errors.length === 0,
       )
-      .map((r) => ({ id: r.conflictWith!.id, values: r.values }))
+      .map((r) => ({ guest: r.conflictWith!, values: r.values }))
     const skippedCount = resolved.filter(
       (r) => r.action === "skip" || r.errors.length > 0,
     ).length

@@ -10,7 +10,7 @@ import { TIME_REGEX } from "@/pages/admin/types";
 
 const RSVP_MODE_OPTIONS: { value: RSVPMode; label: string }[] = [
   { value: "public", label: "Public — anyone can RSVP" },
-  { value: "private", label: "Private — pool only" },
+  { value: "private", label: "Private — selected guests only" },
   { value: "both", label: "Both" },
 ];
 

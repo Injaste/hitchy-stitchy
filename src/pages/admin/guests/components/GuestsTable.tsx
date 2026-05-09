@@ -38,12 +38,22 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Name</th>
-              <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Guests</th>
-              <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Status</th>
-              <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Added</th>
-              <th className="text-right px-4 py-2.5 font-medium text-muted-foreground">Actions</th>
+            <tr className="border-b border-border bg-muted/40">
+              <th className="text-left px-5 py-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                Guest
+              </th>
+              <th className="text-left px-5 py-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                Party
+              </th>
+              <th className="text-left px-5 py-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                Status
+              </th>
+              <th className="text-left px-5 py-3 font-medium text-xs uppercase tracking-wide text-muted-foreground hidden sm:table-cell">
+                Added
+              </th>
+              <th className="text-right px-5 py-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -52,19 +62,24 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
               return (
                 <tr
                   key={guest.id}
-                  className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer transition-colors"
+                  className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer transition-colors"
                   onClick={() => openDetail(guest)}
                 >
-                  <td className="px-4 py-3 font-medium text-foreground">{guest.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{guest.guest_count}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5">
+                    <p className="font-medium text-foreground leading-tight">{guest.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{guest.phone}</p>
+                  </td>
+                  <td className="px-5 py-3.5 text-muted-foreground">
+                    {guest.guest_count}
+                  </td>
+                  <td className="px-5 py-3.5">
                     <Badge variant={badge.variant}>{badge.label}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
-                    {format(new Date(guest.created_at), "MMM d, yyyy")}
+                  <td className="px-5 py-3.5 text-muted-foreground text-xs hidden sm:table-cell">
+                    {format(new Date(guest.created_at), "d MMM yyyy")}
                   </td>
                   <td
-                    className="px-4 py-3 text-right whitespace-nowrap"
+                    className="px-5 py-3.5 text-right whitespace-nowrap"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {guest.status !== "confirmed" && (
@@ -72,7 +87,8 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
                         size="sm"
                         variant="outline"
                         className="text-xs h-7 mr-1"
-                        onClick={() => updateStatus.mutate({ id: guest.id, status: "confirmed" })}
+                        onClick={() => updateStatus.mutate({ guest, status: "confirmed" })}
+                        disabled={updateStatus.isPending}
                       >
                         Confirm
                       </Button>
@@ -82,7 +98,8 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
                         size="sm"
                         variant="ghost"
                         className="text-xs h-7 text-destructive mr-1"
-                        onClick={() => updateStatus.mutate({ id: guest.id, status: "cancelled" })}
+                        onClick={() => updateStatus.mutate({ guest, status: "cancelled" })}
+                        disabled={updateStatus.isPending}
                       >
                         Cancel
                       </Button>

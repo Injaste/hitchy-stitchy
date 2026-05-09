@@ -23,11 +23,14 @@ const GuestEditModal = () => {
 
   const handleSubmit = (values: GuestFormValues) => {
     update.mutate({
+      event_id: guest.event_id,
       id: guest.id,
       name: values.name,
       phone: values.phone,
       guest_count: values.guest_count,
       message: values.message,
+      status: guest.status,
+      invite_code: guest.invite_code,
     });
   };
 

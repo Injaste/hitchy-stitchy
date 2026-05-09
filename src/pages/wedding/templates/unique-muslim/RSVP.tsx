@@ -149,7 +149,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
             <div ref={bodyRef}>
               {eventConfig.rsvp_mode === "private" ? (
                 <motion.div
-                  key="pool-closed"
+                  key="private-closed"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-center py-8"

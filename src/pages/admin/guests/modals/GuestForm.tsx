@@ -1,28 +1,26 @@
-import { useState, type FC } from "react";
-import { useForm } from "@tanstack/react-form";
+import type { FC } from "react"
+import { useForm } from "@tanstack/react-form"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { FieldGroup } from "@/components/ui/field"
+import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
 import {
-  Field,
-  FieldContent,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
-import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
+  FormShell,
+  FieldShell,
+  TextField,
+  TextareaField,
+} from "@/components/custom/fields"
 
-import { guestFormSchema, type GuestFormValues } from "../types";
+import { guestFormSchema, type GuestFormValues } from "../types"
 
 interface GuestFormProps {
-  defaultValues?: Partial<GuestFormValues>;
-  onSubmit: (values: GuestFormValues) => void;
-  onCancel: () => void;
-  isPending: boolean;
-  submitLabel: string;
+  defaultValues?: Partial<GuestFormValues>
+  onSubmit: (values: GuestFormValues) => void
+  onCancel: () => void
+  isPending: boolean
+  submitLabel: string
 }
 
 const GuestForm: FC<GuestFormProps> = ({
@@ -32,14 +30,11 @@ const GuestForm: FC<GuestFormProps> = ({
   isPending,
   submitLabel,
 }) => {
-  const [attemptCount, setAttemptCount] = useState(0);
-
   const form = useForm({
     defaultValues: {
       name: defaultValues?.name ?? "",
       phone: defaultValues?.phone ?? "",
       guest_count: defaultValues?.guest_count ?? 1,
-      // Form state keeps message as a string — the schema transforms empty → null on submit.
       message: defaultValues?.message ?? "",
     },
     validators: {
@@ -47,123 +42,46 @@ const GuestForm: FC<GuestFormProps> = ({
       onChange: guestFormSchema,
     },
     onSubmit: ({ value }) => {
-      onSubmit(guestFormSchema.parse(value));
+      onSubmit(guestFormSchema.parse(value))
     },
-  });
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAttemptCount((prev) => prev + 1);
-    form.handleSubmit();
-  };
+  })
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-4">
+    <FormShell form={form} className="grid gap-4">
       <DialogBody>
         <FieldGroup>
-          <form.Field name="name">
-            {(field) => {
-              const hasError =
-                Boolean(field.state.meta.errors.length) && attemptCount > 0;
-              return (
-                <AnimateItem
-                  errors={field.state.meta.errors}
-                  hasError={hasError}
-                  attemptCount={attemptCount}
-                >
-                  <Field data-invalid={hasError} className="gap-2">
-                    <FieldLabel>Name</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        placeholder="e.g. Ali Hassan"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </FieldContent>
-                  </Field>
-                </AnimateItem>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="phone">
-            {(field) => {
-              const hasError =
-                Boolean(field.state.meta.errors.length) && attemptCount > 0;
-              return (
-                <AnimateItem
-                  errors={field.state.meta.errors}
-                  hasError={hasError}
-                  attemptCount={attemptCount}
-                >
-                  <Field data-invalid={hasError} className="gap-2">
-                    <FieldLabel>Phone</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        type="tel"
-                        placeholder="e.g. +60123456789"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </FieldContent>
-                  </Field>
-                </AnimateItem>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="guest_count">
-            {(field) => {
-              const hasError =
-                Boolean(field.state.meta.errors.length) && attemptCount > 0;
-              return (
-                <AnimateItem
-                  errors={field.state.meta.errors}
-                  hasError={hasError}
-                  attemptCount={attemptCount}
-                >
-                  <Field data-invalid={hasError} className="gap-2">
-                    <FieldLabel>Party size</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        type="number"
-                        min={1}
-                        step={1}
-                        value={field.state.value}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          field.handleChange(v === "" ? 1 : Number(v));
-                        }}
-                        onBlur={field.handleBlur}
-                      />
-                    </FieldContent>
-                  </Field>
-                </AnimateItem>
-              );
-            }}
-          </form.Field>
-
-          <div className="space-y-1.5">
-            <Label>
-              Message{" "}
-              <span className="text-muted-foreground font-normal">
-                (optional)
-              </span>
-            </Label>
-            <form.Field name="message">
-              {(field) => (
-                <Textarea
-                  placeholder="Notes you want to keep against this guest…"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  rows={3}
-                />
-              )}
-            </form.Field>
-          </div>
+          <TextField
+            name="name"
+            label="Name"
+            placeholder="e.g. Ali Hassan"
+          />
+          <TextField
+            name="phone"
+            label="Phone"
+            type="tel"
+            placeholder="e.g. +60123456789"
+          />
+          <FieldShell name="guest_count" label="Party size">
+            {(field) => (
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                value={field.state.value}
+                onChange={(e) =>
+                  field.handleChange(e.target.value === "" ? 1 : Number(e.target.value))
+                }
+                onBlur={field.handleBlur}
+              />
+            )}
+          </FieldShell>
+          <TextareaField
+            name="message"
+            label="Message"
+            optional
+            rows={3}
+            placeholder="Notes you want to keep against this guest…"
+          />
         </FieldGroup>
       </DialogBody>
 
@@ -179,8 +97,8 @@ const GuestForm: FC<GuestFormProps> = ({
           {isPending ? "Saving…" : submitLabel}
         </Button>
       </DialogFooter>
-    </form>
-  );
-};
+    </FormShell>
+  )
+}
 
-export default GuestForm;
+export default GuestForm

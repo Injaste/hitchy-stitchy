@@ -10,7 +10,6 @@ import {
   fetchGuests,
   createGuest,
   updateGuest,
-  updateGuestStatus,
   deleteGuest,
   bulkImportGuests,
 } from "./api"
@@ -19,6 +18,7 @@ import type {
   CreateGuestPayload,
   UpdateGuestPayload,
   GuestStatus,
+  Guest,
   GuestFormValues,
   ImportResult,
 } from "./types"
@@ -62,7 +62,7 @@ export function useGuestsRealtime() {
 }
 
 export function useGuestMutations() {
-  const { slug } = useAdminStore()
+  const { slug, eventId } = useAdminStore()
   const closeAll = useGuestModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
@@ -95,7 +95,17 @@ export function useGuestMutations() {
   )
 
   const updateStatus = useMutation(
-    (payload: { id: string; status: GuestStatus }) => updateGuestStatus(payload),
+    ({ guest, status }: { guest: Guest; status: GuestStatus }) =>
+      updateGuest({
+        event_id: guest.event_id,
+        id: guest.id,
+        name: guest.name,
+        phone: guest.phone,
+        guest_count: guest.guest_count,
+        message: guest.message,
+        status,
+        invite_code: guest.invite_code,
+      }),
     {
       successMessage: "Status updated",
       errorMessage: "Failed to update status",
@@ -103,20 +113,23 @@ export function useGuestMutations() {
     },
   )
 
-  const remove = useMutation((id: string) => deleteGuest(id), {
-    successMessage: "Guest removed",
-    errorMessage: "Failed to remove guest",
-    onSuccess: () => {
-      invalidate()
-      closeAll()
+  const remove = useMutation(
+    (id: string) => deleteGuest(eventId!, id),
+    {
+      successMessage: "Guest removed",
+      errorMessage: "Failed to remove guest",
+      onSuccess: () => {
+        invalidate()
+        closeAll()
+      },
     },
-  })
+  )
 
   const bulkImport = useMutation(
     (payload: {
       eventId: string
       insertRows: GuestFormValues[]
-      updateRows: Array<{ id: string; values: GuestFormValues }>
+      updateRows: Array<{ guest: Guest; values: GuestFormValues }>
       skippedCount: number
     }) => bulkImportGuests(payload),
     {

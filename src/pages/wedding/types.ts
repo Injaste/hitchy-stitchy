@@ -45,7 +45,6 @@ export interface RSVPSubmission {
   message: string | null
   status: "pending" | "confirmed" | "cancelled"
   source: "private" | "public"
-  cancel_token: string
   created_at: string
   updated_at: string
 }

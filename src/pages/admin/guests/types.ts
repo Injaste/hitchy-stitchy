@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export type GuestStatus = "pending" | "confirmed" | "cancelled"
-export type GuestSource = "pool" | "public"
+export type GuestSource = "private" | "public"
 
 export interface Guest {
   id: string
@@ -12,7 +12,7 @@ export interface Guest {
   message: string | null
   status: GuestStatus
   source: GuestSource
-  cancel_token: string
+  invite_code: string | null
   created_at: string
   updated_at: string
 }
@@ -43,8 +43,15 @@ export interface CreateGuestPayload extends GuestFormValues {
   event_id: string
 }
 
-export interface UpdateGuestPayload extends GuestFormValues {
+export interface UpdateGuestPayload {
+  event_id: string
   id: string
+  name: string
+  phone: string
+  guest_count: number
+  message: string | null
+  status: GuestStatus
+  invite_code: string | null
 }
 
 // CSV import
@@ -76,6 +83,6 @@ export const STATUS_LABELS: Record<GuestStatus, string> = {
 }
 
 export const SOURCE_LABELS: Record<GuestSource, string> = {
-  pool: "Added by host",
+  private: "Added by host",
   public: "Self-submitted",
 }

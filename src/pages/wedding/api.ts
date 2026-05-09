@@ -62,13 +62,18 @@ export async function fetchRSVP(event_id: string, phone: string): Promise<RSVPSu
   return (data as RSVPSubmission) ?? null
 }
 
-export async function submitRSVP(event_id: string, formData: RSVPFormData): Promise<RSVPSubmission> {
+export async function submitRSVP(
+  event_id: string,
+  formData: RSVPFormData,
+  invite_code?: string | null,
+): Promise<RSVPSubmission> {
   const { data, error } = await supabase.rpc("submit_rsvp", {
     p_event_id: event_id,
     p_name: formData.name,
-    p_phone: formData.phone ?? null,
-    p_guest_count: formData.guestCount ?? 1,
+    p_phone: formData.phone,
+    p_guest_count: formData.guestCount,
     p_message: formData.message ?? null,
+    p_invite_code: invite_code,
   })
 
   if (error) throw new Error(error.message)
@@ -78,13 +83,11 @@ export async function submitRSVP(event_id: string, formData: RSVPFormData): Prom
 export async function updateRSVP(
   event_id: string,
   phone: string,
-  cancel_token: string,
   formData: Partial<RSVPFormData>
 ): Promise<void> {
   const { error } = await supabase.rpc("update_rsvp", {
     p_event_id: event_id,
     p_phone: phone,
-    p_token: cancel_token,
     p_name: formData.name ?? null,
     p_guest_count: formData.guestCount ?? null,
     p_message: formData.message ?? null,
@@ -93,11 +96,10 @@ export async function updateRSVP(
   if (error) throw new Error(error.message)
 }
 
-export async function deleteRSVP(event_id: string, phone: string, cancel_token: string): Promise<void> {
+export async function deleteRSVP(event_id: string, phone: string): Promise<void> {
   const { error } = await supabase.rpc("cancel_rsvp", {
     p_event_id: event_id,
     p_phone: phone,
-    p_token: cancel_token,
   })
   if (error) throw new Error(error.message)
 }
