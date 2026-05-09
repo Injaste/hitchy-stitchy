@@ -3,8 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { FieldShell } from "@/components/custom/fields";
+import { TextField } from "@/components/custom/fields";
 import { FormShellContext } from "@/components/custom/fields/form-context";
 import type { DetailsDraft } from "../../types";
 
@@ -42,6 +41,8 @@ const MainEventCard: FC<MainEventCardProps> = ({ draft, onUpdate }) => {
     listeners: {
       onChange: ({ formApi }) => {
         const parsed = schema.safeParse(formApi.state.values);
+        console.log(parsed);
+
         if (!parsed.success) return;
         onUpdateRef.current(parsed.data);
       },
@@ -56,45 +57,21 @@ const MainEventCard: FC<MainEventCardProps> = ({ draft, onUpdate }) => {
         <CardContent>
           <FieldGroup className="block space-y-4">
             <div className="grid grid-cols-3 gap-3">
-              <FieldShell name="event_date" label="Date">
-                {(field) => (
-                  <Input
-                    placeholder="e.g. 1 June 2025"
-                    value={field.state.value}
-                    onChange={(e) => {
-                      field.handleChange(e.target.value);
-                      onUpdate({ event_date: e.target.value || null });
-                    }}
-                    onBlur={field.handleBlur}
-                  />
-                )}
-              </FieldShell>
-              <FieldShell name="event_time_start" label="Start Time">
-                {(field) => (
-                  <Input
-                    placeholder="11:00 AM"
-                    value={field.state.value}
-                    onChange={(e) => {
-                      field.handleChange(e.target.value);
-                      onUpdate({ event_time_start: e.target.value || null });
-                    }}
-                    onBlur={field.handleBlur}
-                  />
-                )}
-              </FieldShell>
-              <FieldShell name="event_time_end" label="End Time">
-                {(field) => (
-                  <Input
-                    placeholder="5:00 PM"
-                    value={field.state.value}
-                    onChange={(e) => {
-                      field.handleChange(e.target.value);
-                      onUpdate({ event_time_end: e.target.value || null });
-                    }}
-                    onBlur={field.handleBlur}
-                  />
-                )}
-              </FieldShell>
+              <TextField
+                name="event_date"
+                label="Date"
+                placeholder="e.g. 1 June 2025"
+              />
+              <TextField
+                name="event_time_start"
+                label="Start Time"
+                placeholder="11:00 AM"
+              />
+              <TextField
+                name="event_time_end"
+                label="End Time"
+                placeholder="5:00 PM"
+              />
             </div>
           </FieldGroup>
         </CardContent>

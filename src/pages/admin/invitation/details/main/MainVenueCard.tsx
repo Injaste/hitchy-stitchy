@@ -3,9 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { FieldShell } from "@/components/custom/fields";
+import { TextareaField, TextField } from "@/components/custom/fields";
 import { FormShellContext } from "@/components/custom/fields/form-context";
 import type { DetailsDraft } from "../../types";
 
@@ -61,59 +59,27 @@ const MainVenueCard: FC<MainVenueCardProps> = ({ draft, onUpdate }) => {
         </CardHeader>
         <CardContent>
           <FieldGroup className="block space-y-4">
-            <FieldShell name="venue_name" label="Venue Name">
-              {(field) => (
-                <Input
-                  placeholder="e.g. Dewan Merak Kayangan"
-                  value={field.state.value}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                    onUpdate({ venue_name: e.target.value || null });
-                  }}
-                  onBlur={field.handleBlur}
-                />
-              )}
-            </FieldShell>
-            <FieldShell name="venue_address" label="Venue Address">
-              {(field) => (
-                <Textarea
-                  rows={2}
-                  placeholder="Full address"
-                  value={field.state.value}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                    onUpdate({ venue_address: e.target.value || null });
-                  }}
-                  onBlur={field.handleBlur}
-                />
-              )}
-            </FieldShell>
-            <FieldShell name="venue_map_link" label="Map Link">
-              {(field) => (
-                <Input
-                  placeholder="https://maps.google.com/..."
-                  value={field.state.value}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                    onUpdate({ venue_map_link: e.target.value || null });
-                  }}
-                  onBlur={field.handleBlur}
-                />
-              )}
-            </FieldShell>
-            <FieldShell name="venue_map_embed_url" label="Map Embed URL">
-              {(field) => (
-                <Input
-                  placeholder="https://maps.google.com/maps?..."
-                  value={field.state.value}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                    onUpdate({ venue_map_embed_url: e.target.value || null });
-                  }}
-                  onBlur={field.handleBlur}
-                />
-              )}
-            </FieldShell>
+            <TextField
+              name="venue_name"
+              label="Venue Name"
+              placeholder="e.g. Dewan Merak Kayangan"
+            />
+            <TextareaField
+              name="venue_address"
+              label="Venue Address"
+              placeholder="Full address"
+              rows={2}
+            />
+            <TextField
+              name="venue_map_link"
+              label="Map Link"
+              placeholder="https://maps.google.com/..."
+            />
+            <TextField
+              name="venue_map_embed_url"
+              label="Map Embed URL"
+              placeholder="https://maps.google.com/maps?..."
+            />
           </FieldGroup>
         </CardContent>
       </Card>

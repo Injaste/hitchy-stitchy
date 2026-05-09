@@ -3,18 +3,27 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { FieldShell } from "@/components/custom/fields";
+import { TextareaField, TextField } from "@/components/custom/fields";
 import { FormShellContext } from "@/components/custom/fields/form-context";
 import type { RSVPDraft } from "../../types";
 
 const schema = z.object({
-  max_guests: z.number().min(0, "Please enter 0 or more").nullable(),
-  guest_count_min: z.number().min(0, "Please enter 0 or more"),
-  guest_count_max: z.number().min(0, "Please enter 0 or more"),
+  max_guests: z.coerce
+    .number()
+    .min(1, "Please enter 0 or more")
+    .max(10000, "Please enter 10,000 or less")
+    .nullable(),
+  guest_count_min: z.coerce
+    .number()
+    .min(1, "Please enter 0 or more")
+    .max(99, "Please enter 99 or less"),
+  guest_count_max: z.coerce
+    .number()
+    .min(1, "Please enter 0 or more")
+    .max(99, "Please enter 99 or less"),
   confirmation_message: z
     .string()
-    .max(100, "Please keep this under 100 characters")
+    .max(500, "Please keep this under 500 characters")
     .transform((v) => v.trim() || null),
 });
 interface RSVPGuestLimitsCardProps {
@@ -36,7 +45,25 @@ const RSVPGuestLimitsCard: FC<RSVPGuestLimitsCardProps> = ({
       guest_count_max: draft.guest_count_max,
       confirmation_message: draft.confirmation_message ?? null,
     },
-    validators: { onChange: schema },
+    validators: {
+      onChange: ({ value }) => {
+        const parsed = schema.safeParse(value);
+
+        if (!parsed.success) {
+          const properties = z.treeifyError(parsed.error).properties ?? {};
+
+          const fields = Object.fromEntries(
+            Object.entries(properties)
+              .filter(([, tree]) => tree?.errors?.length)
+              .map(([key, tree]) => [key, { message: tree!.errors[0] }]),
+          );
+
+          console.log(fields);
+
+          return { fields };
+        }
+      },
+    },
     listeners: {
       onChange: ({ formApi }) => {
         const parsed = schema.safeParse(formApi.state.values);
@@ -55,73 +82,35 @@ const RSVPGuestLimitsCard: FC<RSVPGuestLimitsCardProps> = ({
         <CardContent>
           <FieldGroup className="block space-y-4">
             <div className="grid grid-cols-3 gap-3">
-              <FieldShell name="max_guests" label="Max Guests" optional>
-                {(field) => (
-                  <Input
-                    type="number"
-                    placeholder="No limit"
-                    value={field.state.value}
-                    onChange={(e) => {
-                      field.handleChange(e.target.value);
-                      onUpdate({
-                        max_guests: e.target.value
-                          ? Number(e.target.value)
-                          : null,
-                      });
-                    }}
-                    onBlur={field.handleBlur}
-                  />
-                )}
-              </FieldShell>
-              <FieldShell name="guest_count_min" label="Min per RSVP">
-                {(field) => (
-                  <Input
-                    type="number"
-                    min={0}
-                    value={field.state.value}
-                    onChange={(e) => {
-                      field.handleChange(e.target.value);
-                      onUpdate({
-                        guest_count_min: Number(e.target.value) || 1,
-                      });
-                    }}
-                    onBlur={field.handleBlur}
-                  />
-                )}
-              </FieldShell>
-              <FieldShell name="guest_count_max" label="Max per RSVP">
-                {(field) => (
-                  <Input
-                    type="number"
-                    min={0}
-                    value={field.state.value}
-                    onChange={(e) => {
-                      field.handleChange(e.target.value);
-                      onUpdate({
-                        guest_count_max: Number(e.target.value) || 10,
-                      });
-                    }}
-                    onBlur={field.handleBlur}
-                  />
-                )}
-              </FieldShell>
+              <TextField
+                name="max_guests"
+                label="Max Guests"
+                placeholder="No limit"
+                type="number"
+                optional
+                min={1}
+                max={10000}
+              />
+              <TextField
+                name="guest_count_min"
+                label="Min per RSVP"
+                type="number"
+                min={1}
+                max={99}
+              />
+              <TextField
+                name="guest_count_max"
+                label="Max per RSVP"
+                type="number"
+                min={1}
+                max={99}
+              />
             </div>
-            <FieldShell
+            <TextareaField
               name="confirmation_message"
               label="Confirmation Message"
-            >
-              {(field) => (
-                <Input
-                  placeholder="We look forward to celebrating with you!"
-                  value={field.state.value}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                    onUpdate({ confirmation_message: e.target.value });
-                  }}
-                  onBlur={field.handleBlur}
-                />
-              )}
-            </FieldShell>
+              placeholder="We look forward to celebrating with you!"
+            />
           </FieldGroup>
         </CardContent>
       </Card>
