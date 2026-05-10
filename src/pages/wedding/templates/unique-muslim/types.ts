@@ -20,7 +20,7 @@ export const uniqueMuslimSchema = [
   {
     title: "Blessings",
     fields: [
-      { key: "blessings_name", label: "Name", type: "text", placeholder: "e.g. Hj Ahmad & Hjh Ramlah" },
+      { key: "blessings_name", label: "Name", type: "textarea", placeholder: "e.g. Hj Ahmad & Hjh Ramlah" },
       { key: "blessings_label", label: "Label", type: "text", placeholder: "e.g. Parents of the Groom" },
     ],
   },

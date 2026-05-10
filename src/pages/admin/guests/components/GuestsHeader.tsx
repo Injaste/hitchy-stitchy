@@ -27,8 +27,6 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
   const { canCreate } = useAccess();
   const openCreate = useGuestModalStore((s) => s.openCreate);
   const openImport = useGuestModalStore((s) => s.openImport);
-  const total = data?.length ?? 0;
-  const confirmed = data?.filter((g) => g.status === "confirmed").length ?? 0;
   const canAdd = canCreate("rsvp");
 
   return (
@@ -38,17 +36,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
       isRefetching={isRefetching}
       refetch={refetch}
       title="Guests"
-      description="Your full guest list and their RSVP responses. See who's coming, who's pending, and who's declined."
-      meta={
-        total > 0 && (
-          <ArraySeparator
-            items={[
-              `${total} ${total === 1 ? "guest" : "guests"}`,
-              confirmed > 0 && `${confirmed} confirmed`,
-            ]}
-          />
-        )
-      }
+      description="Your full guest list and their RSVP responses."
       action={
         canAdd && (
           <>
@@ -60,7 +48,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
             >
               <Plus className="w-4 h-4" /> Add guest
             </Button>
-            <Button
+            {/* <Button
               size="sm"
               variant="ghost"
               className="gap-2"
@@ -75,7 +63,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
               className="gap-2"
             >
               <Upload className="w-4 h-4" /> Import CSV
-            </Button>
+            </Button> */}
           </>
         )
       }

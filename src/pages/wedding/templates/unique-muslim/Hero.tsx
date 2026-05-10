@@ -118,7 +118,7 @@ const Hero = ({ eventConfig, pageConfig }: ThemeProps) => {
 
         <motion.div variants={verse} className="mb-14 sm:mb-20">
           <div className="border-t border-primary/20 pt-6 sm:pt-8">
-            <p className="text-foreground leading-relaxed text-base sm:text-lg">
+            <p className="text-foreground leading-relaxed text-base sm:text-lg whitespace-pre-line">
               "{quoteText}"
             </p>
             <span className="block mt-3 text-foreground/80 text-xs tracking-widest uppercase font-medium">

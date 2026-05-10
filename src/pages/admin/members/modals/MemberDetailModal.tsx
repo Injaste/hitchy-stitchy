@@ -30,7 +30,6 @@ const MemberDetailModal = () => {
   if (!selectedItem) return null;
   const member = selectedItem;
 
-  const canFreeze = canUpdate("members.freeze");
   const isRoot = member.role.category === "root";
   const isRejected = !!member.rejected_at;
   const isFrozen = !!member.frozen_at;
@@ -140,14 +139,14 @@ const MemberDetailModal = () => {
         <Separator />
 
         <DialogFooter>
-          {!isRejected && canUpdate("members") && (
+          {canUpdate("members") && (
             <>
               {!isRoot && (
                 <Button variant="destructive" size="sm" onClick={openDelete}>
                   Delete
                 </Button>
               )}
-              {!isRoot && canFreeze && (
+              {!isRoot && !isRejected && canUpdate("members.freeze") && (
                 <Button
                   variant={isFrozen ? "outline" : "destructive"}
                   size="sm"
@@ -156,9 +155,11 @@ const MemberDetailModal = () => {
                   {isFrozen ? "Restore access" : "Freeze access"}
                 </Button>
               )}
-              <Button size="sm" onClick={openEdit} autoFocus>
-                Edit
-              </Button>
+              {!isRejected && !isFrozen && (
+                <Button size="sm" onClick={openEdit} autoFocus>
+                  Edit
+                </Button>
+              )}
             </>
           )}
         </DialogFooter>

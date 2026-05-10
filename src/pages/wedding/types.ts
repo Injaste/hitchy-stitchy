@@ -50,8 +50,6 @@ export interface RSVPSubmission {
   updated_at: string
 }
 
-// API payload types — mirror the RPC parameter sets
-
 export interface GetRSVPPayload {
   event_id: string
   id: string

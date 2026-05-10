@@ -173,7 +173,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             {blessingsName && (
               <motion.h3
                 variants={fadeUp(0.1, 20, 0.8)}
-                className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2"
+                className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 whitespace-pre-line"
               >
                 {blessingsName}
               </motion.h3>

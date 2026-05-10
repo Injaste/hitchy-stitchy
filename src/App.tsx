@@ -8,12 +8,7 @@ import AppPortals from "./app/AppPortals";
 
 export default function App() {
   return (
-    <Lenis
-      root
-      options={{
-        prevent: () => document.body.hasAttribute("data-scroll-locked"),
-      }}
-    >
+    <Lenis root>
       <AppConfigs>
         <AppPortals>
           <BrowserRouter>
