@@ -1,13 +1,11 @@
-import { Link } from "react-router-dom";
-import { Bell, Radio } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   SidebarSeparator,
   SidebarTrigger,
+  SidebarWidthIcon,
   SidebarWidth,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import { useAdminStore } from "../store/useAdminStore";
 import { useCueStore } from "../store/useCueStore";
@@ -18,6 +16,7 @@ import Container from "@/components/custom/container";
 import { ActiveCueBanner } from "./ActiveCueBanner";
 
 const AdminTopbar = () => {
+  const { state } = useSidebar();
   const { slug } = useAdminStore();
   const isMobile = useIsMobile();
   const { activeCue, hasCue } = useCueStore();
@@ -27,10 +26,19 @@ const AdminTopbar = () => {
     <PortalToApp>
       <motion.header
         initial={false}
-        animate={{ height: hasCue ? 56 : 0, opacity: hasCue ? 1 : 0 }}
+        animate={{
+          height: hasCue ? 56 : 0,
+          opacity: hasCue ? 1 : 0,
+        }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed top-2 right-2 z-50 rounded-xl overflow-hidden shadow-sm ring-1 ring-sidebar-border bg-background"
-        style={{ left: isMobile ? 8 : SidebarWidth }}
+        className="fixed top-2 right-2 z-50 rounded-xl overflow-hidden shadow-sm ring-1 ring-sidebar-border bg-background transition-[left] duration-200 ease-linear"
+        style={{
+          left: isMobile
+            ? 8
+            : state === "collapsed"
+              ? SidebarWidthIcon
+              : SidebarWidth,
+        }}
       >
         <div className="bg-background/50 backdrop-blur-md">
           <Container>

@@ -23,7 +23,7 @@ export const SmoothScroll = forwardRef<LenisRef, SmoothScrollProps>(
       useScrollVisibility();
 
     return (
-      <div className="relative flex flex-col flex-1 h-full p-1 -m-1">
+      <div className="relative flex flex-col flex-1 h-full">
         {gradient && (
           <div
             className={cn(
@@ -37,7 +37,7 @@ export const SmoothScroll = forwardRef<LenisRef, SmoothScrollProps>(
           ref={ref ?? scrollRef}
           onScroll={gradient ? onScroll : undefined}
           options={{ duration: 1.2, syncTouch: true }}
-          className={cn("overflow-y-auto p-1 -m-1", className)}
+          className={cn("overflow-y-auto p-1", className)}
           {...props}
         >
           {children}

@@ -12,6 +12,10 @@ import { taskContainer, taskItem } from "@/lib/animations";
 import type { Task, TaskStatus } from "../types";
 import DraggableTaskCard from "./DraggableTaskCard";
 import TaskStatusIcon from "./TaskStatusIcon";
+import { Button } from "@/components/ui/button";
+import { useAccess } from "../../hooks/useAccess";
+import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { Plus } from "lucide-react";
 
 interface TasksSectionProps {
   status: string;
@@ -32,6 +36,9 @@ const TasksSection: FC<TasksSectionProps> = ({
 }) => {
   const { setNodeRef } = useDroppable({ id: status });
   const taskIds = tasks.map((t) => t.id);
+
+  const { canCreate } = useAccess();
+  const openCreate = useTaskModalStore((s) => s.openCreate);
 
   return (
     <div
@@ -72,36 +79,47 @@ const TasksSection: FC<TasksSectionProps> = ({
             isDragSource && "ring-border bg-muted/30",
           )}
         >
-          {tasks.length === 0 ? (
-            <div className="hidden lg:flex w-full max-w-md min-h-[68px] flex-col items-center justify-center px-4 rounded-xl border border-dashed border-border">
-              <p className="text-xs text-muted-foreground/50 text-center">
-                No tasks yet
-              </p>
-            </div>
-          ) : (
-            <motion.div
-              variants={taskContainer}
-              initial="hidden"
-              animate="show"
-              className="flex flex-col gap-3"
-            >
-              <AnimatePresence mode="popLayout" initial={false}>
-                {tasks.map((task) => (
-                  <motion.div
-                    key={task.id}
-                    variants={taskItem}
-                    exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
-                    layout={!isDragActive}
-                    transition={{
-                      layout: { duration: 0.2, ease: [0.2, 0, 0, 1] },
-                    }}
+          <motion.div
+            variants={taskContainer}
+            initial="hidden"
+            animate="show"
+            className="flex flex-col gap-3"
+          >
+            <AnimatePresence>
+              {tasks.map((task) => (
+                <motion.div
+                  key={task.id}
+                  variants={taskItem}
+                  exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
+                  layout={!isDragActive}
+                  transition={{
+                    layout: { duration: 0.2, ease: [0.2, 0, 0, 1] },
+                  }}
+                >
+                  <DraggableTaskCard task={task} />
+                </motion.div>
+              ))}
+              <motion.div
+                key="create-task-last"
+                variants={taskItem}
+                exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
+                layout={!isDragActive}
+                transition={{
+                  layout: { duration: 0.2, ease: [0.2, 0, 0, 1] },
+                }}
+              >
+                {canCreate("tasks") && (
+                  <Button
+                    className="hidden lg:flex w-full max-w-md min-h-[74px] items-center justify-center px-4 rounded-xl border border-dashed border-border"
+                    variant="ghost"
+                    onClick={openCreate}
                   >
-                    <DraggableTaskCard task={task} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
+                    <Plus className="size-4.5" /> Add task
+                  </Button>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </div>
       </SortableContext>
     </div>

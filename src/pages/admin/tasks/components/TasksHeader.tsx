@@ -118,7 +118,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
       action={
         canCreate("tasks") && (
           <Button size="sm" onClick={openCreate} className="gap-2">
-            <Plus className="w-4 h-4" /> Add task
+            <Plus className="size-4" /> Add task
           </Button>
         )
       }

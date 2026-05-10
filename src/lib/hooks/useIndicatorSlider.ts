@@ -10,6 +10,7 @@ interface IndicatorSliderResult {
   setRef: (id: string) => (el: HTMLElement | null) => void;
   onMouseEnter: (id: string) => void;
   onMouseLeave: () => void;
+  refresh: (instant?: boolean) => void;
 }
 
 export default function useIndicatorSlider(
@@ -99,20 +100,26 @@ export default function useIndicatorSlider(
     }
   }, [hoverAnimate, hoverScope]);
 
+  const refresh = useCallback((instant = false) => {
+    if (!activeId || !activeScope.current) return;
+    const values = getValuesForId(activeId);
+    if (!values) return;
+    const target =
+      direction === "horizontal"
+        ? { left: values.primary, width: values.secondary }
+        : { top: values.primary, height: values.secondary };
+    activeAnimate(activeScope.current, target,
+      instant ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 30 }
+    );
+  }, [activeId, direction, getValuesForId, activeAnimate, activeScope]);
+
   useEffect(() => {
     if (!activeId) return;
-    const handleResize = () => {
-      const values = getValuesForId(activeId);
-      if (!values || !activeScope.current) return;
-      const target =
-        direction === "horizontal"
-          ? { left: values.primary, width: values.secondary }
-          : { top: values.primary, height: values.secondary };
-      activeAnimate(activeScope.current, target, { duration: 0 });
-    };
+    const handleResize = () => refresh(true);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [activeId, direction, getValuesForId, activeAnimate, activeScope]);
+  }, [activeId, refresh]);
+
 
   const setRef = useCallback(
     (id: string) => (el: HTMLElement | null) => {
@@ -128,5 +135,6 @@ export default function useIndicatorSlider(
     setRef,
     onMouseEnter,
     onMouseLeave,
+    refresh,
   };
 }

@@ -4,6 +4,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 import { motion } from "framer-motion";
+import { PanelLeftIcon } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -24,7 +25,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PanelLeftIcon } from "lucide-react";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
 import { SmoothScroll } from "../custom/smooth-scroll";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
@@ -33,7 +33,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
-const SIDEBAR_WIDTH_ICON = "3rem";
+const SIDEBAR_WIDTH_ICON = "4rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 type SidebarContextProps = {
@@ -53,10 +53,10 @@ function useSidebar() {
   if (!context) {
     throw new Error("useSidebar must be used within a SidebarProvider.");
   }
-
   return context;
 }
 
+// ── Custom: hover indicator context ────────────────────────────────────────
 interface SidebarHoverContextValue {
   setRef: (id: string) => (el: HTMLElement | null) => void;
   onMouseEnter: (id: string) => void;
@@ -65,6 +65,7 @@ interface SidebarHoverContextValue {
 const SidebarHoverContext =
   React.createContext<SidebarHoverContextValue | null>(null);
 
+// ── Provider ────────────────────────────────────────────────────────────────
 function SidebarProvider({
   defaultOpen = true,
   open: openProp,
@@ -91,7 +92,6 @@ function SidebarProvider({
       } else {
         _setOpen(openState);
       }
-
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open],
@@ -100,6 +100,20 @@ function SidebarProvider({
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
   }, [isMobile, setOpen, setOpenMobile]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
+        (event.metaKey || event.ctrlKey)
+      ) {
+        event.preventDefault();
+        toggleSidebar();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleSidebar]);
 
   const state = open ? "expanded" : "collapsed";
 
@@ -141,6 +155,8 @@ function SidebarProvider({
   );
 }
 
+// ── Sidebar ─────────────────────────────────────────────────────────────────
+// Variant removed — always uses floating/inset style (p-2, rounded inner panel)
 function Sidebar({
   side = "left",
   collapsible = "offcanvas",
@@ -179,9 +195,7 @@ function Sidebar({
           data-mobile="true"
           className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
           style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
+            { "--sidebar-width": SIDEBAR_WIDTH_MOBILE } as React.CSSProperties
           }
           side={side}
         >
@@ -203,7 +217,7 @@ function Sidebar({
       data-side={side}
       data-slot="sidebar"
     >
-      {/* This is what handles the sidebar gap on desktop */}
+      {/* Handles the sidebar gap on desktop */}
       <div
         data-slot="sidebar-gap"
         className={cn(
@@ -217,11 +231,12 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
-          "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]",
+          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+          "data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]",
+          "data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+          "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]",
           className,
         )}
-        style={{ width: SIDEBAR_WIDTH }}
         {...props}
       >
         <div
@@ -236,6 +251,7 @@ function Sidebar({
   );
 }
 
+// ── Trigger / Rail ───────────────────────────────────────────────────────────
 function SidebarTrigger({
   className,
   onClick,
@@ -287,23 +303,31 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   );
 }
 
+// ── Inset ────────────────────────────────────────────────────────────────────
+// marginLeft driven by framer-motion + sidebar context (no peer selectors)
 function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
   const isMobile = useIsMobile();
+  const { state } = useSidebar();
   const { hasCue } = useCueStore();
 
   return (
     <motion.main
       data-slot="sidebar-inset"
       initial={false}
-      animate={{ marginTop: !isMobile ? (hasCue ? "4.5rem" : "0.5rem") : 0 }}
-      transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+      animate={{
+        marginTop: !isMobile ? (hasCue ? "4.5rem" : "0.5rem") : 0,
+        marginLeft: !isMobile
+          ? state === "collapsed"
+            ? SIDEBAR_WIDTH_ICON
+            : SIDEBAR_WIDTH
+          : 0,
+      }}
+      transition={{ duration: 0.2, ease: "linear" }}
       className={cn(
         "relative flex w-full flex-1 flex-col bg-background overflow-hidden",
         "md:mb-2 md:mr-2 md:rounded-xl md:shadow-sm md:ring-1 md:ring-sidebar-border",
-        "md:peer-data-[state=collapsed]:ml-2",
         className,
       )}
-      style={{ marginLeft: isMobile ? 0 : SIDEBAR_WIDTH }}
     >
       <SmoothScroll
         gradient
@@ -316,6 +340,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
   );
 }
 
+// ── Misc ─────────────────────────────────────────────────────────────────────
 function SidebarInput({
   className,
   ...props
@@ -366,6 +391,7 @@ function SidebarSeparator({
   );
 }
 
+// ── Content — custom: indicator slider ──────────────────────────────────────
 function SidebarContent({
   activeId,
   indicatorClassName,
@@ -376,6 +402,8 @@ function SidebarContent({
   activeId?: string;
   indicatorClassName?: string;
 }) {
+  const { state } = useSidebar();
+
   const {
     containerRef,
     hoverIndicatorRef,
@@ -383,7 +411,28 @@ function SidebarContent({
     setRef,
     onMouseEnter,
     onMouseLeave,
+    refresh,
   } = useIndicatorSlider("vertical", activeId);
+
+  React.useEffect(() => {
+    if (!activeId) return;
+
+    const duration = 200;
+    const start = performance.now();
+    let raf: number;
+
+    const tick = () => {
+      refresh(true);
+      if (performance.now() - start < duration) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        refresh();
+      }
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [state, refresh]);
 
   return (
     <SidebarHoverContext.Provider value={{ setRef, onMouseEnter }}>
@@ -401,7 +450,6 @@ function SidebarContent({
           onMouseLeave={onMouseLeave}
           className="relative z-0"
         >
-          {/* Active slider */}
           {activeId && (
             <motion.div
               ref={activeIndicatorRef}
@@ -412,7 +460,6 @@ function SidebarContent({
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
             />
           )}
-          {/* Hover slider */}
           <motion.div
             ref={hoverIndicatorRef}
             className={cn(
@@ -507,6 +554,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
   );
 }
 
+// ── MenuItem — custom: hover context + id ref ────────────────────────────────
 function SidebarMenuItem({
   id,
   className,
@@ -576,14 +624,10 @@ function SidebarMenuButton({
     />
   );
 
-  if (!tooltip) {
-    return button;
-  }
+  if (!tooltip) return button;
 
   if (typeof tooltip === "string") {
-    tooltip = {
-      children: tooltip,
-    };
+    tooltip = { children: tooltip };
   }
 
   return (
@@ -646,12 +690,10 @@ function SidebarMenuSkeleton({
   className,
   showIcon = false,
   ...props
-}: React.ComponentProps<"div"> & {
-  showIcon?: boolean;
-}) {
-  const [width] = React.useState(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  });
+}: React.ComponentProps<"div"> & { showIcon?: boolean }) {
+  const [width] = React.useState(
+    () => `${Math.floor(Math.random() * 40) + 50}%`,
+  );
 
   return (
     <div
@@ -669,11 +711,7 @@ function SidebarMenuSkeleton({
       <Skeleton
         className="h-4 max-w-(--skeleton-width) flex-1"
         data-sidebar="menu-skeleton-text"
-        style={
-          {
-            "--skeleton-width": width,
-          } as React.CSSProperties
-        }
+        style={{ "--skeleton-width": width } as React.CSSProperties}
       />
     </div>
   );
@@ -760,5 +798,6 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   SIDEBAR_WIDTH as SidebarWidth,
+  SIDEBAR_WIDTH_ICON as SidebarWidthIcon,
   useSidebar,
 };

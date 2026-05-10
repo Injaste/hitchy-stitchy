@@ -74,7 +74,7 @@ export function useGuestMutations() {
     (payload: CreateGuestPayload) => createGuest(payload),
     {
       successMessage: "Guest added",
-      errorMessage: "Failed to add guest",
+      errorMessage: (err) => err.message,
       onSuccess: () => {
         invalidate()
         closeAll()
@@ -86,7 +86,7 @@ export function useGuestMutations() {
     (payload: UpdateGuestPayload) => updateGuest(payload),
     {
       successMessage: "Guest updated",
-      errorMessage: "Failed to update guest",
+      errorMessage: (err) => err.message,
       onSuccess: () => {
         invalidate()
         closeAll()
@@ -108,7 +108,7 @@ export function useGuestMutations() {
       }),
     {
       successMessage: "Status updated",
-      errorMessage: "Failed to update status",
+      errorMessage: (err) => err.message,
       onSuccess: () => invalidate(),
     },
   )
@@ -117,7 +117,7 @@ export function useGuestMutations() {
     (id: string) => deleteGuest(eventId!, id),
     {
       successMessage: "Guest removed",
-      errorMessage: "Failed to remove guest",
+      errorMessage: (err) => err.message,
       onSuccess: () => {
         invalidate()
         closeAll()
@@ -145,3 +145,7 @@ export function useGuestMutations() {
 
   return { create, update, updateStatus, remove, bulkImport }
 }
+
+/*
+TODO FIX UP REALTIME UPDATES ON GUESTS
+*/

@@ -24,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import { useAdminStore } from "../../store/useAdminStore";
@@ -40,8 +41,13 @@ import AdminLogout from "./AdminLogout";
 import { Link } from "react-router-dom";
 import PortalToApp from "@/components/custom/portal-to-app";
 import { useCueStore } from "../../store/useCueStore";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const AdminSidebar = () => {
+  const isMobile = useIsMobile();
+  const { state } = useSidebar();
+
   const {
     eventName,
     slug,
@@ -63,7 +69,12 @@ const AdminSidebar = () => {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" className="pointer-events-none">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary/10 text-sidebar-primary-foreground">
+                <div
+                  className={cn(
+                    "flex aspect-square items-center justify-center rounded-lg bg-sidebar-primary/10 text-sidebar-primary-foreground",
+                    state === "expanded" || isMobile ? "size-9" : "size-8",
+                  )}
+                >
                   <CalendarHeart className="size-4 text-sidebar-primary" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -155,7 +166,12 @@ const AdminSidebar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton size="lg">
-                    <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground capitalize">
+                    <div
+                      className={cn(
+                        "flex aspect-square items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground capitalize",
+                        state === "expanded" || isMobile ? "size-9" : "size-8",
+                      )}
+                    >
                       {memberRoleShortName.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
@@ -167,7 +183,11 @@ const AdminSidebar = () => {
                     <ChevronsUpDown className="ml-auto size-4" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent side="top" align="start">
+                <DropdownMenuContent
+                  side="top"
+                  align="start"
+                  className="w-full"
+                >
                   <DropdownMenuItem
                     onClick={() => {
                       if (hasCue) return setActiveCue(null);
