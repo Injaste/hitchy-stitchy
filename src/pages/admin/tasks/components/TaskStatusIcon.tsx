@@ -1,28 +1,41 @@
 import type { FC } from "react";
-import { Check } from "lucide-react";
+import { Circle, CircleDot, CircleCheck } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { TaskStatus } from "../types";
 
 interface TaskStatusIconProps {
   status: TaskStatus;
+  className?: string;
 }
 
-const TaskStatusIcon: FC<TaskStatusIconProps> = ({ status }) => {
+const TaskStatusIcon: FC<TaskStatusIconProps> = ({ status, className }) => {
   if (status === "done") {
     return (
-      <div className="size-5 rounded-full bg-primary/80 flex items-center justify-center shrink-0">
-        <Check className="size-3 text-primary-foreground" strokeWidth={3} />
-      </div>
+      <CircleCheck
+        className={cn(
+          "size-6 shrink-0 text-primary-foreground fill-primary/80",
+          className,
+        )}
+        strokeWidth={2}
+      />
     );
   }
   if (status === "in_progress") {
     return (
-      <div className="size-5 rounded-full bg-primary/30 flex items-center justify-center shrink-0">
-        <div className="size-2 rounded-full bg-primary/70" />
-      </div>
+      <CircleDot
+        className={cn(
+          "size-5 shrink-0 text-primary/60 fill-primary/20",
+          className,
+        )}
+        strokeWidth={2}
+      />
     );
   }
   return (
-    <div className="size-5 rounded-full border-2 border-border shrink-0" />
+    <Circle
+      className={cn("size-5 shrink-0 text-border", className)}
+      strokeWidth={2}
+    />
   );
 };
 

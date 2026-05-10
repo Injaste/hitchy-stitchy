@@ -106,12 +106,16 @@ const TaskCard: FC<TaskCardProps> = ({
         <div className="flex items-start gap-3">
           <Button
             onClick={handleToggle}
-            className="relative shrink-0 items-start p-0"
+            className="group/task-button-hover relative shrink-0 items-start -mx-2.5"
             variant="empty"
           >
             <TaskStatusIcon status={task.status} />
-          </Button>
 
+            <TaskStatusIcon
+              status={"done"}
+              className="absolute -top-0.5 opacity-0 transition-opacity duration-200 group-hover/task-button-hover:opacity-60"
+            />
+          </Button>
           <div className="flex-1 space-y-1.5 min-w-0">
             <CardTitle
               className={cn(

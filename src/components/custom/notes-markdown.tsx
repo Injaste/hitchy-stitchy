@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 
 interface NotesMarkdownProps {
   content: string | null | undefined;
   size?: "default" | "sm";
 }
 
-const markdownClass =
-  "[&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_strong]:font-semibold [&_em]:italic break-all text-xs bg-primary/5 rounded-md border border-primary/10";
+const forceBreaks = (text: string) => text.replace(/\n/g, "  \n");
 
 const NotesMarkdown = ({ content, size = "default" }: NotesMarkdownProps) => {
   if (!content) {
@@ -19,12 +19,31 @@ const NotesMarkdown = ({ content, size = "default" }: NotesMarkdownProps) => {
   return (
     <div
       className={cn(
-        markdownClass,
+        "text-xs bg-primary/5 rounded-md border border-primary/10",
         size === "default" && "px-3 py-1.5",
         size === "sm" && "px-1.5 py-0.5",
       )}
     >
-      <ReactMarkdown>{content}</ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkBreaks]}
+        components={{
+          p: ({ children }) => <p className="m-0">{children}</p>,
+          hr: () => <hr className="my-2 border-foreground/15" />,
+          ul: ({ children }) => (
+            <ul className="list-disc pl-4 my-0">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal pl-4 my-0">{children}</ol>
+          ),
+          li: ({ children }) => <li className="my-0">{children}</li>,
+          strong: ({ children }) => (
+            <strong className="font-semibold">{children}</strong>
+          ),
+          em: ({ children }) => <em className="italic">{children}</em>,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 };
