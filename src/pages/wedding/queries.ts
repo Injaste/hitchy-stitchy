@@ -6,10 +6,39 @@ import { supabase } from "@/lib/supabase"
 import { fetchPublicEvent, fetchRSVP, submitRSVP, updateRSVP, deleteRSVP } from "./api"
 import type { RSVPFormData } from "./types"
 
-const PHONE_KEY = "rsvp_phone"
+// ─── Session helpers ─────────────────────────────────────────────────────────
+
+const RSVP_KEY = "rsvp_session"
+
+interface RSVPSession {
+  id: string
+  phone: string
+  token: string
+}
+
+function getRSVPSession(): RSVPSession | null {
+  try {
+    const raw = localStorage.getItem(RSVP_KEY)
+    return raw ? (JSON.parse(raw) as RSVPSession) : null
+  } catch {
+    return null
+  }
+}
+
+function setRSVPSession(session: RSVPSession): void {
+  localStorage.setItem(RSVP_KEY, JSON.stringify(session))
+}
+
+function clearRSVPSession(): void {
+  localStorage.removeItem(RSVP_KEY)
+}
+
+// ─── Query keys ───────────────────────────────────────────────────────────────
 
 export const publicEventQueryKey = (slug: string) => ["public", slug, "event"] as const
-export const guestRSVPQueryKey = (event_id: string, phone: string) => ["public", event_id, "rsvp", phone] as const
+export const guestRSVPQueryKey = (event_id: string, id: string) => ["public", event_id, "rsvp", id] as const
+
+// ─── Queries ──────────────────────────────────────────────────────────────────
 
 export function usePublicEvent() {
   const { slug } = useParams<{ slug: string }>()
@@ -48,13 +77,15 @@ export function usePublicEventRealtime(event_id: string | null) {
 }
 
 export function useGuestRSVP(event_id: string | null) {
-  const phone = localStorage.getItem(PHONE_KEY)
+  const session = getRSVPSession()
   return useQuery({
-    queryKey: guestRSVPQueryKey(event_id!, phone!),
-    queryFn: () => fetchRSVP(event_id!, phone!),
-    enabled: !!event_id && !!phone,
+    queryKey: guestRSVPQueryKey(event_id!, session?.id ?? ""),
+    queryFn: () => fetchRSVP({ event_id: event_id!, id: session!.id, token: session!.token }),
+    enabled: !!event_id && !!session,
   })
 }
+
+// ─── Mutations ────────────────────────────────────────────────────────────────
 
 export function useRSVPMutations(event_id: string | null) {
   const [searchParams] = useSearchParams()
@@ -62,11 +93,18 @@ export function useRSVPMutations(event_id: string | null) {
 
   const submit = useMutation(
     (formData: RSVPFormData) =>
-      submitRSVP(event_id!, formData, searchParams.get("code")),
+      submitRSVP({
+        event_id: event_id!,
+        name: formData.name,
+        phone: formData.phone,
+        guest_count: formData.guestCount,
+        message: formData.message ?? null,
+        invite_code: searchParams.get("code"),
+      }),
     {
       silent: true,
       onSuccess: (result) => {
-        if (result.phone) localStorage.setItem(PHONE_KEY, result.phone)
+        setRSVPSession({ id: result.id, phone: result.phone, token: result.token })
         queryClient.invalidateQueries({ queryKey: ["public", event_id] })
       },
     }
@@ -74,8 +112,15 @@ export function useRSVPMutations(event_id: string | null) {
 
   const update = useMutation(
     (formData: Partial<RSVPFormData>) => {
-      const phone = localStorage.getItem(PHONE_KEY) ?? ""
-      return updateRSVP(event_id!, phone, formData)
+      const session = getRSVPSession()
+      return updateRSVP({
+        event_id: event_id!,
+        phone: session?.phone ?? "",
+        token: session?.token ?? "",
+        name: formData.name ?? null,
+        guest_count: formData.guestCount ?? null,
+        message: formData.message ?? null,
+      })
     },
     {
       silent: true,
@@ -87,13 +132,17 @@ export function useRSVPMutations(event_id: string | null) {
 
   const remove = useMutation(
     () => {
-      const phone = localStorage.getItem(PHONE_KEY) ?? ""
-      return deleteRSVP(event_id!, phone)
+      const session = getRSVPSession()
+      return deleteRSVP({
+        event_id: event_id!,
+        phone: session?.phone ?? "",
+        token: session?.token ?? "",
+      })
     },
     {
       silent: true,
       onSuccess: () => {
-        localStorage.removeItem(PHONE_KEY)
+        clearRSVPSession()
         queryClient.removeQueries({ queryKey: ["public", event_id] })
       },
     }

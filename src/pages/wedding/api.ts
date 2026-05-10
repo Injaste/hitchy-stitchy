@@ -1,5 +1,12 @@
 import { supabase } from "@/lib/supabase"
-import type { PublicEventConfig, RSVPSubmission, RSVPFormData } from "./types"
+import type {
+  PublicEventConfig,
+  RSVPSubmission,
+  GetRSVPPayload,
+  SubmitRSVPPayload,
+  UpdateRSVPPayload,
+  CancelRSVPPayload,
+} from "./types"
 import type { ThemePageConfig } from "./templates"
 import type { InvitationConfig } from "../admin/invitation/types"
 
@@ -53,53 +60,46 @@ export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig>
   }
 }
 
-export async function fetchRSVP(event_id: string, phone: string): Promise<RSVPSubmission | null> {
+export async function fetchRSVP(payload: GetRSVPPayload): Promise<RSVPSubmission | null> {
   const { data, error } = await supabase.rpc("get_rsvp", {
-    p_event_id: event_id,
-    p_phone: phone,
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+    p_token: payload.token,
   })
   if (error) throw new Error(error.message)
   return (data as RSVPSubmission) ?? null
 }
 
-export async function submitRSVP(
-  event_id: string,
-  formData: RSVPFormData,
-  invite_code?: string | null,
-): Promise<RSVPSubmission> {
+export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmission> {
   const { data, error } = await supabase.rpc("submit_rsvp", {
-    p_event_id: event_id,
-    p_name: formData.name,
-    p_phone: formData.phone,
-    p_guest_count: formData.guestCount,
-    p_message: formData.message ?? null,
-    p_invite_code: invite_code,
+    p_event_id: payload.event_id,
+    p_name: payload.name,
+    p_phone: payload.phone,
+    p_guest_count: payload.guest_count,
+    p_message: payload.message,
+    p_invite_code: payload.invite_code,
   })
-
   if (error) throw new Error(error.message)
   return data as RSVPSubmission
 }
 
-export async function updateRSVP(
-  event_id: string,
-  phone: string,
-  formData: Partial<RSVPFormData>
-): Promise<void> {
+export async function updateRSVP(payload: UpdateRSVPPayload): Promise<void> {
   const { error } = await supabase.rpc("update_rsvp", {
-    p_event_id: event_id,
-    p_phone: phone,
-    p_name: formData.name ?? null,
-    p_guest_count: formData.guestCount ?? null,
-    p_message: formData.message ?? null,
+    p_event_id: payload.event_id,
+    p_phone: payload.phone,
+    p_token: payload.token,
+    p_name: payload.name,
+    p_guest_count: payload.guest_count,
+    p_message: payload.message,
   })
-
   if (error) throw new Error(error.message)
 }
 
-export async function deleteRSVP(event_id: string, phone: string): Promise<void> {
+export async function deleteRSVP(payload: CancelRSVPPayload): Promise<void> {
   const { error } = await supabase.rpc("cancel_rsvp", {
-    p_event_id: event_id,
-    p_phone: phone,
+    p_event_id: payload.event_id,
+    p_phone: payload.phone,
+    p_token: payload.token,
   })
   if (error) throw new Error(error.message)
 }

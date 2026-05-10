@@ -45,8 +45,41 @@ export interface RSVPSubmission {
   message: string | null
   status: "pending" | "confirmed" | "cancelled"
   source: "private" | "public"
+  token: string
   created_at: string
   updated_at: string
+}
+
+// API payload types — mirror the RPC parameter sets
+
+export interface GetRSVPPayload {
+  event_id: string
+  id: string
+  token: string
+}
+
+export interface SubmitRSVPPayload {
+  event_id: string
+  name: string
+  phone: string
+  guest_count: number
+  message: string | null
+  invite_code: string | null
+}
+
+export interface UpdateRSVPPayload {
+  event_id: string
+  phone: string
+  token: string
+  name: string | null
+  guest_count: number | null
+  message: string | null
+}
+
+export interface CancelRSVPPayload {
+  event_id: string
+  phone: string
+  token: string
 }
 
 export function buildRsvpSchema(
