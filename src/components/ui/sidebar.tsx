@@ -417,7 +417,7 @@ function SidebarContent({
   React.useEffect(() => {
     if (!activeId) return;
 
-    const duration = 200;
+    const duration = 250;
     const start = performance.now();
     let raf: number;
 
