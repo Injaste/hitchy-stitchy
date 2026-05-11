@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { Plus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface TasksSectionProps {
   status: string;
@@ -47,7 +48,7 @@ const TasksSection: FC<TasksSectionProps> = ({
         tasks.length === 0 && "hidden lg:flex",
       )}
     >
-      <div className="space-y-2">
+      <div className="flex flex-col justify-between h-8">
         <div className="flex items-center gap-2">
           <TaskStatusIcon status={status as TaskStatus} />
           <span className="text-sm font-display font-medium text-foreground/70">
@@ -67,7 +68,7 @@ const TasksSection: FC<TasksSectionProps> = ({
             )}
           </AnimatePresence>
         </div>
-        <div className="h-px bg-border/50" />
+        <Separator />
       </div>
 
       <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>

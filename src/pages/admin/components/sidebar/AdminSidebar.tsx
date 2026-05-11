@@ -86,6 +86,8 @@ const AdminSidebar = () => {
           </SidebarMenu>
         </SidebarHeader>
 
+        <SidebarSeparator />
+
         <SidebarContent activeId={activePage}>
           <SidebarGroup>
             <SidebarGroupLabel>Operations</SidebarGroupLabel>
@@ -106,6 +108,8 @@ const AdminSidebar = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          <SidebarSeparator className="mx-4" />
 
           <SidebarGroup>
             <SidebarGroupLabel>Teams</SidebarGroupLabel>
@@ -132,6 +136,8 @@ const AdminSidebar = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          <SidebarSeparator className="mx-4" />
 
           {isAdmin && (
             <>

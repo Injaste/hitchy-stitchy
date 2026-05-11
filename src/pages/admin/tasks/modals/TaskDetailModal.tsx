@@ -47,11 +47,19 @@ const TaskDetailModal = () => {
         <DialogBody>
           <div className="space-y-6">
             <div className="flex flex-col gap-2 text-sm">
-              <div className="flex gap-2">
-                <TaskStatusIcon status={task.status} />
-                {STATUS_LABELS[task.status]}
+              <div className="flex gap-2 items-center justify-between">
+                <span className="flex gap-2 items-center justify-between">
+                  <TaskStatusIcon status={task.status} />
+                  {STATUS_LABELS[task.status]}
+                </span>
+                {task.due_at && (
+                  <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                    <Calendar className="w-3 h-3" />
+                    Due {format(new Date(task.due_at), "d MMM yyyy")}
+                  </span>
+                )}
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-sm">
+              <div className="text-sm">
                 {task.priority && (
                   <span
                     className={cn(
@@ -60,12 +68,6 @@ const TaskDetailModal = () => {
                     )}
                   >
                     {PRIORITY_LABELS[task.priority]}
-                  </span>
-                )}
-                {task.due_at && (
-                  <span className="flex items-center gap-1 text-muted-foreground text-xs">
-                    <Calendar className="w-3 h-3" />
-                    Due {format(new Date(task.due_at), "d MMM yyyy")}
                   </span>
                 )}
               </div>
