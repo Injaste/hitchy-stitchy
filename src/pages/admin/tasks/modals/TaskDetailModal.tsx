@@ -1,5 +1,5 @@
-import { format } from "date-fns";
-import { StickyNote, Calendar, CirclePlus, CircleCheck } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { StickyNote, Calendar, Clock } from "lucide-react";
 
 import {
   Dialog,
@@ -35,6 +35,22 @@ const TaskDetailModal = () => {
 
   if (!selectedItem) return null;
   const task = selectedItem;
+
+  const formatDate = "d MMM yyyy";
+  const formatTime = "HH:mm";
+
+  const historyItems = [
+    {
+      label: "Created",
+      date: format(parseISO(task.created_at), formatDate),
+      time: format(parseISO(task.created_at), formatTime),
+    },
+    task.completed_at && {
+      label: "Completed",
+      date: format(parseISO(task.completed_at), formatDate),
+      time: format(parseISO(task.completed_at), formatTime),
+    },
+  ].filter(Boolean) as { label: string; date: string; time: string }[];
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -107,22 +123,39 @@ const TaskDetailModal = () => {
             </div>
 
             <Separator />
+
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                History
+              </p>
+              <div className="space-y-1">
+                {historyItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between text-xs text-muted-foreground"
+                  >
+                    <span>{item.label}</span>
+                    <span className="flex gap-2">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="size-3" />
+                        {item.date}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="size-3" />
+                        {item.time}
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </DialogBody>
 
-        <DialogFooter className="sm:justify-between">
-          <div className="flex flex-col gap-1">
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <CirclePlus className="w-3 h-3 shrink-0" />
-              {format(new Date(task.created_at), "d MMM yyyy")}
-            </span>
-            {task.completed_at && (
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <CircleCheck className="w-3 h-3 shrink-0" />
-                {format(new Date(task.completed_at), "d MMM yyyy")}
-              </span>
-            )}
-          </div>
+        <Separator />
+
+        <DialogFooter>
           <div className="flex gap-2">
             {canDelete("tasks") && (
               <Button variant="destructive" size="sm" onClick={openDelete}>

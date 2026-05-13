@@ -56,6 +56,7 @@ export async function createTask(payload: CreateTaskPayload): Promise<Task> {
     p_due_at: payload.due_at,
     p_assignees: payload.assignees,
     p_label: payload.label ?? null,
+    p_status: payload.status,
   });
 
   if (error) throw new Error(error.message);

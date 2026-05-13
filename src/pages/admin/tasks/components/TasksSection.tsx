@@ -12,11 +12,9 @@ import { taskContainer, taskItem } from "@/lib/animations";
 import type { Task, TaskStatus } from "../types";
 import DraggableTaskCard from "./DraggableTaskCard";
 import TaskStatusIcon from "./TaskStatusIcon";
-import { Button } from "@/components/ui/button";
 import { useAccess } from "../../hooks/useAccess";
-import { useTaskModalStore } from "../hooks/useTaskModalStore";
-import { Plus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import TaskQuickAdd from "./TaskQuickAdd";
 
 interface TasksSectionProps {
   status: string;
@@ -39,7 +37,6 @@ const TasksSection: FC<TasksSectionProps> = ({
   const taskIds = tasks.map((t) => t.id);
 
   const { canCreate } = useAccess();
-  const openCreate = useTaskModalStore((s) => s.openCreate);
 
   return (
     <div
@@ -100,25 +97,19 @@ const TasksSection: FC<TasksSectionProps> = ({
                   <DraggableTaskCard task={task} />
                 </motion.div>
               ))}
-              <motion.div
-                key="create-task-last"
-                variants={taskItem}
-                exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
-                layout={!isDragActive}
-                transition={{
-                  layout: { duration: 0.2, ease: [0.2, 0, 0, 1] },
-                }}
-              >
-                {canCreate("tasks") && (
-                  <Button
-                    className="hidden lg:flex w-full max-w-md min-h-[74px] items-center justify-center px-4 rounded-xl border border-dashed border-border"
-                    variant="ghost"
-                    onClick={openCreate}
-                  >
-                    <Plus className="size-4.5" /> Add task
-                  </Button>
-                )}
-              </motion.div>
+              {canCreate("tasks") && (
+                <motion.div
+                  key="create-task-last"
+                  variants={taskItem}
+                  exit={{ opacity: 0, y: 6, transition: { duration: 0.15 } }}
+                  layout={!isDragActive}
+                  transition={{
+                    layout: { duration: 0.2, ease: [0.2, 0, 0, 1] },
+                  }}
+                >
+                  <TaskQuickAdd status={status as TaskStatus} />
+                </motion.div>
+              )}
             </AnimatePresence>
           </motion.div>
         </div>

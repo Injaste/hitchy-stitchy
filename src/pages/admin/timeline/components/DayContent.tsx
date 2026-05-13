@@ -35,7 +35,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
           </p>
         )}
 
-        <div className={cn("-mx-1", !group.label && "-my-1.5")}>
+        <div className={cn("", !group.label && "-my-1.5")}>
           <div className="relative">
             <div ref={emblaRef} className="overflow-hidden p-1">
               <motion.div variants={container} className="flex gap-3">

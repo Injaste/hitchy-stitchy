@@ -7,7 +7,7 @@ import { useFormShell } from "./form-context";
 
 export interface FieldShellProps {
   name: string;
-  label: ReactNode;
+  label?: ReactNode;
   optional?: boolean;
   description?: ReactNode;
   hint?: ReactNode;
@@ -30,23 +30,28 @@ const FieldShell = ({
   return (
     <FormField name={name}>
       {(field: AnyFieldApi) => {
-        const hasError =
-          !!field.state.meta.errors.length && attemptCount > 0;
+        const hasError = !!field.state.meta.errors.length && attemptCount > 0;
         return (
           <AnimateItem
             errors={field.state.meta.errors}
             hasError={hasError}
             attemptCount={attemptCount}
           >
-            <Field data-invalid={hasError} className={cn("gap-2", fieldClassName)}>
-              <FieldLabel>
-                {label}
-                {optional && (
-                  <span className="text-muted-foreground font-normal">
-                    {" "}(optional)
-                  </span>
-                )}
-              </FieldLabel>
+            <Field
+              data-invalid={hasError}
+              className={cn("gap-2", fieldClassName)}
+            >
+              {label && (
+                <FieldLabel>
+                  {label}
+                  {optional && (
+                    <span className="text-muted-foreground font-normal">
+                      {" "}
+                      (optional)
+                    </span>
+                  )}
+                </FieldLabel>
+              )}
               {hint && (
                 <p className="text-xs text-muted-foreground -mt-1">{hint}</p>
               )}

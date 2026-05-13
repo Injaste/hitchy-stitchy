@@ -12,12 +12,13 @@ import {
   deleteMember,
 } from "./api"
 import type {
+  Member,
   InviteMemberPayload,
   UpdateMemberPayload,
-  UpdateMyDisplayNamePayload,
   FreezeMemberPayload,
   DeleteMemberPayload,
 } from "./types"
+import type { Role } from "../roles/types"
 
 export function useMembersQuery() {
   const { slug, eventId } = useAdminStore()
@@ -29,21 +30,28 @@ export function useMembersQuery() {
 }
 
 export function useMemberMutations() {
-  const { slug, eventId } = useAdminStore()
+  const { slug, eventId, memberId } = useAdminStore()
   const closeAll = useMemberModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
-  const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
-    queryClient.invalidateQueries({ queryKey: adminKeys.tasks(slug!) })
-  }
+  const setMembers = (fn: (old: Member[] | undefined) => Member[]) =>
+    queryClient.setQueryData<Member[]>(adminKeys.members(slug!), fn)
 
   const invite = useMutation(
     (payload: InviteMemberPayload) => inviteMember(payload),
     {
       successMessage: "Invite sent",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (result: Member) => {
+        const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!))
+        const role = roles?.find((r) => r.id === result.role_id)
+        if (!role) {
+          queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
+        } else {
+          setMembers((old) => [...(old ?? []), { ...result, role }])
+        }
+        closeAll()
+      },
     },
   )
 
@@ -52,7 +60,22 @@ export function useMemberMutations() {
     {
       successMessage: "Member updated",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (_: void, args: UpdateMemberPayload) => {
+        const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!))
+        const newRole = roles?.find((r) => r.id === args.role_id)
+        if (!newRole) {
+          queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
+        } else {
+          setMembers((old) =>
+            old?.map((m) =>
+              m.id === args.id
+                ? { ...m, display_name: args.display_name, role_id: args.role_id, role: newRole }
+                : m
+            ) ?? []
+          )
+        }
+        closeAll()
+      },
     },
   )
 
@@ -61,7 +84,10 @@ export function useMemberMutations() {
     {
       successMessage: "Name updated",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (_: void, display_name: string) => {
+        setMembers((old) => old?.map((m) => m.id === memberId ? { ...m, display_name } : m) ?? [])
+        closeAll()
+      },
     },
   )
 
@@ -71,7 +97,10 @@ export function useMemberMutations() {
       successMessage: (_r, args) =>
         args.freeze ? "Access frozen" : "Access restored",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
+        closeAll()
+      },
     },
   )
 
@@ -80,7 +109,10 @@ export function useMemberMutations() {
     {
       successMessage: "Member removed",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (_: void, args: DeleteMemberPayload) => {
+        setMembers((old) => old?.filter((m) => m.id !== args.id) ?? [])
+        closeAll()
+      },
     },
   )
 

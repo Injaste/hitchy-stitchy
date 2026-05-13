@@ -12,9 +12,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, CheckCircle2, Clock, Snowflake, UserX } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Mail,
+  Snowflake,
+  UserX,
+} from "lucide-react";
 
 import { useAccess } from "../../hooks/useAccess";
+import { useAdminStore } from "../../store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 
 const MemberDetailModal = () => {
@@ -26,9 +34,15 @@ const MemberDetailModal = () => {
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
 
   const { canUpdate } = useAccess();
+  const { memberId } = useAdminStore();
 
   if (!selectedItem) return null;
   const member = selectedItem;
+
+  const isSelf = member.id === memberId;
+  const isInvitedByMe = member.invited_by === memberId;
+
+  const canSeeEmail = isSelf || isInvitedByMe;
 
   const isRoot = member.role.category === "root";
   const isRejected = !!member.rejected_at;
@@ -50,7 +64,8 @@ const MemberDetailModal = () => {
   const StatusIcon = statusConfig.icon;
 
   const formatDate = "d MMM yyyy";
-  const formatTime = "hh:mm";
+  const formatTime = "HH:mm";
+
   const timelineItems = [
     member.invited_at && {
       label: "Invited",
@@ -94,6 +109,13 @@ const MemberDetailModal = () => {
                 {member.role.short_name} · {member.role.name}
               </Badge>
             </div>
+
+            {canSeeEmail && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="w-3.5 h-3.5 shrink-0" />
+                <span>{member.email}</span>
+              </div>
+            )}
 
             {/* Status */}
             <div className="flex items-center gap-2">

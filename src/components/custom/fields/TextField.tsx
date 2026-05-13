@@ -9,7 +9,7 @@ type NativeInputProps = Omit<
 
 interface TextFieldProps extends NativeInputProps {
   name: string;
-  label: ReactNode;
+  label?: ReactNode;
   optional?: boolean;
   description?: ReactNode;
   hint?: ReactNode;

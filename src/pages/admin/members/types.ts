@@ -10,6 +10,7 @@ export interface Member {
   role_id: string;
   email: string;
   display_name: string;
+  invited_by: string | null;
   frozen_at: string | null;
   invited_at: string;
   joined_at: string | null;

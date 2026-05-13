@@ -86,7 +86,8 @@ const RoleForm: FC<RoleFormProps> = ({
             label="Description"
             optional
             rows={3}
-            placeholder="What this role covers on the day…"
+            placeholder={"What this role covers on the day…\n**Bold text**, *italic*, - lists"}
+            description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
           />
         </FieldGroup>
       </DialogBody>

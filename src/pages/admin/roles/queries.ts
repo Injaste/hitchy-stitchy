@@ -4,7 +4,8 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { useRoleModalStore } from "./hooks/useRoleModalStore"
 import { fetchRoles, createRole, updateRole, deleteRole } from "./api"
-import type { CreateRolePayload, UpdateRolePayload, DeleteRolePayload } from "./types"
+import type { CreateRolePayload, UpdateRolePayload, DeleteRolePayload, Role } from "./types"
+import type { Member } from "../members/types"
 
 export function useRolesQuery() {
   const { slug, eventId } = useAdminStore()
@@ -20,18 +21,21 @@ export function useRoleMutations() {
   const closeAll = useRoleModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
-  const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: adminKeys.roles(slug!) })
-    queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
-    queryClient.invalidateQueries({ queryKey: adminKeys.timeline(slug!) })
-  }
+  const setRoles = (fn: (old: Role[] | undefined) => Role[]) =>
+    queryClient.setQueryData<Role[]>(adminKeys.roles(slug!), fn)
+
+  const setMembers = (fn: (old: Member[] | undefined) => Member[]) =>
+    queryClient.setQueryData<Member[]>(adminKeys.members(slug!), fn)
 
   const create = useMutation(
     (payload: CreateRolePayload) => createRole(payload),
     {
       successMessage: "Role created",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (result: Role) => {
+        setRoles((old) => [...(old ?? []), result])
+        closeAll()
+      },
     },
   )
 
@@ -40,7 +44,13 @@ export function useRoleMutations() {
     {
       successMessage: "Role updated",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (_: void, args: UpdateRolePayload) => {
+        setRoles((old) => old?.map((r) => r.id === args.id ? { ...r, ...args } : r) ?? [])
+        setMembers((old) =>
+          old?.map((m) => m.role_id === args.id ? { ...m, role: { ...m.role, ...args } } : m) ?? []
+        )
+        closeAll()
+      },
     },
   )
 
@@ -49,7 +59,11 @@ export function useRoleMutations() {
     {
       successMessage: "Role deleted",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (_: void, args: DeleteRolePayload) => {
+        setRoles((old) => old?.filter((r) => r.id !== args.id) ?? [])
+        queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
+        closeAll()
+      },
     },
   )
 

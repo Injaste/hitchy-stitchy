@@ -66,17 +66,16 @@ export function useGuestMutations() {
   const closeAll = useGuestModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
-  const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: adminKeys.guests(slug!) })
-  }
+  const setGuests = (fn: (old: Guest[] | undefined) => Guest[]) =>
+    queryClient.setQueryData<Guest[]>(adminKeys.guests(slug!), fn)
 
   const create = useMutation(
     (payload: CreateGuestPayload) => createGuest(payload),
     {
       successMessage: "Guest added",
       errorMessage: (err) => err.message,
-      onSuccess: () => {
-        invalidate()
+      onSuccess: (result: Guest) => {
+        setGuests((old) => [result, ...(old ?? [])])
         closeAll()
       },
     },
@@ -87,8 +86,8 @@ export function useGuestMutations() {
     {
       successMessage: "Guest updated",
       errorMessage: (err) => err.message,
-      onSuccess: () => {
-        invalidate()
+      onSuccess: (_: void, args: UpdateGuestPayload) => {
+        setGuests((old) => old?.map((g) => g.id === args.id ? { ...g, ...args } : g) ?? [])
         closeAll()
       },
     },
@@ -109,7 +108,9 @@ export function useGuestMutations() {
     {
       successMessage: "Status updated",
       errorMessage: (err) => err.message,
-      onSuccess: () => invalidate(),
+      onSuccess: (_: void, args: { guest: Guest; status: GuestStatus }) => {
+        setGuests((old) => old?.map((g) => g.id === args.guest.id ? { ...g, status: args.status } : g) ?? [])
+      },
     },
   )
 
@@ -118,8 +119,8 @@ export function useGuestMutations() {
     {
       successMessage: "Guest removed",
       errorMessage: (err) => err.message,
-      onSuccess: () => {
-        invalidate()
+      onSuccess: (_: void, id: string) => {
+        setGuests((old) => old?.filter((g) => g.id !== id) ?? [])
         closeAll()
       },
     },
@@ -139,7 +140,9 @@ export function useGuestMutations() {
           `${r.inserted} added · ${r.updated} updated · ${r.skipped} skipped`,
         error: "Import failed",
       },
-      onSuccess: () => invalidate(),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: adminKeys.guests(slug!) })
+      },
     },
   )
 

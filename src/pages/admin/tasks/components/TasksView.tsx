@@ -121,7 +121,7 @@ const TasksView: FC<TasksViewProps> = ({
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-6 lg:overflow-x-auto lg:px-1 lg:-mx-1 lg:pb-2">
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-6 lg:overflow-x-auto lg:px-1 lg:-mx-1 lg:pb-2 -mb-6">
             {grouped.map(({ status, label, tasks }) => (
               <TasksSection
                 key={status}

@@ -26,7 +26,7 @@ const TaskDeleteModal = () => {
   const task = selectedItem
 
   const handleSubmit = () => {
-    remove.mutate({ event_id: eventId!, id: task.id });
+    remove.mutate({ event_id: eventId!, id: task.id, title: task.title });
   };
 
   return (

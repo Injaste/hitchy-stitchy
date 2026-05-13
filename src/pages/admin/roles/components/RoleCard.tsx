@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useRoleModalStore } from "../hooks/useRoleModalStore";
 import { CATEGORY_LABELS, type Role } from "../types";
@@ -42,12 +43,6 @@ const RoleCard: FC<RoleCardProps> = ({ role, members }) => {
           </div>
         </div>
 
-        {role.description && (
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {role.description}
-          </p>
-        )}
-
         <div className="pt-1 space-y-2">
           <div className="flex items-center gap-1.5 text-xs tracking-wide text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
@@ -67,6 +62,10 @@ const RoleCard: FC<RoleCardProps> = ({ role, members }) => {
             </div>
           )}
         </div>
+
+        {role.description && (
+          <NotesMarkdown content={role.description} size="sm" />
+        )}
       </CardContent>
     </Card>
   );

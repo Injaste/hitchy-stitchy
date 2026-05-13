@@ -22,7 +22,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   return (
-    <div className="mb-6 -mx-1">
+    <div className="mb-6">
       <div className="relative">
         <div ref={emblaRef} className="overflow-hidden p-1">
           <div className="flex gap-2">

@@ -9,7 +9,8 @@ import {
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
-import type { TaskFormValues } from "../types";
+import { useTaskLabelFilterStore } from "../hooks/useTaskLabelFilter";
+import { ALL_LABEL, type TaskFormValues } from "../types";
 
 import TaskForm from "./TaskForm";
 
@@ -18,6 +19,8 @@ const TaskCreateModal = () => {
   const closeAll = useTaskModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { create } = useTaskMutations();
+  const activeLabel = useTaskLabelFilterStore((s) => s.activeLabel);
+  const prefillLabel = activeLabel !== ALL_LABEL ? activeLabel : "";
 
   const handleSubmit = (values: TaskFormValues) => {
     create.mutate({
@@ -25,6 +28,7 @@ const TaskCreateModal = () => {
       title: values.title,
       details: values.details,
       label: values.label,
+      status: "todo",
       priority: values.priority,
       due_at: values.due_at,
       assignees: values.assignees,
@@ -41,6 +45,7 @@ const TaskCreateModal = () => {
           </DialogDescription>
         </DialogHeader>
         <TaskForm
+          defaultValues={{ label: prefillLabel }}
           onSubmit={handleSubmit}
           onCancel={closeAll}
           isPending={create.isPending}

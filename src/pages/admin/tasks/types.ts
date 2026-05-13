@@ -52,6 +52,7 @@ export interface CreateTaskPayload {
   title: string;
   details: string | null;
   label: string | null;
+  status: TaskStatus;
   priority: TaskPriority | null;
   due_at: string | null;
   assignees: string[];
@@ -72,6 +73,7 @@ export interface UpdateTaskPayload {
 export interface DeleteTaskPayload {
   event_id: string;
   id: string;
+  title: string;
 }
 
 

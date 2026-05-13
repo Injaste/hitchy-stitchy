@@ -9,7 +9,7 @@ import type {
 } from "./types"
 
 const MEMBER_FIELDS = `
-  id, event_id, user_id, role_id, email, display_name,
+  id, event_id, user_id, role_id, email, display_name, invited_by,
   frozen_at, invited_at, joined_at, rejected_at, created_at, updated_at, preferences,
   role:event_roles ( id, event_id, name, short_name, category, description, created_at, updated_at )
 `

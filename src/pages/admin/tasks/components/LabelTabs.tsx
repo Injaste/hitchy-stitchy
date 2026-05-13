@@ -19,8 +19,8 @@ const LabelTabs: FC<LabelTabsProps> = ({ labels, activeLabel, onSelect }) => {
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   return (
-    <div className="mb-6 -mx-1">
-      <div className="relative">
+    <div className="mb-6">
+      <div className="relative -mx-1">
         <div ref={emblaRef} className="overflow-hidden p-1">
           <div className="flex gap-2">
             {labels.map((label) => {

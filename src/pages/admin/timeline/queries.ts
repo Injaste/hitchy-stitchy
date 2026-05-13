@@ -9,7 +9,14 @@ import {
   updateTimelineItem,
   deleteTimelineItem,
 } from "./api"
-import type { CreateTimelineItemPayload, DeleteTimelineItemPayload, UpdateTimelineItemPayload } from "./types"
+import { groupTimeline } from "./utils"
+import type {
+  CreateTimelineItemPayload,
+  DeleteTimelineItemPayload,
+  UpdateTimelineItemPayload,
+  Timeline,
+  TimelineGrouped,
+} from "./types"
 
 export function useTimelineQuery() {
   const { slug, eventId } = useAdminStore()
@@ -22,18 +29,26 @@ export function useTimelineQuery() {
 
 export function useTimelineMutations() {
   const { slug } = useAdminStore()
-  const closeAll = useTimelineModalStore((s) => s.closeAll);
+  const closeAll = useTimelineModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: adminKeys.timeline(slug!) })
+  const setTimeline = (fn: (items: Timeline[]) => Timeline[]) => {
+    queryClient.setQueryData<TimelineGrouped>(adminKeys.timeline(slug!), (old) => {
+      if (!old) return old
+      const flat = old.days.flatMap((d) => d.labelGroups.flatMap((g) => g.items))
+      return groupTimeline(fn(flat))
+    })
+  }
 
   const create = useMutation(
     (payload: CreateTimelineItemPayload) => createTimelineItem(payload),
     {
       successMessage: "Item added",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (result: Timeline) => {
+        setTimeline((items) => [...items, result])
+        closeAll()
+      },
     }
   )
 
@@ -42,7 +57,12 @@ export function useTimelineMutations() {
     {
       successMessage: "Item updated",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (_: void, args: UpdateTimelineItemPayload) => {
+        setTimeline((items) =>
+          items.map((item) => item.id === args.id ? { ...item, ...args } : item)
+        )
+        closeAll()
+      },
     }
   )
 
@@ -51,7 +71,10 @@ export function useTimelineMutations() {
     {
       successMessage: "Item deleted",
       errorMessage: (err) => err.message,
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: (_: void, args: DeleteTimelineItemPayload) => {
+        setTimeline((items) => items.filter((item) => item.id !== args.id))
+        closeAll()
+      },
     }
   )
 

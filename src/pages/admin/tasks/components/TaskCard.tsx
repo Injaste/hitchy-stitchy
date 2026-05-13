@@ -102,83 +102,78 @@ const TaskCard: FC<TaskCardProps> = ({
         </Button>
       )}
 
-      <CardHeader className="pl-6 pr-8">
+      <CardHeader className="space-y-1.5">
         <div className="flex items-start gap-3">
           <Button
             onClick={handleToggle}
-            className="group/task-button-hover relative shrink-0 items-start -mx-2.5"
+            className="group/task-button-hover relative shrink-0 items-start -mx-2.5 h-fit"
             variant="empty"
           >
             <TaskStatusIcon status={task.status} />
 
-            <TaskStatusIcon
-              status={"done"}
-              className="absolute -top-0.5 opacity-0 transition-opacity duration-200 group-hover/task-button-hover:opacity-60"
-            />
-          </Button>
-          <div className="flex-1 space-y-1.5 min-w-0">
-            <CardTitle
-              className={cn(
-                "text-sm",
-                isDone
-                  ? "line-through text-muted-foreground"
-                  : "text-foreground",
-              )}
-            >
-              {task.title}
-            </CardTitle>
-
-            {task.details && (
-              <CardDescription className="mb-2.5">
-                <NotesMarkdown size="sm" content={task.details} />
-              </CardDescription>
+            {task.status !== "done" && (
+              <TaskStatusIcon
+                status={"done"}
+                className="absolute -top-0.5 opacity-0 transition-opacity duration-200 group-hover/task-button-hover:opacity-60"
+              />
             )}
+          </Button>
+          <CardTitle
+            className={cn(
+              "text-sm",
+              isDone ? "line-through text-muted-foreground" : "text-foreground",
+            )}
+          >
+            {task.title}
+          </CardTitle>
+        </div>
 
-            <div className="space-y-1.5 mt-0.5">
-              {(task.priority || task.due_at) && (
-                <div className="flex items-center justify-between gap-2">
-                  {task.priority ? (
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
-                        PRIORITY_BADGE_CLASS[task.priority],
-                      )}
-                    >
-                      {PRIORITY_LABELS[task.priority]}
-                    </span>
-                  ) : (
-                    <span />
-                  )}
+        {task.details && (
+          <CardDescription>
+            <NotesMarkdown size="sm" content={task.details} />
+          </CardDescription>
+        )}
 
-                  {task.due_at && (
-                    <span
-                      className={cn(
-                        "flex items-center gap-1 text-xs font-sans",
-                        isOverdue
-                          ? "text-destructive/70"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      <Calendar className="w-3 h-3 shrink-0" />
-                      {format(parseLocalDate(task.due_at), "d MMM yyyy")}
-                    </span>
+        <div className="space-y-1.5">
+          {(task.priority || task.due_at) && (
+            <div className="flex items-center justify-between gap-2">
+              {task.priority ? (
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
+                    PRIORITY_BADGE_CLASS[task.priority],
                   )}
-                </div>
+                >
+                  {PRIORITY_LABELS[task.priority]}
+                </span>
+              ) : (
+                <span />
               )}
 
-              {task.assignees.length > 0 && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground font-sans">
-                  <Users className="w-3 h-3 shrink-0" />
-                  {task.assignees
-                    .slice(0, 2)
-                    .map((id) => getMemberName(id, members))
-                    .join(", ")}
-                  {task.assignees.length > 2 &&
-                    ` +${task.assignees.length - 2}`}
+              {task.due_at && (
+                <span
+                  className={cn(
+                    "flex items-center gap-1 text-xs font-sans",
+                    isOverdue ? "text-destructive/70" : "text-muted-foreground",
+                  )}
+                >
+                  <Calendar className="w-3 h-3 shrink-0" />
+                  {format(parseLocalDate(task.due_at), "d MMM yyyy")}
                 </span>
               )}
             </div>
-          </div>
+          )}
+
+          {task.assignees.length > 0 && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground font-sans">
+              <Users className="w-3 h-3 shrink-0" />
+              {task.assignees
+                .slice(0, 2)
+                .map((id) => getMemberName(id, members))
+                .join(", ")}
+              {task.assignees.length > 2 && ` +${task.assignees.length - 2}`}
+            </span>
+          )}
         </div>
       </CardHeader>
     </Card>

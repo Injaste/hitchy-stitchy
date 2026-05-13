@@ -1,3 +1,5 @@
+import { StickyNote } from "lucide-react";
+
 import {
   Dialog,
   DialogBody,
@@ -10,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useRoleModalStore } from "../hooks/useRoleModalStore";
@@ -48,16 +51,11 @@ const RoleDetailModal = () => {
             <Separator />
 
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                <StickyNote strokeWidth={3} className="w-3 h-3" />
                 Description
               </p>
-              {role.description ? (
-                <p className="text-sm leading-relaxed">{role.description}</p>
-              ) : (
-                <p className="text-sm text-muted-foreground/50 italic">
-                  No description
-                </p>
-              )}
+              <NotesMarkdown content={role.description} />
             </div>
           </div>
         </DialogBody>
