@@ -1,46 +1,57 @@
 import {
-  Dialog,
-  DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { FormDialog, SubmitButton } from "@/components/custom/form";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineMutations } from "../queries";
-import type { TimelineItemFormValues } from "../types";
 
-import TimelineItemForm from "./TimelineItemForm";
+import TimelineItemForm, { useTimelineItemForm } from "./TimelineItemForm";
 
 const CreateTimelineItemModal = () => {
-  const isCreateOpen = useTimelineModalStore((state) => state.isCreateOpen);
-  const closeAll = useTimelineModalStore((state) => state.closeAll);
+  const isCreateOpen = useTimelineModalStore((s) => s.isCreateOpen);
+  const closeAll = useTimelineModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { create } = useTimelineMutations();
 
-  const handleSubmit = (values: TimelineItemFormValues) => {
-    create.mutate({ event_id: eventId!, ...values });
-  };
+  const form = useTimelineItemForm({
+    onSubmit: (values) => {
+      create.mutate({ event_id: eventId!, ...values });
+    },
+  });
 
   return (
-    <Dialog open={isCreateOpen} onOpenChange={closeAll}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add schedule item</DialogTitle>
-          <DialogDescription>
-            Add a new item to the event timeline.
-          </DialogDescription>
-        </DialogHeader>
-        <TimelineItemForm
-          onSubmit={handleSubmit}
-          onCancel={closeAll}
-          isPending={create.isPending}
-          submitLabel="Add item"
-        />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      form={form}
+      open={isCreateOpen}
+      onOpenChange={closeAll}
+      isPending={create.isPending}
+    >
+      <DialogHeader>
+        <DialogTitle>Add schedule item</DialogTitle>
+        <DialogDescription>
+          Add a new item to the event timeline.
+        </DialogDescription>
+      </DialogHeader>
+
+      <TimelineItemForm />
+
+      <Separator />
+
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={closeAll}>
+          Cancel
+        </Button>
+        <SubmitButton>Add item</SubmitButton>
+      </DialogFooter>
+    </FormDialog>
   );
 };
 

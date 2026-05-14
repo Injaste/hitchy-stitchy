@@ -1,17 +1,18 @@
 import {
-  Dialog,
-  DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { FormDialog, SubmitButton } from "@/components/custom/form";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineMutations } from "../queries";
-import type { TimelineItemFormValues } from "../types";
-
-import TimelineItemForm from "./TimelineItemForm";
 import { useAdminStore } from "../../store/useAdminStore";
+
+import TimelineItemForm, { useTimelineItemForm } from "./TimelineItemForm";
 
 const TimelineEditModal = () => {
   const isEditOpen = useTimelineModalStore((s) => s.isEditOpen);
@@ -21,39 +22,53 @@ const TimelineEditModal = () => {
   const { eventId } = useAdminStore();
   const { update } = useTimelineMutations();
 
-  if (!selectedItem) return null;
-  const item = selectedItem;
+  // Hook before guard. Parent index keys this modal by selectedItem.id so
+  // useForm re-initialises with fresh defaults on every item selection.
+  const form = useTimelineItemForm({
+    defaultValues: selectedItem
+      ? {
+          day: selectedItem.day,
+          label: selectedItem.label ?? "",
+          time_start: selectedItem.time_start,
+          time_end: selectedItem.time_end ?? "",
+          title: selectedItem.title,
+          details: selectedItem.details ?? "",
+          assignees: selectedItem.assignees,
+        }
+      : undefined,
+    onSubmit: (values) => {
+      if (!selectedItem) return;
+      update.mutate({ event_id: eventId, id: selectedItem.id, ...values });
+    },
+  });
 
-  const handleSubmit = (values: TimelineItemFormValues) => {
-    update.mutate({ event_id: eventId, id: item.id, ...values });
-  };
+  if (!selectedItem) return null;
 
   return (
-    <Dialog open={isEditOpen} onOpenChange={closeAll}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit item</DialogTitle>
-          <DialogDescription>
-            Update the details of this schedule item.
-          </DialogDescription>
-        </DialogHeader>
-        <TimelineItemForm
-          defaultValues={{
-            day: item.day,
-            label: item.label ?? "",
-            time_start: item.time_start,
-            time_end: item.time_end ?? "",
-            title: item.title,
-            details: item.details ?? "",
-            assignees: item.assignees,
-          }}
-          onSubmit={handleSubmit}
-          onCancel={closeAll}
-          isPending={update.isPending}
-          submitLabel="Save changes"
-        />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      form={form}
+      open={isEditOpen}
+      onOpenChange={closeAll}
+      isPending={update.isPending}
+    >
+      <DialogHeader>
+        <DialogTitle>Edit item</DialogTitle>
+        <DialogDescription>
+          Update the details of this schedule item.
+        </DialogDescription>
+      </DialogHeader>
+
+      <TimelineItemForm />
+
+      <Separator />
+
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={closeAll}>
+          Cancel
+        </Button>
+        <SubmitButton>Save changes</SubmitButton>
+      </DialogFooter>
+    </FormDialog>
   );
 };
 

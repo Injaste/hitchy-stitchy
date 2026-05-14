@@ -1,12 +1,8 @@
-import type { FC } from "react";
 import { useForm } from "@tanstack/react-form";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
-import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { DialogBody } from "@/components/ui/dialog";
 import {
-  FormShell,
   FieldShell,
   TextField,
   TextareaField,
@@ -28,37 +24,13 @@ const PRIORITY_OPTIONS: SelectFieldOption[] = [
   { value: "high", label: "High" },
 ];
 
-interface TaskFormProps {
+interface UseTaskFormOpts {
   defaultValues?: Partial<TaskFormValues>;
   onSubmit: (values: TaskFormValues) => void;
-  onCancel: () => void;
-  isPending: boolean;
-  submitLabel: string;
 }
 
-const TaskForm: FC<TaskFormProps> = ({
-  defaultValues,
-  onSubmit,
-  onCancel,
-  isPending,
-  submitLabel,
-}) => {
-  const { data: members = [] } = useMembersQuery();
-  const { data: tasks = [] } = useTasksQuery();
-
-  const memberItems = members
-    .filter(isActiveMember)
-    .map((m) => ({ id: m.id, label: m.display_name }));
-
-  const labelOptions = Array.from(
-    new Set(
-      tasks
-        .map((t) => t.label)
-        .filter((l): l is string => !!l && l.trim().length > 0),
-    ),
-  ).sort((a, b) => a.localeCompare(b));
-
-  const form = useForm({
+export const useTaskForm = ({ defaultValues, onSubmit }: UseTaskFormOpts) =>
+  useForm({
     defaultValues: {
       title: defaultValues?.title ?? "",
       details: defaultValues?.details ?? "",
@@ -76,79 +48,80 @@ const TaskForm: FC<TaskFormProps> = ({
     },
   });
 
+const TaskForm = () => {
+  const { data: members = [] } = useMembersQuery();
+  const { data: tasks = [] } = useTasksQuery();
+
+  const memberItems = members
+    .filter(isActiveMember)
+    .map((m) => ({ id: m.id, label: m.display_name }));
+
+  const labelOptions = Array.from(
+    new Set(
+      tasks
+        .map((t) => t.label)
+        .filter((l): l is string => !!l && l.trim().length > 0),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
+
   return (
-    <FormShell form={form} className="grid gap-4">
-      <DialogBody>
-        <FieldGroup>
-          <TextField
-            name="title"
-            label="Title"
-            placeholder="e.g. Confirm florist delivery time"
-          />
+    <DialogBody>
+      <FieldGroup>
+        <TextField
+          name="title"
+          label="Title"
+          placeholder="e.g. Confirm florist delivery time"
+        />
 
-          <FieldShell name="label" label="Label" optional>
-            {(field) => (
-              <LabelCombobox
-                value={field.state.value}
-                onChange={field.handleChange}
-                onBlur={field.handleBlur}
-                labels={labelOptions}
-                placeholder="e.g. Nikah, Sanding"
-              />
-            )}
-          </FieldShell>
-
-          <div className="grid grid-cols-2 gap-3">
-            <SelectField
-              name="priority"
-              label="Priority"
-              optional
-              nullable
-              options={PRIORITY_OPTIONS}
+        <FieldShell name="label" label="Label" optional>
+          {(field) => (
+            <LabelCombobox
+              value={field.state.value}
+              onChange={field.handleChange}
+              onBlur={field.handleBlur}
+              labels={labelOptions}
+              placeholder="e.g. Nikah, Sanding"
             />
+          )}
+        </FieldShell>
 
-            <DateField name="due_at" label="Due date" optional />
-          </div>
-
-          <TextareaField
-            name="details"
-            label="Additional Items"
+        <div className="grid grid-cols-2 gap-3">
+          <SelectField
+            name="priority"
+            label="Priority"
             optional
-            rows={3}
-            placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
-            description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
+            nullable
+            options={PRIORITY_OPTIONS}
           />
 
-          <FieldShell
-            name="assignees"
-            label="Assigned members"
-            optional
-            hint="Which team members are accountable for this task?"
-          >
-            {(field) => (
-              <AssigneeField
-                value={field.state.value}
-                onChange={field.handleChange}
-                items={memberItems}
-              />
-            )}
-          </FieldShell>
-        </FieldGroup>
-      </DialogBody>
+          <DateField name="due_at" label="Due date" optional />
+        </div>
 
-      <Separator />
+        <TextareaField
+          name="details"
+          label="Additional Items"
+          optional
+          rows={3}
+          placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
+          description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
+        />
 
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        </DialogClose>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving…" : submitLabel}
-        </Button>
-      </DialogFooter>
-    </FormShell>
+        <FieldShell
+          name="assignees"
+          label="Assigned members"
+          optional
+          hint="Which team members are accountable for this task?"
+        >
+          {(field) => (
+            <AssigneeField
+              value={field.state.value}
+              onChange={field.handleChange}
+              items={memberItems}
+            />
+          )}
+        </FieldShell>
+      </FieldGroup>
+    </DialogBody>
   );
 };
 
