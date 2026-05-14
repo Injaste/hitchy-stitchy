@@ -1,27 +1,15 @@
-import type { FC } from "react";
 import { useForm } from "@tanstack/react-form";
 
-import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
-import { DialogBody, DialogClose, DialogFooter } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { DialogBody } from "@/components/ui/dialog";
 import {
-  FormShell,
   TextField,
   TextareaField,
   SelectField,
   type SelectFieldOption,
-} from "@/components/custom/fields";
+} from "@/components/custom/form";
 
 import { roleFormSchema, CATEGORY_LABELS, type RoleFormValues } from "../types";
-
-interface RoleFormProps {
-  defaultValues?: Partial<RoleFormValues>;
-  onSubmit: (values: RoleFormValues) => void;
-  onCancel: () => void;
-  isPending: boolean;
-  submitLabel: string;
-}
 
 const SELECTABLE_CATEGORIES = Object.keys(
   CATEGORY_LABELS,
@@ -35,14 +23,13 @@ const CATEGORY_OPTIONS: SelectFieldOption[] = SELECTABLE_CATEGORIES.map(
   }),
 );
 
-const RoleForm: FC<RoleFormProps> = ({
-  defaultValues,
-  onSubmit,
-  onCancel,
-  isPending,
-  submitLabel,
-}) => {
-  const form = useForm({
+interface UseRoleFormOpts {
+  defaultValues?: Partial<RoleFormValues>;
+  onSubmit: (values: RoleFormValues) => void;
+}
+
+export const useRoleForm = ({ defaultValues, onSubmit }: UseRoleFormOpts) =>
+  useForm({
     defaultValues: {
       name: defaultValues?.name ?? "",
       short_name: defaultValues?.short_name ?? "",
@@ -58,53 +45,41 @@ const RoleForm: FC<RoleFormProps> = ({
     },
   });
 
-  const lockCategory = defaultValues?.category === "root";
+interface RoleFormProps {
+  lockCategory?: boolean;
+}
 
+const RoleForm = ({ lockCategory }: RoleFormProps) => {
   return (
-    <FormShell form={form} className="grid gap-4">
-      <DialogBody>
-        <FieldGroup>
-          <TextField name="name" label="Name" placeholder="e.g. Coordinator" />
+    <DialogBody>
+      <FieldGroup>
+        <TextField name="name" label="Name" placeholder="e.g. Coordinator" />
 
-          <TextField
-            name="short_name"
-            label="Short name"
-            placeholder="e.g. CO"
-            maxLength={10}
-            transform={(v) => v.toUpperCase()}
-          />
+        <TextField
+          name="short_name"
+          label="Short name"
+          placeholder="e.g. CO"
+          maxLength={10}
+          transform={(v) => v.toUpperCase()}
+        />
 
-          <SelectField
-            name="category"
-            label="Category"
-            options={CATEGORY_OPTIONS}
-            disabled={lockCategory}
-          />
+        <SelectField
+          name="category"
+          label="Category"
+          options={CATEGORY_OPTIONS}
+          disabled={lockCategory}
+        />
 
-          <TextareaField
-            name="description"
-            label="Description"
-            optional
-            rows={3}
-            placeholder={"What this role covers on the day…\n**Bold text**, *italic*, - lists"}
-            description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
-          />
-        </FieldGroup>
-      </DialogBody>
-
-      <Separator />
-
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        </DialogClose>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving…" : submitLabel}
-        </Button>
-      </DialogFooter>
-    </FormShell>
+        <TextareaField
+          name="description"
+          label="Description"
+          optional
+          rows={3}
+          placeholder={"What this role covers on the day…\n**Bold text**, *italic*, - lists"}
+          description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
+        />
+      </FieldGroup>
+    </DialogBody>
   );
 };
 

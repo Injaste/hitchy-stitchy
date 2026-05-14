@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { cn } from "@/lib/utils";
-import { useFormShell } from "./form-context";
+import { useFormShell } from "../form-context";
 
 export interface FieldShellProps {
   name: string;

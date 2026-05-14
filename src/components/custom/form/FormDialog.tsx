@@ -1,0 +1,154 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
+
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  FormShellContext,
+  type FormShellContextValue,
+} from "./form-context";
+
+interface FormDialogProps {
+  form: FormShellContextValue["form"];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /**
+   * Mutation pending state. Pass `mutation.isPending` from the modal — it's
+   * surfaced via FormShellContext so <SubmitButton> auto-disables and shows
+   * its pending label without per-modal wiring.
+   */
+  isPending?: boolean;
+  children: ReactNode;
+  contentClassName?: string;
+}
+
+/**
+ * Composite of Dialog + FormShell. Owns the <form>, the FormShellContext,
+ * submit-on-Ctrl+Enter, and a dirty guard:
+ *
+ * - Overlay click and Escape are blocked + trigger a shake when the form
+ *   is dirty (matches AlertDialog's blocked-close feedback).
+ * - The X close button and the parent Cancel always close — they aren't
+ *   "accidental" close paths, they're explicit user intent.
+ * - Parent-triggered closes flow through internal-open state synced from
+ *   the `open` prop.
+ * - On close, attemptCount + form values reset for the next open.
+ */
+const FormDialog = ({
+  form,
+  open,
+  onOpenChange,
+  isPending = false,
+  children,
+  contentClassName,
+}: FormDialogProps) => {
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [internalOpen, setInternalOpen] = useState(open);
+  const [animate, setAnimate] = useState<"idle" | "shake">("idle");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Sync prop -> internal. Parent-triggered closes flow through here.
+  useEffect(() => {
+    setInternalOpen(open);
+  }, [open]);
+
+  // On close, reset attempts and form so reopens are fresh.
+  useEffect(() => {
+    if (!internalOpen) {
+      setAttemptCount(0);
+      form.reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [internalOpen]);
+
+  // After every submit attempt, focus + scroll the first errored field into
+  // view. FieldShell sets `data-invalid="true"` once attemptCount > 0 and
+  // the field has errors, so the DOM order naturally matches display order.
+  // requestAnimationFrame waits for React to flush the new data-invalid
+  // attributes before we query them.
+  useEffect(() => {
+    if (attemptCount === 0) return;
+    const id = requestAnimationFrame(() => {
+      const firstInvalid = formRef.current?.querySelector(
+        '[data-invalid="true"]',
+      );
+      if (!firstInvalid) return;
+      const focusable = firstInvalid.querySelector<HTMLElement>(
+        'input, textarea, select, [contenteditable="true"], [tabindex]:not([tabindex="-1"])',
+      );
+      focusable?.focus();
+      focusable?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [attemptCount]);
+
+  const submit = () => {
+    setAttemptCount((c) => c + 1);
+    form.handleSubmit();
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    submit();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      submit();
+    }
+  };
+
+  // The X close button and programmatic closes flow through onOpenChange.
+  // Both are explicit close intents, so no dirty guard here.
+  const handleOpenChange = (next: boolean) => {
+    setInternalOpen(next);
+    onOpenChange(next);
+  };
+
+  // Overlay click — block + shake when dirty.
+  const handlePointerDownOutside = (e: Event) => {
+    if (form.state.isDirty) {
+      e.preventDefault();
+      setAnimate("shake");
+    }
+  };
+
+  // Escape key — block + shake when dirty.
+  const handleEscapeKeyDown = (e: KeyboardEvent) => {
+    if (form.state.isDirty) {
+      e.preventDefault();
+      setAnimate("shake");
+    }
+  };
+
+  return (
+    <FormShellContext.Provider value={{ attemptCount, form, isPending }}>
+      <Dialog open={internalOpen} onOpenChange={handleOpenChange}>
+        <DialogContent
+          className={contentClassName}
+          animate={animate}
+          onAnimationComplete={() => setAnimate("idle")}
+          onPointerDownOutside={handlePointerDownOutside}
+          onEscapeKeyDown={handleEscapeKeyDown}
+        >
+          {/*
+            `display: contents` keeps the <form> semantic (events bubble,
+            submit works) but transparent to layout — so DialogHeader /
+            DialogBody / DialogFooter remain direct grid children of the
+            shaking card inside DialogContent.
+          */}
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            onKeyDown={handleKeyDown}
+            className="contents"
+          >
+            {children}
+          </form>
+        </DialogContent>
+      </Dialog>
+    </FormShellContext.Provider>
+  );
+};
+
+export default FormDialog;

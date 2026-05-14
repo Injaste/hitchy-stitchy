@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
-import { FormShell, TextField } from "@/components/custom/fields";
+import { FormShell, TextField } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useTaskMutations } from "../queries";
 import { useTaskLabelFilterStore } from "../hooks/useTaskLabelFilter";

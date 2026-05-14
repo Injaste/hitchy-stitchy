@@ -3,8 +3,8 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { DateField, TextField, TimeField } from "@/components/custom/fields";
-import { FormShellContext } from "@/components/custom/fields/form-context";
+import { DateField, TextField, TimeField } from "@/components/custom/form";
+import { FormShellContext } from "@/components/custom/form/form-context";
 import type { DetailsDraft } from "../../types";
 
 const schema = z.object({

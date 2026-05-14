@@ -2,7 +2,7 @@ import type { AnyFieldApi } from "@tanstack/react-form";
 import type { ReactNode } from "react";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
-import { useFormShell } from "./form-context";
+import { useFormShell } from "../form-context";
 
 interface SwitchFieldProps {
   name: string;

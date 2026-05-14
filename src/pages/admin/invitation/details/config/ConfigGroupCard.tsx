@@ -7,8 +7,8 @@ import {
   TextareaField,
   SelectField,
   SwitchField,
-} from "@/components/custom/fields";
-import { FormShellContext } from "@/components/custom/fields/form-context";
+} from "@/components/custom/form";
+import { FormShellContext } from "@/components/custom/form/form-context";
 import type { ThemeFieldGroup } from "@/pages/wedding/templates/types";
 import type { ThemeDraftValues } from "../../store/useInvitationStore";
 

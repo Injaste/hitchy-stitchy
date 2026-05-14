@@ -17,7 +17,7 @@ import {
   SelectField,
   TimeField,
   type SelectFieldOption,
-} from "@/components/custom/fields";
+} from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
