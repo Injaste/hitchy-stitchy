@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import {
-  FormShellContext,
-  type FormShellContextValue,
-} from "./form-context";
+import { FormShellContext, type FormShellContextValue } from "./form-context";
 
 interface FormDialogProps {
   form: FormShellContextValue["form"];
@@ -50,13 +47,17 @@ const FormDialog = ({
     setInternalOpen(open);
   }, [open]);
 
-  // On close, reset attempts and form so reopens are fresh.
+  // On close, reset attempts and form so reopens are fresh. Defer the form
+  // reset until after the dialog close animation finishes (~200ms) — otherwise
+  // the user briefly sees the form values flash back to defaults while the
+  // dialog is still visible.
+  // If the user reopens before the timeout fires, the cleanup cancels the
+  // pending reset so they don't lose in-progress values.
   useEffect(() => {
-    if (!internalOpen) {
-      setAttemptCount(0);
-      form.reset();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (internalOpen) return;
+    setAttemptCount(0);
+    const id = setTimeout(() => form.reset(), 250);
+    return () => clearTimeout(id);
   }, [internalOpen]);
 
   // After every submit attempt, focus + scroll the first errored field into

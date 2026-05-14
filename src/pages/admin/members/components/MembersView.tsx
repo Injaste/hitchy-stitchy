@@ -67,11 +67,18 @@ const MembersView: FC<MembersViewProps> = ({
           animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
         >
-          {data.map((member) => (
-            <motion.div key={member.id} variants={itemFadeUp}>
-              <MemberCard member={member} />
-            </motion.div>
-          ))}
+          <AnimatePresence>
+            {data.map((member) => (
+              <motion.div
+                key={member.id}
+                variants={itemFadeUp}
+                exit="hidden"
+                layout
+              >
+                <MemberCard member={member} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </motion.div>
       </ComponentFade>
     );

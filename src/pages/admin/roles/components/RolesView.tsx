@@ -67,16 +67,23 @@ const RolesView: FC<RolesViewProps> = ({
           animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
         >
-          {roles.map((role) => {
-            const roleMembers = (members ?? []).filter(
-              (m) => m.role_id === role.id,
-            );
-            return (
-              <motion.div key={role.id} variants={itemFadeUp}>
-                <RoleCard role={role} members={roleMembers} />
-              </motion.div>
-            );
-          })}
+          <AnimatePresence>
+            {roles.map((role) => {
+              const roleMembers = (members ?? []).filter(
+                (m) => m.role_id === role.id,
+              );
+              return (
+                <motion.div
+                  key={role.id}
+                  variants={itemFadeUp}
+                  exit="hidden"
+                  layout
+                >
+                  <RoleCard role={role} members={roleMembers} />
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </motion.div>
       </ComponentFade>
     );

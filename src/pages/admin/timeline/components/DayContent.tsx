@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
 import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
@@ -39,15 +39,19 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
           <div className="relative">
             <div ref={emblaRef} className="overflow-hidden p-1">
               <motion.div variants={container} className="flex gap-3">
-                {group.items.map((item) => (
-                  <motion.div
-                    variants={itemFadeUp}
-                    key={item.id}
-                    className="shrink-0 w-72 self-stretch"
-                  >
-                    <TimelineCard item={item} />
-                  </motion.div>
-                ))}
+                <AnimatePresence>
+                  {group.items.map((item) => (
+                    <motion.div
+                      variants={itemFadeUp}
+                      exit="hidden"
+                      layout
+                      key={item.id}
+                      className="shrink-0 w-72 self-stretch"
+                    >
+                      <TimelineCard item={item} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </motion.div>
             </div>
 
@@ -103,14 +107,23 @@ const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
       </div>
 
       <motion.div variants={container}>
-        {day.labelGroups.map((group, idx) => (
-          <motion.div key={`timeline-label-${idx}`} variants={itemFadeUp}>
-            <LabelCarousel
-              group={group}
-              isNotLastItem={idx < day.labelGroups.length - 1}
-            />
-          </motion.div>
-        ))}
+        <AnimatePresence>
+          {day.labelGroups.map((group, idx) => (
+            <motion.div
+              // Stable key: labeled groups are unique per day; unlabelled
+              // groups always contain exactly one item, so its id is unique.
+              key={group.label ?? `_unlabelled-${group.items[0].id}`}
+              variants={itemFadeUp}
+              exit="hidden"
+              layout
+            >
+              <LabelCarousel
+                group={group}
+                isNotLastItem={idx < day.labelGroups.length - 1}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
