@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { FC } from "react";
 import { AnimatePresence } from "framer-motion";
 
@@ -6,12 +7,16 @@ import ErrorState from "@/components/custom/states/error-state";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
-import type { Guest } from "../types";
+import type { Guest, GuestStatus } from "../types";
 
 import GuestsSkeleton from "../states/GuestsSkeleton";
 import GuestsEmpty from "../states/GuestsEmpty";
 import GuestsStats from "./GuestsStats";
 import GuestsTable from "./GuestsTable";
+import GuestsFilters from "./GuestsFilters";
+import { Table } from "lucide-react";
+
+type StatusFilter = GuestStatus | "all";
 
 interface GuestsViewProps {
   data: Guest[] | undefined;
@@ -31,6 +36,17 @@ const GuestsView: FC<GuestsViewProps> = ({
   const openCreate = useGuestModalStore((s) => s.openCreate);
   const openImport = useGuestModalStore((s) => s.openImport);
   const { canCreate } = useAccess();
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  const filtered = (data ?? []).filter((g) => {
+    const matchesStatus = statusFilter === "all" || g.status === statusFilter;
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q || g.name.toLowerCase().includes(q) || g.phone.includes(q);
+    return matchesStatus && matchesSearch;
+  });
 
   const renderBody = () => {
     if (isLoading) {
@@ -68,7 +84,15 @@ const GuestsView: FC<GuestsViewProps> = ({
     return (
       <ComponentFade key="content">
         <GuestsStats guests={data} />
-        <GuestsTable guests={data} />
+        <GuestsFilters
+          search={search}
+          onSearchChange={setSearch}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          filteredCount={filtered.length}
+          totalCount={data.length}
+        />
+        <GuestsTable guests={filtered} />
       </ComponentFade>
     );
   };

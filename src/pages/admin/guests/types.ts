@@ -14,6 +14,8 @@ export interface Guest {
   source: GuestSource
   invite_code: string | null
   created_at: string
+  confirmed_at: string | null
+  cancelled_at: string | null
   updated_at: string
 }
 
@@ -28,9 +30,9 @@ export const guestFormSchema = z.object({
     .max(40, "Phone is too long"),
   guest_count: z
     .number()
-    .int("Guest count must be a whole number")
     .min(1, "At least 1 guest")
     .max(999, "Guest count is too high"),
+  status: z.enum(["pending", "confirmed", "cancelled"]),
   message: z
     .string()
     .max(1000, "Message is too long")
@@ -80,9 +82,4 @@ export const STATUS_LABELS: Record<GuestStatus, string> = {
   pending: "Pending",
   confirmed: "Confirmed",
   cancelled: "Cancelled",
-}
-
-export const SOURCE_LABELS: Record<GuestSource, string> = {
-  private: "Added by host",
-  public: "Self-submitted",
 }

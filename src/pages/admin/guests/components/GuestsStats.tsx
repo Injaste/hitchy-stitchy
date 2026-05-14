@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Users, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { Clock, XCircle, CheckCircle, ClipboardList } from "lucide-react";
 
 import type { Guest } from "../types";
 
@@ -14,17 +14,17 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
 
   const stats = [
     {
+      label: "Confirmed",
+      value: confirmed.length,
+      icon: CheckCircle,
+      iconClass: "text-emerald-500",
+    },
+    {
       label: "Total RSVPs",
       value: guests.length,
       sub: null,
-      icon: Users,
+      icon: ClipboardList,
       iconClass: "text-muted-foreground",
-    },
-    {
-      label: "Confirmed",
-      value: confirmed.length,
-      icon: CheckCircle2,
-      iconClass: "text-emerald-500",
     },
     {
       label: "Pending",

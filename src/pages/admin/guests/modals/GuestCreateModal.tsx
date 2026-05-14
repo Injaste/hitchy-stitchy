@@ -27,6 +27,7 @@ const GuestCreateModal = () => {
         name: values.name,
         phone: values.phone,
         guest_count: values.guest_count,
+        status: values.status,
         message: values.message,
       });
     },

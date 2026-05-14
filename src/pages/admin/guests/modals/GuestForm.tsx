@@ -1,19 +1,25 @@
-import { useForm } from "@tanstack/react-form"
+import { useForm } from "@tanstack/react-form";
 
-import { Input } from "@/components/ui/input"
-import { FieldGroup } from "@/components/ui/field"
-import { DialogBody } from "@/components/ui/dialog"
+import { FieldGroup } from "@/components/ui/field";
+import { DialogBody } from "@/components/ui/dialog";
 import {
-  FieldShell,
   TextField,
   TextareaField,
-} from "@/components/custom/form"
+  SelectField,
+  type SelectFieldOption,
+} from "@/components/custom/form";
 
-import { guestFormSchema, type GuestFormValues } from "../types"
+import { guestFormSchema, STATUS_LABELS, type GuestFormValues } from "../types";
+
+const STATUS_OPTIONS: SelectFieldOption[] = [
+  { value: "pending", label: STATUS_LABELS.pending },
+  { value: "confirmed", label: STATUS_LABELS.confirmed },
+  { value: "cancelled", label: STATUS_LABELS.cancelled },
+];
 
 interface UseGuestFormOpts {
-  defaultValues?: Partial<GuestFormValues>
-  onSubmit: (values: GuestFormValues) => void
+  defaultValues?: Partial<GuestFormValues>;
+  onSubmit: (values: GuestFormValues) => void;
 }
 
 export const useGuestForm = ({ defaultValues, onSubmit }: UseGuestFormOpts) =>
@@ -22,6 +28,7 @@ export const useGuestForm = ({ defaultValues, onSubmit }: UseGuestFormOpts) =>
       name: defaultValues?.name ?? "",
       phone: defaultValues?.phone ?? "",
       guest_count: defaultValues?.guest_count ?? 1,
+      status: defaultValues?.status ?? "pending",
       message: defaultValues?.message ?? "",
     },
     validators: {
@@ -29,41 +36,31 @@ export const useGuestForm = ({ defaultValues, onSubmit }: UseGuestFormOpts) =>
       onChange: guestFormSchema,
     },
     onSubmit: ({ value }) => {
-      onSubmit(guestFormSchema.parse(value))
+      onSubmit(guestFormSchema.parse(value));
     },
-  })
+  });
 
 const GuestForm = () => {
   return (
     <DialogBody>
       <FieldGroup>
-        <TextField
-          name="name"
-          label="Name"
-          placeholder="e.g. Ali Hassan"
-        />
+        <TextField name="name" label="Name" placeholder="e.g. Ali Hassan" />
         <TextField
           name="phone"
           label="Phone"
           type="tel"
           placeholder="e.g. +60123456789"
         />
-        <FieldShell name="guest_count" label="Party size">
-          {(field) => (
-            <Input
-              type="number"
-              min={1}
-              step={1}
-              value={field.state.value}
-              onChange={(e) =>
-                field.handleChange(
-                  e.target.value === "" ? 1 : Number(e.target.value),
-                )
-              }
-              onBlur={field.handleBlur}
-            />
-          )}
-        </FieldShell>
+        <div className="grid grid-cols-2 gap-3">
+          <TextField
+            name="guest_count"
+            label="Party size"
+            type="number"
+            min={1}
+            step={1}
+          />
+          <SelectField name="status" label="Status" options={STATUS_OPTIONS} />
+        </div>
         <TextareaField
           name="message"
           label="Message"
@@ -73,7 +70,7 @@ const GuestForm = () => {
         />
       </FieldGroup>
     </DialogBody>
-  )
-}
+  );
+};
 
-export default GuestForm
+export default GuestForm;

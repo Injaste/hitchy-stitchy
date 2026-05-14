@@ -1,5 +1,5 @@
-import { format } from "date-fns";
-import { Phone, Users, StickyNote } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { Calendar, CheckCircle2, Clock, Phone, StickyNote, UserPlus, Users, XCircle } from "lucide-react";
 
 import {
   Dialog,
@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
-import { STATUS_LABELS, SOURCE_LABELS } from "../types";
+import { STATUS_LABELS } from "../types";
 
 const GuestDetailModal = () => {
   const isDetailOpen = useGuestModalStore((s) => s.isDetailOpen);
@@ -37,6 +37,35 @@ const GuestDetailModal = () => {
         ? "destructive"
         : "secondary";
 
+  const formatDate = "d MMM yyyy";
+  const formatTime = "HH:mm";
+
+  const historyItems = [
+    {
+      label: "Added",
+      icon: UserPlus,
+      date: format(parseISO(guest.created_at), formatDate),
+      time: format(parseISO(guest.created_at), formatTime),
+    },
+    guest.confirmed_at && {
+      label: "Confirmed",
+      icon: CheckCircle2,
+      date: format(parseISO(guest.confirmed_at), formatDate),
+      time: format(parseISO(guest.confirmed_at), formatTime),
+    },
+    guest.cancelled_at && {
+      label: "Cancelled",
+      icon: XCircle,
+      date: format(parseISO(guest.cancelled_at), formatDate),
+      time: format(parseISO(guest.cancelled_at), formatTime),
+    },
+  ].filter(Boolean) as {
+    label: string;
+    icon: React.ElementType;
+    date: string;
+    time: string;
+  }[];
+
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent>
@@ -50,9 +79,6 @@ const GuestDetailModal = () => {
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Badge variant={statusVariant}>
                 {STATUS_LABELS[guest.status]}
-              </Badge>
-              <Badge variant="outline" className="text-muted-foreground">
-                {SOURCE_LABELS[guest.source]}
               </Badge>
             </div>
 
@@ -69,14 +95,46 @@ const GuestDetailModal = () => {
                 </Row>
               )}
             </div>
+
             <Separator />
+
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                History
+              </p>
+              <div className="space-y-1">
+                {historyItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.label}
+                      className="flex items-center justify-between text-xs text-muted-foreground"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Icon className="size-3" />
+                        {item.label}
+                      </span>
+                      <span className="flex gap-2">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="size-3" />
+                          {item.date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="size-3" />
+                          {item.time}
+                        </span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </DialogBody>
 
+        <Separator />
+
         <DialogFooter>
-          <p className="text-xs text-muted-foreground">
-            Added {format(new Date(guest.created_at), "d MMM yyyy")}
-          </p>
           <div className="flex gap-2">
             {canDelete("rsvp") && (
               <Button variant="destructive" size="sm" onClick={openDelete}>

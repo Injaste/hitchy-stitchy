@@ -48,6 +48,10 @@
   --color-muted: oklch(0.95 0.02 90);
   --color-muted-foreground: oklch(0.5 0.03 60);
 
+  /* ── Success ── */
+  --color-success: oklch(0.6 0.13 155);
+  --color-success-foreground: oklch(0.98 0 0);
+
   /* ── Destructive ── */
   --color-destructive: oklch(0.6 0.18 25);
   --color-destructive-foreground: oklch(0.98 0 0);

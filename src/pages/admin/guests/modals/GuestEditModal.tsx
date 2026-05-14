@@ -27,6 +27,7 @@ const GuestEditModal = () => {
           name: selectedItem.name,
           phone: selectedItem.phone,
           guest_count: selectedItem.guest_count,
+          status: selectedItem.status,
           message: selectedItem.message,
         }
       : undefined,
@@ -39,7 +40,7 @@ const GuestEditModal = () => {
         phone: values.phone,
         guest_count: values.guest_count,
         message: values.message,
-        status: selectedItem.status,
+        status: values.status,
         invite_code: selectedItem.invite_code,
       });
     },

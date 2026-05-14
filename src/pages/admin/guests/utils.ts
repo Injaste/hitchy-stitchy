@@ -81,6 +81,7 @@ export function parseGuestCSV(
             name,
             phone,
             guest_count,
+            status: "pending" as const,
             message: message || null,
           }
 

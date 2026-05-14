@@ -1,13 +1,13 @@
-import type { FC } from "react"
-import { Plus, Upload, Users } from "lucide-react"
+import type { FC } from "react";
+import { Plus, Upload, Users } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface GuestsEmptyProps {
-  onAdd: () => void
-  onImport: () => void
-  canCreate: boolean
+  onAdd: () => void;
+  onImport: () => void;
+  canCreate: boolean;
 }
 
 const GuestsEmpty: FC<GuestsEmptyProps> = ({ onAdd, onImport, canCreate }) => (
@@ -30,14 +30,14 @@ const GuestsEmpty: FC<GuestsEmptyProps> = ({ onAdd, onImport, canCreate }) => (
             <Plus className="w-4 h-4" />
             Add first guest
           </Button>
-          <Button onClick={onImport} variant="outline" className="gap-2">
+          {/* <Button onClick={onImport} variant="outline" className="gap-2">
             <Upload className="w-4 h-4" />
             Import CSV
-          </Button>
+          </Button> */}
         </div>
       )}
     </CardContent>
   </Card>
-)
+);
 
-export default GuestsEmpty
+export default GuestsEmpty;
