@@ -37,6 +37,8 @@ const MemberInviteModal = () => {
       open={isInviteOpen}
       onOpenChange={closeAll}
       isPending={invite.isPending}
+      isSuccess={invite.isSuccess}
+      isError={invite.isError}
     >
       <DialogHeader>
         <DialogTitle>Invite member</DialogTitle>

@@ -1,41 +1,66 @@
 import type { FC } from "react";
-import { Clock, XCircle, CheckCircle, ClipboardList } from "lucide-react";
+import {
+  Clock,
+  XCircle,
+  CheckCircle,
+  ClipboardList,
+  Users,
+} from "lucide-react";
 
 import type { Guest } from "../types";
+import OdometerDigit from "@/components/animations/animate-odometer-digit";
 
 interface GuestsStatsProps {
   guests: Guest[];
 }
 
 const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
-  const confirmed = guests.filter((g) => g.status === "confirmed");
-  const pending = guests.filter((g) => g.status === "pending");
-  const cancelled = guests.filter((g) => g.status === "cancelled");
+  const stats = guests.reduce(
+    (acc, g) => {
+      acc.total++;
+      if (g.status === "confirmed") {
+        acc.confirmed++;
+        acc.confirmedPax += g.guest_count ?? 1;
+      } else if (g.status === "pending") {
+        acc.pending++;
+      } else if (g.status === "cancelled") {
+        acc.cancelled++;
+      }
+      return acc;
+    },
+    {
+      total: 0,
+      confirmed: 0,
+      confirmedPax: 0,
+      pending: 0,
+      cancelled: 0,
+    },
+  );
 
-  const stats = [
+  const cards = [
     {
       label: "Confirmed",
-      value: confirmed.length,
+      value: stats.confirmed,
+      sub: `${stats.confirmedPax} attending`,
       icon: CheckCircle,
       iconClass: "text-emerald-500",
     },
     {
       label: "Total RSVPs",
-      value: guests.length,
-      sub: null,
+      value: stats.total,
       icon: ClipboardList,
       iconClass: "text-muted-foreground",
     },
     {
       label: "Pending",
-      value: pending.length,
+      value: stats.pending,
       sub: null,
       icon: Clock,
       iconClass: "text-amber-500",
     },
     {
       label: "Cancelled",
-      value: cancelled.length,
+      value: stats.cancelled,
       sub: null,
       icon: XCircle,
       iconClass: "text-rose-500",
@@ -44,22 +69,32 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-      {stats.map((stat) => {
-        const Icon = stat.icon;
+      {cards.map((card) => {
+        const Icon = card.icon;
         return (
           <div
-            key={stat.label}
+            key={card.label}
             className="rounded-xl border border-border bg-card px-5 py-4"
           >
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
-                {stat.label}
+                {card.label}
               </p>
-              <Icon size={20} className={stat.iconClass} />
+              <Icon size={20} className={card.iconClass} />
             </div>
-            <p className="font-display text-3xl font-semibold text-foreground leading-none">
-              {stat.value}
-            </p>
+            <div className="font-display text-3xl font-semibold text-foreground leading-none">
+              {String(card.value)
+                .split("")
+                .map((d, i) => (
+                  <OdometerDigit key={i} value={Number(d)} />
+                ))}
+            </div>
+            {card.sub && (
+              <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1">
+                <Users size={11} />
+                {card.sub}
+              </p>
+            )}
           </div>
         );
       })}

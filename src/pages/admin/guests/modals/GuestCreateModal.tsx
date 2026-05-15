@@ -13,12 +13,15 @@ import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
 
 import GuestForm, { useGuestForm } from "./GuestForm";
+import { useInvitationQuery } from "../../invitation/queries";
 
 const GuestCreateModal = () => {
   const isCreateOpen = useGuestModalStore((s) => s.isCreateOpen);
   const closeAll = useGuestModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { create } = useGuestMutations();
+
+  const { data: invitation } = useInvitationQuery();
 
   const form = useGuestForm({
     onSubmit: (values) => {
@@ -33,12 +36,16 @@ const GuestCreateModal = () => {
     },
   });
 
+  if (!invitation) return null;
+
   return (
     <FormDialog
       form={form}
       open={isCreateOpen}
       onOpenChange={closeAll}
       isPending={create.isPending}
+      isSuccess={create.isSuccess}
+      isError={create.isError}
     >
       <DialogHeader>
         <DialogTitle>Add guest</DialogTitle>
@@ -47,7 +54,7 @@ const GuestCreateModal = () => {
         </DialogDescription>
       </DialogHeader>
 
-      <GuestForm />
+      <GuestForm maxGuest={invitation.guest_count_max} />
 
       <Separator />
 

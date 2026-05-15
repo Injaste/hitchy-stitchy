@@ -33,6 +33,8 @@ const CreateTimelineItemModal = () => {
       open={isCreateOpen}
       onOpenChange={closeAll}
       isPending={create.isPending}
+      isSuccess={create.isSuccess}
+      isError={create.isError}
     >
       <DialogHeader>
         <DialogTitle>Add schedule item</DialogTitle>

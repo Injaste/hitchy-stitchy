@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Play } from "lucide-react";
 
 import { useCueStore } from "../store/useCueStore";
-import { itemRevealIn } from "@/lib/animations";
+import { itemRevealInUp } from "@/lib/animations";
 
 export function ActiveCueBanner() {
   const { activeCue, openCueModal } = useCueStore();
@@ -12,7 +12,7 @@ export function ActiveCueBanner() {
       {activeCue && (
         <motion.button
           key="cue-banner"
-          {...itemRevealIn}
+          {...itemRevealInUp}
           onClick={openCueModal}
           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/15 transition-colors pointer-events-none"
         >

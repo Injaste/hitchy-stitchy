@@ -13,6 +13,9 @@ interface FormDialogProps {
    * its pending label without per-modal wiring.
    */
   isPending?: boolean;
+  isSuccess?: boolean;
+  isError?: boolean;
+
   children: ReactNode;
   contentClassName?: string;
 }
@@ -34,6 +37,8 @@ const FormDialog = ({
   open,
   onOpenChange,
   isPending = false,
+  isSuccess = false,
+  isError = false,
   children,
   contentClassName,
 }: FormDialogProps) => {
@@ -123,7 +128,9 @@ const FormDialog = ({
   };
 
   return (
-    <FormShellContext.Provider value={{ attemptCount, form, isPending }}>
+    <FormShellContext.Provider
+      value={{ attemptCount, form, isPending, isSuccess, isError }}
+    >
       <Dialog open={internalOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           className={contentClassName}

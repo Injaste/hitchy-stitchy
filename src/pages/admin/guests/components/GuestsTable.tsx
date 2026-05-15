@@ -22,6 +22,8 @@ import { useAccess } from "../../hooks/useAccess";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
 import type { Guest, GuestStatus } from "../types";
+import { AnimatePresence, motion } from "framer-motion";
+import { itemFadeIn } from "@/lib/animations";
 
 interface GuestsTableProps {
   guests: Guest[];
@@ -131,13 +133,28 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
                       className="px-5 py-3.5 text-right"
                       onClick={(e) => e.stopPropagation()}
                     >
+                      <AnimatePresence>
+                        {guest.status !== "confirmed" && (
+                          <motion.div variants={itemFadeIn} className="inline">
+                            <Button
+                              variant="ghost-success"
+                              size="icon-sm"
+                              onClick={() =>
+                                updateStatus.mutate({
+                                  guest,
+                                  status: "confirmed",
+                                })
+                              }
+                              disabled={updateStatus.isPending}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </Button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0 text-muted-foreground"
-                          >
+                          <Button size="icon-sm" variant="ghost">
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>

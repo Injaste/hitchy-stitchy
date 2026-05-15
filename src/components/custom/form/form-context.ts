@@ -8,7 +8,10 @@ export interface FormShellContextValue {
    * mutation; consumed by SubmitButton to auto-disable + show pending label.
    * FormShell (non-dialog forms) leaves this undefined.
    */
+
   isPending?: boolean;
+  isSuccess?: boolean;
+  isError?: boolean;
 }
 
 export const FormShellContext = createContext<FormShellContextValue | null>(null);

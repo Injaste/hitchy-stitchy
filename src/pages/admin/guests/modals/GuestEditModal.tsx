@@ -12,6 +12,7 @@ import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
 
 import GuestForm, { useGuestForm } from "./GuestForm";
+import { useInvitationQuery } from "../../invitation/queries";
 
 const GuestEditModal = () => {
   const isEditOpen = useGuestModalStore((s) => s.isEditOpen);
@@ -19,8 +20,8 @@ const GuestEditModal = () => {
   const closeAll = useGuestModalStore((s) => s.closeAll);
   const { update } = useGuestMutations();
 
-  // Hook before guard. Parent index keys this modal by selectedItem.id so
-  // useForm re-initialises with fresh defaults on every guest selection.
+  const { data: invitation } = useInvitationQuery();
+
   const form = useGuestForm({
     defaultValues: selectedItem
       ? {
@@ -46,7 +47,7 @@ const GuestEditModal = () => {
     },
   });
 
-  if (!selectedItem) return null;
+  if (!selectedItem || !invitation) return null;
 
   return (
     <FormDialog
@@ -54,13 +55,15 @@ const GuestEditModal = () => {
       open={isEditOpen}
       onOpenChange={closeAll}
       isPending={update.isPending}
+      isSuccess={update.isSuccess}
+      isError={update.isError}
     >
       <DialogHeader>
         <DialogTitle>Edit guest</DialogTitle>
         <DialogDescription>Update this guest's details.</DialogDescription>
       </DialogHeader>
 
-      <GuestForm />
+      <GuestForm maxGuest={invitation.guest_count_max} />
 
       <Separator />
 

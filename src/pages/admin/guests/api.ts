@@ -6,6 +6,7 @@ import type {
   UpdateGuestPayload,
   ImportResult,
 } from "./types"
+import { delay } from "@/lib/utils"
 
 const GUEST_FIELDS =
   "id, event_id, name, phone, guest_count, message, status, source, invite_code, created_at, updated_at"
@@ -22,6 +23,9 @@ export async function fetchGuests(eventId: string): Promise<Guest[]> {
 }
 
 export async function createGuest(payload: CreateGuestPayload): Promise<Guest> {
+
+  await delay(1000);
+
   const { data, error } = await supabase.rpc("create_guest", {
     p_event_id: payload.event_id,
     p_name: payload.name.trim(),

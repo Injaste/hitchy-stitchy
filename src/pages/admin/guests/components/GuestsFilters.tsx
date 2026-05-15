@@ -1,10 +1,12 @@
 import type { FC } from "react";
 import { Search, Users, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import type { GuestStatus } from "../types";
+import OdometerDigit from "@/components/animations/animate-odometer-digit";
 
 type StatusFilter = GuestStatus | "all";
 
@@ -82,19 +84,35 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
       </div>
 
       {/* Entry count — right-aligned, contextual */}
-      <p className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
-        <Users className="size-3.5" />
-        {isFiltered ? (
-          <>
-            <span className="text-foreground font-medium">{filteredCount}</span>
-            {" of "}
-            {totalCount} {totalCount === 1 ? "entry" : "entries"}
-          </>
-        ) : (
-          <>
-            {totalCount} {totalCount === 1 ? "entry" : "entries"}
-          </>
-        )}
+      <p className="flex items-center justify-end text-xs text-muted-foreground">
+        <Users className="size-3.5 mr-1" />
+        <AnimatePresence>
+          {isFiltered && (
+            <motion.div
+              className="flex gap-1 items-center"
+              initial={{ opacity: 0, width: 0, overflow: "hidden" }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0, overflow: "hidden" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <div className="text-foreground font-medium">
+                {String(filteredCount)
+                  .split("")
+                  .map((d, i) => (
+                    <OdometerDigit key={i} value={Number(d)} />
+                  ))}
+              </div>
+              <div>of</div>
+              <div> </div>
+            </motion.div>
+          )}
+          {String(totalCount)
+            .split("")
+            .map((d, i) => (
+              <OdometerDigit key={i} value={Number(d)} />
+            ))}{" "}
+          {totalCount === 1 ? "entry" : "entries"}
+        </AnimatePresence>
       </p>
     </div>
   );

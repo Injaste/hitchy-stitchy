@@ -28,7 +28,7 @@ export const guestFormSchema = z.object({
     .string()
     .min(1, "Phone is required")
     .max(40, "Phone is too long"),
-  guest_count: z
+  guest_count: z.coerce
     .number()
     .min(1, "At least 1 guest")
     .max(999, "Guest count is too high"),

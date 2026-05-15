@@ -1,6 +1,11 @@
 import type { AnyFieldApi } from "@tanstack/react-form";
 import type { ReactNode } from "react";
-import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldLabel,
+} from "@/components/ui/field";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { cn } from "@/lib/utils";
 import { useFormShell } from "../form-context";
@@ -52,12 +57,12 @@ const FieldShell = ({
                   )}
                 </FieldLabel>
               )}
-              {hint && (
-                <p className="text-xs text-muted-foreground -mt-1">{hint}</p>
+              {description && (
+                <FieldDescription>{description}</FieldDescription>
               )}
               <FieldContent>{children(field, hasError)}</FieldContent>
-              {description && (
-                <p className="text-xs text-muted-foreground">{description}</p>
+              {hint && (
+                <FieldDescription className="-mt-1">{hint}</FieldDescription>
               )}
             </Field>
           </AnimateItem>

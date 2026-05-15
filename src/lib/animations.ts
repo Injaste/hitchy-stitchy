@@ -62,7 +62,7 @@ export const itemShake = {
   },
 };
 
-export const itemRevealIn = {
+export const itemRevealInUp = {
   initial: { opacity: 0, y: -4, height: 0 },
   animate: { opacity: 1, y: 0, height: "auto", transition: { duration: 0.2 } },
   exit: { opacity: 0, y: -4, height: 0, transition: { duration: 0.15 } },

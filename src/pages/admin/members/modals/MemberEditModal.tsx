@@ -53,6 +53,8 @@ const MemberEditModal = () => {
       open={isEditOpen}
       onOpenChange={closeAll}
       isPending={update.isPending}
+      isSuccess={update.isSuccess}
+      isError={update.isError}
     >
       <DialogHeader>
         <DialogTitle>Edit member</DialogTitle>

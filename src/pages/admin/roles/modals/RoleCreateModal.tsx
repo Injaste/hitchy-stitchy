@@ -39,6 +39,8 @@ const RoleCreateModal = () => {
       open={isCreateOpen}
       onOpenChange={closeAll}
       isPending={create.isPending}
+      isSuccess={create.isSuccess}
+      isError={create.isError}
     >
       <DialogHeader>
         <DialogTitle>Add role</DialogTitle>
@@ -55,7 +57,7 @@ const RoleCreateModal = () => {
         <Button type="button" variant="outline" onClick={closeAll}>
           Cancel
         </Button>
-        <SubmitButton pendingLabel="Adding">Add role</SubmitButton>
+        <SubmitButton>Add role</SubmitButton>
       </DialogFooter>
     </FormDialog>
   );

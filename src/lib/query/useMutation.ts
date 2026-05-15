@@ -6,7 +6,7 @@ export function useMutation<TArgs, TResult>(
   fn: (args: TArgs) => Promise<TResult>,
   options: MutationOptions<TResult, TArgs>,
 ) {
-  const { mutateAsync: _mutateAsync, isPending, error, isError, data, reset } = useTanstackMutation({
+  const { mutateAsync: _mutateAsync, isPending, isSuccess: _isSuccess, error, isError, data, reset } = useTanstackMutation({
     mutationFn: fn,
 
     onSuccess(result, args) {
@@ -53,5 +53,5 @@ export function useMutation<TArgs, TResult>(
     return _mutateAsync(args);
   }
 
-  return { mutate, mutateAsync, isPending, error, isError, data, reset };
+  return { mutate, mutateAsync, isPending, isSuccess: _isSuccess, error, isError, data, reset };
 }

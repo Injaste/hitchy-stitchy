@@ -1,3 +1,4 @@
+import type { FC } from "react";
 import { useForm } from "@tanstack/react-form";
 
 import { FieldGroup } from "@/components/ui/field";
@@ -10,11 +11,25 @@ import {
 } from "@/components/custom/form";
 
 import { guestFormSchema, STATUS_LABELS, type GuestFormValues } from "../types";
+import { CheckCircle, Clock, XCircle } from "lucide-react";
+import z from "zod";
 
 const STATUS_OPTIONS: SelectFieldOption[] = [
-  { value: "pending", label: STATUS_LABELS.pending },
-  { value: "confirmed", label: STATUS_LABELS.confirmed },
-  { value: "cancelled", label: STATUS_LABELS.cancelled },
+  {
+    value: "pending",
+    label: STATUS_LABELS.pending,
+    icon: <Clock className="size-4 shrink-0 text-warning" />,
+  },
+  {
+    value: "confirmed",
+    label: STATUS_LABELS.confirmed,
+    icon: <CheckCircle className="size-4 shrink-0 text-success" />,
+  },
+  {
+    value: "cancelled",
+    label: STATUS_LABELS.cancelled,
+    icon: <XCircle className="size-4 shrink-0 text-destructive" />,
+  },
 ];
 
 interface UseGuestFormOpts {
@@ -32,15 +47,47 @@ export const useGuestForm = ({ defaultValues, onSubmit }: UseGuestFormOpts) =>
       message: defaultValues?.message ?? "",
     },
     validators: {
-      onSubmit: guestFormSchema,
-      onChange: guestFormSchema,
+      onSubmit: ({ value }) => {
+        const parsed = guestFormSchema.safeParse(value);
+
+        if (!parsed.success) {
+          const properties = z.treeifyError(parsed.error).properties ?? {};
+
+          const fields = Object.fromEntries(
+            Object.entries(properties)
+              .filter(([, tree]) => tree?.errors?.length)
+              .map(([key, tree]) => [key, { message: tree!.errors[0] }]),
+          );
+
+          return { fields };
+        }
+      },
+      onChange: ({ value }) => {
+        const parsed = guestFormSchema.safeParse(value);
+
+        if (!parsed.success) {
+          const properties = z.treeifyError(parsed.error).properties ?? {};
+
+          const fields = Object.fromEntries(
+            Object.entries(properties)
+              .filter(([, tree]) => tree?.errors?.length)
+              .map(([key, tree]) => [key, { message: tree!.errors[0] }]),
+          );
+
+          return { fields };
+        }
+      },
     },
     onSubmit: ({ value }) => {
       onSubmit(guestFormSchema.parse(value));
     },
   });
 
-const GuestForm = () => {
+interface GuestFormProps {
+  maxGuest: number;
+}
+
+const GuestForm: FC<GuestFormProps> = ({ maxGuest }) => {
   return (
     <DialogBody>
       <FieldGroup>
@@ -57,7 +104,9 @@ const GuestForm = () => {
             label="Party size"
             type="number"
             min={1}
+            max={maxGuest}
             step={1}
+            hint={`Max: ${maxGuest} guests`}
           />
           <SelectField name="status" label="Status" options={STATUS_OPTIONS} />
         </div>
