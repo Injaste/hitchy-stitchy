@@ -76,7 +76,6 @@ export function useGuestMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (result: Guest) => {
         setGuests((old) => [result, ...(old ?? [])])
-
       },
     },
   )
@@ -88,7 +87,6 @@ export function useGuestMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args: UpdateGuestPayload) => {
         setGuests((old) => old?.map((g) => g.id === args.id ? { ...g, ...args } : g) ?? [])
-        closeAll()
       },
     },
   )

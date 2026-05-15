@@ -66,7 +66,6 @@ export function useTaskMutations() {
           return { ...old, [result.status]: [...(old[result.status] ?? []), result.id] }
         })
         if (newOrder) saveOrder.mutate(newOrder)
-        closeAll()
       },
     },
   )
@@ -77,7 +76,7 @@ export function useTaskMutations() {
       successMessage: (_: void, args: UpdateTaskPayload) => `"${truncate(args.title)}" updated`,
       errorMessage: (err) => err.message,
       // invalidate: completed_at is set by a DB trigger — need the server value
-      onSuccess: () => { invalidate(); closeAll() },
+      onSuccess: () => invalidate(),
     },
   )
 

@@ -30,12 +30,12 @@ interface GuestsTableProps {
 }
 
 const statusBadge = {
-  confirmed: { label: "Confirmed", variant: "default" },
-  pending: { label: "Pending", variant: "secondary" },
+  confirmed: { label: "Confirmed", variant: "success" },
+  pending: { label: "Pending", variant: "warning" },
   cancelled: { label: "Cancelled", variant: "destructive" },
 } satisfies Record<
   GuestStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" }
+  { label: string; variant: "success" | "warning" | "destructive" }
 >;
 
 const COL_COUNT = 5;

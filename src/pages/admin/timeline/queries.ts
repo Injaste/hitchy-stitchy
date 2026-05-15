@@ -47,7 +47,6 @@ export function useTimelineMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (result: Timeline) => {
         setTimeline((items) => [...items, result])
-        closeAll()
       },
     }
   )
@@ -61,7 +60,6 @@ export function useTimelineMutations() {
         setTimeline((items) =>
           items.map((item) => item.id === args.id ? { ...item, ...args } : item)
         )
-        closeAll()
       },
     }
   )

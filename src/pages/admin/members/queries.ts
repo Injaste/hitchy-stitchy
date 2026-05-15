@@ -50,7 +50,6 @@ export function useMemberMutations() {
         } else {
           setMembers((old) => [...(old ?? []), { ...result, role }])
         }
-        closeAll()
       },
     },
   )
@@ -74,7 +73,6 @@ export function useMemberMutations() {
             ) ?? []
           )
         }
-        closeAll()
       },
     },
   )
@@ -86,7 +84,6 @@ export function useMemberMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (_: void, display_name: string) => {
         setMembers((old) => old?.map((m) => m.id === memberId ? { ...m, display_name } : m) ?? [])
-        closeAll()
       },
     },
   )

@@ -11,7 +11,6 @@ const SW = 2.5;
 const BR = 8;
 const ARC_PCT = 0.2;
 const SPEED_MS = 1500;
-const LINGER_MS = 1300;
 
 function buildPath(W: number, H: number) {
   const r = BR + GAP,
@@ -99,38 +98,31 @@ const SubmitButton: FC<SubmitButtonProps> = ({ children, ...props }) => {
     const P = getPerimeter(btn.offsetWidth, btn.offsetHeight);
     const currentOffset = parseFloat(arc.style.strokeDashoffset) || 0;
 
-    if (isSuccess) {
-      arc.setAttribute("stroke", "var(--color-success)");
-      track.setAttribute(
-        "stroke",
-        "oklch(from var(--color-success) l c h / 0.25)",
-      );
-      arc.style.transition =
-        "stroke-dasharray 380ms cubic-bezier(.4,0,.2,1), stroke-dashoffset 380ms cubic-bezier(.4,0,.2,1)";
-      arc.style.strokeDasharray = `${P} 0`;
-      arc.style.strokeDashoffset = String(currentOffset);
+    arc.setAttribute(
+      "stroke",
+      isSuccess ? "var(--color-success)" : "var(--color-destructive)",
+    );
+    track.setAttribute(
+      "stroke",
+      isSuccess
+        ? "oklch(from var(--color-success) l c h / 0.25)"
+        : "oklch(from var(--color-destructive) l c h / 0.25)",
+    );
 
-      delay(380 + LINGER_MS).then(() => {
-        arc.style.transition = "opacity 450ms";
-        track.style.transition = "opacity 450ms";
-        arc.style.opacity = track.style.opacity = "0";
-        delay(480).then(reset);
-      });
-    } else {
-      arc.setAttribute("stroke", "var(--color-destructive)");
-      arc.style.transition = "stroke-dasharray 300ms ease-in";
-      arc.style.strokeDasharray = `0 ${P}`;
+    if (!isSuccess) setShakeState("shake");
 
-      // ← motion handles the shake now
-      setShakeState("shake");
+    arc.style.transition =
+      "stroke-dasharray 200ms cubic-bezier(.4,0,.2,1), stroke-dashoffset 200ms cubic-bezier(.4,0,.2,1)";
+    arc.style.strokeDasharray = `${P} 0`;
+    arc.style.strokeDashoffset = String(currentOffset);
 
-      delay(400).then(() => {
-        arc.style.transition = "opacity 280ms";
-        track.style.transition = "opacity 280ms";
-        arc.style.opacity = track.style.opacity = "0";
-        delay(300).then(reset);
-      });
-    }
+    delay(200).then(() => {
+      arc.style.transition = "opacity 200ms";
+      track.style.transition = "opacity 200ms";
+      arc.style.opacity = "0";
+      track.style.opacity = "0";
+      delay(200).then(reset);
+    });
   }, [isSuccess, isError]);
 
   function reset() {

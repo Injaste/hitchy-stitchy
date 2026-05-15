@@ -15,6 +15,8 @@ interface FormDialogProps {
   isPending?: boolean;
   isSuccess?: boolean;
   isError?: boolean;
+  /** Ms to wait after isSuccess before auto-closing. false = opt out. Default 1000. */
+  closeDelay?: number | false;
 
   children: ReactNode;
   contentClassName?: string;
@@ -39,6 +41,7 @@ const FormDialog = ({
   isPending = false,
   isSuccess = false,
   isError = false,
+  closeDelay = 300,
   children,
   contentClassName,
 }: FormDialogProps) => {
@@ -64,6 +67,14 @@ const FormDialog = ({
     const id = setTimeout(() => form.reset(), 250);
     return () => clearTimeout(id);
   }, [internalOpen]);
+
+  // Auto-close after success. Fires once when isSuccess flips to true, waits
+  // closeDelay ms, then closes. Pass closeDelay={false} to opt out.
+  useEffect(() => {
+    if (!isSuccess || closeDelay === false) return;
+    const id = setTimeout(() => handleOpenChange(false), closeDelay);
+    return () => clearTimeout(id);
+  }, [isSuccess]);
 
   // After every submit attempt, focus + scroll the first errored field into
   // view. FieldShell sets `data-invalid="true"` once attemptCount > 0 and

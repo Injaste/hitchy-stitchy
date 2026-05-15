@@ -34,7 +34,6 @@ export function useRoleMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (result: Role) => {
         setRoles((old) => [...(old ?? []), result])
-        closeAll()
       },
     },
   )
@@ -49,7 +48,6 @@ export function useRoleMutations() {
         setMembers((old) =>
           old?.map((m) => m.role_id === args.id ? { ...m, role: { ...m.role, ...args } } : m) ?? []
         )
-        closeAll()
       },
     },
   )

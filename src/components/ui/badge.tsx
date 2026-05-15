@@ -13,6 +13,10 @@ const badgeVariants = cva(
           "bg-primary/5 text-primary border-primary/20 [a]:hover:bg-primary/10",
         secondary:
           "bg-secondary/5 text-secondary border-secondary/20 [a]:hover:bg-secondary/10",
+        success:
+          "bg-success/5 text-success border-success/20 [a]:hover:bg-success/10",
+        warning:
+          "bg-warning/5 text-warning border-warning/20 [a]:hover:bg-warning/10",
         destructive:
           "bg-destructive/5 text-destructive border-destructive/20 [a]:hover:bg-destructive/10",
         outline:
