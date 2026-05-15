@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import type { GuestStatus } from "../types";
-import OdometerDigit from "@/components/animations/animate-odometer-digit";
+import Odometer from "@/components/animations/animate-odometer";
 
 type StatusFilter = GuestStatus | "all";
 
@@ -84,7 +84,7 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
       </div>
 
       {/* Entry count — right-aligned, contextual */}
-      <p className="flex items-center justify-end text-xs text-muted-foreground">
+      <div className="flex items-center justify-end text-xs text-muted-foreground">
         <Users className="size-3.5 mr-1" />
         <AnimatePresence>
           {isFiltered && (
@@ -96,24 +96,16 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
               <div className="text-foreground font-medium">
-                {String(filteredCount)
-                  .split("")
-                  .map((d, i) => (
-                    <OdometerDigit key={i} value={Number(d)} />
-                  ))}
+                <Odometer value={filteredCount} />
               </div>
               <div>of</div>
               <div> </div>
             </motion.div>
           )}
-          {String(totalCount)
-            .split("")
-            .map((d, i) => (
-              <OdometerDigit key={i} value={Number(d)} />
-            ))}{" "}
+          <Odometer value={totalCount} />{" "}
           {totalCount === 1 ? "entry" : "entries"}
         </AnimatePresence>
-      </p>
+      </div>
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
 
-import OdometerDigit from "../animations/animate-odometer-digit";
+import Odometer from "../animations/animate-odometer";
 
 interface TimeLeft {
   days: number;
@@ -43,18 +43,6 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  const renderOdometer = (val: number, pad: number = 2) => {
-    const digits = val.toString().padStart(pad, "0").split("").map(Number);
-
-    return (
-      <div className="flex">
-        {digits.map((digit, i) => (
-          <OdometerDigit key={i} value={digit} />
-        ))}
-      </div>
-    );
-  };
-
   if (expired) return null;
 
   return (
@@ -63,7 +51,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
         <Card key={unit} className="bg-card/50 backdrop-blur-md" size="sm">
           <CardContent className="flex flex-col items-center">
             <span className="font-mono text-2xl sm:text-3xl font-bold text-foreground tabular-nums">
-              {renderOdometer(timeLeft[unit], 2)}
+              <Odometer value={timeLeft[unit]} pad={2} />
             </span>
             <span className="text-3xs sm:text-2xs uppercase tracking-widest text-muted-foreground font-bold mt-1">
               {unit}

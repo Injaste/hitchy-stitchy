@@ -76,7 +76,7 @@ export function useGuestMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (result: Guest) => {
         setGuests((old) => [result, ...(old ?? [])])
-        closeAll()
+
       },
     },
   )

@@ -8,7 +8,7 @@ import {
   type BaseHeaderProps,
 } from "@/components/custom/page-header";
 
-import OdometerDigit from "@/components/animations/animate-odometer-digit";
+import Odometer from "@/components/animations/animate-odometer";
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskLabelFilter } from "../hooks/useTaskLabelFilter";
@@ -84,30 +84,16 @@ const TasksHeader: FC<TasksHeaderProps> = ({
             </div>
             <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
               <span>
-                <span className="inline-flex items-center text-foreground font-medium">
-                  {String(done)
-                    .split("")
-                    .map((d, i) => (
-                      <OdometerDigit key={i} value={Number(d)} />
-                    ))}
+                <span className="text-foreground font-medium">
+                  <Odometer value={done} />
                 </span>{" "}
                 of{" "}
-                <span className="inline-flex items-center">
-                  {String(total)
-                    .split("")
-                    .map((d, i) => (
-                      <OdometerDigit key={i} value={Number(d)} />
-                    ))}
-                </span>{" "}
+                <Odometer value={total} />{" "}
                 tasks done
               </span>
               <span>
-                <span className="inline-flex items-center text-foreground font-medium">
-                  {String(total - done)
-                    .split("")
-                    .map((d, i) => (
-                      <OdometerDigit key={i} value={Number(d)} />
-                    ))}
+                <span className="text-foreground font-medium">
+                  <Odometer value={total - done} />
                 </span>{" "}
                 remaining
               </span>

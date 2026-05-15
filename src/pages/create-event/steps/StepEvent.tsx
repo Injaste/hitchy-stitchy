@@ -32,7 +32,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import OdometerDigit from "@/components/animations/animate-odometer-digit";
+import Odometer from "@/components/animations/animate-odometer";
 import { useSteps } from "@/components/custom/steps-direction";
 
 import type { CreateEventData, StepType } from "../types";
@@ -253,17 +253,10 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                               dateRange.to,
                               dateRange.from,
                             ) + 1;
-                          const digits = days.toString().split("");
                           return (
                             <>
                               {"— "}
-                              {digits.map((digit, index) => (
-                                <OdometerDigit
-                                  key={index}
-                                  className="inline-block"
-                                  value={parseInt(digit)}
-                                />
-                              ))}
+                              <Odometer value={days} />
                               {days > 1 ? " days" : " day"}
                             </>
                           );

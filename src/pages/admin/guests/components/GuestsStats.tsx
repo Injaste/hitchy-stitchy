@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 import type { Guest } from "../types";
-import OdometerDigit from "@/components/animations/animate-odometer-digit";
+import Odometer from "@/components/animations/animate-odometer";
 
 interface GuestsStatsProps {
   guests: Guest[];
@@ -41,7 +41,7 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
     {
       label: "Confirmed",
       value: stats.confirmed,
-      sub: `${stats.confirmedPax} attending`,
+      sub: stats.confirmedPax,
       icon: CheckCircle,
       iconClass: "text-emerald-500",
     },
@@ -83,17 +83,14 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
               <Icon size={20} className={card.iconClass} />
             </div>
             <div className="font-display text-3xl font-semibold text-foreground leading-none">
-              {String(card.value)
-                .split("")
-                .map((d, i) => (
-                  <OdometerDigit key={i} value={Number(d)} />
-                ))}
+              <Odometer value={card.value} />
             </div>
             {card.sub && (
-              <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1">
+              <div className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1">
                 <Users size={11} />
-                {card.sub}
-              </p>
+                <Odometer value={card.sub} />
+                <span>attending</span>
+              </div>
             )}
           </div>
         );
