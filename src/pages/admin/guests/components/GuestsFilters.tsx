@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { Search, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import type { GuestStatus } from "../types";
@@ -19,12 +19,26 @@ interface GuestsFiltersProps {
   totalCount: number;
 }
 
+import { type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
 const STATUS_PILLS = [
-  { value: "all", label: "All" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "pending", label: "Pending" },
-  { value: "cancelled", label: "Cancelled" },
-] satisfies { value: StatusFilter; label: string }[];
+  { value: "all", label: "All", variant: "secondary" },
+  { value: "confirmed", label: "Confirmed", variant: "success" },
+  { value: "pending", label: "Pending", variant: "warning" },
+  { value: "cancelled", label: "Cancelled", variant: "destructive" },
+] satisfies {
+  value: StatusFilter;
+  label: string;
+  variant: VariantProps<typeof buttonVariants>["variant"];
+}[];
+
+const STATUS_PILLS_HOVER_CLASS = {
+  secondary: "hover:text-secondary-foreground",
+  success: "hover:text-success",
+  warning: "hover:text-warning",
+  destructive: "hover:text-destructive",
+};
 
 const GuestsFilters: FC<GuestsFiltersProps> = ({
   search,
@@ -73,9 +87,14 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
             <Button
               key={pill.value}
               type="button"
-              variant={statusFilter === pill.value ? "secondary" : "ghost"}
+              size="sm"
+              variant={pill.variant}
               onClick={() => onStatusFilterChange(pill.value)}
-              className="px-3 h-8 rounded-lg text-xs font-medium transition-colors"
+              className={cn(
+                "text-xs",
+                statusFilter !== pill.value &&
+                  `bg-transparent text-muted-foreground ${STATUS_PILLS_HOVER_CLASS[pill.variant]}`,
+              )}
             >
               {pill.label}
             </Button>
@@ -89,6 +108,7 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
         <AnimatePresence>
           {isFiltered && (
             <motion.div
+              key="filtered-count"
               className="flex gap-1 items-center"
               initial={{ opacity: 0, width: 0, overflow: "hidden" }}
               animate={{ opacity: 1, width: "auto" }}
