@@ -11,7 +11,7 @@ import { FormDialog, SubmitButton } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
-import { useTaskLabelFilterStore } from "../hooks/useTaskLabelFilter";
+import { useTasksFilterStore } from "../hooks/useTasksFilter";
 import { ALL_LABEL } from "../types";
 
 import TaskForm, { useTaskForm } from "./TaskForm";
@@ -21,7 +21,7 @@ const TaskCreateModal = () => {
   const closeAll = useTaskModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { create } = useTaskMutations();
-  const activeLabel = useTaskLabelFilterStore((s) => s.activeLabel);
+  const activeLabel = useTasksFilterStore((s) => s.activeLabel);
   const prefillLabel = activeLabel !== ALL_LABEL ? activeLabel : "";
 
   const form = useTaskForm({

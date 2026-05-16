@@ -11,7 +11,7 @@ import {
 import Odometer from "@/components/animations/animate-odometer";
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
-import { useTaskLabelFilter } from "../hooks/useTaskLabelFilter";
+import { useTasksFilter } from "../hooks/useTasksFilter";
 import type { Task } from "../types";
 
 interface TasksHeaderProps extends BaseHeaderProps {
@@ -28,7 +28,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
   const { canCreate, canDelete } = useAccess();
   const openCreate = useTaskModalStore((s) => s.openCreate);
   const openArchivedSheet = useTaskModalStore((s) => s.openArchivedSheet);
-  const { filteredTasks } = useTaskLabelFilter(data ?? []);
+  const { filteredTasks } = useTasksFilter(data ?? []);
   const total = filteredTasks.length;
   const done = filteredTasks.filter((t) => t.status === "done").length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;

@@ -33,6 +33,21 @@ export const itemFadeIn = {
   show: { opacity: 1, transition: { duration: 0.4 } },
 };
 
+export const widthReveal: Variants = {
+  hidden: {
+    width: 0,
+    opacity: 0,
+    marginLeft: -8,
+    transition: { duration: 0.25, ease: "easeInOut" },
+  },
+  show: {
+    width: "auto",
+    opacity: 1,
+    marginLeft: 0,
+    transition: { duration: 0.3, ease: "easeInOut" },
+  },
+};
+
 export const cardHover = { y: -3, transition: { duration: 0.4 } };
 
 export const taskContainer: Variants = {

@@ -10,7 +10,7 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormShell, TextField } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useTaskMutations } from "../queries";
-import { useTaskLabelFilterStore } from "../hooks/useTaskLabelFilter";
+import { useTasksFilterStore } from "../hooks/useTasksFilter";
 import { ALL_LABEL, type TaskStatus } from "../types";
 import { TASK_ITEM_DURATION, itemFadeIn } from "@/lib/animations";
 
@@ -29,7 +29,7 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
 
   const { eventId } = useAdminStore();
   const { create } = useTaskMutations();
-  const activeLabel = useTaskLabelFilterStore((s) => s.activeLabel);
+  const activeLabel = useTasksFilterStore((s) => s.activeLabel);
   const prefillLabel = activeLabel !== ALL_LABEL ? activeLabel : null;
 
   const form = useForm({

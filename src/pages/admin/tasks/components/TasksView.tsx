@@ -13,10 +13,11 @@ import ErrorState from "@/components/custom/states/error-state";
 import { cardLiftStyle } from "@/lib/animations";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PortalToApp from "@/components/custom/portal-to-app";
+import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
-import { useTaskLabelFilter } from "../hooks/useTaskLabelFilter";
+import { useTasksFilter } from "../hooks/useTasksFilter";
 import { useTaskDnd } from "../hooks/useTaskDnd";
 import {
   STATUS_LABELS,
@@ -31,6 +32,7 @@ import TasksEmpty from "../states/TasksEmpty";
 import TasksSection from "./TasksSection";
 import TaskCard from "./TaskCard";
 import LabelTabs from "./LabelTabs";
+import TasksFilter from "./TasksFilter";
 
 interface TasksViewProps {
   data: Task[] | undefined;
@@ -60,7 +62,7 @@ const TasksView: FC<TasksViewProps> = ({
   }, [data, taskOrder]);
 
   const { tabs, activeLabel, setActiveLabel, filteredTasks } =
-    useTaskLabelFilter(localTasks);
+    useTasksFilter(localTasks);
 
   const {
     sensors,
@@ -108,20 +110,31 @@ const TasksView: FC<TasksViewProps> = ({
 
     return (
       <ComponentFade key="content">
-        {tabs.length >= 2 && (
-          <LabelTabs
-            labels={tabs}
-            activeLabel={activeLabel}
-            onSelect={setActiveLabel}
-          />
-        )}
+        <div className="mb-6">
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              {tabs.length >= 2 ? (
+                <LabelTabs
+                  labels={tabs}
+                  activeLabel={activeLabel}
+                  onSelect={setActiveLabel}
+                />
+              ) : null}
+            </div>
+            {tabs.length >= 2 && (
+              <Separator orientation="vertical" className="h-6" />
+            )}
+            <TasksFilter />
+          </div>
+          <Separator className="mt-6" />
+        </div>
         <DndContext
           sensors={sensors}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-6 lg:overflow-x-auto lg:px-1 lg:-mx-1 lg:pb-2 -mb-6">
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-6 lg:overflow-x-auto lg:px-1 lg:-mx-1 lg:pb-2">
             {grouped.map(({ status, label, tasks }) => (
               <TasksSection
                 key={status}
