@@ -38,8 +38,8 @@ export async function inviteMember(payload: InviteMemberPayload): Promise<Member
   return data as Member
 }
 
-export async function updateMember(payload: UpdateMemberPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_member", {
+export async function updateMember(payload: UpdateMemberPayload): Promise<Member> {
+  const { data, error } = await supabase.rpc("update_member", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_display_name: payload.display_name,
@@ -47,6 +47,7 @@ export async function updateMember(payload: UpdateMemberPayload): Promise<void> 
   })
 
   if (error) throw new Error(error.message)
+  return data as Member
 }
 
 export async function updateMyDisplayName(
@@ -60,14 +61,15 @@ export async function updateMyDisplayName(
   if (error) throw new Error(error.message)
 }
 
-export async function freezeMember(payload: FreezeMemberPayload): Promise<void> {
-  const { error } = await supabase.rpc("freeze_member", {
+export async function freezeMember(payload: FreezeMemberPayload): Promise<Member> {
+  const { data, error } = await supabase.rpc("freeze_member", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_freeze: payload.freeze,
   })
 
   if (error) throw new Error(error.message)
+  return data as Member
 }
 
 export async function deleteMember(payload: DeleteMemberPayload): Promise<void> {

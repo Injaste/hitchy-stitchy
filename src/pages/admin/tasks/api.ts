@@ -63,8 +63,8 @@ export async function createTask(payload: CreateTaskPayload): Promise<Task> {
   return data as Task;
 }
 
-export async function updateTask(payload: UpdateTaskPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_task", {
+export async function updateTask(payload: UpdateTaskPayload): Promise<Task> {
+  const { data, error } = await supabase.rpc("update_task", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_title: payload.title,
@@ -77,6 +77,7 @@ export async function updateTask(payload: UpdateTaskPayload): Promise<void> {
   });
 
   if (error) throw new Error(error.message);
+  return data as Task;
 }
 
 export async function deleteTask(payload: DeleteTaskPayload): Promise<void> {

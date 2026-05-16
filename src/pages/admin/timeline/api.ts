@@ -38,8 +38,8 @@ export async function createTimelineItem(payload: CreateTimelineItemPayload): Pr
   return data as Timeline
 }
 
-export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_timeline", {
+export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Promise<Timeline> {
+  const { data, error } = await supabase.rpc("update_timeline", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_day: payload.day,
@@ -52,6 +52,7 @@ export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Pr
   })
 
   if (error) throw new Error(error.message)
+  return data as Timeline
 }
 
 export async function deleteTimelineItem(payload: DeleteTimelineItemPayload): Promise<void> {

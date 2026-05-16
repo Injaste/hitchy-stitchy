@@ -23,9 +23,6 @@ export async function fetchGuests(eventId: string): Promise<Guest[]> {
 }
 
 export async function createGuest(payload: CreateGuestPayload): Promise<Guest> {
-
-  await delay(1000);
-
   const { data, error } = await supabase.rpc("create_guest", {
     p_event_id: payload.event_id,
     p_name: payload.name.trim(),
@@ -38,8 +35,8 @@ export async function createGuest(payload: CreateGuestPayload): Promise<Guest> {
   return data as Guest
 }
 
-export async function updateGuest(payload: UpdateGuestPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_guest", {
+export async function updateGuest(payload: UpdateGuestPayload): Promise<Guest> {
+  const { data, error } = await supabase.rpc("update_guest", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_name: payload.name.trim(),
@@ -51,6 +48,7 @@ export async function updateGuest(payload: UpdateGuestPayload): Promise<void> {
   })
 
   if (error) throw new Error(error.message)
+  return data as Guest
 }
 
 export async function deleteGuest(eventId: string, id: string): Promise<void> {
@@ -129,3 +127,5 @@ export async function bulkImportGuests({
 
   return result
 }
+
+// TODO LATER import guest should be smart and check for already exising phone numbers and display in a new upload bulk guest modal, to identify new ones and what will be updated

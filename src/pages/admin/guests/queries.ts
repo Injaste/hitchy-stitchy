@@ -85,8 +85,8 @@ export function useGuestMutations() {
     {
       successMessage: "Guest updated",
       errorMessage: (err) => err.message,
-      onSuccess: (_: void, args: UpdateGuestPayload) => {
-        setGuests((old) => old?.map((g) => g.id === args.id ? { ...g, ...args } : g) ?? [])
+      onSuccess: (result: Guest) => {
+        setGuests((old) => old?.map((g) => g.id === result.id ? result : g) ?? [])
       },
     },
   )
@@ -106,8 +106,8 @@ export function useGuestMutations() {
     {
       successMessage: "Status updated",
       errorMessage: (err) => err.message,
-      onSuccess: (_: void, args: { guest: Guest; status: GuestStatus }) => {
-        setGuests((old) => old?.map((g) => g.id === args.guest.id ? { ...g, status: args.status } : g) ?? [])
+      onSuccess: (result: Guest) => {
+        setGuests((old) => old?.map((g) => g.id === result.id ? result : g) ?? [])
       },
     },
   )

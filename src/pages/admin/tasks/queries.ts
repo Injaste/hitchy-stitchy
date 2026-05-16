@@ -73,10 +73,11 @@ export function useTaskMutations() {
   const update = useMutation(
     (payload: UpdateTaskPayload) => updateTask(payload),
     {
-      successMessage: (_: void, args: UpdateTaskPayload) => `"${truncate(args.title)}" updated`,
+      successMessage: (result: Task) => `"${truncate(result.title)}" updated`,
       errorMessage: (err) => err.message,
-      // invalidate: completed_at is set by a DB trigger — need the server value
-      onSuccess: () => invalidate(),
+      onSuccess: (result: Task) => {
+        setTasks((old) => old?.map((t) => t.id === result.id ? result : t) ?? [])
+      },
     },
   )
 
@@ -104,10 +105,12 @@ export function useTaskMutations() {
   const saveStatuses = useMutation(
     (payload: UpdateTaskPayload) => updateTask(payload),
     {
-      successMessage: (_: void, args: UpdateTaskPayload) =>
-        `"${truncate(args.title)}" moved to ${STATUS_LABELS[args.status]}`,
+      successMessage: (result: Task) =>
+        `"${truncate(result.title)}" moved to ${STATUS_LABELS[result.status]}`,
       errorMessage: (err) => err.message,
-      onSuccess: () => invalidate(),
+      onSuccess: (result: Task) => {
+        setTasks((old) => old?.map((t) => t.id === result.id ? result : t) ?? [])
+      },
       onError: () => invalidate(),
     },
   )

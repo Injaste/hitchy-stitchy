@@ -56,9 +56,9 @@ export function useTimelineMutations() {
     {
       successMessage: "Item updated",
       errorMessage: (err) => err.message,
-      onSuccess: (_: void, args: UpdateTimelineItemPayload) => {
+      onSuccess: (result: Timeline) => {
         setTimeline((items) =>
-          items.map((item) => item.id === args.id ? { ...item, ...args } : item)
+          items.map((item) => item.id === result.id ? result : item)
         )
       },
     }

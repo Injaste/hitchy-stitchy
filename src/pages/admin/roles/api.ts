@@ -28,8 +28,8 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
   return data as Role;
 }
 
-export async function updateRole(payload: UpdateRolePayload): Promise<void> {
-  const { error } = await supabase.rpc("update_role", {
+export async function updateRole(payload: UpdateRolePayload): Promise<Role> {
+  const { data, error } = await supabase.rpc("update_role", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_name: payload.name,
@@ -39,6 +39,7 @@ export async function updateRole(payload: UpdateRolePayload): Promise<void> {
   });
 
   if (error) throw new Error(error.message);
+  return data as Role;
 }
 
 export async function deleteRole(payload: DeleteRolePayload): Promise<void> {

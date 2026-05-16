@@ -59,18 +59,14 @@ export function useMemberMutations() {
     {
       successMessage: "Member updated",
       errorMessage: (err) => err.message,
-      onSuccess: (_: void, args: UpdateMemberPayload) => {
+      onSuccess: (result: Member) => {
         const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!))
-        const newRole = roles?.find((r) => r.id === args.role_id)
+        const newRole = roles?.find((r) => r.id === result.role_id)
         if (!newRole) {
           queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
         } else {
           setMembers((old) =>
-            old?.map((m) =>
-              m.id === args.id
-                ? { ...m, display_name: args.display_name, role_id: args.role_id, role: newRole }
-                : m
-            ) ?? []
+            old?.map((m) => m.id === result.id ? { ...result, role: newRole } : m) ?? []
           )
         }
       },
@@ -94,8 +90,10 @@ export function useMemberMutations() {
       successMessage: (_r, args) =>
         args.freeze ? "Access frozen" : "Access restored",
       errorMessage: (err) => err.message,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
+      onSuccess: (result: Member) => {
+        setMembers((old) =>
+          old?.map((m) => m.id === result.id ? { ...result, role: m.role } : m) ?? []
+        )
         closeAll()
       },
     },

@@ -20,6 +20,7 @@ import type {
   Template,
   Theme,
   TemplateTheme,
+  Invitation,
 } from "./types"
 import { useInvitationStore } from "./store/useInvitationStore"
 import { themeRegistry } from "@/pages/wedding/templates"
@@ -49,8 +50,8 @@ export function useInvitationMutation() {
     (payload: UpdateInvitationPayload) => updateInvitation(payload),
     {
       toast: { loading: "Saving...", success: "Saved", error: "Failed to save" },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: adminKeys.invitation(slug!) })
+      onSuccess: (result: Invitation) => {
+        queryClient.setQueryData<Invitation>(adminKeys.invitation(slug!), result)
       },
     },
   )

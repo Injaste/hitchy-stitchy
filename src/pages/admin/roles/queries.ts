@@ -43,10 +43,10 @@ export function useRoleMutations() {
     {
       successMessage: "Role updated",
       errorMessage: (err) => err.message,
-      onSuccess: (_: void, args: UpdateRolePayload) => {
-        setRoles((old) => old?.map((r) => r.id === args.id ? { ...r, ...args } : r) ?? [])
+      onSuccess: (result: Role) => {
+        setRoles((old) => old?.map((r) => r.id === result.id ? result : r) ?? [])
         setMembers((old) =>
-          old?.map((m) => m.role_id === args.id ? { ...m, role: { ...m.role, ...args } } : m) ?? []
+          old?.map((m) => m.role_id === result.id ? { ...m, role: result } : m) ?? []
         )
       },
     },

@@ -20,8 +20,8 @@ export async function fetchInvitation(eventId: string): Promise<Invitation> {
   return data as Invitation
 }
 
-export async function updateInvitation(payload: UpdateInvitationPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_invitation", {
+export async function updateInvitation(payload: UpdateInvitationPayload): Promise<Invitation> {
+  const { data, error } = await supabase.rpc("update_invitation", {
     p_event_id: payload.event_id,
     p_groom_name: payload.groom_name,
     p_bride_name: payload.bride_name,
@@ -42,6 +42,7 @@ export async function updateInvitation(payload: UpdateInvitationPayload): Promis
   })
 
   if (error) throw new Error(error.message)
+  return data as Invitation
 }
 
 // Templates
