@@ -2,11 +2,10 @@ import { supabase } from "@/lib/supabase"
 import type {
   Guest,
   GuestFormValues,
-  CreateGuestPayload,
   UpdateGuestPayload,
+  CreateGuestPayload,
   ImportResult,
 } from "./types"
-import { delay } from "@/lib/utils"
 
 const GUEST_FIELDS =
   "id, event_id, name, phone, guest_count, message, status, source, invite_code, created_at, updated_at, confirmed_at, cancelled_at"
@@ -22,17 +21,17 @@ export async function fetchGuests(eventId: string): Promise<Guest[]> {
   return (data ?? []) as Guest[]
 }
 
-export async function createGuest(payload: CreateGuestPayload): Promise<Guest> {
-  const { data, error } = await supabase.rpc("create_guest", {
-    p_event_id: payload.event_id,
-    p_name: payload.name.trim(),
-    p_phone: payload.phone.trim(),
-    p_guest_count: payload.guest_count,
-    p_message: payload.message,
+export async function createGuests(
+  eventId: string,
+  guests: CreateGuestPayload[],
+): Promise<Guest[]> {
+  const { data, error } = await supabase.rpc("create_guests", {
+    p_event_id: eventId,
+    p_guests: guests,
   })
 
   if (error) throw new Error(error.message)
-  return data as Guest
+  return (data ?? []) as Guest[]
 }
 
 export async function updateGuest(payload: UpdateGuestPayload): Promise<Guest> {
@@ -61,7 +60,7 @@ export async function deleteGuest(eventId: string, id: string): Promise<void> {
 }
 
 /**
- * Mixed import: batch-inserts new rows via create_guest_batch, then
+ * Mixed import: batch-inserts new rows via create_guests, then
  * updates conflict-resolved rows individually via update_guest.
  * Preserves the existing status and invite_code on updates.
  * Never fails as a whole — per-row failures go into ImportResult.failed.
@@ -85,43 +84,39 @@ export async function bulkImportGuests({
   }
 
   if (insertRows.length > 0) {
-    const guests = insertRows.map((r) => ({
+    const guests: CreateGuestPayload[] = insertRows.map((r) => ({
       name: r.name.trim(),
       phone: r.phone.trim(),
       guest_count: r.guest_count,
       message: r.message,
+      status: r.status,
     }))
 
-    const { data, error } = await supabase.rpc("create_guest_batch", {
-      p_event_id: eventId,
-      p_guests: guests,
-    })
-
-    if (error) {
+    try {
+      const data = await createGuests(eventId, guests)
+      result.inserted = data.length
+    } catch (err) {
       insertRows.forEach((_, i) => {
-        result.failed.push({ rowIndex: i + 1, reason: error.message })
+        result.failed.push({ rowIndex: i + 1, reason: (err as Error).message })
       })
-    } else {
-      result.inserted = Array.isArray(data) ? data.length : insertRows.length
     }
   }
 
   for (const { guest, values } of updateRows) {
-    const { error } = await supabase.rpc("update_guest", {
-      p_event_id: eventId,
-      p_id: guest.id,
-      p_name: values.name.trim(),
-      p_phone: values.phone.trim(),
-      p_guest_count: values.guest_count,
-      p_message: values.message,
-      p_status: guest.status,
-      p_invite_code: guest.invite_code,
-    })
-
-    if (error) {
-      result.failed.push({ rowIndex: -1, reason: `${values.name}: ${error.message}` })
-    } else {
+    try {
+      await updateGuest({
+        event_id: eventId,
+        id: guest.id,
+        name: values.name,
+        phone: values.phone,
+        guest_count: values.guest_count,
+        message: values.message,
+        status: guest.status,
+        invite_code: guest.invite_code,
+      })
       result.updated += 1
+    } catch (err) {
+      result.failed.push({ rowIndex: -1, reason: `${values.name}: ${(err as Error).message}` })
     }
   }
 
@@ -129,3 +124,4 @@ export async function bulkImportGuests({
 }
 
 // TODO LATER import guest should be smart and check for already exising phone numbers and display in a new upload bulk guest modal, to identify new ones and what will be updated
+// TODO TO ALSO UPDATE AND ENSURE THE SYSTEM IS SMART TO UNDERSTAND WHAT TO UPDATE AND WHAT TO INSERT

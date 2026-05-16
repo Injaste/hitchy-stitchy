@@ -41,9 +41,7 @@ export const guestFormSchema = z.object({
 
 export type GuestFormValues = z.infer<typeof guestFormSchema>
 
-export interface CreateGuestPayload extends GuestFormValues {
-  event_id: string
-}
+export interface CreateGuestPayload extends GuestFormValues { }
 
 export interface UpdateGuestPayload {
   event_id: string

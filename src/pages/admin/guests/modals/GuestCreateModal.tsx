@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FormDialog, SubmitButton } from "@/components/custom/form";
 
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
 
@@ -18,7 +17,6 @@ import { useInvitationQuery } from "../../invitation/queries";
 const GuestCreateModal = () => {
   const isCreateOpen = useGuestModalStore((s) => s.isCreateOpen);
   const closeAll = useGuestModalStore((s) => s.closeAll);
-  const { eventId } = useAdminStore();
   const { create } = useGuestMutations();
 
   const { data: invitation } = useInvitationQuery();
@@ -26,7 +24,6 @@ const GuestCreateModal = () => {
   const form = useGuestForm({
     onSubmit: (values) => {
       create.mutate({
-        event_id: eventId!,
         name: values.name,
         phone: values.phone,
         guest_count: values.guest_count,
