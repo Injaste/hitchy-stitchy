@@ -1,12 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { FormDialog, SubmitButton } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
@@ -56,23 +52,14 @@ const MemberEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <DialogHeader>
-        <DialogTitle>Edit member</DialogTitle>
-        <DialogDescription>
-          Update this member's details or role.
-        </DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Edit member"
+        description="Update this member's details or role."
+      />
 
       <MemberForm mode="edit" lockRole={lockRole} />
 
-      <Separator />
-
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeAll}>
-          Cancel
-        </Button>
-        <SubmitButton>Save changes</SubmitButton>
-      </DialogFooter>
+      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

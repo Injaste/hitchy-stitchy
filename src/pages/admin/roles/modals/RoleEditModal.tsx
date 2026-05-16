@@ -1,13 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { SubmitButton } from "@/components/custom/form";
-import { FormDialog } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useRoleModalStore } from "../hooks/useRoleModalStore";
 import { useRoleMutations } from "../queries";
@@ -57,21 +52,14 @@ const RoleEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <DialogHeader>
-        <DialogTitle>Edit role</DialogTitle>
-        <DialogDescription>Update this role's details.</DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Edit role"
+        description="Update this role's details."
+      />
 
       <RoleForm lockCategory={lockCategory} />
 
-      <Separator />
-
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeAll}>
-          Cancel
-        </Button>
-        <SubmitButton>Save changes</SubmitButton>
-      </DialogFooter>
+      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

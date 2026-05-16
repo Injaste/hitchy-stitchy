@@ -1,15 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { SubmitButton } from "@/components/custom/form";
-import { FormDialog } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useRoleModalStore } from "../hooks/useRoleModalStore";
@@ -48,38 +41,18 @@ const RoleCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <DialogHeader>
-        <DialogTitle>Add role</DialogTitle>
-        <DialogDescription>
-          Define a new role for your event team.
-        </DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Add role"
+        description="Define a new role for your event team."
+      />
 
       <RoleForm />
 
-      <Separator />
-
-      <DialogFooter className="sm:justify-between">
-        <div className="flex items-center gap-2">
-          <Switch
-            id="create-more"
-            checked={isCreateMore}
-            onCheckedChange={setIsCreateMore}
-          />
-          <Label
-            htmlFor="create-more"
-            className="text-sm text-muted-foreground cursor-pointer"
-          >
-            Create more
-          </Label>
-        </div>
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="outline" onClick={closeAll}>
-            Cancel
-          </Button>
-          <SubmitButton>Add role</SubmitButton>
-        </div>
-      </DialogFooter>
+      <FormDialogFooter
+        onCancel={closeAll}
+        submitLabel="Add role"
+        createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
+      />
     </FormDialog>
   );
 };

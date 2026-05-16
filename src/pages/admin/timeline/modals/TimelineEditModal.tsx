@@ -1,12 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { FormDialog, SubmitButton } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineMutations } from "../queries";
@@ -53,23 +49,14 @@ const TimelineEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <DialogHeader>
-        <DialogTitle>Edit item</DialogTitle>
-        <DialogDescription>
-          Update the details of this schedule item.
-        </DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Edit item"
+        description="Update the details of this schedule item."
+      />
 
       <TimelineItemForm />
 
-      <Separator />
-
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeAll}>
-          Cancel
-        </Button>
-        <SubmitButton>Save changes</SubmitButton>
-      </DialogFooter>
+      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

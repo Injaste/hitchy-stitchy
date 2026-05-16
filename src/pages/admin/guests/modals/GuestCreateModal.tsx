@@ -1,14 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { FormDialog, SubmitButton } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
@@ -50,38 +44,18 @@ const GuestCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <DialogHeader>
-        <DialogTitle>Add guest</DialogTitle>
-        <DialogDescription>
-          Add a new guest to your list. You can update their RSVP status later.
-        </DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Add guest"
+        description="Add a new guest to your list. You can update their RSVP status later."
+      />
 
       <GuestForm maxGuest={invitation.guest_count_max} />
 
-      <Separator />
-
-      <DialogFooter className="sm:justify-between">
-        <div className="flex items-center gap-2">
-          <Switch
-            id="create-more"
-            checked={isCreateMore}
-            onCheckedChange={setIsCreateMore}
-          />
-          <Label
-            htmlFor="create-more"
-            className="text-sm text-muted-foreground cursor-pointer"
-          >
-            Create more
-          </Label>
-        </div>
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="outline" onClick={closeAll}>
-            Cancel
-          </Button>
-          <SubmitButton>Add guest</SubmitButton>
-        </div>
-      </DialogFooter>
+      <FormDialogFooter
+        onCancel={closeAll}
+        submitLabel="Add guest"
+        createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
+      />
     </FormDialog>
   );
 };

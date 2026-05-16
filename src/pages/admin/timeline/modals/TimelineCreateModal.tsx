@@ -1,14 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { FormDialog, SubmitButton } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
@@ -47,38 +41,18 @@ const CreateTimelineItemModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <DialogHeader>
-        <DialogTitle>Add schedule item</DialogTitle>
-        <DialogDescription>
-          Add a new item to the event timeline.
-        </DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Add schedule item"
+        description="Add a new item to the event timeline."
+      />
 
       <TimelineItemForm />
 
-      <Separator />
-
-      <DialogFooter className="sm:justify-between">
-        <div className="flex items-center gap-2">
-          <Switch
-            id="create-more"
-            checked={isCreateMore}
-            onCheckedChange={setIsCreateMore}
-          />
-          <Label
-            htmlFor="create-more"
-            className="text-sm text-muted-foreground cursor-pointer"
-          >
-            Create more
-          </Label>
-        </div>
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="outline" onClick={closeAll}>
-            Cancel
-          </Button>
-          <SubmitButton>Add item</SubmitButton>
-        </div>
-      </DialogFooter>
+      <FormDialogFooter
+        onCancel={closeAll}
+        submitLabel="Add item"
+        createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
+      />
     </FormDialog>
   );
 };

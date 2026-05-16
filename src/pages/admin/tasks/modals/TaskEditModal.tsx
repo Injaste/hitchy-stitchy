@@ -1,12 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { FormDialog, SubmitButton } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
@@ -61,21 +57,14 @@ const TaskEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <DialogHeader>
-        <DialogTitle>Edit task</DialogTitle>
-        <DialogDescription>Update the task details.</DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Edit task"
+        description="Update the task details."
+      />
 
       <TaskForm />
 
-      <Separator />
-
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeAll}>
-          Cancel
-        </Button>
-        <SubmitButton>Save changes</SubmitButton>
-      </DialogFooter>
+      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

@@ -1,12 +1,8 @@
 import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { FormDialog, SubmitButton } from "@/components/custom/form";
+  FormDialog,
+  FormDialogFooter,
+  FormDialogHeader,
+} from "@/components/custom/form";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
@@ -58,21 +54,14 @@ const GuestEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <DialogHeader>
-        <DialogTitle>Edit guest</DialogTitle>
-        <DialogDescription>Update this guest's details.</DialogDescription>
-      </DialogHeader>
+      <FormDialogHeader
+        title="Edit guest"
+        description="Update this guest's details."
+      />
 
       <GuestForm maxGuest={invitation.guest_count_max} />
 
-      <Separator />
-
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeAll}>
-          Cancel
-        </Button>
-        <SubmitButton>Save changes</SubmitButton>
-      </DialogFooter>
+      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };
