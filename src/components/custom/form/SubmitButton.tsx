@@ -150,7 +150,13 @@ const SubmitButton: FC<SubmitButtonProps> = ({ children, ...props }) => {
       animate={shakeState}
       onAnimationComplete={() => setShakeState("idle")}
     >
-      <Button ref={btnRef} type="submit" disabled={isPending} {...props}>
+      <Button
+        ref={btnRef}
+        type="submit"
+        disabled={isPending}
+        {...props}
+        className="w-full"
+      >
         {children}
       </Button>
       <svg
