@@ -1,7 +1,13 @@
 import { useForm } from "@tanstack/react-form";
 
-import { FieldGroup } from "@/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { DialogBody } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   TextField,
   SelectField,
@@ -67,13 +73,15 @@ interface MemberFormProps {
   mode: "invite" | "edit";
   /** Lock the role selector — used when editing the root member. */
   lockRole?: boolean;
+  /** When set in edit mode, renders a disabled email field. Omit to hide. */
+  email?: string;
 }
 
-const MemberForm = ({ mode, lockRole = false }: MemberFormProps) => {
+const MemberForm = ({ mode, lockRole = false, email }: MemberFormProps) => {
   const { data: roles = [] } = useRolesQuery();
 
   const roleOptions: SelectFieldOption[] = (() => {
-    if (mode === "edit" && roles.length)
+    if (lockRole && roles.length)
       return roles.map((r) => ({
         value: r.id,
         label: r.name,
@@ -110,6 +118,15 @@ const MemberForm = ({ mode, lockRole = false }: MemberFormProps) => {
             placeholder="sarah@example.com"
             description="Email cannot be changed once assigned."
           />
+        )}
+
+        {mode === "edit" && email && (
+          <Field className="gap-2">
+            <FieldLabel>Email</FieldLabel>
+            <FieldContent>
+              <Input type="email" value={email} disabled readOnly />
+            </FieldContent>
+          </Field>
         )}
 
         <SelectField
