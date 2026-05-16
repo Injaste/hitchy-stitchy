@@ -3,8 +3,8 @@ import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { useTaskModalStore } from "./hooks/useTaskModalStore"
-import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask } from "./api"
-import type { CreateTaskPayload, UpdateTaskPayload, DeleteTaskPayload, Task, TaskOrder } from "./types"
+import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask, archiveTasks, fetchArchivedTasks } from "./api"
+import type { CreateTaskPayload, UpdateTaskPayload, DeleteTaskPayload, ArchiveTasksPayload, Task, TaskOrder } from "./types"
 import { STATUS_LABELS } from "./types"
 
 const truncate = (title: string, max = 30) =>
@@ -28,6 +28,15 @@ export function useTaskOrderQuery() {
   })
 }
 
+export function useArchivedTasksQuery() {
+  const { slug, eventId } = useAdminStore()
+  return useQuery({
+    queryKey: adminKeys.archivedTasks(slug!),
+    queryFn: () => fetchArchivedTasks(eventId!),
+    enabled: !!eventId && !!slug,
+  })
+}
+
 export function useTaskMutations() {
   const { slug } = useAdminStore()
   const closeAll = useTaskModalStore((s) => s.closeAll)
@@ -43,6 +52,9 @@ export function useTaskMutations() {
 
   const setTaskOrder = (fn: (old: TaskOrder | undefined) => TaskOrder | undefined) =>
     queryClient.setQueryData<TaskOrder>(adminKeys.taskOrder(slug!), fn)
+
+  const setArchived = (fn: (old: Task[] | undefined) => Task[]) =>
+    queryClient.setQueryData<Task[]>(adminKeys.archivedTasks(slug!), fn)
 
   // defined first so create.onSuccess can reference it
   const saveOrder = useMutation(
@@ -97,6 +109,41 @@ export function useTaskMutations() {
             done: old.done.filter((id) => id !== args.id),
           }
         })
+        setArchived((old) => old?.filter((t) => t.id !== args.id) ?? [])
+        closeAll()
+      },
+    },
+  )
+
+  const archive = useMutation(
+    (payload: ArchiveTasksPayload) => archiveTasks(payload),
+    {
+      successMessage: (_: void, args: ArchiveTasksPayload) => {
+        const verb = args.archive ? "archived" : "restored"
+        return args.ids.length === 1
+          ? `"${truncate(args.label)}" ${verb}`
+          : `${args.ids.length} tasks ${verb}`
+      },
+      errorMessage: (err) => err.message,
+      onSuccess: (_: void, args: ArchiveTasksPayload) => {
+        const idSet = new Set(args.ids)
+
+        if (args.archive) {
+          setTasks((old) => old?.filter((t) => !idSet.has(t.id)) ?? [])
+          setTaskOrder((old) => {
+            if (!old) return old
+            return {
+              ...old,
+              todo: old.todo.filter((id) => !idSet.has(id)),
+              in_progress: old.in_progress.filter((id) => !idSet.has(id)),
+              done: old.done.filter((id) => !idSet.has(id)),
+            }
+          })
+          queryClient.invalidateQueries({ queryKey: adminKeys.archivedTasks(slug!) })
+        } else {
+          setArchived((old) => old?.filter((t) => !idSet.has(t.id)) ?? [])
+          invalidate()
+        }
         closeAll()
       },
     },
@@ -115,5 +162,5 @@ export function useTaskMutations() {
     },
   )
 
-  return { create, update, remove, saveOrder, saveStatuses }
+  return { create, update, remove, archive, saveOrder, saveStatuses }
 }

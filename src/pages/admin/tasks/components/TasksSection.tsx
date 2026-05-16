@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Archive } from "lucide-react";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -8,13 +9,15 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { cn } from "@/lib/utils";
 import { taskContainer, taskItem } from "@/lib/animations";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 import type { Task, TaskStatus } from "../types";
 import DraggableTaskCard from "./DraggableTaskCard";
 import TaskStatusIcon from "./TaskStatusIcon";
-import { useAccess } from "../../hooks/useAccess";
-import { Separator } from "@/components/ui/separator";
 import TaskQuickAdd from "./TaskQuickAdd";
+import { useAccess } from "../../hooks/useAccess";
+import { useTaskModalStore } from "../hooks/useTaskModalStore";
 
 interface TasksSectionProps {
   status: string;
@@ -36,7 +39,10 @@ const TasksSection: FC<TasksSectionProps> = ({
   const { setNodeRef } = useDroppable({ id: status });
   const taskIds = tasks.map((t) => t.id);
 
-  const { canCreate } = useAccess();
+  const { canCreate, canDelete } = useAccess();
+  const openArchive = useTaskModalStore((s) => s.openArchive);
+
+  const isDone = status === "done";
 
   return (
     <div
@@ -64,6 +70,30 @@ const TasksSection: FC<TasksSectionProps> = ({
               </motion.span>
             )}
           </AnimatePresence>
+
+          {isDone && canDelete("tasks") && (
+            <AnimatePresence>
+              {tasks.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="ml-auto"
+                >
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => openArchive(tasks)}
+                    className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <Archive className="size-3.5" />
+                    Archive all
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
         </div>
         <Separator />
       </div>

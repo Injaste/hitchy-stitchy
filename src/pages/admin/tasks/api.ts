@@ -4,18 +4,19 @@ import type {
   CreateTaskPayload,
   UpdateTaskPayload,
   DeleteTaskPayload,
+  ArchiveTasksPayload,
   TaskOrder,
 } from "./types";
 
 const TASK_FIELDS =
-  "id, event_id, parent_id, created_by, title, details, label, status, priority, assignees, due_at, completed_at, created_at, updated_at";
+  "id, event_id, created_by, title, details, label, status, priority, assignees, due_at, completed_at, created_at, updated_at, archived_at";
 
 export async function fetchTasks(eventId: string): Promise<Task[]> {
   const { data, error } = await supabase
     .from("event_tasks")
     .select(TASK_FIELDS)
     .eq("event_id", eventId)
-    .is("parent_id", null)
+    .is("archived_at", null)
     .order("created_at", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -35,6 +36,17 @@ export async function fetchTaskOrder(
   if (!data) return null;
 
   return { event_id: eventId, ...data.task_order } as TaskOrder;
+}
+
+export async function fetchArchivedTasks(eventId: string): Promise<Task[]> {
+  const { data, error } = await supabase
+    .from("event_tasks_archived")
+    .select(TASK_FIELDS)
+    .eq("event_id", eventId)
+    .order("updated_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Task[];
 }
 
 export async function saveTaskOrder(order: TaskOrder): Promise<void> {
@@ -84,6 +96,16 @@ export async function deleteTask(payload: DeleteTaskPayload): Promise<void> {
   const { error } = await supabase.rpc("delete_task", {
     p_event_id: payload.event_id,
     p_id: payload.id,
+  });
+
+  if (error) throw new Error(error.message);
+}
+
+export async function archiveTasks(payload: ArchiveTasksPayload): Promise<void> {
+  const { error } = await supabase.rpc("archive_tasks", {
+    p_event_id: payload.event_id,
+    p_ids: payload.ids,
+    p_archive: payload.archive,
   });
 
   if (error) throw new Error(error.message);

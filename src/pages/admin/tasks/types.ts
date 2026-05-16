@@ -8,7 +8,6 @@ export type TaskPriority = "low" | "medium" | "high";
 export interface Task {
   id: string;
   event_id: string;
-  parent_id: string | null;
   created_by: string;
   title: string;
   details: string | null;
@@ -18,6 +17,7 @@ export interface Task {
   assignees: string[]; // event_members.id[]
   due_at: string | null; // "yyyy-MM-dd"
   completed_at: string | null;
+  archived_at: string;
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +74,13 @@ export interface DeleteTaskPayload {
   event_id: string;
   id: string;
   title: string;
+}
+
+export interface ArchiveTasksPayload {
+  event_id: string;
+  ids: string[];
+  archive: boolean;
+  label: string;
 }
 
 

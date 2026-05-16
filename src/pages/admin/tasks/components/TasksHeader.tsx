@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Plus } from "lucide-react";
+import { ArchiveRestore, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,9 @@ const TasksHeader: FC<TasksHeaderProps> = ({
   refetch,
   data,
 }) => {
-  const { canCreate } = useAccess();
+  const { canCreate, canDelete } = useAccess();
   const openCreate = useTaskModalStore((s) => s.openCreate);
+  const openArchivedSheet = useTaskModalStore((s) => s.openArchivedSheet);
   const { filteredTasks } = useTaskLabelFilter(data ?? []);
   const total = filteredTasks.length;
   const done = filteredTasks.filter((t) => t.status === "done").length;
@@ -102,10 +103,24 @@ const TasksHeader: FC<TasksHeaderProps> = ({
         )
       }
       action={
-        canCreate("tasks") && (
-          <Button size="sm" onClick={openCreate} className="gap-2">
-            <Plus className="size-4" /> Add task
-          </Button>
+        (canCreate("tasks") || canDelete("tasks")) && (
+          <div className="flex flex-col items-end gap-2">
+            {canCreate("tasks") && (
+              <Button size="sm" onClick={openCreate} className="gap-2">
+                <Plus className="size-4" /> Add task
+              </Button>
+            )}
+            {canDelete("tasks") && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={openArchivedSheet}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <ArchiveRestore className="size-4" /> Archived
+              </Button>
+            )}
+          </div>
         )
       }
     />

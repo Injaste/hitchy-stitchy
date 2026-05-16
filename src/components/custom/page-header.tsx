@@ -40,7 +40,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
       <AnimatePresence mode="wait">
         {showActions && (
           <ComponentFade key="actions">
-            <div className="grid grid-cols-2 items-center gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 size="sm"
                 variant="ghost"

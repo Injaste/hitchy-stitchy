@@ -29,6 +29,7 @@ const TaskDetailModal = () => {
   const closeAll = useTaskModalStore((s) => s.closeAll);
   const openEdit = useTaskModalStore((s) => s.openEdit);
   const openDelete = useTaskModalStore((s) => s.openDelete);
+  const openArchive = useTaskModalStore((s) => s.openArchive);
 
   const { canUpdate, canDelete } = useAccess();
   const { data: members = [] } = useMembersQuery();
@@ -160,6 +161,11 @@ const TaskDetailModal = () => {
             {canDelete("tasks") && (
               <Button variant="destructive" size="sm" onClick={openDelete}>
                 Delete
+              </Button>
+            )}
+            {canDelete("tasks") && (
+              <Button variant="destructive" size="sm" onClick={() => openArchive([task])}>
+                Archive
               </Button>
             )}
             {canUpdate("tasks") && (
