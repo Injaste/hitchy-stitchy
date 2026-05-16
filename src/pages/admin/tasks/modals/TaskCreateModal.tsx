@@ -57,9 +57,7 @@ const TaskCreateModal = () => {
     >
       <DialogHeader>
         <DialogTitle>Add task</DialogTitle>
-        <DialogDescription>
-          Create a new task for this event.
-        </DialogDescription>
+        <DialogDescription>Create a new task for this event.</DialogDescription>
       </DialogHeader>
 
       <TaskForm />
@@ -92,3 +90,5 @@ const TaskCreateModal = () => {
 };
 
 export default TaskCreateModal;
+
+// TODO find out why the opening of the modal feels more abrupt than the other create modals..

@@ -10,9 +10,12 @@ import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
 import TimelineCard from "./TimelineCard";
-import { Circle } from "lucide-react";
+import { Circle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ArraySeparator from "@/components/custom/array-separator";
+import { Button } from "@/components/ui/button";
+import { useAccess } from "../../hooks/useAccess";
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 
 interface LabelCarouselProps {
   group: TimelineLabelGroup;
@@ -22,20 +25,42 @@ interface LabelCarouselProps {
 const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
+  const { canCreate } = useAccess();
+  const openCreateWithLabel = useTimelineModalStore(
+    (s) => s.openCreateWithLabel,
+  );
 
   return (
     <div className={cn("relative flex gap-4", isNotLastItem && "pb-10")}>
       <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
       <Circle className="size-5 text-primary/70 bg-background z-1 shrink-0" />
 
-      <div className="space-y-2 min-w-0 flex-1">
-        {group.label && (
-          <p className="text-sm">
-            <span className="font-semibold text-foreground">{group.label}</span>
-          </p>
-        )}
+      <div className="space-y-1 min-w-0 flex-1">
+        <div className="flex items-center gap-2 ml-1 -mt-[3px]">
+          {group.label && (
+            <p className="text-sm">
+              <span className="font-semibold text-foreground">
+                {group.label}
+              </span>
+            </p>
+          )}
+          {canCreate("timeline") && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className="opacity-50 hover:opacity-100"
+              onClick={() => openCreateWithLabel(group.label)}
+              aria-label={
+                group.label ? `Add item to ${group.label}` : "Add item"
+              }
+            >
+              <Plus className="size-4" />
+            </Button>
+          )}
+        </div>
 
-        <div className={cn("", !group.label && "-my-1.5")}>
+        <div>
           <div className="relative">
             <div ref={emblaRef} className="overflow-hidden p-1">
               <motion.div variants={container} className="flex gap-3">
@@ -77,15 +102,39 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
   );
 };
 
+const AddSectionSlot: FC = () => {
+  const openCreateWithLabel = useTimelineModalStore(
+    (s) => s.openCreateWithLabel,
+  );
+
+  return (
+    <div className="relative flex gap-4 w-fit">
+      <Circle className="size-5 text-muted-foreground/40 bg-background z-1 shrink-0" />
+      <div className="min-w-0 flex-1 -mt-2">
+        <Button
+          variant="empty"
+          onClick={() => openCreateWithLabel(null)}
+          className="group flex w-full items-center gap-2 rounded-md border border-dashed border-foreground/20 px-4 py-3 text-sm text-muted-foreground transition hover:border-foreground/40 hover:text-foreground"
+        >
+          <Plus className="size-4" />
+          <span>Add new section</span>
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 interface DayContentProps {
   day: TimelineGroupedDay;
   dayIndex: number;
 }
 
 const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
+  const { canCreate } = useAccess();
   const allItems = day.labelGroups.flatMap((g) => g.items);
   const earliest = allItems[0]?.time_start ?? "";
   const latest = getLatestTime(allItems);
+  const showAddSlot = canCreate("timeline");
 
   return (
     <div className="space-y-10">
@@ -119,10 +168,22 @@ const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
             >
               <LabelCarousel
                 group={group}
-                isNotLastItem={idx < day.labelGroups.length - 1}
+                // Extend the connector line when the add-section slot will
+                // render below, so the timeline visually continues into it.
+                isNotLastItem={idx < day.labelGroups.length - 1 || showAddSlot}
               />
             </motion.div>
           ))}
+          {showAddSlot && (
+            <motion.div
+              key="_add-section-slot"
+              variants={itemFadeUp}
+              exit="hidden"
+              layout
+            >
+              <AddSectionSlot />
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
     </div>

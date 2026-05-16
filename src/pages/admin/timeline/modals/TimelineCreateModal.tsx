@@ -22,10 +22,15 @@ const CreateTimelineItemModal = () => {
   const closeAll = useTimelineModalStore((s) => s.closeAll);
   const isCreateMore = useTimelineModalStore((s) => s.isCreateMore);
   const setIsCreateMore = useTimelineModalStore((s) => s.setIsCreateMore);
+  const createPrefill = useTimelineModalStore((s) => s.createPrefill);
   const { eventId } = useAdminStore();
   const { create } = useTimelineMutations();
 
   const form = useTimelineItemForm({
+    defaultValues: {
+      day: createPrefill.day ?? "",
+      label: createPrefill.label ?? "",
+    },
     onSubmit: (values) => {
       create.mutate({ event_id: eventId!, ...values });
     },

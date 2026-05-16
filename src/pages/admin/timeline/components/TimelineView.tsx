@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC } from "react";
+import { useEffect, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 
 import { ComponentFade } from "@/components/animations/animate-component-fade";
@@ -29,21 +29,27 @@ const TimelineView: FC<TimelineViewProps> = ({
   refetch,
   isRefetching,
 }) => {
-  const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const openCreateWithLabel = useTimelineModalStore(
+    (s) => s.openCreateWithLabel,
+  );
+  const activeDayId = useTimelineModalStore((s) => s.createPrefill.day);
+  const setActiveDayId = useTimelineModalStore((s) => s.setPrefillDay);
   const { canCreate } = useAccess();
 
   const days = data?.days ?? [];
-  const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const activeDayIndex = activeDayId
     ? days.findIndex((d) => d.day === activeDayId)
     : 0;
   const activeDay = days[activeDayIndex] ?? days[0] ?? null;
 
   useEffect(() => {
-    if (activeDayId && !days.some((d) => d.day === activeDayId)) {
-      setActiveDayId(days[0]?.day ?? null);
+    if (!days.length) return;
+    // Seed the active tab to day 1 when nothing is selected yet, or reset
+    // to day 1 if the previously selected day no longer exists in the data.
+    if (!activeDayId || !days.some((d) => d.day === activeDayId)) {
+      setActiveDayId(days[0].day);
     }
-  }, [days, activeDayId]);
+  }, [days, activeDayId, setActiveDayId]);
 
   const renderBody = () => {
     if (isLoading)
@@ -67,7 +73,10 @@ const TimelineView: FC<TimelineViewProps> = ({
     if (!days.length)
       return (
         <ComponentFade key="empty">
-          <TimelineEmpty onAdd={openCreate} canCreate={canCreate("timeline")} />
+          <TimelineEmpty
+            onAdd={() => openCreateWithLabel(null)}
+            canCreate={canCreate("timeline")}
+          />
         </ComponentFade>
       );
 

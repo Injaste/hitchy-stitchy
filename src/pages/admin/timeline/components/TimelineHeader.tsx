@@ -28,7 +28,9 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   data,
 }) => {
   const { canCreate } = useAccess();
-  const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const openCreateWithLabel = useTimelineModalStore(
+    (s) => s.openCreateWithLabel,
+  );
   const { dateStart, dateEnd } = useAdminStore();
 
   const dayCount =
@@ -72,7 +74,11 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
       }
       action={
         canCreate("timeline") && (
-          <Button size="sm" onClick={openCreate} className="gap-2">
+          <Button
+            size="sm"
+            onClick={() => openCreateWithLabel(null)}
+            className="gap-2"
+          >
             <Plus className="w-4 h-4" /> Add Timeline
           </Button>
         )
