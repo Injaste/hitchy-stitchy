@@ -9,7 +9,7 @@ import type {
 import { delay } from "@/lib/utils"
 
 const GUEST_FIELDS =
-  "id, event_id, name, phone, guest_count, message, status, source, invite_code, created_at, updated_at"
+  "id, event_id, name, phone, guest_count, message, status, source, invite_code, created_at, updated_at, confirmed_at, cancelled_at"
 
 export async function fetchGuests(eventId: string): Promise<Guest[]> {
   const { data, error } = await supabase

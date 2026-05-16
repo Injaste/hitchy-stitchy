@@ -1,5 +1,14 @@
 import { format, parseISO } from "date-fns";
-import { Calendar, CheckCircle2, Clock, Phone, StickyNote, UserPlus, Users, XCircle } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Phone,
+  StickyNote,
+  UserPlus,
+  Users,
+  XCircle,
+} from "lucide-react";
 
 import {
   Dialog,
@@ -42,7 +51,7 @@ const GuestDetailModal = () => {
 
   const historyItems = [
     {
-      label: "Added",
+      label: guest.source === "public" ? "RSVP-ed" : "Invited",
       icon: UserPlus,
       date: format(parseISO(guest.created_at), formatDate),
       time: format(parseISO(guest.created_at), formatTime),
