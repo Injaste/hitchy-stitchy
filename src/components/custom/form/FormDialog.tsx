@@ -17,6 +17,12 @@ interface FormDialogProps {
   isError?: boolean;
   /** Ms to wait after isSuccess before auto-closing. false = opt out. Default 1000. */
   closeDelay?: number | false;
+  /**
+   * When true, calls form.reset() after isSuccess flips on. Pair with
+   * `closeDelay={false}` for "create more" flows where the dialog stays open
+   * and the form clears for the next entry.
+   */
+  resetOnSuccess?: boolean;
 
   children: ReactNode;
   contentClassName?: string;
@@ -42,6 +48,7 @@ const FormDialog = ({
   isSuccess = false,
   isError = false,
   closeDelay = 300,
+  resetOnSuccess = false,
   children,
   contentClassName,
 }: FormDialogProps) => {
@@ -75,6 +82,10 @@ const FormDialog = ({
     const id = setTimeout(() => handleOpenChange(false), closeDelay);
     return () => clearTimeout(id);
   }, [isSuccess]);
+
+  useEffect(() => {
+    if (isSuccess && resetOnSuccess) form.reset();
+  }, [isSuccess, resetOnSuccess]);
 
   // After every submit attempt, focus + scroll the first errored field into
   // view. FieldShell sets `data-invalid="true"` once attemptCount > 0 and

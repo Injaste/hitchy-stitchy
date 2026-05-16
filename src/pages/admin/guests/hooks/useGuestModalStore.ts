@@ -7,6 +7,7 @@ interface GuestModalState {
   isDeleteOpen: boolean
   isDetailOpen: boolean
   isImportOpen: boolean
+  isCreateMore: boolean
   selectedItem: Guest | null
 
   openCreate: () => void
@@ -14,6 +15,7 @@ interface GuestModalState {
   openDelete: () => void
   openDetail: (item: Guest) => void
   openImport: () => void
+  setIsCreateMore: (v: boolean) => void
   closeAll: () => void
 }
 
@@ -25,6 +27,7 @@ export const useGuestModalStore = create<GuestModalState>((set) => ({
   isDeleteOpen: false,
   isDetailOpen: false,
   isImportOpen: false,
+  isCreateMore: false,
   selectedItem: null,
 
   openCreate: () => set({ isCreateOpen: true }),
@@ -32,6 +35,7 @@ export const useGuestModalStore = create<GuestModalState>((set) => ({
   openDelete: () => set({ isDetailOpen: false, isDeleteOpen: true }),
   openDetail: (item) => set({ isDetailOpen: true, selectedItem: item }),
   openImport: () => set({ isImportOpen: true }),
+  setIsCreateMore: (v) => set({ isCreateMore: v }),
 
   closeAll: () =>
     set({

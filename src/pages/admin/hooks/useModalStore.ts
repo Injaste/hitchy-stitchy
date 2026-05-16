@@ -6,11 +6,13 @@ interface ModalState<T> {
   isDeleteOpen: boolean
   isDetailOpen: boolean
   selectedItem: T | null
+  isCreateMore: boolean
 
   openCreate: () => void
   openEdit: () => void
   openDelete: () => void
   openDetail: (item: T) => void
+  setIsCreateMore: (v: boolean) => void
   closeAll: () => void
 }
 
@@ -27,11 +29,13 @@ export function createModalStore<T, U extends object = {}>(
     isDeleteOpen: false,
     isDetailOpen: false,
     selectedItem: null,
+    isCreateMore: false,
 
     openCreate: () => set({ isCreateOpen: true } as Partial<ModalState<T> & U>),
     openEdit: () => set({ isDetailOpen: false, isEditOpen: true } as Partial<ModalState<T> & U>),
     openDelete: () => set({ isDetailOpen: false, isDeleteOpen: true } as Partial<ModalState<T> & U>),
     openDetail: (item) => set({ isDetailOpen: true, selectedItem: item } as Partial<ModalState<T> & U>),
+    setIsCreateMore: (v) => set({ isCreateMore: v } as Partial<ModalState<T> & U>),
 
     closeAll: () => set({
       isCreateOpen: false,

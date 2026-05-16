@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { FormDialog, SubmitButton } from "@/components/custom/form";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
@@ -17,6 +19,8 @@ import { useInvitationQuery } from "../../invitation/queries";
 const GuestCreateModal = () => {
   const isCreateOpen = useGuestModalStore((s) => s.isCreateOpen);
   const closeAll = useGuestModalStore((s) => s.closeAll);
+  const isCreateMore = useGuestModalStore((s) => s.isCreateMore);
+  const setIsCreateMore = useGuestModalStore((s) => s.setIsCreateMore);
   const { create } = useGuestMutations();
 
   const { data: invitation } = useInvitationQuery();
@@ -43,6 +47,8 @@ const GuestCreateModal = () => {
       isPending={create.isPending}
       isSuccess={create.isSuccess}
       isError={create.isError}
+      closeDelay={isCreateMore ? false : 300}
+      resetOnSuccess={isCreateMore}
     >
       <DialogHeader>
         <DialogTitle>Add guest</DialogTitle>
@@ -55,11 +61,26 @@ const GuestCreateModal = () => {
 
       <Separator />
 
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={closeAll}>
-          Cancel
-        </Button>
-        <SubmitButton>Add guest</SubmitButton>
+      <DialogFooter className="sm:justify-between">
+        <div className="flex items-center gap-2">
+          <Switch
+            id="create-more"
+            checked={isCreateMore}
+            onCheckedChange={setIsCreateMore}
+          />
+          <Label
+            htmlFor="create-more"
+            className="text-sm text-muted-foreground cursor-pointer"
+          >
+            Create more
+          </Label>
+        </div>
+        <div className="flex flex-col-reverse gap-2 sm:flex-row">
+          <Button type="button" variant="outline" onClick={closeAll}>
+            Cancel
+          </Button>
+          <SubmitButton>Add guest</SubmitButton>
+        </div>
       </DialogFooter>
     </FormDialog>
   );
