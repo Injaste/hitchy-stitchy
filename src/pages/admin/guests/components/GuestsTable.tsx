@@ -48,7 +48,7 @@ const GuestsTable: FC<GuestsTableProps> = ({
     <div className="rounded-lg border border-border overflow-hidden">
       <table className="w-full text-sm table-fixed relative">
         <colgroup>
-          <col className="w-12" />
+          <col className="w-10" />
           <col className="min-w-40" />
           <col className="min-w-20 w-[10%]" />
           <col className="min-w-28 w-[16%]" />
