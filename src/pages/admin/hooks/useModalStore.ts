@@ -37,12 +37,17 @@ export function createModalStore<T, U extends object = {}>(
     openDetail: (item) => set({ isDetailOpen: true, selectedItem: item } as Partial<ModalState<T> & U>),
     setIsCreateMore: (v) => set({ isCreateMore: v } as Partial<ModalState<T> & U>),
 
-    closeAll: () => set({
-      isCreateOpen: false,
-      isEditOpen: false,
-      isDeleteOpen: false,
-      isDetailOpen: false,
-    } as Partial<ModalState<T> & U>),
+    closeAll: () => {
+      set({
+        isCreateOpen: false,
+        isEditOpen: false,
+        isDeleteOpen: false,
+        isDetailOpen: false,
+      } as Partial<ModalState<T> & U>)
+      setTimeout(() => {
+        set({ selectedItem: null } as Partial<ModalState<T> & U>)
+      }, 200)
+    },
 
     ...(additionalState ? additionalState(set, get) : {}),
   } as ModalState<T> & U))

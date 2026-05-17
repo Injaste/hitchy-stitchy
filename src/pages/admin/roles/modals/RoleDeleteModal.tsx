@@ -25,7 +25,7 @@ const RoleDeleteModal = () => {
   if (!selectedItem) return null
   const role = selectedItem
 
-  const handleSubmit = () => {
+  const handleConfirm = () => {
     remove.mutate({ event_id: eventId!, id: role.id });
   };
 
@@ -57,7 +57,7 @@ const RoleDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={handleSubmit}
+            onClick={handleConfirm}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Deleting…" : "Delete"}

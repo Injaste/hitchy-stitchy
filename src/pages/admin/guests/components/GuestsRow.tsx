@@ -13,6 +13,7 @@ import { itemFadeIn } from "@/lib/animations";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,8 @@ import type { Guest, GuestStatus } from "../types";
 
 interface GuestsRowProps {
   guest: Guest;
+  isSelected: boolean;
+  onToggle: (id: string) => void;
   openDetail: (guest: Guest) => void;
   openEdit: () => void;
   openDelete: () => void;
@@ -46,6 +49,8 @@ const statusBadge = {
 const GuestsRow: FC<GuestsRowProps> = memo(
   ({
     guest,
+    isSelected,
+    onToggle,
     openDetail,
     openEdit,
     openDelete,
@@ -59,9 +64,21 @@ const GuestsRow: FC<GuestsRowProps> = memo(
     return (
       <tr
         key={guest.id}
-        className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer transition-colors"
+        data-state={isSelected ? "selected" : undefined}
+        className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer transition-colors data-[state=selected]:bg-muted/50"
         onClick={() => openDetail(guest)}
       >
+        <td
+          className="px-5 py-3.5 align-middle"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={() => onToggle(guest.id)}
+            aria-label={`Select ${guest.name}`}
+          />
+        </td>
+
         <td className="px-5 py-3.5">
           <p className="font-medium text-foreground leading-tight truncate">
             {guest.name}

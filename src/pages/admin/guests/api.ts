@@ -4,6 +4,7 @@ import type {
   GuestFormValues,
   UpdateGuestPayload,
   CreateGuestPayload,
+  GuestStatus,
   ImportResult,
 } from "./types"
 
@@ -48,6 +49,21 @@ export async function updateGuest(payload: UpdateGuestPayload): Promise<Guest> {
 
   if (error) throw new Error(error.message)
   return data as Guest
+}
+
+export async function updateGuests(
+  eventId: string,
+  ids: string[],
+  status: GuestStatus,
+): Promise<Guest[]> {
+  const { data, error } = await supabase.rpc("update_guests", {
+    p_event_id: eventId,
+    p_ids: ids,
+    p_status: status,
+  })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as Guest[]
 }
 
 export async function deleteGuest(eventId: string, id: string): Promise<void> {

@@ -12,11 +12,16 @@ export const useMemberModalStore = createModalStore<Member, MemberModalAddons>((
 
   openFreeze: () => set({ isDetailOpen: false, isFreezeOpen: true }),
 
-  closeAll: () => set({
-    isCreateOpen: false,
-    isDetailOpen: false,
-    isEditOpen: false,
-    isDeleteOpen: false,
-    isFreezeOpen: false,
-  }),
+  closeAll: () => {
+    set({
+      isCreateOpen: false,
+      isDetailOpen: false,
+      isEditOpen: false,
+      isDeleteOpen: false,
+      isFreezeOpen: false,
+    })
+    setTimeout(() => {
+      set({ selectedItem: null })
+    }, 200)
+  },
 }))

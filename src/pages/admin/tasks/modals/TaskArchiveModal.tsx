@@ -27,7 +27,7 @@ const TaskArchiveModal = () => {
   const isSingle = archiveTargets.length === 1
   const first = archiveTargets[0]
 
-  const handleSubmit = () => {
+  const handleConfirm = () => {
     archive.mutate({
       event_id: eventId!,
       ids: archiveTargets.map((t) => t.id),
@@ -76,7 +76,7 @@ const TaskArchiveModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={handleSubmit}
+            onClick={handleConfirm}
             disabled={archive.isPending}
           >
             {archive.isPending ? "Archiving…" : "Archive"}

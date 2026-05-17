@@ -26,7 +26,7 @@ const TimelineDeleteModal = () => {
   if (!selectedItem) return null;
   const item = selectedItem;
 
-  const handleSubmit = () => {
+  const handleConfirm = () => {
     remove.mutate({ event_id: eventId!, id: item.id });
   };
 
@@ -60,7 +60,7 @@ const TimelineDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={handleSubmit}
+            onClick={handleConfirm}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Deleting…" : "Delete"}

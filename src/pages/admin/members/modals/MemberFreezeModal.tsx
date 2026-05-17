@@ -26,7 +26,7 @@ const MemberFreezeModal = () => {
   const member = selectedItem;
   const willFreeze = !member.frozen_at;
 
-  const handleSubmit = () => {
+  const handleConfirm = () => {
     freeze.mutate({ event_id: eventId!, id: member.id, freeze: willFreeze });
   };
 
@@ -76,7 +76,7 @@ const MemberFreezeModal = () => {
           <AlertDialogAction
             variant={willFreeze ? "destructive" : "default"}
             size="sm"
-            onClick={handleSubmit}
+            onClick={handleConfirm}
             disabled={freeze.isPending}
           >
             {freeze.isPending

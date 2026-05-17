@@ -4,16 +4,30 @@ import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
 import type { Guest } from "../types";
 
+import { Checkbox } from "@/components/ui/checkbox";
+
 import GuestsRow from "./GuestsRow";
 import { SmoothScroll } from "@/components/custom/smooth-scroll";
 
 interface GuestsTableProps {
   guests: Guest[];
+  selectedIds: Set<string>;
+  onToggleRow: (id: string) => void;
+  onToggleAllFiltered: () => void;
+  allFilteredSelected: boolean;
+  someFilteredSelected: boolean;
 }
 
-const COL_COUNT = 5;
+const COL_COUNT = 6;
 
-const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
+const GuestsTable: FC<GuestsTableProps> = ({
+  guests,
+  selectedIds,
+  onToggleRow,
+  onToggleAllFiltered,
+  allFilteredSelected,
+  someFilteredSelected,
+}) => {
   const openDetail = useGuestModalStore((s) => s.openDetail);
   const openEdit = useGuestModalStore((s) => s.openEdit);
   const openDelete = useGuestModalStore((s) => s.openDelete);
@@ -24,10 +38,17 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
   const canRemove = canDelete("rsvp");
   const hasCrudActions = canEdit || canRemove;
 
+  const headerChecked: boolean | "indeterminate" = allFilteredSelected
+    ? true
+    : someFilteredSelected
+      ? "indeterminate"
+      : false;
+
   return (
     <div className="rounded-lg border border-border overflow-hidden">
       <table className="w-full text-sm table-fixed relative">
         <colgroup>
+          <col className="w-12" />
           <col className="min-w-40" />
           <col className="min-w-20 w-[10%]" />
           <col className="min-w-28 w-[16%]" />
@@ -37,6 +58,14 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
 
         <thead className="sticky top-0 bg-background z-10">
           <tr className="border-b border-border bg-muted/40">
+            <th className="px-5 py-3 align-middle">
+              <Checkbox
+                checked={headerChecked}
+                onCheckedChange={onToggleAllFiltered}
+                disabled={guests.length === 0}
+                aria-label="Select all guests"
+              />
+            </th>
             <th className="text-left px-5 py-3 font-medium text-xs uppercase tracking-wide text-muted-foreground">
               Guest
             </th>
@@ -71,6 +100,8 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
                 <GuestsRow
                   key={guest.id}
                   guest={guest}
+                  isSelected={selectedIds.has(guest.id)}
+                  onToggle={onToggleRow}
                   openDetail={openDetail}
                   openEdit={openEdit}
                   openDelete={openDelete}

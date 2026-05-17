@@ -21,6 +21,8 @@ const PublishThemeModal = () => {
   if (!selectedItem) return null;
   const theme = selectedItem;
 
+  const handleConfirm = () => publish.mutate(theme.id);
+
   return (
     <AlertDialog open={isPublishOpen} onOpenChange={closeAll}>
       <AlertDialogContent>
@@ -50,7 +52,7 @@ const PublishThemeModal = () => {
           </AlertDialogCancel>
           <AlertDialogAction
             size="sm"
-            onClick={() => publish.mutate(theme.id)}
+            onClick={handleConfirm}
             disabled={publish.isPending}
           >
             {publish.isPending ? "Publishing..." : "Publish"}

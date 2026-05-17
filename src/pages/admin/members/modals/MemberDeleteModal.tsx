@@ -25,7 +25,7 @@ const MemberDeleteModal = () => {
   if (!selectedItem) return null;
   const member = selectedItem;
 
-  const handleSubmit = () => {
+  const handleConfirm = () => {
     remove.mutate({ event_id: eventId!, id: member.id });
   };
 
@@ -58,7 +58,7 @@ const MemberDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={handleSubmit}
+            onClick={handleConfirm}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Saving…" : "Delete access"}

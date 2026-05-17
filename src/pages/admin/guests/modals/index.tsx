@@ -1,15 +1,14 @@
-import { useGuestModalStore } from "../hooks/useGuestModalStore"
+import { useGuestModalStore } from "../hooks/useGuestModalStore";
 
-import GuestCreateModal from "./GuestCreateModal"
-import GuestDetailModal from "./GuestDetailModal"
-import GuestEditModal from "./GuestEditModal"
-import GuestDeleteModal from "./GuestDeleteModal"
-import GuestImportModal from "./GuestImportModal"
+import GuestCreateModal from "./GuestCreateModal";
+import GuestDetailModal from "./GuestDetailModal";
+import GuestEditModal from "./GuestEditModal";
+import GuestDeleteModal from "./GuestDeleteModal";
+import GuestImportModal from "./GuestImportModal";
+import GuestBulkStatusModal from "./GuestBulkStatusModal";
 
 const GuestModals = () => {
-  // Key the form-bearing edit modal by selectedItem.id so useForm
-  // re-initialises with fresh defaults when a different guest is selected.
-  const selectedId = useGuestModalStore((s) => s.selectedItem?.id)
+  const selectedId = useGuestModalStore((s) => s.selectedItem?.id);
 
   return (
     <>
@@ -18,8 +17,9 @@ const GuestModals = () => {
       <GuestEditModal key={selectedId ?? "none"} />
       <GuestDeleteModal />
       <GuestImportModal />
+      <GuestBulkStatusModal />
     </>
-  )
-}
+  );
+};
 
-export default GuestModals
+export default GuestModals;

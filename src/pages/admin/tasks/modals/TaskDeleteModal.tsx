@@ -25,7 +25,7 @@ const TaskDeleteModal = () => {
   if (!selectedItem) return null
   const task = selectedItem
 
-  const handleSubmit = () => {
+  const handleConfirm = () => {
     remove.mutate({ event_id: eventId!, id: task.id, title: task.title });
   };
 
@@ -57,7 +57,7 @@ const TaskDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={handleSubmit}
+            onClick={handleConfirm}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Deleting…" : "Delete"}

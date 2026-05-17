@@ -23,6 +23,8 @@ const DeleteThemeModal = () => {
   if (!selectedItem) return null;
   const theme = selectedItem;
 
+  const handleConfirm = () => remove.mutate(theme.id);
+
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
       <AlertDialogContent>
@@ -52,7 +54,7 @@ const DeleteThemeModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={() => remove.mutate(theme.id)}
+            onClick={handleConfirm}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Deleting..." : "Delete"}

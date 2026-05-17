@@ -10,6 +10,7 @@ import {
   fetchGuests,
   createGuests,
   updateGuest,
+  updateGuests,
   deleteGuest,
   bulkImportGuests,
 } from "./api"
@@ -121,6 +122,20 @@ export function useGuestMutations() {
     },
   )
 
+  const bulkUpdateGuests = useMutation(
+    ({ ids, status }: { ids: string[]; status: GuestStatus }) =>
+      updateGuests(eventId!, ids, status),
+    {
+      successMessage: "Guests updated",
+      errorMessage: (err) => err.message,
+      onSuccess: (rows: Guest[]) => {
+        const byId = new Map(rows.map((r) => [r.id, r]))
+        setGuests((old) => old?.map((g) => byId.get(g.id) ?? g) ?? [])
+        closeAll()
+      },
+    },
+  )
+
   const remove = useMutation(
     (id: string) => deleteGuest(eventId!, id),
     {
@@ -153,7 +168,7 @@ export function useGuestMutations() {
     },
   )
 
-  return { create, update, updateStatus, remove, bulkImport }
+  return { create, update, updateStatus, bulkUpdateGuests, remove, bulkImport }
 }
 
 /*

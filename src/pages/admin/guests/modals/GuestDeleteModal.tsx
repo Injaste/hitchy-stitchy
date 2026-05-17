@@ -23,6 +23,8 @@ const GuestDeleteModal = () => {
   if (!selectedItem) return null
   const guest = selectedItem
 
+  const handleConfirm = () => remove.mutate(guest.id)
+
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>
       <AlertDialogContent>
@@ -51,7 +53,7 @@ const GuestDeleteModal = () => {
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={() => remove.mutate(guest.id)}
+            onClick={handleConfirm}
             disabled={remove.isPending}
           >
             {remove.isPending ? "Removing…" : "Remove"}
