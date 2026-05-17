@@ -5,6 +5,7 @@ import { isActiveMember } from "@/pages/admin/utils/memberUtils";
 
 import { Button } from "@/components/ui/button";
 import {
+  ActionLabel,
   PageHeader,
   type BaseHeaderProps,
 } from "@/components/custom/page-header";
@@ -84,7 +85,7 @@ const MembersHeader: FC<MembersHeaderProps> = ({
             onClick={openInvite}
             className="gap-2"
           >
-            <Plus className="w-4 h-4" /> Invite member
+            <Plus className="w-4 h-4" /> <ActionLabel>Invite member</ActionLabel>
           </Button>
         )
       }

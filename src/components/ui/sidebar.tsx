@@ -330,7 +330,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       )}
     >
       <SmoothScroll
-        gradient
+        gradientBottom
         gradientClass="from-background"
         className="rounded-[inherit]"
       >

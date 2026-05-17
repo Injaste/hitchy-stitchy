@@ -60,7 +60,7 @@ const EditorPanel = () => {
 
         <TabsContent value={activeTab}>
           <div className="pt-4">
-            <SmoothScroll className="h-[759px]" gradient>
+            <SmoothScroll className="h-[759px]" gradientTop gradientBottom>
               <ActiveElement />
             </SmoothScroll>
           </div>

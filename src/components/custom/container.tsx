@@ -27,7 +27,7 @@ const Container: FC<ContainerProps> = ({
   return (
     <div
       className={cn(
-        "w-full space-y-8 transitional-[max-width]",
+        "w-full transition-[max-width]",
         sizeMap[size],
         centred && "mx-auto",
         className,

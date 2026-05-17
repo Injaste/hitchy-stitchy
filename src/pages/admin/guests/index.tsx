@@ -9,7 +9,7 @@ const Guests = () => {
   useGuestsRealtime()
 
   return (
-    <Container>
+    <>
       <GuestsHeader
         isLoading={isLoading}
         isError={isError}
@@ -17,15 +17,17 @@ const Guests = () => {
         refetch={refetch}
         data={data}
       />
-      <GuestsView
-        data={data}
-        isLoading={isLoading}
-        isError={isError}
-        refetch={refetch}
-        isRefetching={isRefetching}
-      />
-      <GuestModals />
-    </Container>
+      <Container className="mt-8">
+        <GuestsView
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+          refetch={refetch}
+          isRefetching={isRefetching}
+        />
+        <GuestModals />
+      </Container>
+    </>
   )
 }
 

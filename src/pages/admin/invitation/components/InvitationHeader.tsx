@@ -6,6 +6,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { Button } from "@/components/ui/button";
 import {
+  ActionLabel,
   PageHeader,
   type BaseHeaderProps,
 } from "@/components/custom/page-header";
@@ -36,7 +37,7 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
               target="_blank"
               className="inline-flex items-center gap-1.5"
             >
-              Open live page
+              <ActionLabel>Open live page</ActionLabel>
               <ExternalLink />
             </Link>
           </Button>

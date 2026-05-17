@@ -117,7 +117,8 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 function DialogBody({ className, children, ...props }: SmoothScrollProps) {
   return (
     <SmoothScroll
-      gradient
+      gradientTop
+      gradientBottom
       gradientClass="from-popover"
       // TODO FIGURE OUT HOW TO NICELY DO THIS OVEFLOW HIDDEN FROM ANIMATE SHAKE CLIPPING
       className={cn("max-h-[50vh] px-6 -ml-6 -mr-4", className)}

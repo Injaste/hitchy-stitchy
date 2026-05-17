@@ -1,18 +1,23 @@
 import type { FC, ReactNode } from "react";
 import { RefreshCw } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 import { useRefetch } from "@/pages/admin/hooks/useRefetch";
+import { useHasScrolled } from "@/hooks/use-has-scrolled";
+import { widthReveal } from "@/lib/animations";
 import { SidebarTrigger } from "../ui/sidebar";
 import { Separator } from "../ui/separator";
+import Container from "./container";
+import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export interface BaseHeaderProps {
-  isLoading: boolean;
-  isError: boolean;
-  isRefetching: boolean;
-  refetch: () => void;
+  isLoading?: boolean;
+  isError?: boolean;
+  isRefetching?: boolean;
+  refetch?: () => void;
 }
 
 interface PageHeaderProps extends BaseHeaderProps {
@@ -22,36 +27,67 @@ interface PageHeaderProps extends BaseHeaderProps {
   action?: ReactNode;
 }
 
+export const ActionLabel: FC<{ children: ReactNode }> = ({ children }) => {
+  const hasScrolled = useHasScrolled();
+  return (
+    <AnimatePresence initial={false}>
+      {!hasScrolled && (
+        <motion.span
+          key="action-label"
+          variants={widthReveal}
+          initial="hidden"
+          animate="show"
+          exit="hidden"
+          className="overflow-hidden whitespace-nowrap"
+        >
+          {children}
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
+};
+
 export const PageHeader: FC<PageHeaderProps> = ({
   title,
   description,
   meta,
   action,
-  isLoading,
-  isError,
-  isRefetching,
+  isLoading = false,
+  isError = false,
+  isRefetching = false,
   refetch,
 }) => {
-  const { handleRefresh, canRefresh } = useRefetch(refetch);
+  const { handleRefresh, canRefresh } = useRefetch(refetch ?? (() => {}));
   const showActions = !isLoading && !isError;
 
+  const hasScrolled = useHasScrolled();
+
   function renderActions() {
+    if (!refetch && !action) return null;
     return (
       <AnimatePresence mode="wait">
         {showActions && (
           <ComponentFade key="actions">
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="w-fit ml-auto"
-                onClick={handleRefresh}
-                disabled={!canRefresh}
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
-                />
-              </Button>
+            <div className="flex items-start gap-2">
+              {refetch && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleRefresh}
+                      disabled={!canRefresh}
+                    >
+                      <RefreshCw
+                        className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Refresh</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
               {action}
             </div>
           </ComponentFade>
@@ -61,28 +97,39 @@ export const PageHeader: FC<PageHeaderProps> = ({
   }
 
   return (
-    <div className="flex justify-between gap-4">
-      <div className="space-y-6 w-full">
-        <div className="space-y-1">
-          <div className="flex items-center">
-            <SidebarTrigger className="-ml-2 hover:bg-transparent!" />
-            <Separator
-              orientation="vertical"
-              className="ml-1 mr-2 h-5 w-2 my-auto"
-            />
-            <h1 className="text-xl font-semibold">{title}</h1>
+    <>
+      <div className="sticky -top-1 z-30 -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-3 bg-background">
+        <Container>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center min-w-0">
+              <SidebarTrigger className="-ml-2 hover:bg-transparent!" />
+              <Separator
+                orientation="vertical"
+                className="ml-1 mr-2 h-5 w-2 my-auto"
+              />
+              <h1 className="text-xl font-semibold">{title}</h1>
+            </div>
+
+            <div className="shrink-0">{renderActions()}</div>
           </div>
-          <p className="text-sm text-muted-foreground/80">{description}</p>
-        </div>
-        {meta && (
-          <div className="text-sm tracking-wide text-muted-foreground flex justify-between">
-            {meta}
-            <div className="block lg:hidden">{renderActions()}</div>
-          </div>
-        )}
+        </Container>
+
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-x-0 top-full h-8 bg-linear-to-b from-background to-transparent transition-opacity duration-200",
+            hasScrolled ? "opacity-100" : "opacity-0",
+          )}
+        />
       </div>
 
-      <div className="hidden lg:block shrink-0">{renderActions()}</div>
-    </div>
+      <Container>
+        <p className="text-sm text-muted-foreground/80">{description}</p>
+        {meta && (
+          <div className="text-sm tracking-wide text-muted-foreground pt-3">
+            {meta}
+          </div>
+        )}
+      </Container>
+    </>
   );
 };

@@ -1,10 +1,10 @@
-const PermissionsHeader = () => (
-  <div className="space-y-1">
-    <h1 className="text-xl font-semibold">Permissions</h1>
-    <p className="text-sm text-muted-foreground/80">
-      A reference of what each role category can access and manage across your event.
-    </p>
-  </div>
-)
+import { PageHeader } from "@/components/custom/page-header";
 
-export default PermissionsHeader
+const PermissionsHeader = () => (
+  <PageHeader
+    title="Permissions"
+    description="A reference of what each role category can access and manage across your event."
+  />
+);
+
+export default PermissionsHeader;

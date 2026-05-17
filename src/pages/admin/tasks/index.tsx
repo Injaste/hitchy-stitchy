@@ -9,7 +9,7 @@ const Tasks = () => {
   const { data: taskOrder } = useTaskOrderQuery();
 
   return (
-    <Container>
+    <>
       <TasksHeader
         isLoading={isLoading}
         isError={isError}
@@ -17,16 +17,18 @@ const Tasks = () => {
         refetch={refetch}
         data={data}
       />
-      <TasksView
-        data={data}
-        taskOrder={taskOrder}
-        isLoading={isLoading}
-        isError={isError}
-        refetch={refetch}
-        isRefetching={isRefetching}
-      />
-      <TaskModals />
-    </Container>
+      <Container className="mt-8">
+        <TasksView
+          data={data}
+          taskOrder={taskOrder}
+          isLoading={isLoading}
+          isError={isError}
+          refetch={refetch}
+          isRefetching={isRefetching}
+        />
+        <TaskModals />
+      </Container>
+    </>
   );
 };
 

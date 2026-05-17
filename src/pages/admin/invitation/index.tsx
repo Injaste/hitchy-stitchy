@@ -37,21 +37,23 @@ const Invitation = () => {
   };
 
   return (
-    <Container>
+    <>
       <InvitationHeader
         isLoading={isLoading}
         isError={isError}
         isRefetching={isRefetching}
         refetch={refetch}
       />
-      <InvitationView
-        isLoading={isLoading}
-        isError={isError}
-        isRefetching={isRefetching}
-        refetch={refetch}
-      />
-      <ThemeModals />
-    </Container>
+      <Container className="mt-8">
+        <InvitationView
+          isLoading={isLoading}
+          isError={isError}
+          isRefetching={isRefetching}
+          refetch={refetch}
+        />
+        <ThemeModals />
+      </Container>
+    </>
   );
 };
 

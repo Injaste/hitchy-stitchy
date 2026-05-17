@@ -107,7 +107,8 @@ function AlertDialogHeader({
 function AlertDialogBody({ className, children, ...props }: SmoothScrollProps) {
   return (
     <SmoothScroll
-      gradient
+      gradientTop
+      gradientBottom
       gradientClass="from-popover"
       className={cn("max-h-[50vh] p-1", className)}
       {...props}

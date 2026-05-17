@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import {
+  ActionLabel,
   PageHeader,
   type BaseHeaderProps,
 } from "@/components/custom/page-header";
@@ -13,6 +14,11 @@ import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTasksFilter } from "../hooks/useTasksFilter";
 import type { Task } from "../types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TasksHeaderProps extends BaseHeaderProps {
   data?: Task[];
@@ -88,9 +94,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
                 <span className="text-foreground font-medium">
                   <Odometer value={done} />
                 </span>{" "}
-                of{" "}
-                <Odometer value={total} />{" "}
-                tasks done
+                of <Odometer value={total} /> tasks done
               </span>
               <span>
                 <span className="text-foreground font-medium">
@@ -104,20 +108,27 @@ const TasksHeader: FC<TasksHeaderProps> = ({
       }
       action={
         (canCreate("tasks") || canDelete("tasks")) && (
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex gap-2">
+            {canDelete("tasks") && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={openArchivedSheet}
+                    className="gap-2 text-muted-foreground hover:text-foreground"
+                  >
+                    <ArchiveRestore className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Archive</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
             {canCreate("tasks") && (
               <Button size="sm" onClick={openCreate} className="gap-2">
-                <Plus className="size-4" /> Add task
-              </Button>
-            )}
-            {canDelete("tasks") && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={openArchivedSheet}
-                className="gap-2 text-muted-foreground hover:text-foreground"
-              >
-                <ArchiveRestore className="size-4" /> Archived
+                <Plus className="size-4" /> <ActionLabel>Add task</ActionLabel>
               </Button>
             )}
           </div>

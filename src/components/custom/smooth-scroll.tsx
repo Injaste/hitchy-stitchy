@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
 
 type SmoothScrollProps = Omit<React.ComponentProps<"div">, "ref"> & {
-  gradient?: boolean;
+  gradientTop?: boolean;
+  gradientBottom?: boolean;
   gradientClass?: string;
 };
 
@@ -13,7 +14,8 @@ export const SmoothScroll = forwardRef<LenisRef, SmoothScrollProps>(
     {
       children,
       className,
-      gradient = false,
+      gradientTop = false,
+      gradientBottom = false,
       gradientClass = "from-background",
       ...props
     },
@@ -21,10 +23,11 @@ export const SmoothScroll = forwardRef<LenisRef, SmoothScrollProps>(
   ) => {
     const { scrollRef, canScrollUp, canScrollDown, onScroll } =
       useScrollVisibility();
+    const anyGradient = gradientTop || gradientBottom;
 
     return (
       <div className="relative flex flex-col flex-1 h-full">
-        {gradient && (
+        {gradientTop && (
           <div
             className={cn(
               "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b to-transparent transition-opacity duration-500",
@@ -35,14 +38,14 @@ export const SmoothScroll = forwardRef<LenisRef, SmoothScrollProps>(
         )}
         <Lenis
           ref={ref ?? scrollRef}
-          onScroll={gradient ? onScroll : undefined}
+          onScroll={anyGradient ? onScroll : undefined}
           options={{ duration: 1.2, syncTouch: true }}
           className={cn("overflow-y-auto p-1", className)}
           {...props}
         >
           {children}
         </Lenis>
-        {gradient && (
+        {gradientBottom && (
           <div
             className={cn(
               "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t to-transparent transition-opacity duration-500",

@@ -3,6 +3,7 @@ import { Plus, Upload, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
+  ActionLabel,
   PageHeader,
   type BaseHeaderProps,
 } from "@/components/custom/page-header";
@@ -46,7 +47,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
               onClick={openCreate}
               className="gap-2"
             >
-              <Plus className="w-4 h-4" /> Add guest
+              <Plus className="w-4 h-4" /> <ActionLabel>Add guest</ActionLabel>
             </Button>
             {/* <Button
               size="sm"

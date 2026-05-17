@@ -5,6 +5,7 @@ import { differenceInDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 
 import {
+  ActionLabel,
   PageHeader,
   type BaseHeaderProps,
 } from "@/components/custom/page-header";
@@ -79,7 +80,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
             onClick={() => openCreateWithLabel(null)}
             className="gap-2"
           >
-            <Plus className="w-4 h-4" /> Add Timeline
+            <Plus className="w-4 h-4" /> <ActionLabel>Add Timeline</ActionLabel>
           </Button>
         )
       }

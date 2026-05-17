@@ -7,10 +7,12 @@ const Permissions = () => {
   const { data, isLoading, isError } = usePermissionsQuery();
 
   return (
-    <Container>
+    <>
       <PermissionsHeader />
-      <PermissionsView data={data} isLoading={isLoading} isError={isError} />
-    </Container>
+      <Container className="mt-8">
+        <PermissionsView data={data} isLoading={isLoading} isError={isError} />
+      </Container>
+    </>
   );
 };
 

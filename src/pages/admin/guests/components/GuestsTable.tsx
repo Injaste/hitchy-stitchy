@@ -134,7 +134,7 @@ const GuestsTable: FC<GuestsTableProps> = ({ guests }) => {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <AnimatePresence>
-                        {guest.status !== "confirmed" && (
+                        {guest.status === "pending" && (
                           <motion.div variants={itemFadeIn} className="inline">
                             <Button
                               variant="ghost-success"

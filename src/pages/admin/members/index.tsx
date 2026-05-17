@@ -9,7 +9,7 @@ const Members = () => {
   const { data, isLoading, isError, refetch, isRefetching } = useMembersQuery()
 
   return (
-    <Container>
+    <>
       <MembersHeader
         isLoading={isLoading}
         isError={isError}
@@ -17,15 +17,17 @@ const Members = () => {
         refetch={refetch}
         data={data}
       />
-      <MembersView
-        data={data}
-        isLoading={isLoading}
-        isError={isError}
-        refetch={refetch}
-        isRefetching={isRefetching}
-      />
-      <MemberModals />
-    </Container>
+      <Container className="mt-8">
+        <MembersView
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+          refetch={refetch}
+          isRefetching={isRefetching}
+        />
+        <MemberModals />
+      </Container>
+    </>
   )
 }
 

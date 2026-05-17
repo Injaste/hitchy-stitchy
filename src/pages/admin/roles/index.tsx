@@ -17,7 +17,7 @@ const Roles = () => {
   const { data: members } = useMembersQuery()
 
   return (
-    <Container>
+    <>
       <RolesHeader
         isLoading={isLoading}
         isError={isError}
@@ -25,16 +25,18 @@ const Roles = () => {
         refetch={refetch}
         data={roles}
       />
-      <RolesView
-        roles={roles}
-        members={members}
-        isLoading={isLoading}
-        isError={isError}
-        refetch={refetch}
-        isRefetching={isRefetching}
-      />
-      <RoleModals />
-    </Container>
+      <Container className="mt-8">
+        <RolesView
+          roles={roles}
+          members={members}
+          isLoading={isLoading}
+          isError={isError}
+          refetch={refetch}
+          isRefetching={isRefetching}
+        />
+        <RoleModals />
+      </Container>
+    </>
   )
 }
 

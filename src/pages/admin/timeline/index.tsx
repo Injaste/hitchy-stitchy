@@ -10,7 +10,7 @@ const Timeline = () => {
     useTimelineQuery();
 
   return (
-    <Container>
+    <>
       <TimelineHeader
         isLoading={isLoading}
         isError={isError}
@@ -18,15 +18,17 @@ const Timeline = () => {
         refetch={refetch}
         data={data}
       />
-      <TimelineView
-        data={data}
-        isLoading={isLoading}
-        isError={isError}
-        refetch={refetch}
-        isRefetching={isRefetching}
-      />
-      <TimelineModals />
-    </Container>
+      <Container className="mt-8">
+        <TimelineView
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+          refetch={refetch}
+          isRefetching={isRefetching}
+        />
+        <TimelineModals />
+      </Container>
+    </>
   );
 };
 

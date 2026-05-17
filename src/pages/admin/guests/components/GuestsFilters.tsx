@@ -122,9 +122,9 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
               <div> </div>
             </motion.div>
           )}
-          <Odometer value={totalCount} />{" "}
-          {totalCount === 1 ? "entry" : "entries"}
+          <Odometer value={totalCount} />
         </AnimatePresence>
+        <span className="ml-1">{totalCount === 1 ? "result" : "results"}</span>
       </div>
     </div>
   );
