@@ -174,11 +174,11 @@ const AdminSidebar = () => {
                   <SidebarMenuButton size="lg">
                     <div
                       className={cn(
-                        "flex aspect-square items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground capitalize",
+                        "flex aspect-square items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground capitalize truncate",
                         state === "expanded" || isMobile ? "size-9" : "size-8",
                       )}
                     >
-                      {memberRoleShortName.slice(0, 2).toUpperCase()}
+                      {memberRoleShortName}
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">

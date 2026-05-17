@@ -31,7 +31,12 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
   );
 
   return (
-    <div className={cn("group/timeline-section relative flex gap-4", isNotLastItem && "pb-10")}>
+    <div
+      className={cn(
+        "group/timeline-section relative flex gap-4",
+        isNotLastItem && "pb-10",
+      )}
+    >
       <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
       <Circle className="size-5 text-primary/70 bg-background z-1 shrink-0" />
 
@@ -45,18 +50,20 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
             </p>
           )}
           {canCreate("timeline") && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              className="opacity-50 lg:opacity-0 group-hover/timeline-section:opacity-50 hover:opacity-100 transition-opacity"
-              onClick={() => openCreateWithLabel(group.label)}
-              aria-label={
-                group.label ? `Add item to ${group.label}` : "Add item"
-              }
-            >
-              <Plus className="size-4" />
-            </Button>
+            <div className="hidden lg:block">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                className="opacity-0 group-hover/timeline-section:opacity-50 hover:opacity-100 transition-opacity"
+                onClick={() => openCreateWithLabel(group.label)}
+                aria-label={
+                  group.label ? `Add item to ${group.label}` : "Add item"
+                }
+              >
+                <Plus className="size-4" />
+              </Button>
+            </div>
           )}
         </div>
 
@@ -124,16 +131,17 @@ const AddSectionSlot: FC = () => {
   );
 };
 
-interface DayContentProps {
+interface TimelineSectionProps {
   day: TimelineGroupedDay;
   dayIndex: number;
 }
 
-const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
+const TimelineSection: FC<TimelineSectionProps> = ({ day, dayIndex }) => {
   const { canCreate } = useAccess();
   const allItems = day.labelGroups.flatMap((g) => g.items);
   const earliest = allItems[0]?.time_start ?? "";
   const latest = getLatestTime(allItems);
+
   const showAddSlot = canCreate("timeline");
 
   return (
@@ -190,4 +198,4 @@ const DayContent: FC<DayContentProps> = ({ day, dayIndex }) => {
   );
 };
 
-export default DayContent;
+export default TimelineSection;

@@ -2,10 +2,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
+import { isAdminMember } from "@/pages/admin/bootstrap/utils"
 import { useRoleModalStore } from "./hooks/useRoleModalStore"
 import { fetchRoles, createRole, updateRole, deleteRole } from "./api"
 import type { CreateRolePayload, UpdateRolePayload, DeleteRolePayload, Role } from "./types"
 import type { Member } from "../members/types"
+import type { AdminBootstrapContext } from "../types"
 
 export function useRolesQuery() {
   const { slug, eventId } = useAdminStore()
@@ -17,7 +19,7 @@ export function useRolesQuery() {
 }
 
 export function useRoleMutations() {
-  const { slug } = useAdminStore()
+  const { slug, memberRoleId } = useAdminStore()
   const closeAll = useRoleModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
@@ -48,6 +50,19 @@ export function useRoleMutations() {
         setMembers((old) =>
           old?.map((m) => m.role_id === result.id ? { ...m, role: result } : m) ?? []
         )
+
+        if (result.id === memberRoleId) {
+          queryClient.setQueryData<AdminBootstrapContext>(
+            adminKeys.bootstrap(slug!),
+            (old) => old && {
+              ...old,
+              memberRoleName: result.name,
+              memberRoleShortName: result.short_name,
+              memberRoleCategory: result.category,
+              isAdmin: isAdminMember(result.category),
+            },
+          )
+        }
       },
     },
   )

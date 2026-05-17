@@ -1,5 +1,9 @@
 import type { FC } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Clock, Plus, Snowflake, UserX, Users } from "lucide-react";
+
+import Odometer from "@/components/animations/animate-odometer";
+import { itemRevealInUp } from "@/lib/animations";
 
 import { isActiveMember } from "@/pages/admin/utils/memberUtils";
 
@@ -54,18 +58,24 @@ const MembersHeader: FC<MembersHeaderProps> = ({
       ].filter(Boolean) as StatItem[]);
 
   const meta = !isLoading && !isError && total > 0 && (
-    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-      {statItems.map(({ icon: Icon, value, label }) => (
-        <div
-          key={label}
-          className="flex items-center gap-1.5 text-muted-foreground"
-        >
-          <Icon className="w-3.5 h-3.5 shrink-0" />
-          <span className="font-medium text-foreground">{value}</span>
-          <span>{label}</span>
-        </div>
-      ))}
-    </div>
+    <motion.div layout className="grid grid-cols-2 gap-x-8 gap-y-2 w-fit">
+      <AnimatePresence>
+        {statItems.map(({ icon: Icon, value, label }) => (
+          <motion.div
+            key={label}
+            layout
+            {...itemRevealInUp}
+            className="flex items-center gap-1.5 text-muted-foreground overflow-hidden"
+          >
+            <Icon className="w-3.5 h-3.5 shrink-0" />
+            <span className="font-medium text-foreground">
+              <Odometer value={value} />
+            </span>
+            <span>{label}</span>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </motion.div>
   );
 
   return (
@@ -85,7 +95,8 @@ const MembersHeader: FC<MembersHeaderProps> = ({
             onClick={openInvite}
             className="gap-2"
           >
-            <Plus className="w-4 h-4" /> <ActionLabel>Invite member</ActionLabel>
+            <Plus className="w-4 h-4" />{" "}
+            <ActionLabel>Invite member</ActionLabel>
           </Button>
         )
       }

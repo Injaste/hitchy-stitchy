@@ -15,7 +15,7 @@ const MemberEditModal = () => {
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const { eventId, memberId } = useAdminStore();
-  const { update } = useMemberMutations();
+  const { update, updateMyName } = useMemberMutations();
 
   // Hook before guard. Parent index keys this modal by selectedItem.id so
   // useForm re-initialises with fresh defaults on every member selection.
@@ -28,12 +28,17 @@ const MemberEditModal = () => {
       : undefined,
     onSubmit: (values) => {
       if (!selectedItem) return;
-      update.mutate({
-        event_id: eventId!,
-        id: selectedItem.id,
-        display_name: values.display_name,
-        role_id: values.role_id,
-      });
+      const roleChanged = values.role_id !== selectedItem.role_id;
+      if (roleChanged) {
+        update.mutate({
+          event_id: eventId!,
+          id: selectedItem.id,
+          display_name: values.display_name,
+          role_id: values.role_id,
+        });
+      } else {
+        updateMyName.mutate(values.display_name);
+      }
     },
   });
 
@@ -53,9 +58,9 @@ const MemberEditModal = () => {
       form={form}
       open={isEditOpen}
       onOpenChange={closeAll}
-      isPending={update.isPending}
-      isSuccess={update.isSuccess}
-      isError={update.isError}
+      isPending={update.isPending || updateMyName.isPending}
+      isSuccess={update.isSuccess || updateMyName.isSuccess}
+      isError={update.isError || updateMyName.isError}
     >
       <FormDialogHeader
         title="Edit member"

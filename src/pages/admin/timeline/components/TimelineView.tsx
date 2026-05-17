@@ -12,7 +12,7 @@ import TimelineEmpty from "../states/TimelineEmpty";
 import type { TimelineGrouped } from "../types";
 
 import DayTabs from "./DayTabs";
-import DayContent from "./DayContent";
+import TimelineSection from "./TimelineSection";
 
 interface TimelineViewProps {
   data: TimelineGrouped | undefined;
@@ -91,7 +91,7 @@ const TimelineView: FC<TimelineViewProps> = ({
           <AnimatePresence mode="wait">
             {activeDay && (
               <ComponentFade key={activeDay.day}>
-                <DayContent day={activeDay} dayIndex={activeDayIndex} />
+                <TimelineSection day={activeDay} dayIndex={activeDayIndex} />
               </ComponentFade>
             )}
           </AnimatePresence>

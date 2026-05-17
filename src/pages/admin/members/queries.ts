@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
+import { isAdminMember } from "@/pages/admin/bootstrap/utils"
 import { useMemberModalStore } from "./hooks/useMemberModalStore"
 import {
   fetchMembers,
@@ -19,6 +20,7 @@ import type {
   DeleteMemberPayload,
 } from "./types"
 import type { Role } from "../roles/types"
+import type { AdminBootstrapContext } from "../types"
 
 export function useMembersQuery() {
   const { slug, eventId } = useAdminStore()
@@ -68,6 +70,20 @@ export function useMemberMutations() {
           setMembers((old) =>
             old?.map((m) => m.id === result.id ? { ...result, role: newRole } : m) ?? []
           )
+          if (result.id === memberId) {
+            queryClient.setQueryData<AdminBootstrapContext>(
+              adminKeys.bootstrap(slug!),
+              (old) => old && {
+                ...old,
+                memberDisplayName: result.display_name,
+                memberRoleId: result.role_id,
+                memberRoleName: newRole.name,
+                memberRoleShortName: newRole.short_name,
+                memberRoleCategory: newRole.category,
+                isAdmin: isAdminMember(newRole.category),
+              },
+            )
+          }
         }
       },
     },
@@ -80,6 +96,10 @@ export function useMemberMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (_: void, display_name: string) => {
         setMembers((old) => old?.map((m) => m.id === memberId ? { ...m, display_name } : m) ?? [])
+        queryClient.setQueryData<AdminBootstrapContext>(
+          adminKeys.bootstrap(slug!),
+          (old) => old && { ...old, memberDisplayName: display_name },
+        )
       },
     },
   )
