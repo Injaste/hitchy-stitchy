@@ -12,7 +12,7 @@ import type {
 export async function fetchInvitation(eventId: string): Promise<Invitation> {
   const { data, error } = await supabase
     .from("event_invitation")
-    .select("id, event_id, groom_name, bride_name, event_date, event_time_start, event_time_end, venue_name, venue_address, venue_map_embed_url, venue_map_link, rsvp_mode, rsvp_deadline, max_guests, guest_count_min, guest_count_max, confirmation_message, config, created_at, updated_at")
+    .select("id, event_id, event_date, event_time_start, event_time_end, rsvp_mode, rsvp_deadline, max_guests, guest_count_min, guest_count_max, confirmation_message, config, created_at, updated_at")
     .eq("event_id", eventId)
     .single()
 
@@ -23,15 +23,9 @@ export async function fetchInvitation(eventId: string): Promise<Invitation> {
 export async function updateInvitation(payload: UpdateInvitationPayload): Promise<Invitation> {
   const { data, error } = await supabase.rpc("update_invitation", {
     p_event_id: payload.event_id,
-    p_groom_name: payload.groom_name,
-    p_bride_name: payload.bride_name,
     p_event_date: payload.event_date,
     p_event_time_start: payload.event_time_start,
     p_event_time_end: payload.event_time_end,
-    p_venue_name: payload.venue_name,
-    p_venue_address: payload.venue_address,
-    p_venue_map_embed_url: payload.venue_map_embed_url,
-    p_venue_map_link: payload.venue_map_link,
     p_rsvp_mode: payload.rsvp_mode,
     p_rsvp_deadline: payload.rsvp_deadline,
     p_config: payload.config,

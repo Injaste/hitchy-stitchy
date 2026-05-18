@@ -1,4 +1,4 @@
-import { useRef, type FC } from "react";
+import { useRef } from "react";
 import { useForm } from "@tanstack/react-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
@@ -10,38 +10,46 @@ import {
 } from "@/components/custom/form";
 import { FormShellContext } from "@/components/custom/form/form-context";
 import type { ThemeFieldGroup } from "@/pages/wedding/templates/types";
-import type { ThemeDraftValues } from "../../store/useInvitationStore";
+import { useThemeSheetStore, type ThemeDraftPatch } from "../store";
 
-interface ConfigGroupCardProps {
+interface ThemeSheetSectionProps {
   group: ThemeFieldGroup;
-  config: ThemeDraftValues;
-  onUpdate: (patch: ThemeDraftValues) => void;
 }
 
-const ConfigGroupCard: FC<ConfigGroupCardProps> = ({ group, config, onUpdate }) => {
-  const onUpdateRef = useRef(onUpdate);
-  onUpdateRef.current = onUpdate;
+const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
+  const draft = useThemeSheetStore((s) => s.draft);
+  const setFields = useThemeSheetStore((s) => s.setFields);
+
+  const setFieldsRef = useRef(setFields);
+  setFieldsRef.current = setFields;
+
+  const initialValues = Object.fromEntries(
+    group.fields.map((f) => {
+      const raw = draft ? (draft as Record<string, unknown>)[f.key] : undefined;
+      if (f.type === "switch") return [f.key, raw === "true"];
+      return [f.key, typeof raw === "string" ? raw : ""];
+    }),
+  );
 
   const form = useForm({
-    defaultValues: Object.fromEntries(
-      group.fields.map((f) => [
-        f.key,
-        f.type === "switch" ? config[f.key] === "true" : (config[f.key] ?? ""),
-      ]),
-    ),
+    defaultValues: initialValues,
     listeners: {
       onChangeDebounceMs: 150,
       onChange: ({ formApi }) => {
         const values = formApi.state.values as Record<string, string | boolean | null>;
-        const patch: ThemeDraftValues = {};
+        const patch: ThemeDraftPatch = {};
         for (const f of group.fields) {
           const v = values[f.key];
           patch[f.key] =
             f.type === "switch"
-              ? v ? "true" : null
-              : typeof v === "string" ? v.trim() || null : null;
+              ? v
+                ? "true"
+                : null
+              : typeof v === "string"
+                ? v.trim() || null
+                : null;
         }
-        onUpdateRef.current(patch);
+        setFieldsRef.current(patch);
       },
     },
   });
@@ -50,7 +58,9 @@ const ConfigGroupCard: FC<ConfigGroupCardProps> = ({ group, config, onUpdate }) 
     <FormShellContext.Provider value={{ attemptCount: 1, form }}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">{group.title}</CardTitle>
+          <CardTitle className="text-sm tracking-wide uppercase text-muted-foreground">
+            {group.title}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <FieldGroup>
@@ -105,4 +115,4 @@ const ConfigGroupCard: FC<ConfigGroupCardProps> = ({ group, config, onUpdate }) 
   );
 };
 
-export default ConfigGroupCard;
+export default ThemeSheetSection;

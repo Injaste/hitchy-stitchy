@@ -2,6 +2,22 @@ import type { ThemeFieldGroup } from "../types"
 
 export const uniqueMuslimSchema = [
   {
+    title: "Couple",
+    fields: [
+      { key: "groom_name", label: "Groom Name", type: "text", placeholder: "e.g. Ahmad" },
+      { key: "bride_name", label: "Bride Name", type: "text", placeholder: "e.g. Sarah" },
+    ],
+  },
+  {
+    title: "Venue",
+    fields: [
+      { key: "venue_name", label: "Venue Name", type: "text", placeholder: "e.g. The Grand Ballroom" },
+      { key: "venue_address", label: "Venue Address", type: "textarea", placeholder: "Full address…" },
+      { key: "venue_map_link", label: "Map Link", type: "text", placeholder: "https://maps.google.com/…" },
+      { key: "venue_map_embed_url", label: "Map Embed URL", type: "textarea", placeholder: "https://www.google.com/maps/embed?…" },
+    ],
+  },
+  {
     title: "Opening",
     fields: [
       { key: "greeting", label: "Greeting", type: "text", placeholder: "e.g. السلام عليكم ورحمة الله وبركاته" },

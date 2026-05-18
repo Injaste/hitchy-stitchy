@@ -5,15 +5,9 @@ import type { ThemeConfig } from "./templates/types"
 export interface PublicEventConfig {
   id: string
   event_id: string
-  groom_name: string | null
-  bride_name: string | null
   event_date: string | null
   event_time_start: string | null
   event_time_end: string | null
-  venue_name: string | null
-  venue_address: string | null
-  venue_map_embed_url: string | null
-  venue_map_link: string | null
   rsvp_mode: RSVPMode
   rsvp_deadline: string | null
   max_guests: number | null

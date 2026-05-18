@@ -5,7 +5,8 @@
       "Bash(echo \"exit: $?\")",
       "Bash(npm install *)",
       "Bash(npm run *)",
-      "Bash(xargs ls *)"
+      "Bash(xargs ls *)",
+      "Bash(echo \"EXIT $?\")"
     ]
   }
 }

@@ -3,7 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { ComponentFade } from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 import InvitationSkeleton from "../states/InvitationSkeleton";
-import EditorLayout from "./EditorLayout";
+import InvitationTabs from "./InvitationTabs";
 
 interface InvitationViewProps {
   isLoading: boolean;
@@ -39,7 +39,7 @@ const InvitationView: FC<InvitationViewProps> = ({
 
     return (
       <ComponentFade key="content">
-        <EditorLayout />
+        <InvitationTabs />
       </ComponentFade>
     );
   };

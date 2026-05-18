@@ -1,31 +1,18 @@
-import type {
-  DetailsDraft,
-  Invitation,
-  RSVPDraft,
-  Template,
-} from "./types"
+import type { Invitation, Theme } from "./types"
 import type { ThemeConfig } from "@/pages/wedding/templates/types"
-import type { Theme } from "./types"
 import type { PublicEventConfig } from "@/pages/wedding/types"
-import type { ThemeDraftValues } from "./store/useInvitationStore"
 
 export function mapToPublicEventConfig(
   inv: Invitation,
   theme: Theme | null,
-  templateSlug: string | null,
 ): PublicEventConfig {
+  const slug = (theme?.config?.slug as string | null | undefined) ?? null
   return {
     id: inv.id,
     event_id: inv.event_id,
-    groom_name: inv.groom_name,
-    bride_name: inv.bride_name,
     event_date: inv.event_date,
     event_time_start: inv.event_time_start,
     event_time_end: inv.event_time_end,
-    venue_name: inv.venue_name,
-    venue_address: inv.venue_address,
-    venue_map_embed_url: inv.venue_map_embed_url,
-    venue_map_link: inv.venue_map_link,
     rsvp_mode: inv.rsvp_mode,
     rsvp_deadline: inv.rsvp_deadline,
     max_guests: inv.max_guests,
@@ -34,7 +21,11 @@ export function mapToPublicEventConfig(
     confirmation_message: inv.confirmation_message,
     config: inv.config,
     published_page: theme
-      ? { id: theme.id, theme_slug: templateSlug, config: theme.config ?? {} }
+      ? {
+        id: theme.id,
+        theme_slug: slug,
+        config: theme.config ?? ({ slug: null } as ThemeConfig),
+      }
       : null,
   }
 }
@@ -42,25 +33,9 @@ export function mapToPublicEventConfig(
 export function composeEventConfig(
   inv: Invitation,
   theme: Theme | null,
-  template: Template | null,
-  details: DetailsDraft | null,
-  rsvp: RSVPDraft | null,
-  themeDraft: ThemeDraftValues | null,
+  themeDraft: ThemeConfig | null,
 ): PublicEventConfig {
-  const merged: Invitation = {
-    ...inv,
-    ...(details ?? {}),
-    rsvp_mode: rsvp?.rsvp_mode ?? inv.rsvp_mode,
-    rsvp_deadline: rsvp ? (rsvp.rsvp_deadline || null) : inv.rsvp_deadline,
-    config: {
-      rsvp: rsvp?.config ?? inv.config.rsvp,
-    },
-  }
-
-  const slug = template?.slug ?? null
-  const mergedTheme: Theme | null = theme && themeDraft && slug
-    ? { ...theme, config: { slug, ...themeDraft } as ThemeConfig }
-    : theme
-
-  return mapToPublicEventConfig(merged, mergedTheme, slug)
+  const mergedTheme: Theme | null =
+    theme && themeDraft ? { ...theme, config: themeDraft } : theme
+  return mapToPublicEventConfig(inv, mergedTheme)
 }

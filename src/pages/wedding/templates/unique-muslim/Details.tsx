@@ -90,13 +90,13 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           },
         ]
       : []),
-    ...(eventConfig.venue_name
+    ...(config?.venue_name
       ? [
           {
             icon: MapPin,
             title: "Location",
-            detail: eventConfig.venue_name,
-            sub: eventConfig.venue_address ?? "",
+            detail: config.venue_name,
+            sub: config.venue_address ?? "",
           },
         ]
       : []),
@@ -116,14 +116,14 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
     ? "https://calendar.google.com/calendar/render?action=TEMPLATE" +
       "&text=" +
       encodeURIComponent(
-        `${eventConfig.groom_name} ${eventConfig.bride_name}`,
+        `${config?.groom_name ?? ""} ${config?.bride_name ?? ""}`,
       ) +
       "&dates=" +
       encodeURIComponent(
         `${safeFormat(eventDate, "yyyyMMdd")}/${safeFormat(eventDate, "yyyyMMdd")}`,
       ) +
       "&location=" +
-      encodeURIComponent(eventConfig.venue_address ?? "")
+      encodeURIComponent(config?.venue_address ?? "")
     : null;
 
   return (
@@ -261,7 +261,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
         )}
 
         {/* Map */}
-        {eventConfig.venue_map_embed_url && (
+        {config?.venue_map_embed_url && (
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -273,7 +273,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               className="relative w-full aspect-4/3"
             >
               <iframe
-                src={eventConfig.venue_map_embed_url}
+                src={config.venue_map_embed_url}
                 className="absolute inset-0 w-full h-full border-0 rounded-xl sm:rounded-2xl"
                 allowFullScreen
                 loading="lazy"
@@ -285,9 +285,9 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               className="p-4 sm:p-5 pb-2 sm:pb-0 flex flex-col sm:flex-row items-center justify-between gap-3"
             >
               <p className="text-foreground/70 italic text-xs sm:text-sm text-center sm:text-left">
-                {eventConfig.venue_address}
+                {config.venue_address}
               </p>
-              {eventConfig.venue_map_link && (
+              {config.venue_map_link && (
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -299,7 +299,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                     className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
                   >
                     <a
-                      href={eventConfig.venue_map_link}
+                      href={config.venue_map_link}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

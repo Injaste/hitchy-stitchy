@@ -7,6 +7,7 @@ const sizeMap = {
   default: "max-w-6xl",
   lg: "max-w-6xl",
   full: "max-w-full",
+  none: "max-w-none",
 } as const;
 
 type ContainerSize = keyof typeof sizeMap;

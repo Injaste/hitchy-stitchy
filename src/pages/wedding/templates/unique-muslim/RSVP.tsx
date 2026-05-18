@@ -7,7 +7,8 @@ import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { useGuestRSVP, useRSVPMutations } from "@/pages/wedding/queries";
-import type { RSVPFormData, PublicEventConfig } from "@/pages/wedding/types";
+import type { RSVPFormData } from "@/pages/wedding/types";
+import type { ThemeProps } from "@/pages/wedding/templates/types";
 import { RSVPForm, RSVPDelete } from "@/pages/wedding/form";
 import {
   rsvpClassNames,
@@ -62,7 +63,7 @@ const useContentHeight = () => {
   return { ref, height };
 };
 
-const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
+const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.event_id);
   const { submit, update, remove } = useRSVPMutations(eventConfig.event_id);
   const [isEditing, setIsEditing] = useState(false);
@@ -70,6 +71,7 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
 
   const { ref: bodyRef, height: bodyHeight } = useContentHeight();
 
+  const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const rsvpConfig = eventConfig.config.rsvp;
 
   const isDeadlinePassed =
@@ -277,8 +279,8 @@ const RSVP = ({ eventConfig }: { eventConfig: PublicEventConfig }) => {
         <Footer
           fadeUp={fadeUp}
           fadeIn={fadeIn}
-          groom_name={eventConfig.groom_name}
-          bride_name={eventConfig.bride_name}
+          groom_name={config?.groom_name ?? null}
+          bride_name={config?.bride_name ?? null}
         />
       </div>
 

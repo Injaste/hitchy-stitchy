@@ -39,7 +39,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
 
       <Hero eventConfig={eventConfig} pageConfig={pageConfig} />
       <Details eventConfig={eventConfig} pageConfig={pageConfig} />
-      <RSVP eventConfig={eventConfig} />
+      <RSVP eventConfig={eventConfig} pageConfig={pageConfig} />
     </div>
   );
 };

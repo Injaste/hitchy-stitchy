@@ -21,15 +21,9 @@ export interface InvitationConfig {
 export interface Invitation {
   id: string
   event_id: string
-  groom_name: string | null
-  bride_name: string | null
   event_date: string | null
   event_time_start: string | null
   event_time_end: string | null
-  venue_name: string | null
-  venue_address: string | null
-  venue_map_embed_url: string | null
-  venue_map_link: string | null
   rsvp_mode: RSVPMode
   rsvp_deadline: string | null
   max_guests: number | null
@@ -41,42 +35,11 @@ export interface Invitation {
   updated_at: string
 }
 
-export type DetailsDraft = Pick<
-  Invitation,
-  | "groom_name"
-  | "bride_name"
-  | "event_date"
-  | "event_time_start"
-  | "event_time_end"
-  | "venue_name"
-  | "venue_address"
-  | "venue_map_link"
-  | "venue_map_embed_url"
->
-
-export type RSVPDraft = Pick<
-  Invitation,
-  | "max_guests"
-  | "guest_count_min"
-  | "guest_count_max"
-  | "confirmation_message"
-  | "rsvp_mode"
-  | "rsvp_deadline"
-> & {
-  config: RSVPSectionConfig
-}
-
 export interface UpdateInvitationPayload {
   event_id: string
-  groom_name?: string | null
-  bride_name?: string | null
   event_date?: string | null
   event_time_start?: string | null
   event_time_end?: string | null
-  venue_name?: string | null
-  venue_address?: string | null
-  venue_map_embed_url?: string | null
-  venue_map_link?: string | null
   rsvp_mode?: RSVPMode
   rsvp_deadline?: string | null
   max_guests?: number | null
@@ -120,6 +83,8 @@ export interface TemplateTheme {
   updated_at: string
 
   theme_id: string | null
+  theme_name: string | null
+  theme_updated_at: string | null
   is_published: boolean
 }
 

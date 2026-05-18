@@ -51,8 +51,8 @@ const Hero = ({ eventConfig, pageConfig }: ThemeProps) => {
   const quoteText = config?.quote ?? "";
   const quoteSource = config?.quote_source ?? "";
 
-  const personName1 = eventConfig.groom_name ?? "";
-  const personName2 = eventConfig.bride_name ?? "";
+  const personName1 = config?.groom_name ?? "";
+  const personName2 = config?.bride_name ?? "";
 
   const parts = eventConfig.event_date?.split("-").map(Number);
   const weddingDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
