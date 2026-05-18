@@ -1,20 +1,19 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { FormShellContext } from "@/components/custom/form/form-context";
-import { useInvitationQuery } from "../queries";
-import { RSVP_MODES, type Invitation } from "../types";
+import SubmitButton from "@/components/custom/form/SubmitButton";
+import { RSVP_MODES, type Invitation } from "../../types";
 import { TIME_REGEX } from "@/pages/admin/types";
-import TimingSection from "./sections/TimingSection";
-import RSVPSection from "./sections/RSVPSection";
-import GuestLimitsSection from "./sections/GuestLimitsSection";
-import FormFieldsSection from "./sections/FormFieldsSection";
-import ConfirmationSection from "./sections/ConfirmationSection";
+import TimingSection from "../sections/TimingSection";
+import RSVPSection from "../sections/RSVPSection";
+import GuestLimitsSection from "../sections/GuestLimitsSection";
+import FormFieldsSection from "../sections/FormFieldsSection";
+import ConfirmationSection from "../sections/ConfirmationSection";
 import {
-  useSettingsSubmit,
-  type SettingsFormValues,
-} from "./hooks/useSettingsSubmit";
+  useConfigSubmit,
+  type ConfigFormValues,
+} from "../hooks/useConfigSubmit";
 
 const schema = z.object({
   event_date: z.string().transform((v) => v.trim() || null),
@@ -47,12 +46,12 @@ const schema = z.object({
   message_required: z.boolean(),
 });
 
-interface SettingsFormProps {
+interface ConfigsViewProps {
   invitation: Invitation;
 }
 
-const SettingsForm = ({ invitation }: SettingsFormProps) => {
-  const { submit, mutation } = useSettingsSubmit();
+const ConfigsView = ({ invitation }: ConfigsViewProps) => {
+  const { submit, mutation } = useConfigSubmit();
   const [attemptCount, setAttemptCount] = useState(0);
 
   const [initDate, initTime = ""] = (invitation.rsvp_deadline ?? "").split(" ");
@@ -88,7 +87,7 @@ const SettingsForm = ({ invitation }: SettingsFormProps) => {
     onSubmit: ({ value }) => {
       const parsed = schema.safeParse(value);
       if (!parsed.success) return;
-      submit(parsed.data as SettingsFormValues);
+      submit(parsed.data as ConfigFormValues);
     },
   });
 
@@ -131,12 +130,7 @@ const SettingsForm = ({ invitation }: SettingsFormProps) => {
         <form.Subscribe selector={(s: { isDirty: boolean }) => s.isDirty}>
           {(isDirty: boolean) => (
             <div className="flex justify-end pt-2">
-              <Button
-                type="submit"
-                disabled={!isDirty || mutation.isPending}
-              >
-                {mutation.isPending ? "Saving..." : "Save changes"}
-              </Button>
+              <SubmitButton disabled={!isDirty}>Save changes</SubmitButton>
             </div>
           )}
         </form.Subscribe>
@@ -145,11 +139,4 @@ const SettingsForm = ({ invitation }: SettingsFormProps) => {
   );
 };
 
-const Settings = () => {
-  const { data: invitation } = useInvitationQuery();
-  if (!invitation) return null;
-
-  return <SettingsForm key={invitation.updated_at} invitation={invitation} />;
-};
-
-export default Settings;
+export default ConfigsView;

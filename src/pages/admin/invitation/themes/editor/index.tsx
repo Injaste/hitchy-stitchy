@@ -17,7 +17,11 @@ interface ThemeEditorSheetProps {
   onClose: () => void;
 }
 
-const ThemeEditorSheet = ({ themeId, open, onClose }: ThemeEditorSheetProps) => {
+const ThemeEditorSheet = ({
+  themeId,
+  open,
+  onClose,
+}: ThemeEditorSheetProps) => {
   const selected = useThemeWithTemplate(themeId);
   const init = useThemeSheetStore((s) => s.init);
   const clear = useThemeSheetStore((s) => s.clear);
@@ -55,7 +59,7 @@ const ThemeEditorSheet = ({ themeId, open, onClose }: ThemeEditorSheetProps) => 
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="!max-w-none !w-screen p-0 flex flex-col bg-background"
+        className="max-w-6xl! w-screen! p-0 flex flex-col bg-background gap-0"
       >
         <SheetTitle className="sr-only">Edit theme</SheetTitle>
 
@@ -75,14 +79,17 @@ const ThemeEditorSheet = ({ themeId, open, onClose }: ThemeEditorSheetProps) => 
             <Separator />
 
             <div className="flex-1 min-h-0 grid grid-rows-1 grid-cols-1 lg:grid-cols-[minmax(450px,1fr)_minmax(450px,1fr)] overflow-hidden">
-              <Container size="none" className="flex flex-col min-h-0 px-3 md:px-6">
-                <SmoothScroll gradientTop gradientBottom className="py-6">
+              <SmoothScroll gradientTop gradientBottom className="py-6">
+                <Container
+                  size="none"
+                  className="flex flex-col min-h-0 px-3 md:px-6"
+                >
                   <ThemeSheetForm
                     key={selected.theme.id}
                     schema={selected.entry.schema}
                   />
-                </SmoothScroll>
-              </Container>
+                </Container>
+              </SmoothScroll>
               <div className="hidden lg:block border-l bg-muted/20 overflow-hidden">
                 <ThemeSheetPreview theme={selected.theme} />
               </div>

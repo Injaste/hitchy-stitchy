@@ -1,7 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Field, FieldGroup, FieldTitle } from "@/components/ui/field";
 import { SwitchField } from "@/components/custom/form";
 import { useFormShell } from "@/components/custom/form";
+
+const DefaultBadge = () => (
+  <Badge variant="secondary" className="text-muted-foreground font-normal">
+    Default
+  </Badge>
+);
 
 const FormFieldsSection = () => {
   const { form } = useFormShell();
@@ -15,6 +22,14 @@ const FormFieldsSection = () => {
       </CardHeader>
       <CardContent>
         <FieldGroup>
+          <Field orientation="horizontal">
+            <FieldTitle>Name</FieldTitle>
+            <DefaultBadge />
+          </Field>
+          <Field orientation="horizontal">
+            <FieldTitle>Phone number</FieldTitle>
+            <DefaultBadge />
+          </Field>
           <Field orientation="horizontal">
             <FieldTitle>Message</FieldTitle>
             <div className="flex gap-4">

@@ -2,7 +2,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { useInvitationMutation } from "../../queries"
 import type { UpdateInvitationPayload, RSVPMode } from "../../types"
 
-export interface SettingsFormValues {
+export interface ConfigFormValues {
   event_date: string | null
   event_time_start: string | null
   event_time_end: string | null
@@ -17,19 +17,25 @@ export interface SettingsFormValues {
   message_required: boolean
 }
 
+const pad = (n: number) => String(n).padStart(2, "0")
+
 const combineDeadline = (
   date: string | null,
   time: string | null,
 ): string | null => {
   if (!date) return null
-  return time ? `${date} ${time}` : `${date} 23:59`
+  const [y, m, d] = date.split("-").map(Number)
+  const [h, min] = (time ?? "23:59").split(":").map(Number)
+  if ([y, m, d, h, min].some(Number.isNaN)) return null
+  const local = new Date(y, m - 1, d, h, min)
+  return `${local.getUTCFullYear()}-${pad(local.getUTCMonth() + 1)}-${pad(local.getUTCDate())} ${pad(local.getUTCHours())}:${pad(local.getUTCMinutes())}`
 }
 
-export function useSettingsSubmit() {
+export function useConfigSubmit() {
   const { eventId } = useAdminStore()
   const { update } = useInvitationMutation()
 
-  const submit = (values: SettingsFormValues) => {
+  const submit = (values: ConfigFormValues) => {
     const payload: UpdateInvitationPayload = {
       event_id: eventId!,
       event_date: values.event_date,

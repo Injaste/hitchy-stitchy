@@ -29,12 +29,12 @@ function getPerimeter(W: number, H: number) {
 
 interface SubmitButtonProps extends Omit<
   React.ComponentProps<typeof Button>,
-  "type" | "disabled"
+  "type"
 > {
   children: React.ReactNode;
 }
 
-const SubmitButton: FC<SubmitButtonProps> = ({ children, ...props }) => {
+const SubmitButton: FC<SubmitButtonProps> = ({ children, disabled, ...props }) => {
   const { isPending, isSuccess, isError } = useFormShell();
   const [shakeState, setShakeState] = useState<"idle" | "shake">("idle");
 
@@ -153,7 +153,7 @@ const SubmitButton: FC<SubmitButtonProps> = ({ children, ...props }) => {
       <Button
         ref={btnRef}
         type="submit"
-        disabled={isPending}
+        disabled={isPending || !!disabled}
         {...props}
         className="w-full"
       >

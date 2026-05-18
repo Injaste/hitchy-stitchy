@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Themes from "../themes";
-import Settings from "../settings";
+import Config from "../config";
 
 const TABS = [
   { id: "themes", label: "Themes", element: Themes },
-  { id: "settings", label: "Settings", element: Settings },
+  { id: "config", label: "Configs", element: Config },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];

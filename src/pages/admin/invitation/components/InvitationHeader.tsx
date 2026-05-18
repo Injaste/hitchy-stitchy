@@ -24,7 +24,7 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
   return (
     <PageHeader
       title="Invitation"
-      description="Send and track invitations to your team. Pending invites will appear here until accepted."
+      description="Design and configure your wedding RSVP page. Choose a theme, customise the look, and control how guests respond."
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}
