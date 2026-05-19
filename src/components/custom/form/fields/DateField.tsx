@@ -46,7 +46,7 @@ const DateField = ({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start gap-2 font-normal"
+                className="w-full justify-start gap-2 font-normal hover:bg-transparent aria-expanded:bg-transparent"
               >
                 <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                 <span className={value ? "" : "text-muted-foreground"}>

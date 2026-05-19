@@ -7,7 +7,6 @@ import type { Guest } from "../types";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import GuestsRow from "./GuestsRow";
-import { SmoothScroll } from "@/components/custom/smooth-scroll";
 
 interface GuestsTableProps {
   guests: Guest[];

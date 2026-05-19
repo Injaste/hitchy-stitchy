@@ -34,7 +34,11 @@ interface SubmitButtonProps extends Omit<
   children: React.ReactNode;
 }
 
-const SubmitButton: FC<SubmitButtonProps> = ({ children, disabled, ...props }) => {
+const SubmitButton: FC<SubmitButtonProps> = ({
+  children,
+  disabled,
+  ...props
+}) => {
   const { isPending, isSuccess, isError } = useFormShell();
   const [shakeState, setShakeState] = useState<"idle" | "shake">("idle");
 

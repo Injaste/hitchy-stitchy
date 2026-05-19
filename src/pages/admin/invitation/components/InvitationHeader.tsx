@@ -31,12 +31,8 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
       refetch={refetch}
       action={
         slug && (
-          <Button variant="outline" asChild>
-            <Link
-              to={`/${slug}`}
-              target="_blank"
-              className="inline-flex items-center gap-1.5"
-            >
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/${slug}`} target="_blank" className="gap-2">
               <ActionLabel>Open live page</ActionLabel>
               <ExternalLink />
             </Link>
