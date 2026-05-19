@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, type FC } from "react";
+import { useRef, useEffect, useState, type FC, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,19 @@ const SubmitButton: FC<SubmitButtonProps> = ({
   const rafRef = useRef<number>(0);
   const phase = useRef<"idle" | "spinning">("idle");
 
+  useLayoutEffect(() => {
+    const btn = btnRef.current;
+    const svg = svgRef.current;
+    if (!btn || !svg) return;
+
+    const W = btn.offsetWidth,
+      H = btn.offsetHeight;
+
+    svg.setAttribute("viewBox", `0 0 ${W + GAP * 2} ${H + GAP * 2}`);
+    svg.style.width = `${W + GAP * 2}px`;
+    svg.style.height = `${H + GAP * 2}px`;
+  });
+
   useEffect(() => {
     if (!isPending || phase.current !== "idle") return;
 
@@ -63,10 +76,6 @@ const SubmitButton: FC<SubmitButtonProps> = ({
     const W = btn.offsetWidth,
       H = btn.offsetHeight;
     const P = getPerimeter(W, H);
-
-    svg.setAttribute("viewBox", `0 0 ${W + GAP * 2} ${H + GAP * 2}`);
-    svg.style.width = `${W + GAP * 2}px`;
-    svg.style.height = `${H + GAP * 2}px`;
 
     [track, arc].forEach((el) => {
       el.setAttribute("d", buildPath(W, H));

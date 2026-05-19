@@ -104,3 +104,5 @@ const ThemeEditorSheet = ({
 };
 
 export default ThemeEditorSheet;
+
+// TODO LET SHEET RENDER FIRST AND THEN LOAD IFRAME OR ANYTHING THAT WONT CAUSE ANIMATION LAGGING

@@ -22,6 +22,23 @@ const make = (delay: number, y = 20, duration = 0.7): Variants => ({
   },
 });
 
+function getWeddingDateTime(
+  dateParts: number[] | undefined,
+  weddingStartTime: string | null,
+) {
+  if (!dateParts || !weddingStartTime) return null;
+
+  const [hours, minutes] = weddingStartTime.split(":").map(Number);
+
+  return new Date(
+    dateParts[0],
+    dateParts[1] - 1,
+    dateParts[2],
+    hours || 0,
+    minutes || 0,
+  );
+}
+
 const greeting: Variants = make(T.greeting, 16, 0.9);
 const divider: Variants = {
   hidden: { opacity: 0, scaleX: 0 },
@@ -54,8 +71,9 @@ const Hero = ({ eventConfig, pageConfig }: ThemeProps) => {
   const personName1 = config?.groom_name ?? "";
   const personName2 = config?.bride_name ?? "";
 
-  const parts = eventConfig.event_date?.split("-").map(Number);
-  const weddingDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : null;
+  const dateParts = eventConfig.event_date?.split("-").map(Number);
+  const weddingStartTime = eventConfig.event_time_start;
+  const weddingDate = getWeddingDateTime(dateParts, weddingStartTime);
 
   return (
     <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10">

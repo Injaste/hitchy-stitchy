@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { FormShellContext } from "@/components/custom/form/form-context";
-import { Button } from "@/components/ui/button";
+import SubmitButton from "@/components/custom/form/SubmitButton";
 import { RSVP_MODES, type Invitation } from "../../types";
 import { TIME_REGEX } from "@/pages/admin/types";
 import TimingSection from "../sections/TimingSection";
@@ -130,7 +130,7 @@ const ConfigsView = ({ invitation }: ConfigsViewProps) => {
         <form.Subscribe selector={(s: { isDirty: boolean }) => s.isDirty}>
           {(isDirty: boolean) => (
             <div className="flex justify-end pt-2">
-              <Button disabled={!isDirty}>Save changes</Button>
+              <SubmitButton disabled={!isDirty}>Save changes</SubmitButton>
             </div>
           )}
         </form.Subscribe>
