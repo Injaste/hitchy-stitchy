@@ -37,7 +37,7 @@ const RoleDeleteModal = () => {
             <TriangleAlert className="w-4 h-4 shrink-0" />
             Delete role
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             Are you sure you want to delete{" "}
             <span className="font-semibold text-foreground">"{role.name}"</span>?
             Members assigned to this role will lose it, but will remain part of the event.

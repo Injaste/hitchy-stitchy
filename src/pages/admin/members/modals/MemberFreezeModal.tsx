@@ -42,7 +42,7 @@ const MemberFreezeModal = () => {
             )}
             {willFreeze ? "Freeze access" : "Restore access"}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             {willFreeze ? (
               <>
                 <span className="font-semibold text-foreground">

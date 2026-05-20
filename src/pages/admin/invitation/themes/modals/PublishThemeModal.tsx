@@ -31,7 +31,7 @@ const PublishThemeModal = () => {
             <Globe className="w-4 h-4 shrink-0" />
             Publish theme
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             Publishing{" "}
             <span className="font-semibold text-foreground">
               "{theme.name}"

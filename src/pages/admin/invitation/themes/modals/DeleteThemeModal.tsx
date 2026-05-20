@@ -33,7 +33,7 @@ const DeleteThemeModal = () => {
             <TriangleAlert className="w-4 h-4 shrink-0" />
             Delete theme
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             Are you sure you want to delete{" "}
             <span className="font-semibold text-foreground">
               "{theme.name}"

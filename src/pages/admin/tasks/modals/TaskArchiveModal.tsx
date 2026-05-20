@@ -44,7 +44,7 @@ const TaskArchiveModal = () => {
             <Archive className="w-4 h-4 shrink-0" />
             {isSingle ? "Archive task" : `Archive ${archiveTargets.length} tasks`}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             {isSingle ? (
               <>
                 Are you sure you want to archive{" "}

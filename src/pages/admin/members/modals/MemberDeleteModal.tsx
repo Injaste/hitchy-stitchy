@@ -37,7 +37,7 @@ const MemberDeleteModal = () => {
             <TriangleAlert className="size-5 shrink-0" />
             Delete access
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-foreground leading-relaxed">
             <span className="font-semibold text-foreground">
               {member.display_name}
             </span>{" "}

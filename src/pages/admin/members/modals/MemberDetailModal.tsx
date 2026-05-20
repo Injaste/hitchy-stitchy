@@ -97,7 +97,7 @@ const MemberDetailModal = () => {
       canUpdate("members.freeze") && {
         label: isFrozen ? "Restore access" : "Freeze access",
         onClick: openFreeze,
-        variant: (isFrozen ? "outline" : "destructive") as const,
+        variant: isFrozen ? ("outline" as const) : ("destructive" as const),
       },
   ];
   const primaryAction = canManage &&

@@ -33,7 +33,7 @@ const GuestDeleteModal = () => {
             <TriangleAlert className="w-4 h-4 shrink-0" />
             Remove guest
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             Are you sure you want to remove{" "}
             <span className="font-semibold text-foreground">"{guest.name}"</span>{" "}
             from your guest list? This action cannot be undone.

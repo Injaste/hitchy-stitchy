@@ -72,7 +72,7 @@ const GuestBulkStatusModal = () => {
             <Icon className="w-4 h-4 shrink-0" />
             Update {ids.length} {guestNoun}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             Mark{" "}
             <span className="font-semibold text-foreground">
               {ids.length} {guestNoun}

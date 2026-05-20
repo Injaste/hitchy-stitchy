@@ -30,7 +30,7 @@ const UnsavedChangesModal = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>You have unsaved changes</AlertDialogTitle>
-          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed text-left">
+          <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
             Save your edits, discard them, or keep editing.
           </AlertDialogDescription>
         </AlertDialogHeader>
