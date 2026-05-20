@@ -1,57 +1,35 @@
-import { create } from "zustand"
+import { createModalStore } from "../../hooks/useModalStore"
 import type { Guest, GuestStatus } from "../types"
 
-interface GuestModalState {
-  isCreateOpen: boolean
-  isEditOpen: boolean
-  isDeleteOpen: boolean
-  isDetailOpen: boolean
+interface GuestModalAddons {
   isImportOpen: boolean
   isBulkUpdateOpen: boolean
-  isCreateMore: boolean
-  selectedItem: Guest | null
   selectedIds: Set<string>
   bulkUpdateIds: string[]
   bulkUpdateStatus: GuestStatus | null
 
-  openCreate: () => void
-  openEdit: () => void
-  openDelete: () => void
-  openDetail: (item: Guest) => void
   openImport: () => void
   openBulkUpdate: (ids: string[], status: GuestStatus) => void
   toggleRow: (id: string) => void
   setSelectedIds: (ids: Set<string>) => void
   clearSelection: () => void
-  setIsCreateMore: (v: boolean) => void
-  closeAll: () => void
+  extendedCloseAll: () => void
+  extendedReset: () => void
 }
 
-// Bespoke store (not via createModalStore) — guests has extra flags for the
-// CSV import wizard and bulk status update that the shared factory doesn't cover.
-export const useGuestModalStore = create<GuestModalState>((set, get) => ({
-  isCreateOpen: false,
-  isEditOpen: false,
-  isDeleteOpen: false,
-  isDetailOpen: false,
+export const useGuestModalStore = createModalStore<Guest, GuestModalAddons>((set, get) => ({
   isImportOpen: false,
   isBulkUpdateOpen: false,
-  isCreateMore: false,
-  selectedItem: null,
   selectedIds: new Set(),
   bulkUpdateIds: [],
   bulkUpdateStatus: null,
 
-  openCreate: () => set({ isCreateOpen: true }),
-  openEdit: () => set({ isDetailOpen: false, isEditOpen: true }),
-  openDelete: () => set({ isDetailOpen: false, isDeleteOpen: true }),
-  openDetail: (item) => set({ isDetailOpen: true, selectedItem: item }),
   openImport: () => set({ isImportOpen: true }),
   openBulkUpdate: (ids, status) =>
     set({ isBulkUpdateOpen: true, bulkUpdateIds: ids, bulkUpdateStatus: status }),
 
   toggleRow: (id) => {
-    const next = new Set(get().selectedIds)
+    const next = new Set((get() as { selectedIds: Set<string> }).selectedIds)
     if (next.has(id)) next.delete(id)
     else next.add(id)
     set({ selectedIds: next })
@@ -59,24 +37,11 @@ export const useGuestModalStore = create<GuestModalState>((set, get) => ({
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   clearSelection: () => set({ selectedIds: new Set() }),
 
-  setIsCreateMore: (v) => set({ isCreateMore: v }),
-
-  closeAll: () => {
+  extendedCloseAll: () => set({ isImportOpen: false, isBulkUpdateOpen: false }),
+  extendedReset: () =>
     set({
-      isCreateOpen: false,
-      isEditOpen: false,
-      isDeleteOpen: false,
-      isDetailOpen: false,
-      isImportOpen: false,
-      isBulkUpdateOpen: false,
-    })
-    setTimeout(() => {
-      set({
-        selectedItem: null,
-        selectedIds: new Set(),
-        bulkUpdateIds: [],
-        bulkUpdateStatus: null,
-      })
-    }, 200)
-  },
+      selectedIds: new Set(),
+      bulkUpdateIds: [],
+      bulkUpdateStatus: null,
+    }),
 }))

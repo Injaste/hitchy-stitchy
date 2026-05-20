@@ -14,6 +14,12 @@ interface ModalState<T> {
   openDetail: (item: T) => void
   setIsCreateMore: (v: boolean) => void
   closeAll: () => void
+
+  // Optional hooks contributed by additionalState — extend close behaviour
+  // without redefining closeAll. extendedCloseAll runs immediately alongside
+  // the base flag reset; extendedReset runs after 200ms alongside selectedItem.
+  extendedCloseAll?: () => void
+  extendedReset?: () => void
 }
 
 export function createModalStore<T, U extends object = {}>(
@@ -43,9 +49,12 @@ export function createModalStore<T, U extends object = {}>(
         isEditOpen: false,
         isDeleteOpen: false,
         isDetailOpen: false,
+        isCreateMore: false,
       } as Partial<ModalState<T> & U>)
+      get().extendedCloseAll?.()
       setTimeout(() => {
         set({ selectedItem: null } as Partial<ModalState<T> & U>)
+        get().extendedReset?.()
       }, 200)
     },
 

@@ -87,7 +87,7 @@ function DialogContent({
         {...props}
       >
         <motion.div
-          className="relative grid gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10"
+          className="relative grid gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 has-data-[slot=dialog-close]:**:data-[slot=dialog-title]:pr-8"
           variants={itemShake}
           animate={animate}
           onAnimationComplete={onAnimationComplete}

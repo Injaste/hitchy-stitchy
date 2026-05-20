@@ -4,7 +4,7 @@ import type { Member } from "../types"
 interface MemberModalAddons {
   isFreezeOpen: boolean
   openFreeze: () => void
-  closeAll: () => void
+  extendedCloseAll: () => void
 }
 
 export const useMemberModalStore = createModalStore<Member, MemberModalAddons>((set) => ({
@@ -12,16 +12,5 @@ export const useMemberModalStore = createModalStore<Member, MemberModalAddons>((
 
   openFreeze: () => set({ isDetailOpen: false, isFreezeOpen: true }),
 
-  closeAll: () => {
-    set({
-      isCreateOpen: false,
-      isDetailOpen: false,
-      isEditOpen: false,
-      isDeleteOpen: false,
-      isFreezeOpen: false,
-    })
-    setTimeout(() => {
-      set({ selectedItem: null })
-    }, 200)
-  },
+  extendedCloseAll: () => set({ isFreezeOpen: false }),
 }))

@@ -8,7 +8,8 @@ interface TaskModalAddons {
   isArchivedSheetOpen: boolean
   openArchivedSheet: () => void
   closeArchivedSheet: () => void
-  closeAll: () => void
+  extendedCloseAll: () => void
+  extendedReset: () => void
 }
 
 export const useTaskModalStore = createModalStore<Task, TaskModalAddons>((set) => ({
@@ -21,19 +22,6 @@ export const useTaskModalStore = createModalStore<Task, TaskModalAddons>((set) =
   openArchivedSheet: () => set({ isArchivedSheetOpen: true }),
   closeArchivedSheet: () => set({ isArchivedSheetOpen: false }),
 
-  closeAll: () => {
-    set({
-      isCreateOpen: false,
-      isDetailOpen: false,
-      isEditOpen: false,
-      isDeleteOpen: false,
-      isArchiveOpen: false,
-    })
-    setTimeout(() => {
-      set({
-        selectedItem: null,
-        archiveTargets: [],
-      })
-    }, 200)
-  },
+  extendedCloseAll: () => set({ isArchiveOpen: false }),
+  extendedReset: () => set({ archiveTargets: [] }),
 }))

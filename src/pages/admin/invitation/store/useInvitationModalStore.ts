@@ -1,21 +1,19 @@
 import { createModalStore } from "../../hooks/useModalStore"
 import type { Theme } from "../types"
 
-interface InvitationModalState {
+interface InvitationModalAddons {
   isPublishOpen: boolean
   selectedTemplateId: string | null
 
   openCreate: (templateId: string) => void
   openDelete: (theme: Theme) => void
   openPublish: (theme: Theme) => void
-  closeAll: () => void
+  extendedCloseAll: () => void
+  extendedReset: () => void
 }
 
-export const useInvitationModalStore = createModalStore<Theme, InvitationModalState>((set) => ({
-  isCreateOpen: false,
-  isDeleteOpen: false,
+export const useInvitationModalStore = createModalStore<Theme, InvitationModalAddons>((set) => ({
   isPublishOpen: false,
-  selectedTheme: null,
   selectedTemplateId: null,
 
   openCreate: (templateId: string) => set({
@@ -24,18 +22,13 @@ export const useInvitationModalStore = createModalStore<Theme, InvitationModalSt
   }),
   openDelete: (theme: Theme) => set({
     isDeleteOpen: true,
-    selectedTheme: theme,
+    selectedItem: theme,
   }),
   openPublish: (theme: Theme) => set({
     isPublishOpen: true,
-    selectedTheme: theme,
+    selectedItem: theme,
   }),
-  closeAll: () => set({
-    isCreateOpen: false,
-    isDeleteOpen: false,
-    isPublishOpen: false,
-    selectedTheme: null,
-    selectedTemplateId: null,
-  }),
-}))
 
+  extendedCloseAll: () => set({ isPublishOpen: false }),
+  extendedReset: () => set({ selectedTemplateId: null }),
+}))
