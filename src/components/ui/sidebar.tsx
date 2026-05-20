@@ -26,7 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
-import { SmoothScroll } from "../custom/smooth-scroll";
+import { ScrollView } from "../custom/scroll-view";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -329,13 +329,13 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
         className,
       )}
     >
-      <SmoothScroll
+      <ScrollView
         gradientBottom
         gradientClass="from-background"
         className="rounded-[inherit]"
       >
         {props.children}
-      </SmoothScroll>
+      </ScrollView>
     </motion.main>
   );
 }

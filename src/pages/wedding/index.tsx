@@ -1,5 +1,7 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { Lenis } from "lenis/react";
 
+import { useIsMobile } from "@/hooks/use-mobile";
 import { usePublicEvent, usePublicEventRealtime } from "./queries";
 import { themeRegistry, FallbackTheme } from "./templates";
 import ThemeLoader from "./states/ThemeLoader";
@@ -9,6 +11,7 @@ import ThemeError from "./states/ThemeError";
 import ThemeState from "./states/ThemeState";
 
 const Wedding = () => {
+  const isMobile = useIsMobile();
   const [isReady, setIsReady] = useState(false);
   const { data: eventConfig, isLoading, error } = usePublicEvent();
 
@@ -21,7 +24,7 @@ const Wedding = () => {
   const ThemeComponent =
     (themeSlug ? themeRegistry[themeSlug]?.component : null) ?? FallbackTheme;
 
-  return (
+  const content = (
     <AnimatePresence mode="wait">
       {showStateWrapper ? (
         <ComponentFade key="state-overlay">
@@ -48,6 +51,19 @@ const Wedding = () => {
         </ComponentFade>
       )}
     </AnimatePresence>
+  );
+
+  if (isMobile) return content;
+
+  return (
+    <Lenis
+      root
+      options={{
+        prevent: () => document.body.hasAttribute("data-scroll-locked"),
+      }}
+    >
+      {content}
+    </Lenis>
   );
 };
 

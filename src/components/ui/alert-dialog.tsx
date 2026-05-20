@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
 import { itemShake } from "@/lib/animations";
-import { SmoothScroll, type SmoothScrollProps } from "../custom/smooth-scroll";
+import { ScrollView, type ScrollViewProps } from "../custom/scroll-view";
 
 function AlertDialog({
   ...props
@@ -76,7 +76,7 @@ function AlertDialogContent({
         {...props}
       >
         <motion.div
-          className="rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none"
+          className="rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none grid gap-4"
           variants={itemShake}
           animate={animate}
           onAnimationComplete={() => setAnimate("idle")}
@@ -96,7 +96,7 @@ function AlertDialogHeader({
     <div
       data-slot="alert-dialog-header"
       className={cn(
-        "grid grid-rows-[auto_1fr] place-items-center gap-2 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
+        "grid grid-rows-[auto_1fr] place-items-center gap-2 pt-4 px-4 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
         className,
       )}
       {...props}
@@ -104,17 +104,17 @@ function AlertDialogHeader({
   );
 }
 
-function AlertDialogBody({ className, children, ...props }: SmoothScrollProps) {
+function AlertDialogBody({ className, children, ...props }: ScrollViewProps) {
   return (
-    <SmoothScroll
+    <ScrollView
       gradientTop
       gradientBottom
       gradientClass="from-popover"
-      className={cn("max-h-[50vh] p-1", className)}
+      className={cn("max-h-[50vh] px-4", className)}
       {...props}
     >
       {children}
-    </SmoothScroll>
+    </ScrollView>
   );
 }
 
@@ -126,7 +126,7 @@ function AlertDialogFooter({
     <div
       data-slot="alert-dialog-footer"
       className={cn(
-        "flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end mt-4",
+        "flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end pb-4 px-4",
         className,
       )}
       {...props}

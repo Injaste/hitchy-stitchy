@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { itemShake } from "@/lib/animations";
-import { SmoothScroll, type SmoothScrollProps } from "../custom/smooth-scroll";
+import { ScrollView, type ScrollViewProps } from "../custom/scroll-view";
 
 type DialogAction = {
   label: string;
@@ -87,7 +87,7 @@ function DialogContent({
         {...props}
       >
         <motion.div
-          className="relative grid gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 has-data-[slot=dialog-close]:**:data-[slot=dialog-title]:pr-8"
+          className="relative grid gap-4 rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 has-data-[slot=dialog-close]:**:data-[slot=dialog-title]:pr-8"
           variants={itemShake}
           animate={animate}
           onAnimationComplete={onAnimationComplete}
@@ -115,24 +115,23 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex flex-col gap-2 pt-4 px-4", className)}
       {...props}
     />
   );
 }
 
-function DialogBody({ className, children, ...props }: SmoothScrollProps) {
+function DialogBody({ className, children, ...props }: ScrollViewProps) {
   return (
-    <SmoothScroll
+    <ScrollView
       gradientTop
       gradientBottom
       gradientClass="from-popover"
-      // TODO FIGURE OUT HOW TO NICELY DO THIS OVEFLOW HIDDEN FROM ANIMATE SHAKE CLIPPING
-      className={cn("max-h-[50vh] px-6 -ml-6 -mr-4", className)}
+      className={cn("max-h-[50vh] px-4", className)}
       {...props}
     >
       {children}
-    </SmoothScroll>
+    </ScrollView>
   );
 }
 
@@ -148,7 +147,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl px-4 pb-4 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2 rounded-b-xl px-4 pb-4 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}

@@ -1,8 +1,17 @@
-import { useState } from "react";
-import { useLenis } from "lenis/react";
+import { useEffect, useState } from "react";
+import { useScrollContext } from "@/components/custom/scroll-view";
 
 export const useHasScrolled = () => {
-  const [hasScrolled, setHasScrolled] = useState(false);
-  useLenis((lenis) => setHasScrolled(lenis.scroll > 0));
-  return hasScrolled;
+  const ctx = useScrollContext();
+  const [windowScrolled, setWindowScrolled] = useState(false);
+
+  useEffect(() => {
+    if (ctx) return;
+    const onScroll = () => setWindowScrolled(window.scrollY > 0);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [ctx]);
+
+  return ctx ? ctx.hasScrolled : windowScrolled;
 };

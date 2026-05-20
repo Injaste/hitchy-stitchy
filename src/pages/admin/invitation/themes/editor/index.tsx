@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { SmoothScroll } from "@/components/custom/smooth-scroll";
+import { ScrollView } from "@/components/custom/scroll-view";
 import Container from "@/components/custom/container";
 import { Separator } from "@/components/ui/separator";
 import { useThemeWithTemplate } from "../../queries";
@@ -79,7 +79,7 @@ const ThemeEditorSheet = ({
             <Separator />
 
             <div className="flex-1 min-h-0 grid grid-rows-1 grid-cols-1 lg:grid-cols-[minmax(450px,1fr)_minmax(450px,1fr)] overflow-hidden">
-              <SmoothScroll gradientTop gradientBottom className="py-6">
+              <ScrollView gradientTop gradientBottom className="py-6">
                 <Container
                   size="none"
                   className="flex flex-col min-h-0 px-3 md:px-6"
@@ -89,7 +89,7 @@ const ThemeEditorSheet = ({
                     schema={selected.entry.schema}
                   />
                 </Container>
-              </SmoothScroll>
+              </ScrollView>
               {/* Editorial Warm Sand/Clay variant */}
               <div
                 // className="hidden lg:block border-l bg-secondary/40 overflow-hidden relative"

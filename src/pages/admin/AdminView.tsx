@@ -36,7 +36,7 @@ const AdminView = () => {
             <AdminSidebar />
             <SidebarInset className="flex flex-col flex-1 ">
               <AdminTopbar />
-              <div className="px-3 md:px-6 pb-4 md:pb-6 -mt-1">
+              <div className="px-3 md:px-6 pb-4 md:pb-6">
                 <AnimatePresence mode="wait">
                   <ComponentFade key={activePage}>
                     {currentOutlet}
