@@ -100,3 +100,15 @@ export interface UpdateThemePayload {
   name?: string
   config?: ThemeConfig
 }
+
+export interface DeleteThemePayload {
+  event_id: string
+  id: string
+  name: string
+}
+
+export interface PublishThemePayload {
+  event_id: string
+  id: string
+  name: string
+}

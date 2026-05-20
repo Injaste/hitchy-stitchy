@@ -22,6 +22,8 @@ import type {
   GuestFormValues,
   ImportResult,
 } from "./types"
+import { STATUS_LABELS } from "./types"
+import { truncate } from "@/lib/utils"
 
 export function useGuestsQuery() {
   const { slug, eventId } = useAdminStore()
@@ -80,7 +82,7 @@ export function useGuestMutations() {
       return row
     },
     {
-      successMessage: "Guest added",
+      successMessage: (result: Guest) => `"${truncate(result.name)}" added`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Guest) => {
         setGuests((old) => [result, ...(old ?? [])])
@@ -91,7 +93,7 @@ export function useGuestMutations() {
   const update = useMutation(
     (payload: UpdateGuestPayload) => updateGuest(payload),
     {
-      successMessage: "Guest updated",
+      successMessage: (result: Guest) => `"${truncate(result.name)}" updated`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Guest) => {
         setGuests((old) => old?.map((g) => g.id === result.id ? result : g) ?? [])
@@ -112,7 +114,8 @@ export function useGuestMutations() {
         invite_code: guest.invite_code,
       }),
     {
-      successMessage: "Status updated",
+      successMessage: (result: Guest) =>
+        `"${truncate(result.name)}" marked ${STATUS_LABELS[result.status].toLowerCase()}`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Guest) => {
         setGuests((old) => old?.map((g) => g.id === result.id ? result : g) ?? [])
@@ -124,7 +127,12 @@ export function useGuestMutations() {
     ({ ids, status }: { ids: string[]; status: GuestStatus }) =>
       updateGuests(eventId!, ids, status),
     {
-      successMessage: "Guests updated",
+      successMessage: (rows: Guest[], args) => {
+        const label = STATUS_LABELS[args.status].toLowerCase()
+        return rows.length === 1
+          ? `"${truncate(rows[0].name)}" marked ${label}`
+          : `${rows.length} guests marked ${label}`
+      },
       errorMessage: (err) => err.message,
       onSuccess: (rows: Guest[]) => {
         const byId = new Map(rows.map((r) => [r.id, r]))
@@ -134,12 +142,12 @@ export function useGuestMutations() {
   )
 
   const remove = useMutation(
-    (id: string) => deleteGuest(eventId!, id),
+    ({ id }: { id: string; name: string }) => deleteGuest(eventId!, id),
     {
-      successMessage: "Guest removed",
+      successMessage: (_: void, args) => `"${truncate(args.name)}" removed`,
       errorMessage: (err) => err.message,
-      onSuccess: (_: void, id: string) => {
-        setGuests((old) => old?.filter((g) => g.id !== id) ?? [])
+      onSuccess: (_: void, args) => {
+        setGuests((old) => old?.filter((g) => g.id !== args.id) ?? [])
       },
     },
   )

@@ -96,4 +96,5 @@ export interface UpdateTimelineItemPayload {
 export interface DeleteTimelineItemPayload {
   event_id: string
   id: string
+  title: string
 }

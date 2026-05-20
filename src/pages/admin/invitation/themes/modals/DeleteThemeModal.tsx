@@ -26,7 +26,8 @@ const DeleteThemeModal = () => {
   if (!selectedItem) return null;
   const theme = selectedItem;
 
-  const handleConfirm = () => remove.mutate(theme.id);
+  const handleConfirm = () =>
+    remove.mutate({ event_id: eventId!, id: theme.id, name: theme.name });
 
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>

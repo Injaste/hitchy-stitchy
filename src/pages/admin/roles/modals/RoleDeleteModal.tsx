@@ -29,7 +29,7 @@ const RoleDeleteModal = () => {
   const role = selectedItem
 
   const handleConfirm = () => {
-    remove.mutate({ event_id: eventId!, id: role.id });
+    remove.mutate({ event_id: eventId!, id: role.id, name: role.name });
   };
 
   return (

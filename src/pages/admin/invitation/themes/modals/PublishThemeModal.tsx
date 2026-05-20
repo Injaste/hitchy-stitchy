@@ -12,11 +12,13 @@ import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 import { Globe } from "lucide-react";
 import { useInvitationModalStore } from "../../store/useInvitationModalStore";
 import { useThemesMutations } from "../../queries";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 const PublishThemeModal = () => {
   const isPublishOpen = useInvitationModalStore((s) => s.isPublishOpen);
   const selectedItem = useInvitationModalStore((s) => s.selectedItem);
   const closeAll = useInvitationModalStore((s) => s.closeAll);
+  const { eventId } = useAdminStore();
   const { publish } = useThemesMutations();
 
   useCloseOnSuccess(publish.isSuccess, closeAll);
@@ -24,7 +26,8 @@ const PublishThemeModal = () => {
   if (!selectedItem) return null;
   const theme = selectedItem;
 
-  const handleConfirm = () => publish.mutate(theme.id);
+  const handleConfirm = () =>
+    publish.mutate({ event_id: eventId!, id: theme.id, name: theme.name });
 
   return (
     <AlertDialog open={isPublishOpen} onOpenChange={closeAll}>

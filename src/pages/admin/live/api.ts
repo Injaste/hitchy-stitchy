@@ -1,4 +1,9 @@
-import type { LiveLog, LiveLogType } from './types'
+import type {
+  LiveLog,
+  InsertLiveLogPayload,
+  MarkArrivedPayload,
+  AdvanceCuePayload,
+} from './types'
 import { mockLiveLogs } from './data'
 
 // TODO: replace with live Supabase query
@@ -8,28 +13,21 @@ export async function fetchLiveLogs(eventId: string): Promise<LiveLog[]> {
 }
 
 // TODO: replace with live Supabase query
-export async function insertLiveLog(payload: {
-  eventId: string
-  memberId: string
-  memberDisplayName: string
-  role: string
-  type: LiveLogType
-  msg: string
-}): Promise<LiveLog> {
+export async function insertLiveLog(payload: InsertLiveLogPayload): Promise<LiveLog> {
   await new Promise((r) => setTimeout(r, 200))
   return {
     ...payload,
     id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
+    created_at: new Date().toISOString(),
   }
 }
 
 // TODO: replace with live Supabase query
-export async function markArrived(memberId: string): Promise<void> {
+export async function markArrived(payload: MarkArrivedPayload): Promise<void> {
   await new Promise((r) => setTimeout(r, 200))
 }
 
 // TODO: replace with live Supabase query
-export async function advanceCue(eventId: string, dayId: string): Promise<void> {
+export async function advanceCue(payload: AdvanceCuePayload): Promise<void> {
   await new Promise((r) => setTimeout(r, 200))
 }

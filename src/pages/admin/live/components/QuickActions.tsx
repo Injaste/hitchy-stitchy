@@ -20,9 +20,9 @@ export function QuickActions() {
 
   const handleAction = (action: typeof actions[number]) => {
     insertLog({
-      eventId,
-      memberId,
-      memberDisplayName,
+      event_id: eventId,
+      member_id: memberId,
+      member_display_name: memberDisplayName,
       role: memberRoleName,
       type: action.type,
       msg: action.msg,

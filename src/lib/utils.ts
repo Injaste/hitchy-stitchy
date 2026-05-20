@@ -7,3 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export const truncate = (s: string, max = 30): string =>
+  s.length > max ? `${s.slice(0, max)}…` : s;

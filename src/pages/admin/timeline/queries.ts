@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
+import { truncate } from "@/lib/utils"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import {
@@ -41,7 +42,7 @@ export function useTimelineMutations() {
   const create = useMutation(
     (payload: CreateTimelineItemPayload) => createTimelineItem(payload),
     {
-      successMessage: "Item added",
+      successMessage: (result: Timeline) => `"${truncate(result.title)}" added`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Timeline) => {
         setTimeline((items) => [...items, result])
@@ -52,7 +53,7 @@ export function useTimelineMutations() {
   const update = useMutation(
     (payload: UpdateTimelineItemPayload) => updateTimelineItem(payload),
     {
-      successMessage: "Item updated",
+      successMessage: (result: Timeline) => `"${truncate(result.title)}" updated`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Timeline) => {
         setTimeline((items) =>
@@ -65,7 +66,8 @@ export function useTimelineMutations() {
   const remove = useMutation(
     (payload: DeleteTimelineItemPayload) => deleteTimelineItem(payload),
     {
-      successMessage: "Item deleted",
+      successMessage: (_: void, args: DeleteTimelineItemPayload) =>
+        `"${truncate(args.title)}" deleted`,
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args: DeleteTimelineItemPayload) => {
         setTimeline((items) => items.filter((item) => item.id !== args.id))

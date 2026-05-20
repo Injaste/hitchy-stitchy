@@ -13,6 +13,12 @@ export interface EventsCount {
   pending: number
 }
 
+export interface ClaimInvitePayload {
+  event_id: string
+  event_name: string
+  action: "accept" | "reject"
+}
+
 export interface PendingInvite {
   id: string
   event_id: string

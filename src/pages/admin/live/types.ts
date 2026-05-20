@@ -9,11 +9,30 @@ export type LiveLogType =
 
 export interface LiveLog {
   id: string
-  eventId: string
-  memberId?: string
-  memberDisplayName?: string
+  event_id: string
+  member_id?: string
+  member_display_name?: string
   role: string
   type: LiveLogType
   msg: string
-  createdAt: string
+  created_at: string
+}
+
+export interface InsertLiveLogPayload {
+  event_id: string
+  member_id: string
+  member_display_name: string
+  role: string
+  type: LiveLogType
+  msg: string
+}
+
+export interface MarkArrivedPayload {
+  member_id: string
+  display_name: string
+}
+
+export interface AdvanceCuePayload {
+  event_id: string
+  day_id: string
 }

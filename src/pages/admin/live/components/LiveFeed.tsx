@@ -51,7 +51,7 @@ export function LiveFeed() {
                     {log.role}
                   </Badge>
                   <span className="text-2xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(log.createdAt), {
+                    {formatDistanceToNow(new Date(log.created_at), {
                       addSuffix: true,
                     })}
                   </span>

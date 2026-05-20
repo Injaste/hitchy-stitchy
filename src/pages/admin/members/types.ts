@@ -69,4 +69,5 @@ export interface FreezeMemberPayload {
 export interface DeleteMemberPayload {
   event_id: string;
   id: string;
+  display_name: string;
 }

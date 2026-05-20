@@ -29,7 +29,7 @@ const TimelineDeleteModal = () => {
   const item = selectedItem;
 
   const handleConfirm = () => {
-    remove.mutate({ event_id: eventId!, id: item.id });
+    remove.mutate({ event_id: eventId!, id: item.id, title: item.title });
   };
 
   return (

@@ -45,7 +45,7 @@ export function AttendancePanel() {
               <Check className="h-3 w-3" /> Arrived
             </Badge>
             {/* ) : canMark(m.id) ? (
-              <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => markArrived(m.id)}>
+              <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => markArrived({ member_id: m.id, display_name: m.display_name })}>
                 <Clock className="h-3 w-3 mr-1" /> Mark
               </Button>
             ) : (

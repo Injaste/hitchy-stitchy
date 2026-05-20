@@ -3,7 +3,11 @@ import { useMutation } from '@/lib/query/useMutation'
 import { useAdminStore } from '../store/useAdminStore'
 import { adminKeys } from '../lib/queryKeys'
 import { fetchLiveLogs, insertLiveLog, markArrived, advanceCue } from './api'
-import type { LiveLogType } from './types'
+import type {
+  InsertLiveLogPayload,
+  MarkArrivedPayload,
+  AdvanceCuePayload,
+} from './types'
 
 export function useLiveLogsQuery() {
   const { slug, eventId } = useAdminStore()
@@ -17,30 +21,34 @@ export function useLiveLogsQuery() {
 export function useInsertLogMutation() {
   const { slug } = useAdminStore()
   const qc = useQueryClient()
-  return useMutation<
-    { eventId: string; memberId: string; memberDisplayName: string; role: string; type: LiveLogType; msg: string },
-    unknown
-  >(insertLiveLog, {
-    silent: true,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: adminKeys.liveLogs(slug) }) },
-  })
+  return useMutation(
+    (payload: InsertLiveLogPayload) => insertLiveLog(payload),
+    {
+      silent: true,
+      onSuccess: () => { qc.invalidateQueries({ queryKey: adminKeys.liveLogs(slug) }) },
+    },
+  )
 }
 
 export function useMarkArrivedMutation() {
   const { slug } = useAdminStore()
   const qc = useQueryClient()
-  return useMutation<string, void>(markArrived, {
-    successMessage: 'Marked as arrived',
-    errorMessage: 'Failed to mark arrival',
-    onSuccess: () => { qc.invalidateQueries({ queryKey: adminKeys.members(slug) }) },
-  })
+  return useMutation(
+    (payload: MarkArrivedPayload) => markArrived(payload),
+    {
+      successMessage: (_: void, args: MarkArrivedPayload) =>
+        `"${args.display_name}" marked as arrived`,
+      errorMessage: 'Failed to mark arrival',
+      onSuccess: () => { qc.invalidateQueries({ queryKey: adminKeys.members(slug) }) },
+    },
+  )
 }
 
 export function useAdvanceCueMutation() {
   const { slug } = useAdminStore()
   const qc = useQueryClient()
-  return useMutation<{ eventId: string; dayId: string }, void>(
-    ({ eventId, dayId }) => advanceCue(eventId, dayId),
+  return useMutation(
+    (payload: AdvanceCuePayload) => advanceCue(payload),
     {
       successMessage: 'Cue advanced',
       errorMessage: 'Failed to advance cue',

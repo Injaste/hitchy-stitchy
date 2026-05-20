@@ -6,6 +6,8 @@ import type {
   Theme,
   CreateThemePayload,
   UpdateThemePayload,
+  DeleteThemePayload,
+  PublishThemePayload,
 } from "./types"
 
 // Invitation
@@ -85,19 +87,19 @@ export async function updateTheme(payload: UpdateThemePayload): Promise<Theme> {
   return data as Theme
 }
 
-export async function deleteTheme(eventId: string, themeId: string): Promise<void> {
+export async function deleteTheme(payload: DeleteThemePayload): Promise<void> {
   const { error } = await supabase.rpc("delete_theme", {
-    p_event_id: eventId,
-    p_theme_id: themeId,
+    p_event_id: payload.event_id,
+    p_theme_id: payload.id,
   })
 
   if (error) throw new Error(error.message)
 }
 
-export async function publishTheme(eventId: string, themeId: string): Promise<void> {
+export async function publishTheme(payload: PublishThemePayload): Promise<void> {
   const { error } = await supabase.rpc("publish_theme", {
-    p_event_id: eventId,
-    p_theme_id: themeId,
+    p_event_id: payload.event_id,
+    p_theme_id: payload.id,
   })
 
   if (error) throw new Error(error.message)

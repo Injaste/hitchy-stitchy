@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@/lib/query/useMutation";
+import { truncate } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { adminKeys } from "@/pages/admin/lib/queryKeys";
 import {
@@ -16,6 +17,8 @@ import type {
   UpdateInvitationPayload,
   CreateThemePayload,
   UpdateThemePayload,
+  DeleteThemePayload,
+  PublishThemePayload,
   Template,
   Theme,
   TemplateTheme,
@@ -50,7 +53,7 @@ export function useInvitationMutation() {
       toast: {
         loading: "Saving...",
         success: "Saved",
-        error: "Failed to save",
+        error: (err) => err.message,
       },
       onSuccess: (result: Invitation) => {
         queryClient.setQueryData<Invitation>(
@@ -166,8 +169,8 @@ export function useThemesMutations() {
   const create = useMutation(
     (payload: CreateThemePayload) => createTheme(payload),
     {
-      successMessage: "Theme created",
-      errorMessage: "Failed to create theme",
+      successMessage: (result: Theme) => `"${truncate(result.name)}" created`,
+      errorMessage: (err) => err.message,
       onSuccess: () => {
         invalidateAll();
       },
@@ -177,17 +180,18 @@ export function useThemesMutations() {
   const update = useMutation(
     (payload: UpdateThemePayload) => updateTheme(payload),
     {
-      successMessage: "Saved",
-      errorMessage: "Failed to save",
+      successMessage: (result: Theme) => `"${truncate(result.name)}" saved`,
+      errorMessage: (err) => err.message,
       onSuccess: () => invalidateThemes(),
     },
   );
 
   const remove = useMutation(
-    (themeId: string) => deleteTheme(eventId!, themeId),
+    (payload: DeleteThemePayload) => deleteTheme(payload),
     {
-      successMessage: "Theme deleted",
-      errorMessage: "Failed to delete theme",
+      successMessage: (_: void, args: DeleteThemePayload) =>
+        `"${truncate(args.name)}" deleted`,
+      errorMessage: (err) => err.message,
       onSuccess: () => {
         invalidateThemes();
       },
@@ -195,10 +199,11 @@ export function useThemesMutations() {
   );
 
   const publish = useMutation(
-    (themeId: string) => publishTheme(eventId!, themeId),
+    (payload: PublishThemePayload) => publishTheme(payload),
     {
-      successMessage: "Theme saved",
-      errorMessage: "Failed to save theme",
+      successMessage: (_: void, args: PublishThemePayload) =>
+        `"${truncate(args.name)}" published`,
+      errorMessage: (err) => err.message,
       onSuccess: () => {
         invalidateThemes();
       },

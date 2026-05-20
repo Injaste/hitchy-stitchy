@@ -44,7 +44,7 @@ const InvitedCard: FC<{ event: Event }> = ({ event }) => {
               variant="secondary"
               className="flex-1 gap-1.5"
               onClick={() =>
-                claimInvite({ eventId: event.id, action: "accept" })
+                claimInvite({ event_id: event.id, event_name: event.name, action: "accept" })
               }
               disabled={isPending}
             >
@@ -56,7 +56,7 @@ const InvitedCard: FC<{ event: Event }> = ({ event }) => {
               variant="outline"
               className="shrink-0 gap-1.5"
               onClick={() =>
-                claimInvite({ eventId: event.id, action: "reject" })
+                claimInvite({ event_id: event.id, event_name: event.name, action: "reject" })
               }
               disabled={isPending}
             >

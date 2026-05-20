@@ -26,7 +26,7 @@ const GuestDeleteModal = () => {
   if (!selectedItem) return null
   const guest = selectedItem
 
-  const handleConfirm = () => remove.mutate(guest.id)
+  const handleConfirm = () => remove.mutate({ id: guest.id, name: guest.name })
 
   return (
     <AlertDialog open={isDeleteOpen} onOpenChange={closeAll}>

@@ -5,9 +5,7 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask, archiveTasks, fetchArchivedTasks } from "./api"
 import type { CreateTaskPayload, UpdateTaskPayload, DeleteTaskPayload, ArchiveTasksPayload, Task, TaskOrder } from "./types"
 import { STATUS_LABELS } from "./types"
-
-const truncate = (title: string, max = 30) =>
-  title.length > max ? `${title.slice(0, max)}…` : title
+import { truncate } from "@/lib/utils"
 
 export function useTasksQuery() {
   const { slug, eventId } = useAdminStore()

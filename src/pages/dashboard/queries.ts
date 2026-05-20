@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { fetchUserEvents, claimInvite } from "./api"
-import type { EventsCount } from "./types"
+import type { EventsCount, ClaimInvitePayload } from "./types"
 import { getEventStatus } from "@/lib/utils/utils-time"
 
 export const eventsQueryKey = ["events"] as const
@@ -37,9 +37,15 @@ export function useCountEventsQuery(enabled = true) {
 
 export function useClaimInviteMutation() {
   const qc = useQueryClient()
-  return useMutation<{ eventId: string; action: "accept" | "reject" }, void>(claimInvite, {
-    successMessage: (_result, args) => args.action === "accept" ? "Invite accepted!" : "Invite declined",
-    errorMessage: "Failed to update invite",
-    onSuccess: () => qc.invalidateQueries({ queryKey: eventsQueryKey }),
-  })
+  return useMutation(
+    (payload: ClaimInvitePayload) => claimInvite(payload),
+    {
+      successMessage: (_: void, args: ClaimInvitePayload) =>
+        args.action === "accept"
+          ? `Joined "${args.event_name}"`
+          : `Declined invite to "${args.event_name}"`,
+      errorMessage: (err) => err.message,
+      onSuccess: () => qc.invalidateQueries({ queryKey: eventsQueryKey }),
+    },
+  )
 }

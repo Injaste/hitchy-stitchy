@@ -29,7 +29,7 @@ const MemberDeleteModal = () => {
   const member = selectedItem;
 
   const handleConfirm = () => {
-    remove.mutate({ event_id: eventId!, id: member.id });
+    remove.mutate({ event_id: eventId!, id: member.id, display_name: member.display_name });
   };
 
   return (

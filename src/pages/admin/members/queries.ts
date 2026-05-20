@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
+import { truncate } from "@/lib/utils"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { isAdminMember } from "@/pages/admin/bootstrap/utils"
@@ -40,7 +41,7 @@ export function useMemberMutations() {
   const invite = useMutation(
     (payload: InviteMemberPayload) => inviteMember(payload),
     {
-      successMessage: "Invite sent",
+      successMessage: (result: Member) => `Invite sent to "${truncate(result.display_name)}"`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Member) => {
         const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!))
@@ -57,7 +58,7 @@ export function useMemberMutations() {
   const update = useMutation(
     (payload: UpdateMemberPayload) => updateMember(payload),
     {
-      successMessage: "Member updated",
+      successMessage: (result: Member) => `"${truncate(result.display_name)}" updated`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Member) => {
         const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!))
@@ -90,7 +91,7 @@ export function useMemberMutations() {
   const updateMyName = useMutation(
     (display_name: string) => updateMyDisplayName({ event_id: eventId!, display_name }),
     {
-      successMessage: "Name updated",
+      successMessage: (_: void, display_name: string) => `Name updated to "${truncate(display_name)}"`,
       errorMessage: (err) => err.message,
       onSuccess: (_: void, display_name: string) => {
         setMembers((old) => old?.map((m) => m.id === memberId ? { ...m, display_name } : m) ?? [])
@@ -105,8 +106,10 @@ export function useMemberMutations() {
   const freeze = useMutation(
     (payload: FreezeMemberPayload) => freezeMember(payload),
     {
-      successMessage: (_r, args) =>
-        args.freeze ? "Access frozen" : "Access restored",
+      successMessage: (result: Member, args) =>
+        args.freeze
+          ? `Access frozen for "${truncate(result.display_name)}"`
+          : `Access restored for "${truncate(result.display_name)}"`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Member) => {
         setMembers((old) =>
@@ -119,7 +122,8 @@ export function useMemberMutations() {
   const remove = useMutation(
     (payload: DeleteMemberPayload) => deleteMember(payload),
     {
-      successMessage: "Member removed",
+      successMessage: (_: void, args: DeleteMemberPayload) =>
+        `"${truncate(args.display_name)}" removed`,
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args: DeleteMemberPayload) => {
         setMembers((old) => old?.filter((m) => m.id !== args.id) ?? [])

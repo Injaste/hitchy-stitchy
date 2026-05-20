@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
+import { truncate } from "@/lib/utils"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { isAdminMember } from "@/pages/admin/bootstrap/utils"
@@ -30,7 +31,7 @@ export function useRoleMutations() {
   const create = useMutation(
     (payload: CreateRolePayload) => createRole(payload),
     {
-      successMessage: "Role created",
+      successMessage: (result: Role) => `"${truncate(result.name)}" added`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Role) => {
         setRoles((old) => [...(old ?? []), result])
@@ -41,7 +42,7 @@ export function useRoleMutations() {
   const update = useMutation(
     (payload: UpdateRolePayload) => updateRole(payload),
     {
-      successMessage: "Role updated",
+      successMessage: (result: Role) => `"${truncate(result.name)}" updated`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Role) => {
         setRoles((old) => old?.map((r) => r.id === result.id ? result : r) ?? [])
@@ -68,7 +69,8 @@ export function useRoleMutations() {
   const remove = useMutation(
     (payload: DeleteRolePayload) => deleteRole(payload),
     {
-      successMessage: "Role deleted",
+      successMessage: (_: void, args: DeleteRolePayload) =>
+        `"${truncate(args.name)}" deleted`,
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args: DeleteRolePayload) => {
         setRoles((old) => old?.filter((r) => r.id !== args.id) ?? [])
