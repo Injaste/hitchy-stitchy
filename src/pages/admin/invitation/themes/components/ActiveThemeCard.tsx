@@ -39,7 +39,9 @@ const ActiveThemeCard = ({ template, onEdit }: ActiveThemeCardProps) => {
   };
 
   const lastEdited = template.theme_updated_at
-    ? formatDistanceToNow(new Date(template.theme_updated_at), { addSuffix: true })
+    ? formatDistanceToNow(new Date(template.theme_updated_at), {
+        addSuffix: true,
+      })
     : null;
 
   return (

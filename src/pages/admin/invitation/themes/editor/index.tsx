@@ -90,7 +90,22 @@ const ThemeEditorSheet = ({
                   />
                 </Container>
               </SmoothScroll>
-              <div className="hidden lg:block border-l bg-muted/20 overflow-hidden">
+              {/* Editorial Warm Sand/Clay variant */}
+              <div
+                // className="hidden lg:block border-l bg-secondary/40 overflow-hidden relative"
+                className="hidden lg:block border-l overflow-hidden relative"
+                style={{
+                  backgroundImage: `
+                    radial-gradient(rgba(0,0,0,0.1) 1px, transparent 0),
+                    radial-gradient(rgba(0,0,0,0.1) 1px, transparent 0)
+                  `,
+                  backgroundSize: "8px 8px",
+                  backgroundPosition: "0 0, 4px 4px",
+                }}
+              >
+                {/* A soft wash of light across the texture */}
+                {/* <div className="absolute inset-0 bg-linear-to-t from-primary/40 to-transparent pointer-events-none" /> */}
+
                 <ThemeSheetPreview theme={selected.theme} />
               </div>
             </div>

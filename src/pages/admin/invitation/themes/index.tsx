@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTemplatesWithThemesQuery } from "../queries";
 import ActiveThemeCard from "./components/ActiveThemeCard";
-import OtherDraftsList from "./components/OtherDraftsList";
 import TemplateGallery from "./components/TemplateGallery";
 import ThemeEditorSheet from "./editor";
 
@@ -9,10 +8,10 @@ const Themes = () => {
   const { data: templates } = useTemplatesWithThemesQuery();
   const [editingThemeId, setEditingThemeId] = useState<string | null>(null);
 
-  const { active, others, available } = useMemo(() => {
+  const { active, available } = useMemo(() => {
     const all = templates ?? [];
     const created = all.filter((t) => t.theme_id);
-    const available = all.filter((t) => !t.theme_id);
+    const available = all;
 
     const sortedCreated = [...created].sort((a, b) => {
       if (a.is_published !== b.is_published) return a.is_published ? -1 : 1;
@@ -23,7 +22,6 @@ const Themes = () => {
 
     return {
       active: sortedCreated[0] ?? null,
-      others: sortedCreated.slice(1),
       available,
     };
   }, [templates]);
@@ -51,10 +49,11 @@ const Themes = () => {
               <ActiveThemeCard template={active} onEdit={handleEdit} />
             </section>
 
-            <OtherDraftsList templates={others} onEdit={handleEdit} />
-
             {available.length > 0 && (
-              <TemplateGallery templates={available} title="Add another draft" />
+              <TemplateGallery
+                templates={available}
+                title="Add another draft"
+              />
             )}
           </div>
         )}
@@ -70,3 +69,5 @@ const Themes = () => {
 };
 
 export default Themes;
+
+// TODO rename to TemplateCard, combine with ActiveCard.. active will be at the first, followed by the rest...

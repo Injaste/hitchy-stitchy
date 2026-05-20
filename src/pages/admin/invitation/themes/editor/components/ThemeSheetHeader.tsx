@@ -72,3 +72,7 @@ const ThemeSheetHeader = ({
 };
 
 export default ThemeSheetHeader;
+
+// TODO use SubmitButton instead.. and {theme.is_published ? "Publish" : "Save"}
+// TODO THEN THE BUTTON ONTOP JUST RENDER PUBLISH
+// TODO FIND A BETTER WAY TO HANDLE THIS LOGIC... THE USER MUST KNOW THAT SAVING ALSO PUBLISHES THE CHANGES
