@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FormShellContext, type FormShellContextValue } from "./form-context";
@@ -152,10 +152,17 @@ const FormDialog = ({
     }
   };
 
+  // Memoized so context consumers (SubmitButton, fields) don't re-render on
+  // every FormDialog state change — only when the values they actually read
+  // change. Without this, every setAnimate/setInternalOpen/setAttemptCount
+  // triggers a fresh object identity and re-renders every consumer.
+  const contextValue = useMemo(
+    () => ({ attemptCount, form, isPending, isSuccess, isError }),
+    [attemptCount, form, isPending, isSuccess, isError],
+  );
+
   return (
-    <FormShellContext.Provider
-      value={{ attemptCount, form, isPending, isSuccess, isError }}
-    >
+    <FormShellContext.Provider value={contextValue}>
       <Dialog open={internalOpen} onOpenChange={handleOpenChange}>
         <DialogContent
           className={contentClassName}

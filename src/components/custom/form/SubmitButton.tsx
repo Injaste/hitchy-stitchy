@@ -1,16 +1,27 @@
-import { useRef, useEffect, useState, type FC, useLayoutEffect } from "react";
+import {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FC,
+} from "react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { useFormShellOptional } from "./form-context";
 import { itemShake } from "@/lib/animations";
-import { delay } from "@/lib/utils";
 
 const GAP = 5;
 const SW = 2.5;
 const BR = 8;
 const ARC_PCT = 0.2;
 const SPEED_MS = 1500;
+// Success/error cascade — arc fills, then fades, then resets. Total must
+// fit inside FormDialog's default closeDelay (300ms) so the button finishes
+// its state before the dialog starts exiting.
+const ARC_MS = 150;
+const FADE_MS = 150;
 
 function buildPath(W: number, H: number) {
   const r = BR + GAP,
@@ -55,6 +66,52 @@ const SubmitButton: FC<SubmitButtonProps> = ({
   const arcRef = useRef<SVGPathElement>(null);
   const rafRef = useRef<number>(0);
   const phase = useRef<"idle" | "spinning">("idle");
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+
+  // Cancels the pending success/error tail (fade + reset). Called whenever a
+  // new pending cycle begins, so back-to-back submits aren't swallowed by the
+  // 300ms cascade left over from the previous result.
+  const clearTailTimers = () => {
+    if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+    if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    fadeTimerRef.current = undefined;
+    resetTimerRef.current = undefined;
+  };
+
+  // Instant snap-to-idle (no transition). Used when re-arming the spinner
+  // mid-cascade — the soft fade in reset() looks wrong when we're about to
+  // immediately start spinning again.
+  const snapToIdle = () => {
+    cancelAnimationFrame(rafRef.current);
+    clearTailTimers();
+    if (arcRef.current) {
+      arcRef.current.style.cssText = "opacity: 0";
+      arcRef.current.setAttribute("stroke", "var(--color-primary)");
+    }
+    if (trackRef.current) {
+      trackRef.current.style.cssText = "opacity: 0";
+      trackRef.current.setAttribute(
+        "stroke",
+        "oklch(from var(--color-primary) l c h / 0.25)",
+      );
+    }
+    phase.current = "idle";
+  };
+
+  // Unmount cleanup — prevents the cascade from firing on detached refs after
+  // the dialog closes mid-animation.
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(rafRef.current);
+      clearTailTimers();
+    },
+    [],
+  );
 
   useLayoutEffect(() => {
     const btn = btnRef.current;
@@ -79,7 +136,11 @@ const SubmitButton: FC<SubmitButtonProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!isPending || phase.current !== "idle") return;
+    if (!isPending) return;
+    // Re-arm: if a previous success/error cascade is still in its tail, snap
+    // back to idle so the new submit gets a fresh spinner instead of being
+    // silently swallowed by the `phase.current !== "idle"` guard.
+    if (phase.current !== "idle") snapToIdle();
 
     const btn = btnRef.current;
     const svg = svgRef.current;
@@ -140,18 +201,19 @@ const SubmitButton: FC<SubmitButtonProps> = ({
 
     if (!isSuccess) setShakeState("shake");
 
-    arc.style.transition =
-      "stroke-dasharray 200ms cubic-bezier(.4,0,.2,1), stroke-dashoffset 200ms cubic-bezier(.4,0,.2,1)";
+    arc.style.transition = `stroke-dasharray ${ARC_MS}ms cubic-bezier(.4,0,.2,1), stroke-dashoffset ${ARC_MS}ms cubic-bezier(.4,0,.2,1)`;
     arc.style.strokeDasharray = `${P} 0`;
     arc.style.strokeDashoffset = String(currentOffset);
 
-    delay(200).then(() => {
-      arc.style.transition = "opacity 200ms";
-      track.style.transition = "opacity 200ms";
+    // Trackable timers (not delay().then) so a re-armed submit can cancel
+    // the tail via snapToIdle() instead of letting reset() fire on stale refs.
+    fadeTimerRef.current = setTimeout(() => {
+      arc.style.transition = `opacity ${FADE_MS}ms`;
+      track.style.transition = `opacity ${FADE_MS}ms`;
       arc.style.opacity = "0";
       track.style.opacity = "0";
-      delay(200).then(reset);
-    });
+      resetTimerRef.current = setTimeout(reset, FADE_MS);
+    }, ARC_MS);
   }, [isSuccess, isError]);
 
   function reset() {
@@ -213,4 +275,7 @@ const SubmitButton: FC<SubmitButtonProps> = ({
   );
 };
 
-export default SubmitButton;
+// Memoized so context-driven re-renders in FormDialog (attemptCount, animate,
+// internalOpen) don't re-render the button when its own props/context-derived
+// values haven't changed. Pair with the memoized contextValue in FormDialog.
+export default memo(SubmitButton);
