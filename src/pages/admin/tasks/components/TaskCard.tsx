@@ -95,7 +95,7 @@ const TaskCard: FC<TaskCardProps> = ({
           {...(dragHandleListeners as React.HTMLAttributes<HTMLButtonElement>)}
           {...(dragHandleAttributes as React.HTMLAttributes<HTMLButtonElement>)}
           onClick={(e) => e.stopPropagation()}
-          className="absolute top-1 right-1 opacity-40 lg:opacity-0 group-hover:opacity-40 transition-opacity cursor-grab active:cursor-grabbing touch-none"
+          className="hidden lg:inline-flex absolute top-1 right-1 opacity-40 lg:opacity-0 group-hover:opacity-40 transition-opacity cursor-grab active:cursor-grabbing touch-none"
           variant="ghost"
         >
           <GripVertical className="w-4 h-4 text-muted-foreground" />
