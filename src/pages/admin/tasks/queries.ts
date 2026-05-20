@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
-import { useTaskModalStore } from "./hooks/useTaskModalStore"
 import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask, archiveTasks, fetchArchivedTasks } from "./api"
 import type { CreateTaskPayload, UpdateTaskPayload, DeleteTaskPayload, ArchiveTasksPayload, Task, TaskOrder } from "./types"
 import { STATUS_LABELS } from "./types"
@@ -39,7 +38,6 @@ export function useArchivedTasksQuery() {
 
 export function useTaskMutations() {
   const { slug } = useAdminStore()
-  const closeAll = useTaskModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
   const invalidate = () => {
@@ -110,7 +108,6 @@ export function useTaskMutations() {
           }
         })
         setArchived((old) => old?.filter((t) => t.id !== args.id) ?? [])
-        closeAll()
       },
     },
   )
@@ -144,7 +141,6 @@ export function useTaskMutations() {
           setArchived((old) => old?.filter((t) => !idSet.has(t.id)) ?? [])
           invalidate()
         }
-        closeAll()
       },
     },
   )

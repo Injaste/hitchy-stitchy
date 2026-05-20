@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -8,6 +7,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import SubmitButton from "@/components/custom/form/SubmitButton";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 import { TriangleAlert } from "lucide-react";
 import { useInvitationModalStore } from "../../store/useInvitationModalStore";
 import { useThemesMutations } from "../../queries";
@@ -19,6 +20,8 @@ const DeleteThemeModal = () => {
   const closeAll = useInvitationModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { remove } = useThemesMutations();
+
+  useCloseOnSuccess(remove.isSuccess, closeAll);
 
   if (!selectedItem) return null;
   const theme = selectedItem;
@@ -51,14 +54,17 @@ const DeleteThemeModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             variant="destructive"
             size="sm"
             onClick={handleConfirm}
-            disabled={remove.isPending}
+            isPending={remove.isPending}
+            isSuccess={remove.isSuccess}
+            isError={remove.isError}
           >
-            {remove.isPending ? "Deleting..." : "Delete"}
-          </AlertDialogAction>
+            Delete
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

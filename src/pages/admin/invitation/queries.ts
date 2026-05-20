@@ -12,7 +12,6 @@ import {
   deleteTheme,
   publishTheme,
 } from "./api";
-import { useInvitationModalStore } from "./store/useInvitationModalStore";
 import type {
   UpdateInvitationPayload,
   CreateThemePayload,
@@ -94,7 +93,7 @@ export function useTemplatesWithThemesQuery() {
             theme_id: match?.id ?? null,
             theme_name: match?.name ?? null,
             theme_updated_at: match?.updated_at ?? null,
-            is_published: match?.is_published ?? false,
+            published_at: match?.published_at ?? null,
           };
         })
       : undefined;
@@ -154,7 +153,6 @@ export function useThemeWithTemplate(
 
 export function useThemesMutations() {
   const { slug, eventId } = useAdminStore();
-  const closeAll = useInvitationModalStore((s) => s.closeAll);
   const queryClient = useQueryClient();
 
   const invalidateThemes = () =>
@@ -172,7 +170,6 @@ export function useThemesMutations() {
       errorMessage: "Failed to create theme",
       onSuccess: () => {
         invalidateAll();
-        closeAll();
       },
     },
   );
@@ -180,11 +177,8 @@ export function useThemesMutations() {
   const update = useMutation(
     (payload: UpdateThemePayload) => updateTheme(payload),
     {
-      toast: {
-        loading: "Saving...",
-        success: "Saved",
-        error: "Failed to save",
-      },
+      successMessage: "Saved",
+      errorMessage: "Failed to save",
       onSuccess: () => invalidateThemes(),
     },
   );
@@ -196,7 +190,6 @@ export function useThemesMutations() {
       errorMessage: "Failed to delete theme",
       onSuccess: () => {
         invalidateThemes();
-        closeAll();
       },
     },
   );
@@ -208,7 +201,6 @@ export function useThemesMutations() {
       errorMessage: "Failed to save theme",
       onSuccess: () => {
         invalidateThemes();
-        closeAll();
       },
     },
   );

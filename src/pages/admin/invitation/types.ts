@@ -65,7 +65,7 @@ export interface Theme {
   event_id: string
   template_id: string | null
   name: string
-  is_published: boolean
+  published_at: string | null
   config: ThemeConfig
   created_at: string
   updated_at: string
@@ -85,7 +85,7 @@ export interface TemplateTheme {
   theme_id: string | null
   theme_name: string | null
   theme_updated_at: string | null
-  is_published: boolean
+  published_at: string | null
 }
 
 export interface CreateThemePayload {

@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -8,6 +7,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import SubmitButton from "@/components/custom/form/SubmitButton";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 import { Globe } from "lucide-react";
 import { useInvitationModalStore } from "../../store/useInvitationModalStore";
 import { useThemesMutations } from "../../queries";
@@ -17,6 +18,8 @@ const PublishThemeModal = () => {
   const selectedItem = useInvitationModalStore((s) => s.selectedItem);
   const closeAll = useInvitationModalStore((s) => s.closeAll);
   const { publish } = useThemesMutations();
+
+  useCloseOnSuccess(publish.isSuccess, closeAll);
 
   if (!selectedItem) return null;
   const theme = selectedItem;
@@ -50,13 +53,16 @@ const PublishThemeModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             size="sm"
             onClick={handleConfirm}
-            disabled={publish.isPending}
+            isPending={publish.isPending}
+            isSuccess={publish.isSuccess}
+            isError={publish.isError}
           >
-            {publish.isPending ? "Publishing..." : "Publish"}
-          </AlertDialogAction>
+            Publish
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

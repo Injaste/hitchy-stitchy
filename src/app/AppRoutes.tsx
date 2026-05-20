@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import AdminRoutes from "./routes/AdminRoutes";
 
 const Home = lazy(() => import("@/pages/home"));

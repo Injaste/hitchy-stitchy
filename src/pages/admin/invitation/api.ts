@@ -54,7 +54,7 @@ export async function fetchTemplates(): Promise<Template[]> {
 export async function fetchThemes(eventId: string): Promise<Theme[]> {
   const { data, error } = await supabase
     .from("event_themes")
-    .select("id, event_id, template_id, name, is_published, config, created_at, updated_at")
+    .select("id, event_id, template_id, name, published_at, config, created_at, updated_at")
     .eq("event_id", eventId)
     .order("created_at", { ascending: true })
 

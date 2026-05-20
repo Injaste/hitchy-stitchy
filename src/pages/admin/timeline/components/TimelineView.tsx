@@ -1,7 +1,7 @@
 import { useEffect, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 
 import { useAccess } from "../../hooks/useAccess";

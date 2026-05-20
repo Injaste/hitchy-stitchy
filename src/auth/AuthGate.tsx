@@ -1,6 +1,6 @@
 import { AnimatePresence } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 
 import { useAuthListener, useIsAuthenticatedQuery } from "./queries";
 

@@ -17,6 +17,7 @@ export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) =
     emblaApi.on("settle", updateEdges);
     emblaApi.on("select", updateEdges);
     emblaApi.on("reInit", updateEdges);
+    emblaApi.on("resize", updateEdges);
 
     updateEdges(emblaApi);
 
@@ -25,7 +26,8 @@ export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) =
         .off("scroll", updateEdges)
         .off("settle", updateEdges)
         .off("select", updateEdges)
-        .off("reInit", updateEdges);
+        .off("reInit", updateEdges)
+        .off("resize", updateEdges);
     }
   }, [emblaApi, updateEdges]);
 

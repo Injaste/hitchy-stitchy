@@ -6,7 +6,7 @@ import { usePublicEvent, usePublicEventRealtime } from "./queries";
 import { themeRegistry, FallbackTheme } from "./templates";
 import ThemeLoader from "./states/ThemeLoader";
 import { useState } from "react";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import ThemeError from "./states/ThemeError";
 import ThemeState from "./states/ThemeState";
 

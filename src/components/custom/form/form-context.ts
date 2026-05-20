@@ -23,3 +23,6 @@ export const useFormShell = (): FormShellContextValue => {
   }
   return ctx;
 };
+
+export const useFormShellOptional = (): FormShellContextValue | null =>
+  useContext(FormShellContext);

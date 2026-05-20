@@ -8,7 +8,7 @@ import {
 import { AnimatePresence } from "framer-motion";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 import { cardLiftStyle } from "@/lib/animations";
 import { useIsMobile } from "@/hooks/use-mobile";

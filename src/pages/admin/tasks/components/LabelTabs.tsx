@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { useEffect, type FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -18,6 +18,11 @@ interface LabelTabsProps {
 const LabelTabs: FC<LabelTabsProps> = ({ labels, activeLabel, onSelect }) => {
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
+
+  const labelsKey = labels.join("|");
+  useEffect(() => {
+    emblaApi?.reInit();
+  }, [emblaApi, labelsKey]);
 
   return (
     <div className="relative -mx-1">

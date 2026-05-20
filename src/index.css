@@ -98,8 +98,7 @@
   }
 
   html {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    scrollbar-width: thin;
     scroll-behavior: smooth;
     @apply font-sans;
   }

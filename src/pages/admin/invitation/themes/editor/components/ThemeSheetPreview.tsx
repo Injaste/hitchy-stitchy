@@ -1,6 +1,6 @@
 import Frame from "react-frame-component";
 import cssText from "/src/index.css?inline";
-import { useDeferredValue, useMemo, useState, useEffect } from "react"; // Highlight: Added useState, useEffect
+import { useDeferredValue, useMemo, useState, useEffect } from "react";
 import { themeRegistry, FallbackTheme } from "@/pages/wedding/templates";
 import { useInvitationQuery } from "../../../queries";
 import { composeEventConfig } from "../../../utils";
@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const PHONE_W = 400;
 const PHONE_H = 867;
-const PREVIEW_SCALE = 0.9; //TODO FIND A WAY TO RENDER MAX 0.9 OF H, BUT TAKING 70% OF VH??
+const PREVIEW_SCALE = 0.9;
 const PREVIEW_W = Math.round(PHONE_W * PREVIEW_SCALE);
 const PREVIEW_H = Math.round(PHONE_H * PREVIEW_SCALE);
 
@@ -27,11 +27,7 @@ const ThemeSheetPreview = ({ theme }: ThemeSheetPreviewProps) => {
   const [isAnimationFinished, setIsAnimationFinished] = useState(false);
 
   useEffect(() => {
-    // Delays mounting until the sheet/modal completes its physical slide-in transition
-    const timer = setTimeout(() => {
-      setIsAnimationFinished(true);
-    }, 200);
-
+    const timer = setTimeout(() => setIsAnimationFinished(true), 200);
     return () => clearTimeout(timer);
   }, []);
 

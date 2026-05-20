@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
-import { useTimelineModalStore } from "./hooks/useTimelineModalStore"
 import {
   fetchTimeline,
   createTimelineItem,
@@ -29,7 +28,6 @@ export function useTimelineQuery() {
 
 export function useTimelineMutations() {
   const { slug } = useAdminStore()
-  const closeAll = useTimelineModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
   const setTimeline = (fn: (items: Timeline[]) => Timeline[]) => {
@@ -71,7 +69,6 @@ export function useTimelineMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args: DeleteTimelineItemPayload) => {
         setTimeline((items) => items.filter((item) => item.id !== args.id))
-        closeAll()
       },
     }
   )

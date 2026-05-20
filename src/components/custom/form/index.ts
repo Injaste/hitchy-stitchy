@@ -5,6 +5,7 @@ export { default as FormDialogHeader } from "./FormDialogHeader";
 export { default as FormDialogFooter } from "./FormDialogFooter";
 export { default as SubmitButton } from "./SubmitButton";
 export { useFormShell } from "./form-context";
+export { useCloseOnSuccess } from "./useCloseOnSuccess";
 
 // Field components
 export * from "./fields";

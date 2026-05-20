@@ -3,7 +3,7 @@ import { RefreshCw } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import { useRefetch } from "@/pages/admin/hooks/useRefetch";
 import { useHasScrolled } from "@/hooks/use-has-scrolled";
 import { widthReveal } from "@/lib/animations";
@@ -98,7 +98,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
 
   return (
     <>
-      <div className="sticky -top-1 z-30 -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-3 bg-background">
+      <div className="sticky top-0 z-30 -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-3 bg-background">
         <Container>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">

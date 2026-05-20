@@ -2,7 +2,6 @@ import { Snowflake, Sun } from "lucide-react";
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,6 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import SubmitButton from "@/components/custom/form/SubmitButton";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
@@ -21,6 +22,8 @@ const MemberFreezeModal = () => {
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { freeze } = useMemberMutations();
+
+  useCloseOnSuccess(freeze.isSuccess, closeAll);
 
   if (!selectedItem) return null;
   const member = selectedItem;
@@ -73,18 +76,17 @@ const MemberFreezeModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             variant={willFreeze ? "destructive" : "default"}
             size="sm"
             onClick={handleConfirm}
-            disabled={freeze.isPending}
+            isPending={freeze.isPending}
+            isSuccess={freeze.isSuccess}
+            isError={freeze.isError}
           >
-            {freeze.isPending
-              ? "Saving…"
-              : willFreeze
-                ? "Freeze access"
-                : "Restore access"}
-          </AlertDialogAction>
+            {willFreeze ? "Freeze access" : "Restore access"}
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

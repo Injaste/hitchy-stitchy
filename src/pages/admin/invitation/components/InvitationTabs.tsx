@@ -22,11 +22,7 @@ const InvitationTabs = () => {
     >
       <TabsList activeValue={activeTab} className="w-full max-w-sm">
         {TABS.map((tab) => (
-          <TabsTrigger
-            key={tab.id}
-            value={tab.id}
-            className="flex-1 text-xs"
-          >
+          <TabsTrigger key={tab.id} value={tab.id} className="flex-1 text-xs">
             {tab.label}
           </TabsTrigger>
         ))}

@@ -2,7 +2,6 @@ import { TriangleAlert } from "lucide-react"
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,6 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import SubmitButton from "@/components/custom/form/SubmitButton"
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess"
 
 import { useRoleModalStore } from "../hooks/useRoleModalStore"
 import { useRoleMutations } from "../queries"
@@ -21,6 +22,8 @@ const RoleDeleteModal = () => {
   const closeAll = useRoleModalStore((s) => s.closeAll)
   const { eventId } = useAdminStore()
   const { remove } = useRoleMutations()
+
+  useCloseOnSuccess(remove.isSuccess, closeAll)
 
   if (!selectedItem) return null
   const role = selectedItem
@@ -54,14 +57,17 @@ const RoleDeleteModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             variant="destructive"
             size="sm"
             onClick={handleConfirm}
-            disabled={remove.isPending}
+            isPending={remove.isPending}
+            isSuccess={remove.isSuccess}
+            isError={remove.isError}
           >
-            {remove.isPending ? "Deleting…" : "Delete"}
-          </AlertDialogAction>
+            Delete
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

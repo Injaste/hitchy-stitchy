@@ -5,7 +5,7 @@ import Container from "@/components/custom/container";
 import { Separator } from "@/components/ui/separator";
 import { useThemeWithTemplate } from "../../queries";
 import { useThemeSheetStore } from "./store";
-import { useThemeSheetSave } from "./hooks/useThemeSheetSave";
+import { useThemeMutations } from "./queries";
 import { useSheetLeaveGuard } from "./hooks/useThemeSheetLeaveGuard";
 import ThemeSheetHeader from "./components/ThemeSheetHeader";
 import ThemeSheetForm from "./components/ThemeSheetForm";
@@ -28,28 +28,50 @@ const ThemeEditorSheet = ({
   const reset = useThemeSheetStore((s) => s.reset);
   const isDirty = useThemeSheetStore((s) => s.isDirty);
   const storeThemeId = useThemeSheetStore((s) => s.themeId);
-  const { save } = useThemeSheetSave();
+  const {
+    save,
+    isPending,
+    isSuccess,
+    isError,
+    reset: resetMutation,
+  } = useThemeMutations();
 
   useEffect(() => {
     if (!open || !selected) return;
-    init(selected.theme.id, selected.theme.config);
+    init(selected.theme.id, selected.theme.config, selected.theme.name);
     return () => clear();
   }, [open, selected?.theme.id, init, clear]);
 
+  // Auto-close on save success (matches FormDialog's closeDelay behaviour).
+  // Delay lets the SubmitButton finish its success transition before the
+  // sheet slides out.
+  useEffect(() => {
+    if (!isSuccess) return;
+    const id = setTimeout(() => onClose(), 600);
+    return () => clearTimeout(id);
+  }, [isSuccess, onClose]);
+
+  // Reset mutation flags after the sheet finishes closing so the next open
+  // starts in idle state.
+  useEffect(() => {
+    if (open) return;
+    const id = setTimeout(() => resetMutation(), 250);
+    return () => clearTimeout(id);
+  }, [open, resetMutation]);
+
   const { attemptClose, modal, isSaving } = useSheetLeaveGuard({
     isDirty,
-    onSave: save,
+    onSave: async () => {
+      await save();
+    },
     onDiscard: reset,
     onClose,
   });
 
-  const handleSave = async () => {
-    try {
-      await save();
-      onClose();
-    } catch {
-      // toast handled in save hook
-    }
+  const handleSave = () => {
+    save().catch(() => {
+      // toast handled in save hook; isError drives the SubmitButton state
+    });
   };
 
   const isReady = !!selected && storeThemeId === selected.theme.id;
@@ -71,6 +93,9 @@ const ThemeEditorSheet = ({
                 template={selected.template}
                 isDirty={isDirty}
                 isSaving={isSaving}
+                isPending={isPending}
+                isSuccess={isSuccess}
+                isError={isError}
                 onSave={handleSave}
                 onClose={attemptClose}
               />

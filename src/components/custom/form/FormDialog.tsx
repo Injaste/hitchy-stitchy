@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FormShellContext, type FormShellContextValue } from "./form-context";
+import { useCloseOnSuccess } from "./useCloseOnSuccess";
 
 interface FormDialogProps {
   form: FormShellContextValue["form"];
@@ -75,16 +76,18 @@ const FormDialog = ({
     return () => clearTimeout(id);
   }, [internalOpen]);
 
-  // Auto-close after success. Fires once when isSuccess flips to true, waits
-  // closeDelay ms, then closes. Pass closeDelay={false} to opt out.
-  useEffect(() => {
-    if (!isSuccess || closeDelay === false) return;
-    const id = setTimeout(() => handleOpenChange(false), closeDelay);
-    return () => clearTimeout(id);
-  }, [isSuccess]);
+  useCloseOnSuccess(isSuccess, () => handleOpenChange(false), closeDelay);
 
   useEffect(() => {
-    if (isSuccess && resetOnSuccess) form.reset();
+    if (!isSuccess || !resetOnSuccess) return;
+    form.reset();
+    const id = requestAnimationFrame(() => {
+      const first = formRef.current?.querySelector<HTMLElement>(
+        'input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]',
+      );
+      first?.focus();
+    });
+    return () => cancelAnimationFrame(id);
   }, [isSuccess, resetOnSuccess]);
 
   // After every submit attempt, focus + scroll the first errored field into

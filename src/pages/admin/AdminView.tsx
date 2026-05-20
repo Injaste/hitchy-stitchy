@@ -1,7 +1,7 @@
 import { useOutlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 
 import { useAdminStore } from "./store/useAdminStore";
 import { useBootstrap } from "./bootstrap/hooks/useBootstrap";

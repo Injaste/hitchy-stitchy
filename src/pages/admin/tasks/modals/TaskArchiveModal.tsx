@@ -2,7 +2,6 @@ import { Archive } from "lucide-react"
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,6 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import SubmitButton from "@/components/custom/form/SubmitButton"
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess"
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore"
 import { useTaskMutations } from "../queries"
@@ -21,6 +22,8 @@ const TaskArchiveModal = () => {
   const closeAll = useTaskModalStore((s) => s.closeAll)
   const { eventId } = useAdminStore()
   const { archive } = useTaskMutations()
+
+  useCloseOnSuccess(archive.isSuccess, closeAll)
 
   if (archiveTargets.length === 0) return null
 
@@ -73,14 +76,17 @@ const TaskArchiveModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             variant="destructive"
             size="sm"
             onClick={handleConfirm}
-            disabled={archive.isPending}
+            isPending={archive.isPending}
+            isSuccess={archive.isSuccess}
+            isError={archive.isError}
           >
-            {archive.isPending ? "Archiving…" : "Archive"}
-          </AlertDialogAction>
+            Archive
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

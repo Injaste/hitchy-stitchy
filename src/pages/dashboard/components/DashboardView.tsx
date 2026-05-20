@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 
 import Container from "@/components/custom/container";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 
 import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";

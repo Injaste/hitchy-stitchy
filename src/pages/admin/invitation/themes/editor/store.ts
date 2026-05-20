@@ -7,10 +7,13 @@ interface ThemeSheetState {
   themeId: string | null
   draft: ThemeConfig | null
   initial: ThemeConfig | null
+  name: string
+  initialName: string
   isDirty: boolean
 
-  init: (themeId: string, config: ThemeConfig) => void
+  init: (themeId: string, config: ThemeConfig, name: string) => void
   setFields: (patch: ThemeDraftPatch) => void
+  setName: (name: string) => void
   reset: () => void
   clear: () => void
 }
@@ -19,32 +22,54 @@ export const useThemeSheetStore = create<ThemeSheetState>((set, get) => ({
   themeId: null,
   draft: null,
   initial: null,
+  name: "",
+  initialName: "",
   isDirty: false,
 
-  init: (themeId, config) => {
+  init: (themeId, config, name) => {
     const safe = (config ?? { slug: null }) as ThemeConfig
     set({
       themeId,
       draft: safe,
       initial: safe,
+      name,
+      initialName: name,
       isDirty: false,
     })
   },
 
   setFields: (patch) => {
-    const { draft, initial } = get()
+    const { draft, initial, name, initialName } = get()
     if (!draft) return
     const next = { ...draft, ...patch } as ThemeConfig
-    set({ draft: next, isDirty: !shallowEqual(next, initial) })
+    set({
+      draft: next,
+      isDirty: !shallowEqual(next, initial) || name !== initialName,
+    })
+  },
+
+  setName: (name) => {
+    const { draft, initial, initialName } = get()
+    set({
+      name,
+      isDirty: !shallowEqual(draft, initial) || name !== initialName,
+    })
   },
 
   reset: () => {
-    const { initial } = get()
-    set({ draft: initial, isDirty: false })
+    const { initial, initialName } = get()
+    set({ draft: initial, name: initialName, isDirty: false })
   },
 
   clear: () =>
-    set({ themeId: null, draft: null, initial: null, isDirty: false }),
+    set({
+      themeId: null,
+      draft: null,
+      initial: null,
+      name: "",
+      initialName: "",
+      isDirty: false,
+    }),
 }))
 
 function shallowEqual(a: object | null, b: object | null) {

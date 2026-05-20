@@ -1,3 +1,4 @@
+import type { FC } from "react";
 import { motion, type Variants } from "framer-motion";
 
 interface ComponentFadeProps {
@@ -19,7 +20,7 @@ const pageTransition: Variants = {
   },
 };
 
-export function ComponentFade({ children, className }: ComponentFadeProps) {
+const ComponentFade: FC<ComponentFadeProps> = ({ children, className }) => {
   return (
     <motion.div
       initial="hidden"
@@ -31,4 +32,6 @@ export function ComponentFade({ children, className }: ComponentFadeProps) {
       {children}
     </motion.div>
   );
-}
+};
+
+export default ComponentFade;

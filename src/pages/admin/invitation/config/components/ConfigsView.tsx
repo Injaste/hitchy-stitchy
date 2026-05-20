@@ -1,93 +1,61 @@
 import { useState } from "react";
-import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { FormShellContext } from "@/components/custom/form/form-context";
-import SubmitButton from "@/components/custom/form/SubmitButton";
-import { RSVP_MODES, type Invitation } from "../../types";
-import { TIME_REGEX } from "@/pages/admin/types";
-import TimingSection from "../sections/TimingSection";
-import RSVPSection from "../sections/RSVPSection";
-import GuestLimitsSection from "../sections/GuestLimitsSection";
-import FormFieldsSection from "../sections/FormFieldsSection";
-import ConfirmationSection from "../sections/ConfirmationSection";
-import {
-  useConfigSubmit,
-  type ConfigFormValues,
-} from "../hooks/useConfigSubmit";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { type Invitation } from "../../types";
+import { useInvitationMutation } from "../../queries";
+import ConfigsForm, { useConfigsForm } from "./ConfigsForm";
 
-const schema = z.object({
-  event_date: z.string().transform((v) => v.trim() || null),
-  event_time_start: z
-    .string()
-    .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
-    .transform((v) => v.trim() || null),
-  event_time_end: z
-    .string()
-    .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
-    .transform((v) => v.trim() || null),
-  rsvp_mode: z.enum(RSVP_MODES),
-  rsvp_deadline_date: z.string().transform((v) => v.trim() || null),
-  rsvp_deadline_time: z
-    .string()
-    .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
-    .transform((v) => v.trim() || null),
-  max_guests: z.coerce
-    .number()
-    .min(1, "Must be 1 or more")
-    .max(10000, "Must be 10,000 or less")
-    .nullable(),
-  guest_count_min: z.coerce.number().min(1, "Must be 1 or more").max(99),
-  guest_count_max: z.coerce.number().min(1, "Must be 1 or more").max(99),
-  confirmation_message: z
-    .string()
-    .max(500, "Keep under 500 characters")
-    .transform((v) => v.trim() || null),
-  message_visible: z.boolean(),
-  message_required: z.boolean(),
-});
+const pad = (n: number) => String(n).padStart(2, "0");
+
+const combineDeadline = (
+  date: string | null,
+  time: string | null,
+): string | null => {
+  if (!date) return null;
+  const [y, m, d] = date.split("-").map(Number);
+  const [h, min] = (time ?? "23:59").split(":").map(Number);
+  if ([y, m, d, h, min].some(Number.isNaN)) return null;
+  const local = new Date(y, m - 1, d, h, min);
+  return `${local.getUTCFullYear()}-${pad(local.getUTCMonth() + 1)}-${pad(local.getUTCDate())} ${pad(local.getUTCHours())}:${pad(local.getUTCMinutes())}`;
+};
 
 interface ConfigsViewProps {
   invitation: Invitation;
 }
 
 const ConfigsView = ({ invitation }: ConfigsViewProps) => {
-  const { submit, mutation } = useConfigSubmit();
+  const { eventId } = useAdminStore();
+  const { update } = useInvitationMutation();
   const [attemptCount, setAttemptCount] = useState(0);
 
-  const [initDate, initTime = ""] = (invitation.rsvp_deadline ?? "").split(" ");
-
-  const form = useForm({
-    defaultValues: {
-      event_date: invitation.event_date ?? "",
-      event_time_start: invitation.event_time_start ?? "",
-      event_time_end: invitation.event_time_end ?? "",
-      rsvp_mode: invitation.rsvp_mode,
-      rsvp_deadline_date: initDate ?? "",
-      rsvp_deadline_time: (initTime || "").slice(0, 5),
-      max_guests: invitation.max_guests,
-      guest_count_min: invitation.guest_count_min,
-      guest_count_max: invitation.guest_count_max,
-      confirmation_message: invitation.confirmation_message ?? "",
-      message_visible: invitation.config.rsvp.fields.message.visible,
-      message_required: invitation.config.rsvp.fields.message.required,
-    },
-    validators: {
-      onChange: ({ value }) => {
-        const parsed = schema.safeParse(value);
-        if (parsed.success) return undefined;
-        const properties = z.treeifyError(parsed.error).properties ?? {};
-        const fields = Object.fromEntries(
-          Object.entries(properties)
-            .filter(([, tree]) => tree?.errors?.length)
-            .map(([key, tree]) => [key, { message: tree!.errors[0] }]),
-        );
-        return { fields };
-      },
-    },
-    onSubmit: ({ value }) => {
-      const parsed = schema.safeParse(value);
-      if (!parsed.success) return;
-      submit(parsed.data as ConfigFormValues);
+  const form = useConfigsForm({
+    invitation,
+    onSubmit: (v) => {
+      update.mutate({
+        event_id: eventId!,
+        event_date: v.event_date,
+        event_time_start: v.event_time_start,
+        event_time_end: v.event_time_end,
+        rsvp_mode: v.rsvp_mode,
+        rsvp_deadline: combineDeadline(
+          v.rsvp_deadline_date,
+          v.rsvp_deadline_time,
+        ),
+        max_guests: v.max_guests,
+        guest_count_min: v.guest_count_min,
+        guest_count_max: v.guest_count_max,
+        confirmation_message: v.confirmation_message,
+        config: {
+          rsvp: {
+            fields: {
+              message: {
+                visible: v.message_visible,
+                required: v.message_visible ? v.message_required : false,
+              },
+            },
+          },
+        },
+      });
     },
   });
 
@@ -111,9 +79,9 @@ const ConfigsView = ({ invitation }: ConfigsViewProps) => {
       value={{
         attemptCount,
         form,
-        isPending: mutation.isPending,
-        isSuccess: mutation.isSuccess,
-        isError: mutation.isError,
+        isPending: update.isPending,
+        isSuccess: update.isSuccess,
+        isError: update.isError,
       }}
     >
       <form
@@ -121,19 +89,7 @@ const ConfigsView = ({ invitation }: ConfigsViewProps) => {
         onKeyDown={handleKeyDown}
         className="max-w-2xl space-y-4"
       >
-        <TimingSection />
-        <RSVPSection />
-        <GuestLimitsSection />
-        <FormFieldsSection />
-        <ConfirmationSection />
-
-        <form.Subscribe selector={(s: { isDirty: boolean }) => s.isDirty}>
-          {(isDirty: boolean) => (
-            <div className="flex justify-end pt-2">
-              <SubmitButton disabled={!isDirty}>Save changes</SubmitButton>
-            </div>
-          )}
-        </form.Subscribe>
+        <ConfigsForm />
       </form>
     </FormShellContext.Provider>
   );

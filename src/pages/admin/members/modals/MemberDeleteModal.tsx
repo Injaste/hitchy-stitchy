@@ -2,7 +2,6 @@ import { Snowflake, Sun, TriangleAlert } from "lucide-react";
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,6 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import SubmitButton from "@/components/custom/form/SubmitButton";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
@@ -21,6 +22,8 @@ const MemberDeleteModal = () => {
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
   const { remove } = useMemberMutations();
+
+  useCloseOnSuccess(remove.isSuccess, closeAll);
 
   if (!selectedItem) return null;
   const member = selectedItem;
@@ -55,14 +58,17 @@ const MemberDeleteModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             variant="destructive"
             size="sm"
             onClick={handleConfirm}
-            disabled={remove.isPending}
+            isPending={remove.isPending}
+            isSuccess={remove.isSuccess}
+            isError={remove.isError}
           >
-            {remove.isPending ? "Saving…" : "Delete access"}
-          </AlertDialogAction>
+            Delete access
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

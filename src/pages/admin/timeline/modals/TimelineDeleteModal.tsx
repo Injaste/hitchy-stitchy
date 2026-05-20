@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -8,7 +7,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import SubmitButton from "@/components/custom/form/SubmitButton";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 import { TriangleAlert } from "lucide-react";
 
 import { useTimelineMutations } from "../queries";
@@ -22,6 +22,8 @@ const TimelineDeleteModal = () => {
 
   const { eventId } = useAdminStore();
   const { remove } = useTimelineMutations();
+
+  useCloseOnSuccess(remove.isSuccess, closeAll);
 
   if (!selectedItem) return null;
   const item = selectedItem;
@@ -57,14 +59,17 @@ const TimelineDeleteModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             variant="destructive"
             size="sm"
             onClick={handleConfirm}
-            disabled={remove.isPending}
+            isPending={remove.isPending}
+            isSuccess={remove.isSuccess}
+            isError={remove.isError}
           >
-            {remove.isPending ? "Deleting…" : "Delete"}
-          </AlertDialogAction>
+            Delete
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

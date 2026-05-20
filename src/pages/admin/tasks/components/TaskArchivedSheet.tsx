@@ -11,6 +11,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import SubmitButton from "@/components/custom/form/SubmitButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { container, itemFadeUp } from "@/lib/animations";
@@ -33,10 +34,12 @@ const TaskArchivedSheet = () => {
     if (!next) closeArchivedSheet();
   };
 
-  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [rowState, setRowState] = useState<
+    { id: string; state: "pending" | "success" | "error" } | null
+  >(null);
 
   const handleUnarchive = async (task: Task) => {
-    setPendingId(task.id);
+    setRowState({ id: task.id, state: "pending" });
     try {
       await archive.mutateAsync({
         event_id: eventId!,
@@ -44,11 +47,9 @@ const TaskArchivedSheet = () => {
         archive: false,
         label: task.title,
       });
-      // On success the row exits — AnimatePresence freezes its last render,
-      // so leave pendingId set; it becomes dead state for an ID no row matches.
+      setRowState({ id: task.id, state: "success" });
     } catch {
-      // Toast handled by mutation wrapper; clear so the row reverts to "Unarchive".
-      setPendingId(null);
+      setRowState({ id: task.id, state: "error" });
     }
   };
 
@@ -134,21 +135,24 @@ const TaskArchivedSheet = () => {
 
                       {canDelete("tasks") && (
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <Button
+                          <SubmitButton
+                            type="button"
                             size="sm"
                             variant="outline"
                             onClick={() => handleUnarchive(task)}
-                            disabled={pendingId === task.id}
+                            isPending={rowState?.id === task.id && rowState.state === "pending"}
+                            isSuccess={rowState?.id === task.id && rowState.state === "success"}
+                            isError={rowState?.id === task.id && rowState.state === "error"}
                             className="gap-1.5"
                           >
                             <RotateCcw className="size-3.5" />
-                            {pendingId === task.id ? "Restoring…" : "Unarchive"}
-                          </Button>
+                            Unarchive
+                          </SubmitButton>
                           <Button
                             size="icon-sm"
                             variant="destructive"
                             onClick={() => handleDelete(task)}
-                            disabled={pendingId === task.id}
+                            disabled={rowState?.id === task.id && rowState.state === "pending"}
                             aria-label="Delete task"
                           >
                             <Trash2 className="size-3.5" />

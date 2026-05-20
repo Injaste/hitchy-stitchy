@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 import { container, itemFadeUp } from "@/lib/animations";
 

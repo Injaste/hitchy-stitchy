@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { AnimatePresence } from "framer-motion";
-import { ComponentFade } from "@/components/animations/animate-component-fade";
+import ComponentFade from "@/components/animations/animate-component-fade";
 import type { CategoryPermissions } from "../types";
 
 import PermissionsTable from "./PermissionsTable";

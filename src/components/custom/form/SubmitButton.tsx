@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, type FC, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import { useFormShell } from "./form-context";
+import { useFormShellOptional } from "./form-context";
 import { itemShake } from "@/lib/animations";
 import { delay } from "@/lib/utils";
 
@@ -27,19 +27,26 @@ function getPerimeter(W: number, H: number) {
   return 2 * (W - 2 * r) + 2 * (H - 2 * r) + 2 * Math.PI * r;
 }
 
-interface SubmitButtonProps extends Omit<
-  React.ComponentProps<typeof Button>,
-  "type"
-> {
+interface SubmitButtonProps extends React.ComponentProps<typeof Button> {
   children: React.ReactNode;
+  isPending?: boolean;
+  isSuccess?: boolean;
+  isError?: boolean;
 }
 
 const SubmitButton: FC<SubmitButtonProps> = ({
   children,
   disabled,
+  type = "submit",
+  isPending: isPendingProp,
+  isSuccess: isSuccessProp,
+  isError: isErrorProp,
   ...props
 }) => {
-  const { isPending, isSuccess, isError } = useFormShell();
+  const ctx = useFormShellOptional();
+  const isPending = isPendingProp ?? ctx?.isPending ?? false;
+  const isSuccess = isSuccessProp ?? ctx?.isSuccess ?? false;
+  const isError = isErrorProp ?? ctx?.isError ?? false;
   const [shakeState, setShakeState] = useState<"idle" | "shake">("idle");
 
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -54,13 +61,22 @@ const SubmitButton: FC<SubmitButtonProps> = ({
     const svg = svgRef.current;
     if (!btn || !svg) return;
 
-    const W = btn.offsetWidth,
-      H = btn.offsetHeight;
+    const sizeSvg = () => {
+      const W = btn.offsetWidth,
+        H = btn.offsetHeight;
+      svg.setAttribute("viewBox", `0 0 ${W + GAP * 2} ${H + GAP * 2}`);
+      svg.style.width = `${W + GAP * 2}px`;
+      svg.style.height = `${H + GAP * 2}px`;
+    };
 
-    svg.setAttribute("viewBox", `0 0 ${W + GAP * 2} ${H + GAP * 2}`);
-    svg.style.width = `${W + GAP * 2}px`;
-    svg.style.height = `${H + GAP * 2}px`;
-  });
+    // Keeps the SVG container aligned with the button across font swaps,
+    // container reflows, or label changes — otherwise the next animation
+    // cycle's arc would be clipped by a stale viewBox.
+    sizeSvg();
+    const ro = new ResizeObserver(sizeSvg);
+    ro.observe(btn);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!isPending || phase.current !== "idle") return;
@@ -165,7 +181,7 @@ const SubmitButton: FC<SubmitButtonProps> = ({
     >
       <Button
         ref={btnRef}
-        type="submit"
+        type={type}
         disabled={isPending || !!disabled}
         {...props}
         className="w-full"

@@ -3,7 +3,6 @@ import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { isAdminMember } from "@/pages/admin/bootstrap/utils"
-import { useMemberModalStore } from "./hooks/useMemberModalStore"
 import {
   fetchMembers,
   inviteMember,
@@ -33,7 +32,6 @@ export function useMembersQuery() {
 
 export function useMemberMutations() {
   const { slug, eventId, memberId } = useAdminStore()
-  const closeAll = useMemberModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
   const setMembers = (fn: (old: Member[] | undefined) => Member[]) =>
@@ -114,7 +112,6 @@ export function useMemberMutations() {
         setMembers((old) =>
           old?.map((m) => m.id === result.id ? { ...result, role: m.role } : m) ?? []
         )
-        closeAll()
       },
     },
   )
@@ -126,7 +123,6 @@ export function useMemberMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args: DeleteMemberPayload) => {
         setMembers((old) => old?.filter((m) => m.id !== args.id) ?? [])
-        closeAll()
       },
     },
   )

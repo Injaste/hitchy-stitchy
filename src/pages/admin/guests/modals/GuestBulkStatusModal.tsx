@@ -2,7 +2,6 @@ import { CheckCircle, Clock, XCircle } from "lucide-react";
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,6 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import SubmitButton from "@/components/custom/form/SubmitButton";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
@@ -55,6 +56,8 @@ const GuestBulkStatusModal = () => {
   const closeAll = useGuestModalStore((s) => s.closeAll);
   const { bulkUpdateGuests } = useGuestMutations();
 
+  useCloseOnSuccess(bulkUpdateGuests.isSuccess, closeAll);
+
   if (!status) return null;
 
   const meta = STATUS_META[status];
@@ -93,14 +96,17 @@ const GuestBulkStatusModal = () => {
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
+          <SubmitButton
+            type="button"
             variant={meta.variant}
             size="sm"
             onClick={handleConfirm}
-            disabled={bulkUpdateGuests.isPending}
+            isPending={bulkUpdateGuests.isPending}
+            isSuccess={bulkUpdateGuests.isSuccess}
+            isError={bulkUpdateGuests.isError}
           >
-            {bulkUpdateGuests.isPending ? meta.pendingLabel : meta.actionLabel}
-          </AlertDialogAction>
+            {meta.actionLabel}
+          </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

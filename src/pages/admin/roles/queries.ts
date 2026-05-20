@@ -3,7 +3,6 @@ import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { isAdminMember } from "@/pages/admin/bootstrap/utils"
-import { useRoleModalStore } from "./hooks/useRoleModalStore"
 import { fetchRoles, createRole, updateRole, deleteRole } from "./api"
 import type { CreateRolePayload, UpdateRolePayload, DeleteRolePayload, Role } from "./types"
 import type { Member } from "../members/types"
@@ -20,7 +19,6 @@ export function useRolesQuery() {
 
 export function useRoleMutations() {
   const { slug, memberRoleId } = useAdminStore()
-  const closeAll = useRoleModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
   const setRoles = (fn: (old: Role[] | undefined) => Role[]) =>
@@ -75,7 +73,6 @@ export function useRoleMutations() {
       onSuccess: (_: void, args: DeleteRolePayload) => {
         setRoles((old) => old?.filter((r) => r.id !== args.id) ?? [])
         queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
-        closeAll()
       },
     },
   )

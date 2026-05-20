@@ -14,7 +14,6 @@ import {
   deleteGuest,
   bulkImportGuests,
 } from "./api"
-import { useGuestModalStore } from "./hooks/useGuestModalStore"
 import type {
   CreateGuestPayload,
   UpdateGuestPayload,
@@ -64,7 +63,6 @@ export function useGuestsRealtime() {
 
 export function useGuestMutations() {
   const { slug, eventId } = useAdminStore()
-  const closeAll = useGuestModalStore((s) => s.closeAll)
   const queryClient = useQueryClient()
 
   const setGuests = (fn: (old: Guest[] | undefined) => Guest[]) =>
@@ -131,7 +129,6 @@ export function useGuestMutations() {
       onSuccess: (rows: Guest[]) => {
         const byId = new Map(rows.map((r) => [r.id, r]))
         setGuests((old) => old?.map((g) => byId.get(g.id) ?? g) ?? [])
-        closeAll()
       },
     },
   )
@@ -143,7 +140,6 @@ export function useGuestMutations() {
       errorMessage: (err) => err.message,
       onSuccess: (_: void, id: string) => {
         setGuests((old) => old?.filter((g) => g.id !== id) ?? [])
-        closeAll()
       },
     },
   )
