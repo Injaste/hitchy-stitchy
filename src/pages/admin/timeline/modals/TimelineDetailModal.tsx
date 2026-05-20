@@ -8,11 +8,10 @@ import {
   DialogBody,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+  DialogDetailActions,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -37,6 +36,14 @@ const TimelineDetailModal = () => {
   const item = selectedItem;
   const dateLabel = format(parseLocalDate(item.day), "d MMMM yyyy");
   const timeLabel = formatTimeRange(item.time_start, item.time_end);
+
+  const destructiveActions = [
+    canDelete("timeline") && { label: "Delete", onClick: openDelete },
+  ];
+  const primaryAction = canUpdate("timeline") && {
+    label: "Edit",
+    onClick: openEdit,
+  };
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -100,20 +107,10 @@ const TimelineDetailModal = () => {
           </div>
         </DialogBody>
 
-        <DialogFooter>
-          <div className="flex gap-2">
-            {canDelete("timeline") && (
-              <Button variant="destructive" size="sm" onClick={openDelete}>
-                Delete
-              </Button>
-            )}
-            {canUpdate("timeline") && (
-              <Button size="sm" onClick={openEdit} autoFocus>
-                Edit
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
+        <DialogDetailActions
+          destructive={destructiveActions}
+          primary={primaryAction}
+        />
       </DialogContent>
     </Dialog>
   );

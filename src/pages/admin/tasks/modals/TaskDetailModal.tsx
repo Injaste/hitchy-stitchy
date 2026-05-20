@@ -6,11 +6,10 @@ import {
   DialogBody,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+  DialogDetailActions,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -52,6 +51,18 @@ const TaskDetailModal = () => {
       time: format(parseISO(task.completed_at), formatTime),
     },
   ].filter(Boolean) as { label: string; date: string; time: string }[];
+
+  const destructiveActions = [
+    canDelete("tasks") && { label: "Delete", onClick: openDelete },
+    canDelete("tasks") && {
+      label: "Archive",
+      onClick: () => openArchive([task]),
+    },
+  ];
+  const primaryAction = canUpdate("tasks") && {
+    label: "Edit",
+    onClick: openEdit,
+  };
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -150,31 +161,15 @@ const TaskDetailModal = () => {
                 ))}
               </div>
             </div>
-
           </div>
         </DialogBody>
 
         <Separator />
 
-        <DialogFooter>
-          <div className="flex gap-2">
-            {canDelete("tasks") && (
-              <Button variant="destructive" size="sm" onClick={openDelete}>
-                Delete
-              </Button>
-            )}
-            {canDelete("tasks") && (
-              <Button variant="destructive" size="sm" onClick={() => openArchive([task])}>
-                Archive
-              </Button>
-            )}
-            {canUpdate("tasks") && (
-              <Button size="sm" onClick={openEdit} autoFocus>
-                Edit
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
+        <DialogDetailActions
+          destructive={destructiveActions}
+          primary={primaryAction}
+        />
       </DialogContent>
     </Dialog>
   );

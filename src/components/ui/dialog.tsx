@@ -7,8 +7,15 @@ import { motion, type AnimationDefinition } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { itemShake } from "@/lib/animations";
 import { SmoothScroll, type SmoothScrollProps } from "../custom/smooth-scroll";
+
+type DialogAction = {
+  label: string;
+  onClick: () => void;
+  variant?: React.ComponentProps<typeof Button>["variant"];
+};
 
 function Dialog({
   ...props
@@ -156,6 +163,44 @@ function DialogFooter({
   );
 }
 
+function DialogDetailActions({
+  destructive = [],
+  primary,
+}: {
+  destructive?: (DialogAction | false | null | undefined)[];
+  primary?: DialogAction | false | null;
+}) {
+  const items = destructive.filter(Boolean) as DialogAction[];
+  const hasDestructive = items.length > 0;
+
+  return (
+    <DialogFooter>
+      {hasDestructive && (
+        <div className="flex gap-2 [&_button]:flex-1">
+          {items.map((a) => (
+            <Button
+              key={a.label}
+              variant={a.variant ?? "destructive"}
+              size="sm"
+              onClick={a.onClick}
+            >
+              {a.label}
+            </Button>
+          ))}
+        </div>
+      )}
+      {hasDestructive && primary && (
+        <Separator orientation="vertical" className="h-6 hidden sm:block" />
+      )}
+      {primary && (
+        <Button size="sm" onClick={primary.onClick} autoFocus>
+          {primary.label}
+        </Button>
+      )}
+    </DialogFooter>
+  );
+}
+
 function DialogTitle({
   className,
   ...props
@@ -194,6 +239,7 @@ export {
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogDetailActions,
   DialogFooter,
   DialogHeader,
   DialogOverlay,
@@ -201,3 +247,4 @@ export {
   DialogTitle,
   DialogTrigger,
 };
+export type { DialogAction };

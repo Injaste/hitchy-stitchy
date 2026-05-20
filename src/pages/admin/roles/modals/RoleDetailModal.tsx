@@ -5,11 +5,10 @@ import {
   DialogBody,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+  DialogDetailActions,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import NotesMarkdown from "@/components/custom/notes-markdown";
@@ -30,6 +29,14 @@ const RoleDetailModal = () => {
   if (!selectedItem) return null;
   const role = selectedItem;
   const isRoot = role.category === "root";
+
+  const destructiveActions = [
+    canDelete("roles") && !isRoot && { label: "Delete", onClick: openDelete },
+  ];
+  const primaryAction = canUpdate("roles") && {
+    label: "Edit",
+    onClick: openEdit,
+  };
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -62,18 +69,10 @@ const RoleDetailModal = () => {
 
         <Separator />
 
-        <DialogFooter>
-          {canDelete("roles") && !isRoot && (
-            <Button variant="destructive" size="sm" onClick={openDelete}>
-              Delete
-            </Button>
-          )}
-          {canUpdate("roles") && (
-            <Button size="sm" onClick={openEdit} autoFocus>
-              Edit
-            </Button>
-          )}
-        </DialogFooter>
+        <DialogDetailActions
+          destructive={destructiveActions}
+          primary={primaryAction}
+        />
       </DialogContent>
     </Dialog>
   );

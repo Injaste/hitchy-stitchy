@@ -15,11 +15,10 @@ import {
   DialogBody,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+  DialogDetailActions,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -74,6 +73,14 @@ const GuestDetailModal = () => {
     date: string;
     time: string;
   }[];
+
+  const destructiveActions = [
+    canDelete("rsvp") && { label: "Delete", onClick: openDelete },
+  ];
+  const primaryAction = canUpdate("rsvp") && {
+    label: "Edit",
+    onClick: openEdit,
+  };
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -143,20 +150,10 @@ const GuestDetailModal = () => {
 
         <Separator />
 
-        <DialogFooter>
-          <div className="flex gap-2">
-            {canDelete("rsvp") && (
-              <Button variant="destructive" size="sm" onClick={openDelete}>
-                Delete
-              </Button>
-            )}
-            {canUpdate("rsvp") && (
-              <Button size="sm" onClick={openEdit} autoFocus>
-                Edit
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
+        <DialogDetailActions
+          destructive={destructiveActions}
+          primary={primaryAction}
+        />
       </DialogContent>
     </Dialog>
   );

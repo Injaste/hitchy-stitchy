@@ -5,11 +5,10 @@ import {
   DialogBody,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+  DialogDetailActions,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -89,6 +88,22 @@ const MemberDetailModal = () => {
     },
   ].filter(Boolean) as { label: string; date: string; time: string }[];
 
+  const canManage = canUpdate("members");
+  const destructiveActions = [
+    canManage && !isRoot && { label: "Delete", onClick: openDelete },
+    canManage &&
+      !isRoot &&
+      !isRejected &&
+      canUpdate("members.freeze") && {
+        label: isFrozen ? "Restore access" : "Freeze access",
+        onClick: openFreeze,
+        variant: (isFrozen ? "outline" : "destructive") as const,
+      },
+  ];
+  const primaryAction = canManage &&
+    !isRejected &&
+    !isFrozen && { label: "Edit", onClick: openEdit };
+
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent>
@@ -160,31 +175,10 @@ const MemberDetailModal = () => {
 
         <Separator />
 
-        <DialogFooter>
-          {canUpdate("members") && (
-            <>
-              {!isRoot && (
-                <Button variant="destructive" size="sm" onClick={openDelete}>
-                  Delete
-                </Button>
-              )}
-              {!isRoot && !isRejected && canUpdate("members.freeze") && (
-                <Button
-                  variant={isFrozen ? "outline" : "destructive"}
-                  size="sm"
-                  onClick={openFreeze}
-                >
-                  {isFrozen ? "Restore access" : "Freeze access"}
-                </Button>
-              )}
-              {!isRejected && !isFrozen && (
-                <Button size="sm" onClick={openEdit} autoFocus>
-                  Edit
-                </Button>
-              )}
-            </>
-          )}
-        </DialogFooter>
+        <DialogDetailActions
+          destructive={destructiveActions}
+          primary={primaryAction}
+        />
       </DialogContent>
     </Dialog>
   );
