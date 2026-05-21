@@ -25,6 +25,14 @@ interface PageHeaderProps extends BaseHeaderProps {
   description: string;
   meta?: ReactNode;
   action?: ReactNode;
+  /**
+   * When true, the description + meta block animates to height 0 while
+   * the nearest scroll source is past 0. Use on pages that don't scroll
+   * themselves (e.g. tasks board with per-column scroll) so the focus
+   * mode still kicks in. Default false (legacy behavior — block stays
+   * in flow and scrolls away naturally).
+   */
+  collapseMeta?: boolean;
 }
 
 export const ActionLabel: FC<{ children: ReactNode }> = ({ children }) => {
@@ -56,11 +64,13 @@ export const PageHeader: FC<PageHeaderProps> = ({
   isError = false,
   isRefetching = false,
   refetch,
+  collapseMeta = false,
 }) => {
   const { handleRefresh, canRefresh } = useRefetch(refetch ?? (() => {}));
   const showActions = !isLoading && !isError;
 
   const hasScrolled = useHasScrolled();
+  const collapsed = collapseMeta && hasScrolled;
 
   function renderActions() {
     if (!refetch && !action) return null;
@@ -98,7 +108,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
 
   return (
     <>
-      <div className="sticky top-0 z-30 -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-3 bg-background">
+      <div className="sticky top-0 z-30 -mx-3 md:-mx-6 px-4 md:px-6 pt-4 pb-3 bg-background">
         <Container>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">
@@ -122,14 +132,25 @@ export const PageHeader: FC<PageHeaderProps> = ({
         />
       </div>
 
-      <Container>
-        <p className="text-sm text-muted-foreground/80">{description}</p>
-        {meta && (
-          <div className="text-sm tracking-wide text-muted-foreground pt-3">
-            {meta}
-          </div>
-        )}
-      </Container>
+      <motion.div
+        initial={false}
+        animate={
+          collapsed
+            ? { height: 0, opacity: 0, marginTop: 0 }
+            : { height: "auto", opacity: 1, marginTop: 0 }
+        }
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        style={{ overflow: "hidden" }}
+      >
+        <Container>
+          <p className="text-sm text-muted-foreground/80">{description}</p>
+          {meta && (
+            <div className="text-sm tracking-wide text-muted-foreground pt-3">
+              {meta}
+            </div>
+          )}
+        </Container>
+      </motion.div>
     </>
   );
 };

@@ -49,6 +49,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
+      collapseMeta
       meta={
         !isLoading &&
         !isError &&

@@ -1,9 +1,19 @@
-import { createContext, forwardRef, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  forwardRef,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
+import ScrollGradient from "./scroll-gradient";
 
 type ScrollContextValue = {
   hasScrolled: boolean;
+  registerSource: (id: string, scrolled: boolean) => void;
 };
 
 const ScrollContext = createContext<ScrollContextValue | null>(null);
@@ -36,7 +46,9 @@ export const ScrollView = forwardRef<HTMLDivElement, ScrollViewProps>(
       onScroll: onScrollUpdate,
     } = useScrollVisibility();
     const anyGradient = gradientTop || gradientBottom;
-    const [hasScrolled, setHasScrolled] = useState(false);
+    const [selfScrolled, setSelfScrolled] = useState(false);
+    const [sourceScrolled, setSourceScrolled] = useState(false);
+    const sourcesRef = useRef<Map<string, boolean>>(new Map());
 
     const setRefs = (node: HTMLDivElement | null) => {
       scrollRef.current = node;
@@ -44,39 +56,58 @@ export const ScrollView = forwardRef<HTMLDivElement, ScrollViewProps>(
       else if (ref) ref.current = node;
     };
 
-    const ctx = useMemo(() => ({ hasScrolled }), [hasScrolled]);
+    const registerSource = useCallback((id: string, scrolled: boolean) => {
+      const map = sourcesRef.current;
+      const prev = map.get(id);
+      if (prev === scrolled) return;
+      map.set(id, scrolled);
+      let any = false;
+      for (const v of map.values()) {
+        if (v) {
+          any = true;
+          break;
+        }
+      }
+      setSourceScrolled((cur) => (cur === any ? cur : any));
+    }, []);
+
+    const hasScrolled = selfScrolled || sourceScrolled;
+
+    const ctx = useMemo<ScrollContextValue>(
+      () => ({ hasScrolled, registerSource }),
+      [hasScrolled, registerSource],
+    );
 
     return (
       <ScrollContext.Provider value={ctx}>
         <div className="relative flex flex-col flex-1 h-full">
           {gradientTop && (
-            <div
-              className={cn(
-                "pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b to-transparent transition-opacity duration-500",
-                gradientClass,
-                canScrollUp ? "opacity-100" : "opacity-0",
-              )}
+            <ScrollGradient
+              side="top"
+              visible={canScrollUp}
+              fromClass={gradientClass}
+              heightClass="h-8"
             />
           )}
           <div
             ref={setRefs}
             onScroll={(e) => {
               if (anyGradient) onScrollUpdate();
-              setHasScrolled(e.currentTarget.scrollTop > 0);
+              const scrolled = e.currentTarget.scrollTop > 0;
+              setSelfScrolled((cur) => (cur === scrolled ? cur : scrolled));
               onScroll?.(e);
             }}
-            className={cn("overflow-y-auto", className)}
+            className={cn("h-full overflow-y-auto", className)}
             {...props}
           >
             {children}
           </div>
           {gradientBottom && (
-            <div
-              className={cn(
-                "pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t to-transparent transition-opacity duration-500",
-                gradientClass,
-                canScrollDown ? "opacity-100" : "opacity-0",
-              )}
+            <ScrollGradient
+              side="bottom"
+              visible={canScrollDown}
+              fromClass={gradientClass}
+              heightClass="h-8"
             />
           )}
         </div>

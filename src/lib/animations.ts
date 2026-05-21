@@ -50,24 +50,43 @@ export const widthReveal: Variants = {
 
 export const cardHover = { y: -3, transition: { duration: 0.4 } };
 
-export const taskContainer: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05 },
-  },
-};
+export const TASK_ITEM_DURATION = 0.2; // seconds — used by TaskQuickAdd scroll-into-view timing
 
-export const TASK_ITEM_DURATION = 0.2; // seconds
+// ── Tasks kanban ────────────────────────────────────────────────────────
+// Used by TasksSection + its cards. Section fades in with an optional
+// delay (for cross-section staggering). Cards fade in below the section,
+// staggered on first mount only — subsequent reorders/adds use baseDelay
+// = 0 and stagger = 0 so movement feels instant.
 
-export const taskItem: Variants = {
-  hidden: { opacity: 0, y: 6 },
-  show: {
+export const taskSectionEnter: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  show: (delay: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: TASK_ITEM_DURATION },
-  },
+    transition: { duration: 0.25, ease: "easeOut", delay },
+  }),
 };
+
+export type TaskCardEnterCustom = {
+  baseDelay: number;
+  stagger: number;
+  index: number;
+};
+
+export const taskCardEnter: Variants = {
+  hidden: { opacity: 0, y: 6 },
+  show: (c: TaskCardEnterCustom) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.2, delay: c.baseDelay + c.index * c.stagger },
+  }),
+  exit: { opacity: 0, y: -4, transition: { duration: 0.15 } },
+};
+
+export const taskCardLayoutTransition = {
+  duration: 0.22,
+  ease: [0.2, 0, 0, 1],
+} as const;
 
 export const itemShake = {
   idle: { x: 0 },
@@ -117,10 +136,3 @@ export const tabTransition = {
   exit: { opacity: 0, y: -10 },
   transition: { duration: 0.2 },
 };
-
-export const cardLiftStyle = {
-  scale: 1.03,
-  boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
-  rotate: "1deg",
-  cursor: "grabbing",
-} as const

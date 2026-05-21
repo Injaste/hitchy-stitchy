@@ -1,3 +1,4 @@
+import { useCallback } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
@@ -5,6 +6,8 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import { fetchTasks, fetchTaskOrder, saveTaskOrder, createTask, updateTask, deleteTask, archiveTasks, fetchArchivedTasks } from "./api"
 import type { CreateTaskPayload, UpdateTaskPayload, DeleteTaskPayload, ArchiveTasksPayload, Task, TaskOrder } from "./types"
 import { STATUS_LABELS } from "./types"
+import { computeNextTasks } from "./utils-dnd"
+import { buildOrder } from "./utils"
 import { truncate } from "@/lib/utils"
 
 export function useTasksQuery() {
@@ -157,4 +160,58 @@ export function useTaskMutations() {
   )
 
   return { create, update, remove, archive, saveOrder, saveStatuses }
+}
+
+/**
+ * DnD drop handler. Computes the next ordered tasks from the current
+ * cache, writes the new tasks + order to the cache optimistically, and
+ * fires the status + order mutations. Returns false if nothing changed.
+ *
+ * All cache writes for drag-and-drop live here so the DnD hook stays
+ * focused on event handling.
+ */
+export function useTaskReorder() {
+  const { slug, eventId } = useAdminStore()
+  const queryClient = useQueryClient()
+  const { saveOrder, saveStatuses } = useTaskMutations()
+
+  return useCallback(
+    (
+      source: { data: Record<string, unknown> },
+      target: { data: Record<string, unknown>; element?: Element },
+    ): boolean => {
+      const current = queryClient.getQueryData<Task[]>(adminKeys.tasks(slug!)) ?? []
+      const next = computeNextTasks(current, source, target)
+      if (!next) return false
+
+      const sourceId = (source.data as { taskId?: string }).taskId
+      if (!sourceId) return false
+
+      const before = current.find((t) => t.id === sourceId)
+      const after = next.find((t) => t.id === sourceId)
+      if (!before || !after) return false
+
+      queryClient.setQueryData<Task[]>(adminKeys.tasks(slug!), next)
+      const newOrder = buildOrder(next, eventId ?? "")
+      queryClient.setQueryData<TaskOrder>(adminKeys.taskOrder(slug!), newOrder)
+
+      if (before.status !== after.status) {
+        const payload: UpdateTaskPayload = {
+          event_id: eventId ?? "",
+          id: after.id,
+          title: after.title,
+          details: after.details,
+          label: after.label,
+          status: after.status,
+          priority: after.priority,
+          due_at: after.due_at,
+          assignees: after.assignees,
+        }
+        saveStatuses.mutate(payload)
+      }
+      saveOrder.mutate(newOrder)
+      return true
+    },
+    [queryClient, slug, eventId, saveOrder, saveStatuses],
+  )
 }

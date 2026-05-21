@@ -1,147 +1,202 @@
-import { useCallback, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import {
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type DragOverEvent,
-  type DragStartEvent,
-} from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
-import { useQueryClient } from "@tanstack/react-query";
+  draggable,
+  dropTargetForElements,
+  monitorForElements,
+} from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import { setCustomNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview";
+import { pointerOutsideOfPreview } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
+import {
+  attachClosestEdge,
+  extractClosestEdge,
+} from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 
-import { adminKeys } from "@/pages/admin/lib/queryKeys";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useTaskReorder } from "../queries";
+import type { Task, TaskStatus } from "../types";
+import { isTaskDragData, isDropTargetData } from "../utils-dnd";
+import { useTaskDndStore, type DragAnchor } from "./useTaskDndStore";
 
-import { useTaskMutations } from "../queries";
-import type { Task, TaskOrder, TaskStatus } from "../types";
-import { buildOrder, ordersEqual } from "../utils";
+/* ─────────────────────────── Global monitor ─────────────────────────── */
 
-interface UseTaskDndArgs {
-  localTasks: Task[];
-  setLocalTasks: Dispatch<SetStateAction<Task[]>>;
+/**
+ * Subscribes once to pragmatic's element monitor. Routes drop events
+ * into useTaskReorder (which owns all cache writes), and updates the
+ * DnD store on every drag transition so cards can show the dotted
+ * placeholder at the projected drop position.
+ *
+ * `reorder` is held in a ref so re-subscribe never fires mid-drag.
+ */
+export function useTaskMonitor() {
+  const reorder = useTaskReorder();
+  const reorderRef = useRef(reorder);
+  reorderRef.current = reorder;
+
+  useEffect(() => {
+    const { setDragOver, reset } = useTaskDndStore.getState();
+
+    return combine(
+      monitorForElements({
+        canMonitor: ({ source }) => isTaskDragData(source.data),
+        onDrag({ source, location }) {
+          if (!isTaskDragData(source.data)) return;
+          const target = location.current.dropTargets[0];
+          if (!target || !isDropTargetData(target.data)) {
+            setDragOver(null);
+            return;
+          }
+          // Hovering over the source card itself — no placeholder.
+          if (
+            target.data.type === "task" &&
+            target.data.taskId === source.data.taskId
+          ) {
+            setDragOver(null);
+            return;
+          }
+          let anchor: DragAnchor;
+          if (target.data.type === "column") {
+            anchor = "end";
+          } else {
+            const edge = extractClosestEdge(target.data);
+            anchor = {
+              type: edge === "top" ? "before" : "after",
+              id: target.data.taskId,
+            };
+          }
+          setDragOver({ status: target.data.status, anchor });
+        },
+        onDrop({ source, location }) {
+          reset();
+          if (!isTaskDragData(source.data)) return;
+          const target = location.current.dropTargets[0];
+          if (!target) return;
+          reorderRef.current(source, target);
+        },
+      }),
+    );
+  }, []);
 }
 
-export function useTaskDnd({ localTasks, setLocalTasks }: UseTaskDndArgs) {
-  const { slug, eventId } = useAdminStore();
-  const queryClient = useQueryClient();
-  const { saveOrder, saveStatuses } = useTaskMutations();
+/* ─────────────────────────── Per-card adapter ─────────────────────────── */
 
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [overColumnId, setOverColumnId] = useState<TaskStatus | null>(null);
-  const dragStartOrderRef = useRef<TaskOrder | null>(null);
-  const dragStartStatusesRef = useRef<Map<string, TaskStatus> | null>(null);
+/**
+ * Register a task card element as both draggable AND a drop target
+ * (so dropping on top of another card uses closest-edge to decide
+ * above vs. below). All visual state lives in the DnD store — this
+ * hook only wires up the pragmatic adapters.
+ */
+export function useTaskCardDnd(
+  ref: RefObject<HTMLElement | null>,
+  task: Task,
+) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 8 },
-    }),
-  );
+    const data = { type: "task" as const, taskId: task.id, status: task.status };
+    const { setDragging } = useTaskDndStore.getState();
 
-  const handleDragStart = useCallback(
-    (event: DragStartEvent) => {
-      const task = localTasks.find((t) => t.id === event.active.id);
-      setActiveTask(task ?? null);
-      dragStartOrderRef.current = buildOrder(localTasks, eventId ?? "");
-      dragStartStatusesRef.current = new Map(
-        localTasks.map((t) => [t.id, t.status]),
-      );
-    },
-    [localTasks, eventId],
-  );
-
-  const handleDragOver = useCallback(
-    (event: DragOverEvent) => {
-      const { active, over } = event;
-      if (!over) return;
-
-      const activeId = active.id as string;
-      const overId = over.id as string;
-
-      const draggingTask = localTasks.find((t) => t.id === activeId);
-      if (!draggingTask) return;
-
-      const overTask = localTasks.find((t) => t.id === overId);
-      const destStatus: TaskStatus = overTask
-        ? overTask.status
-        : (overId as TaskStatus);
-
-      setOverColumnId(destStatus);
-
-      if (draggingTask.status === destStatus) {
-        if (overTask && activeId !== overId) {
-          setLocalTasks((prev) => {
-            const srcIdx = prev.findIndex((t) => t.id === activeId);
-            const dstIdx = prev.findIndex((t) => t.id === overId);
-            return arrayMove(prev, srcIdx, dstIdx);
+    return combine(
+      draggable({
+        element: el,
+        getInitialData: () => data,
+        onGenerateDragPreview({ nativeSetDragImage }) {
+          setCustomNativeDragPreview({
+            nativeSetDragImage,
+            getOffset: pointerOutsideOfPreview({ x: "12px", y: "8px" }),
+            render({ container }) {
+              const clone = el.cloneNode(true) as HTMLElement;
+              clone.style.width = `${el.offsetWidth}px`;
+              clone.style.transform = "rotate(1.2deg)";
+              clone.style.boxShadow = "0 12px 40px rgba(0,0,0,0.18)";
+              clone.style.pointerEvents = "none";
+              container.appendChild(clone);
+            },
           });
-        }
-        return;
-      }
-
-      setLocalTasks((prev) => {
-        const withUpdatedStatus = prev.map((t) =>
-          t.id === activeId ? { ...t, status: destStatus } : t,
-        );
-        if (overTask) {
-          const srcIdx = withUpdatedStatus.findIndex((t) => t.id === activeId);
-          const dstIdx = withUpdatedStatus.findIndex((t) => t.id === overId);
-          return arrayMove(withUpdatedStatus, srcIdx, dstIdx);
-        }
-        return withUpdatedStatus;
-      });
-    },
-    [localTasks, setLocalTasks],
-  );
-
-  const handleDragEnd = useCallback(
-    (_event: DragEndEvent) => {
-      setActiveTask(null);
-      setOverColumnId(null);
-
-      const startOrder = dragStartOrderRef.current;
-      const startStatuses = dragStartStatusesRef.current;
-      dragStartOrderRef.current = null;
-      dragStartStatusesRef.current = null;
-      if (!startOrder) return;
-
-      const newOrder = buildOrder(localTasks, eventId ?? "");
-      if (ordersEqual(startOrder, newOrder)) return;
-
-      queryClient.setQueryData(adminKeys.tasks(slug!), localTasks);
-      queryClient.setQueryData(adminKeys.taskOrder(slug!), newOrder);
-
-      if (startStatuses) {
-        const changed = localTasks.find(
-          (t) => startStatuses.get(t.id) !== t.status,
-        );
-        if (changed) {
-          saveStatuses.mutate({
-            event_id: eventId ?? "",
-            id: changed.id,
-            title: changed.title,
-            details: changed.details,
-            label: changed.label,
-            status: changed.status,
-            priority: changed.priority,
-            due_at: changed.due_at,
-            assignees: changed.assignees,
-          });
-        }
-      }
-      saveOrder.mutate(newOrder);
-    },
-    [localTasks, queryClient, slug, eventId, saveOrder, saveStatuses],
-  );
-
-  return {
-    sensors,
-    activeTask,
-    overColumnId,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-  };
+        },
+        onDragStart() {
+          setDragging(task.id, el.offsetHeight);
+        },
+        onDrop() {
+          setDragging(null, null);
+        },
+      }),
+      dropTargetForElements({
+        element: el,
+        canDrop: ({ source }) =>
+          isTaskDragData(source.data) && source.data.taskId !== task.id,
+        getData: ({ input, element }) =>
+          attachClosestEdge(data, {
+            input,
+            element,
+            allowedEdges: ["top", "bottom"],
+          }),
+      }),
+    );
+  }, [ref, task.id, task.status]);
 }
+
+/* ─────────────────────────── Per-column adapter ─────────────────────────── */
+
+/**
+ * Register a column scroll body as a drop target. Used so dropping into
+ * empty space (not on top of a task card) still routes correctly.
+ */
+export function useTaskColumnDrop(
+  ref: RefObject<HTMLElement | null>,
+  status: TaskStatus,
+) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    return dropTargetForElements({
+      element: el,
+      canDrop: ({ source }) => isTaskDragData(source.data),
+      getData: () => ({ type: "column" as const, status }),
+    });
+  }, [ref, status]);
+}
+
+/* ─────────────────────────── Card selectors ─────────────────────────── */
+
+const matchesDragOverBefore = (
+  dragOver: ReturnType<typeof useTaskDndStore.getState>["dragOver"],
+  id: string,
+) =>
+  !!dragOver &&
+  dragOver.anchor !== "end" &&
+  dragOver.anchor.type === "before" &&
+  dragOver.anchor.id === id;
+
+const matchesDragOverAfter = (
+  dragOver: ReturnType<typeof useTaskDndStore.getState>["dragOver"],
+  id: string,
+) =>
+  !!dragOver &&
+  dragOver.anchor !== "end" &&
+  dragOver.anchor.type === "after" &&
+  dragOver.anchor.id === id;
+
+const matchesDragOverEnd = (
+  dragOver: ReturnType<typeof useTaskDndStore.getState>["dragOver"],
+  status: TaskStatus,
+) => !!dragOver && dragOver.anchor === "end" && dragOver.status === status;
+
+export const useIsTaskDragging = (id: string) =>
+  useTaskDndStore((s) => s.draggingId === id);
+
+export const useTaskGhostAbove = (id: string) =>
+  useTaskDndStore((s) => matchesDragOverBefore(s.dragOver, id));
+
+export const useTaskGhostBelow = (id: string) =>
+  useTaskDndStore((s) => matchesDragOverAfter(s.dragOver, id));
+
+export const useColumnEndGhost = (status: TaskStatus) =>
+  useTaskDndStore((s) => matchesDragOverEnd(s.dragOver, status));
+
+export const useColumnIsDragOver = (status: TaskStatus) =>
+  useTaskDndStore((s) => s.dragOver?.status === status);
+
+export const useDraggingHeight = () =>
+  useTaskDndStore((s) => s.draggingHeight);

@@ -38,7 +38,7 @@ export const rsvpLabels: RSVPFormLabels = {
   name: { label: "Full Name", placeholder: "e.g. Ahmad Bin Ali" },
   phone: {
     label: "Phone Number",
-    placeholder: "+65 9123 4567",
+    placeholder: "9123 4567",
     optional: "(Optional)",
   },
   guestCount: {

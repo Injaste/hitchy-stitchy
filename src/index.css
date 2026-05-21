@@ -100,6 +100,11 @@
   html {
     scrollbar-width: thin;
     scroll-behavior: smooth;
+    /* Always reserve space for a vertical scrollbar so layout never shifts
+       when content grows past viewport (e.g. dashboard / marketing pages
+       gaining new items). On platforms with overlay scrollbars this is a
+       no-op. */
+    scrollbar-gutter: stable;
     @apply font-sans;
   }
 
