@@ -1,12 +1,8 @@
-import { type CSSProperties, type FC } from "react";
+import { type FC } from "react";
 import { Archive } from "lucide-react";
-import { useDroppable } from "@dnd-kit/core";
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useDroppable } from "@dnd-kit/react";
+import { useSortable } from "@dnd-kit/react/sortable";
+import { CollisionPriority } from "@dnd-kit/abstract";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,6 +21,7 @@ import TaskStatusIcon from "./TaskStatusIcon";
 
 interface TasksSectionProps {
   status: TaskStatus;
+  index: number;
   label: string;
   taskIds: string[];
   tasksById: Map<string, Task>;
@@ -33,20 +30,16 @@ interface TasksSectionProps {
 /**
  * Single kanban column.
  *
- * Receives the id list for its column from TasksView (which keeps the
- * canonical multi-container `items` state in useTaskDnd). Looks each
- * task up via `tasksById` when rendering. This matches the canonical
- * MultipleContainers pattern: ids drive ordering, the SortableContext
- * sees a stable `items` array, and the actual Task data is just a
- * dictionary lookup.
- *
- * dnd-kit wiring:
- *   - useDroppable({ id: status }) so empty-column drops route here.
- *   - SortableContext over the id list with vertical strategy.
- *   - Inline SortableTaskItem applies transform/transition + dim.
+ * dnd-kit v0.4 wiring:
+ *   - useDroppable({ id: status, accept: 'item', collisionPriority: Low })
+ *     so items hovering a card win the collision, and items dropping
+ *     into empty column space still route here.
+ *   - Cards render as SortableTaskItem (useSortable, grouped by status).
+ *     The library handles "cards move out of the way" automatically.
  */
 const TasksSection: FC<TasksSectionProps> = ({
   status,
+  index,
   label,
   taskIds,
   tasksById,
@@ -61,8 +54,12 @@ const TasksSection: FC<TasksSectionProps> = ({
 
   useRegisterScrollSource(scrollRef, !isMobile);
 
-  const { setNodeRef: setDroppableRef, isOver: isOverColumn } = useDroppable({
+  const { ref: droppableRef, isDropTarget: isOverColumn } = useDroppable({
     id: status,
+    type: "column",
+    accept: "item",
+    collisionPriority: CollisionPriority.Low,
+    data: { index },
   });
 
   const { canCreate, canDelete } = useAccess();
@@ -123,22 +120,24 @@ const TasksSection: FC<TasksSectionProps> = ({
           className="flex flex-col gap-3 lg:absolute lg:inset-0 lg:overflow-y-auto lg:[scrollbar-gutter:stable] lg:[scrollbar-width:thin]"
         >
           <div
-            ref={setDroppableRef}
+            ref={droppableRef}
             className={cn(
               "flex flex-col gap-3 min-h-[60px] rounded-xl ring-1 ring-transparent transition-colors duration-150",
               isOverColumn && "ring-primary/40 bg-primary/5",
             )}
           >
-            <SortableContext
-              items={taskIds}
-              strategy={verticalListSortingStrategy}
-            >
-              {taskIds.map((id) => {
-                const task = tasksById.get(id);
-                if (!task) return null;
-                return <SortableTaskItem key={id} task={task} />;
-              })}
-            </SortableContext>
+            {taskIds.map((id, itemIndex) => {
+              const task = tasksById.get(id);
+              if (!task) return null;
+              return (
+                <SortableTaskItem
+                  key={id}
+                  task={task}
+                  group={status}
+                  index={itemIndex}
+                />
+              );
+            })}
           </div>
         </div>
         <ScrollGradient
@@ -161,29 +160,31 @@ const TasksSection: FC<TasksSectionProps> = ({
 /* ─────────────────────────── Sortable card ─────────────────────────── */
 
 /**
- * Canonical MultipleContainers SortableItem shape: setNodeRef +
- * style with transform/transition/opacity + spread attrs/listeners on
- * a plain div. No framer-motion.
+ * v0.4 sortable item — `group` keys this card to its column, `index`
+ * keys its position. The library handles transform, transition, and
+ * "make space for me" animation on sibling cards. `isDragging` dims
+ * the source while the cloned overlay travels with the pointer.
  */
-const SortableTaskItem: FC<{ task: Task }> = ({ task }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-
-  const style: CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 50 : "auto",
-  };
+const SortableTaskItem: FC<{
+  task: Task;
+  group: TaskStatus;
+  index: number;
+}> = ({ task, group, index }) => {
+  const { ref, isDragging } = useSortable({
+    id: task.id,
+    index,
+    group,
+    type: "item",
+    accept: "item",
+    data: { group },
+  });
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={ref}
+      data-dragging={isDragging || undefined}
+      className="touch-none data-[dragging]:opacity-50"
+    >
       <TaskCard task={task} />
     </div>
   );

@@ -1,11 +1,5 @@
 import { useMemo, type FC, type ReactNode } from "react";
-import {
-  DndContext,
-  DragOverlay,
-  MeasuringStrategy,
-  defaultDropAnimationSideEffects,
-  type DropAnimation,
-} from "@dnd-kit/core";
+import { DragDropProvider } from "@dnd-kit/react";
 
 import Container from "@/components/custom/container";
 import ErrorState from "@/components/custom/states/error-state";
@@ -21,14 +15,12 @@ import {
   STATUS_ORDER_MOBILE,
   type Task,
   type TaskOrder,
-  type TaskStatus,
 } from "../types";
 import { applyOrder } from "../utils";
 import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
 import TasksFilterBar from "./TasksFilterBar";
 import TasksSection from "./TasksSection";
-import TaskCard from "./TaskCard";
 
 interface TasksViewProps {
   data: Task[] | undefined;
@@ -39,16 +31,8 @@ interface TasksViewProps {
   refetch: () => void;
 }
 
-// Dim the source card while dropping so the overlay clone reads as the
-// "moving" one. Matches the canonical MultipleContainers story.
-const dropAnimation: DropAnimation = {
-  sideEffects: defaultDropAnimationSideEffects({
-    styles: { active: { opacity: "0.5" } },
-  }),
-};
-
 /**
- * Tasks board — canonical dnd-kit multi-container pattern.
+ * Tasks board — dnd-kit v0.4 multi-sortable-lists pattern.
  *
  * Data flow:
  *   useTasksQuery → Task[] (cache)
@@ -56,12 +40,7 @@ const dropAnimation: DropAnimation = {
  *   derive baseItemsByStatus      → which task ids live in which column
  *   derive tasksById              → O(1) lookup for SortableItem
  *   useTaskDnd(base, byId)        → owns local items + DnD handlers
- *   pass items[status]            → TasksSection (the SortableContext)
- *
- * All framer-motion is intentionally stripped from this subtree: the
- * dnd-kit transforms are what animate cards during drag and after drop,
- * and competing transform sources are exactly what was making the
- * visual feel out of sync with the data.
+ *   pass items[status]            → TasksSection (renders sortables)
  */
 const TasksView: FC<TasksViewProps> = ({
   data,
@@ -97,19 +76,10 @@ const TasksView: FC<TasksViewProps> = ({
     return m;
   }, [filteredTasks]);
 
-  const {
-    sensors,
-    activeId,
-    items,
-    collisionDetectionStrategy,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-    handleDragCancel,
-  } = useTaskDnd(baseItemsByStatus, tasksById);
-
-  const activeTask =
-    activeId != null ? tasksById.get(activeId as string) ?? null : null;
+  const { sensors, items, onDragStart, onDragOver, onDragEnd } = useTaskDnd(
+    baseItemsByStatus,
+    tasksById,
+  );
 
   return (
     <Container className="mt-8 flex flex-col lg:mt-6 lg:flex-1 lg:min-h-0 lg:grid lg:grid-rows-[minmax(0,1fr)]">
@@ -130,33 +100,25 @@ const TasksView: FC<TasksViewProps> = ({
             activeLabel={activeLabel}
             onSelect={setActiveLabel}
           />
-          <DndContext
+          <DragDropProvider
             sensors={sensors}
-            collisionDetection={collisionDetectionStrategy}
-            measuring={{
-              droppable: { strategy: MeasuringStrategy.Always },
-            }}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}
-            onDragCancel={handleDragCancel}
+            onDragStart={onDragStart}
+            onDragOver={onDragOver}
+            onDragEnd={onDragEnd}
           >
             <SectionsRow>
-              {order.map((status) => (
+              {order.map((status, columnIndex) => (
                 <TasksSection
                   key={status}
                   status={status}
+                  index={columnIndex}
                   label={STATUS_LABELS[status]}
                   taskIds={items[status]}
                   tasksById={tasksById}
                 />
               ))}
             </SectionsRow>
-
-            <DragOverlay dropAnimation={dropAnimation}>
-              {activeTask ? <TaskCard task={activeTask} /> : null}
-            </DragOverlay>
-          </DndContext>
+          </DragDropProvider>
         </div>
       )}
     </Container>
