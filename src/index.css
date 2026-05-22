@@ -151,3 +151,33 @@
     @apply appearance-none;
   }
 }
+
+/* ── dnd-kit drag clone ──────────────────────────────── */
+/* The floating clone is stamped with data-dnd-dragging.
+   Force full opacity (clone inherits data-dragging → Tailwind dims it to 50%),
+   scale up to signal lift, and reverse the scale when the drop animation fires.
+
+   No `forwards` fill on the lift animation — once the animation ends the CSS
+   property (scale: 1.02) retakes ownership, which lets the transition below
+   fire freely when data-dnd-dropping is added. */
+[data-dnd-dragging] {
+  opacity: 1 !important;
+  scale: 1.02;
+  cursor: grabbing !important;
+  animation: dnd-drag-lift 150ms ease;
+  transition: scale 200ms ease;
+}
+
+/* Drop phase: library adds data-dnd-dropping while the clone flies to its
+   destination. Higher specificity (0,2,0) beats the dragging rule (0,1,0),
+   so scale changes to 1 and the transition above plays simultaneously with
+   the position animation. */
+[data-dnd-dragging][data-dnd-dropping] {
+  scale: 1;
+}
+
+@keyframes dnd-drag-lift {
+  from {
+    scale: 1;
+  }
+}

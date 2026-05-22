@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Calendar, Users } from "lucide-react";
+import { Calendar, GripVertical, Users } from "lucide-react";
 import { format, isBefore, startOfToday } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import TaskStatusIcon from "./TaskStatusIcon";
 
 interface TaskCardProps {
   task: Task;
+  dragHandleRef?: (element: Element | null) => void;
 }
 
 const priorityBar: Record<TaskPriority, string> = {
@@ -50,7 +51,7 @@ const statusCard: Record<TaskStatus, string> = {
  * listeners (dnd-kit treats a click without movement as a click, not a
  * drag).
  */
-const TaskCard: FC<TaskCardProps> = ({ task }) => {
+const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
   const { data: members = [] } = useMembersQuery();
@@ -72,7 +73,7 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
       data-task-id={task.id}
       onClick={() => openDetail(task)}
       className={cn(
-        "relative cursor-pointer active:cursor-grabbing transition-opacity",
+        "group/task-card relative cursor-pointer transition duration-200",
         "hover:ring-secondary hover:shadow-sm",
         statusCard[task.status],
         isOverdue && "ring-1 ring-destructive/30",
@@ -89,8 +90,25 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
         )}
       />
 
+      {/* Drag handle — always visible on mobile, appears on hover on desktop */}
+      <button
+        ref={dragHandleRef}
+        type="button"
+        aria-label="Drag to reorder"
+        onClick={(e) => e.stopPropagation()}
+        className={cn(
+          "absolute top-2.5 right-2.5 z-10 rounded p-1 touch-none",
+          "cursor-grab active:cursor-grabbing",
+          "text-muted-foreground/40 hover:text-muted-foreground/70",
+          "transition-opacity duration-150",
+          "opacity-100 lg:opacity-0 lg:group-hover/task-card:opacity-100",
+        )}
+      >
+        <GripVertical className="size-4" />
+      </button>
+
       <CardHeader className="space-y-1.5">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 pr-6">
           <Button
             onClick={handleToggle}
             className="group/task-button-hover relative shrink-0 items-start -mx-2.5 h-fit"

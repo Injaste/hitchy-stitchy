@@ -1,8 +1,11 @@
-import { type FC } from "react";
+import { memo, type FC } from "react";
+import { motion } from "framer-motion";
 import { Archive } from "lucide-react";
 import { useDroppable } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { CollisionPriority } from "@dnd-kit/abstract";
+
+import { taskSectionEnter } from "@/lib/animations";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -44,7 +47,7 @@ const TasksSection: FC<TasksSectionProps> = ({
 
   useRegisterScrollSource(scrollRef, !isMobile);
 
-  const { ref: droppableRef, isDropTarget: isOverColumn } = useDroppable({
+  const { ref: droppableRef, isDropTarget } = useDroppable({
     id: status,
     type: "column",
     accept: "item",
@@ -59,11 +62,16 @@ const TasksSection: FC<TasksSectionProps> = ({
   const hasTasks = count > 0;
 
   return (
-    <section
+    <motion.section
+      variants={taskSectionEnter}
+      initial="hidden"
+      animate="show"
+      custom={index * 0.08}
       className={cn(
-        "flex flex-col gap-3 min-w-0",
+        "flex flex-col gap-3 min-w-0 lg:transition-colors lg:duration-200",
         "lg:grid lg:grid-rows-[auto_auto_minmax(0,1fr)] lg:gap-3 lg:rounded-xl lg:bg-card/40 lg:ring-1 lg:ring-border/60 lg:p-3",
         hasTasks ? "" : "hidden lg:grid",
+        isDropTarget && "lg:ring-primary/40 lg:bg-primary/0.03",
       )}
     >
       {/* Header */}
@@ -98,7 +106,7 @@ const TasksSection: FC<TasksSectionProps> = ({
       <Separator />
 
       {/* Scroll body */}
-      <div className="relative lg:min-h-0">
+      <div className="relative lg:min-h-0 lg:-mr-3">
         <ScrollGradient
           side="top"
           visible={canScrollUp}
@@ -107,14 +115,11 @@ const TasksSection: FC<TasksSectionProps> = ({
         <div
           ref={scrollRef}
           onScroll={onScrollUpdate}
-          className="flex flex-col gap-3 lg:absolute lg:inset-0 lg:overflow-y-auto lg:[scrollbar-gutter:stable] lg:[scrollbar-width:thin]"
+          className="flex flex-col gap-3 lg:absolute lg:inset-0 lg:overflow-y-auto lg:[scrollbar-gutter:stable] lg:[scrollbar-width:thin] lg:pl-1 lg:pr-3 lg:py-1"
         >
           <div
             ref={droppableRef}
-            className={cn(
-              "flex flex-col gap-3 min-h-[60px] rounded-xl ring-1 ring-transparent transition-colors duration-150",
-              isOverColumn && "ring-primary/40 bg-primary/5",
-            )}
+            className="flex flex-col gap-3 min-h-[60px] rounded-xl p-2"
           >
             {taskIds.map((id, itemIndex) => {
               const task = tasksById.get(id);
@@ -143,7 +148,7 @@ const TasksSection: FC<TasksSectionProps> = ({
           <TaskQuickAdd status={status} />
         </div>
       )}
-    </section>
+    </motion.section>
   );
 };
 
@@ -152,12 +157,13 @@ const SortableTaskItem: FC<{
   group: TaskStatus;
   index: number;
 }> = ({ task, group, index }) => {
-  const { ref, isDragging } = useSortable({
+  const { ref, handleRef, isDragging } = useSortable({
     id: task.id,
     index,
     group,
     type: "item",
     accept: "item",
+    transition: { duration: 200, easing: "ease" },
     data: { group },
   });
 
@@ -165,11 +171,11 @@ const SortableTaskItem: FC<{
     <div
       ref={ref}
       data-dragging={isDragging || undefined}
-      className="touch-none data-[dragging]:opacity-50"
+      className="data-[dragging]:opacity-50"
     >
-      <TaskCard task={task} />
+      <TaskCard task={task} dragHandleRef={handleRef} />
     </div>
   );
 };
 
-export default TasksSection;
+export default memo(TasksSection);

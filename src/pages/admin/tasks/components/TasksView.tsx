@@ -1,6 +1,7 @@
 import { useMemo, type FC, type ReactNode } from "react";
 import { AnimatePresence } from "framer-motion";
 import { DragDropProvider } from "@dnd-kit/react";
+import { Feedback } from "@dnd-kit/dom";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import Container from "@/components/custom/container";
@@ -17,6 +18,7 @@ import {
   STATUS_ORDER_MOBILE,
   type Task,
   type TaskOrder,
+  type TaskStatus,
 } from "../types";
 import { applyOrder } from "../utils";
 import TasksSkeleton from "../states/TasksSkeleton";
@@ -107,23 +109,16 @@ const TasksView: FC<TasksViewProps> = ({
             onSelect={setActiveLabel}
           />
           <DragDropProvider
+            plugins={(defaults) => [
+              ...defaults.filter((p) => p !== Feedback),
+              Feedback.configure({ feedback: "clone" }),
+            ]}
             sensors={sensors}
             onDragStart={onDragStart}
             onDragOver={onDragOver}
             onDragEnd={onDragEnd}
           >
-            <SectionsRow>
-              {order.map((status, columnIndex) => (
-                <TasksSection
-                  key={status}
-                  status={status}
-                  index={columnIndex}
-                  label={STATUS_LABELS[status]}
-                  taskIds={items[status]}
-                  tasksById={tasksById}
-                />
-              ))}
-            </SectionsRow>
+            <ColumnsLayout order={order} items={items} tasksById={tasksById} />
           </DragDropProvider>
         </div>
       </ComponentFade>
@@ -141,6 +136,25 @@ const SectionsRow: FC<{ children: ReactNode }> = ({ children }) => (
   <div className="flex flex-col gap-12 lg:grid lg:grid-flow-col lg:auto-cols-[minmax(360px,1fr)] lg:gap-6 lg:overflow-x-auto lg:overflow-y-hidden lg:px-1 lg:-mx-1 lg:py-1">
     {children}
   </div>
+);
+
+const ColumnsLayout: FC<{
+  order: TaskStatus[];
+  items: ItemsByStatus;
+  tasksById: Map<string, Task>;
+}> = ({ order, items, tasksById }) => (
+  <SectionsRow>
+    {order.map((status, columnIndex) => (
+      <TasksSection
+        key={status}
+        status={status}
+        index={columnIndex}
+        label={STATUS_LABELS[status]}
+        taskIds={items[status]}
+        tasksById={tasksById}
+      />
+    ))}
+  </SectionsRow>
 );
 
 export default TasksView;

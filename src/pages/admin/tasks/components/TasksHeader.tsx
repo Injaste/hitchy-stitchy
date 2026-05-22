@@ -34,6 +34,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
   const { canCreate, canDelete } = useAccess();
   const openCreate = useTaskModalStore((s) => s.openCreate);
   const openArchivedSheet = useTaskModalStore((s) => s.openArchivedSheet);
+  const isDragging = useTaskModalStore((s) => s.isDragging);
   const { filteredTasks } = useTasksFilter(data ?? []);
   const total = filteredTasks.length;
   const done = filteredTasks.filter((t) => t.status === "done").length;
@@ -49,7 +50,8 @@ const TasksHeader: FC<TasksHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
-      collapseMeta
+      collapseMeta={!isDragging}
+      lockOpen={isDragging}
       meta={
         !isLoading &&
         !isError &&
@@ -129,7 +131,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
             )}
             {canCreate("tasks") && (
               <Button size="sm" onClick={openCreate} className="gap-2">
-                <Plus className="size-4" /> <ActionLabel>Add task</ActionLabel>
+                <Plus className="size-4" /> <ActionLabel lockOpen={isDragging}>Add task</ActionLabel>
               </Button>
             )}
           </div>

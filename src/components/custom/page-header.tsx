@@ -33,10 +33,17 @@ interface PageHeaderProps extends BaseHeaderProps {
    * in flow and scrolls away naturally).
    */
   collapseMeta?: boolean;
+  /**
+   * When true, treats the page as un-scrolled regardless of actual scroll
+   * position — gradient, ActionLabel, and collapseMeta effects all freeze
+   * in their resting state. Use while a drag is active so the header
+   * doesn't react to per-column scroll sources.
+   */
+  lockOpen?: boolean;
 }
 
-export const ActionLabel: FC<{ children: ReactNode }> = ({ children }) => {
-  const hasScrolled = useHasScrolled();
+export const ActionLabel: FC<{ children: ReactNode; lockOpen?: boolean }> = ({ children, lockOpen = false }) => {
+  const hasScrolled = useHasScrolled(lockOpen);
   return (
     <AnimatePresence initial={false}>
       {!hasScrolled && (
@@ -65,11 +72,12 @@ export const PageHeader: FC<PageHeaderProps> = ({
   isRefetching = false,
   refetch,
   collapseMeta = false,
+  lockOpen = false,
 }) => {
   const { handleRefresh, canRefresh } = useRefetch(refetch ?? (() => {}));
   const showActions = !isLoading && !isError;
 
-  const hasScrolled = useHasScrolled();
+  const hasScrolled = useHasScrolled(lockOpen);
   const collapsed = collapseMeta && hasScrolled;
 
   function renderActions() {

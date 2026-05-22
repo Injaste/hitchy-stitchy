@@ -8,6 +8,8 @@ interface TaskModalAddons {
   isArchivedSheetOpen: boolean
   openArchivedSheet: () => void
   closeArchivedSheet: () => void
+  isDragging: boolean
+  setDragging: (v: boolean) => void
   extendedCloseAll: () => void
   extendedReset: () => void
 }
@@ -21,6 +23,9 @@ export const useTaskModalStore = createModalStore<Task, TaskModalAddons>((set) =
   isArchivedSheetOpen: false,
   openArchivedSheet: () => set({ isArchivedSheetOpen: true }),
   closeArchivedSheet: () => set({ isArchivedSheetOpen: false }),
+
+  isDragging: false,
+  setDragging: (v) => set({ isDragging: v }),
 
   extendedCloseAll: () => set({ isArchiveOpen: false }),
   extendedReset: () => set({ archiveTargets: [] }),
