@@ -27,16 +27,6 @@ interface TasksSectionProps {
   tasksById: Map<string, Task>;
 }
 
-/**
- * Single kanban column.
- *
- * dnd-kit v0.4 wiring:
- *   - useDroppable({ id: status, accept: 'item', collisionPriority: Low })
- *     so items hovering a card win the collision, and items dropping
- *     into empty column space still route here.
- *   - Cards render as SortableTaskItem (useSortable, grouped by status).
- *     The library handles "cards move out of the way" automatically.
- */
 const TasksSection: FC<TasksSectionProps> = ({
   status,
   index,
@@ -157,14 +147,6 @@ const TasksSection: FC<TasksSectionProps> = ({
   );
 };
 
-/* ─────────────────────────── Sortable card ─────────────────────────── */
-
-/**
- * v0.4 sortable item — `group` keys this card to its column, `index`
- * keys its position. The library handles transform, transition, and
- * "make space for me" animation on sibling cards. `isDragging` dims
- * the source while the cloned overlay travels with the pointer.
- */
 const SortableTaskItem: FC<{
   task: Task;
   group: TaskStatus;

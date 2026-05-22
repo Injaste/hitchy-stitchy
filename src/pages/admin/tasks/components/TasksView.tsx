@@ -1,6 +1,8 @@
 import { useMemo, type FC, type ReactNode } from "react";
+import { AnimatePresence } from "framer-motion";
 import { DragDropProvider } from "@dnd-kit/react";
 
+import ComponentFade from "@/components/animations/animate-component-fade";
 import Container from "@/components/custom/container";
 import ErrorState from "@/components/custom/states/error-state";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -31,17 +33,6 @@ interface TasksViewProps {
   refetch: () => void;
 }
 
-/**
- * Tasks board — dnd-kit v0.4 multi-sortable-lists pattern.
- *
- * Data flow:
- *   useTasksQuery → Task[] (cache)
- *   applyOrder + filter           → orderedTasks (rendered order)
- *   derive baseItemsByStatus      → which task ids live in which column
- *   derive tasksById              → O(1) lookup for SortableItem
- *   useTaskDnd(base, byId)        → owns local items + DnD handlers
- *   pass items[status]            → TasksSection (renders sortables)
- */
 const TasksView: FC<TasksViewProps> = ({
   data,
   taskOrder,
@@ -81,19 +72,34 @@ const TasksView: FC<TasksViewProps> = ({
     tasksById,
   );
 
-  return (
-    <Container className="mt-8 flex flex-col lg:mt-6 lg:flex-1 lg:min-h-0 lg:grid lg:grid-rows-[minmax(0,1fr)]">
-      {isLoading ? (
-        <TasksSkeleton />
-      ) : isError ? (
-        <ErrorState
-          message="We couldn't load your tasks. Please try again."
-          onRetry={refetch}
-          isRetrying={isRefetching}
-        />
-      ) : !data?.length ? (
-        <TasksEmpty onAdd={openCreate} canCreate={canCreate("tasks")} />
-      ) : (
+  const renderBody = () => {
+    if (isLoading)
+      return (
+        <ComponentFade key="skeleton">
+          <TasksSkeleton />
+        </ComponentFade>
+      );
+
+    if (isError)
+      return (
+        <ComponentFade key="error">
+          <ErrorState
+            message="We couldn't load your tasks. Please try again."
+            onRetry={refetch}
+            isRetrying={isRefetching}
+          />
+        </ComponentFade>
+      );
+
+    if (!data?.length)
+      return (
+        <ComponentFade key="empty">
+          <TasksEmpty onAdd={openCreate} canCreate={canCreate("tasks")} />
+        </ComponentFade>
+      );
+
+    return (
+      <ComponentFade key="content">
         <div className="flex flex-col gap-6 lg:grid lg:h-full lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-6">
           <TasksFilterBar
             tabs={tabs}
@@ -120,12 +126,17 @@ const TasksView: FC<TasksViewProps> = ({
             </SectionsRow>
           </DragDropProvider>
         </div>
-      )}
+      </ComponentFade>
+    );
+  };
+
+  return (
+    <Container className="mt-8 flex flex-col lg:mt-6 lg:flex-1 lg:min-h-0 lg:grid lg:grid-rows-[minmax(0,1fr)]">
+      <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
     </Container>
   );
 };
 
-/** Horizontal track of column panels (desktop) / stack (mobile). */
 const SectionsRow: FC<{ children: ReactNode }> = ({ children }) => (
   <div className="flex flex-col gap-12 lg:grid lg:grid-flow-col lg:auto-cols-[minmax(360px,1fr)] lg:gap-6 lg:overflow-x-auto lg:overflow-y-hidden lg:px-1 lg:-mx-1 lg:py-1">
     {children}

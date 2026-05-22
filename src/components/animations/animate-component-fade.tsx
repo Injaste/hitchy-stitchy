@@ -7,19 +7,18 @@ interface ComponentFadeProps {
 }
 
 const pageTransition: Variants = {
-  // `filter: blur(...)` was here but it creates a CSS stacking context
-  // on its host element, which pins `position: fixed` descendants
-  // (e.g. dnd-kit's DragOverlay) inside the host instead of the
-  // viewport. Disabled while diagnosing the tasks board drag-and-drop.
-  hidden: { opacity: 0 /* filter: "blur(2px)" */ },
+  hidden: {
+    opacity: 0,
+    filter: "blur(2px)",
+  },
   show: {
     opacity: 1,
-    // filter: "blur(0px)",
+    filter: "",
     transition: { duration: 0.35, ease: "easeOut" },
   },
   exit: {
     opacity: 0,
-    // filter: "blur(2px)",
+    filter: "blur(2px)",
     transition: { duration: 0.25, ease: "easeIn" },
   },
 };

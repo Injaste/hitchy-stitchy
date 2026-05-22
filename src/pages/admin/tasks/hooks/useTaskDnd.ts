@@ -19,13 +19,6 @@ export type ItemsByStatus = Record<TaskStatus, string[]>;
 
 const sensors = [PointerSensor, KeyboardSensor];
 
-/**
- * Canonical dnd-kit v0.4 multi-list controller. The library handles
- * collision detection, insertion index, and "cards-move-out-of-the-way"
- * animations natively — this hook just snapshots state, calls `move()`
- * on dragover, and flushes the final order plus any status change to
- * the mutation layer on drag end.
- */
 export const useTaskDnd = (
   baseItemsByStatus: ItemsByStatus,
   tasksById: Map<string, Task>,

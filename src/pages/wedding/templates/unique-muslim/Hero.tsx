@@ -61,7 +61,9 @@ const countdown: Variants = make(T.countdown, 20, 0.8);
 const verse: Variants = make(T.verse, 16, 0.8);
 const cta: Variants = make(T.cta, 12, 0.7);
 
-const Hero = ({ eventConfig, pageConfig }: ThemeProps) => {
+type HeroProps = ThemeProps & { ready?: boolean };
+
+const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
 
   const greetingText = config?.greeting ?? "";
@@ -79,7 +81,7 @@ const Hero = ({ eventConfig, pageConfig }: ThemeProps) => {
     <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10">
       <motion.div
         initial="hidden"
-        animate="show"
+        animate={ready ? "show" : "hidden"}
         className="z-10 w-full max-w-2xl mx-auto"
       >
         <motion.p
