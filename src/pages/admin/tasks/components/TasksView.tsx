@@ -25,6 +25,7 @@ import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
 import TasksFilterBar from "./TasksFilterBar";
 import TasksSection from "./TasksSection";
+import TasksDndErrorBoundary from "./TasksDndErrorBoundary";
 
 interface TasksViewProps {
   data: Task[] | undefined;
@@ -108,18 +109,32 @@ const TasksView: FC<TasksViewProps> = ({
             activeLabel={activeLabel}
             onSelect={setActiveLabel}
           />
-          <DragDropProvider
-            plugins={(defaults) => [
-              ...defaults.filter((p) => p !== Feedback),
-              Feedback.configure({ feedback: "clone" }),
-            ]}
-            sensors={sensors}
-            onDragStart={onDragStart}
-            onDragOver={onDragOver}
-            onDragEnd={onDragEnd}
+          <TasksDndErrorBoundary
+            fallback={
+              <ColumnsLayout
+                order={order}
+                items={baseItemsByStatus}
+                tasksById={tasksById}
+              />
+            }
           >
-            <ColumnsLayout order={order} items={items} tasksById={tasksById} />
-          </DragDropProvider>
+            <DragDropProvider
+              plugins={(defaults) => [
+                ...defaults.filter((p) => p !== Feedback),
+                Feedback.configure({ feedback: "clone" }),
+              ]}
+              sensors={sensors}
+              onDragStart={onDragStart}
+              onDragOver={onDragOver}
+              onDragEnd={onDragEnd}
+            >
+              <ColumnsLayout
+                order={order}
+                items={items}
+                tasksById={tasksById}
+              />
+            </DragDropProvider>
+          </TasksDndErrorBoundary>
         </div>
       </ComponentFade>
     );
