@@ -1,12 +1,12 @@
 import { useTasksQuery, useTaskOrderQuery } from "./queries";
 import TasksHeader from "./components/TasksHeader";
-import Board from "./components/Board";
+import TasksView from "./components/TasksView";
 import TaskModals from "./modals";
 
 /**
  * Tasks page entry. Composition only — all data prep, layout, and
- * state handling lives in Board. The outer wrapper claims the
- * AdminView wrapper's remaining flex space on desktop so Board can
+ * state handling lives in TasksView. The outer wrapper claims the
+ * AdminView wrapper's remaining flex space on desktop so TasksView can
  * size its own grid; mobile is a normal vertical flow.
  */
 const Tasks = () => {
@@ -22,7 +22,7 @@ const Tasks = () => {
         refetch={tasks.refetch}
         data={tasks.data}
       />
-      <Board
+      <TasksView
         data={tasks.data}
         taskOrder={order.data}
         isLoading={tasks.isLoading}
