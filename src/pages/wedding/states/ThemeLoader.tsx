@@ -1,7 +1,10 @@
 import { useEffect, useRef, type FC } from "react";
 import { animate, motion, stagger } from "framer-motion";
-import { Heart } from "lucide-react";
+import LottieRaw from "lottie-react";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Lottie = (LottieRaw as any).default ?? LottieRaw;
 import SplitType from "split-type";
+import loveParticle from "@/assets/lottie/love-particle.json";
 
 const CONTENT_DELAY = 0.8;
 
@@ -69,12 +72,13 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           <span className="flex items-center gap-2 text-sm tracking-widest text-accent/60 font-serif italic">
             Hitchy Stitchy
           </span>
-          <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 4, repeat: Infinity }}
-          >
-            <Heart size={32} strokeWidth={1.5} className="text-accent/50" />
-          </motion.div>
+          <div className="-my-6">
+            <Lottie
+              animationData={loveParticle}
+              loop
+              style={{ width: 80, height: 80 }}
+            />
+          </div>
         </motion.div>
 
         {/* Heading Section with Split-Type */}
@@ -92,7 +96,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           transition={{ duration: 1, delay: CONTENT_DELAY + 1.5 }}
           className="mt-10 flex flex-col items-center gap-4"
           onAnimationComplete={() => {
-            animationDone.current = true;
+            // animationDone.current = true;
             tryComplete();
           }}
         >
