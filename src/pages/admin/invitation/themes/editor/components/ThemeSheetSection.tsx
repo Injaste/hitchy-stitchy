@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "@tanstack/react-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
@@ -23,6 +23,20 @@ const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
   const setFieldsRef = useRef(setFields);
   setFieldsRef.current = setFields;
 
+  // Write schema defaults into the draft on mount for any field whose value
+  // is absent from the saved config. This ensures defaults are persisted even
+  // if the user never touches those fields before saving.
+  useEffect(() => {
+    const patch: ThemeDraftPatch = {};
+    const saved = draft as Record<string, unknown> | null;
+    for (const f of group.fields) {
+      if (f.default == null) continue;
+      const raw = saved?.[f.key];
+      if (raw === undefined || raw === null) patch[f.key] = f.default;
+    }
+    if (Object.keys(patch).length > 0) setFieldsRef.current(patch);
+  }, []);
+
   const initialValues = Object.fromEntries(
     group.fields.map((f) => {
       const raw = draft ? (draft as Record<string, unknown>)[f.key] : undefined;
@@ -36,7 +50,10 @@ const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
     listeners: {
       onChangeDebounceMs: 150,
       onChange: ({ formApi }) => {
-        const values = formApi.state.values as Record<string, string | boolean | null>;
+        const values = formApi.state.values as Record<
+          string,
+          string | boolean | null
+        >;
         const patch: ThemeDraftPatch = {};
         for (const f of group.fields) {
           const v = values[f.key];

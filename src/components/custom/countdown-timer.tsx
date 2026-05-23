@@ -50,7 +50,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
       {timeKeys.map((unit) => (
         <Card key={unit} className="bg-card/50 backdrop-blur-md" size="sm">
           <CardContent className="flex flex-col items-center">
-            <span className="font-mono text-2xl sm:text-3xl font-bold text-foreground tabular-nums">
+            <span className="text-2xl sm:text-3xl font-bold text-foreground tabular-nums">
               <Odometer value={timeLeft[unit]} pad={2} />
             </span>
             <span className="text-3xs sm:text-2xs uppercase tracking-widest text-muted-foreground font-bold mt-1">
