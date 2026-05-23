@@ -104,14 +104,10 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
   const [phase, setPhase] = useState<"sealed" | "opening">("sealed");
   const [visible, setVisible] = useState(true);
 
-  // Lock scrollbar for the duration of the preloader so the page doesn't
-  // jump or show a scrollbar while the envelope is covering the viewport.
   useEffect(() => {
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.documentElement.style.overflow = "";
-    };
-  }, []);
+    document.documentElement.style.overflow = visible ? "hidden" : "";
+    return () => { document.documentElement.style.overflow = ""; };
+  }, [visible]);
 
   useEffect(() => {
     if (!loaderReady) return;
