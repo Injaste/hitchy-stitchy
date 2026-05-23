@@ -6,6 +6,7 @@ import type {
   RSVPDeleteClassNames,
   RSVPDeleteLabels,
 } from "@/pages/wedding/form"
+import type { AnchorThemeConfig } from "@/pages/wedding/anchors"
 import type { PublicEventConfig } from "../types"
 
 export type FieldType = "text" | "textarea" | "select" | "switch" | "image"
@@ -22,10 +23,16 @@ export interface ThemeFieldSchema {
   placeholder: string
   options?: FieldOption[]
   default?: string
+  hint?: string
+  hintUrl?: string
+  hintUrlLabel?: string
 }
 
 export interface ThemeFieldGroup {
   title: string
+  description?: string
+  descriptionUrl?: string
+  descriptionUrlLabel?: string
   fields: ThemeFieldSchema[]
 }
 
@@ -54,6 +61,5 @@ export interface ThemeRegistryEntry {
   defaultConfig: ThemeConfig
   form: ThemeFormConfig
   schema: ThemeFieldGroup[]
-  /** Google Fonts stylesheet URLs to inject for this theme */
-  fonts?: string[]
+  anchors: AnchorThemeConfig
 }

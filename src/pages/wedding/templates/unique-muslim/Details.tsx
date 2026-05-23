@@ -7,7 +7,7 @@ import {
   Clock,
   MapPin,
   MapPinCheck,
-  Shirt,
+  Star,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,24 @@ const divider: Variants = {
   },
 };
 
+const deriveMapEmbedUrl = (
+  mapLink: string | null | undefined,
+): string | null => {
+  if (!mapLink) return null;
+  try {
+    const url = new URL(mapLink);
+    const atMatch = url.pathname.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (atMatch)
+      return `https://maps.google.com/maps?q=${atMatch[1]},${atMatch[2]}&output=embed`;
+    const q = url.searchParams.get("q");
+    if (q)
+      return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+  } catch {
+    return null;
+  }
+  return null;
+};
+
 const safeFormat = (date: Date, fmt: string) => {
   try {
     return format(date, fmt);
@@ -64,39 +82,38 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
     blessings_prefix,
     blessings_name,
     blessings_label,
-    attire,
-    details_rsvp_cta,
+    dress_code,
     groom_name,
     bride_name,
+    date,
+    time,
     venue_name,
     venue_address,
     venue_map_link,
     venue_map_embed_url,
   } = config ?? {};
 
+  const mapEmbedUrl = venue_map_embed_url || deriveMapEmbedUrl(venue_map_link);
+
   const parts = eventConfig.event_date?.split("-").map(Number);
   const eventDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : "";
 
   const detailsList = [
-    ...(eventDate
+    ...(date
       ? [
           {
             icon: Calendar,
             title: "Date",
-            detail: safeFormat(eventDate, "do MMMM yyyy"),
-            sub: safeFormat(eventDate, "EEEE"),
+            detail: date,
           },
         ]
       : []),
-    ...(eventConfig.event_time_start
+    ...(time
       ? [
           {
             icon: Clock,
             title: "Time",
-            detail: eventConfig.event_time_start,
-            sub: eventConfig.event_time_end
-              ? `to ${eventConfig.event_time_end}`
-              : "",
+            detail: time,
           },
         ]
       : []),
@@ -106,17 +123,15 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             icon: MapPin,
             title: "Location",
             detail: venue_name,
-            sub: venue_address,
           },
         ]
       : []),
-    ...(attire
+    ...(dress_code
       ? [
           {
-            icon: Shirt,
-            title: "Attire",
-            detail: attire,
-            sub: "Dress code",
+            icon: Star,
+            title: "Dress code",
+            detail: dress_code,
           },
         ]
       : []),
@@ -135,10 +150,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
     : null;
 
   return (
-    <section
-      id="details"
-      className="py-20 px-4 bg-card/60 relative z-10"
-    >
+    <section id="details" className="py-20 px-4 bg-card/60 relative z-10">
       <div className="max-w-4xl mx-auto text-center">
         {/* Intro */}
         <motion.div
@@ -158,7 +170,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           </motion.h3>
           <motion.p
             variants={fadeUp(0.25, 16, 0.8)}
-            className="text-sm text-foreground/70 leading-relaxed max-w-2xl mx-auto italic"
+            className="text-sm text-foreground/70 leading-relaxed max-w-2xl mx-auto"
           >
             "{invitation_body}"
           </motion.p>
@@ -174,14 +186,14 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           >
             <motion.p
               variants={fadeIn(0)}
-              className="text-muted-foreground mb-3 uppercase tracking-[0.4em] text-2xs font-bold"
+              className="text-muted-foreground mb-3 tracking-[0.4em] text-2xs font-bold"
             >
               {blessings_prefix}
             </motion.p>
             {blessings_name && (
               <motion.h3
                 variants={fadeUp(0.1, 20, 0.8)}
-                className="text-2xl font-bold text-primary mb-2 whitespace-pre-line"
+                className="text-2xl font-bold text-primary mb-2 whitespace-pre-line italic"
               >
                 {blessings_name}
               </motion.h3>
@@ -189,7 +201,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             {blessings_label && (
               <motion.p
                 variants={fadeUp(0.2, 12, 0.7)}
-                className="text-foreground/70 italic text-sm"
+                className="text-foreground/70 text-sm"
               >
                 {blessings_label}
               </motion.p>
@@ -205,6 +217,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
         {/* Details cards */}
         {detailsList.length > 0 && (
           <motion.div
+            id="date"
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-40px" }}
@@ -227,9 +240,6 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                 </h4>
                 <p className="font-display text-primary font-bold text-base">
                   {item.detail}
-                </p>
-                <p className="text-muted-foreground text-xs italic">
-                  {item.sub}
                 </p>
               </motion.div>
             ))}
@@ -269,8 +279,9 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
         )}
 
         {/* Map */}
-        {venue_map_embed_url && (
+        {mapEmbedUrl && (
           <motion.div
+            id="map"
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-40px" }}
@@ -281,7 +292,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               className="relative w-full aspect-4/3"
             >
               <iframe
-                src={venue_map_embed_url}
+                src={mapEmbedUrl}
                 className="absolute inset-0 w-full h-full border-0 rounded-xl"
                 allowFullScreen
                 loading="lazy"
@@ -312,7 +323,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                       rel="noopener noreferrer"
                     >
                       <MapPinCheck size={14} className="text-primary" />
-                      View Map
+                      Open Maps
                     </a>
                   </Button>
                 </motion.div>
@@ -320,25 +331,6 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             </motion.div>
           </motion.div>
         )}
-
-        {/* RSVP CTA */}
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="mt-12"
-        >
-          <motion.div variants={fadeUp(0, 16, 0.7)}>
-            <motion.a
-              href="#rsvp"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-block bg-primary text-primary-foreground px-8 py-3.5 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs font-bold"
-            >
-              {details_rsvp_cta}
-            </motion.a>
-          </motion.div>
-        </motion.div>
       </div>
     </section>
   );

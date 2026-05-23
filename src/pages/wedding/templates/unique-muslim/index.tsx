@@ -1,71 +1,103 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useFrame } from "react-frame-component";
 import Hero from "./Hero";
 import Details from "./Details";
 import RSVP from "./RSVP";
 import FloatingIcons from "./FloatingIcons";
 import EnvelopePreloader from "./EnvelopePreloader";
-import PortalToApp from "@/components/custom/portal-to-app";
 import type { ThemeProps } from "@/pages/wedding/templates/types";
-import { UNIQUE_MUSLIM_FONTS } from "./types";
+import { AnchorBar } from "@/pages/wedding/anchors";
+import { uniqueMuslimAnchors } from "./anchors";
+import slugCss from "./styles.css?inline";
+import {
+  parseGoogleFontUrl,
+  cssFontFamily,
+} from "@/pages/wedding/templates/utils/google-font-url";
 
-const FONT_URL = UNIQUE_MUSLIM_FONTS[0];
-
-const HEADING_STYLE = `
-  .um-root h1,.um-root h2,.um-root h3,
-  .um-root h4,.um-root h5,.um-root h6 {
-    font-family: 'Cinzel Decorative', cursive;
-  }
-`;
+const STYLE_ATTR = "data-um-styles";
+const FONT_ATTR = "data-um-font";
 
 const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const bgImage = config?.background_image ?? "/dannad.png";
   const [ready, setReady] = useState(false);
 
+  const couple = parseGoogleFontUrl(config?.font_couple_url);
+  const heading = parseGoogleFontUrl(config?.font_heading_url);
+  const body = parseGoogleFontUrl(config?.font_body_url);
+
+  const fontUrls = useMemo(
+    () =>
+      [couple?.url, heading?.url, body?.url].filter((u): u is string => !!u),
+    [couple?.url, heading?.url, body?.url],
+  );
+
   const { document: frameDoc } = useFrame();
 
   useEffect(() => {
-    // When inside a Frame (admin preview), ThemeSheetPreview already injects
-    // the font via the registry fonts array — skip to avoid duplicates.
-    if (frameDoc) return;
-
-    const doc = document;
+    const doc = frameDoc ?? document;
     if (!doc?.head) return;
 
-    const existingLink = doc.head.querySelector(`link[href="${FONT_URL}"]`);
-    if (!existingLink) {
-      const link = doc.createElement("link");
-      link.rel = "stylesheet";
-      link.href = FONT_URL;
-      doc.head.appendChild(link);
-    }
-
-    const style = doc.createElement("style");
-    style.textContent = HEADING_STYLE;
-    doc.head.appendChild(style);
+    const styleEl = doc.createElement("style");
+    styleEl.setAttribute(STYLE_ATTR, "");
+    styleEl.textContent = slugCss;
+    doc.head.appendChild(styleEl);
 
     return () => {
-      if (!existingLink) doc.head.querySelector(`link[href="${FONT_URL}"]`)?.remove();
-      style.remove();
+      styleEl.remove();
     };
   }, [frameDoc]);
 
+  useEffect(() => {
+    const doc = frameDoc ?? document;
+    if (!doc?.head) return;
+
+    const added: HTMLLinkElement[] = [];
+    for (const url of fontUrls) {
+      if (doc.head.querySelector(`link[href="${url}"]`)) continue;
+      const link = doc.createElement("link");
+      link.rel = "stylesheet";
+      link.href = url;
+      link.setAttribute(FONT_ATTR, "");
+      doc.head.appendChild(link);
+      added.push(link);
+    }
+
+    return () => {
+      for (const link of added) link.remove();
+    };
+  }, [frameDoc, fontUrls]);
+
+  const rootStyle = {
+    ...(couple  && { "--theme-font-couple":  cssFontFamily(couple.family)  }),
+    ...(heading && { "--theme-font-heading": cssFontFamily(heading.family) }),
+    ...(body    && { "--theme-font-body":    cssFontFamily(body.family)    }),
+  } as CSSProperties;
+
   return (
-    <div className="um-root" style={{ fontFamily: "'Cinzel', serif" }}>
-      <PortalToApp>
-        <EnvelopePreloader loaderReady={!!loaderReady} onExitComplete={() => setReady(true)} />
-        <img
-          className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50 -z-10 blur-sm"
-          src={bgImage}
-          alt=""
-        />
-        <FloatingIcons />
-      </PortalToApp>
+    <div className="um-root" style={rootStyle}>
+      <EnvelopePreloader
+        loaderReady={!!loaderReady}
+        onExitComplete={() => setReady(true)}
+      />
+      <img
+        className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50 -z-10 blur-sm"
+        src={bgImage}
+        alt=""
+      />
+      <FloatingIcons />
 
       <Hero eventConfig={eventConfig} pageConfig={pageConfig} ready={ready} />
       <Details eventConfig={eventConfig} pageConfig={pageConfig} />
       <RSVP eventConfig={eventConfig} pageConfig={pageConfig} />
+
+      <AnchorBar
+        items={uniqueMuslimAnchors.items.filter(
+          (item) => !item.when || item.when(config ?? {}),
+        )}
+        classNames={uniqueMuslimAnchors.classNames}
+        labels={uniqueMuslimAnchors.labels}
+      />
     </div>
   );
 };

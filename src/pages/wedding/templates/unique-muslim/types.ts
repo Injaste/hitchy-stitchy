@@ -1,9 +1,5 @@
 import type { ThemeFieldGroup } from "../types"
 
-export const UNIQUE_MUSLIM_FONTS = [
-  "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&display=swap",
-]
-
 export const uniqueMuslimSchema = [
   {
     title: "Couple",
@@ -13,11 +9,21 @@ export const uniqueMuslimSchema = [
     ]
   },
   {
+    title: "Typography",
+    description: "Paste a Google Fonts embed URL for each role",
+    descriptionUrl: "https://fonts.google.com",
+    descriptionUrlLabel: "Google Fonts ↗",
+    fields: [
+      { key: "font_couple_url", label: "Couple Names Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Italianno&display=swap" },
+      { key: "font_heading_url", label: "Headings Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" },
+      { key: "font_body_url", label: "Body Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" },
+    ],
+  },
+  {
     title: "Hero",
     fields: [
       { key: "greeting", label: "Greeting", type: "text", placeholder: "e.g. السلام عليكم ورحمة الله وبركاته" },
       { key: "hero_divider_label", label: "Divider Label", type: "text", default: "The Wedding of", placeholder: "e.g. The Wedding of" },
-      { key: "hero_cta_label", label: "CTA Button", type: "text", default: "Our Invitation", placeholder: "e.g. Our Invitation" },
       { key: "quote", label: "Quote / Verse", type: "textarea", placeholder: "e.g. And We created you in pairs." },
       { key: "quote_source", label: "Quote Source", type: "text", placeholder: "e.g. Surah An-Naba 78:8" },
     ],
@@ -40,12 +46,13 @@ export const uniqueMuslimSchema = [
   {
     title: "Venue",
     fields: [
+      { key: "date", label: "Date", type: "text", placeholder: "eg. 4th July 2026", default: "4th July 2026" },
+      { key: "time", label: "Time", type: "text", placeholder: "eg. 11 am", default: "11 AM" },
       { key: "venue_name", label: "Venue Name", type: "text", placeholder: "e.g. The Grand Ballroom" },
       { key: "venue_address", label: "Venue Address", type: "textarea", placeholder: "Full address…" },
+      { key: "dress_code", label: "Dress Code / Attire", type: "text", placeholder: "e.g. Traditional Malay — Shades of Green" },
       { key: "venue_map_link", label: "Map Link", type: "text", placeholder: "https://maps.google.com/…" },
-      { key: "venue_map_embed_url", label: "Map Embed URL", type: "textarea", placeholder: "https://www.google.com/maps/embed?…" },
-      { key: "attire", label: "Dress Code / Attire", type: "text", placeholder: "e.g. Traditional Malay — Shades of Green" },
-      { key: "details_rsvp_cta", label: "RSVP CTA Button", type: "text", default: "RSVP Now", placeholder: "e.g. RSVP Now" },
+      { key: "venue_map_embed_url", label: "Map Embed URL", type: "textarea", placeholder: "https://www.google.com/maps/embed?…", hint: "Paste the src URL from the Google Maps embed code — not the full <iframe> tag." },
     ],
   },
   {

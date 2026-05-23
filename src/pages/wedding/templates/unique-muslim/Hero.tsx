@@ -10,7 +10,6 @@ const T = {
   name2: 1.7,
   countdown: 2.5,
   verse: 2.8,
-  cta: 3,
 };
 
 const make = (delay: number, y = 20, duration = 0.7): Variants => ({
@@ -59,7 +58,6 @@ const amp: Variants = {
 const name2: Variants = make(T.name2, 40, 1.1);
 const countdown: Variants = make(T.countdown, 20, 0.8);
 const verse: Variants = make(T.verse, 16, 0.8);
-const cta: Variants = make(T.cta, 12, 0.7);
 
 type HeroProps = ThemeProps & { ready?: boolean };
 
@@ -70,7 +68,6 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
     bride_name,
     greeting: greetingText,
     hero_divider_label,
-    hero_cta_label,
     quote,
     quote_source,
   } = config ?? {};
@@ -80,7 +77,10 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
   const weddingDate = getWeddingDateTime(dateParts, weddingStartTime);
 
   return (
-    <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 px-4 overflow-hidden bg-white/10">
+    <section
+      id="hero"
+      className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 px-4 overflow-hidden bg-white/10"
+    >
       <motion.div
         initial="hidden"
         animate={ready ? "show" : "hidden"}
@@ -108,7 +108,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
         <div className="mb-12">
           <motion.h1
             variants={name1}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl"
+            className="um-couple-names text-[#66383b] italic tracking-wide leading-tight text-5xl"
           >
             {groom_name}
           </motion.h1>
@@ -126,7 +126,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
 
           <motion.h1
             variants={name2}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl"
+            className="um-couple-names text-[#66383b] italic tracking-wide leading-tight text-5xl"
           >
             {bride_name}
           </motion.h1>
@@ -148,16 +148,6 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
             </span>
           </div>
         </motion.div>
-
-        <motion.a
-          href="#details"
-          variants={cta}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="inline-block bg-primary text-primary-foreground px-8 py-3.5 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs font-bold"
-        >
-          {hero_cta_label}
-        </motion.a>
       </motion.div>
     </section>
   );

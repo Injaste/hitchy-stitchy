@@ -1,0 +1,20 @@
+/* unique-muslim — slug-owned stylesheet.
+   Consumes the font CSS variables set on .um-root by the slug component. */
+
+.um-root {
+  font-family: var(--theme-font-body, var(--font-sans));
+}
+
+.um-root h1,
+.um-root h2,
+.um-root h3,
+.um-root h4,
+.um-root h5,
+.um-root h6 {
+  font-family: var(--theme-font-heading, var(--font-display));
+}
+
+/* Scoped under .um-root (0-2-0) to beat .um-root h1 (0-1-1) */
+.um-root .um-couple-names {
+  font-family: var(--theme-font-couple, 'Italianno', cursive);
+}

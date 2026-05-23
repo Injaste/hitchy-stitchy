@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { ScrollView } from "@/components/custom/scroll-view";
 import Container from "@/components/custom/container";
@@ -42,15 +42,6 @@ const ThemeEditorSheet = ({
     return () => clear();
   }, [open, selected?.theme.id, init, clear]);
 
-  // Auto-close on save success (matches FormDialog's closeDelay behaviour).
-  // Delay lets the SubmitButton finish its success transition before the
-  // sheet slides out.
-  useEffect(() => {
-    if (!isSuccess) return;
-    const id = setTimeout(() => onClose(), 600);
-    return () => clearTimeout(id);
-  }, [isSuccess, onClose]);
-
   // Reset mutation flags after the sheet finishes closing so the next open
   // starts in idle state.
   useEffect(() => {
@@ -76,12 +67,21 @@ const ThemeEditorSheet = ({
 
   const isReady = !!selected && storeThemeId === selected.theme.id;
 
+  const [sheetEntered, setSheetEntered] = useState(false);
+
+  useEffect(() => {
+    if (!open) setSheetEntered(false);
+  }, [open]);
+
   return (
     <Sheet open={open} onOpenChange={(o) => !o && attemptClose()}>
       <SheetContent
         side="right"
         showCloseButton={false}
         className="max-w-6xl! w-screen! p-0 flex flex-col bg-background gap-0"
+        onAnimationEnd={(e) => {
+          if (e.target === e.currentTarget && open) setSheetEntered(true);
+        }}
       >
         <SheetTitle className="sr-only">Edit theme</SheetTitle>
 
@@ -131,7 +131,7 @@ const ThemeEditorSheet = ({
                 {/* A soft wash of light across the texture */}
                 {/* <div className="absolute inset-0 bg-linear-to-t from-primary/40 to-transparent pointer-events-none" /> */}
 
-                <ThemeSheetPreview theme={selected.theme} />
+                <ThemeSheetPreview theme={selected.theme} entered={sheetEntered} />
               </div>
             </div>
           </>
@@ -144,5 +144,3 @@ const ThemeEditorSheet = ({
 };
 
 export default ThemeEditorSheet;
-
-// TODO LET SHEET RENDER FIRST AND THEN LOAD IFRAME OR ANYTHING THAT WONT CAUSE ANIMATION LAGGING

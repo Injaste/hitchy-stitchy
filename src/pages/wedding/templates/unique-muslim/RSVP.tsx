@@ -54,7 +54,13 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   const [tickDone, setTickDone] = useState(false);
 
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
-  const { groom_name, bride_name, rsvp_subtitle, rsvp_success_heading, footer_tagline } = config ?? {};
+  const {
+    groom_name,
+    bride_name,
+    rsvp_subtitle,
+    rsvp_success_heading,
+    footer_tagline,
+  } = config ?? {};
   const rsvpConfig = eventConfig.config.rsvp;
 
   const isDeadlinePassed =
@@ -100,7 +106,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
         animationData={successCheck}
         loop={false}
         onComplete={() => setTickDone(true)}
-        style={{ width: 100, height: 100, margin: "0 auto" }}
+        style={{ width: 80, height: 80, margin: "0 auto" }}
       />
       <AnimatePresence>
         {(tickDone || !submitted) && (
@@ -127,7 +133,10 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
               className="flex gap-3 justify-center"
             >
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button
                   variant="outline"
                   size="sm"
@@ -137,7 +146,10 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
                   <Edit2 size={14} className="text-primary" /> Edit
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button
                   variant="outline"
                   size="sm"
@@ -208,10 +220,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   }
 
   return (
-    <section
-      id="rsvp"
-      className="pt-20 pb-10 px-4 relative bg-white/10 z-10"
-    >
+    <section id="rsvp" className="pt-20 pb-10 px-4 relative bg-white/10 z-10">
       <div className="max-w-sm mx-auto">
         <motion.div
           layout
@@ -225,7 +234,10 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
           {/* Header */}
           <motion.div variants={fadeIn(0)} className="text-center mb-8">
             <motion.div variants={fadeIn(0.05)}>
-              <Heart className="text-primary mx-auto mb-4 fill-primary/10" size={40} />
+              <Heart
+                className="text-primary mx-auto mb-4 fill-primary/10"
+                size={40}
+              />
             </motion.div>
             <motion.h2
               variants={fadeUp(0.15, 16, 0.7)}

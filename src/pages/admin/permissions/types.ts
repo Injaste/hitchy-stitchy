@@ -9,7 +9,7 @@ export type Resource =
   | "members.freeze"
   | "roles"
   | "vendors"
-  | "rsvp"
+  | "guests"
   | "invitation"
   | "events"
   | "announcements"
@@ -40,7 +40,7 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
   "members.freeze": "Freeze Members",
   roles: "Roles",
   vendors: "Vendors",
-  rsvp: "Guest RSVPs",
+  guests: "Guest RSVPs",
   invitation: "Invitation",
   events: "Event Details",
   announcements: "Announcements",
@@ -50,7 +50,7 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
 export const RESOURCE_GROUPS: ResourceGroup[] = [
   { label: "Operations", resources: ["timeline", "tasks"] },
   { label: "Team", resources: ["members", "members.freeze", "roles"] },
-  { label: "Guests", resources: ["rsvp", "invitation"] },
+  { label: "Guests", resources: ["guests", "invitation"] },
   { label: "Content", resources: ["announcements", "vendors", "pages"] },
   { label: "Event", resources: ["events"] },
 ]

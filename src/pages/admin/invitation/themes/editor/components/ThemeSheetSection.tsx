@@ -61,6 +61,24 @@ const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
           <CardTitle className="text-sm tracking-wide uppercase text-muted-foreground">
             {group.title}
           </CardTitle>
+          {group.description && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {group.description}
+              {group.descriptionUrl && group.descriptionUrlLabel && (
+                <>
+                  {" — "}
+                  <a
+                    href={group.descriptionUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground transition-colors"
+                  >
+                    {group.descriptionUrlLabel}
+                  </a>
+                </>
+              )}
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           <FieldGroup>
@@ -74,6 +92,7 @@ const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
                       label={field.label}
                       placeholder={field.placeholder}
                       rows={3}
+                      hint={field.hint ? <span>{field.hint}</span> : undefined}
                     />
                   );
                 case "select":
@@ -104,6 +123,26 @@ const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
                       name={field.key}
                       label={field.label}
                       placeholder={field.placeholder}
+                      hint={
+                        field.hint ? (
+                          <span>
+                            {field.hint}
+                            {field.hintUrl && field.hintUrlLabel && (
+                              <>
+                                {" — "}
+                                <a
+                                  href={field.hintUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="underline underline-offset-2 hover:text-foreground transition-colors"
+                                >
+                                  {field.hintUrlLabel}
+                                </a>
+                              </>
+                            )}
+                          </span>
+                        ) : undefined
+                      }
                     />
                   );
               }
