@@ -14,7 +14,8 @@ interface IconItem {
 const generateIcons = (count: number): IconItem[] =>
   Array.from({ length: count }, (_, i) => ({
     id: i,
-    left: Math.random() * 88 + 2,
+    // Adjusted slightly to allow full 0% to 100% edge-to-edge span
+    left: Math.random() * 100,
     size: Math.random() * 14 + 10,
     rotation: Math.random() * 180 + 180,
     duration: Math.random() * 5 + 6,
@@ -60,7 +61,8 @@ const FloatingIcons = () => {
           )
           .join("")}
       `}</style>
-      <div className="fixed left-1/2 -translate-x-1/2 w-full max-w-md top-0 h-60 pointer-events-none overflow-hidden z-40">
+      {/* FIXED: Removed left-1/2, -translate-x-1/2, and max-w-md so it covers the actual viewport edge-to-edge */}
+      <div className="fixed left-0 right-0 top-0 h-60 pointer-events-none overflow-hidden z-40">
         {icons.map((icon) => (
           <div
             key={icon.id}
@@ -72,6 +74,7 @@ const FloatingIcons = () => {
               height: icon.size,
               opacity: 1,
               animation: `floatDown-${icon.id} ${icon.duration}s ${icon.delay}s linear infinite`,
+              transform: "translateX(-50%)",
             }}
           >
             <Heart
