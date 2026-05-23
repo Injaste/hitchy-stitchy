@@ -53,4 +53,6 @@ export interface ThemeRegistryEntry {
   defaultConfig: ThemeConfig
   form: ThemeFormConfig
   schema: ThemeFieldGroup[]
+  /** Google Fonts stylesheet URLs to inject for this theme */
+  fonts?: string[]
 }

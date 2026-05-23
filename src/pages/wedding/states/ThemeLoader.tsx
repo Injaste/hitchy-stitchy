@@ -69,7 +69,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           transition={{ duration: 1, delay: CONTENT_DELAY }}
           className="flex flex-col items-center justify-center gap-4 mb-8"
         >
-          <span className="flex items-center gap-2 text-sm tracking-widest text-accent/60 font-serif italic">
+          <span className="flex items-center gap-2 text-sm tracking-widest text-primary font-serif italic">
             Hitchy Stitchy
           </span>
           <div className="-my-6">
@@ -103,7 +103,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
         >
           <div className="h-px w-8 bg-accent/50" />
 
-          <p className="text-2xs tracking-[0.3em] text-primary-900/40 uppercase font-light">
+          <p className="text-2xs tracking-[0.3em] text-foreground uppercase font-light">
             Please wait while we prepare your invitation
           </p>
         </motion.div>

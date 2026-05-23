@@ -10,6 +10,7 @@ import Wedding from "@/pages/wedding";
 import { useInvitationQuery } from "../../../queries";
 import { composeEventConfig } from "../../../utils";
 import { useThemeSheetStore } from "../store";
+import { themeRegistry } from "@/pages/wedding/templates";
 import type { Theme } from "../../../types";
 
 const PHONE_W = 400;
@@ -73,6 +74,9 @@ const ThemeSheetPreview = ({ theme }: ThemeSheetPreviewProps) => {
               head={
                 <>
                   <style dangerouslySetInnerHTML={{ __html: cssText }} />
+                  {(themeRegistry[theme.template?.slug ?? ""]?.fonts ?? []).map((url) => (
+                    <link key={url} rel="stylesheet" href={url} />
+                  ))}
                   <style>
                     {`html, body {
                         /* For Firefox */

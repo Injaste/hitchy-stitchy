@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { isAfter, startOfDay } from "date-fns";
 import confetti from "canvas-confetti";
-import { Heart, CheckCircle2, Edit2, Trash2 } from "lucide-react";
+import { Heart, Edit2, Trash2 } from "lucide-react";
+import LottieRaw from "lottie-react";
 
 import { Button } from "@/components/ui/button";
-
 import { useGuestRSVP, useRSVPMutations } from "@/pages/wedding/queries";
 import type { RSVPFormData } from "@/pages/wedding/types";
 import type { ThemeProps } from "@/pages/wedding/templates/types";
@@ -17,6 +17,10 @@ import {
   rsvpDeleteLabels,
 } from "./form";
 import Footer from "./Footer";
+import successCheck from "@/assets/lottie/success-check.json";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Lottie = (LottieRaw as any).default ?? LottieRaw;
 
 const fadeUp = (delay: number, y = 20, duration = 0.8): Variants => ({
   hidden: { opacity: 0, y },
@@ -29,10 +33,7 @@ const fadeUp = (delay: number, y = 20, duration = 0.8): Variants => ({
 
 const fadeIn = (delay: number, duration = 0.8): Variants => ({
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration, delay, ease: "easeOut" },
-  },
+  show: { opacity: 1, transition: { duration, delay, ease: "easeOut" } },
 });
 
 const fireConfetti = () => {
@@ -44,32 +45,13 @@ const fireConfetti = () => {
   });
 };
 
-const useContentHeight = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number | "auto">("auto");
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new ResizeObserver(([entry]) => {
-      setHeight(entry.contentRect.height);
-    });
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, height };
-};
-
 const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.event_id);
   const { submit, update, remove } = useRSVPMutations(eventConfig.event_id);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-
-  const { ref: bodyRef, height: bodyHeight } = useContentHeight();
+  const [submitted, setSubmitted] = useState(false);
+  const [tickDone, setTickDone] = useState(false);
 
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const rsvpConfig = eventConfig.config.rsvp;
@@ -86,6 +68,8 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
       await update.mutate(value);
     } else {
       await submit.mutate(value);
+      setSubmitted(true);
+      setTickDone(false);
     }
     setIsEditing(false);
     fireConfetti();
@@ -95,6 +79,129 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
     setShowDeleteDialog(false);
     await remove.mutate({});
     setIsEditing(false);
+  };
+
+  const renderClosed = (key: string, message: string) => (
+    <motion.p
+      key={key}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="text-center text-foreground/70 italic text-sm sm:text-base leading-relaxed py-8"
+    >
+      {message}
+    </motion.p>
+  );
+
+  const renderSuccess = () => (
+    <div key="success" className="text-center">
+      <Lottie
+        animationData={successCheck}
+        loop={false}
+        onComplete={() => setTickDone(true)}
+        style={{ width: 100, height: 100, margin: "0 auto" }}
+      />
+      <AnimatePresence>
+        {(tickDone || !submitted) && (
+          <motion.div
+            key="success-content"
+            initial={submitted ? { opacity: 0, y: 12 } : false}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h3 className="text-xl sm:text-2xl font-bold my-3 sm:my-4 text-foreground">
+              Alhamdulillah!
+            </h3>
+            <motion.p
+              initial={submitted ? { opacity: 0 } : false}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+              className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base"
+            >
+              {eventConfig.confirmation_message}
+            </motion.p>
+            <motion.div
+              initial={submitted ? { opacity: 0 } : false}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
+              className="flex gap-3 justify-center"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                >
+                  <Edit2 size={14} className="text-primary" /> Edit
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={remove.isPending}
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                >
+                  <Trash2 size={14} className="text-primary" />
+                  {remove.isPending ? "Removing…" : "Delete"}
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+
+  const renderForm = () => (
+    <div key={isEditing ? "edit-form" : "new-form"}>
+      <RSVPForm
+        key={isEditing ? "edit" : "new"}
+        defaultValues={
+          isEditing && existingRSVP
+            ? {
+                name: existingRSVP.name,
+                phone: existingRSVP.phone,
+                guestCount: existingRSVP.guest_count,
+                message: existingRSVP.message ?? undefined,
+              }
+            : undefined
+        }
+        onSubmit={handleSubmit}
+        onCancel={isEditing ? () => setIsEditing(false) : undefined}
+        isEditing={isEditing}
+        rsvpConfig={rsvpConfig}
+        limits={{
+          min: eventConfig.guest_count_min,
+          max: eventConfig.guest_count_max,
+        }}
+        classNames={rsvpClassNames}
+        labels={rsvpLabels}
+      />
+    </div>
+  );
+
+  const renderBody = () => {
+    if (eventConfig.rsvp_mode === "private")
+      return renderClosed(
+        "private",
+        "RSVPs are by invitation only. Please contact us directly to confirm your attendance.",
+      );
+    if (isDeadlinePassed)
+      return renderClosed(
+        "deadline",
+        "RSVP submissions are now closed. Thank you to everyone who responded.",
+      );
+    if (existingRSVP && !isEditing) return renderSuccess();
+    return renderForm();
   };
 
   if (isLoading) {
@@ -113,10 +220,12 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
       <div className="max-w-sm sm:max-w-md mx-auto">
         <motion.div
           layout
+          transition={{ layout: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
-          className="bg-card/80 backdrop-blur-md p-6 sm:p-10 rounded-[1.75rem] sm:rounded-[2.5rem] shadow-xl border border-primary/20 overflow-hidden"
+          variants={fadeIn(0, 0.8)}
+          className="bg-card/80 backdrop-blur-md p-6 sm:p-10 rounded-[1.75rem] sm:rounded-[2.5rem] shadow-xl border border-primary/20"
         >
           {/* Header */}
           <motion.div
@@ -143,137 +252,8 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
             </motion.p>
           </motion.div>
 
-          <motion.div
-            variants={fadeUp(0.35, 16, 0.7)}
-            animate={{ height: bodyHeight }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div ref={bodyRef}>
-              {eventConfig.rsvp_mode === "private" ? (
-                <motion.div
-                  key="private-closed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-8"
-                >
-                  <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
-                    RSVPs are by invitation only. Please contact us directly to
-                    confirm your attendance.
-                  </p>
-                </motion.div>
-              ) : isDeadlinePassed ? (
-                <motion.div
-                  key="deadline-closed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-8"
-                >
-                  <p className="text-foreground/70 italic text-sm sm:text-base leading-relaxed">
-                    RSVP submissions are now closed. Thank you to everyone who
-                    responded.
-                  </p>
-                </motion.div>
-              ) : (
-                <AnimatePresence mode="wait">
-                  {existingRSVP && !isEditing ? (
-                    <motion.div
-                      key="success"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.25 }}
-                      className="text-center py-4 sm:py-6"
-                    >
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 200,
-                          damping: 20,
-                        }}
-                      >
-                        <CheckCircle2
-                          className="text-green-400 mx-auto mb-4 sm:mb-6"
-                          size={64}
-                        />
-                      </motion.div>
-                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-foreground">
-                        Alhamdulillah!
-                      </h3>
-                      <p className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base">
-                        {eventConfig.confirmation_message}
-                      </p>
-                      <div className="flex gap-3 justify-center">
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsEditing(true)}
-                            className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
-                          >
-                            <Edit2 size={14} className="text-primary" /> Edit
-                          </Button>
-                        </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={remove.isPending}
-                            onClick={() => setShowDeleteDialog(true)}
-                            className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
-                          >
-                            <Trash2 size={14} className="text-primary" />
-                            {remove.isPending ? "Removing…" : "Delete"}
-                          </Button>
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key={isEditing ? "edit-form" : "new-form"}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <RSVPForm
-                        key={isEditing ? "edit" : "new"}
-                        defaultValues={
-                          isEditing && existingRSVP
-                            ? {
-                                name: existingRSVP.name,
-                                phone: existingRSVP.phone,
-                                guestCount: existingRSVP.guest_count,
-                                message: existingRSVP.message ?? undefined,
-                              }
-                            : undefined
-                        }
-                        onSubmit={handleSubmit}
-                        onCancel={
-                          isEditing ? () => setIsEditing(false) : undefined
-                        }
-                        isEditing={isEditing}
-                        rsvpConfig={rsvpConfig}
-                        limits={{
-                          min: eventConfig.guest_count_min,
-                          max: eventConfig.guest_count_max,
-                        }}
-                        classNames={rsvpClassNames}
-                        labels={rsvpLabels}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              )}
-            </div>
-          </motion.div>
+          {/* Body */}
+          <AnimatePresence mode="popLayout">{renderBody()}</AnimatePresence>
         </motion.div>
 
         <Footer

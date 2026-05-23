@@ -67,10 +67,12 @@ export async function fetchRSVP(payload: GetRSVPPayload): Promise<RSVPSubmission
 export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmission> {
   const { data, error } = await supabase.rpc("submit_rsvp", {
     p_event_id: payload.event_id,
-    p_name: payload.name,
-    p_phone: payload.phone,
-    p_guest_count: payload.guest_count,
-    p_message: payload.message,
+    p_fields: {
+      name: payload.name,
+      phone: payload.phone,
+      guest_count: payload.guest_count,
+      message: payload.message,
+    },
     p_invite_code: payload.invite_code,
   })
   if (error) throw new Error(error.message)
@@ -80,11 +82,13 @@ export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmis
 export async function updateRSVP(payload: UpdateRSVPPayload): Promise<void> {
   const { error } = await supabase.rpc("update_rsvp", {
     p_event_id: payload.event_id,
-    p_phone: payload.phone,
     p_token: payload.token,
-    p_name: payload.name,
-    p_guest_count: payload.guest_count,
-    p_message: payload.message,
+    p_fields: {
+      name: payload.name,
+      phone: payload.phone,
+      guest_count: payload.guest_count,
+      message: payload.message,
+    },
   })
   if (error) throw new Error(error.message)
 }
