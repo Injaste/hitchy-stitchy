@@ -7,9 +7,9 @@ import FloatingIcons from "./FloatingIcons";
 import EnvelopePreloader from "./EnvelopePreloader";
 import PortalToApp from "@/components/custom/portal-to-app";
 import type { ThemeProps } from "@/pages/wedding/templates/types";
+import { UNIQUE_MUSLIM_FONTS } from "./types";
 
-const FONT_URL =
-  "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&display=swap";
+const FONT_URL = UNIQUE_MUSLIM_FONTS[0];
 
 const HEADING_STYLE = `
   .um-root h1,.um-root h2,.um-root h3,
@@ -26,7 +26,11 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   const { document: frameDoc } = useFrame();
 
   useEffect(() => {
-    const doc = frameDoc ?? document;
+    // When inside a Frame (admin preview), ThemeSheetPreview already injects
+    // the font via the registry fonts array — skip to avoid duplicates.
+    if (frameDoc) return;
+
+    const doc = document;
     if (!doc?.head) return;
 
     const existingLink = doc.head.querySelector(`link[href="${FONT_URL}"]`);

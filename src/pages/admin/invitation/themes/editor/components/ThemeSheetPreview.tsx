@@ -74,9 +74,11 @@ const ThemeSheetPreview = ({ theme }: ThemeSheetPreviewProps) => {
               head={
                 <>
                   <style dangerouslySetInnerHTML={{ __html: cssText }} />
-                  {(themeRegistry[theme.template?.slug ?? ""]?.fonts ?? []).map((url) => (
-                    <link key={url} rel="stylesheet" href={url} />
-                  ))}
+                  {(themeRegistry[theme.template?.slug ?? ""]?.fonts ?? []).map(
+                    (url) => (
+                      <link key={url} rel="stylesheet" href={url} />
+                    ),
+                  )}
                   <style>
                     {`html, body {
                         /* For Firefox */

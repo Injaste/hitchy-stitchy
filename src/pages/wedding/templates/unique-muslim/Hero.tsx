@@ -80,15 +80,15 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
   const weddingDate = getWeddingDateTime(dateParts, weddingStartTime);
 
   return (
-    <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-10 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10">
+    <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 px-4 overflow-hidden bg-white/10">
       <motion.div
         initial="hidden"
         animate={ready ? "show" : "hidden"}
-        className="z-10 w-full max-w-2xl mx-auto items-center"
+        className="z-10 w-full max-w-2xl mx-auto"
       >
         <motion.p
           variants={greeting}
-          className="text-foreground/80 text-lg sm:text-2xl tracking-wider mb-14 sm:mb-20"
+          className="text-foreground/80 text-lg tracking-wider mb-14"
         >
           {greetingText}
         </motion.p>
@@ -105,20 +105,20 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
           <div className="h-px flex-1 max-w-20 bg-linear-to-l from-transparent to-primary/50" />
         </motion.div>
 
-        <div className="mb-12 sm:mb-16">
+        <div className="mb-12">
           <motion.h1
             variants={name1}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-3xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl"
           >
             {groom_name}
           </motion.h1>
 
           <motion.div
             variants={amp}
-            className="flex items-center justify-center gap-5 my-2 sm:my-4"
+            className="flex items-center justify-center gap-5 my-2"
           >
             <div className="h-px flex-1 max-w-16 bg-primary/25" />
-            <span className="text-xl sm:text-2xl font-light not-italic tracking-normal text-foreground/40">
+            <span className="text-xl font-light not-italic tracking-normal text-foreground/40">
               &amp;
             </span>
             <div className="h-px flex-1 max-w-16 bg-primary/25" />
@@ -126,21 +126,21 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
 
           <motion.h1
             variants={name2}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-3xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl"
           >
             {bride_name}
           </motion.h1>
         </div>
 
         {weddingDate && (
-          <motion.div variants={countdown} className="mb-14 sm:mb-20">
+          <motion.div variants={countdown} className="mb-14">
             <CountdownTimer targetDate={weddingDate} />
           </motion.div>
         )}
 
-        <motion.div variants={verse} className="mb-14 sm:mb-20">
-          <div className="border-t border-primary/20 pt-6 sm:pt-8">
-            <p className="text-foreground leading-relaxed text-base sm:text-lg whitespace-pre-line">
+        <motion.div variants={verse} className="mb-14">
+          <div className="border-t border-primary/20 pt-6">
+            <p className="text-foreground leading-relaxed text-base whitespace-pre-line">
               "{quote}"
             </p>
             <span className="block mt-3 text-foreground/80 text-xs tracking-widest uppercase font-medium">
@@ -154,7 +154,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
           variants={cta}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="inline-block bg-primary text-primary-foreground px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
+          className="inline-block bg-primary text-primary-foreground px-8 py-3.5 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs font-bold"
         >
           {hero_cta_label}
         </motion.a>

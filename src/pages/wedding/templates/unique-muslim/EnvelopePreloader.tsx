@@ -106,7 +106,9 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
 
   useEffect(() => {
     document.documentElement.style.overflow = visible ? "hidden" : "";
-    return () => { document.documentElement.style.overflow = ""; };
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
   }, [visible]);
 
   useEffect(() => {
@@ -114,7 +116,12 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
 
     let cancelled = false;
     const timer = setTimeout(() => {
-      if (!cancelled) setPhase("opening");
+      if (cancelled) return;
+
+      setPhase("opening");
+
+      // let complete execute when animation is 50% complete
+      setTimeout(onExitComplete, (OPEN_DURATION_S * 1000) / 2);
     }, HOLD_MS);
 
     return () => {
@@ -124,7 +131,7 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
   }, [loaderReady]);
 
   return (
-    <AnimatePresence onExitComplete={onExitComplete}>
+    <AnimatePresence>
       {visible && (
         <motion.div
           className="fixed inset-0 z-100 pointer-events-none"

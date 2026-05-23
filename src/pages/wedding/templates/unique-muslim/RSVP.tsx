@@ -88,7 +88,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="text-center text-foreground/70 italic text-sm sm:text-base leading-relaxed py-8"
+      className="text-center text-foreground/70 italic text-sm leading-relaxed py-8"
     >
       {message}
     </motion.p>
@@ -110,14 +110,14 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h3 className="text-xl sm:text-2xl font-bold my-3 sm:my-4 text-foreground">
+            <h3 className="text-xl font-bold my-3 text-foreground">
               {rsvp_success_heading}
             </h3>
             <motion.p
               initial={submitted ? { opacity: 0 } : false}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-              className="text-foreground/70 leading-relaxed italic mb-6 sm:mb-8 text-sm sm:text-base"
+              className="text-foreground/70 leading-relaxed italic mb-6 text-sm"
             >
               {eventConfig.confirmation_message}
             </motion.p>
@@ -127,10 +127,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
               className="flex gap-3 justify-center"
             >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -140,10 +137,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
                   <Edit2 size={14} className="text-primary" /> Edit
                 </Button>
               </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -216,9 +210,9 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   return (
     <section
       id="rsvp"
-      className="pt-20 sm:pt-32 pb-10 sm:pb-12 px-4 sm:px-6 relative bg-white/10 z-10"
+      className="pt-20 pb-10 px-4 relative bg-white/10 z-10"
     >
-      <div className="max-w-sm sm:max-w-md mx-auto">
+      <div className="max-w-sm mx-auto">
         <motion.div
           layout
           transition={{ layout: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
@@ -226,28 +220,22 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
           variants={fadeIn(0, 0.8)}
-          className="bg-card/80 backdrop-blur-md p-6 sm:p-10 rounded-[1.75rem] sm:rounded-[2.5rem] shadow-xl border border-primary/20"
+          className="bg-card/80 backdrop-blur-md p-6 rounded-[1.75rem] shadow-xl border border-primary/20"
         >
           {/* Header */}
-          <motion.div
-            variants={fadeIn(0)}
-            className="text-center mb-8 sm:mb-10"
-          >
+          <motion.div variants={fadeIn(0)} className="text-center mb-8">
             <motion.div variants={fadeIn(0.05)}>
-              <Heart
-                className="text-primary mx-auto mb-4 sm:mb-6 fill-primary/10"
-                size={40}
-              />
+              <Heart className="text-primary mx-auto mb-4 fill-primary/10" size={40} />
             </motion.div>
             <motion.h2
               variants={fadeUp(0.15, 16, 0.7)}
-              className="text-3xl sm:text-4xl font-bold text-primary mb-2 sm:mb-3 italic"
+              className="text-3xl font-bold text-primary mb-2 italic"
             >
               RSVP
             </motion.h2>
             <motion.p
               variants={fadeUp(0.25, 12, 0.7)}
-              className="text-muted-foreground italic text-sm sm:text-base"
+              className="text-muted-foreground italic text-sm"
             >
               {rsvp_subtitle}
             </motion.p>

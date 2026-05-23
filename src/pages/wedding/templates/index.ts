@@ -1,6 +1,6 @@
 import UniqueMuslim from "./unique-muslim"
 import * as uniqueMuslimForm from "./unique-muslim/form"
-import { uniqueMuslimSchema } from "./unique-muslim/types"
+import { uniqueMuslimSchema, UNIQUE_MUSLIM_FONTS } from "./unique-muslim/types"
 
 import type { ThemeRegistryEntry } from "./types"
 
@@ -25,7 +25,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     defaultConfig: { slug: "unique-muslim", background_image: null },
     form: formFor(uniqueMuslimForm),
     schema: uniqueMuslimSchema as ThemeRegistryEntry["schema"],
-    fonts: ["https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&display=swap"],
+    fonts: UNIQUE_MUSLIM_FONTS,
   },
 }
 
