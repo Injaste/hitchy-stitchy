@@ -1,4 +1,4 @@
-import { Sparkle } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 interface IconItem {
@@ -74,9 +74,9 @@ const FloatingIcons = () => {
               animation: `floatDown-${icon.id} ${icon.duration}s ${icon.delay}s linear infinite`,
             }}
           >
-            <Sparkle
+            <Heart
               style={{ width: icon.size, height: icon.size }}
-              className="stroke-primary"
+              className="stroke-[#66383b]"
             />
           </div>
         ))}
