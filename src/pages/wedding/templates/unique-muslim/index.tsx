@@ -83,7 +83,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         onExitComplete={() => setReady(true)}
       />
       <img
-        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md object-contain opacity-50 -z-10 blur-sm"
+        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md h-full object-contain object-center opacity-50 -z-10 blur-sm"
         src={bgImage}
         alt=""
       />

@@ -172,7 +172,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             variants={fadeUp(0.25, 16, 0.8)}
             className="text-sm text-foreground/70 leading-relaxed max-w-2xl mx-auto"
           >
-            "{invitation_body}"
+            {invitation_body}
           </motion.p>
         </motion.div>
 
@@ -186,14 +186,14 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           >
             <motion.p
               variants={fadeIn(0)}
-              className="text-muted-foreground mb-3 tracking-[0.4em] text-2xs font-bold"
+              className="text-foreground/70 text-sm mb-3"
             >
               {blessings_prefix}
             </motion.p>
             {blessings_name && (
               <motion.h3
                 variants={fadeUp(0.1, 20, 0.8)}
-                className="text-2xl font-bold text-primary mb-2 whitespace-pre-line italic"
+                className="text-3xl font-bold text-primary mb-2 whitespace-pre-line italic"
               >
                 {blessings_name}
               </motion.h3>
