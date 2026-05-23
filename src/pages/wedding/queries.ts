@@ -40,12 +40,12 @@ export const guestRSVPQueryKey = (event_id: string, id: string) => ["public", ev
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
-export function usePublicEvent() {
+export function usePublicEvent({ enabled = true }: { enabled?: boolean } = {}) {
   const { slug } = useParams<{ slug: string }>()
   return useQuery({
     queryKey: publicEventQueryKey(slug!),
     queryFn: () => fetchPublicEvent(slug!),
-    enabled: !!slug,
+    enabled: enabled && !!slug,
   })
 }
 

@@ -37,6 +37,8 @@ export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: 
 export interface ThemeProps {
   eventConfig: PublicEventConfig
   pageConfig: ThemeConfig
+  /** True once the loading overlay has finished its animation. Theme preloaders should wait for this before triggering. */
+  loaderReady?: boolean
 }
 
 export interface ThemeFormConfig {

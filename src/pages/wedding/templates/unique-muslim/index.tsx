@@ -7,16 +7,15 @@ import EnvelopePreloader from "./EnvelopePreloader";
 import PortalToApp from "@/components/custom/portal-to-app";
 import type { ThemeProps } from "@/pages/wedding/templates/types";
 
-const UniqueMuslim = ({ eventConfig, pageConfig }: ThemeProps) => {
+const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const bgImage = config?.background_image ?? "/dannad.png";
   const [ready, setReady] = useState(false);
 
   return (
     <div className="font-medium">
-      <EnvelopePreloader onExitComplete={() => setReady(true)} />
-
       <PortalToApp>
+        <EnvelopePreloader loaderReady={!!loaderReady} onExitComplete={() => setReady(true)} />
         <img
           className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50 -z-10 blur-sm"
           src={bgImage}

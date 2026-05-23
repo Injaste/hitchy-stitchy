@@ -1,8 +1,7 @@
 import { useEffect, useRef, type FC } from "react";
 import { animate, motion, stagger } from "framer-motion";
-import { CalendarHeart, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import SplitType from "split-type";
-import PortalToApp from "@/components/custom/portal-to-app";
 
 const CONTENT_DELAY = 0.8;
 
@@ -26,13 +25,18 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
 
     // 1. Split the text
     const text = new SplitType(headingRef.current, {
-      types: "chars",
+      types: "words,chars",
       tagName: "span",
+      wordClass: "inline-block",
     });
 
-    // 2. Animate the injected ".char" nodes using Framer's imperative API
+    const chars = Array.from(
+      (headingRef.current as HTMLElement).querySelectorAll<HTMLElement>(
+        ".char",
+      ),
+    );
     animate(
-      ".char",
+      chars,
       { y: [100, 0], rotateZ: [10, 0] },
       {
         delay: stagger(0.03, { startDelay: CONTENT_DELAY + 0.5 }),
@@ -76,7 +80,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
         {/* Heading Section with Split-Type */}
         <h1
           ref={headingRef}
-          className="text-primary text-4xl md:text-6xl font-serif font-light leading-[1.1] sm:mb-3"
+          className="text-primary text-4xl md:text-6xl font-serif font-light leading-[1.1] sm:mb-3 text-balance"
         >
           <span className="overflow-hidden">The Celebration of</span>
           <i className="overflow-hidden">Our Eternal Love</i>

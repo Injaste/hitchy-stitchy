@@ -1,59 +1,102 @@
+import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Lenis } from "lenis/react";
 
-import { useIsMobile } from "@/hooks/use-mobile";
-import { usePublicEvent, usePublicEventRealtime } from "./queries";
-import { themeRegistry, FallbackTheme } from "./templates";
-import ThemeLoader from "./states/ThemeLoader";
-import { useState } from "react";
 import ComponentFade from "@/components/animations/animate-component-fade";
-import ThemeError from "./states/ThemeError";
-import ThemeState from "./states/ThemeState";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-const Wedding = () => {
+import { usePublicEvent, usePublicEventRealtime } from "./queries";
+import ThemeError from "./states/ThemeError";
+import ThemeLoader from "./states/ThemeLoader";
+import ThemeState from "./states/ThemeState";
+import { FallbackTheme, themeRegistry } from "./templates";
+import type { PublicEventConfig } from "./types";
+
+interface WeddingProps {
+  // When provided (e.g. admin preview), data is pre-composed and no fetch
+  // is made. When absent, the component fetches via the public event query.
+  previewConfig?: PublicEventConfig;
+}
+
+const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   const isMobile = useIsMobile();
   const [isReady, setIsReady] = useState(false);
-  const { data: eventConfig, isLoading, error } = usePublicEvent();
 
-  usePublicEventRealtime(eventConfig?.event_id ?? null);
+  const isPreview = !!previewConfig;
 
-  const hasError = !!error;
-  const showStateWrapper = !isReady || isLoading || !eventConfig || hasError;
+  // Only run the query when not in preview mode.
+  const {
+    data: fetchedConfig,
+    isLoading,
+    error,
+  } = usePublicEvent({ enabled: !isPreview });
+
+  const eventConfig = previewConfig ?? fetchedConfig;
+
+  usePublicEventRealtime(!isPreview ? (eventConfig?.event_id ?? null) : null);
+
+  const hasError = !isPreview && !!error;
+  const showStateOverlay =
+    !isReady || (!isPreview && (isLoading || !eventConfig || hasError));
 
   const themeSlug = eventConfig?.published_page?.theme_slug ?? null;
   const ThemeComponent =
     (themeSlug ? themeRegistry[themeSlug]?.component : null) ?? FallbackTheme;
 
+  const renderOverlayContent = () => {
+    if (!showStateOverlay) return null;
+
+    if (!isPreview && (hasError || (!isLoading && !eventConfig))) {
+      return (
+        <ComponentFade key="error">
+          <ThemeError />
+        </ComponentFade>
+      );
+    }
+
+    if (!isPreview && isLoading) {
+      return (
+        <ComponentFade key="loader">
+          <ThemeLoader loadedCompleted={() => setIsReady(true)} />
+        </ComponentFade>
+      );
+    }
+
+    if (!isReady) {
+      return (
+        <ComponentFade key="loader">
+          <ThemeLoader loadedCompleted={() => setIsReady(true)} />
+        </ComponentFade>
+      );
+    }
+
+    return null;
+  };
+
   const content = (
-    <AnimatePresence mode="wait">
-      {showStateWrapper ? (
-        <ComponentFade key="state-overlay">
-          <ThemeState>
+    <>
+      {eventConfig && !hasError && (
+        <ThemeComponent
+          eventConfig={eventConfig}
+          pageConfig={eventConfig.published_page?.config ?? {}}
+          loaderReady={isReady}
+        />
+      )}
+
+      <AnimatePresence mode="wait">
+        {showStateOverlay && (
+          <ThemeState key="state-overlay">
             <AnimatePresence mode="wait">
-              {!isReady ? (
-                <ComponentFade key="loader">
-                  <ThemeLoader loadedCompleted={() => setIsReady(true)} />
-                </ComponentFade>
-              ) : (
-                <ComponentFade key="error">
-                  <ThemeError />
-                </ComponentFade>
-              )}
+              {renderOverlayContent()}
             </AnimatePresence>
           </ThemeState>
-        </ComponentFade>
-      ) : (
-        <ComponentFade key="theme-content">
-          <ThemeComponent
-            eventConfig={eventConfig}
-            pageConfig={eventConfig.published_page?.config ?? {}}
-          />
-        </ComponentFade>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
   );
 
-  if (isMobile) return content;
+  // Skip Lenis in preview — the iframe has its own scroll context.
+  if (isPreview || isMobile) return content;
 
   return (
     <Lenis

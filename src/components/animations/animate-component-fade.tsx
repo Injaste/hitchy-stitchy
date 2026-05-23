@@ -4,6 +4,8 @@ import { motion, type Variants } from "framer-motion";
 interface ComponentFadeProps {
   children: React.ReactNode;
   className?: string;
+  /** Skip the fade-in and start fully visible. Still fades out on exit. */
+  initialVisible?: boolean;
 }
 
 const pageTransition: Variants = {
@@ -23,10 +25,10 @@ const pageTransition: Variants = {
   },
 };
 
-const ComponentFade: FC<ComponentFadeProps> = ({ children, className }) => {
+const ComponentFade: FC<ComponentFadeProps> = ({ children, className, initialVisible }) => {
   return (
     <motion.div
-      initial="hidden"
+      initial={initialVisible ? "show" : "hidden"}
       animate="show"
       exit="exit"
       variants={pageTransition}

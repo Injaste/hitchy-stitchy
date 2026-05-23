@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 
+// ─── Tweak this to test the opening speed ────────────────────────────────────
+const OPEN_DURATION = 0.3; // seconds — change this value to adjust open speed
+// ─────────────────────────────────────────────────────────────────────────────
+
 const HOLD_MS = 700;
 const EASE = [0.7, 0, 0.2, 1] as const;
 
@@ -8,7 +12,7 @@ const leftHalfVariants: Variants = {
   sealed: { x: "0%" },
   opening: {
     x: "-100%",
-    transition: { duration: 1.1, ease: EASE, delay: 0.35 },
+    transition: { duration: OPEN_DURATION, ease: EASE, delay: 0.35 },
   },
 };
 
@@ -16,7 +20,7 @@ const rightHalfVariants: Variants = {
   sealed: { x: "0%" },
   opening: {
     x: "100%",
-    transition: { duration: 1.1, ease: EASE, delay: 0.35 },
+    transition: { duration: OPEN_DURATION, ease: EASE, delay: 0.35 },
   },
 };
 
@@ -31,20 +35,12 @@ const stampVariants: Variants = {
 };
 
 type Props = {
+  loaderReady: boolean;
   onExitComplete: () => void;
 };
 
-// envelope rotated so the flap V points LEFT:
-//   - flap occupies the RIGHT half of the viewport (V edges go from top-right
-//     and bottom-right corners inward to the center seam)
-//   - body bottom-flap occupies the LEFT half (mirror — V edges go from
-//     top-left and bottom-left corners inward to the center seam)
-// the split is still vertical at x = 50%, so each half is a vertical strip.
 const EnvelopeHalf = ({ side }: { side: "left" | "right" }) => {
   const isLeft = side === "left";
-  // in local coords (0..100 wide, 0..100 tall) for this half:
-  //   outerX = the edge away from the seam (viewport edge)
-  //   innerX = the edge touching the seam (viewport center)
   const outerX = isLeft ? 0 : 100;
   const innerX = isLeft ? 100 : 0;
 
@@ -68,14 +64,12 @@ const EnvelopeHalf = ({ side }: { side: "left" | "right" }) => {
         </linearGradient>
       </defs>
 
-      {/* triangular face — the V area pointing toward the seam */}
       <polygon
         points={`${outerX},0 ${outerX},100 ${innerX},50`}
         fill={`url(#paper-shade-${side})`}
         className="text-foreground"
       />
 
-      {/* upper diagonal fold (outer-top corner → seam center) */}
       <line
         x1={outerX}
         y1={0}
@@ -86,7 +80,6 @@ const EnvelopeHalf = ({ side }: { side: "left" | "right" }) => {
         vectorEffect="non-scaling-stroke"
       />
 
-      {/* lower diagonal fold (outer-bottom corner → seam center) */}
       <line
         x1={outerX}
         y1={100}
@@ -97,7 +90,6 @@ const EnvelopeHalf = ({ side }: { side: "left" | "right" }) => {
         vectorEffect="non-scaling-stroke"
       />
 
-      {/* seam edge — soft vertical line where the halves meet */}
       <line
         x1={innerX}
         y1={0}
@@ -111,42 +103,32 @@ const EnvelopeHalf = ({ side }: { side: "left" | "right" }) => {
   );
 };
 
-const EnvelopePreloader = ({ onExitComplete }: Props) => {
+const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
   const [phase, setPhase] = useState<"sealed" | "opening">("sealed");
   const [visible, setVisible] = useState(true);
 
+  // Lock scrollbar for the duration of the preloader so the page doesn't
+  // jump or show a scrollbar while the envelope is covering the viewport.
   useEffect(() => {
-    let cancelled = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    const start = () => {
-      if (cancelled) return;
-      timer = setTimeout(() => {
-        if (!cancelled) setPhase("opening");
-      }, HOLD_MS);
-    };
-
-    if (document.readyState === "complete") {
-      start();
-      return () => {
-        cancelled = true;
-        if (timer) clearTimeout(timer);
-      };
-    }
-
-    const onReady = () => {
-      if (document.readyState === "complete") {
-        document.removeEventListener("readystatechange", onReady);
-        start();
-      }
-    };
-    document.addEventListener("readystatechange", onReady);
+    document.documentElement.style.overflow = "hidden";
     return () => {
-      cancelled = true;
-      document.removeEventListener("readystatechange", onReady);
-      if (timer) clearTimeout(timer);
+      document.documentElement.style.overflow = "";
     };
   }, []);
+
+  useEffect(() => {
+    if (!loaderReady) return;
+
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      if (!cancelled) setPhase("opening");
+    }, HOLD_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [loaderReady]);
 
   return (
     <AnimatePresence onExitComplete={onExitComplete}>
