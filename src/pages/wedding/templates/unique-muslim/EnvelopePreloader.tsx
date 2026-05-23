@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 
-// ─── Tweak this to test the opening speed ────────────────────────────────────
-const OPEN_DURATION = 0.3; // seconds — change this value to adjust open speed
-// ─────────────────────────────────────────────────────────────────────────────
-
-const HOLD_MS = 700;
+const OPEN_DURATION_S = 1;
+const HOLD_MS = 1000;
 const EASE = [0.7, 0, 0.2, 1] as const;
 
 const leftHalfVariants: Variants = {
   sealed: { x: "0%" },
   opening: {
     x: "-100%",
-    transition: { duration: OPEN_DURATION, ease: EASE, delay: 0.35 },
+    transition: { duration: OPEN_DURATION_S, ease: EASE, delay: 0.35 },
   },
 };
 
@@ -20,7 +17,7 @@ const rightHalfVariants: Variants = {
   sealed: { x: "0%" },
   opening: {
     x: "100%",
-    transition: { duration: OPEN_DURATION, ease: EASE, delay: 0.35 },
+    transition: { duration: OPEN_DURATION_S, ease: EASE, delay: 0.35 },
   },
 };
 
@@ -134,7 +131,7 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
     <AnimatePresence onExitComplete={onExitComplete}>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[100] pointer-events-none"
+          className="fixed inset-0 z-100 pointer-events-none"
           exit={{ opacity: 0, transition: { duration: 0.001 } }}
         >
           <motion.div

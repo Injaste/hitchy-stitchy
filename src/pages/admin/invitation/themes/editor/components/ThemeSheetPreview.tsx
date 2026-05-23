@@ -70,7 +70,25 @@ const ThemeSheetPreview = ({ theme }: ThemeSheetPreviewProps) => {
           >
             <Frame
               style={{ width: "100%", height: "100%", border: "none" }}
-              head={<style dangerouslySetInnerHTML={{ __html: cssText }} />}
+              head={
+                <>
+                  <style dangerouslySetInnerHTML={{ __html: cssText }} />
+                  <style>
+                    {`html, body {
+                        /* For Firefox */
+                        scrollbar-width: none;
+                              
+                        /* For IE and Edge (older versions) */
+                        -ms-overflow-style: none;  
+                      }
+
+                      /* For Chrome, Safari, and Opera */
+                      ::-webkit-scrollbar {
+                        display: none;
+                      }`}
+                  </style>
+                </>
+              }
             >
               <Wedding previewConfig={composed} />
             </Frame>

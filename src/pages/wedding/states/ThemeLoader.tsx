@@ -82,21 +82,22 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
         </motion.div>
 
         {/* Heading Section with Split-Type */}
-        <h1
+        {/* <h1
           ref={headingRef}
           className="text-primary text-4xl md:text-6xl font-serif font-light leading-[1.1] sm:mb-3 text-balance"
         >
           <span className="overflow-hidden">The Celebration of</span>
           <i className="overflow-hidden">Our Eternal Love</i>
-        </h1>
+        </h1> */}
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: CONTENT_DELAY + 1.5 }}
+          // transition={{ duration: 1, delay: CONTENT_DELAY + 1.5 }}
+          transition={{ duration: 1, delay: CONTENT_DELAY + 1 }}
           className="mt-10 flex flex-col items-center gap-4"
           onAnimationComplete={() => {
-            // animationDone.current = true;
+            animationDone.current = true;
             tryComplete();
           }}
         >
