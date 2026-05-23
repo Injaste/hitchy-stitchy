@@ -60,7 +60,7 @@ const FloatingIcons = () => {
           )
           .join("")}
       `}</style>
-      <div className="fixed left-0 right-0 top-0 h-60 pointer-events-none overflow-hidden z-40">
+      <div className="fixed left-1/2 -translate-x-1/2 w-full max-w-md top-0 h-60 pointer-events-none overflow-hidden z-40">
         {icons.map((icon) => (
           <div
             key={icon.id}

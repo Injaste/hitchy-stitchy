@@ -105,7 +105,7 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
         prevent: () => document.body.hasAttribute("data-scroll-locked"),
       }}
     >
-      {content}
+      <main className="max-w-md mx-auto">{content}</main>
     </Lenis>
   );
 };

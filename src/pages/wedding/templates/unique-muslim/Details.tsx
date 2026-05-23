@@ -238,7 +238,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                 <h4 className="font-bold text-base mb-1 text-foreground">
                   {item.title}
                 </h4>
-                <p className="font-display text-primary font-bold text-base">
+                <p className="text-primary font-bold text-base">
                   {item.detail}
                 </p>
               </motion.div>

@@ -88,7 +88,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
       >
         <motion.p
           variants={greeting}
-          className="text-foreground/80 text-lg tracking-wider mb-14"
+          className="text-foreground/80 text-lg tracking-wider mb-14 whitespace-pre-line"
         >
           {greetingText}
         </motion.p>
@@ -134,7 +134,10 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
 
         {weddingDate && (
           <motion.div variants={countdown} className="mb-14">
-            <CountdownTimer targetDate={weddingDate} />
+            <CountdownTimer
+              targetDate={weddingDate}
+              numberClassName="um-countdown-number"
+            />
           </motion.div>
         )}
 

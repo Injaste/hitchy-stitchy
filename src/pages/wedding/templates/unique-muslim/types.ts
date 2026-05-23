@@ -15,14 +15,15 @@ export const uniqueMuslimSchema = [
     descriptionUrlLabel: "Google Fonts ↗",
     fields: [
       { key: "font_couple_url", label: "Couple Names Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Italianno&display=swap" },
-      { key: "font_heading_url", label: "Headings Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" },
-      { key: "font_body_url", label: "Body Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&display=swap" },
+      { key: "font_number_url", label: "Countdown Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap" },
+      { key: "font_heading_url", label: "Headings Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@700&display=swap" },
+      { key: "font_body_url", label: "Body Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400&display=swap" },
     ],
   },
   {
     title: "Hero",
     fields: [
-      { key: "greeting", label: "Greeting", type: "text", placeholder: "e.g. السلام عليكم ورحمة الله وبركاته" },
+      { key: "greeting", label: "Greeting", type: "textarea", placeholder: "e.g. السلام عليكم ورحمة الله وبركاته" },
       { key: "hero_divider_label", label: "Divider Label", type: "text", default: "The Wedding of", placeholder: "e.g. The Wedding of" },
       { key: "quote", label: "Quote / Verse", type: "textarea", placeholder: "e.g. And We created you in pairs." },
       { key: "quote_source", label: "Quote Source", type: "text", placeholder: "e.g. Surah An-Naba 78:8" },

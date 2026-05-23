@@ -1,11 +1,7 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import AnchorItem from "./AnchorItem";
-import type {
-  AnchorClassNames,
-  AnchorItemConfig,
-  AnchorLabels,
-} from "./types";
+import type { AnchorClassNames, AnchorItemConfig, AnchorLabels } from "./types";
 
 interface AnchorBarProps {
   items: AnchorItemConfig[];
@@ -25,7 +21,7 @@ const AnchorBar = ({ items, classNames, labels, onAction }: AnchorBarProps) => {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 flex items-stretch justify-around",
+        "fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 flex items-stretch justify-around",
         "border-t border-primary/15 bg-card/85 backdrop-blur-md",
         "px-2 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.15)]",
         classNames.bar,

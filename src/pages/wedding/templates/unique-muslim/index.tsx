@@ -25,11 +25,12 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   const couple = parseGoogleFontUrl(config?.font_couple_url);
   const heading = parseGoogleFontUrl(config?.font_heading_url);
   const body = parseGoogleFontUrl(config?.font_body_url);
+  const number = parseGoogleFontUrl(config?.font_number_url);
 
   const fontUrls = useMemo(
     () =>
-      [couple?.url, heading?.url, body?.url].filter((u): u is string => !!u),
-    [couple?.url, heading?.url, body?.url],
+      [couple?.url, heading?.url, body?.url, number?.url].filter((u): u is string => !!u),
+    [couple?.url, heading?.url, body?.url, number?.url],
   );
 
   const { document: frameDoc } = useFrame();
@@ -69,9 +70,10 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   }, [frameDoc, fontUrls]);
 
   const rootStyle = {
-    ...(couple  && { "--theme-font-couple":  cssFontFamily(couple.family)  }),
-    ...(heading && { "--theme-font-heading": cssFontFamily(heading.family) }),
-    ...(body    && { "--theme-font-body":    cssFontFamily(body.family)    }),
+    ...(couple  && { "--theme-font-couple":  cssFontFamily(couple.family,  couple.generic)  }),
+    ...(heading && { "--theme-font-heading": cssFontFamily(heading.family, heading.generic) }),
+    ...(body    && { "--theme-font-body":    cssFontFamily(body.family,    body.generic)    }),
+    ...(number  && { "--theme-font-number":  cssFontFamily(number.family,  number.generic)  }),
   } as CSSProperties;
 
   return (
@@ -81,7 +83,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         onExitComplete={() => setReady(true)}
       />
       <img
-        className="fixed inset-0 w-full h-full aspect-square object-contain opacity-50 -z-10 blur-sm"
+        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md object-contain opacity-50 -z-10 blur-sm"
         src={bgImage}
         alt=""
       />
