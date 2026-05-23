@@ -28,7 +28,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
   const { canCreate } = useAccess();
   const openCreate = useGuestModalStore((s) => s.openCreate);
   const openImport = useGuestModalStore((s) => s.openImport);
-  const canAdd = canCreate("rsvp");
+  const canAdd = canCreate("guests");
 
   return (
     <PageHeader

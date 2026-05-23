@@ -33,8 +33,8 @@ const GuestsTable: FC<GuestsTableProps> = ({
   const { canUpdate, canDelete } = useAccess();
   const { updateStatus } = useGuestMutations();
 
-  const canEdit = canUpdate("rsvp");
-  const canRemove = canDelete("rsvp");
+  const canEdit = canUpdate("guests");
+  const canRemove = canDelete("guests");
   const hasCrudActions = canEdit || canRemove;
 
   const headerChecked: boolean | "indeterminate" = allFilteredSelected

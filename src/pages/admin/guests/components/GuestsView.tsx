@@ -47,7 +47,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
-  const canBulkUpdate = canUpdate("rsvp");
+  const canBulkUpdate = canUpdate("guests");
 
   const filtered = (data ?? []).filter((g) => {
     const matchesStatus = statusFilter === "all" || g.status === statusFilter;
@@ -101,7 +101,7 @@ const GuestsView: FC<GuestsViewProps> = ({
           <GuestsEmpty
             onAdd={openCreate}
             onImport={openImport}
-            canCreate={canCreate("rsvp")}
+            canCreate={canCreate("guests")}
           />
         </ComponentFade>
       );
