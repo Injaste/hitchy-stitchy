@@ -4,7 +4,7 @@ import type { Resource, ResourcePermission, CategoryPermissions } from "./types"
 
 const ALL_RESOURCES: Resource[] = [
   "timeline", "tasks", "members", "members.freeze",
-  "roles", "vendors", "rsvp", "invitation",
+  "roles", "vendors", "guests", "invitation",
   "events", "announcements", "pages",
 ]
 
