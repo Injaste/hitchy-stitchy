@@ -39,7 +39,7 @@ const Footer: FC<FooterProps> = ({
         variants={fadeUp(0.1, 12, 0.7)}
         className="mb-3 sm:mb-4 italic text-muted-foreground text-sm sm:text-base"
       >
-        {footer_tagline ?? "With love and prayers"}
+        {footer_tagline}
       </motion.p>
       <motion.h2
         variants={fadeUp(0.2, 16, 0.8)}

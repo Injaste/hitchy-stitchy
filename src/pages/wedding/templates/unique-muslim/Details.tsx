@@ -58,13 +58,21 @@ const safeFormat = (date: Date, fmt: string) => {
 const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
 
-  const sectionTitle = config?.section_title ?? "";
-  const invitationBody = config?.invitation_body ?? "";
-  const blessingsPrefix = config?.blessings_prefix ?? "With the blessings of";
-  const blessingsName = config?.blessings_name ?? "";
-  const blessingsLabel = config?.blessings_label ?? "";
-  const attire = config?.attire ?? "";
-  const detailsRsvpCta = config?.details_rsvp_cta ?? "RSVP Now";
+  const {
+    section_title,
+    invitation_body,
+    blessings_prefix,
+    blessings_name,
+    blessings_label,
+    attire,
+    details_rsvp_cta,
+    groom_name,
+    bride_name,
+    venue_name,
+    venue_address,
+    venue_map_link,
+    venue_map_embed_url,
+  } = config ?? {};
 
   const parts = eventConfig.event_date?.split("-").map(Number);
   const eventDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : "";
@@ -92,13 +100,13 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           },
         ]
       : []),
-    ...(config?.venue_name
+    ...(venue_name
       ? [
           {
             icon: MapPin,
             title: "Location",
-            detail: config.venue_name,
-            sub: config.venue_address ?? "",
+            detail: venue_name,
+            sub: venue_address,
           },
         ]
       : []),
@@ -117,15 +125,13 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
   const googleCalendarUrl = eventDate
     ? "https://calendar.google.com/calendar/render?action=TEMPLATE" +
       "&text=" +
-      encodeURIComponent(
-        `${config?.groom_name ?? ""} ${config?.bride_name ?? ""}`,
-      ) +
+      encodeURIComponent(`${groom_name ?? ""} ${bride_name ?? ""}`) +
       "&dates=" +
       encodeURIComponent(
         `${safeFormat(eventDate, "yyyyMMdd")}/${safeFormat(eventDate, "yyyyMMdd")}`,
       ) +
       "&location=" +
-      encodeURIComponent(config?.venue_address ?? "")
+      encodeURIComponent(venue_address ?? "")
     : null;
 
   return (
@@ -148,18 +154,18 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             variants={fadeUp(0.1, 20, 0.7)}
             className="text-3xl sm:text-4xl font-bold text-primary mb-4 sm:mb-6 italic"
           >
-            {sectionTitle}
+            {section_title}
           </motion.h3>
           <motion.p
             variants={fadeUp(0.25, 16, 0.8)}
             className="text-sm sm:text-base md:text-lg text-foreground/70 leading-relaxed max-w-2xl mx-auto italic"
           >
-            "{invitationBody}"
+            "{invitation_body}"
           </motion.p>
         </motion.div>
 
         {/* Blessings */}
-        {(blessingsName || blessingsLabel) && (
+        {(blessings_name || blessings_label) && (
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -170,22 +176,22 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               variants={fadeIn(0)}
               className="text-muted-foreground mb-3 sm:mb-4 uppercase tracking-[0.4em] text-2xs sm:text-xs font-bold"
             >
-              {blessingsPrefix}
+              {blessings_prefix}
             </motion.p>
-            {blessingsName && (
+            {blessings_name && (
               <motion.h3
                 variants={fadeUp(0.1, 20, 0.8)}
                 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 whitespace-pre-line"
               >
-                {blessingsName}
+                {blessings_name}
               </motion.h3>
             )}
-            {blessingsLabel && (
+            {blessings_label && (
               <motion.p
                 variants={fadeUp(0.2, 12, 0.7)}
                 className="text-foreground/70 italic text-sm sm:text-base"
               >
-                {blessingsLabel}
+                {blessings_label}
               </motion.p>
             )}
             <motion.div
@@ -263,7 +269,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
         )}
 
         {/* Map */}
-        {config?.venue_map_embed_url && (
+        {venue_map_embed_url && (
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -275,7 +281,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               className="relative w-full aspect-4/3"
             >
               <iframe
-                src={config.venue_map_embed_url}
+                src={venue_map_embed_url}
                 className="absolute inset-0 w-full h-full border-0 rounded-xl sm:rounded-2xl"
                 allowFullScreen
                 loading="lazy"
@@ -287,9 +293,9 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               className="p-4 sm:p-5 pb-2 sm:pb-0 flex flex-col sm:flex-row items-center justify-between gap-3"
             >
               <p className="text-foreground/70 italic text-xs sm:text-sm text-center sm:text-left">
-                {config.venue_address}
+                {venue_address}
               </p>
-              {config.venue_map_link && (
+              {venue_map_link && (
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -301,7 +307,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                     className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
                   >
                     <a
-                      href={config.venue_map_link}
+                      href={venue_map_link}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -329,7 +335,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               whileTap={{ scale: 0.95 }}
               className="inline-block bg-primary text-primary-foreground px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
             >
-              {detailsRsvpCta}
+              {config?.details_rsvp_cta}
             </motion.a>
           </motion.div>
         </motion.div>
