@@ -19,8 +19,9 @@ export interface ThemeFieldSchema {
   key: string
   label: string
   type: FieldType
-  placeholder?: string
+  placeholder: string
   options?: FieldOption[]
+  default?: string
 }
 
 export interface ThemeFieldGroup {

@@ -55,6 +55,8 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
 
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const rsvpConfig = eventConfig.config.rsvp;
+  const rsvpSubtitle = config?.rsvp_subtitle ?? "Your presence would mean the world to us.";
+  const rsvpSuccessHeading = config?.rsvp_success_heading ?? "Alhamdulillah!";
 
   const isDeadlinePassed =
     eventConfig.rsvp_deadline !== null &&
@@ -110,7 +112,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             <h3 className="text-xl sm:text-2xl font-bold my-3 sm:my-4 text-foreground">
-              Alhamdulillah!
+              {rsvpSuccessHeading}
             </h3>
             <motion.p
               initial={submitted ? { opacity: 0 } : false}
@@ -248,7 +250,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               variants={fadeUp(0.25, 12, 0.7)}
               className="text-muted-foreground italic text-sm sm:text-base"
             >
-              Your presence would mean the world to us.
+              {rsvpSubtitle}
             </motion.p>
           </motion.div>
 
@@ -261,6 +263,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
           fadeIn={fadeIn}
           groom_name={config?.groom_name ?? null}
           bride_name={config?.bride_name ?? null}
+          footer_tagline={config?.footer_tagline ?? null}
         />
       </div>
 

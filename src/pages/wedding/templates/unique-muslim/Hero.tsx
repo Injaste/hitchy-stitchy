@@ -69,6 +69,8 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
   const greetingText = config?.greeting ?? "";
   const quoteText = config?.quote ?? "";
   const quoteSource = config?.quote_source ?? "";
+  const heroDividerLabel = config?.hero_divider_label ?? "The Wedding of";
+  const heroCtaLabel = config?.hero_cta_label ?? "Our Invitation";
 
   const personName1 = config?.groom_name ?? "";
   const personName2 = config?.bride_name ?? "";
@@ -78,11 +80,11 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
   const weddingDate = getWeddingDateTime(dateParts, weddingStartTime);
 
   return (
-    <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-20 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10">
+    <section className="relative min-h-svh flex flex-col items-center justify-center text-center py-10 sm:py-32 px-4 sm:px-6 overflow-hidden bg-white/10">
       <motion.div
         initial="hidden"
         animate={ready ? "show" : "hidden"}
-        className="z-10 w-full max-w-2xl mx-auto"
+        className="z-10 w-full max-w-2xl mx-auto items-center"
       >
         <motion.p
           variants={greeting}
@@ -98,7 +100,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
         >
           <div className="h-px flex-1 max-w-20 bg-linear-to-r from-transparent to-primary/50" />
           <span className="text-3xs uppercase tracking-[0.45em] text-muted-foreground whitespace-nowrap">
-            The Wedding of
+            {heroDividerLabel}
           </span>
           <div className="h-px flex-1 max-w-20 bg-linear-to-l from-transparent to-primary/50" />
         </motion.div>
@@ -106,7 +108,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
         <div className="mb-12 sm:mb-16">
           <motion.h1
             variants={name1}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-3xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
             {personName1}
           </motion.h1>
@@ -124,7 +126,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
 
           <motion.h1
             variants={name2}
-            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-black text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] tracking-tighter italic leading-tight text-3xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
             {personName2}
           </motion.h1>
@@ -154,7 +156,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
           whileTap={{ scale: 0.95 }}
           className="inline-block bg-primary text-primary-foreground px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
         >
-          Our Invitation
+          {heroCtaLabel}
         </motion.a>
       </motion.div>
     </section>

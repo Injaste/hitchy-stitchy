@@ -60,9 +60,11 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
 
   const sectionTitle = config?.section_title ?? "";
   const invitationBody = config?.invitation_body ?? "";
+  const blessingsPrefix = config?.blessings_prefix ?? "With the blessings of";
   const blessingsName = config?.blessings_name ?? "";
   const blessingsLabel = config?.blessings_label ?? "";
   const attire = config?.attire ?? "";
+  const detailsRsvpCta = config?.details_rsvp_cta ?? "RSVP Now";
 
   const parts = eventConfig.event_date?.split("-").map(Number);
   const eventDate = parts ? new Date(parts[0], parts[1] - 1, parts[2]) : "";
@@ -129,7 +131,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
   return (
     <section
       id="details"
-      className="py-20 sm:py-32 px-4 sm:px-6 bg-card/60 relative z-10"
+      className="py-10 sm:py-32 px-4 sm:px-6 bg-card/60 relative z-10"
     >
       <div className="max-w-4xl mx-auto text-center">
         {/* Intro */}
@@ -168,7 +170,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               variants={fadeIn(0)}
               className="text-muted-foreground mb-3 sm:mb-4 uppercase tracking-[0.4em] text-2xs sm:text-xs font-bold"
             >
-              With the blessings of
+              {blessingsPrefix}
             </motion.p>
             {blessingsName && (
               <motion.h3
@@ -327,7 +329,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               whileTap={{ scale: 0.95 }}
               className="inline-block bg-primary text-primary-foreground px-8 sm:px-12 py-3.5 sm:py-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors uppercase tracking-widest text-xs sm:text-sm font-bold"
             >
-              RSVP Now
+              {detailsRsvpCta}
             </motion.a>
           </motion.div>
         </motion.div>

@@ -21,6 +21,8 @@ export const uniqueMuslimSchema = [
     title: "Opening",
     fields: [
       { key: "greeting", label: "Greeting", type: "text", placeholder: "e.g. السلام عليكم ورحمة الله وبركاته" },
+      { key: "hero_divider_label", label: "Divider Label", type: "text", default: "The Wedding of", placeholder: "e.g. The Wedding of" },
+      { key: "hero_cta_label", label: "CTA Button", type: "text", default: "Our Invitation", placeholder: "e.g. Our Invitation" },
       { key: "quote", label: "Quote / Verse", type: "textarea", placeholder: "e.g. And We created you in pairs." },
       { key: "quote_source", label: "Quote Source", type: "text", placeholder: "e.g. Surah An-Naba 78:8" },
     ],
@@ -31,13 +33,28 @@ export const uniqueMuslimSchema = [
       { key: "section_title", label: "Section Title", type: "text", placeholder: "e.g. A Journey of Love" },
       { key: "invitation_body", label: "Invitation Body", type: "textarea", placeholder: "In the name of Allah..." },
       { key: "attire", label: "Dress Code / Attire", type: "text", placeholder: "e.g. Traditional Malay — Shades of Green" },
+      { key: "details_rsvp_cta", label: "RSVP CTA Button", type: "text", default: "RSVP Now", placeholder: "e.g. RSVP Now" },
     ],
   },
   {
     title: "Blessings",
     fields: [
+      { key: "blessings_prefix", label: "Section Prefix", type: "text", default: "With the blessings of", placeholder: "e.g. With the blessings of" },
       { key: "blessings_name", label: "Name", type: "textarea", placeholder: "e.g. Hj Ahmad & Hjh Ramlah" },
       { key: "blessings_label", label: "Label", type: "text", placeholder: "e.g. Parents of the Groom" },
+    ],
+  },
+  {
+    title: "RSVP",
+    fields: [
+      { key: "rsvp_subtitle", label: "Subtitle", type: "text", default: "Your presence would mean the world to us.", placeholder: "e.g. Your presence would mean the world to us." },
+      { key: "rsvp_success_heading", label: "Success Heading", type: "text", default: "Alhamdulillah!", placeholder: "e.g. Alhamdulillah!" },
+    ],
+  },
+  {
+    title: "Footer",
+    fields: [
+      { key: "footer_tagline", label: "Tagline", type: "text", default: "With love and prayers", placeholder: "e.g. With love and prayers" },
     ],
   },
   {

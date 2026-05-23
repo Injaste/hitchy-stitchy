@@ -6,6 +6,7 @@ interface FooterProps {
   fadeIn: (delay: number, duration?: number) => Variants;
   groom_name?: string | null;
   bride_name?: string | null;
+  footer_tagline?: string | null;
 }
 
 const Footer: FC<FooterProps> = ({
@@ -13,13 +14,8 @@ const Footer: FC<FooterProps> = ({
   fadeUp,
   groom_name,
   bride_name,
+  footer_tagline,
 }) => {
-  const year = new Date().getFullYear();
-  const displayName =
-    !groom_name && !bride_name
-      ? "Our Wedding"
-      : `${groom_name} & ${bride_name}`;
-
   return (
     <motion.div
       initial="hidden"
@@ -43,13 +39,15 @@ const Footer: FC<FooterProps> = ({
         variants={fadeUp(0.1, 12, 0.7)}
         className="mb-3 sm:mb-4 italic text-muted-foreground text-sm sm:text-base"
       >
-        With love and prayers,
+        {footer_tagline ?? "With love and prayers"}
       </motion.p>
       <motion.h2
         variants={fadeUp(0.2, 16, 0.8)}
-        className="font-bold text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] text-2xl sm:text-3xl italic"
+        className="font-bold text-primary-foreground [text-shadow:2px_2px_0_#d4af37,-2px_-2px_0_#d4af37,2px_-2px_0_#d4af37,-2px_2px_0_#d4af37] text-2xl sm:text-3xl italic flex flex-col"
       >
-        {displayName}
+        <span>{groom_name}</span>
+        <span>&</span>
+        <span>{bride_name}</span>
       </motion.h2>
       <motion.div variants={fadeIn(0.35, 1)} className="-mt-8 sm:-mt-10 mb-4">
         <img
@@ -58,12 +56,6 @@ const Footer: FC<FooterProps> = ({
           alt="dannad"
         />
       </motion.div>
-      <motion.p
-        variants={fadeIn(0.5, 0.8)}
-        className="text-muted-foreground/60 text-2xs uppercase tracking-[0.3em]"
-      >
-        © {year} {displayName} Wedding
-      </motion.p>
     </motion.div>
   );
 };

@@ -27,7 +27,7 @@ const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
     group.fields.map((f) => {
       const raw = draft ? (draft as Record<string, unknown>)[f.key] : undefined;
       if (f.type === "switch") return [f.key, raw === "true"];
-      return [f.key, typeof raw === "string" ? raw : ""];
+      return [f.key, typeof raw === "string" ? raw : (f.default ?? "")];
     }),
   );
 
