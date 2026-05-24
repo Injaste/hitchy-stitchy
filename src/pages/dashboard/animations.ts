@@ -1,6 +1,5 @@
 import type { Variants } from "framer-motion";
 
-// Stepper — check icon pop-in (spring)
 export const stepperCheckIn: Variants = {
   initial: { scale: 0, opacity: 0 },
   animate: {
@@ -20,7 +19,6 @@ export const stepperCheckIn: Variants = {
   },
 };
 
-// Stepper — step number fade/scale
 export const stepperNumberIn: Variants = {
   initial: { scale: 0.6, opacity: 0 },
   animate: { scale: 1, opacity: 1, transition: { duration: 0.15 } },

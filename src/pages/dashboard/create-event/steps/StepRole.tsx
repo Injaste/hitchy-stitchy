@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { FC } from "react";
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { Heart, CalendarCheck, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,12 @@ import {
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import type { CreateRoleData, StepType } from "../types";
+import {
+  stepRoleSchema,
+  type StepRoleFormValues,
+  type CreateRoleData,
+  type StepType,
+} from "../../types";
 import { useSteps } from "@/components/custom/steps-direction";
 
 interface StepRoleProps {
@@ -40,15 +44,28 @@ const ROLE_OPTIONS: RoleOption[] = [
   { role: "Other", shortRole: "Other", icon: User },
 ];
 
-const stepRoleSchema = z
-  .object({
-    role: z.string().min(1, "Please select a role to continue."),
-    customRole: z.union([z.string(), z.undefined()]),
-  })
-  .refine(
-    (val) => val.role !== "Other" || (val.customRole ?? "").trim().length > 0,
-    { message: "Please enter your role.", path: ["customRole"] },
-  );
+interface UseStepRoleFormOpts {
+  defaultValues?: Partial<StepRoleFormValues>;
+  onSubmit: (values: StepRoleFormValues) => void;
+}
+
+export const useStepRoleForm = ({
+  defaultValues,
+  onSubmit,
+}: UseStepRoleFormOpts) =>
+  useForm({
+    defaultValues: {
+      role: defaultValues?.role ?? "",
+      customRole: defaultValues?.customRole ?? "",
+    },
+    validators: {
+      onSubmit: stepRoleSchema,
+      onChange: stepRoleSchema,
+    },
+    onSubmit: async ({ value }) => {
+      onSubmit(value);
+    },
+  });
 
 const StepRole: FC<StepRoleProps> = ({
   defaultValues,
@@ -64,16 +81,12 @@ const StepRole: FC<StepRoleProps> = ({
     defaultValues?.role_name &&
     !ROLE_OPTIONS.find((o) => o.role === defaultValues.role_name);
 
-  const form = useForm({
+  const form = useStepRoleForm({
     defaultValues: {
       role: isCustomDefault ? "Other" : (defaultValues?.role_name ?? ""),
       customRole: isCustomDefault ? defaultValues!.role_name : "",
     },
-    validators: {
-      onSubmit: stepRoleSchema,
-      onChange: stepRoleSchema,
-    },
-    onSubmit: async ({ value }) => {
+    onSubmit: (value) => {
       if (value.role === "Other") {
         const trimmed = value.customRole!.trim();
         onSubmit({ role_name: trimmed, role_short_name: trimmed.slice(0, 10) });
@@ -111,7 +124,6 @@ const StepRole: FC<StepRoleProps> = ({
       </div>
 
       <FieldGroup className="block space-y-6">
-        {/* Role picker */}
         <form.Field name="role">
           {(field) => {
             const hasError =
@@ -183,7 +195,6 @@ const StepRole: FC<StepRoleProps> = ({
           }}
         </form.Field>
 
-        {/* Custom role input */}
         <form.Subscribe selector={(s) => s.values.role}>
           {(role) => (
             <AnimatePresence>
@@ -242,7 +253,6 @@ const StepRole: FC<StepRoleProps> = ({
           )}
         </form.Subscribe>
 
-        {/* Mutation error */}
         <AnimateItem
           hasError={Boolean(error)}
           error={error ?? undefined}

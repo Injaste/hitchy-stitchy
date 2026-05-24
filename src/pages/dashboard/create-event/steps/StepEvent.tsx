@@ -9,7 +9,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Input } from "@/components/ui/input";
@@ -35,53 +34,63 @@ import {
 import Odometer from "@/components/animations/animate-odometer";
 import { useSteps } from "@/components/custom/steps-direction";
 
-import type { CreateEventData, StepType } from "../types";
+import {
+  stepEventSchema,
+  type StepEventFormValues,
+  type CreateEventData,
+  type StepType,
+} from "../../types";
 import type { DateRange } from "react-day-picker";
 import {
   useSlugCheck,
   toSafeSlug,
   toSlug,
   type SlugStatus,
-} from "../hooks/useSlugCheck";
+} from "@/hooks/useSlugCheck";
 import { formatDateRange } from "@/lib/utils/utils-time";
 import ArraySeparator from "@/components/custom/array-separator";
 
-const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/;
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const stepEventSchema = z
-  .object({
-    display_name: z
-      .string()
-      .min(2, "Name must be at least 2 characters.")
-      .max(50, "Name must be less than 50 characters."),
-    event_name: z
-      .string()
-      .min(3, "Event name must be at least 3 characters.")
-      .max(50, "Event name must be less than 50 characters."),
-    slug: z
-      .string()
-      .regex(
-        SLUG_REGEX,
-        "Slug must be 3–50 chars, lowercase letters, numbers and hyphens only.",
-      ),
-    date_start: z.string(),
-    date_end: z.string(),
-  })
-  .refine((data) => Boolean(data.date_start && data.date_end), {
-    message: "Please select your event dates.",
-    path: ["date_start"],
+// ─── Form hook ────────────────────────────────────────────────────────────────
+
+interface UseStepEventFormOpts {
+  defaultValues?: Partial<StepEventFormValues>;
+  onSubmit: (values: StepEventFormValues) => Promise<void>;
+}
+
+export const useStepEventForm = ({
+  defaultValues,
+  onSubmit,
+}: UseStepEventFormOpts) =>
+  useForm({
+    defaultValues: {
+      display_name: defaultValues?.display_name ?? "",
+      event_name: defaultValues?.event_name ?? "",
+      slug: defaultValues?.slug ?? "",
+      date_start: defaultValues?.date_start ?? "",
+      date_end: defaultValues?.date_end ?? "",
+    },
+    validators: {
+      onSubmit: stepEventSchema,
+      onChange: stepEventSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await onSubmit(value);
+    },
   });
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function SlugStatusIcon({ status }: { status: SlugStatus }) {
   if (status === "checking")
     return <Loader2 className="size-4.5 animate-spin text-muted-foreground" />;
   if (status === "available")
-    return <CheckCircle2 className="size-4.5 text-primary" />;
+    return <CheckCircle2 className="size-4.5 text-success" />;
   if (status === "taken")
     return <XCircle className="size-4.5 text-destructive" />;
   if (status === "error")
-    return <AlertCircle className="size-4.5 text-muted-foreground" />;
+    return <AlertCircle className="size-4.5 text-warning" />;
   return null;
 }
 
@@ -113,19 +122,15 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
   const isMobile = useIsMobile();
   const { status: slugStatus, scheduleCheck, checkNow } = useSlugCheck();
 
-  const form = useForm({
+  const form = useStepEventForm({
     defaultValues: {
-      display_name: defaultValues?.display_name ?? "",
-      event_name: defaultValues?.event_name ?? "",
-      slug: defaultValues?.slug ?? "",
-      date_start: defaultValues?.date_start ?? dateRange?.from?.toString()!,
-      date_end: defaultValues?.date_end ?? dateRange?.to?.toString()!,
+      display_name: defaultValues?.display_name,
+      event_name: defaultValues?.event_name,
+      slug: defaultValues?.slug,
+      date_start: defaultValues?.date_start ?? dateRange?.from?.toString(),
+      date_end: defaultValues?.date_end ?? dateRange?.to?.toString(),
     },
-    validators: {
-      onSubmit: stepEventSchema,
-      onChange: stepEventSchema,
-    },
-    onSubmit: async ({ value }) => {
+    onSubmit: async (value) => {
       const taken = await checkNow(value.slug);
       if (taken) return;
 
@@ -352,13 +357,11 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
                           }
                         }}
                       />
-                      {/* Live status icon — replaces the manual "Verify" button */}
                       <InputGroupAddon align="inline-end">
                         <SlugStatusIcon status={slugStatus} />
                       </InputGroupAddon>
                     </InputGroup>
 
-                    {/* URL preview */}
                     <div className="text-foreground mt-4 p-4 rounded-md border border-secondary/30 bg-secondary/30">
                       <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
                         Your Unique Wedding Links

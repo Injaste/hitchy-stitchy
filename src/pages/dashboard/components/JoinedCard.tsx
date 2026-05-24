@@ -11,7 +11,7 @@ import {
   getDaysUntil,
   getEventStatus,
 } from "@/lib/utils/utils-time";
-import { cardHover, itemFadeUp } from "@/lib/animations";
+import { itemFadeUp } from "@/lib/animations";
 import type { Event } from "../types";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -20,7 +20,7 @@ const JoinedCard: FC<{ event: Event }> = ({ event }) => {
   const status = getEventStatus(event.date_start, event.date_end);
 
   return (
-    <motion.div variants={itemFadeUp} whileHover={cardHover}>
+    <motion.div variants={itemFadeUp}>
       <Card className="group h-full flex flex-col hover:border-primary/20 hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">

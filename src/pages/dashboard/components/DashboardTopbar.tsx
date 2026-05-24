@@ -20,7 +20,7 @@ const DashboardTopbar = () => {
             <Logo
               imageClassName="w-8 h-8"
               brandClassName="text-base font-bold"
-              showName
+              showBrand
               direction="row"
             />
           </Link>

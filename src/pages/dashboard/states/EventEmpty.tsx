@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CalendarPlus, Plus } from "lucide-react";
 
@@ -7,7 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { itemScaleIn } from "@/lib/animations";
 
-const EventEmpty = () => {
+interface EventEmptyProps {
+  onCreateEvent: () => void;
+}
+
+const EventEmpty = ({ onCreateEvent }: EventEmptyProps) => {
   return (
     <motion.div variants={itemScaleIn} initial="hidden" animate="show">
       <Card className="border-dashed">
@@ -22,12 +25,9 @@ const EventEmpty = () => {
             Your planning journey begins here. Create your first event and start
             building the day you've always imagined.
           </p>
-          <Link to="/create-event">
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Create your first event
-            </Button>
-          </Link>
+          <Button className="gap-2" onClick={onCreateEvent}>
+            Create your first event
+          </Button>
         </CardContent>
       </Card>
     </motion.div>

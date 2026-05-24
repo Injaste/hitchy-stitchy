@@ -13,7 +13,12 @@ const LoadingState = () => (
       animate={{ scale: [1, 1.08, 1], opacity: [0.5, 1, 0.5] }}
       transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
     >
-      <Logo imageClassName="w-24 h-24" brandClassName="text-xl" showName />
+      <Logo
+        imageClassName="w-24 h-24"
+        showBrand
+        brandClassName="text-xl"
+        showTagline
+      />
     </motion.div>
   </motion.div>
 );

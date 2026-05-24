@@ -70,7 +70,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           transition={{ duration: 1, delay: CONTENT_DELAY }}
           className="flex flex-col items-center justify-center gap-4 mb-8"
         >
-          <Logo imageClassName="w-10 h-10" brandClassName="text-sm" showName />
+          <Logo imageClassName="w-10 h-10" brandClassName="text-sm" showBrand />
           <div className="-my-6">
             <Lottie
               animationData={loveParticle}

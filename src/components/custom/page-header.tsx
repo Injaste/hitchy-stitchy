@@ -40,6 +40,12 @@ interface PageHeaderProps extends BaseHeaderProps {
    * doesn't react to per-column scroll sources.
    */
   lockOpen?: boolean;
+  /**
+   * Set to false on pages without a SidebarProvider ancestor (e.g. dashboard).
+   * SidebarTrigger calls useSidebar() which throws outside a SidebarProvider.
+   * Default true.
+   */
+  showSidebarTrigger?: boolean;
 }
 
 export const ActionLabel: FC<{ children: ReactNode; lockOpen?: boolean }> = ({ children, lockOpen = false }) => {
@@ -73,6 +79,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
   refetch,
   collapseMeta = false,
   lockOpen = false,
+  showSidebarTrigger = true,
 }) => {
   const { handleRefresh, canRefresh } = useRefetch(refetch ?? (() => {}));
   const showActions = !isLoading && !isError;
@@ -120,11 +127,15 @@ export const PageHeader: FC<PageHeaderProps> = ({
         <Container>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">
-              <SidebarTrigger className="-ml-2 hover:bg-transparent!" />
-              <Separator
-                orientation="vertical"
-                className="ml-1 mr-2 h-5 w-2 my-auto"
-              />
+              {showSidebarTrigger && (
+                <>
+                  <SidebarTrigger className="-ml-2 hover:bg-transparent!" />
+                  <Separator
+                    orientation="vertical"
+                    className="ml-1 mr-2 h-5 w-2 my-auto"
+                  />
+                </>
+              )}
               <h1 className="text-xl font-semibold">{title}</h1>
             </div>
 

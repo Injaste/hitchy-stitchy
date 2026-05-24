@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useFormShellOptional } from "./form-context";
 import { itemShake } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 
 const GAP = 5;
 const SW = 2.5;
@@ -236,7 +237,7 @@ const SubmitButton: FC<SubmitButtonProps> = ({
   }
   return (
     <motion.span
-      className="relative inline-flex"
+      className={cn("relative inline-flex", props.className)}
       variants={itemShake}
       animate={shakeState}
       onAnimationComplete={() => setShakeState("idle")}

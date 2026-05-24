@@ -5,8 +5,14 @@ import { useForm } from "@tanstack/react-form";
 import { UserPlus, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import Logo from "@/components/custom/logo";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { FormShell, TextField, FieldShell, SubmitButton } from "@/components/custom/form";
+import {
+  FormShell,
+  TextField,
+  FieldShell,
+  SubmitButton,
+} from "@/components/custom/form";
 import {
   InputGroup,
   InputGroupAddon,
@@ -15,7 +21,7 @@ import {
 } from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
-import { fadeUp, scaleIn } from "@/pages/admin/animations";
+import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
 
 import { useSignupMutation } from "./queries";
@@ -27,9 +33,14 @@ interface UseSignUpFormOpts {
   onSubmit: (value: SignUpFormValues) => Promise<void>;
 }
 
-export const useSignUpForm = ({ onSubmit }: UseSignUpFormOpts) =>
+const useSignUpForm = ({ onSubmit }: UseSignUpFormOpts) =>
   useForm({
-    defaultValues: { full_name: "", email: "", password: "", confirm_password: "" },
+    defaultValues: {
+      full_name: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+    },
     validators: {
       onSubmit: signUpSchema,
       onChange: signUpSchema,
@@ -41,26 +52,34 @@ export const useSignUpForm = ({ onSubmit }: UseSignUpFormOpts) =>
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function Signup() {
+const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
 
-  const { mutateAsync: signup, isPending, error: mutationError } = useSignupMutation({
+  const {
+    mutateAsync: signup,
+    isPending,
+    error: mutationError,
+  } = useSignupMutation({
     onSuccess: () => setSucceeded(true),
   });
 
   const form = useSignUpForm({
     onSubmit: async (value) => {
       setSubmittedEmail(value.email);
-      await signup({ fullName: value.full_name, email: value.email, password: value.password });
+      await signup({
+        fullName: value.full_name,
+        email: value.email,
+        password: value.password,
+      });
     },
   });
 
   if (succeeded) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.92 }}
@@ -71,11 +90,15 @@ export default function Signup() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-6">
               <CheckCircle2 className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Account created!</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              Account created!
+            </h2>
             <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
               We've sent a confirmation link to{" "}
-              <span className="text-foreground font-medium">{submittedEmail}</span>.
-              Check your inbox to activate your account.
+              <span className="text-foreground font-medium">
+                {submittedEmail}
+              </span>
+              . Check your inbox to activate your account.
             </p>
             <div className="flex flex-col gap-3">
               <Link to="/dashboard">
@@ -90,134 +113,152 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="min-h-screen flex justify-center items-center px-4"
+    >
       <div className="w-full max-w-sm">
         <motion.div
-          variants={scaleIn(0.1)}
-          initial="hidden"
-          animate="show"
-          className="text-center mb-10"
+          variants={itemScaleIn}
+          className="flex items-center flex-col mb-6"
         >
           <Logo className="w-16 h-16 mb-4" />
           <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
-            Wedding Planning Suite
+            A Wedding Planning Suite
           </p>
         </motion.div>
 
-        <motion.div
-          variants={fadeUp(0.15)}
-          initial="hidden"
-          animate="show"
-          className="bg-card rounded-2xl border border-border shadow-sm p-8"
-        >
-          <div className="flex items-center gap-2 mb-6">
-            <UserPlus className="w-4 h-4 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground font-medium">Create your account</p>
-          </div>
-
-          <FormShell form={form} className="space-y-4">
-            <FieldGroup>
-              <TextField
-                name="full_name"
-                label="Full name"
-                placeholder="Full name"
-                autoFocus
-                autoComplete="name"
-              />
-
-              <TextField
-                name="email"
-                label="Email"
-                type="email"
-                placeholder="Email"
-                autoComplete="email"
-              />
-
-              <FieldShell name="password" label="Password">
-                {(field) => (
-                  <InputGroup>
-                    <InputGroupInput
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Password"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      autoComplete="new-password"
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupButton
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => setShowPassword((p) => !p)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </InputGroupButton>
-                    </InputGroupAddon>
-                  </InputGroup>
-                )}
-              </FieldShell>
-
-              <FieldShell name="confirm_password" label="Confirm password">
-                {(field) => (
-                  <InputGroup>
-                    <InputGroupInput
-                      type={showConfirm ? "text" : "password"}
-                      placeholder="Confirm password"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      autoComplete="new-password"
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupButton
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => setShowConfirm((p) => !p)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </InputGroupButton>
-                    </InputGroupAddon>
-                  </InputGroup>
-                )}
-              </FieldShell>
-
-              <form.Subscribe selector={(s) => s.submissionAttempts}>
-                {(attempts) => (
-                  <AnimateItem
-                    hasError={Boolean(mutationError)}
-                    error={mutationError}
-                    attemptCount={attempts}
+        <motion.div variants={itemFadeUp}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-muted-foreground">
+                <UserPlus className="size-4" />
+                <p className="text-sm font-medium">Create your account</p>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormShell form={form}>
+                <FieldGroup>
+                  <TextField
+                    name="full_name"
+                    label="Full name"
+                    placeholder="Full name"
+                    autoFocus
+                    autoComplete="name"
                   />
-                )}
-              </form.Subscribe>
-            </FieldGroup>
 
-            <SubmitButton isPending={isPending} isError={Boolean(mutationError)}>
-              Create Account
-            </SubmitButton>
-          </FormShell>
+                  <TextField
+                    name="email"
+                    label="Email"
+                    type="email"
+                    placeholder="Email"
+                    autoComplete="email"
+                  />
+
+                  <FieldShell name="password" label="Password">
+                    {(field) => (
+                      <InputGroup>
+                        <InputGroupInput
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Password"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          autoComplete="new-password"
+                        />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setShowPassword((p) => !p)}
+                            className="absolute right-0.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    )}
+                  </FieldShell>
+
+                  <FieldShell name="confirm_password" label="Confirm password">
+                    {(field) => (
+                      <InputGroup>
+                        <InputGroupInput
+                          type={showConfirm ? "text" : "password"}
+                          placeholder="Confirm password"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          autoComplete="new-password"
+                        />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setShowConfirm((p) => !p)}
+                            className="absolute right-0.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showConfirm ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    )}
+                  </FieldShell>
+
+                  <form.Subscribe selector={(s) => s.submissionAttempts}>
+                    {(attempts) => (
+                      <AnimateItem
+                        hasError={Boolean(mutationError)}
+                        error={mutationError}
+                        attemptCount={attempts}
+                      />
+                    )}
+                  </form.Subscribe>
+                </FieldGroup>
+
+                <SubmitButton
+                  isPending={isPending}
+                  isError={Boolean(mutationError)}
+                  className="w-full"
+                >
+                  Create Account
+                </SubmitButton>
+              </FormShell>
+            </CardContent>
+          </Card>
         </motion.div>
 
         <motion.div
-          variants={fadeUp(0.3)}
-          initial="hidden"
-          animate="show"
+          variants={itemFadeUp}
           className="text-center mt-6 space-y-2"
         >
           <p className="text-xs text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/dashboard" className="text-primary hover:underline font-medium">
+            <Link
+              to="/dashboard"
+              className="text-primary hover:underline font-medium"
+            >
               Sign in
             </Link>
           </p>
           <BackLink to="/" label="Back to Home" />
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
-}
+};
+
+export default Signup;

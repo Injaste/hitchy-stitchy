@@ -90,7 +90,7 @@ const SignIn = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <FormShell form={form} className="space-y-4">
+              <FormShell form={form}>
                 <FieldGroup>
                   <TextField
                     name="email"

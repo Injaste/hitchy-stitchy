@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import AdminRoutes from "./routes/AdminRoutes";
@@ -8,7 +8,6 @@ import LoadingState from "@/components/custom/states/loading-state";
 const Home = lazy(() => import("@/pages/home"));
 const Signup = lazy(() => import("@/pages/signup"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
-const CreateEvent = lazy(() => import("@/pages/create-event"));
 const Templates = lazy(() => import("@/pages/wedding"));
 
 const standaloneRoutes = [

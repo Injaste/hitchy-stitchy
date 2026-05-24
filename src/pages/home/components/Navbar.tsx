@@ -13,12 +13,21 @@ export function Navbar() {
       aria-label="Main navigation"
     >
       <Link to="/" className="flex items-center gap-2.5 group">
-        <Logo imageClassName="w-8 h-8" brandClassName="text-lg font-bold" showName direction="row" />
+        <Logo
+          imageClassName="w-8 h-8"
+          brandClassName="text-lg font-bold"
+          showBrand
+          direction="row"
+        />
       </Link>
 
       <div className="flex items-center gap-3">
         <Link to="/dashboard">
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+          >
             Sign in
           </Button>
         </Link>

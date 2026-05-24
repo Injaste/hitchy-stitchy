@@ -13,7 +13,7 @@ export function Footer() {
         <Logo
           imageClassName="w-5 h-5"
           brandClassName="text-sm"
-          showName
+          showBrand
           direction="row"
         />
         <p className="text-xs text-muted-foreground text-center">

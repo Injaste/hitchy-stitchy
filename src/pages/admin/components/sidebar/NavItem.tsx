@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { toSlug } from "@/pages/create-event/hooks/useSlugCheck";
+import { toSlug } from "@/hooks/useSlugCheck";
 
 interface NavItemProps {
   icon: React.ElementType;

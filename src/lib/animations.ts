@@ -48,8 +48,6 @@ export const widthReveal: Variants = {
   },
 };
 
-export const cardHover = { y: -3, transition: { duration: 0.4 } };
-
 export const TASK_ITEM_DURATION = 0.2; // seconds — used by TaskQuickAdd scroll-into-view timing
 
 // ── Tasks kanban ────────────────────────────────────────────────────────

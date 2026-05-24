@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatDateRange, getDaysUntil } from "@/lib/utils/utils-time";
-import { cardHover, itemFadeUp } from "@/lib/animations";
+import { itemFadeUp } from "@/lib/animations";
 import type { Event } from "../types";
 import { useClaimInviteMutation } from "../queries";
 import ArraySeparator from "@/components/custom/array-separator";
@@ -16,7 +16,7 @@ const InvitedCard: FC<{ event: Event }> = ({ event }) => {
   const countdown = getDaysUntil(event.date_start);
 
   return (
-    <motion.div variants={itemFadeUp} whileHover={cardHover}>
+    <motion.div variants={itemFadeUp}>
       <Card className="group h-full flex flex-col border-dashed hover:border-muted-foreground/30 hover:shadow-md transition-shadow bg-card/30">
         <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
           <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
@@ -44,7 +44,11 @@ const InvitedCard: FC<{ event: Event }> = ({ event }) => {
               variant="secondary"
               className="flex-1 gap-1.5"
               onClick={() =>
-                claimInvite({ event_id: event.id, event_name: event.name, action: "accept" })
+                claimInvite({
+                  event_id: event.id,
+                  event_name: event.name,
+                  action: "accept",
+                })
               }
               disabled={isPending}
             >
@@ -56,7 +60,11 @@ const InvitedCard: FC<{ event: Event }> = ({ event }) => {
               variant="outline"
               className="shrink-0 gap-1.5"
               onClick={() =>
-                claimInvite({ event_id: event.id, event_name: event.name, action: "reject" })
+                claimInvite({
+                  event_id: event.id,
+                  event_name: event.name,
+                  action: "reject",
+                })
               }
               disabled={isPending}
             >

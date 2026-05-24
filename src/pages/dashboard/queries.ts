@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
-import { fetchUserEvents, claimInvite } from "./api"
-import type { EventsCount, ClaimInvitePayload } from "./types"
+import { fetchUserEvents, claimInvite, createEvent } from "./api"
+import type { EventsCount, ClaimInvitePayload, CreateEventPayload, CreateEventResult } from "./types"
 import { getEventStatus } from "@/lib/utils/utils-time"
 
 export const eventsQueryKey = ["events"] as const
@@ -47,5 +47,21 @@ export function useClaimInviteMutation() {
       errorMessage: (err) => err.message,
       onSuccess: () => qc.invalidateQueries({ queryKey: eventsQueryKey }),
     },
+  )
+}
+
+export function useCreateEventMutation(options?: {
+  onSuccess?: (data: CreateEventResult) => void
+}) {
+  const qc = useQueryClient()
+  return useMutation<CreateEventPayload, CreateEventResult>(
+    (payload) => createEvent(payload),
+    {
+      silent: true,
+      onSuccess: (data) => {
+        qc.invalidateQueries({ queryKey: eventsQueryKey })
+        options?.onSuccess?.(data)
+      },
+    }
   )
 }

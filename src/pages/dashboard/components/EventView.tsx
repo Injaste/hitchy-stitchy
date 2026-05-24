@@ -10,9 +10,10 @@ import CreateEvent from "./EventCreate";
 
 interface EventViewProps {
   events: Event[];
+  onCreateEvent: () => void;
 }
 
-const EventView: FC<EventViewProps> = ({ events }) => (
+const EventView: FC<EventViewProps> = ({ events, onCreateEvent }) => (
   <motion.div
     variants={container}
     initial="hidden"
@@ -22,7 +23,7 @@ const EventView: FC<EventViewProps> = ({ events }) => (
     {events.map((event) => (
       <EventCard key={event.id} event={event} />
     ))}
-    <CreateEvent />
+    <CreateEvent onCreateEvent={onCreateEvent} />
   </motion.div>
 );
 

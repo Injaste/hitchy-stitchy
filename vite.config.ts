@@ -6,7 +6,10 @@ import { defineConfig } from "vite"
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "lottie-web": path.resolve(__dirname, "node_modules/lottie-web/build/player/lottie_light.js"),
+    },
   },
   build: {
     rollupOptions: {

@@ -4,7 +4,9 @@ interface LogoProps {
   className?: string;
   imageClassName?: string;
   brandClassName?: string;
-  showName?: boolean;
+  taglineClassName?: string;
+  showBrand?: boolean;
+  showTagline?: boolean;
   direction?: "row" | "col";
 }
 
@@ -12,7 +14,9 @@ const Logo = ({
   className,
   imageClassName,
   brandClassName,
-  showName = false,
+  taglineClassName,
+  showBrand: showName = false,
+  showTagline = false,
   direction = "col",
 }: LogoProps) => (
   <div
@@ -28,14 +32,26 @@ const Logo = ({
       className={cn("object-contain", imageClassName)}
     />
     {showName && (
-      <span
-        className={cn(
-          "font-display font-semibold text-foreground tracking-wide",
-          brandClassName,
+      <div className="flex flex-col text-center">
+        <span
+          className={cn(
+            "font-display font-semibold text-foreground tracking-wide",
+            brandClassName,
+          )}
+        >
+          Hitchy Stitchy
+        </span>
+        {showTagline && (
+          <span
+            className={cn(
+              "text-xs uppercase tracking-widest text-muted-foreground mt-0.5",
+              taglineClassName,
+            )}
+          >
+            A Wedding Planning Suite
+          </span>
         )}
-      >
-        Hitchy Stitchy
-      </span>
+      </div>
     )}
   </div>
 );

@@ -121,7 +121,7 @@ const AddSectionSlot: FC = () => {
         <Button
           variant="empty"
           onClick={() => openCreateWithLabel(null)}
-          className="group flex w-full items-center gap-2 rounded-md border border-dashed border-foreground/20 px-4 py-3 text-sm text-muted-foreground transition hover:border-foreground/40 hover:text-foreground"
+          className="group flex w-full items-center gap-2 rounded-md border border-dashed border-foreground/20 px-4 py-3 text-sm text-muted-foreground transition hover:border-primary hover:text-foreground"
         >
           <Plus className="size-4" />
           <span>Add new section</span>
