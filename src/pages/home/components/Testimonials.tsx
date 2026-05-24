@@ -48,7 +48,7 @@ export function Testimonials() {
   const [paused, setPaused] = useState(false);
 
   return (
-    <section className="py-28 bg-muted/20 overflow-hidden">
+    <section className="py-28 bg-muted/20 overflow-hidden" aria-label="Customer testimonials">
       <div className="px-6 md:px-12 max-w-6xl mx-auto mb-16">
         <div className="text-center">
           <motion.p

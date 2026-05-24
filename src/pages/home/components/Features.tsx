@@ -88,7 +88,7 @@ export function Features() {
                   >
                     <div className="flex items-center gap-3 mb-5">
                       <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <feature.icon className="w-4.5 h-4.5 text-primary" />
+                        <feature.icon className="w-4.5 h-4.5 text-primary" aria-hidden="true" />
                       </div>
                       <p className="text-xs uppercase tracking-widest text-primary font-semibold">
                         {feature.label}

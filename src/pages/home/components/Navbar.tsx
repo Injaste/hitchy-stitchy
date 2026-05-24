@@ -10,6 +10,7 @@ export function Navbar() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 bg-background/80 backdrop-blur-md"
+      aria-label="Main navigation"
     >
       <Link to="/" className="flex items-center gap-2.5 group">
         <Logo imageClassName="w-8 h-8" brandClassName="text-lg font-bold" showName direction="row" />
