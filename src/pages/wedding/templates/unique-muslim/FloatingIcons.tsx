@@ -14,13 +14,12 @@ interface IconItem {
 const generateIcons = (count: number): IconItem[] =>
   Array.from({ length: count }, (_, i) => ({
     id: i,
-    // Adjusted slightly to allow full 0% to 100% edge-to-edge span
     left: Math.random() * 100,
     size: Math.random() * 14 + 10,
     rotation: Math.random() * 180 + 180,
-    duration: Math.random() * 5 + 6,
+    duration: Math.random() * 5 + 3,
     delay: Math.random() * 4,
-    travelY: window.innerHeight * 0.1,
+    travelY: window.innerHeight * 0.05,
   }));
 
 const getIconCount = (): number =>
@@ -61,7 +60,6 @@ const FloatingIcons = () => {
           )
           .join("")}
       `}</style>
-      {/* FIXED: Removed left-1/2, -translate-x-1/2, and max-w-md so it covers the actual viewport edge-to-edge */}
       <div className="fixed left-0 right-0 top-0 h-60 pointer-events-none overflow-hidden z-40">
         {icons.map((icon) => (
           <div

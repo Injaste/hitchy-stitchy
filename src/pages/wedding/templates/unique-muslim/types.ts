@@ -57,6 +57,19 @@ export const uniqueMuslimSchema = [
     ],
   },
   {
+    title: "Itinerary",
+    fields: [
+      { key: "itinerary_title", label: "Section Title", type: "text", default: "Programme", placeholder: "e.g. Programme" },
+      {
+        key: "itinerary",
+        label: "Programme",
+        type: "textarea",
+        placeholder: "Nikah Ceremony\n10:00 AM | Akad Nikah\n10:30 AM | Solemnization\n\nReception\n12:00 PM",
+        hint: "Separate sections with a blank line. First line of each block is the section title. Each entry: time | label (label is optional).",
+      },
+    ],
+  },
+  {
     title: "RSVP",
     fields: [
       { key: "rsvp_subtitle", label: "Subtitle", type: "text", default: "Your presence would mean the world to us.", placeholder: "e.g. Your presence would mean the world to us." },

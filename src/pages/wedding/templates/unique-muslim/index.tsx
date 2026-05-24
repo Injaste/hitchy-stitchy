@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useFrame } from "react-frame-component";
 import Hero from "./Hero";
 import Details from "./Details";
+import Itinerary from "./Itinerary";
 import RSVP from "./RSVP";
 import FloatingIcons from "./FloatingIcons";
 import EnvelopePreloader from "./EnvelopePreloader";
@@ -91,6 +92,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
 
       <Hero eventConfig={eventConfig} pageConfig={pageConfig} ready={ready} />
       <Details eventConfig={eventConfig} pageConfig={pageConfig} />
+      <Itinerary eventConfig={eventConfig} pageConfig={pageConfig} />
       <RSVP eventConfig={eventConfig} pageConfig={pageConfig} />
 
       <AnchorBar
