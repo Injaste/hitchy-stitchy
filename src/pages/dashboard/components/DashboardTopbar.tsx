@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { CalendarHeart, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import Logo from "@/components/custom/logo";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -16,12 +17,12 @@ const DashboardTopbar = () => {
       <Container>
         <div className="flex items-center justify-between px-6 md:px-10 h-14">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-              <CalendarHeart className="w-4 h-4 text-primary" />
-            </div>
-            <span className="font-bold text-foreground text-base leading-none">
-              Hitchy Stitchy
-            </span>
+            <Logo
+              imageClassName="w-8 h-8"
+              brandClassName="text-base font-bold"
+              showName
+              direction="row"
+            />
           </Link>
           <Button
             size="sm"

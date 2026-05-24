@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CalendarHeart } from "lucide-react";
+import Logo from "@/components/custom/logo";
 
 import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
 
@@ -21,9 +21,7 @@ const CreateEventView = () => {
           variants={itemFadeIn}
           className="text-center mb-10"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <CalendarHeart className="w-8 h-8 text-primary" />
-          </div>
+          <Logo imageClassName="w-16 h-16" className="mb-6" />
           <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             Wedding Admin

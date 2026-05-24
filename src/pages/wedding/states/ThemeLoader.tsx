@@ -1,6 +1,7 @@
 import { useEffect, useRef, type FC } from "react";
 import { animate, motion, stagger } from "framer-motion";
 import LottieRaw from "lottie-react";
+import Logo from "@/components/custom/logo";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Lottie = (LottieRaw as any).default ?? LottieRaw;
 import SplitType from "split-type";
@@ -69,9 +70,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           transition={{ duration: 1, delay: CONTENT_DELAY }}
           className="flex flex-col items-center justify-center gap-4 mb-8"
         >
-          <span className="flex items-center gap-2 text-sm tracking-widest text-primary font-serif italic">
-            Hitchy Stitchy
-          </span>
+          <Logo imageClassName="w-10 h-10" brandClassName="text-sm" showName />
           <div className="-my-6">
             <Lottie
               animationData={loveParticle}

@@ -1,15 +1,20 @@
-import { itemFadeIn } from "@/lib/animations";
 import { motion } from "framer-motion";
-import { CalendarHeart } from "lucide-react";
+import Logo from "@/components/custom/logo";
 
 const LoadingState = () => (
   <motion.div
-    variants={itemFadeIn}
-    initial="hidden"
-    animate="show"
-    className="min-h-screen bg-background flex items-center justify-center"
+    key="loading-state"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="min-h-screen flex justify-center items-center"
   >
-    <CalendarHeart className="w-10 h-10 text-primary animate-pulse" />
+    <motion.div
+      animate={{ scale: [1, 1.08, 1], opacity: [0.5, 1, 0.5] }}
+      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <Logo imageClassName="w-24 h-24" brandClassName="text-xl" showName />
+    </motion.div>
   </motion.div>
 );
 

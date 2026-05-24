@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { CalendarHeart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Logo from "@/components/custom/logo";
 
 import ShareRow from "./ShareRow";
 
@@ -10,10 +10,7 @@ export function Footer() {
       <ShareRow />
 
       <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <CalendarHeart className="w-4 h-4 text-primary" />
-          <span className="font-semibold text-foreground text-sm">Hitchy Stitchy</span>
-        </div>
+        <Logo imageClassName="w-5 h-5" brandClassName="text-sm" showName direction="row" />
         <p className="text-xs text-muted-foreground text-center">
           Crafted with love for couples who care about every detail.
         </p>

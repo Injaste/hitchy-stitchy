@@ -1,14 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  CalendarHeart,
-  UserPlus,
-  Eye,
-  EyeOff,
-  Mail,
-  CheckCircle2,
-} from "lucide-react";
+import { UserPlus, Eye, EyeOff, Mail, CheckCircle2 } from "lucide-react";
+import Logo from "@/components/custom/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fadeUp, scaleIn } from "@/pages/admin/animations";
@@ -96,9 +90,7 @@ export default function Signup() {
           animate="show"
           className="text-center mb-10"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <CalendarHeart className="w-8 h-8 text-primary" />
-          </div>
+          <Logo imageClassName="w-16 h-16" className="mb-4" />
           <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             Wedding Planning Suite

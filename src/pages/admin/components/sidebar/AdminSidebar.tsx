@@ -1,5 +1,5 @@
+import Logo from "@/components/custom/logo";
 import {
-  CalendarHeart,
   Clock,
   CheckSquare,
   Users,
@@ -69,14 +69,11 @@ const AdminSidebar = () => {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" className="pointer-events-none">
-                <div
-                  className={cn(
-                    "flex aspect-square items-center justify-center rounded-lg bg-sidebar-primary/10 text-sidebar-primary-foreground",
+                <Logo
+                  imageClassName={cn(
                     state === "expanded" || isMobile ? "size-9" : "size-8",
                   )}
-                >
-                  <CalendarHeart className="size-4 text-sidebar-primary" />
-                </div>
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="font-bold truncate">{eventName}</span>
                   <span className="truncate text-xs">{slug}</span>

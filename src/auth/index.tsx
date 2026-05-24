@@ -1,7 +1,8 @@
 import { useState, type SubmitEvent } from "react";
 import { useForm } from "@tanstack/react-form";
 import { motion } from "framer-motion";
-import { CalendarHeart, Eye, EyeOff, NotebookPen } from "lucide-react";
+import { Eye, EyeOff, NotebookPen } from "lucide-react";
+import Logo from "@/components/custom/logo";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -71,9 +72,7 @@ const SignIn = () => {
           variants={itemScaleIn}
           className="flex items-center flex-col mb-6"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <CalendarHeart className="w-8 h-8 text-primary" />
-          </div>
+          <Logo imageClassName="w-16 h-16" className="mb-4" />
           <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             A Wedding Planning Suite

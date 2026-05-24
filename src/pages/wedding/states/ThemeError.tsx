@@ -1,16 +1,14 @@
 import { motion } from "framer-motion";
-import { CalendarHeart } from "lucide-react";
 
 import { itemFadeUp } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
+import Logo from "@/components/custom/logo";
 
 const ThemeError = () => {
   return (
     <>
       <div className="flex flex-col items-center gap-2 mb-12">
-        <span className="flex items-center gap-2 text-sm tracking-widest text-accent/60 font-serif italic">
-          Hitchy Stitchy
-        </span>
+        <Logo imageClassName="w-10 h-10" />
       </div>
 
       <div className="max-w-xs flex flex-col items-center gap-6">

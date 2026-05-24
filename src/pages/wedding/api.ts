@@ -11,44 +11,30 @@ import type { ThemePageConfig } from "./templates"
 import type { InvitationConfig } from "../admin/invitation/types"
 
 export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig> {
-  const { data: slugRow, error: slugError } = await supabase
-    .from("event_slugs")
-    .select("id")
-    .eq("slug", slug)
-    .single()
+  const { data, error } = await supabase.rpc("get_public_invitation", {
+    p_slug: slug,
+  })
 
-  if (slugError || !slugRow) throw new Error("Event not found")
-
-  const event_id = slugRow.id as string
-
-  const [invResult, pageResult] = await Promise.all([
-    supabase.from("event_invitation").select("*").eq("event_id", event_id).single(),
-    supabase.from("event_themes").select("id, config").eq("event_id", event_id).not("published_at", "is", null).maybeSingle(),
-  ])
-
-  if (invResult.error || !invResult.data) throw new Error("Invitation not found")
-
-  const inv = invResult.data
-  const page = pageResult.data ?? null
+  if (error || !data) throw new Error("Event not found")
 
   return {
-    id: inv.id,
-    event_id: inv.event_id,
-    event_date: inv.event_date,
-    event_time_start: inv.event_time_start,
-    event_time_end: inv.event_time_end,
-    rsvp_mode: inv.rsvp_mode,
-    rsvp_deadline: inv.rsvp_deadline,
-    max_guests: inv.max_guests,
-    guest_count_min: inv.guest_count_min,
-    guest_count_max: inv.guest_count_max,
-    confirmation_message: inv.confirmation_message,
-    config: inv.config as InvitationConfig,
-    published_page: page
+    id: data.id,
+    event_id: data.event_id,
+    event_date: data.event_date,
+    event_time_start: data.event_time_start,
+    event_time_end: data.event_time_end,
+    rsvp_mode: data.rsvp_mode,
+    rsvp_deadline: data.rsvp_deadline,
+    max_guests: data.max_guests,
+    guest_count_min: data.guest_count_min,
+    guest_count_max: data.guest_count_max,
+    confirmation_message: data.confirmation_message,
+    config: data.config as InvitationConfig,
+    published_page: data.published_page
       ? {
-        id: page.id,
-        theme_slug: (page.config as ThemePageConfig).slug ?? null,
-        config: page.config as ThemePageConfig,
+        id: data.published_page.id,
+        theme_slug: data.published_page.theme_slug ?? null,
+        config: data.published_page.config as ThemePageConfig,
       }
       : null,
   }
