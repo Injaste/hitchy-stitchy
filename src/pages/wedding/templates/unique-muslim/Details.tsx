@@ -150,7 +150,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
     : null;
 
   return (
-    <section id="details" className="py-20 px-4 bg-card/60 relative z-10">
+    <section id="details" className="pt-20 pb-10 px-4 bg-card/60 relative z-10">
       <div className="max-w-4xl mx-auto text-center">
         {/* Intro */}
         <motion.div

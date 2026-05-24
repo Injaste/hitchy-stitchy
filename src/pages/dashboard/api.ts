@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase"
-import type { Event, ClaimInvitePayload, CreateEventPayload, CreateEventResult } from "./types"
+import type { Event, ClaimInvitePayload, CreateEventPayload } from "./types"
 import type { PostgrestError } from "@supabase/supabase-js"
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
