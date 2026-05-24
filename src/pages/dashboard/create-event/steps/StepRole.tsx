@@ -88,7 +88,7 @@ const StepRole: FC<StepRoleProps> = ({
     },
     onSubmit: (value) => {
       if (value.role === "Other") {
-        const trimmed = value.customRole!.trim();
+        const trimmed = value.customRole.trim();
         onSubmit({ role_name: trimmed, role_short_name: trimmed.slice(0, 10) });
       } else {
         const option = ROLE_OPTIONS.find((o) => o.role === value.role)!;

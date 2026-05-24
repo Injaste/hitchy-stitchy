@@ -20,15 +20,9 @@ export async function claimInvite(payload: ClaimInvitePayload): Promise<void> {
 
 // ─── Create Event ─────────────────────────────────────────────────────────────
 
-const ERROR_MAP: Record<string, string> = {
-  events_slug_key: "This URL slug is already taken. Please choose a different one.",
-}
-
 export function getFriendlyErrorMessage(error: PostgrestError | null): string {
-  if (!error?.message) return "Something went wrong. Please try again."
-  for (const [constraint, message] of Object.entries(ERROR_MAP)) {
-    if (error.message.includes(constraint)) return message
-  }
+  if (error?.code === "23505") return "This URL slug is already taken. Please choose a different one.";
+  else if (error?.message) return "Something went wrong. Please try again."
   return "Something went wrong. Please try again."
 }
 
@@ -38,13 +32,13 @@ export async function checkSlugAvailable(slug: string): Promise<boolean> {
     .select("slug")
     .eq("slug", slug)
 
-  if (error || !data) throw new Error(getFriendlyErrorMessage(error))
+  if (error) throw new Error(getFriendlyErrorMessage(error))
   return data.length > 0
 }
 
 export async function createEvent(
   payload: CreateEventPayload
-): Promise<CreateEventResult> {
+): Promise<Event> {
   const { data, error } = await supabase.rpc("create_event", {
     p_slug: payload.slug,
     p_name: payload.event_name,
@@ -55,6 +49,6 @@ export async function createEvent(
     p_role_short_name: payload.role_short_name,
   })
 
-  if (error || !data || !data.length) throw new Error(getFriendlyErrorMessage(error))
+  if (error) throw new Error(getFriendlyErrorMessage(error))
   return data[0]
 }

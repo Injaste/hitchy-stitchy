@@ -27,20 +27,19 @@ const CreateEventForm = () => {
   );
 
   const {
-    mutate: createEvent,
-    isPending: isCreating,
+    mutateAsync: createEvent,
+    isPending,
     error,
     isError,
     reset: resetCreateEvent,
-  } = useCreateEventMutation({
-    onSuccess: (data) => {
-      navigate(`/${data.slug}/admin`, { replace: true });
-    },
-  });
+  } = useCreateEventMutation();
 
-  const handleSubmit = (data: CreateRoleData) => {
+  const handleSubmit = async (data: CreateRoleData) => {
     if (!eventData) return;
-    createEvent({ ...eventData, ...data });
+    const result = await createEvent({ ...eventData, ...data }).catch(
+      () => null,
+    );
+    if (result) navigate(`/${result.slug}/admin`);
   };
 
   return (
@@ -76,7 +75,7 @@ const CreateEventForm = () => {
                     if (isError) resetCreateEvent();
                   }}
                   onSubmit={handleSubmit}
-                  isSubmitting={isCreating}
+                  isSubmitting={isPending}
                   error={error}
                 />
               )}

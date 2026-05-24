@@ -22,6 +22,12 @@ export function Navbar() {
       </Link>
 
       <div className="flex items-center gap-3">
+        {/* <Link to="/signup">
+          <Button size="sm">Start planning</Button>
+        </Link> */}
+        <a href="#get-started">
+          <Button size="sm">Subscribe Now</Button>
+        </a>
         <Link to="/dashboard">
           <Button
             variant="ghost"
@@ -30,9 +36,6 @@ export function Navbar() {
           >
             Sign in
           </Button>
-        </Link>
-        <Link to="/signup">
-          <Button size="sm">Start planning</Button>
         </Link>
       </div>
     </motion.nav>

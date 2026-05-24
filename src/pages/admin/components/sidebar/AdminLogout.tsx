@@ -18,9 +18,11 @@ const AdminLogout = () => {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
 
-  const { mutate: logout } = useLogoutMutation({
-    onSuccess: () => navigate(`/${slug}`),
-  });
+  const { mutate: logout } = useLogoutMutation();
+
+  const handleLogout = () => {
+    logout({ onSuccess: () => navigate(`/${slug}`) });
+  };
 
   return (
     <AlertDialog>
@@ -42,7 +44,7 @@ const AdminLogout = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => logout()} variant="destructive">
+          <AlertDialogAction onClick={handleLogout} variant="destructive">
             Log out
           </AlertDialogAction>
         </AlertDialogFooter>

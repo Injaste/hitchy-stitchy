@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { LogOut } from "lucide-react";
 import Logo from "@/components/custom/logo";
 import { Link } from "react-router-dom";
@@ -28,7 +27,7 @@ const DashboardTopbar = () => {
             size="sm"
             variant="ghost"
             className="text-muted-foreground gap-1.5"
-            onClick={() => logout()}
+            onClick={() => logout({})}
             disabled={isLoggingOut}
           >
             <LogOut className="w-3.5 h-3.5" />

@@ -52,22 +52,16 @@ export const useIsAuthenticatedQuery = () =>
     staleTime: Infinity,
   });
 
-export function useLoginMutation(options?: {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
-}) {
-  return useMutation<LoginCredentials, void>(loginUser, {
-    silent: true,
-    onSuccess: options?.onSuccess,
-    onError: options?.onError,
-  });
+export function useLoginMutation() {
+  return useMutation(
+    (credentials: LoginCredentials) => loginUser(credentials),
+    { silent: true },
+  );
 }
 
-export function useLogoutMutation(options?: {
-  onSuccess?: () => void;
-}) {
-  return useMutation<void, void>(() => logoutUser(), {
-    silent: true,
-    onSuccess: options?.onSuccess,
-  });
+export function useLogoutMutation() {
+  return useMutation(
+    () => logoutUser(),
+    { silent: true },
+  );
 }

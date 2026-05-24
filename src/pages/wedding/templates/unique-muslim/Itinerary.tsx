@@ -82,37 +82,33 @@ const Itinerary = ({ pageConfig }: ThemeProps) => {
               viewport={{ once: true, margin: "-40px" }}
               variants={fadeIn(si * 0.08)}
             >
-              {/* Section title bar */}
-              <motion.div
+              {/* Section title */}
+              <motion.p
                 variants={fadeUp(si * 0.08 + 0.05, 12, 0.6)}
-                className="bg-card/80 backdrop-blur-md rounded-2xl border border-primary/15 shadow-sm overflow-hidden"
+                className="text-2xs font-bold uppercase tracking-[0.2em] text-primary/70 mb-2"
               >
-                <div className="px-5 py-2.5 bg-primary/5 border-b border-primary/10">
-                  <p className="text-2xs font-bold uppercase tracking-[0.2em] text-primary/70">
-                    {section.title}
-                  </p>
-                </div>
+                {section.title}
+              </motion.p>
 
-                {/* Items */}
-                <div className="divide-y divide-primary/8">
-                  {section.items.map((item, ii) => (
-                    <motion.div
-                      key={ii}
-                      variants={fadeUp(si * 0.08 + ii * 0.06 + 0.1, 8, 0.5)}
-                      className="flex items-center justify-between gap-4 px-5 py-3"
-                    >
-                      <span className="um-countdown-number text-sm font-bold text-primary tabular-nums shrink-0">
-                        {item.time}
+              {/* Items */}
+              <div className="flex flex-col gap-1">
+                {section.items.map((item, ii) => (
+                  <motion.div
+                    key={ii}
+                    variants={fadeUp(si * 0.08 + ii * 0.06 + 0.1, 8, 0.5)}
+                    className="flex items-baseline justify-between gap-4"
+                  >
+                    <span className="um-countdown-number text-sm font-bold text-primary tabular-nums shrink-0">
+                      {item.time}
+                    </span>
+                    {item.label && (
+                      <span className="text-sm text-foreground/65 text-right leading-snug">
+                        {item.label}
                       </span>
-                      {item.label && (
-                        <span className="text-sm text-foreground/65 text-right leading-snug">
-                          {item.label}
-                        </span>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { fetchUserEvents, claimInvite, createEvent } from "./api"
-import type { EventsCount, ClaimInvitePayload, CreateEventPayload, CreateEventResult } from "./types"
+import type { Event, EventsCount, ClaimInvitePayload, CreateEventPayload } from "./types"
 import { getEventStatus } from "@/lib/utils/utils-time"
 
 export const eventsQueryKey = ["events"] as const
@@ -45,23 +45,29 @@ export function useClaimInviteMutation() {
           ? `Joined "${args.event_name}"`
           : `Declined invite to "${args.event_name}"`,
       errorMessage: (err) => err.message,
-      onSuccess: () => qc.invalidateQueries({ queryKey: eventsQueryKey }),
+      onSuccess: (_: void, args: ClaimInvitePayload) => {
+        qc.setQueryData<Event[]>(eventsQueryKey, (old) => {
+          if (!old) return old
+          if (args.action === "reject") return old.filter((e) => e.id !== args.event_id)
+          return old.map((e) => e.id === args.event_id ? { ...e, is_pending: false } : e)
+        })
+      },
     },
   )
 }
 
-export function useCreateEventMutation(options?: {
-  onSuccess?: (data: CreateEventResult) => void
-}) {
+export function useCreateEventMutation() {
   const qc = useQueryClient()
-  return useMutation<CreateEventPayload, CreateEventResult>(
-    (payload) => createEvent(payload),
+  return useMutation(
+    (payload: CreateEventPayload) => createEvent(payload),
     {
       silent: true,
-      onSuccess: (data) => {
-        qc.invalidateQueries({ queryKey: eventsQueryKey })
-        options?.onSuccess?.(data)
+      onSuccess: (result: Event) => {
+        qc.setQueryData<Event[]>(eventsQueryKey, (old) => [
+          ...(old ?? []),
+          result,
+        ])
       },
-    }
+    },
   )
 }

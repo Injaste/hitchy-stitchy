@@ -77,12 +77,18 @@ export function Hero() {
         animate="show"
         className="mt-14 flex flex-col sm:flex-row items-center gap-4"
       >
-        <Link to="/signup">
+        {/* <Link to="/signup">
           <Button size="lg" className="gap-2 min-w-44 text-base">
             Begin your story
             <ArrowRight className="w-4 h-4" />
           </Button>
-        </Link>
+        </Link> */}
+        <a href="#get-started">
+          <Button size="lg" className="gap-2 min-w-44 text-base">
+            Create Your Event
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </a>
         <Link to="/dashboard">
           <Button variant="outline" size="lg" className="min-w-44 text-base">
             Sign in

@@ -53,13 +53,7 @@ export interface CreateRoleData {
   role_short_name: string
 }
 
-export interface CreateEventPayload extends CreateEventData, CreateRoleData {}
-
-export interface CreateEventResult {
-  eventId: string
-  memberId: string
-  slug: string
-}
+export interface CreateEventPayload extends CreateEventData, CreateRoleData { }
 
 export const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/
 
@@ -87,7 +81,7 @@ export type StepEventFormValues = z.infer<typeof stepEventSchema>
 export const stepRoleSchema = z
   .object({
     role: z.string().min(1, "Please select a role to continue."),
-    customRole: z.union([z.string(), z.undefined()]),
+    customRole: z.string(),
   })
   .refine(
     (val) => val.role !== "Other" || (val.customRole ?? "").trim().length > 0,

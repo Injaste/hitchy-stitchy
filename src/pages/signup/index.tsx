@@ -56,24 +56,21 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
 
   const {
     mutateAsync: signup,
     isPending,
     error: mutationError,
-  } = useSignupMutation({
-    onSuccess: () => setSucceeded(true),
-  });
+  } = useSignupMutation();
 
   const form = useSignUpForm({
     onSubmit: async (value) => {
-      setSubmittedEmail(value.email);
       await signup({
         fullName: value.full_name,
         email: value.email,
         password: value.password,
       });
+      setSucceeded(true);
     },
   });
 
@@ -96,7 +93,7 @@ const Signup = () => {
             <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
               We've sent a confirmation link to{" "}
               <span className="text-foreground font-medium">
-                {submittedEmail}
+                {form.getFieldValue("email")}
               </span>
               . Check your inbox to activate your account.
             </p>

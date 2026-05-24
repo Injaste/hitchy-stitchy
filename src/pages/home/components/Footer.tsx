@@ -20,9 +20,12 @@ export function Footer() {
           Crafted with love for couples who care about every detail.
         </p>
         <div className="flex items-center gap-2">
-          <Link to="/signup">
+          {/* <Link to="/signup">
             <Button size="sm">Sign up</Button>
-          </Link>
+          </Link> */}
+          <a href="#get-started">
+            <Button size="sm">Subscribe Now</Button>
+          </a>
           <Link to="/dashboard">
             <Button variant="ghost" size="sm">
               Sign in

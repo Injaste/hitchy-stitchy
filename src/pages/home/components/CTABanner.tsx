@@ -1,12 +1,80 @@
-import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, ArrowBigDown, LoaderCircle } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
+
+import { FieldGroup } from "@/components/ui/field";
+import { FormShell, FieldShell } from "@/components/custom/form";
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupAddon,
+  InputGroupButton,
+} from "@/components/ui/input-group";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
+
 import { FloralSVG } from "./Decorations";
+import { useSubscribeMutation } from "@/pages/signup/queries";
+import {
+  subscribeSchema,
+  type SubscribeFormValues,
+} from "@/pages/signup/types";
+
+// ─── Form hook ────────────────────────────────────────────────────────────────
+
+interface UseSubscribeFormOpts {
+  onSubmit: (value: SubscribeFormValues) => Promise<void>;
+}
+
+const useSubscribeForm = ({ onSubmit }: UseSubscribeFormOpts) =>
+  useForm({
+    defaultValues: { email: "" },
+    validators: { onSubmit: subscribeSchema, onChange: subscribeSchema },
+    onSubmit: async ({ value }) => {
+      await onSubmit(value);
+    },
+  });
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function CTABanner() {
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const {
+    mutateAsync: subscribe,
+    isPending,
+    data: subscribed,
+    error,
+    reset,
+  } = useSubscribeMutation();
+
+  const form = useSubscribeForm({
+    onSubmit: async (value) => {
+      reset();
+      await subscribe({ email: value.email });
+    },
+  });
+
+  useEffect(() => {
+    const focus = () => {
+      if (window.location.hash === "#get-started") {
+        setTimeout(() => {
+          formRef.current
+            ?.querySelector<HTMLInputElement>("input[type=email]")
+            ?.focus();
+        }, 150);
+      }
+    };
+    focus();
+    window.addEventListener("hashchange", focus);
+    return () => window.removeEventListener("hashchange", focus);
+  }, []);
+
   return (
-    <section className="py-28 px-6 md:px-12 text-center relative overflow-hidden">
+    <section
+      id="get-started"
+      className="py-28 px-6 md:px-12 text-center relative overflow-hidden"
+    >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/6 blur-[80px]" />
       </div>
@@ -22,28 +90,78 @@ export function CTABanner() {
           <FloralSVG className="w-16 h-16" />
         </div>
 
-        <h2 className="font-bold text-4xl md:text-6xl text-foreground mb-6 max-w-2xl mx-auto leading-tight">
-          Your perfect day{" "}
-          <span className="text-primary italic">starts here.</span>
+        <h2 className="flex items-center justify-center gap-4 font-bold text-4xl md:text-6xl text-foreground mb-6 max-w-2xl mx-auto leading-tight">
+          Create Your Event
+          <ArrowBigDown className="size-16 text-primary animate-bounce" />
         </h2>
 
         <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-          Join couples who chose clarity over chaos. Plan every detail with elegance and confidence.
+          Join couples who chose clarity over chaos. Leave your email and we'll
+          let you know when we're ready for you.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link to="/signup">
-            <Button size="lg" className="gap-2 min-w-48 text-base">
-              Create your event
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link to="/dashboard">
-            <Button variant="outline" size="lg" className="min-w-48 text-base">
-              Already planning?
-            </Button>
-          </Link>
-        </div>
+        {subscribed ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center gap-3"
+          >
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 border border-primary/20">
+              <CheckCircle2 className="w-6 h-6 text-primary" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              You're on the list. We'll be in touch.
+            </p>
+          </motion.div>
+        ) : (
+          <div className="flex justify-center">
+            <div className="w-full max-w-sm">
+              <FormShell ref={formRef} form={form}>
+                <FieldGroup>
+                  <FieldShell name="email">
+                    {(field) => (
+                      <InputGroup>
+                        <InputGroupInput
+                          type="email"
+                          placeholder="your@email.com"
+                          autoComplete="email"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                        />
+                        <InputGroupAddon align="inline-end" className="p-1.25">
+                          <InputGroupButton
+                            type="submit"
+                            variant="default"
+                            size="sm"
+                            disabled={isPending}
+                            className="rounded-md rounded-l-none"
+                          >
+                            {isPending ? (
+                              <LoaderCircle className="animate-spin" />
+                            ) : (
+                              "Notify me"
+                            )}
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    )}
+                  </FieldShell>
+                  <form.Subscribe selector={(s) => s.submissionAttempts}>
+                    {(attempts) => (
+                      <AnimateItem
+                        hasError={Boolean(error)}
+                        error={error}
+                        attemptCount={attempts}
+                      />
+                    )}
+                  </form.Subscribe>
+                </FieldGroup>
+              </FormShell>
+            </div>
+          </div>
+        )}
       </motion.div>
     </section>
   );
