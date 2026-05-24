@@ -9,8 +9,8 @@ import useActivePage from "./hooks/useActivePage";
 
 import AdminSidebar from "./components/sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";
-import AdminSkeletonLayout from "./components/AdminSkeletonLayout";
 import AdminErrorLayout from "./components/AdminErrorLayout";
+import LoadingState from "@/components/custom/states/loading-state";
 import { PingModal } from "./modals/PingModal";
 import { ActiveCueModal } from "./modals/ActiveCueModal";
 
@@ -28,7 +28,7 @@ const AdminView = () => {
         </ComponentFade>
       ) : !isBootstrapped ? (
         <ComponentFade key="loading">
-          <AdminSkeletonLayout />
+          <LoadingState />
         </ComponentFade>
       ) : (
         <ComponentFade key="app">

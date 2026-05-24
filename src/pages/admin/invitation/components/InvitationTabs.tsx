@@ -20,7 +20,7 @@ const InvitationTabs = () => {
       tabOrder={TABS.map((t) => t.id)}
       className="gap-6"
     >
-      <TabsList activeValue={activeTab} className="w-full max-w-sm">
+      <TabsList activeValue={activeTab} className="w-full max-w-sm" aria-label="Invitation sections">
         {TABS.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id} className="flex-1 text-xs">
             {tab.label}

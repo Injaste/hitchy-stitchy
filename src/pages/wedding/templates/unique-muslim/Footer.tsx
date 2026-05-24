@@ -53,7 +53,7 @@ const Footer: FC<FooterProps> = ({
         <img
           className="w-full max-w-[260px] aspect-square object-contain mx-auto"
           src="/dannad.png"
-          alt="dannad"
+          alt="Hitchy Stitchy"
         />
       </motion.div>
     </motion.div>

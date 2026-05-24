@@ -30,7 +30,7 @@ export function SettingsTab() {
       tabOrder={TABS.map((t) => t.id)}
       className="gap-6"
     >
-      <TabsList activeValue={active}>
+      <TabsList activeValue={active} aria-label="Settings sections">
         {TABS.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id}>
             {tab.label}

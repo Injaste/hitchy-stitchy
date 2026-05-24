@@ -73,7 +73,7 @@ const TemplateGalleryCard = ({
     <Card className="relative aspect-9/10 overflow-hidden p-0 group">
       <div className="absolute inset-0 bg-linear-to-b from-primary/20 to-secondary/15 flex items-center justify-center">
         {/* <Sparkles className="h-12 w-12 text-muted-foreground/30" /> */}
-        <img src="/dannad.png" className="" />
+        <img src="/dannad.png" className="" alt="Template preview" />
       </div>
 
       {state === "published" && (

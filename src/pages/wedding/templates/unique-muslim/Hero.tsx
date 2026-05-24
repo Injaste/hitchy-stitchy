@@ -105,32 +105,32 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
           <div className="h-px flex-1 max-w-20 bg-linear-to-l from-transparent to-primary/50" />
         </motion.div>
 
-        <div className="mb-12">
-          <motion.h1
+        <h1 className="mb-12">
+          <motion.span
             variants={name1}
             className="um-couple-names text-[#66383b] italic tracking-wide leading-tight text-5xl"
           >
             {groom_name}
-          </motion.h1>
+          </motion.span>
 
-          <motion.div
+          <motion.span
             variants={amp}
             className="flex items-center justify-center gap-5 my-2"
           >
-            <div className="h-px flex-1 max-w-16 bg-primary/25" />
+            <span className="h-px flex-1 max-w-16 bg-primary/25" />
             <span className="text-xl font-light not-italic tracking-normal text-foreground/40">
               &amp;
             </span>
             <div className="h-px flex-1 max-w-16 bg-primary/25" />
-          </motion.div>
+          </motion.span>
 
-          <motion.h1
+          <motion.span
             variants={name2}
             className="um-couple-names text-[#66383b] italic tracking-wide leading-tight text-5xl"
           >
             {bride_name}
-          </motion.h1>
-        </div>
+          </motion.span>
+        </h1>
 
         {weddingDate && (
           <motion.div variants={countdown} className="mb-14">
