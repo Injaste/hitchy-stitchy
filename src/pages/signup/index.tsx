@@ -1,51 +1,62 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { UserPlus, Eye, EyeOff, Mail, CheckCircle2 } from "lucide-react";
+import { useForm } from "@tanstack/react-form";
+import { UserPlus, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import Logo from "@/components/custom/logo";
+
+import { FieldGroup } from "@/components/ui/field";
+import { FormShell, TextField, FieldShell, SubmitButton } from "@/components/custom/form";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { fadeUp, scaleIn } from "@/pages/admin/animations";
-import { useSignupMutation } from "./queries";
 import BackLink from "@/components/custom/back-link";
 
-export default function Signup() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [succeeded, setSucceeded] = useState(false);
+import { useSignupMutation } from "./queries";
+import { signUpSchema, type SignUpFormValues } from "./types";
 
-  const { mutate: signup, isPending } = useSignupMutation({
-    onSuccess: () => setSucceeded(true),
-    onError: (err) => {
-      setError(err.message);
-      setPassword("");
-      setConfirmPassword("");
+// ─── Form hook ────────────────────────────────────────────────────────────────
+
+interface UseSignUpFormOpts {
+  onSubmit: (value: SignUpFormValues) => Promise<void>;
+}
+
+export const useSignUpForm = ({ onSubmit }: UseSignUpFormOpts) =>
+  useForm({
+    defaultValues: { full_name: "", email: "", password: "", confirm_password: "" },
+    validators: {
+      onSubmit: signUpSchema,
+      onChange: signUpSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await onSubmit(value);
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+// ─── Component ────────────────────────────────────────────────────────────────
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      setPassword("");
-      setConfirmPassword("");
-      return;
-    }
+export default function Signup() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState("");
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
+  const { mutateAsync: signup, isPending, error: mutationError } = useSignupMutation({
+    onSuccess: () => setSucceeded(true),
+  });
 
-    signup({ fullName, email, password });
-  };
+  const form = useSignUpForm({
+    onSubmit: async (value) => {
+      setSubmittedEmail(value.email);
+      await signup({ fullName: value.full_name, email: value.email, password: value.password });
+    },
+  });
 
   if (succeeded) {
     return (
@@ -60,12 +71,10 @@ export default function Signup() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-6">
               <CheckCircle2 className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">
-              Account created!
-            </h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Account created!</h2>
             <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
               We've sent a confirmation link to{" "}
-              <span className="text-foreground font-medium">{email}</span>.
+              <span className="text-foreground font-medium">{submittedEmail}</span>.
               Check your inbox to activate your account.
             </p>
             <div className="flex flex-col gap-3">
@@ -83,21 +92,19 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <motion.div
           variants={scaleIn(0.1)}
           initial="hidden"
           animate="show"
           className="text-center mb-10"
         >
-          <Logo imageClassName="w-16 h-16" className="mb-4" />
+          <Logo className="w-16 h-16 mb-4" />
           <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             Wedding Planning Suite
           </p>
         </motion.div>
 
-        {/* Card */}
         <motion.div
           variants={fadeUp(0.15)}
           initial="hidden"
@@ -106,113 +113,94 @@ export default function Signup() {
         >
           <div className="flex items-center gap-2 mb-6">
             <UserPlus className="w-4 h-4 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground font-medium">
-              Create your account
-            </p>
+            <p className="text-sm text-muted-foreground font-medium">Create your account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              value={fullName}
-              onChange={(e) => {
-                setFullName(e.target.value);
-                if (error) setError("");
-              }}
-              placeholder="Full name"
-              autoFocus
-              autoComplete="name"
-            />
-
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (error) setError("");
-              }}
-              placeholder="Email"
-              autoComplete="email"
-            />
-
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (error) setError("");
-                }}
-                placeholder="Password"
-                className="pr-12"
-                autoComplete="new-password"
+          <FormShell form={form} className="space-y-4">
+            <FieldGroup>
+              <TextField
+                name="full_name"
+                label="Full name"
+                placeholder="Full name"
+                autoFocus
+                autoComplete="name"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setShowPassword((p) => !p)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
 
-            <div className="relative">
-              <Input
-                type={showConfirmPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  if (error) setError("");
-                }}
-                placeholder="Confirm password"
-                className="pr-12"
-                autoComplete="new-password"
+              <TextField
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="Email"
+                autoComplete="email"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => setShowConfirmPassword((p) => !p)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
+
+              <FieldShell name="password" label="Password">
+                {(field) => (
+                  <InputGroup>
+                    <InputGroupInput
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      autoComplete="new-password"
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupButton
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setShowPassword((p) => !p)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
                 )}
-              </Button>
-            </div>
+              </FieldShell>
 
-            {error && (
-              <motion.p
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-xs text-destructive font-medium"
-              >
-                {error}
-              </motion.p>
-            )}
+              <FieldShell name="confirm_password" label="Confirm password">
+                {(field) => (
+                  <InputGroup>
+                    <InputGroupInput
+                      type={showConfirm ? "text" : "password"}
+                      placeholder="Confirm password"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      autoComplete="new-password"
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupButton
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setShowConfirm((p) => !p)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
+                )}
+              </FieldShell>
 
-            <Button
-              type="submit"
-              disabled={
-                !fullName ||
-                !email ||
-                !password ||
-                !confirmPassword ||
-                isPending
-              }
-              className="w-full"
-            >
-              {isPending ? "Creating account..." : "Create Account"}
-            </Button>
-          </form>
+              <form.Subscribe selector={(s) => s.submissionAttempts}>
+                {(attempts) => (
+                  <AnimateItem
+                    hasError={Boolean(mutationError)}
+                    error={mutationError}
+                    attemptCount={attempts}
+                  />
+                )}
+              </form.Subscribe>
+            </FieldGroup>
+
+            <SubmitButton isPending={isPending} isError={Boolean(mutationError)}>
+              Create Account
+            </SubmitButton>
+          </FormShell>
         </motion.div>
 
         <motion.div
@@ -223,14 +211,10 @@ export default function Signup() {
         >
           <p className="text-xs text-muted-foreground">
             Already have an account?{" "}
-            <Link
-              to="/dashboard"
-              className="text-primary hover:underline font-medium"
-            >
+            <Link to="/dashboard" className="text-primary hover:underline font-medium">
               Sign in
             </Link>
           </p>
-
           <BackLink to="/" label="Back to Home" />
         </motion.div>
       </div>
