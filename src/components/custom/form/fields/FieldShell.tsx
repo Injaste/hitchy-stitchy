@@ -61,9 +61,7 @@ const FieldShell = ({
                 <FieldDescription>{description}</FieldDescription>
               )}
               <FieldContent>{children(field, hasError)}</FieldContent>
-              {hint && (
-                <FieldDescription className="-mt-1">{hint}</FieldDescription>
-              )}
+              {hint && <FieldDescription>{hint}</FieldDescription>}
             </Field>
           </AnimateItem>
         );

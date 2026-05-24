@@ -75,6 +75,16 @@ export const uniqueMuslimSchema = [
       { key: "background_image", label: "Background Image", type: "image", placeholder: "/image.png or https://..." },
     ],
   },
+  {
+    title: "Meta",
+    description: "Controls how this page appears in browser tabs and link previews when shared.",
+    fields: [
+      { key: "page_title", label: "Page Title", type: "text", placeholder: "e.g. The Wedding of Ahmad & Sarah", hint: "Shown in the browser tab and link previews. Leave blank to use the default." },
+      { key: "page_description", label: "Page Description", type: "textarea", placeholder: "A short message shown when this page is shared…", hint: "Shown in link previews on WhatsApp, Facebook, iMessage, etc." },
+      // TODO: support type: "image" with native upload once the field renderer handles it. For now, accept a pasted URL.
+      { key: "og_image", label: "Social Share Image URL", type: "text", placeholder: "https://…/share-image.jpg", hint: "Paste a link to an image (1200×630 works best). Falls back to the background image if blank." },
+    ],
+  },
 ] as const satisfies ThemeFieldGroup[]
 
 type ExtractKeys<T extends readonly ThemeFieldGroup[]> =

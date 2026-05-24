@@ -103,7 +103,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
         >
           <div className="h-px w-8 bg-accent/50" />
 
-          <p className="text-2xs tracking-[0.3em] text-foreground uppercase font-light">
+          <p className="text-2xs tracking-[0.3em] text-foreground/80 uppercase font-light">
             Please wait while we prepare your invitation
           </p>
         </motion.div>
