@@ -1,8 +1,9 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import AdminRoutes from "./routes/AdminRoutes";
+import LoadingState from "@/components/custom/states/loading-state";
 
 const Home = lazy(() => import("@/pages/home"));
 const Signup = lazy(() => import("@/pages/signup"));
@@ -14,7 +15,6 @@ const standaloneRoutes = [
   { path: "/", element: Home, fade: true },
   { path: "/signup", element: Signup, fade: true },
   { path: "/dashboard", element: Dashboard, fade: true },
-  { path: "/create-event", element: CreateEvent, fade: true },
   { path: "/:slug", element: Templates, fade: false },
 ];
 
@@ -26,7 +26,7 @@ const AppRoutes = () => {
     : rootSegment;
 
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<LoadingState />}>
       <AnimatePresence mode="wait">
         <Routes location={location} key={animationKey}>
           {standaloneRoutes.map(({ path, element: Component, fade }) => (

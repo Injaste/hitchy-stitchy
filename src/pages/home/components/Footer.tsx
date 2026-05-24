@@ -10,18 +10,23 @@ export function Footer() {
       <ShareRow />
 
       <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
-        <Logo imageClassName="w-5 h-5" brandClassName="text-sm" showName direction="row" />
+        <Logo
+          imageClassName="w-5 h-5"
+          brandClassName="text-sm"
+          showName
+          direction="row"
+        />
         <p className="text-xs text-muted-foreground text-center">
           Crafted with love for couples who care about every detail.
         </p>
         <div className="flex items-center gap-2">
           <Link to="/signup">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              Sign up
-            </Button>
+            <Button size="sm">Sign up</Button>
           </Link>
           <Link to="/dashboard">
-            <Button size="sm">Sign in</Button>
+            <Button variant="ghost" size="sm">
+              Sign in
+            </Button>
           </Link>
         </div>
       </div>
