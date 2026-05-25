@@ -51,16 +51,13 @@ const AnchorItem = ({ item, classNames, onAction }: AnchorItemProps) => {
       type="button"
       onClick={handleClick}
       className={cn(
-        "flex flex-1 flex-col items-center justify-center gap-1 py-2 transition-opacity hover:opacity-80 active:opacity-60",
+        "flex flex-1 flex-col items-center justify-center gap-1 py-2 transition-opacity hover:opacity-80 active:opacity-60 cursor-pointer",
         classNames.item,
       )}
     >
       <Icon className={cn("size-5", classNames.icon)} />
       <span
-        className={cn(
-          "text-3xs uppercase tracking-[0.2em]",
-          classNames.label,
-        )}
+        className={cn("text-3xs uppercase tracking-[0.2em]", classNames.label)}
       >
         {item.label}
       </span>
