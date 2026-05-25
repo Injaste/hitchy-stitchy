@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 
-const OPEN_DURATION_S = 1;
-const HOLD_MS = 1000;
+const OPEN_DURATION_S = 2;
+const HOLD_MS = 1200;
 const EASE = [0.7, 0, 0.2, 1] as const;
 
 const leftHalfVariants: Variants = {

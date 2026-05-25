@@ -23,7 +23,10 @@ interface ThemeSheetPreviewProps {
   entered?: boolean;
 }
 
-const ThemeSheetPreview = ({ theme, entered = false }: ThemeSheetPreviewProps) => {
+const ThemeSheetPreview = ({
+  theme,
+  entered = false,
+}: ThemeSheetPreviewProps) => {
   const draft = useThemeSheetStore((s) => s.draft);
   const deferredDraft = useDeferredValue(draft);
   const { data: invitation } = useInvitationQuery();
@@ -45,7 +48,7 @@ const ThemeSheetPreview = ({ theme, entered = false }: ThemeSheetPreviewProps) =
         onClick={() => setFrameKey((k) => k + 1)}
       >
         <RotateCcw className="size-3" />
-        Replay
+        Refresh Preview
       </Button>
 
       <AnimatePresence mode="wait">

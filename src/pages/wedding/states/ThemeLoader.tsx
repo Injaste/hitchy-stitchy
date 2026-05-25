@@ -12,7 +12,6 @@ const CONTENT_DELAY = 0.8;
 const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
   loadedCompleted,
 }) => {
-  const headingRef = useRef(null);
   const animationDone = useRef(false);
 
   const tryComplete = () => {
@@ -23,34 +22,6 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
       window.addEventListener("load", loadedCompleted, { once: true });
     }
   };
-
-  useEffect(() => {
-    if (!headingRef.current) return;
-
-    // 1. Split the text
-    const text = new SplitType(headingRef.current, {
-      types: "words,chars",
-      tagName: "span",
-      wordClass: "inline-block",
-    });
-
-    const chars = Array.from(
-      (headingRef.current as HTMLElement).querySelectorAll<HTMLElement>(
-        ".char",
-      ),
-    );
-    animate(
-      chars,
-      { y: [100, 0], rotateZ: [10, 0] },
-      {
-        delay: stagger(0.03, { startDelay: CONTENT_DELAY + 0.5 }),
-        duration: 1,
-        ease: [0.2, 1, 0.3, 1],
-      },
-    );
-
-    return () => text.revert();
-  }, []);
 
   return (
     <div>
@@ -80,20 +51,10 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           </div>
         </motion.div>
 
-        {/* Heading Section with Split-Type */}
-        {/* <h1
-          ref={headingRef}
-          className="text-primary text-4xl md:text-6xl font-serif font-light leading-[1.1] sm:mb-3 text-balance"
-        >
-          <span className="overflow-hidden">The Celebration of</span>
-          <i className="overflow-hidden">Our Eternal Love</i>
-        </h1> */}
-
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          // transition={{ duration: 1, delay: CONTENT_DELAY + 1.5 }}
-          transition={{ duration: 1, delay: CONTENT_DELAY + 1 }}
+          transition={{ duration: 1, delay: CONTENT_DELAY + 0.2 }}
           className="mt-10 flex flex-col items-center gap-4"
           onAnimationComplete={() => {
             animationDone.current = true;
