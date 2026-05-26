@@ -53,7 +53,10 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
     title: muslim?.page_title?.trim() || composedTitle,
     description: muslim?.page_description?.trim() || DEFAULT_DESCRIPTION,
     image: muslim?.og_image?.trim() || muslim?.background_image?.trim() || null,
-    url: !isPreview && slug ? `https://${import.meta.env.VITE_BASE_URL}/${slug}` : null,
+    url:
+      !isPreview && slug
+        ? `https://${import.meta.env.VITE_BASE_URL}/${slug}`
+        : null,
   });
 
   const hasError = !isPreview && !!error;
