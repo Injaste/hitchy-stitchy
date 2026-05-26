@@ -179,6 +179,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
       />
 
       <AnchorBar
+        ready={ready}
         items={uniqueMuslimAnchors.items.filter(
           (item) => !item.when || item.when(config ?? {}),
         )}

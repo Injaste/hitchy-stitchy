@@ -8,9 +8,16 @@ interface AnchorBarProps {
   classNames: AnchorClassNames;
   labels: AnchorLabels;
   onAction?: (name: string) => void;
+  ready: boolean;
 }
 
-const AnchorBar = ({ items, classNames, labels, onAction }: AnchorBarProps) => {
+const AnchorBar = ({
+  items,
+  classNames,
+  labels,
+  onAction,
+  ready,
+}: AnchorBarProps) => {
   if (!items.length) return null;
 
   return (
@@ -18,8 +25,8 @@ const AnchorBar = ({ items, classNames, labels, onAction }: AnchorBarProps) => {
       id="itinerary"
       aria-label={labels.ariaLabel ?? "Page navigation"}
       initial={{ opacity: 0, y: 32 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+      animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 5 }}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       className={cn(
         "fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 flex items-stretch justify-around",
