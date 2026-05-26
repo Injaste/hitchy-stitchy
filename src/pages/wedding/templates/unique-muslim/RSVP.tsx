@@ -111,63 +111,53 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
         loop={false}
         style={{ width: 80, height: 80, margin: "0 auto" }}
       />
-      <AnimatePresence>
-        {!submitted && (
-          <motion.div
-            key="success-content"
-            initial={submitted ? { opacity: 0, y: 12 } : false}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <h3 className="text-xl font-bold my-3 text-foreground">
-              {rsvp_success_heading}
-            </h3>
-            <motion.p
-              initial={submitted ? { opacity: 0 } : false}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-              className="text-foreground/70 leading-relaxed italic mb-6 text-sm"
+      <motion.div
+        key="success-content"
+        initial={submitted ? { opacity: 0, y: 12 } : false}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <h3 className="text-xl font-bold my-3 text-foreground">
+          {rsvp_success_heading}
+        </h3>
+        <motion.p
+          initial={submitted ? { opacity: 0 } : false}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+          className="text-foreground/70 leading-relaxed italic mb-6 text-sm"
+        >
+          {eventConfig.confirmation_message}
+        </motion.p>
+        <motion.div
+          initial={submitted ? { opacity: 0 } : false}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
+          className="flex gap-3 justify-center"
+        >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
             >
-              {eventConfig.confirmation_message}
-            </motion.p>
-            <motion.div
-              initial={submitted ? { opacity: 0 } : false}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
-              className="flex gap-3 justify-center"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(true)}
-                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
-                >
-                  <Edit2 size={14} className="text-primary" /> Edit
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={remove.isPending}
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
-                >
-                  <Trash2 size={14} className="text-primary" />
-                  {remove.isPending ? "Removing…" : "Delete"}
-                </Button>
-              </motion.div>
-            </motion.div>
+              <Edit2 size={14} className="text-primary" /> Edit
+            </Button>
           </motion.div>
-        )}
-      </AnimatePresence>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={remove.isPending}
+              onClick={() => setShowDeleteDialog(true)}
+              className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
+            >
+              <Trash2 size={14} className="text-primary" />
+              {remove.isPending ? "Removing…" : "Delete"}
+            </Button>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 
