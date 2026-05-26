@@ -68,10 +68,10 @@ export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmis
 export async function updateRSVP(payload: UpdateRSVPPayload): Promise<void> {
   const { error } = await supabase.rpc("update_rsvp", {
     p_event_id: payload.event_id,
+    p_phone: payload.phone,
     p_token: payload.token,
     p_fields: {
       name: payload.name,
-      phone: payload.phone,
       guest_count: payload.guest_count,
       message: payload.message,
     },

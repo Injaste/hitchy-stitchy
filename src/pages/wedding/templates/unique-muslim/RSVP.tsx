@@ -141,7 +141,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsEditing(true)}
-                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
                 >
                   <Edit2 size={14} className="text-primary" /> Edit
                 </Button>
@@ -155,7 +155,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
                   size="sm"
                   disabled={remove.isPending}
                   onClick={() => setShowDeleteDialog(true)}
-                  className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                  className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
                 >
                   <Trash2 size={14} className="text-primary" />
                   {remove.isPending ? "Removing…" : "Delete"}

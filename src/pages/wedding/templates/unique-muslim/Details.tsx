@@ -262,7 +262,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase h-10 px-5"
+                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase h-10 px-5"
                 >
                   <a
                     href={googleCalendarUrl}
@@ -303,7 +303,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               variants={fadeUp(0.15, 10, 0.6)}
               className="p-4 pb-2 flex flex-col items-center justify-between gap-3"
             >
-              <p className="text-foreground/70 italic text-xs text-center">
+              <p className="text-foreground/70 italic text-sm text-center">
                 {venue_address}
               </p>
               {venue_map_link && (
@@ -315,7 +315,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-xs tracking-wide uppercase shrink-0"
+                    className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
                   >
                     <a
                       href={venue_map_link}

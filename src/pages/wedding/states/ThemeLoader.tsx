@@ -41,12 +41,16 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           transition={{ duration: 1, delay: CONTENT_DELAY }}
           className="flex flex-col items-center justify-center gap-4 mb-8"
         >
-          <Logo imageClassName="w-10 h-10" brandClassName="text-sm" showBrand />
-          <div className="-my-6">
+          <Logo
+            imageClassName="w-32 h-32"
+            brandClassName="text-2xl"
+            showBrand
+          />
+          <div className="-my-10">
             <Lottie
               animationData={loveParticle}
               loop
-              style={{ width: 80, height: 80 }}
+              style={{ width: 120, height: 120 }}
             />
           </div>
         </motion.div>
@@ -63,7 +67,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
         >
           <div className="h-px w-8 bg-accent/50" />
 
-          <p className="text-2xs tracking-[0.3em] text-foreground/80 uppercase font-light">
+          <p className="text-sm tracking-[0.3em] text-foreground/80 uppercase font-light">
             Please wait while we prepare your invitation
           </p>
         </motion.div>

@@ -14,6 +14,7 @@ import {
   parseGoogleFontUrl,
   cssFontFamily,
 } from "@/pages/wedding/templates/utils/google-font-url";
+import { motion } from "framer-motion";
 
 const STYLE_ATTR = "data-um-styles";
 const FONT_ATTR = "data-um-font";
@@ -30,7 +31,9 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
 
   const fontUrls = useMemo(
     () =>
-      [couple?.url, heading?.url, body?.url, number?.url].filter((u): u is string => !!u),
+      [couple?.url, heading?.url, body?.url, number?.url].filter(
+        (u): u is string => !!u,
+      ),
     [couple?.url, heading?.url, body?.url, number?.url],
   );
 
@@ -71,29 +74,109 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   }, [frameDoc, fontUrls]);
 
   const rootStyle = {
-    ...(couple  && { "--theme-font-couple":  cssFontFamily(couple.family,  couple.generic)  }),
-    ...(heading && { "--theme-font-heading": cssFontFamily(heading.family, heading.generic) }),
-    ...(body    && { "--theme-font-body":    cssFontFamily(body.family,    body.generic)    }),
-    ...(number  && { "--theme-font-number":  cssFontFamily(number.family,  number.generic)  }),
+    ...(couple && {
+      "--theme-font-couple": cssFontFamily(couple.family, couple.generic),
+    }),
+    ...(heading && {
+      "--theme-font-heading": cssFontFamily(heading.family, heading.generic),
+    }),
+    ...(body && {
+      "--theme-font-body": cssFontFamily(body.family, body.generic),
+    }),
+    ...(number && {
+      "--theme-font-number": cssFontFamily(number.family, number.generic),
+    }),
   } as CSSProperties;
 
   return (
-    <div className="um-root" style={rootStyle}>
+    <motion.div
+      className="um-root"
+      style={rootStyle}
+      initial={{ backgroundColor: "#ffffff" }}
+      animate={{ backgroundColor: ready ? "#f4ead3" : "#ffffff" }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
       <EnvelopePreloader
         loaderReady={!!loaderReady}
         onExitComplete={() => setReady(true)}
       />
-      <img
-        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md h-full object-contain object-center opacity-50 -z-10 blur-sm"
+      <motion.img
+        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md h-full object-contain object-center opacity-50"
         src={bgImage}
         alt=""
+        animate={{ filter: ready ? "blur(8px)" : "blur(0px)" }}
+        transition={{ duration: 1, delay: 1 }}
       />
-      <FloatingIcons />
-
+      {/* <FloatingIcons /> */}
       <Hero eventConfig={eventConfig} pageConfig={pageConfig} ready={ready} />
       <Details eventConfig={eventConfig} pageConfig={pageConfig} />
       <Itinerary eventConfig={eventConfig} pageConfig={pageConfig} />
       <RSVP eventConfig={eventConfig} pageConfig={pageConfig} />
+
+      <motion.img
+        src="/images/background/bg-flower-1.png"
+        alt=""
+        className="fixed left-0 right-0 top-0 rotate-180 w-[101%] scale-101 -translate-x-[0.5%]"
+        initial={{ y: "100%", opacity: 0 }}
+        animate={
+          ready
+            ? {
+                opacity: 1,
+                y: 0,
+                rotate: [0, 0.6, -0.4, 0.3, 0],
+                skewX: [0, 0.5, -0.3, 0.2, 0],
+              }
+            : {}
+        }
+        transition={{
+          y: { duration: 1.2, ease: "easeOut" },
+          opacity: { duration: 1.2, ease: "easeOut" },
+          rotate: {
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            times: [0, 0.3, 0.6, 0.8, 1],
+          },
+          skewX: {
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            times: [0, 0.3, 0.6, 0.8, 1],
+          },
+        }}
+      />
+      <motion.img
+        src="/images/background/bg-flower-1.png"
+        alt=""
+        className="fixed left-0 right-0 bottom-0 w-[101%] scale-101 -translate-x-[0.5%]"
+        initial={{ y: "100%", opacity: 0 }}
+        animate={
+          ready
+            ? {
+                y: 0,
+                opacity: 1,
+                rotate: [0, 0.6, -0.4, 0.3, 0],
+                skewX: [0, 0.5, -0.3, 0.2, 0],
+              }
+            : {}
+        }
+        transition={{
+          y: { duration: 1.2, ease: "easeOut" },
+          opacity: { duration: 1.2, ease: "easeOut" },
+          rotate: {
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            times: [0, 0.3, 0.6, 0.8, 1],
+          },
+          skewX: {
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            times: [0, 0.3, 0.6, 0.8, 1],
+          },
+        }}
+      />
 
       <AnchorBar
         items={uniqueMuslimAnchors.items.filter(
@@ -102,7 +185,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         classNames={uniqueMuslimAnchors.classNames}
         labels={uniqueMuslimAnchors.labels}
       />
-    </div>
+    </motion.div>
   );
 };
 

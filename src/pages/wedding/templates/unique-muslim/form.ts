@@ -8,7 +8,7 @@ import type {
 export const rsvpClassNames: RSVPFormClassNames = {
   fieldGroup: "gap-5",
   fieldLabel:
-    "text-2xs font-bold uppercase tracking-widest text-muted-foreground",
+    "text-sm font-bold uppercase tracking-widest text-muted-foreground",
   fieldRequiredMark: "text-destructive ml-0.5",
   fieldOptionalMark: "ml-1 normal-case tracking-normal font-normal",
   inputGroup: "gap-1 h-12 rounded-full bg-muted/40 border-border px-1.5",
@@ -20,12 +20,12 @@ export const rsvpClassNames: RSVPFormClassNames = {
   inputAddon: "mt-0.5",
   inputAddonTextarea: "self-start mt-2.5",
   inputIcon: "text-primary/40",
-  fieldError: "text-2xs font-bold uppercase tracking-wide",
+  fieldError: "text-sm font-bold uppercase tracking-wide",
   actions: "flex flex-col gap-2.5 pt-2",
   submit:
-    "h-12 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-widest text-xs sm:text-sm shadow-lg hover:bg-primary/90 disabled:opacity-60 transition-all mt-8",
+    "h-12 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-widest text-sm sm:text-sm shadow-lg hover:bg-primary/90 disabled:opacity-60 transition-all mt-8",
   cancel:
-    "h-12 rounded-full text-xs font-bold text-muted-foreground uppercase tracking-widest hover:bg-primary/10",
+    "h-12 rounded-full text-sm font-bold text-muted-foreground uppercase tracking-widest hover:bg-primary/10",
   fields: {
     guestCount: {
       input:

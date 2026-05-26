@@ -12,12 +12,14 @@ const T = {
   verse: 2.8,
 };
 
+const baseDelay = 1.5;
+
 const make = (delay: number, y = 20, duration = 0.7): Variants => ({
   hidden: { opacity: 0, y },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration, delay, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration, delay: delay + baseDelay, ease: [0.16, 1, 0.3, 1] },
   },
 });
 
@@ -146,7 +148,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
             <p className="text-foreground leading-relaxed text-base whitespace-pre-line">
               {quote}
             </p>
-            <span className="block mt-3 text-foreground/80 text-xs tracking-widest uppercase font-medium">
+            <span className="block mt-3 text-foreground/80 text-sm tracking-widest uppercase font-medium">
               {quote_source}
             </span>
           </div>
