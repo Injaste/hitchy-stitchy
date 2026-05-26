@@ -53,7 +53,7 @@ function parseItinerary(raw: string | null | undefined): ItinerarySection[] {
 
 const Itinerary = ({ pageConfig }: ThemeProps) => {
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
-  const { itinerary_title = "Programme", itinerary } = config ?? {};
+  const { itinerary, footnote } = config ?? {};
 
   const sections = parseItinerary(itinerary);
   if (!sections.length) return null;
@@ -83,7 +83,7 @@ const Itinerary = ({ pageConfig }: ThemeProps) => {
               </motion.p>
 
               {/* Items */}
-              <div className="flex flex-col max-w-44 mx-auto w-full">
+              <div className="flex flex-col max-w-3xs mx-auto w-full">
                 {section.items.map((item, ii) => (
                   <motion.div
                     key={ii}
@@ -106,6 +106,18 @@ const Itinerary = ({ pageConfig }: ThemeProps) => {
               </div>
             </motion.div>
           ))}
+          {footnote && (
+            <motion.span
+              key="footnote"
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-40px" }}
+              variants={fadeIn(sections.length * 0.08)}
+              className="text-sm text-center leading-snug italic"
+            >
+              {footnote}
+            </motion.span>
+          )}
         </div>
       </div>
     </section>

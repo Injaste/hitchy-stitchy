@@ -51,17 +51,29 @@ const deriveMapEmbedUrl = (
   mapLink: string | null | undefined,
 ): string | null => {
   if (!mapLink) return null;
+
   try {
     const url = new URL(mapLink);
-    const atMatch = url.pathname.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (atMatch)
-      return `https://maps.google.com/maps?q=${atMatch[1]},${atMatch[2]}&output=embed`;
+
+    // 1. Check for standard 'q' query parameter (e.g., a specific business, city, or address)
     const q = url.searchParams.get("q");
-    if (q)
+    if (q) {
       return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+    }
+
+    // 2. Check for coordinates in the pathname (e.g., /maps/@40.7128,-74.0060,14z)
+    const atMatch = url.pathname.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (atMatch) {
+      const lat = atMatch[1];
+      const lng = atMatch[2];
+      // Passing coordinates directly into the 'q' param works flawlessly with &output=embed
+      return `https://maps.google.com/maps?q=${lat},${lng}&output=embed`;
+    }
   } catch {
+    // Return null if the incoming string isn't a valid URL format
     return null;
   }
+
   return null;
 };
 
@@ -303,7 +315,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               variants={fadeUp(0.15, 10, 0.6)}
               className="p-4 pb-2 flex flex-col items-center justify-between gap-3"
             >
-              <p className="text-foreground/70 italic text-sm text-center">
+              <p className="text-foreground/70 italic text-sm text-center whitespace-pre-line">
                 {venue_address}
               </p>
               {venue_map_link && (

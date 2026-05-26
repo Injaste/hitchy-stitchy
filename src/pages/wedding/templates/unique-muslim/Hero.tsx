@@ -81,7 +81,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
   return (
     <section
       id="hero"
-      className="relative min-h-svh flex flex-col items-center justify-center text-center py-10 px-4 overflow-hidden bg-white/10"
+      className="relative min-h-svh flex flex-col items-center justify-center text-center pb-10 pt-20 px-4 overflow-hidden bg-white/10"
     >
       <motion.div
         initial="hidden"

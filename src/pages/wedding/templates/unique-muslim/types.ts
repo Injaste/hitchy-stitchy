@@ -67,6 +67,7 @@ export const uniqueMuslimSchema = [
         placeholder: "Nikah Ceremony\n10:00 AM | Akad Nikah\n10:30 AM | Solemnization\n\nReception\n12:00 PM",
         hint: "Separate sections with a blank line. First line of each block is the section title. Each entry: time | label (label is optional).",
       },
+      { key: "footnote", label: "Footnote", type: "text", default: "Meals are all Halal", placeholder: "e.g. Meals are all Halal" },
     ],
   },
   {
