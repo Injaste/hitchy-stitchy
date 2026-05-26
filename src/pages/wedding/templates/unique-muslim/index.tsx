@@ -116,7 +116,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
       <motion.img
         src="/images/background/bg-flower-1.png"
         alt=""
-        className="fixed left-0 right-0 top-0 rotate-180 w-[101%] scale-101 -translate-x-[0.5%]"
+        className="fixed left-0 right-0 top-0 rotate-180 w-[101%] scale-101 max-w-md mx-auto"
         initial={{ y: "100%", opacity: 0 }}
         animate={
           ready
@@ -148,7 +148,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
       <motion.img
         src="/images/background/bg-flower-1.png"
         alt=""
-        className="fixed left-0 right-0 bottom-0 w-[101%] scale-101 -translate-x-[0.5%]"
+        className="fixed left-0 right-0 bottom-0 w-[101%] max-w-md mx-auto scale-101"
         initial={{ y: "100%", opacity: 0 }}
         animate={
           ready
