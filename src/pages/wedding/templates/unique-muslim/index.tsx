@@ -101,7 +101,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         onExitComplete={() => setReady(true)}
       />
       <motion.img
-        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md h-full object-contain object-center opacity-50"
+        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md h-dvh object-contain object-center opacity-50"
         src={bgImage}
         alt=""
         animate={{ filter: ready ? "blur(8px)" : "blur(0px)" }}

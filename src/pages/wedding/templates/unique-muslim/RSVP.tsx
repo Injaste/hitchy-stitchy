@@ -51,7 +51,6 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [tickDone, setTickDone] = useState(false);
 
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const {
@@ -76,7 +75,6 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
     } else {
       await submit.mutate(value);
       setSubmitted(true);
-      setTickDone(false);
     }
     setIsEditing(false);
     fireConfetti();
@@ -105,11 +103,10 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
       <Lottie
         animationData={successCheck}
         loop={false}
-        onComplete={() => setTickDone(true)}
         style={{ width: 80, height: 80, margin: "0 auto" }}
       />
       <AnimatePresence>
-        {(tickDone || !submitted) && (
+        {!submitted && (
           <motion.div
             key="success-content"
             initial={submitted ? { opacity: 0, y: 12 } : false}
