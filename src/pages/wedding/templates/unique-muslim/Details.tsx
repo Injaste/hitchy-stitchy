@@ -182,7 +182,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           </motion.h3>
           <motion.p
             variants={fadeUp(0.25, 16, 0.8)}
-            className="text-sm text-foreground/70 leading-relaxed max-w-2xl mx-auto"
+            className="text-foreground/70 leading-relaxed max-w-2xl mx-auto"
           >
             {invitation_body}
           </motion.p>
@@ -196,10 +196,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             viewport={{ once: true, margin: "-60px" }}
             className="mb-14"
           >
-            <motion.p
-              variants={fadeIn(0)}
-              className="text-foreground/70 text-sm mb-3"
-            >
+            <motion.p variants={fadeIn(0)} className="text-foreground/70 mb-3">
               {blessings_prefix}
             </motion.p>
             {blessings_name && (
@@ -213,7 +210,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             {blessings_label && (
               <motion.p
                 variants={fadeUp(0.2, 12, 0.7)}
-                className="text-foreground/70 text-sm"
+                className="text-foreground/70"
               >
                 {blessings_label}
               </motion.p>
@@ -274,7 +271,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase h-10 px-5"
+                  className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold tracking-wide uppercase h-10 px-5"
                 >
                   <a
                     href={googleCalendarUrl}
@@ -315,7 +312,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               variants={fadeUp(0.15, 10, 0.6)}
               className="p-4 pb-2 flex flex-col items-center justify-between gap-3"
             >
-              <p className="text-foreground/70 italic text-sm text-center whitespace-pre-line">
+              <p className="text-foreground/70 italic text-center whitespace-pre-line">
                 {venue_address}
               </p>
               {venue_map_link && (
@@ -327,7 +324,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
+                    className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold tracking-wide uppercase shrink-0"
                   >
                     <a
                       href={venue_map_link}

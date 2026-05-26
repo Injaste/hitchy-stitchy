@@ -37,13 +37,13 @@ const Footer: FC<FooterProps> = ({
       />
       <motion.p
         variants={fadeUp(0.1, 12, 0.7)}
-        className="mb-3 italic text-muted-foreground text-sm"
+        className="mb-3 italic text-foreground text-sm"
       >
         {footer_tagline}
       </motion.p>
       <motion.h2
         variants={fadeUp(0.2, 16, 0.8)}
-        className="um-couple-names text-[#66383b] italic tracking-wide leading-tight text-3xl flex flex-col"
+        className="um-couple-names text-[#66383b] italic tracking-wide leading-tight text-4xl flex flex-col"
       >
         <span>{groom_name}</span>
         <span>&</span>

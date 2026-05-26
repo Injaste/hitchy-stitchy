@@ -98,7 +98,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="text-center text-foreground/70 italic text-sm leading-relaxed py-8"
+      className="text-center text-foreground/70 italic leading-relaxed py-8"
     >
       {message}
     </motion.p>
@@ -117,14 +117,14 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h3 className="text-xl font-bold my-3 text-foreground">
+        <h3 className="text-2xl font-bold my-3 text-foreground">
           {rsvp_success_heading}
         </h3>
         <motion.p
           initial={submitted ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-          className="text-foreground/70 leading-relaxed italic mb-6 text-sm"
+          className="text-foreground/70 leading-relaxed italic mb-6"
         >
           {eventConfig.confirmation_message}
         </motion.p>
@@ -139,7 +139,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               variant="outline"
               size="sm"
               onClick={() => setIsEditing(true)}
-              className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
+              className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold tracking-wide uppercase shrink-0"
             >
               <Edit2 size={14} className="text-primary" /> Edit
             </Button>
@@ -150,7 +150,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               size="sm"
               disabled={remove.isPending}
               onClick={() => setShowDeleteDialog(true)}
-              className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold text-sm tracking-wide uppercase shrink-0"
+              className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold tracking-wide uppercase shrink-0"
             >
               <Trash2 size={14} className="text-primary" />
               {remove.isPending ? "Removing…" : "Delete"}
@@ -213,7 +213,11 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   }
 
   return (
-    <section ref={sectionRef} id="rsvp" className="pt-20 pb-10 px-4 relative bg-white/10 z-10">
+    <section
+      ref={sectionRef}
+      id="rsvp"
+      className="pt-20 pb-10 px-4 relative bg-white/10 z-10"
+    >
       <div className="max-w-sm mx-auto">
         <motion.div
           layout
@@ -240,7 +244,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
             </motion.h2>
             <motion.p
               variants={fadeUp(0.25, 12, 0.7)}
-              className="text-muted-foreground italic text-sm"
+              className="text-muted-foreground italic"
             >
               {rsvp_subtitle}
             </motion.p>

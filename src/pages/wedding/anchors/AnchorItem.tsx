@@ -57,7 +57,7 @@ const AnchorItem = ({ item, classNames, onAction }: AnchorItemProps) => {
     >
       <Icon className={cn("size-5", classNames.icon)} />
       <span
-        className={cn("text-3xs uppercase tracking-[0.2em]", classNames.label)}
+        className={cn("text-2xs uppercase tracking-[0.2em]", classNames.label)}
       >
         {item.label}
       </span>

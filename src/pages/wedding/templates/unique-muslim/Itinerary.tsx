@@ -93,11 +93,9 @@ const Itinerary = ({ pageConfig }: ThemeProps) => {
                       item.label ? "justify-between" : "justify-center",
                     )}
                   >
-                    <span className="text-sm tabular-nums shrink-0">
-                      {item.time}
-                    </span>
+                    <span className="tabular-nums shrink-0">{item.time}</span>
                     {item.label && (
-                      <span className="text-sm text-right leading-snug">
+                      <span className="text-right leading-snug">
                         {item.label}
                       </span>
                     )}
@@ -113,7 +111,7 @@ const Itinerary = ({ pageConfig }: ThemeProps) => {
               whileInView="show"
               viewport={{ once: true, margin: "-40px" }}
               variants={fadeIn(sections.length * 0.08)}
-              className="text-sm text-center leading-snug italic"
+              className="text-center leading-snug italic"
             >
               {footnote}
             </motion.span>

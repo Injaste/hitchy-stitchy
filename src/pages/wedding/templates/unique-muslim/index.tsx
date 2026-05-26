@@ -15,6 +15,8 @@ import {
   cssFontFamily,
 } from "@/pages/wedding/templates/utils/google-font-url";
 import { motion } from "framer-motion";
+import BackgroundImage from "./BackgroundImage";
+import BackgroundFlowers from "./BackgroundFlowers";
 
 const STYLE_ATTR = "data-um-styles";
 const FONT_ATTR = "data-um-font";
@@ -100,83 +102,14 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         loaderReady={!!loaderReady}
         onExitComplete={() => setReady(true)}
       />
-      <motion.img
-        className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-md h-dvh object-contain object-center opacity-50"
-        src={bgImage}
-        alt=""
-        animate={{ filter: ready ? "blur(8px)" : "blur(0px)" }}
-        transition={{ duration: 1, delay: 1 }}
-      />
+      <BackgroundImage src={bgImage} ready={ready} />
       {/* <FloatingIcons /> */}
       <Hero eventConfig={eventConfig} pageConfig={pageConfig} ready={ready} />
       <Details eventConfig={eventConfig} pageConfig={pageConfig} />
       <Itinerary eventConfig={eventConfig} pageConfig={pageConfig} />
       <RSVP eventConfig={eventConfig} pageConfig={pageConfig} />
 
-      <motion.img
-        src="/images/background/bg-flower-1.png"
-        alt=""
-        className="fixed left-0 right-0 top-0 rotate-180 w-[101%] scale-101 max-w-md mx-auto"
-        initial={{ y: "100%", opacity: 0 }}
-        animate={
-          ready
-            ? {
-                opacity: 1,
-                y: 0,
-                rotate: [0, 0.6, -0.4, 0.3, 0],
-                skewX: [0, 0.5, -0.3, 0.2, 0],
-              }
-            : {}
-        }
-        transition={{
-          y: { duration: 1.2, ease: "easeOut" },
-          opacity: { duration: 1.2, ease: "easeOut" },
-          rotate: {
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            times: [0, 0.3, 0.6, 0.8, 1],
-          },
-          skewX: {
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            times: [0, 0.3, 0.6, 0.8, 1],
-          },
-        }}
-      />
-      <motion.img
-        src="/images/background/bg-flower-1.png"
-        alt=""
-        className="fixed left-0 right-0 bottom-0 w-[101%] max-w-md mx-auto scale-101"
-        initial={{ y: "100%", opacity: 0 }}
-        animate={
-          ready
-            ? {
-                y: 0,
-                opacity: 1,
-                rotate: [0, 0.6, -0.4, 0.3, 0],
-                skewX: [0, 0.5, -0.3, 0.2, 0],
-              }
-            : {}
-        }
-        transition={{
-          y: { duration: 1.2, ease: "easeOut" },
-          opacity: { duration: 1.2, ease: "easeOut" },
-          rotate: {
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            times: [0, 0.3, 0.6, 0.8, 1],
-          },
-          skewX: {
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            times: [0, 0.3, 0.6, 0.8, 1],
-          },
-        }}
-      />
+      <BackgroundFlowers ready={ready} />
 
       <AnchorBar
         ready={ready}
