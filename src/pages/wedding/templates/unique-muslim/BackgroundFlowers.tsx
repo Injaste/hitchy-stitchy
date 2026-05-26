@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
+import { motion, type Transition } from "framer-motion";
 
-const flowerTransition = {
+const flowerTransition: Transition = {
   y: { duration: 1.2, ease: "easeOut" },
   opacity: { duration: 1.2, ease: "easeOut" },
   rotate: {
