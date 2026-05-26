@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { isAfter, startOfDay } from "date-fns";
 import confetti from "canvas-confetti";
@@ -51,6 +51,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
   const {
@@ -78,6 +79,11 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
     }
     setIsEditing(false);
     fireConfetti();
+    if (sectionRef.current) {
+      const top =
+        sectionRef.current.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -217,7 +223,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
   }
 
   return (
-    <section id="rsvp" className="pt-20 pb-10 px-4 relative bg-white/10 z-10">
+    <section ref={sectionRef} id="rsvp" className="pt-20 pb-10 px-4 relative bg-white/10 z-10">
       <div className="max-w-sm mx-auto">
         <motion.div
           layout
