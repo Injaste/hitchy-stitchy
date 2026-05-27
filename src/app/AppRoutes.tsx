@@ -16,7 +16,6 @@ const standaloneRoutes = [
   { path: "/signup", element: Signup, fade: true },
   { path: "/dashboard", element: Dashboard, fade: true },
   { path: "/privacy", element: Privacy, fade: true },
-  { path: "/:slug", element: Templates, fade: false },
 ];
 
 const AppRoutes = () => {
@@ -45,6 +44,15 @@ const AppRoutes = () => {
               }
             />
           ))}
+
+          <Route
+            path="/:slug"
+            element={
+              <Suspense fallback={null}>
+                <Templates />
+              </Suspense>
+            }
+          />
 
           {AdminRoutes()}
         </Routes>
