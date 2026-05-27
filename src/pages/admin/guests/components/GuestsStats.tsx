@@ -86,10 +86,10 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
               <Odometer value={card.value} />
             </div>
             {card.sub && (
-              <div className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1">
-                <Users size={11} />
-                <Odometer value={card.sub} />
-                <span>attending</span>
+              <div className="mt-1.5 flex items-center gap-1">
+                <Users size={11} className="text-muted-foreground" />
+                <span className="text-sm font-semibold text-foreground"><Odometer value={card.sub} /></span>
+                <span className="text-xs text-muted-foreground">attending</span>
               </div>
             )}
           </div>

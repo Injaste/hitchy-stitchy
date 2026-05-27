@@ -2,6 +2,7 @@ import { memo, type FC } from "react";
 import { format } from "date-fns";
 import {
   CheckCircle,
+  MessageSquare,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -14,6 +15,7 @@ import { itemFadeIn } from "@/lib/animations";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,9 +82,21 @@ const GuestsRow: FC<GuestsRowProps> = memo(
         </td>
 
         <td className="px-5 py-3.5">
-          <p className="font-medium text-foreground leading-tight truncate">
-            {guest.name}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="font-medium text-foreground leading-tight truncate">
+              {guest.name}
+            </p>
+            {guest.message && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <MessageSquare className="w-3 h-3 shrink-0 text-muted-foreground" strokeWidth={2.5} />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-56 text-xs">
+                  {guest.message}
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground mt-0.5 truncate">
             {guest.phone}
           </p>
