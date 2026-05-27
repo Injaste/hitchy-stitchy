@@ -128,7 +128,7 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
             initial="sealed"
             animate={phase}
           >
-            <div className="relative size-28 sm:size-36 rounded-full bg-primary shadow-xl p-4 flex items-center justify-center">
+            <div className="relative size-28 sm:size-36 rounded-full bg-primary shadow-xl p-6 flex items-center justify-center">
               <img
                 src="/images/background/d-n-n.png"
                 alt=""
