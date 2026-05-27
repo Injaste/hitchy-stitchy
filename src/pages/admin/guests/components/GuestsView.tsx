@@ -16,6 +16,7 @@ import GuestsTable from "./GuestsTable";
 import GuestsFilters from "./GuestsFilters";
 import GuestsBulkBar from "./GuestsBulkBar";
 import { useGuestMutations } from "../queries";
+import DeadlineAlert from "./DeadlineAlert";
 
 type StatusFilter = GuestStatus | "all";
 
@@ -109,6 +110,7 @@ const GuestsView: FC<GuestsViewProps> = ({
 
     return (
       <ComponentFade key="content">
+        <DeadlineAlert />
         <GuestsStats guests={data} />
         <GuestsFilters
           search={search}

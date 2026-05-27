@@ -61,11 +61,24 @@ interface UseConfigsFormOpts {
   onSubmit: (values: ConfigFormValues) => void;
 }
 
+const parseDeadline = (deadline: string | null): { date: string; time: string } => {
+  if (!deadline) return { date: "", time: "" };
+  // Normalise space-separated ("YYYY-MM-DD HH:MM") or ISO ("YYYY-MM-DDTHH:MM…") to a parseable string
+  const d = new Date(deadline.trim().replace(" ", "T"));
+  if (isNaN(d.getTime())) return { date: "", time: "" };
+  const pad = (n: number) => String(n).padStart(2, "0");
+  // Convert UTC back to local for display
+  return {
+    date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  };
+};
+
 export const useConfigsForm = ({
   invitation,
   onSubmit,
 }: UseConfigsFormOpts) => {
-  const [initDate, initTime = ""] = (invitation.rsvp_deadline ?? "").split(" ");
+  const { date: initDate, time: initTime } = parseDeadline(invitation.rsvp_deadline);
 
   return useForm({
     defaultValues: {
@@ -73,8 +86,8 @@ export const useConfigsForm = ({
       event_time_start: invitation.event_time_start ?? "",
       event_time_end: invitation.event_time_end ?? "",
       rsvp_mode: invitation.rsvp_mode,
-      rsvp_deadline_date: initDate ?? "",
-      rsvp_deadline_time: (initTime || "").slice(0, 5),
+      rsvp_deadline_date: initDate,
+      rsvp_deadline_time: initTime,
       max_guests: invitation.max_guests,
       guest_count_min: invitation.guest_count_min,
       guest_count_max: invitation.guest_count_max,

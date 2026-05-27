@@ -1,12 +1,12 @@
-import { useGuestsQuery, useGuestsRealtime } from "./queries"
-import GuestsHeader from "./components/GuestsHeader"
-import GuestsView from "./components/GuestsView"
-import GuestModals from "./modals"
-import Container from "@/components/custom/container"
+import { useGuestsQuery, useGuestsRealtime } from "./queries";
+import GuestsHeader from "./components/GuestsHeader";
+import GuestsView from "./components/GuestsView";
+import GuestModals from "./modals";
+import Container from "@/components/custom/container";
 
 const Guests = () => {
-  const { data, isLoading, isError, refetch, isRefetching } = useGuestsQuery()
-  useGuestsRealtime()
+  const { data, isLoading, isError, refetch, isRefetching } = useGuestsQuery();
+  useGuestsRealtime();
 
   return (
     <>
@@ -28,7 +28,7 @@ const Guests = () => {
         <GuestModals />
       </Container>
     </>
-  )
-}
+  );
+};
 
-export default Guests
+export default Guests;
