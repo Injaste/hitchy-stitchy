@@ -18,7 +18,7 @@ export const rsvpClassNames: RSVPFormClassNames = {
   textarea:
     "text-base font-medium focus-visible:ring-primary focus-visible:border-primary rounded-r-2xl",
   inputAddon: "mt-0.5",
-  inputAddonTextarea: "self-start mt-3",
+  inputAddonTextarea: "self-start mt-1.5",
   inputIcon: "text-primary/40",
   fieldError: "text-sm font-semibold tracking-wide",
   actions: "flex flex-col gap-2.5 pt-2",
