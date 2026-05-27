@@ -7,19 +7,34 @@ const LoadingState = () => (
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    className="min-h-screen flex justify-center items-center"
+    transition={{ duration: 0.3 }}
+    className="min-h-screen flex flex-col justify-center items-center gap-10"
   >
-    <motion.div
-      animate={{ scale: [1, 1.08, 1], opacity: [0.5, 1, 0.5] }}
-      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <Logo
-        imageClassName="w-24 h-24"
-        showBrand
-        brandClassName="text-xl"
-        showTagline
-      />
-    </motion.div>
+    <Logo
+      imageClassName="w-20 h-20"
+      showBrand
+      brandClassName="text-xl"
+      showTagline
+    />
+
+    <div className="flex gap-2" aria-label="Loading" role="status">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="w-2 h-2 rounded-full bg-foreground/40"
+          animate={{
+            opacity: [0.3, 1, 0.3],
+            y: [0, -5, 0],
+          }}
+          transition={{
+            duration: 1.2,
+            repeat: Infinity,
+            delay: i * 0.18,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
   </motion.div>
 );
 
