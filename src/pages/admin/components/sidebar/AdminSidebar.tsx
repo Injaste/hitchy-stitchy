@@ -70,6 +70,7 @@ const AdminSidebar = () => {
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" className="pointer-events-none">
                 <Logo
+                  className="shrink-0"
                   imageClassName={cn(
                     state === "expanded" || isMobile ? "size-9" : "size-8",
                   )}
@@ -168,10 +169,16 @@ const AdminSidebar = () => {
             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton size="lg">
+                  <SidebarMenuButton
+                    size="lg"
+                    className={cn(
+                      "rounded-full cursor-pointer",
+                      state === "expanded" ? "rounded-lg" : "rounded-full",
+                    )}
+                  >
                     <div
                       className={cn(
-                        "flex aspect-square items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground capitalize truncate",
+                        "flex shrink-0 aspect-square items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground capitalize truncate",
                         state === "expanded" || isMobile ? "size-9" : "size-8",
                       )}
                     >

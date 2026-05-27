@@ -451,7 +451,7 @@ function SidebarContent({
             <motion.div
               ref={activeIndicatorRef}
               className={cn(
-                "absolute left-2 right-2 bg-primary/70 rounded-lg -z-10 pointer-events-none",
+                "absolute left-2 right-2 bg-primary/70 rounded-lg -z-10 pointer-events-none group-data-[collapsible=icon]:rounded-full",
                 indicatorClassName,
               )}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -460,7 +460,7 @@ function SidebarContent({
           <motion.div
             ref={hoverIndicatorRef}
             className={cn(
-              "absolute left-2 right-2 bg-primary/40 rounded-lg -z-10 pointer-events-none opacity-0",
+              "absolute left-2 right-2 bg-primary/40 rounded-lg -z-10 pointer-events-none opacity-0 group-data-[collapsible=icon]:rounded-full",
               indicatorClassName,
             )}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -572,7 +572,7 @@ function SidebarMenuItem({
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-all group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 data-active:font-medium active:bg-sidebar-primary disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+  "peer/menu-button group/menu-button flex w-full items-center gap-2 overflow-hidden rounded-xl p-2 text-left text-sm ring-sidebar-ring outline-hidden transition-all group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! focus-visible:ring-2 data-active:font-medium active:bg-sidebar-primary disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-open:hover:bg-sidebar-accent data-open:hover:text-sidebar-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&>span:last-child]:truncate data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:rounded-full",
   {
     variants: {
       variant: {
