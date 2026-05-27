@@ -14,13 +14,13 @@ export const rsvpClassNames: RSVPFormClassNames = {
   inputGroup: "gap-1 h-12 rounded-full bg-muted/40 border-border px-1.5",
   inputGroupTextarea: "gap-1 rounded-2xl bg-muted/40 border-border px-1.5",
   input:
-    "rounded-tr-full rounded-br-full text-base focus-visible:ring-primary focus-visible:border-primary bg-transparent border-0",
+    "rounded-tr-full rounded-br-full text-base font-medium focus-visible:ring-primary focus-visible:border-primary bg-transparent border-0",
   textarea:
-    "text-base focus-visible:ring-primary focus-visible:border-primary rounded-r-2xl",
+    "text-base font-medium focus-visible:ring-primary focus-visible:border-primary rounded-r-2xl",
   inputAddon: "mt-0.5",
-  inputAddonTextarea: "self-start mt-2.5",
+  inputAddonTextarea: "self-start mt-3",
   inputIcon: "text-primary/40",
-  fieldError: "text-base font-bold uppercase tracking-wide",
+  fieldError: "text-sm font-semibold tracking-wide",
   actions: "flex flex-col gap-2.5 pt-2",
   submit:
     "h-12 rounded-full bg-primary text-primary-foreground font-bold uppercase tracking-widest text-sm shadow-lg hover:bg-primary/90 disabled:opacity-60 transition-all mt-8",
@@ -29,7 +29,7 @@ export const rsvpClassNames: RSVPFormClassNames = {
   fields: {
     guestCount: {
       input:
-        "rounded-tr-full rounded-br-full text-base focus-visible:ring-primary focus-visible:border-primary bg-transparent border-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+        "rounded-tr-full rounded-br-full text-base font-medium focus-visible:ring-primary focus-visible:border-primary bg-transparent border-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
     },
   },
 }
@@ -47,7 +47,6 @@ export const rsvpLabels: RSVPFormLabels = {
   message: {
     label: "Message",
     placeholder: "Leave us a message",
-    optional: "(optional)",
   },
   required: "*",
   submit: {

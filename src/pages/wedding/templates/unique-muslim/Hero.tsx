@@ -101,7 +101,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
           className="flex items-center justify-center gap-5 mb-5"
         >
           <div className="h-px flex-1 max-w-20 bg-linear-to-r from-transparent to-primary/50" />
-          <span className="text-3xs uppercase tracking-[0.45em] text-muted-foreground whitespace-nowrap">
+          <span className="text-2xs font-medium uppercase tracking-[0.45em] text-muted-foreground whitespace-nowrap">
             {hero_divider_label}
           </span>
           <div className="h-px flex-1 max-w-20 bg-linear-to-l from-transparent to-primary/50" />

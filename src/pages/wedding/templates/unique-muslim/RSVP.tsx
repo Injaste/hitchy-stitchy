@@ -60,7 +60,19 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
     rsvp_subtitle,
     rsvp_success_heading,
     footer_tagline,
+    rsvp_label_name,
+    rsvp_label_phone,
+    rsvp_label_guest_count,
+    rsvp_label_message,
   } = config ?? {};
+
+  const mergedRsvpLabels = {
+    ...rsvpLabels,
+    name: { ...rsvpLabels.name, label: rsvp_label_name ?? rsvpLabels.name.label },
+    phone: { ...rsvpLabels.phone, label: rsvp_label_phone ?? rsvpLabels.phone.label },
+    guestCount: { ...rsvpLabels.guestCount, label: rsvp_label_guest_count ?? rsvpLabels.guestCount.label },
+    message: { ...rsvpLabels.message, label: rsvp_label_message ?? rsvpLabels.message.label },
+  };
   const rsvpConfig = eventConfig.config.rsvp;
 
   const isDeadlinePassed =
@@ -184,7 +196,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
           max: eventConfig.guest_count_max,
         }}
         classNames={rsvpClassNames}
-        labels={rsvpLabels}
+        labels={mergedRsvpLabels}
       />
     </div>
   );

@@ -133,9 +133,6 @@ const RSVPForm = ({
                   errors: f.state.meta.errors,
                 }}
                 required={message.required}
-                optionalLabel={
-                  !message.required ? labels.message.optional : undefined
-                }
                 classNames={classNames}
                 labels={labels}
                 delay={delays.message! * 0.1}

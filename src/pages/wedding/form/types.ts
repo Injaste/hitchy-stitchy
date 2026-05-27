@@ -37,7 +37,7 @@ export interface RSVPFormLabels {
   name: { label: string; placeholder: string };
   phone: { label: string; placeholder: string };
   guestCount: { label: string; placeholder: (max: number) => string; };
-  message: { label: string; placeholder: string; optional: string };
+  message: { label: string; placeholder: string };
   required: string;
   submit: { idle: string; editing: string; submitting: string };
   cancel: string;

@@ -75,6 +75,10 @@ export const uniqueMuslimSchema = [
     fields: [
       { key: "rsvp_subtitle", label: "Subtitle", type: "text", default: "Your presence would mean the world to us.", placeholder: "e.g. Your presence would mean the world to us." },
       { key: "rsvp_success_heading", label: "Success Heading", type: "text", default: "Alhamdulillah!", placeholder: "e.g. Alhamdulillah!" },
+      { key: "rsvp_label_name", label: "Full Name Label", type: "text", default: "Full Name", placeholder: "e.g. Full Name" },
+      { key: "rsvp_label_phone", label: "Phone Number Label", type: "text", default: "Phone Number", placeholder: "e.g. Phone Number" },
+      { key: "rsvp_label_guest_count", label: "Number of Guests Label", type: "text", default: "Number of Guests", placeholder: "e.g. Number of Guests" },
+      { key: "rsvp_label_message", label: "Message Label", type: "text", default: "Message", placeholder: "e.g. Message" },
     ],
   },
   {

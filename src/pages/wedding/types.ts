@@ -1,5 +1,5 @@
 import { z } from "zod"
-import type { InvitationConfig, RSVPMode, RSVPSectionConfig } from "../admin/invitation/types"
+import type { InvitationConfig, RSVPFieldConfig, RSVPMode, RSVPSectionConfig } from "../admin/invitation/types"
 import type { ThemeConfig } from "./templates/types"
 
 export interface PublicEventConfig {
@@ -74,6 +74,12 @@ export interface CancelRSVPPayload {
   token: string
 }
 
+function buildMessageSchema({ visible, required }: RSVPFieldConfig) {
+  if (!visible) return z.string().optional()
+  const s = z.string().max(500)
+  return required ? s.min(1, "Please enter a message") : s.optional()
+}
+
 export function buildRsvpSchema(
   config: RSVPSectionConfig,
   limits: { min: number; max: number }
@@ -81,24 +87,19 @@ export function buildRsvpSchema(
   return z.object({
     name: z
       .string()
-      .min(2, "Name must be at least 2 characters")
+      .min(2, "Please enter at least 2 characters of your name")
       .max(100),
 
     phone: z
       .string()
-      .min(1, "Phone number is required")
-      .regex(/^\+?[\d\s\-().]{7,20}$/, "Enter a valid phone number"),
+      .regex(/^\+?[\d\s\-().]{7,20}$/, "Please enter a valid phone number"),
 
     guestCount: z
       .number()
       .min(limits.min, `Minimum ${limits.min} guest`)
       .max(limits.max, `Maximum ${limits.max} guests`),
 
-    message: config.fields.message.visible
-      ? config.fields.message.required
-        ? z.string().min(1, "Please enter a message").max(500)
-        : z.string().max(500).optional()
-      : z.string().optional(),
+    message: buildMessageSchema(config.fields.message),
   })
 }
 
