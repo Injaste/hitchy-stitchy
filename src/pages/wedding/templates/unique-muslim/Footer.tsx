@@ -52,7 +52,7 @@ const Footer: FC<FooterProps> = ({
       <motion.div variants={fadeIn(0.35, 1)} className="-mt-8 mb-4">
         <img
           className="w-full max-w-[260px] aspect-square object-contain mx-auto"
-          src="/dannad.png"
+          src="/images/unique-muslim/dannad.png"
           alt="Hitchy Stitchy"
         />
       </motion.div>

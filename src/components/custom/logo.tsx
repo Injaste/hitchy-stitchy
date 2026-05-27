@@ -27,7 +27,7 @@ const Logo = ({
     )}
   >
     <img
-      src="/dannad.png"
+      src="/images/unique-muslim/dannad.png"
       alt="Hitchy Stitchy"
       className={cn("object-contain", imageClassName)}
     />

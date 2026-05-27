@@ -23,7 +23,7 @@ const FONT_ATTR = "data-um-font";
 
 const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   const config = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
-  const bgImage = config?.background_image ?? "/dannad.png";
+  const bgImage = config?.background_image ?? "/images/unique-muslim/dannad.png";
   const [ready, setReady] = useState(false);
 
   const couple = parseGoogleFontUrl(config?.font_couple_url);
