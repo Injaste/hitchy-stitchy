@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Check, Link as LinkIcon, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, Copy, Share2 } from "lucide-react";
 
 const ShareRow = () => {
   const [copied, setCopied] = useState(false);
@@ -9,12 +8,9 @@ const ShareRow = () => {
 
   const handleShare = async () => {
     try {
-      await navigator.share({
-        title: document.title,
-        url: window.location.href,
-      });
+      await navigator.share({ title: document.title, url: window.location.href });
     } catch {
-      // User dismissed the sheet — not an error worth logging.
+      // dismissed
     }
   };
 
@@ -28,37 +24,31 @@ const ShareRow = () => {
     }
   };
 
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <span className="text-xs uppercase tracking-wide text-muted-foreground">
-        Share Hitchy Stitchy
-      </span>
-
-      {canNativeShare ? (
-        <Button variant="outline" size="sm" onClick={handleShare}>
-          <Share2 className="w-4 h-4" />
-          Share
-        </Button>
+  return canNativeShare ? (
+    <button
+      onClick={handleShare}
+      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+    >
+      <Share2 className="w-4 h-4" />
+      Share Hitchy Stitchy
+    </button>
+  ) : (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+    >
+      {copied ? (
+        <>
+          <Check className="w-4 h-4 text-green-600" />
+          <span className="text-green-600">Link copied!</span>
+        </>
       ) : (
-        <Button
-          variant={copied ? "default" : "outline"}
-          size="sm"
-          onClick={handleCopy}
-        >
-          {copied ? (
-            <>
-              <Check className="w-4 h-4" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <LinkIcon className="w-4 h-4" />
-              Copy Link
-            </>
-          )}
-        </Button>
+        <>
+          <Copy className="w-4 h-4" />
+          Share Hitchy Stitchy
+        </>
       )}
-    </div>
+    </button>
   );
 };
 

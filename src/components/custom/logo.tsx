@@ -8,6 +8,7 @@ interface LogoProps {
   showBrand?: boolean;
   showTagline?: boolean;
   direction?: "row" | "col";
+  textAlign?: "left" | "center";
 }
 
 const Logo = ({
@@ -18,6 +19,7 @@ const Logo = ({
   showBrand: showName = false,
   showTagline = false,
   direction = "col",
+  textAlign = "center",
 }: LogoProps) => (
   <div
     className={cn(
@@ -32,7 +34,7 @@ const Logo = ({
       className={cn("object-contain", imageClassName)}
     />
     {showName && (
-      <div className="flex flex-col text-center">
+      <div className={cn("flex flex-col", textAlign === "left" ? "text-left" : "text-center")}>
         <span
           className={cn(
             "font-display font-semibold text-foreground tracking-wide",

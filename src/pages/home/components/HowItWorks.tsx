@@ -3,7 +3,7 @@ import { steps } from "../data";
 
 export function HowItWorks() {
   return (
-    <section className="py-28 px-6 md:px-12 bg-muted/20">
+    <section id="how-it-works" className="py-28 px-6 md:px-12 bg-muted/20">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-20">
           <motion.p

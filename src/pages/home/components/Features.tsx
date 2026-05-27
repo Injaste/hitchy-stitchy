@@ -15,7 +15,7 @@ const MOCKS: Record<string, React.ReactNode> = {
 
 export function Features() {
   return (
-    <section className="py-24 px-6 md:px-12 overflow-hidden">
+    <section id="features" className="py-24 px-6 md:px-12 overflow-hidden">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-24">

@@ -1,22 +1,19 @@
 import { Link } from "react-router-dom";
+import BackLink from "@/components/custom/back-link";
 
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-2xl px-6 py-16">
-        <Link
-          to="/"
-          className="text-sm text-muted-foreground hover:text-foreground mb-8 inline-block"
-        >
-          ← Back
-        </Link>
+        <BackLink to="/" label="Back" />
 
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
         <p className="text-sm text-muted-foreground mb-10">Last updated: May 2026</p>
 
         <p className="mb-8">
           Hitchy Stitchy ("we", "us") is currently in beta. This policy explains how we handle your
-          personal data when you use our platform at hitchystitchy.com.
+          personal data when you use our platform at{" "}
+          <Link to="/" className="underline hover:text-muted-foreground">hitchystitchy.com</Link>.
         </p>
 
         <hr className="border-border mb-8" />
@@ -198,7 +195,8 @@ export default function Privacy() {
             </a>
           </p>
           <p className="text-muted-foreground">
-            <strong className="text-foreground">Platform:</strong> hitchystitchy.com
+            <strong className="text-foreground">Platform:</strong>{" "}
+            <Link to="/" className="underline hover:text-foreground">hitchystitchy.com</Link>
           </p>
         </section>
       </div>
