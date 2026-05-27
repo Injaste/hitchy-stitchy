@@ -141,7 +141,7 @@ const TasksView: FC<TasksViewProps> = ({
   };
 
   return (
-    <Container className="mt-8 flex flex-col lg:mt-6 lg:flex-1 lg:min-h-0 lg:grid lg:grid-rows-[minmax(0,1fr)]">
+    <Container pageSpacing className="flex flex-col lg:mt-6 lg:flex-1 lg:min-h-0 lg:grid lg:grid-rows-[minmax(0,1fr)]">
       <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
     </Container>
   );

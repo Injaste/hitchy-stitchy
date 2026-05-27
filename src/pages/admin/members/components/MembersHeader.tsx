@@ -18,6 +18,7 @@ import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useAdminStore } from "../../store/useAdminStore";
 import type { Member } from "../types";
+import RolesSheet from "../../roles/components/RolesSheet";
 
 interface MembersHeaderProps extends BaseHeaderProps {
   data?: Member[];
@@ -88,17 +89,20 @@ const MembersHeader: FC<MembersHeaderProps> = ({
       description="Everyone with access to this event. Manage who's on your team and control their active status."
       meta={meta || undefined}
       action={
-        canCreate("members") && (
-          <Button
-            size="sm"
-            variant="default"
-            onClick={openInvite}
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />{" "}
-            <ActionLabel>Invite member</ActionLabel>
-          </Button>
-        )
+        <div className="flex items-center gap-2">
+          <RolesSheet />
+          {canCreate("members") && (
+            <Button
+              size="sm"
+              variant="default"
+              onClick={openInvite}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <ActionLabel>Invite</ActionLabel>
+            </Button>
+          )}
+        </div>
       }
     />
   );

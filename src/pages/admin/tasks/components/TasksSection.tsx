@@ -115,7 +115,7 @@ const TasksSection: FC<TasksSectionProps> = ({
         <div
           ref={scrollRef}
           onScroll={onScrollUpdate}
-          className="flex flex-col gap-3 lg:absolute lg:inset-0 lg:overflow-y-auto lg:[scrollbar-gutter:stable] lg:[scrollbar-width:thin] lg:pl-1 lg:pr-3 lg:py-1"
+          className="flex flex-col gap-3 lg:absolute lg:inset-0 lg:overflow-y-auto lg:[scrollbar-width:thin] lg:pl-1 lg:pr-3 lg:py-1"
         >
           <div
             ref={droppableRef}

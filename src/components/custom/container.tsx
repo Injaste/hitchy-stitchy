@@ -17,6 +17,7 @@ interface ContainerProps {
   className?: string;
   children: ReactNode;
   centred?: boolean;
+  pageSpacing?: boolean;
 }
 
 const Container: FC<ContainerProps> = ({
@@ -24,6 +25,7 @@ const Container: FC<ContainerProps> = ({
   className,
   children,
   centred = true,
+  pageSpacing = false,
 }) => {
   return (
     <div
@@ -31,6 +33,7 @@ const Container: FC<ContainerProps> = ({
         "w-full transition-[max-width]",
         sizeMap[size],
         centred && "mx-auto",
+        pageSpacing && "mt-4 sm:mt-8",
         className,
       )}
     >

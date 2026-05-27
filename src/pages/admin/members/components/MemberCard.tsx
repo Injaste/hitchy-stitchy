@@ -1,11 +1,12 @@
 import type { FC } from "react";
-import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
+import { useRoleModalStore } from "../../roles/hooks/useRoleModalStore";
 import { type Member } from "../types";
 import MemberStatus from "./MemberStatus";
 import { getMemberStatus } from "../utils";
@@ -14,16 +15,9 @@ interface MemberCardProps {
   member: Member;
 }
 
-const getInitials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((n) => n[0]?.toUpperCase() ?? "")
-    .join("");
-
 const MemberCard: FC<MemberCardProps> = ({ member }) => {
   const openDetail = useMemberModalStore((s) => s.openDetail);
+  const openRoleDetail = useRoleModalStore((s) => s.openDetail);
 
   const status = getMemberStatus(member);
   const isRejected = status === "rejected";
@@ -32,7 +26,7 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
   return (
     <Card
       className={cn(
-        "relative h-full hover:ring-secondary hover:shadow-sm",
+        "relative hover:ring-secondary hover:shadow-sm transition-shadow",
         isFrozen && "opacity-60",
         isRejected && "opacity-40",
       )}
@@ -42,36 +36,49 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
         aria-label={member.display_name}
         className="absolute inset-0 rounded-[inherit] z-0 cursor-pointer"
       />
-      <CardContent className="px-5 py-4 space-y-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground shrink-0">
-            {getInitials(member.display_name) || "?"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p
-              className={cn(
-                "font-display text-base text-foreground truncate",
-                isRejected && "line-through text-muted-foreground",
-              )}
-            >
-              {member.display_name}
-            </p>
-          </div>
-        </div>
+      <CardContent>
+        <div className="flex gap-4 sm:gap-8">
+          <div className="flex gap-3 flex-1">
+            {/* Role short name bubble */}
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
+              {member.role.short_name}
+            </div>
 
-        <div className="flex items-center justify-between gap-2">
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-2xs tracking-wide",
-              isRejected && "opacity-50",
-            )}
-          >
-            {member.role.short_name} · {member.role.name}
-          </Badge>
+            {/* Content */}
 
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 min-w-0">
+                <p
+                  className={cn(
+                    "font-display text-sm font-medium text-foreground truncate",
+                    isRejected && "line-through text-muted-foreground",
+                  )}
+                >
+                  {member.display_name}
+                </p>
+                <Badge
+                  variant="role"
+                  className={cn(
+                    "relative z-10 text-2xs tracking-wide",
+                    isRejected && "opacity-50",
+                  )}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openRoleDetail(member.role);
+                  }}
+                >
+                  {member.role.name}
+                </Badge>
+              </div>
+
+              <NotesMarkdown content={member.role.description} size="sm" />
+            </div>
+          </div>
           {status !== "active" && (
-            <MemberStatus member={member} className="text-xs italic" />
+            <MemberStatus
+              member={member}
+              className="text-xs italic shrink-0 self-center"
+            />
           )}
         </div>
       </CardContent>

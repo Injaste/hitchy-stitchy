@@ -18,7 +18,7 @@ const Timeline = () => {
         refetch={refetch}
         data={data}
       />
-      <Container className="mt-8">
+      <Container pageSpacing>
         <TimelineView
           data={data}
           isLoading={isLoading}

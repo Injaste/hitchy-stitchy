@@ -25,7 +25,7 @@ const Invitation = () => {
         isRefetching={isRefetching}
         refetch={refetch}
       />
-      <Container className="mt-8">
+      <Container pageSpacing>
         <InvitationView
           isLoading={isLoading}
           isError={isError}

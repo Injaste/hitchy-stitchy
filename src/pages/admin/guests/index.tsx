@@ -17,7 +17,7 @@ const Guests = () => {
         refetch={refetch}
         data={data}
       />
-      <Container className="mt-8">
+      <Container pageSpacing>
         <GuestsView
           data={data}
           isLoading={isLoading}

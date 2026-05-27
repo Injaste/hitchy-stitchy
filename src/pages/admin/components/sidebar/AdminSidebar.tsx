@@ -3,7 +3,6 @@ import {
   Clock,
   CheckSquare,
   Users,
-  Shield,
   KeyRound,
   ChevronsUpDown,
   Mail,
@@ -118,12 +117,6 @@ const AdminSidebar = () => {
                   label="Members"
                   to={`${base}/members`}
                   isActive={activePage === "members"}
-                />
-                <NavItem
-                  icon={Shield}
-                  label="Roles"
-                  to={`${base}/roles`}
-                  isActive={activePage === "roles"}
                 />
                 <NavItem
                   icon={KeyRound}

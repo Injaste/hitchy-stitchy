@@ -9,7 +9,7 @@ const Permissions = () => {
   return (
     <>
       <PermissionsHeader />
-      <Container className="mt-8">
+      <Container pageSpacing>
         <PermissionsView data={data} isLoading={isLoading} isError={isError} />
       </Container>
     </>

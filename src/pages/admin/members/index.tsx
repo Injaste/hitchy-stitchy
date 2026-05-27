@@ -2,7 +2,6 @@ import { useMembersQuery } from "./queries"
 
 import MembersHeader from "./components/MembersHeader"
 import MembersView from "./components/MembersView"
-import MemberModals from "./modals"
 import Container from "@/components/custom/container"
 
 const Members = () => {
@@ -17,7 +16,7 @@ const Members = () => {
         refetch={refetch}
         data={data}
       />
-      <Container className="mt-8">
+      <Container pageSpacing>
         <MembersView
           data={data}
           isLoading={isLoading}
@@ -25,7 +24,6 @@ const Members = () => {
           refetch={refetch}
           isRefetching={isRefetching}
         />
-        <MemberModals />
       </Container>
     </>
   )

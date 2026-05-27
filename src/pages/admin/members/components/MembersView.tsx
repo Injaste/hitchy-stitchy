@@ -61,25 +61,25 @@ const MembersView: FC<MembersViewProps> = ({
 
     return (
       <ComponentFade key="content">
-        <motion.div
+        <motion.ul
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+          className="flex flex-col gap-3 sm:gap-6"
         >
           <AnimatePresence>
             {data.map((member) => (
-              <motion.div
+              <motion.li
                 key={member.id}
                 variants={itemFadeUp}
                 exit="hidden"
                 layout
               >
                 <MemberCard member={member} />
-              </motion.div>
+              </motion.li>
             ))}
           </AnimatePresence>
-        </motion.div>
+        </motion.ul>
       </ComponentFade>
     );
   };

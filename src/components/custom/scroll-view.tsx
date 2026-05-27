@@ -97,7 +97,7 @@ export const ScrollView = forwardRef<HTMLDivElement, ScrollViewProps>(
               setSelfScrolled((cur) => (cur === scrolled ? cur : scrolled));
               onScroll?.(e);
             }}
-            className={cn("h-full overflow-y-auto", className)}
+            className={cn("h-full overflow-y-auto pb-1", className)}
             {...props}
           >
             {children}

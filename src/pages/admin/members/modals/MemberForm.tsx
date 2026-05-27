@@ -8,19 +8,16 @@ import {
 } from "@/components/ui/field";
 import { DialogBody } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  TextField,
-  SelectField,
-  type SelectFieldOption,
-} from "@/components/custom/form";
+import { TextField } from "@/components/custom/form";
+import FieldShell from "@/components/custom/form/fields/FieldShell";
 
-import { useRolesQuery } from "../../roles/queries";
 import {
   inviteMemberSchema,
   editMemberSchema,
   type InviteMemberValues,
   type EditMemberValues,
 } from "../types";
+import RoleCombobox from "../components/RoleCombobox";
 
 interface UseMemberInviteFormOpts {
   defaultValues?: Partial<InviteMemberValues>;
@@ -78,29 +75,6 @@ interface MemberFormProps {
 }
 
 const MemberForm = ({ mode, lockRole = false, email }: MemberFormProps) => {
-  const { data: roles = [] } = useRolesQuery();
-
-  const roleOptions: SelectFieldOption[] = (() => {
-    if (lockRole && roles.length)
-      return roles.map((r) => ({
-        value: r.id,
-        label: r.name,
-        disabled: r.category === "root",
-      }));
-
-    const assignable = roles.filter((r) => r.category !== "root");
-    if (assignable.length)
-      return assignable.map((r) => ({ value: r.id, label: r.name }));
-
-    return [
-      {
-        value: "0",
-        label: "No roles available — add roles first",
-        disabled: true,
-      },
-    ];
-  })();
-
   return (
     <DialogBody>
       <FieldGroup>
@@ -129,13 +103,17 @@ const MemberForm = ({ mode, lockRole = false, email }: MemberFormProps) => {
           </Field>
         )}
 
-        <SelectField
-          name="role_id"
-          label="Role"
-          options={roleOptions}
-          placeholder="Select a role"
-          disabled={lockRole}
-        />
+        <FieldShell name="role_id" label="Role">
+          {(field) => (
+            <RoleCombobox
+              value={field.state.value ?? ""}
+              onChange={(roleId) => field.handleChange(roleId)}
+              onBlur={field.handleBlur}
+              placeholder="Select or create a role"
+              disabled={lockRole}
+            />
+          )}
+        </FieldShell>
       </FieldGroup>
     </DialogBody>
   );

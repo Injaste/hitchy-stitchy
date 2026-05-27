@@ -14,6 +14,8 @@ import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
 import { PingModal } from "./modals/PingModal";
 import { ActiveCueModal } from "./modals/ActiveCueModal";
+import MemberModals from "./members/modals";
+import RoleModals from "./roles/modals";
 
 const AdminView = () => {
   useBootstrap();
@@ -37,7 +39,12 @@ const AdminView = () => {
             <AdminSidebar />
             <SidebarInset className="flex flex-col flex-1 ">
               <AdminTopbar />
-              <div className={cn("flex flex-col px-3 md:px-6 pb-4 md:pb-6", activePage === "tasks" && "h-full")}>
+              <div
+                className={cn(
+                  "flex flex-col px-3 md:px-6 pb-2 md:pb-5",
+                  activePage === "tasks" && "h-full",
+                )}
+              >
                 <AnimatePresence mode="wait">
                   <ComponentFade
                     key={activePage}
@@ -50,6 +57,8 @@ const AdminView = () => {
             </SidebarInset>
             <PingModal />
             <ActiveCueModal />
+            <MemberModals />
+            <RoleModals />
           </SidebarProvider>
         </ComponentFade>
       )}
