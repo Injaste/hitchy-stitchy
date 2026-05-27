@@ -1,12 +1,9 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Lenis } from "lenis/react";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useDocumentMeta } from "@/hooks/use-document-meta";
-
 import { usePublicEvent, usePublicEventRealtime } from "./queries";
 import ThemeError from "./states/ThemeError";
 import ThemeLoader from "./states/ThemeLoader";
@@ -20,12 +17,8 @@ interface WeddingProps {
   previewConfig?: PublicEventConfig;
 }
 
-const DEFAULT_DESCRIPTION =
-  "We invite you to witness the beginning of our forever. A day where two souls become one, guided by faith and bounded by love.";
-
 const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   const isMobile = useIsMobile();
-  const { slug } = useParams<{ slug: string }>();
   const [isReady, setIsReady] = useState(false);
 
   const isPreview = !!previewConfig;
@@ -40,24 +33,6 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   const eventConfig = previewConfig ?? fetchedConfig;
 
   usePublicEventRealtime(!isPreview ? (eventConfig?.event_id ?? null) : null);
-
-  const pageConfig = eventConfig?.published_page?.config;
-  const muslim = pageConfig?.slug === "unique-muslim" ? pageConfig : undefined;
-
-  const groom = muslim?.groom_name?.trim();
-  const bride = muslim?.bride_name?.trim();
-  const composedTitle =
-    groom && bride ? `The Wedding of ${groom} & ${bride}` : "You're Invited";
-
-  useDocumentMeta({
-    title: muslim?.page_title?.trim() || composedTitle,
-    description: muslim?.page_description?.trim() || DEFAULT_DESCRIPTION,
-    image: muslim?.og_image?.trim() || muslim?.background_image?.trim() || null,
-    url:
-      !isPreview && slug
-        ? `https://${import.meta.env.VITE_BASE_URL}/${slug}`
-        : null,
-  });
 
   const hasError = !isPreview && !!error;
   const showStateOverlay =

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useParams } from "react-router-dom";
 import { useFrame } from "react-frame-component";
+import { useDocumentMeta } from "@/hooks/use-document-meta";
 import Hero from "./Hero";
 import Details from "./Details";
 import Itinerary from "./Itinerary";
@@ -17,6 +19,9 @@ import {
 import { motion } from "framer-motion";
 import BackgroundImage from "./BackgroundImage";
 import BackgroundFlowers from "./BackgroundFlowers";
+
+const DEFAULT_DESCRIPTION =
+  "We invite you to witness the beginning of our forever. A day where two souls become one, guided by faith and bounded by love.";
 
 const STYLE_ATTR = "data-um-styles";
 const FONT_ATTR = "data-um-font";
@@ -40,6 +45,23 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   );
 
   const { document: frameDoc } = useFrame();
+  const { slug } = useParams<{ slug: string }>();
+  const isPreview = !!frameDoc;
+
+  const groom = config?.groom_name?.trim();
+  const bride = config?.bride_name?.trim();
+  const composedTitle =
+    groom && bride ? `The Wedding of ${groom} & ${bride}` : "You're Invited";
+
+  useDocumentMeta({
+    title: config?.page_title?.trim() || composedTitle,
+    description: config?.page_description?.trim() || DEFAULT_DESCRIPTION,
+    image: config?.og_image?.trim() || config?.background_image?.trim() || null,
+    url:
+      !isPreview && slug
+        ? `https://${import.meta.env.VITE_BASE_URL}/${slug}`
+        : null,
+  });
 
   useEffect(() => {
     const doc = frameDoc ?? document;
