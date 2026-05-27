@@ -45,6 +45,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
             imageClassName="w-32 h-32"
             brandClassName="text-2xl"
             showBrand
+            showTagline
           />
           <div className="-my-10">
             <Lottie
