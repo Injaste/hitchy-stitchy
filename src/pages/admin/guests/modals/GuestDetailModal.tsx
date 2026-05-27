@@ -3,8 +3,8 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  MessageSquare,
   Phone,
-  StickyNote,
   UserPlus,
   Users,
   XCircle,
@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
+import { useInvitationQuery } from "../../invitation/queries";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { STATUS_LABELS } from "../types";
 
@@ -34,6 +35,8 @@ const GuestDetailModal = () => {
   const openDelete = useGuestModalStore((s) => s.openDelete);
 
   const { canUpdate, canDelete } = useAccess();
+  const { data: invitation } = useInvitationQuery();
+  const rsvpFields = invitation?.config.rsvp.fields;
 
   if (!selectedItem) return null;
   const guest = selectedItem;
@@ -105,9 +108,9 @@ const GuestDetailModal = () => {
               <Row icon={<Users className="w-3 h-3" />} label="Party size">
                 {guest.guest_count}
               </Row>
-              {guest.message && (
-                <Row icon={<StickyNote className="w-3 h-3" />} label="Message">
-                  {guest.message}
+              {rsvpFields?.message.visible && (
+                <Row icon={<MessageSquare className="w-3 h-3" strokeWidth={2.5} />} label="Message">
+                  {guest.message ?? "—"}
                 </Row>
               )}
             </div>
