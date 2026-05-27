@@ -10,36 +10,49 @@ import GuestLimitsSection from "../sections/GuestLimitsSection";
 import FormFieldsSection from "../sections/FormFieldsSection";
 import ConfirmationSection from "../sections/ConfirmationSection";
 
-const schema = z.object({
-  event_date: z.string().transform((v) => v.trim() || null),
-  event_time_start: z
-    .string()
-    .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
-    .transform((v) => v.trim() || null),
-  event_time_end: z
-    .string()
-    .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
-    .transform((v) => v.trim() || null),
-  rsvp_mode: z.enum(RSVP_MODES),
-  rsvp_deadline_date: z.string().transform((v) => v.trim() || null),
-  rsvp_deadline_time: z
-    .string()
-    .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
-    .transform((v) => v.trim() || null),
-  max_guests: z.coerce
-    .number()
-    .min(1, "Must be 1 or more")
-    .max(10000, "Must be 10,000 or less")
-    .nullable(),
-  guest_count_min: z.coerce.number().min(1, "Must be 1 or more").max(99),
-  guest_count_max: z.coerce.number().min(1, "Must be 1 or more").max(99),
-  confirmation_message: z
-    .string()
-    .max(500, "Keep under 500 characters")
-    .transform((v) => v.trim() || null),
-  message_visible: z.boolean(),
-  message_required: z.boolean(),
-});
+const schema = z
+  .object({
+    event_date: z.string().transform((v) => v.trim() || null),
+    event_time_start: z
+      .string()
+      .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
+      .transform((v) => v.trim() || null),
+    event_time_end: z
+      .string()
+      .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
+      .transform((v) => v.trim() || null),
+    rsvp_mode: z.enum(RSVP_MODES),
+    rsvp_deadline_date: z.string().transform((v) => v.trim() || null),
+    rsvp_deadline_time: z
+      .string()
+      .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
+      .transform((v) => v.trim() || null),
+    max_guests: z.preprocess(
+      (v) => (v === "" || v == null ? null : Number(v)),
+      z
+        .number()
+        .min(1, "Must be 1 or more")
+        .max(10000, "Must be 10,000 or less")
+        .nullable(),
+    ),
+    guest_count_min: z.coerce.number().min(1, "Must be 1 or more").max(99),
+    guest_count_max: z.coerce.number().min(1, "Must be 1 or more").max(99),
+    confirmation_message: z
+      .string()
+      .max(500, "Keep under 500 characters")
+      .transform((v) => v.trim() || null),
+    message_visible: z.boolean(),
+    message_required: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.rsvp_deadline_date && !data.rsvp_deadline_time) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["rsvp_deadline_time"],
+        message: "Time is required when a deadline date is set",
+      });
+    }
+  });
 
 export type ConfigFormValues = z.infer<typeof schema>;
 

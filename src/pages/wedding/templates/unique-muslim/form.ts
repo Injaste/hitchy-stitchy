@@ -39,17 +39,15 @@ export const rsvpLabels: RSVPFormLabels = {
   phone: {
     label: "Phone Number",
     placeholder: "9123 4567",
-    optional: "(Optional)",
   },
   guestCount: {
     label: "Number of Guests",
-    placeholder: (max) => `1 – ${max}`,
-    optional: "(Optional)",
+    placeholder: (max) => `1 - ${max}`,
   },
   message: {
     label: "Message",
     placeholder: "Leave us a message",
-    optional: "(Optional)",
+    optional: "(optional)",
   },
   required: "*",
   submit: {
