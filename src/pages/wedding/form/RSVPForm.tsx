@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 import { fieldVariant } from "./animations";
 
@@ -168,6 +169,13 @@ const RSVPForm = ({
           </motion.div>
         )}
       </form.Subscribe>
+
+      <p className="text-xs text-muted-foreground text-center mt-3">
+        Your details are only used to manage your RSVP.{" "}
+        <Link to="/privacy" className="underline hover:text-foreground">
+          Privacy Policy
+        </Link>
+      </p>
     </motion.form>
   );
 };
