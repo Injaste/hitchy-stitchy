@@ -19,10 +19,16 @@ const MemberStats: FC<MemberStatsProps> = ({ data, isLoading, isError }) => {
 
   if (isLoading || isError || !data?.length) return null;
 
-  const active = data.filter(isActiveMember).length;
-  const pending = data.filter((m) => !m.frozen_at && m.joined_at === null).length;
-  const frozen = data.filter((m) => m.frozen_at).length;
-  const rejected = data.filter((m) => m.rejected_at !== null).length;
+  const { active, pending, frozen, rejected } = data.reduce(
+    (acc, m) => {
+      if (isActiveMember(m)) acc.active++;
+      else if (!m.frozen_at && m.joined_at === null) acc.pending++;
+      if (m.frozen_at) acc.frozen++;
+      if (m.rejected_at !== null) acc.rejected++;
+      return acc;
+    },
+    { active: 0, pending: 0, frozen: 0, rejected: 0 },
+  );
 
   type StatItem = { icon: typeof Users; value: number; label: string };
 
