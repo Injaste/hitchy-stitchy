@@ -109,27 +109,6 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
   );
 };
 
-const AddSectionSlot: FC = () => {
-  const openCreateWithLabel = useTimelineModalStore(
-    (s) => s.openCreateWithLabel,
-  );
-
-  return (
-    <div className="relative flex gap-4 w-fit">
-      <Circle className="size-5 text-muted-foreground/40 bg-background z-1 shrink-0" />
-      <div className="min-w-0 flex-1 -mt-2">
-        <Button
-          variant="empty"
-          onClick={() => openCreateWithLabel(null)}
-          className="group flex w-full items-center gap-2 rounded-md border border-dashed border-foreground/20 px-4 py-3 text-sm text-muted-foreground transition hover:border-primary hover:text-foreground"
-        >
-          <Plus className="size-4" />
-          <span>Add new section</span>
-        </Button>
-      </div>
-    </div>
-  );
-};
 
 interface TimelineSectionProps {
   day: TimelineGroupedDay;
@@ -137,12 +116,9 @@ interface TimelineSectionProps {
 }
 
 const TimelineSection: FC<TimelineSectionProps> = ({ day, dayIndex }) => {
-  const { canCreate } = useAccess();
   const allItems = day.labelGroups.flatMap((g) => g.items);
   const earliest = allItems[0]?.time_start ?? "";
   const latest = getLatestTime(allItems);
-
-  const showAddSlot = canCreate("timeline");
 
   return (
     <div className="space-y-10">
@@ -167,8 +143,6 @@ const TimelineSection: FC<TimelineSectionProps> = ({ day, dayIndex }) => {
         <AnimatePresence>
           {day.labelGroups.map((group, idx) => (
             <motion.div
-              // Stable key: labeled groups are unique per day; unlabelled
-              // groups always contain exactly one item, so its id is unique.
               key={group.label ?? `_unlabelled-${group.items[0].id}`}
               variants={itemFadeUp}
               exit="hidden"
@@ -176,22 +150,10 @@ const TimelineSection: FC<TimelineSectionProps> = ({ day, dayIndex }) => {
             >
               <LabelCarousel
                 group={group}
-                // Extend the connector line when the add-section slot will
-                // render below, so the timeline visually continues into it.
-                isNotLastItem={idx < day.labelGroups.length - 1 || showAddSlot}
+                isNotLastItem={idx < day.labelGroups.length - 1}
               />
             </motion.div>
           ))}
-          {showAddSlot && (
-            <motion.div
-              key="_add-section-slot"
-              variants={itemFadeUp}
-              exit="hidden"
-              layout
-            >
-              <AddSectionSlot />
-            </motion.div>
-          )}
         </AnimatePresence>
       </motion.div>
     </div>
