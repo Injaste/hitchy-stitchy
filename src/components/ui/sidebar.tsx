@@ -239,7 +239,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar rounded-xl shadow-sm ring-1 ring-sidebar-border"
+          className="flex size-full flex-col bg-sidebar rounded-2xl shadow-sm ring-1 ring-sidebar-border"
         >
           {children}
         </div>
@@ -322,7 +322,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       transition={{ duration: 0.2, ease: "linear" }}
       className={cn(
         "relative flex w-full flex-1 flex-col bg-background overflow-hidden",
-        "md:mb-2 md:mr-2 md:rounded-xl md:shadow-sm md:ring-1 md:ring-sidebar-border",
+        "md:mb-2 md:mr-2 md:rounded-2xl md:shadow-sm md:ring-1 md:ring-sidebar-border",
         className,
       )}
     >

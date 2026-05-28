@@ -23,7 +23,7 @@ const JoinedCard: FC<{ event: Event }> = ({ event }) => {
     <motion.div variants={itemFadeUp}>
       <Card className="group h-full flex flex-col hover:border-primary/20 hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
             <CalendarDays className="w-5 h-5 text-primary" />
           </div>
           {status === "active" && (

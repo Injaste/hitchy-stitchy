@@ -17,9 +17,11 @@
 
   --default-transition-duration: 200ms;
 
-  --radius-lg: 0.625rem;
-  --radius-md: calc(0.625rem - 2px);
-  --radius-sm: calc(0.625rem - 4px);
+  --radius-2xl: 1.25rem;
+  --radius-xl: 1rem;
+  --radius-lg: 0.75rem;
+  --radius-md: calc(0.75rem - 2px);
+  --radius-sm: calc(0.75rem - 4px);
 
   --sidebar-width: 16rem;
   --sidebar-width-icon: 3rem;
@@ -83,7 +85,7 @@
   --color-sidebar-ring: oklch(0.76 0.13 85);
 
   /* ── Radius ── */
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
   --scrollbar-thumb: hsl(var(--color-border));
   --scrollbar-thumb-hover: hsl(var(--color-muted-foreground) / 0.5);
