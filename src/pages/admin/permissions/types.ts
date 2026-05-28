@@ -63,9 +63,13 @@ export const CATEGORY_DISPLAY: Record<RoleCategory, { label: string; description
 
 export const CATEGORY_ORDER: RoleCategory[] = ["root", "admin", "general"]
 
-export function deriveAccessLevel(perm: ResourcePermission | undefined): AccessLevel {
+// Resources where only `can_update` is meaningful — having it counts as full access.
+const UPDATE_ONLY_RESOURCES = new Set<Resource>(["members.freeze"])
+
+export function deriveAccessLevel(perm: ResourcePermission | undefined, resource?: Resource): AccessLevel {
   if (!perm) return "none"
   const { can_read, can_create, can_update, can_delete } = perm
+  if (resource && UPDATE_ONLY_RESOURCES.has(resource) && can_update) return "full"
   if (can_create && can_update && can_delete) return "full"
   if (can_create || can_update || can_delete) return "write"
   if (can_read) return "read"

@@ -51,7 +51,7 @@ const PermissionsTable: FC<{ data: CategoryPermissions[] }> = ({ data }) => {
       }
     } else {
       for (const perm of cat.permissions) {
-        resourceMap.set(perm.resource as Resource, deriveAccessLevel(perm));
+        resourceMap.set(perm.resource as Resource, deriveAccessLevel(perm, perm.resource as Resource));
       }
     }
 
