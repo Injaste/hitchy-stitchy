@@ -5,9 +5,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useRefetch } from "@/pages/admin/hooks/useRefetch";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useHasScrolled } from "@/hooks/use-has-scrolled";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { widthReveal } from "@/lib/animations";
-import { SidebarTrigger } from "../ui/sidebar";
+import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { Separator } from "../ui/separator";
 import Container from "./container";
 import { cn } from "@/lib/utils";
@@ -68,6 +71,29 @@ export const ActionLabel: FC<{ children: ReactNode; lockOpen?: boolean }> = ({ c
   );
 };
 
+// Must only be rendered inside a SidebarProvider (when showSidebarTrigger=true).
+// Shows trigger in page header only when desktop-expanded or mobile.
+const SidebarTriggerSection: FC<{ isMobile: boolean }> = ({ isMobile }) => {
+  const { state } = useSidebar();
+  const show = isMobile || state === "expanded";
+  return (
+    <AnimatePresence initial={false}>
+      {show && (
+        <motion.div
+          key="trigger-group"
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: "auto", opacity: 1, transition: { duration: 0.25, ease: "easeInOut" } }}
+          exit={{ width: 0, opacity: 0, transition: { duration: 0.2, ease: "easeInOut" } }}
+          className="flex items-center overflow-hidden"
+        >
+          <SidebarTrigger className="-ml-2 hover:bg-transparent!" />
+          <Separator orientation="vertical" className="ml-1 mr-2 h-5 w-2 my-auto" />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 export const PageHeader: FC<PageHeaderProps> = ({
   title,
   description,
@@ -84,8 +110,12 @@ export const PageHeader: FC<PageHeaderProps> = ({
   const { handleRefresh, canRefresh } = useRefetch(refetch ?? (() => {}));
   const showActions = !isLoading && !isError;
 
+  const { eventName } = useAdminStore();
+  const isMobile = useIsMobile();
   const hasScrolled = useHasScrolled(lockOpen);
   const collapsed = collapseMeta && hasScrolled;
+
+  usePageTitle(showSidebarTrigger && eventName ? `${eventName} | ${title}` : title);
 
   function renderActions() {
     if (!refetch && !action) return null;
@@ -127,15 +157,7 @@ export const PageHeader: FC<PageHeaderProps> = ({
         <Container>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">
-              {showSidebarTrigger && (
-                <>
-                  <SidebarTrigger className="-ml-2 hover:bg-transparent!" />
-                  <Separator
-                    orientation="vertical"
-                    className="ml-1 mr-2 h-5 w-2 my-auto"
-                  />
-                </>
-              )}
+              {showSidebarTrigger && <SidebarTriggerSection isMobile={isMobile} />}
               <h1 className="text-xl font-semibold">{title}</h1>
             </div>
 

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Logo from "@/components/custom/logo";
 import {
   Clock,
@@ -23,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -45,7 +47,16 @@ import { cn } from "@/lib/utils";
 
 const AdminSidebar = () => {
   const isMobile = useIsMobile();
-  const { state } = useSidebar();
+  const { state, setOpen } = useSidebar();
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const handler = (e: MediaQueryListEvent) => {
+      if (e.matches) setOpen(false);
+    };
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [setOpen]);
 
   const {
     eventName,
@@ -67,18 +78,37 @@ const AdminSidebar = () => {
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg" className="pointer-events-none">
-                <Logo
-                  className="shrink-0"
-                  imageClassName={cn(
-                    state === "expanded" || isMobile ? "size-9" : "size-8",
+              <div
+                className={cn(
+                  "relative",
+                  !isMobile && state === "collapsed" && "group/logo",
+                )}
+              >
+                <SidebarMenuButton
+                  size="lg"
+                  className={cn(
+                    "pointer-events-none transition-opacity duration-200",
+                    !isMobile &&
+                      state === "collapsed" &&
+                      "group-hover/logo:opacity-0",
                   )}
-                />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="font-bold truncate">{eventName}</span>
-                  <span className="truncate text-xs">{slug}</span>
-                </div>
-              </SidebarMenuButton>
+                >
+                  <Logo
+                    className="shrink-0"
+                    imageClassName={cn(
+                      state === "expanded" || isMobile ? "size-9" : "size-8",
+                    )}
+                  />
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="font-bold truncate">{eventName}</span>
+                    <span className="truncate text-xs">{slug}</span>
+                  </div>
+                </SidebarMenuButton>
+
+                {!isMobile && state === "collapsed" && (
+                  <SidebarTrigger className="absolute inset-0 h-full w-full rounded-full opacity-0 transition-opacity duration-200 group-hover/logo:opacity-100" />
+                )}
+              </div>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
