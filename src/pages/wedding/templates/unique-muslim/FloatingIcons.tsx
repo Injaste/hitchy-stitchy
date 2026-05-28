@@ -77,7 +77,7 @@ const FloatingIcons = () => {
           >
             <Heart
               style={{ width: icon.size, height: icon.size }}
-              className="stroke-[#66383b]"
+              className="stroke-[var(--um-rose)]"
             />
           </div>
         ))}

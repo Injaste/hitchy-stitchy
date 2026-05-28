@@ -33,17 +33,17 @@ const Footer: FC<FooterProps> = ({
           },
         }}
         style={{ originX: "50%" }}
-        className="w-10 h-px bg-primary/30 mx-auto mb-6"
+        className="w-10 h-px bg-[var(--um-primary)]/30 mx-auto mb-6"
       />
       <motion.p
         variants={fadeUp(0.1, 12, 0.7)}
-        className="mb-3 italic text-foreground"
+        className="mb-3 italic text-[var(--um-fg)]"
       >
         {footer_tagline}
       </motion.p>
       <motion.h2
         variants={fadeUp(0.2, 16, 0.8)}
-        className="um-couple-names text-[#66383b] italic tracking-wide leading-tight text-4xl flex flex-col"
+        className="um-couple-names text-[var(--um-rose)] italic tracking-wide leading-tight text-4xl flex flex-col"
       >
         <span>{groom_name}</span>
         <span>&</span>

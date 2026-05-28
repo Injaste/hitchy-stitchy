@@ -61,7 +61,7 @@ const Itinerary = ({ pageConfig }: ThemeProps) => {
   return (
     <section
       id="itinerary"
-      className="pt-10 pb-20 px-4 bg-card/60 relative z-10"
+      className="pt-10 pb-20 px-4 bg-[var(--um-card)]/60 relative z-10"
     >
       <div className="max-w-sm mx-auto">
         <div className="flex flex-col gap-8">

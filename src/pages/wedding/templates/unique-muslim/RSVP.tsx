@@ -110,7 +110,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="text-center text-foreground/70 italic leading-relaxed py-8"
+      className="text-center text-[var(--um-fg)]/70 italic leading-relaxed py-8"
     >
       {message}
     </motion.p>
@@ -129,14 +129,14 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h3 className="text-2xl font-bold my-3 text-foreground">
+        <h3 className="text-2xl font-bold my-3 text-[var(--um-fg)]">
           {rsvp_success_heading}
         </h3>
         <motion.p
           initial={submitted ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-          className="text-foreground/70 leading-relaxed italic mb-6"
+          className="text-[var(--um-fg)]/70 leading-relaxed italic mb-6"
         >
           {eventConfig.confirmation_message}
         </motion.p>
@@ -151,9 +151,9 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               variant="outline"
               size="sm"
               onClick={() => setIsEditing(true)}
-              className="rounded-xl border-primary/30 hover:border-primary/60 gap-2 font-bold tracking-wide uppercase shrink-0"
+              className="rounded-xl border-[var(--um-primary)]/30 hover:border-[var(--um-primary)]/60 gap-2 font-bold tracking-wide uppercase shrink-0"
             >
-              <Edit2 size={14} className="text-primary" /> Edit
+              <Edit2 size={14} className="text-[var(--um-primary)]" /> Edit
             </Button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -162,9 +162,9 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               size="sm"
               disabled={remove.isPending}
               onClick={() => setShowDeleteDialog(true)}
-              className="rounded-xl border-primary/30 hover:border-destructive/60 hover:text-destructive gap-2 font-bold tracking-wide uppercase shrink-0"
+              className="rounded-xl border-[var(--um-primary)]/30 hover:border-[var(--um-destructive)]/60 hover:text-[var(--um-destructive)] gap-2 font-bold tracking-wide uppercase shrink-0"
             >
-              <Trash2 size={14} className="text-primary" />
+              <Trash2 size={14} className="text-[var(--um-primary)]" />
               {remove.isPending ? "Removing…" : "Delete"}
             </Button>
           </motion.div>
@@ -218,7 +218,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
 
   if (isLoading) {
     return (
-      <div className="py-32 text-center text-primary font-bold italic">
+      <div className="py-32 text-center text-[var(--um-primary)] font-bold italic">
         Checking RSVP status…
       </div>
     );
@@ -238,25 +238,25 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
           variants={fadeIn(0, 0.8)}
-          className="bg-card/80 backdrop-blur-md p-6 rounded-[1.75rem] shadow-xl border border-primary/20"
+          className="bg-[var(--um-card)]/80 backdrop-blur-md p-6 rounded-[1.75rem] shadow-xl border border-[var(--um-primary)]/20"
         >
           {/* Header */}
           <motion.div variants={fadeIn(0)} className="text-center mb-8">
             <motion.div variants={fadeIn(0.05)}>
               <Heart
-                className="text-primary mx-auto mb-4 fill-primary/10"
+                className="text-[var(--um-primary)] mx-auto mb-4 fill-[var(--um-primary)]/10"
                 size={40}
               />
             </motion.div>
             <motion.h2
               variants={fadeUp(0.15, 16, 0.7)}
-              className="text-3xl font-bold text-primary mb-2 italic"
+              className="text-3xl font-bold text-[var(--um-primary)] mb-2 italic"
             >
               RSVP
             </motion.h2>
             <motion.p
               variants={fadeUp(0.25, 12, 0.7)}
-              className="text-muted-foreground italic"
+              className="text-[var(--um-muted-fg)] italic"
             >
               {rsvp_subtitle}
             </motion.p>

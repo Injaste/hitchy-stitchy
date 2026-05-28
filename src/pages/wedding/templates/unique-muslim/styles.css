@@ -3,6 +3,17 @@
 
 .um-root {
   font-family: var(--theme-font-body);
+
+  --um-primary:      #d4af37;
+  --um-primary-fg:   #ffffff;
+  --um-fg:           #2d1d14;
+  --um-muted-fg:     #706052;
+  --um-muted:        #f4eee0;
+  --um-destructive:  #d74745;
+  --um-border:       #ebe4d6;
+  --um-card:         #ffffff;
+  --um-rose:         #66383b;
+  --um-envelope:     #f4ead3;
 }
 
 .um-root h1,
