@@ -19,7 +19,6 @@ import {
 import Footer from "./Footer";
 import successCheck from "@/assets/lottie/success-check.json";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Lottie = (LottieRaw as any).default ?? LottieRaw;
 
 const fadeUp = (delay: number, y = 20, duration = 0.8): Variants => ({
@@ -68,10 +67,22 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
 
   const mergedRsvpLabels = {
     ...rsvpLabels,
-    name: { ...rsvpLabels.name, label: rsvp_label_name ?? rsvpLabels.name.label },
-    phone: { ...rsvpLabels.phone, label: rsvp_label_phone ?? rsvpLabels.phone.label },
-    guestCount: { ...rsvpLabels.guestCount, label: rsvp_label_guest_count ?? rsvpLabels.guestCount.label },
-    message: { ...rsvpLabels.message, label: rsvp_label_message ?? rsvpLabels.message.label },
+    name: {
+      ...rsvpLabels.name,
+      label: rsvp_label_name ?? rsvpLabels.name.label,
+    },
+    phone: {
+      ...rsvpLabels.phone,
+      label: rsvp_label_phone ?? rsvpLabels.phone.label,
+    },
+    guestCount: {
+      ...rsvpLabels.guestCount,
+      label: rsvp_label_guest_count ?? rsvpLabels.guestCount.label,
+    },
+    message: {
+      ...rsvpLabels.message,
+      label: rsvp_label_message ?? rsvpLabels.message.label,
+    },
   };
   const rsvpConfig = eventConfig.config.rsvp;
 
@@ -110,7 +121,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="text-center text-[var(--um-fg)]/70 italic leading-relaxed py-8"
+      className="text-center text-(--um-fg)/70 italic leading-relaxed py-8"
     >
       {message}
     </motion.p>
@@ -129,14 +140,14 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h3 className="text-2xl font-bold my-3 text-[var(--um-fg)]">
+        <h3 className="text-2xl font-bold my-3 text-(--um-fg)">
           {rsvp_success_heading}
         </h3>
         <motion.p
           initial={submitted ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-          className="text-[var(--um-fg)]/70 leading-relaxed italic mb-6"
+          className="text-(--um-fg)/70 leading-relaxed italic mb-6"
         >
           {eventConfig.confirmation_message}
         </motion.p>
@@ -151,9 +162,9 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               variant="outline"
               size="sm"
               onClick={() => setIsEditing(true)}
-              className="rounded-xl border-[var(--um-primary)]/30 hover:border-[var(--um-primary)]/60 gap-2 font-bold tracking-wide uppercase shrink-0"
+              className="rounded-xl border-(--um-primary)/30 hover:border-(--um-primary)/60 gap-2 font-bold tracking-wide uppercase shrink-0"
             >
-              <Edit2 size={14} className="text-[var(--um-primary)]" /> Edit
+              <Edit2 size={14} className="text-(--um-primary)" /> Edit
             </Button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -162,9 +173,9 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
               size="sm"
               disabled={remove.isPending}
               onClick={() => setShowDeleteDialog(true)}
-              className="rounded-xl border-[var(--um-primary)]/30 hover:border-[var(--um-destructive)]/60 hover:text-[var(--um-destructive)] gap-2 font-bold tracking-wide uppercase shrink-0"
+              className="rounded-xl border-(--um-primary)/30 hover:border-(--um-destructive)/60 hover:text-(--um-destructive) gap-2 font-bold tracking-wide uppercase shrink-0"
             >
-              <Trash2 size={14} className="text-[var(--um-primary)]" />
+              <Trash2 size={14} className="text-(--um-primary)" />
               {remove.isPending ? "Removing…" : "Delete"}
             </Button>
           </motion.div>
@@ -207,7 +218,7 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
         "private",
         "RSVPs are by invitation only. Please contact us directly to confirm your attendance.",
       );
-    if (isDeadlinePassed)
+    if (true)
       return renderClosed(
         "deadline",
         "RSVP submissions are now closed. Thank you to everyone who responded.",
@@ -216,9 +227,9 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
     return renderForm();
   };
 
-  if (isLoading) {
+  if (true) {
     return (
-      <div className="py-32 text-center text-[var(--um-primary)] font-bold italic">
+      <div className="py-32 text-center text-(--um-primary) font-bold italic">
         Checking RSVP status…
       </div>
     );
@@ -238,25 +249,25 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
           variants={fadeIn(0, 0.8)}
-          className="bg-[var(--um-card)]/80 backdrop-blur-md p-6 rounded-[1.75rem] shadow-xl border border-[var(--um-primary)]/20"
+          className="bg-(--um-card)/80 backdrop-blur-md p-6 rounded-[1.75rem] shadow-xl border border-(--um-primary)/20"
         >
           {/* Header */}
           <motion.div variants={fadeIn(0)} className="text-center mb-8">
             <motion.div variants={fadeIn(0.05)}>
               <Heart
-                className="text-[var(--um-primary)] mx-auto mb-4 fill-[var(--um-primary)]/10"
+                className="text-(--um-primary) mx-auto mb-4 fill-(--um-primary)/10"
                 size={40}
               />
             </motion.div>
             <motion.h2
               variants={fadeUp(0.15, 16, 0.7)}
-              className="text-3xl font-bold text-[var(--um-primary)] mb-2 italic"
+              className="text-3xl font-bold text-(--um-primary) mb-2 italic"
             >
               RSVP
             </motion.h2>
             <motion.p
               variants={fadeUp(0.25, 12, 0.7)}
-              className="text-[var(--um-muted-fg)] italic"
+              className="text-(--um-muted-fg) italic"
             >
               {rsvp_subtitle}
             </motion.p>

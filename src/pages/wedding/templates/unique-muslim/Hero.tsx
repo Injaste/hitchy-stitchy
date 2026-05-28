@@ -90,7 +90,7 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
       >
         <motion.p
           variants={greeting}
-          className="text-[var(--um-fg)]/80 text-lg tracking-wider mb-14 whitespace-pre-line"
+          className="text-(--um-fg)/80 text-lg tracking-wider mb-14 whitespace-pre-line"
         >
           {greetingText}
         </motion.p>
@@ -100,17 +100,17 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
           style={{ originX: "50%" }}
           className="flex items-center justify-center gap-5 mb-5"
         >
-          <div className="h-px flex-1 max-w-20 bg-linear-to-r from-transparent to-[var(--um-primary)]/50" />
-          <span className="text-2xs font-medium uppercase tracking-[0.45em] text-[var(--um-muted-fg)] whitespace-nowrap">
+          <div className="h-px flex-1 max-w-20 bg-linear-to-r from-transparent to-(--um-primary)/50" />
+          <span className="text-2xs font-medium uppercase tracking-[0.45em] text-(--um-muted-fg) whitespace-nowrap">
             {hero_divider_label}
           </span>
-          <div className="h-px flex-1 max-w-20 bg-linear-to-l from-transparent to-[var(--um-primary)]/50" />
+          <div className="h-px flex-1 max-w-20 bg-linear-to-l from-transparent to-(--um-primary)/50" />
         </motion.div>
 
         <h1 className="mb-12">
           <motion.span
             variants={name1}
-            className="um-couple-names text-[var(--um-rose)] italic tracking-wide leading-tight text-5xl"
+            className="um-couple-names text-(--um-rose) italic tracking-wide leading-tight text-5xl"
           >
             {groom_name}
           </motion.span>
@@ -119,16 +119,16 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
             variants={amp}
             className="flex items-center justify-center gap-5 my-2"
           >
-            <span className="h-px flex-1 max-w-16 bg-[var(--um-primary)]/25" />
-            <span className="text-xl font-light not-italic tracking-normal text-[var(--um-fg)]/40">
+            <span className="h-px flex-1 max-w-16 bg-(--um-primary)/25" />
+            <span className="text-xl font-light not-italic tracking-normal text-(--um-fg)/40">
               &amp;
             </span>
-            <div className="h-px flex-1 max-w-16 bg-[var(--um-primary)]/25" />
+            <div className="h-px flex-1 max-w-16 bg-(--um-primary)/25" />
           </motion.span>
 
           <motion.span
             variants={name2}
-            className="um-couple-names text-[var(--um-rose)] italic tracking-wide leading-tight text-5xl"
+            className="um-couple-names text-(--um-rose) italic tracking-wide leading-tight text-5xl"
           >
             {bride_name}
           </motion.span>
@@ -144,11 +144,11 @@ const Hero = ({ eventConfig, pageConfig, ready = true }: HeroProps) => {
         )}
 
         <motion.div variants={verse} className="mb-14">
-          <div className="border-t border-[var(--um-primary)]/20 pt-6">
-            <p className="text-[var(--um-fg)] leading-relaxed whitespace-pre-line">
+          <div className="border-t border-(--um-primary)/20 pt-6">
+            <p className="text-(--um-fg) leading-relaxed whitespace-pre-line">
               {quote}
             </p>
-            <span className="block mt-3 text-[var(--um-fg)]/80 text-sm tracking-widest uppercase font-medium">
+            <span className="block mt-3 text-(--um-fg)/80 text-sm tracking-widest uppercase font-medium">
               {quote_source}
             </span>
           </div>

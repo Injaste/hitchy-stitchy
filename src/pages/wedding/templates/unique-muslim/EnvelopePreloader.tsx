@@ -56,7 +56,7 @@ const EnvelopeHalf = ({ side }: { side: "left" | "right" }) => {
         y1={0}
         x2={innerX}
         y2={100}
-        className="stroke-[var(--um-fg)]/50"
+        className="stroke-(--um-fg)/50"
         strokeWidth={1}
         vectorEffect="non-scaling-stroke"
       />
@@ -102,7 +102,7 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
           exit={{ opacity: 0, transition: { duration: 0.001 } }}
         >
           <motion.div
-            className="absolute inset-y-0 left-0 w-1/2 bg-[var(--um-envelope)] overflow-hidden"
+            className="absolute inset-y-0 left-0 w-1/2 bg-(--um-envelope) overflow-hidden"
             variants={leftHalfVariants}
             initial="sealed"
             animate={phase}
@@ -114,7 +114,7 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
           </motion.div>
 
           <motion.div
-            className="absolute inset-y-0 right-0 w-1/2 bg-[var(--um-envelope)] overflow-hidden"
+            className="absolute inset-y-0 right-0 w-1/2 bg-(--um-envelope) overflow-hidden"
             variants={rightHalfVariants}
             initial="sealed"
             animate={phase}
@@ -128,7 +128,7 @@ const EnvelopePreloader = ({ loaderReady, onExitComplete }: Props) => {
             initial="sealed"
             animate={phase}
           >
-            <div className="relative size-28 sm:size-36 rounded-full bg-[var(--um-primary)] shadow-xl p-6 flex items-center justify-center">
+            <div className="relative size-28 sm:size-36 rounded-full bg-(--um-primary) shadow-xl p-6 flex items-center justify-center">
               <img
                 src="/images/background/d-n-n.png"
                 alt=""

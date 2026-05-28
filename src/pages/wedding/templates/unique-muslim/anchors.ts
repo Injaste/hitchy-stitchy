@@ -9,9 +9,9 @@ export const uniqueMuslimAnchors: AnchorThemeConfig = {
     { id: "rsvp", label: "RSVP", icon: Heart, target: "#rsvp", scrollBlock: "start" },
   ],
   classNames: {
-    bar: "border-[var(--um-primary)]/10 bg-[var(--um-card)]/60 backdrop-blur-md",
-    icon: "text-[var(--um-primary)]",
-    label: "text-[var(--um-fg)]/60",
+    bar: "border-(--um-primary)/10 bg-(--um-card)/60 backdrop-blur-md",
+    icon: "text-(--um-primary)",
+    label: "text-(--um-fg)/60",
   },
   labels: {
     ariaLabel: "Wedding page navigation",

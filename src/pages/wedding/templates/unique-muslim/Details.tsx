@@ -162,7 +162,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
     : null;
 
   return (
-    <section id="details" className="pt-20 pb-10 px-4 bg-[var(--um-card)]/60 relative z-10">
+    <section id="details" className="pt-20 pb-10 px-4 bg-(--um-card)/60 relative z-10">
       <div className="max-w-4xl mx-auto text-center">
         {/* Intro */}
         <motion.div
@@ -172,17 +172,17 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
           className="mb-16"
         >
           <motion.div variants={fadeIn(0)}>
-            <Sparkles className="text-[var(--um-primary)] mx-auto mb-5" size={28} />
+            <Sparkles className="text-(--um-primary) mx-auto mb-5" size={28} />
           </motion.div>
           <motion.h3
             variants={fadeUp(0.1, 20, 0.7)}
-            className="text-3xl font-bold text-[var(--um-primary)] mb-4 italic"
+            className="text-3xl font-bold text-(--um-primary) mb-4 italic"
           >
             {section_title}
           </motion.h3>
           <motion.p
             variants={fadeUp(0.25, 16, 0.8)}
-            className="text-[var(--um-fg)]/70 leading-relaxed max-w-2xl mx-auto"
+            className="text-(--um-fg)/70 leading-relaxed max-w-2xl mx-auto"
           >
             {invitation_body}
           </motion.p>
@@ -196,13 +196,13 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             viewport={{ once: true, margin: "-60px" }}
             className="mb-14"
           >
-            <motion.p variants={fadeIn(0)} className="text-[var(--um-fg)]/70 mb-3">
+            <motion.p variants={fadeIn(0)} className="text-(--um-fg)/70 mb-3">
               {blessings_prefix}
             </motion.p>
             {blessings_name && (
               <motion.h3
                 variants={fadeUp(0.1, 20, 0.8)}
-                className="text-3xl font-bold text-[var(--um-primary)] mb-2 whitespace-pre-line italic"
+                className="text-3xl font-bold text-(--um-primary) mb-2 whitespace-pre-line italic"
               >
                 {blessings_name}
               </motion.h3>
@@ -210,7 +210,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             {blessings_label && (
               <motion.p
                 variants={fadeUp(0.2, 12, 0.7)}
-                className="text-[var(--um-fg)]/70"
+                className="text-(--um-fg)/70"
               >
                 {blessings_label}
               </motion.p>
@@ -218,7 +218,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             <motion.div
               variants={divider}
               style={{ originX: "50%" }}
-              className="w-12 h-px bg-[var(--um-primary)]/30 mx-auto mt-5"
+              className="w-12 h-px bg-(--um-primary)/30 mx-auto mt-5"
             />
           </motion.div>
         )}
@@ -240,14 +240,14 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               >
                 <motion.div
                   variants={scaleIn(idx * 0.15 + 0.05)}
-                  className="w-16 h-16 rounded-full bg-[var(--um-card)] flex items-center justify-center text-[var(--um-primary)] mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm border border-[var(--um-primary)]/20"
+                  className="w-16 h-16 rounded-full bg-(--um-card) flex items-center justify-center text-(--um-primary) mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm border border-(--um-primary)/20"
                 >
                   <item.icon size={28} />
                 </motion.div>
-                <h4 className="font-bold text-base mb-1 text-[var(--um-fg)]">
+                <h4 className="font-bold text-base mb-1 text-(--um-fg)">
                   {item.title}
                 </h4>
-                <p className="text-[var(--um-primary)] font-bold text-base">
+                <p className="text-(--um-primary) font-bold text-base">
                   {item.detail}
                 </p>
               </motion.div>
@@ -271,14 +271,14 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                 <Button
                   asChild
                   variant="outline"
-                  className="rounded-xl border-[var(--um-primary)]/30 hover:border-[var(--um-primary)]/60 gap-2 font-bold tracking-wide uppercase h-10 px-5"
+                  className="rounded-xl border-(--um-primary)/30 hover:border-(--um-primary)/60 gap-2 font-bold tracking-wide uppercase h-10 px-5"
                 >
                   <a
                     href={googleCalendarUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <CalendarCheck size={16} className="text-[var(--um-primary)]" />
+                    <CalendarCheck size={16} className="text-(--um-primary)" />
                     Add to Google Calendar
                   </a>
                 </Button>
@@ -294,7 +294,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-40px" }}
-            className="w-full max-w-xl mx-auto rounded-2xl bg-[var(--um-card)]/50 border border-[var(--um-primary)]/10 overflow-hidden shadow-sm p-2"
+            className="w-full max-w-xl mx-auto rounded-2xl bg-(--um-card)/50 border border-(--um-primary)/10 overflow-hidden shadow-sm p-2"
           >
             <motion.div
               variants={fadeIn(0, 0.9)}
@@ -312,7 +312,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               variants={fadeUp(0.15, 10, 0.6)}
               className="p-4 pb-2 flex flex-col items-center justify-between gap-3"
             >
-              <p className="text-[var(--um-fg)]/70 italic text-center whitespace-pre-line">
+              <p className="text-(--um-fg)/70 italic text-center whitespace-pre-line">
                 {venue_address}
               </p>
               {venue_map_link && (
@@ -324,14 +324,14 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="rounded-xl border-[var(--um-primary)]/30 hover:border-[var(--um-primary)]/60 gap-2 font-bold tracking-wide uppercase shrink-0"
+                    className="rounded-xl border-(--um-primary)/30 hover:border-(--um-primary)/60 gap-2 font-bold tracking-wide uppercase shrink-0"
                   >
                     <a
                       href={venue_map_link}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <MapPinCheck size={14} className="text-[var(--um-primary)]" />
+                      <MapPinCheck size={14} className="text-(--um-primary)" />
                       Open Maps
                     </a>
                   </Button>
