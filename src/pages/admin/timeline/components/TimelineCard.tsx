@@ -33,7 +33,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
         <ArraySeparator items={timeItems} separator="-" className="gap-1" />
       </div>
 
-      <Card className="relative mt-2 flex-1 h-full hover:ring-secondary hover:shadow-sm">
+      <Card variant="interactive" className="relative mt-2 flex-1 h-full">
         <button
           onClick={() => openDetail(item)}
           aria-label={item.title}

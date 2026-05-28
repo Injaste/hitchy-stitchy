@@ -17,7 +17,7 @@ const InvitedCard: FC<{ event: Event }> = ({ event }) => {
 
   return (
     <motion.div variants={itemFadeUp}>
-      <Card className="group h-full flex flex-col border-dashed hover:border-muted-foreground/30 hover:shadow-md transition-shadow bg-card/30">
+      <Card variant="interactive" className="group h-full flex flex-col border-dashed bg-card/30">
         <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
           <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
             <Mail className="w-5 h-5 text-muted-foreground" />

@@ -10,6 +10,7 @@ import { useRoleModalStore } from "../../roles/hooks/useRoleModalStore";
 import { type Member } from "../types";
 import MemberStatus from "./MemberStatus";
 import { getMemberStatus } from "../utils";
+import { isAdminMember, isBrideOrGroom } from "../../bootstrap/utils";
 
 interface MemberCardProps {
   member: Member;
@@ -25,9 +26,12 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
 
   return (
     <Card
+      variant="interactive"
       className={cn(
-        "relative border-l-4 border-l-accent transition-all",
-        "hover:ring-secondary hover:shadow-sm",
+        "relative border-l-4",
+        isBrideOrGroom(member.role.name)
+          ? "border-l-primary"
+          : isAdminMember(member.role.category) && "border-l-secondary",
         isFrozen && "opacity-60",
         isRejected && "opacity-40",
       )}

@@ -70,7 +70,7 @@ const TemplateGalleryCard = ({
       : null;
 
   return (
-    <Card className="relative aspect-9/10 overflow-hidden p-0 group">
+    <Card variant="interactive" className="relative aspect-9/10 overflow-hidden p-0 group">
       <div className="absolute inset-0 bg-linear-to-b from-primary/20 to-secondary/15 flex items-center justify-center">
         {/* <Sparkles className="h-12 w-12 text-muted-foreground/30" /> */}
         <img src="/images/unique-muslim/dannad.png" className="" alt="Template preview" />

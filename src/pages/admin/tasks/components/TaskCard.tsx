@@ -72,9 +72,9 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
     <Card
       data-task-id={task.id}
       onClick={() => openDetail(task)}
+      variant="interactive"
       className={cn(
-        "group/task-card relative cursor-pointer transition duration-200",
-        "hover:ring-secondary hover:shadow-sm",
+        "group/task-card relative",
         statusCard[task.status],
         isOverdue && "ring-1 ring-destructive/30",
       )}
