@@ -2,7 +2,6 @@ import { useEffect, useRef, type FC } from "react";
 import { animate, motion, stagger } from "framer-motion";
 import LottieRaw from "lottie-react";
 import Logo from "@/components/custom/logo";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Lottie = (LottieRaw as any).default ?? LottieRaw;
 import SplitType from "split-type";
 import loveParticle from "@/assets/lottie/love-particle.json";

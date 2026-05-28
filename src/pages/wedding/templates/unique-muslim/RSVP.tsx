@@ -218,22 +218,15 @@ const RSVP = ({ eventConfig, pageConfig }: ThemeProps) => {
         "private",
         "RSVPs are by invitation only. Please contact us directly to confirm your attendance.",
       );
-    if (true)
+    else if (isDeadlinePassed)
       return renderClosed(
         "deadline",
         "RSVP submissions are now closed. Thank you to everyone who responded.",
       );
     if (existingRSVP && !isEditing) return renderSuccess();
-    return renderForm();
+    else if (isLoading) return renderClosed("loading", "Checking RSVP status…");
+    else return renderForm();
   };
-
-  if (true) {
-    return (
-      <div className="py-32 text-center text-(--um-primary) font-bold italic">
-        Checking RSVP status…
-      </div>
-    );
-  }
 
   return (
     <section
