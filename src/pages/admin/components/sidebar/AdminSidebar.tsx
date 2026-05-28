@@ -43,6 +43,7 @@ import { Link } from "react-router-dom";
 import PortalToApp from "@/components/custom/portal-to-app";
 import { useCueStore } from "../../store/useCueStore";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BREAKPOINTS } from "@/lib/breakpoints";
 import { cn } from "@/lib/utils";
 
 const AdminSidebar = () => {
@@ -50,7 +51,8 @@ const AdminSidebar = () => {
   const { state, setOpen } = useSidebar();
 
   useEffect(() => {
-    const mql = window.matchMedia("(max-width: 1023px)");
+    const mql = window.matchMedia(`(max-width: ${BREAKPOINTS.lg - 1}px)`);
+    if (mql.matches) setOpen(false);
     const handler = (e: MediaQueryListEvent) => {
       if (e.matches) setOpen(false);
     };

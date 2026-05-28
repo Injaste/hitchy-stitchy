@@ -21,11 +21,11 @@ export const itemScaleIn: Variants = {
 
 export const itemFadeUp: Variants = {
   hidden: { opacity: 0, y: 15 },
-  show: {
+  show: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4 }
-  },
+    transition: { duration: 0.4, delay: (i ?? 0) * 0.08 },
+  }),
 };
 
 export const itemFadeIn = {

@@ -1,4 +1,4 @@
-import { differenceInDays } from "date-fns";
+import { differenceInDays, format } from "date-fns";
 import { CalendarClock, CalendarX } from "lucide-react";
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -18,13 +18,7 @@ const DeadlineAlert = () => {
   const isUrgent = daysLeft < 3;
   const isWarning = daysLeft < 7;
 
-  const formatted = deadline.toLocaleString(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const formatted = format(deadline, "do MMMM yyyy, 'at' h:mm a");
 
   const variant =
     isPast || isUrgent ? "destructive" : isWarning ? "warning" : "default";
@@ -32,7 +26,7 @@ const DeadlineAlert = () => {
 
   const title = isPast
     ? `RSVP closed · ${formatted}`
-    : `RSVP closes ${formatted}`;
+    : `RSVP closes on ${formatted}`;
 
   const daysLabel = `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`;
   let description = `${daysLabel} for guests to submit their RSVP.`;

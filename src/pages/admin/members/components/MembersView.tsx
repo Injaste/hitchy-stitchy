@@ -2,8 +2,8 @@ import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
+import { itemFadeUp } from "@/lib/animations";
 import ErrorState from "@/components/custom/states/error-state";
-import { container, itemFadeUp } from "@/lib/animations";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
@@ -61,17 +61,15 @@ const MembersView: FC<MembersViewProps> = ({
 
     return (
       <ComponentFade key="content">
-        <motion.ul
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="flex flex-col gap-3 lg:gap-6"
-        >
+        <ul className="flex flex-col gap-3 lg:gap-6">
           <AnimatePresence>
-            {data.map((member) => (
+            {data.map((member, i) => (
               <motion.li
                 key={member.id}
+                custom={i}
                 variants={itemFadeUp}
+                initial="hidden"
+                animate="show"
                 exit="hidden"
                 layout
               >
@@ -79,7 +77,7 @@ const MembersView: FC<MembersViewProps> = ({
               </motion.li>
             ))}
           </AnimatePresence>
-        </motion.ul>
+        </ul>
       </ComponentFade>
     );
   };
