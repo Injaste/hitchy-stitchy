@@ -30,7 +30,7 @@ const AdminSidebarHeader = () => {
             <SidebarMenuButton
               size="lg"
               className={cn(
-                "pointer-events-none transition-opacity duration-200",
+                "pointer-events-none",
                 !isMobile &&
                   state === "collapsed" &&
                   "group-hover/logo:opacity-0",
