@@ -45,14 +45,14 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
               size="sm"
               variant="default"
               onClick={openCreate}
-              className="gap-2"
+              className="gap-1"
             >
-              <Plus className="w-4 h-4" /> <ActionLabel>Add guest</ActionLabel>
+              <Plus className="w-4 h-4" /> <ActionLabel>Guest</ActionLabel>
             </Button>
             {/* <Button
               size="sm"
               variant="ghost"
-              className="gap-2"
+              className="gap-1"
               onClick={downloadGuestTemplate}
             >
               <Download className="w-4 h-4" /> Template
@@ -61,7 +61,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
               size="sm"
               variant="outline"
               onClick={openImport}
-              className="gap-2"
+              className="gap-1"
             >
               <Upload className="w-4 h-4" /> Import CSV
             </Button> */}

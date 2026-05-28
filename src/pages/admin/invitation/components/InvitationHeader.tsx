@@ -32,7 +32,7 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
       action={
         slug && (
           <Button variant="outline" size="sm" asChild>
-            <Link to={`/${slug}`} target="_blank" className="gap-2">
+            <Link to={`/${slug}`} target="_blank" className="gap-1">
               <ActionLabel>Open live page</ActionLabel>
               <ExternalLink />
             </Link>

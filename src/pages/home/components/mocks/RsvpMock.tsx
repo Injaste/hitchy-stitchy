@@ -143,7 +143,7 @@ export function RsvpMock() {
                   <motion.div
                     key={i}
                     animate={{
-                      backgroundColor: i < guestCount ? "oklch(0.76 0.13 85)" : "oklch(0.92 0.02 85)",
+                      backgroundColor: i < guestCount ? "oklch(0.52 0.12 350)" : "oklch(0.94 0.012 50)", /* --color-primary / --color-muted */
                       scale: i === guestCount - 1 && phase === "guests" ? [1, 1.3, 1] : 1,
                     }}
                     transition={{ duration: 0.25 }}
@@ -160,8 +160,8 @@ export function RsvpMock() {
             <motion.button
               animate={{
                 backgroundColor: phase === "submitting"
-                  ? "oklch(0.76 0.13 85 / 0.7)"
-                  : "oklch(0.76 0.13 85)",
+                  ? "oklch(0.52 0.12 350 / 0.7)" /* --color-primary at 70% */
+                  : "oklch(0.52 0.12 350)",      /* --color-primary */
               }}
               className="w-full rounded-lg py-2.5 text-sm font-semibold text-white flex items-center justify-center gap-2"
             >

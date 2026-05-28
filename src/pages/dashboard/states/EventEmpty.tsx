@@ -25,7 +25,7 @@ const EventEmpty = ({ onCreateEvent }: EventEmptyProps) => {
             Your planning journey begins here. Create your first event and start
             building the day you've always imagined.
           </p>
-          <Button className="gap-2" onClick={onCreateEvent}>
+          <Button className="gap-1" onClick={onCreateEvent}>
             Create your first event
           </Button>
         </CardContent>

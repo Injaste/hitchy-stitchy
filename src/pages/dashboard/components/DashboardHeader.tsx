@@ -26,23 +26,24 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
     { label: "Upcoming", value: eventsCount.upcoming },
   ].filter((s) => s.value > 0);
 
-  const meta: ReactNode = stats.length > 0 ? (
-    <div className="flex items-center gap-5">
-      {stats.map((s) => (
-        <div key={s.label}>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
-            {s.label}
-          </p>
-          <p className="text-lg font-bold text-foreground leading-none">
-            {s.value}
-          </p>
-        </div>
-      ))}
-    </div>
-  ) : undefined;
+  const meta: ReactNode =
+    stats.length > 0 ? (
+      <div className="flex items-center gap-5">
+        {stats.map((s) => (
+          <div key={s.label}>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+              {s.label}
+            </p>
+            <p className="text-lg font-bold text-foreground leading-none">
+              {s.value}
+            </p>
+          </div>
+        ))}
+      </div>
+    ) : undefined;
 
   const action: ReactNode = (
-    <Button size="sm" className="gap-2" onClick={onCreateEvent}>
+    <Button size="sm" className="gap-1" onClick={onCreateEvent}>
       <Plus className="size-3.5" />
       <ActionLabel>New event</ActionLabel>
     </Button>

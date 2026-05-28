@@ -31,7 +31,7 @@ const ErrorState: FC<ErrorStateProps> = ({
             onClick={onRetry}
             disabled={isRetrying}
             variant="outline"
-            className="gap-2"
+            className="gap-1"
           >
             <RefreshCw
               className={`w-4 h-4 ${isRetrying ? "animate-spin" : ""}`}

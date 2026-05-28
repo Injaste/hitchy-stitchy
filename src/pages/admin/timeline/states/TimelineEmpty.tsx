@@ -24,7 +24,7 @@ const TimelineEmpty: FC<TimelineEmptyProps> = ({ onAdd, canCreate }) => {
           wedding timeline to life.
         </p>
         {canCreate && (
-          <Button onClick={onAdd} className="gap-2">
+          <Button onClick={onAdd} className="gap-1">
             <Plus className="w-4 h-4" />
             Add first item
           </Button>

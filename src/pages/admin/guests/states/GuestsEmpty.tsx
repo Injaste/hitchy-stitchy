@@ -26,11 +26,11 @@ const GuestsEmpty: FC<GuestsEmptyProps> = ({ onAdd, onImport, canCreate }) => (
 
       {canCreate && (
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <Button onClick={onAdd} className="gap-2">
+          <Button onClick={onAdd} className="gap-1">
             <Plus className="w-4 h-4" />
-            Add first guest
+            Add First Guest
           </Button>
-          {/* <Button onClick={onImport} variant="outline" className="gap-2">
+          {/* <Button onClick={onImport} variant="outline" className="gap-1">
             <Upload className="w-4 h-4" />
             Import CSV
           </Button> */}

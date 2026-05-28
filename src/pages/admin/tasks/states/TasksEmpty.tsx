@@ -1,12 +1,12 @@
-import type { FC } from "react"
-import { Plus, ListTodo } from "lucide-react"
+import type { FC } from "react";
+import { Plus, ListTodo } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface TasksEmptyProps {
-  onAdd: () => void
-  canCreate: boolean
+  onAdd: () => void;
+  canCreate: boolean;
 }
 
 const TasksEmpty: FC<TasksEmptyProps> = ({ onAdd, canCreate }) => (
@@ -20,17 +20,18 @@ const TasksEmpty: FC<TasksEmptyProps> = ({ onAdd, canCreate }) => (
         Nothing on the list yet
       </h2>
       <p className="text-muted-foreground text-sm max-w-[26ch] leading-relaxed mb-8">
-        Add your first task to keep everything in one place — from florals to final fittings.
+        Add your first task to keep everything in one place — from florals to
+        final fittings.
       </p>
 
       {canCreate && (
-        <Button onClick={onAdd} className="gap-2">
+        <Button onClick={onAdd} className="gap-1">
           <Plus className="w-4 h-4" />
-          Add first task
+          Add First Task
         </Button>
       )}
     </CardContent>
   </Card>
-)
+);
 
-export default TasksEmpty
+export default TasksEmpty;

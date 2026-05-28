@@ -40,7 +40,7 @@ const RolesSheet = () => {
         size="sm"
         variant="outline"
         onClick={() => setOpen(true)}
-        className="gap-2"
+        className="gap-1"
       >
         <Shield className="w-4 h-4" />
         <span className="hidden sm:inline">Roles</span>
@@ -120,7 +120,7 @@ const RolesSheet = () => {
               <div className="px-5 py-4">
                 <Button size="sm" className="w-full gap-2" onClick={openCreate}>
                   <Plus className="w-4 h-4" />
-                  Add role
+                  Role
                 </Button>
               </div>
             </>

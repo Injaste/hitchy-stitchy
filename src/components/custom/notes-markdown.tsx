@@ -35,7 +35,7 @@ const NotesMarkdown = ({ content, size = "default" }: NotesMarkdownProps) => {
   return (
     <div
       className={cn(
-        "text-xs bg-primary/5 rounded-md border border-primary/10",
+        "text-foreground text-xs bg-primary/5 rounded-md border border-primary/10",
         size === "default" && "px-3 py-1.5",
         size === "sm" && "px-1.5 py-0.5",
       )}

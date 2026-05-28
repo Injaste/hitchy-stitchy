@@ -1,12 +1,12 @@
-import type { FC } from "react"
-import { Plus, UserPlus } from "lucide-react"
+import type { FC } from "react";
+import { Plus, UserPlus } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface MembersEmptyProps {
-  onInvite: () => void
-  canCreate: boolean
+  onInvite: () => void;
+  canCreate: boolean;
 }
 
 const MembersEmpty: FC<MembersEmptyProps> = ({ onInvite, canCreate }) => (
@@ -20,17 +20,18 @@ const MembersEmpty: FC<MembersEmptyProps> = ({ onInvite, canCreate }) => (
         Build your team
       </h2>
       <p className="text-muted-foreground text-sm max-w-[30ch] leading-relaxed mb-8">
-        Invite the people helping you plan, from your maid of honour to your coordinator.
+        Invite the people helping you plan, from your maid of honour to your
+        coordinator.
       </p>
 
       {canCreate && (
-        <Button onClick={onInvite} className="gap-2">
+        <Button onClick={onInvite} className="gap-1">
           <Plus className="w-4 h-4" />
           Invite first member
         </Button>
       )}
     </CardContent>
   </Card>
-)
+);
 
-export default MembersEmpty
+export default MembersEmpty;

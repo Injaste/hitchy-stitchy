@@ -39,8 +39,8 @@ const ShareRow = () => {
     >
       {copied ? (
         <>
-          <Check className="w-4 h-4 text-green-600" />
-          <span className="text-green-600">Link copied!</span>
+          <Check className="w-4 h-4 text-success" />
+          <span className="text-success">Link copied!</span>
         </>
       ) : (
         <>

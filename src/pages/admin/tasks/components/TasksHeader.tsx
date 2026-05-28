@@ -130,8 +130,9 @@ const TasksHeader: FC<TasksHeaderProps> = ({
               </Tooltip>
             )}
             {canCreate("tasks") && (
-              <Button size="sm" onClick={openCreate} className="gap-2">
-                <Plus className="size-4" /> <ActionLabel lockOpen={isDragging}>Add task</ActionLabel>
+              <Button size="sm" onClick={openCreate} className="gap-1">
+                <Plus className="size-4" />{" "}
+                <ActionLabel lockOpen={isDragging}>Task</ActionLabel>
               </Button>
             )}
           </div>

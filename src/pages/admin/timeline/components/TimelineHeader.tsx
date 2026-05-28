@@ -78,9 +78,9 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
           <Button
             size="sm"
             onClick={() => openCreateWithLabel(null)}
-            className="gap-2"
+            className="gap-1"
           >
-            <Plus className="w-4 h-4" /> <ActionLabel>Add Timeline</ActionLabel>
+            <Plus className="w-4 h-4" /> <ActionLabel>Timeline</ActionLabel>
           </Button>
         )
       }

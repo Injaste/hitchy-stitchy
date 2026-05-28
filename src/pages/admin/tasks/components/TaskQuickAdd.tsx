@@ -81,17 +81,31 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
   return (
     <AnimatePresence mode="popLayout">
       {!isAdding ? (
-        <motion.div key="button" className="hidden lg:block" variants={itemFadeIn} initial="hidden" animate="show" exit="hidden">
+        <motion.div
+          key="button"
+          className="hidden lg:block"
+          variants={itemFadeIn}
+          initial="hidden"
+          animate="show"
+          exit="hidden"
+        >
           <Button
             className="w-full min-h-[108px] flex items-center justify-center px-4 rounded-xl border border-dashed border-border"
             variant="ghost"
             onClick={() => setIsAdding(true)}
           >
-            <Plus className="size-4.5" /> Add task
+            <Plus className="size-4.5" /> Task
           </Button>
         </motion.div>
       ) : (
-        <motion.div key="form" className="hidden lg:block scroll-mb-8" variants={itemFadeIn} initial="hidden" animate="show" exit="hidden">
+        <motion.div
+          key="form"
+          className="hidden lg:block scroll-mb-8"
+          variants={itemFadeIn}
+          initial="hidden"
+          animate="show"
+          exit="hidden"
+        >
           <FormShell ref={formRef} form={form} onBlur={handleBlur}>
             <Card>
               <CardContent className="space-y-2">
@@ -104,7 +118,12 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
                   />
                 </FieldGroup>
                 <div className="flex justify-end items-center gap-2">
-                  <Button type="button" size="sm" variant="ghost" onClick={cancel}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={cancel}
+                  >
                     <X className="size-4" />
                   </Button>
                   <Button type="submit" size="sm" disabled={create.isPending}>
