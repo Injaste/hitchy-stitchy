@@ -16,3 +16,19 @@ export function useIsMobile() {
 
   return !!isMobile
 }
+
+export function useIsAboveLg() {
+  const [isAboveLg, setIsAboveLg] = React.useState<boolean | undefined>(undefined)
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(min-width: ${BREAKPOINTS.lg}px)`)
+    const onChange = () => {
+      setIsAboveLg(window.innerWidth >= BREAKPOINTS.lg)
+    }
+    mql.addEventListener("change", onChange)
+    setIsAboveLg(window.innerWidth >= BREAKPOINTS.lg)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
+  return !!isAboveLg
+}

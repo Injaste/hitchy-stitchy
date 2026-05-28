@@ -8,7 +8,7 @@ import { useAdminStore } from "./store/useAdminStore";
 import { useBootstrap } from "./bootstrap/hooks/useBootstrap";
 import useActivePage from "./hooks/useActivePage";
 
-import AdminSidebar from "./components/sidebar/AdminSidebar";
+import AdminSidebar from "./sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
