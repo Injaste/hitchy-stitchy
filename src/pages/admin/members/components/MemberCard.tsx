@@ -26,7 +26,8 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
   return (
     <Card
       className={cn(
-        "relative hover:ring-secondary hover:shadow-sm transition-shadow",
+        "relative border-l-4 border-l-accent transition-all",
+        "hover:ring-secondary hover:shadow-sm",
         isFrozen && "opacity-60",
         isRejected && "opacity-40",
       )}
@@ -57,7 +58,7 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                   {member.display_name}
                 </p>
                 <Badge
-                  variant="role"
+                  variant="action"
                   className={cn(
                     "relative z-10 text-2xs tracking-wide",
                     isRejected && "opacity-50",

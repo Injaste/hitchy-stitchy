@@ -65,7 +65,7 @@ const MembersView: FC<MembersViewProps> = ({
           variants={container}
           initial="hidden"
           animate="show"
-          className="flex flex-col gap-3 sm:gap-6"
+          className="flex flex-col gap-3 lg:gap-6"
         >
           <AnimatePresence>
             {data.map((member) => (

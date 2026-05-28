@@ -119,7 +119,7 @@ const MemberDetailModal = () => {
                 Role
               </p>
               <Badge
-                variant="role"
+                variant="action"
                 className="text-2xs tracking-wide"
                 onClick={() => openRoleDetail(member.role)}
               >
