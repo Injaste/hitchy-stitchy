@@ -1,4 +1,4 @@
-import { StickyNote } from "lucide-react";
+import { StickyNote, Users } from "lucide-react";
 
 import {
   Dialog,
@@ -15,6 +15,9 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useRoleModalStore } from "../hooks/useRoleModalStore";
+import { useMemberModalStore } from "../../members/hooks/useMemberModalStore";
+import { useMembersQuery } from "../../members/queries";
+import { getMemberStatus } from "../../members/utils";
 import { CATEGORY_LABELS } from "../types";
 
 const RoleDetailModal = () => {
@@ -24,11 +27,18 @@ const RoleDetailModal = () => {
   const openEdit = useRoleModalStore((s) => s.openEdit);
   const openDelete = useRoleModalStore((s) => s.openDelete);
 
+  const openMemberDetail = useMemberModalStore((s) => s.openDetail);
+  const { data: allMembers } = useMembersQuery();
+
   const { canUpdate, canDelete } = useAccess();
 
   if (!selectedItem) return null;
   const role = selectedItem;
   const isRoot = role.category === "root";
+
+  const roleMembers = (allMembers ?? []).filter(
+    (m) => m.role_id === role.id && getMemberStatus(m) !== "rejected" && getMemberStatus(m) !== "frozen",
+  );
 
   const destructiveActions = [
     canDelete("roles") && !isRoot && { label: "Delete", onClick: openDelete },
@@ -63,6 +73,31 @@ const RoleDetailModal = () => {
                 Description
               </p>
               <NotesMarkdown content={role.description} />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                <Users strokeWidth={3} className="w-3 h-3" />
+                Members
+              </p>
+              {roleMembers.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No members assigned.</p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {roleMembers.map((member) => (
+                    <Badge
+                      key={member.id}
+                      variant="action"
+                      className="text-2xs tracking-wide"
+                      onClick={() => openMemberDetail(member)}
+                    >
+                      {member.display_name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </DialogBody>
