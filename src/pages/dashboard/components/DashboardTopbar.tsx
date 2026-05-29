@@ -14,7 +14,7 @@ const DashboardTopbar = () => {
   return (
     <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/60">
       <Container>
-        <div className="flex items-center justify-between px-6 md:px-10 h-14">
+        <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <Link to="/" className="flex items-center gap-2.5 group">
             <Logo
               imageClassName="w-8 h-8"

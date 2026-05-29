@@ -2,11 +2,8 @@ import type { FC } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  ActionLabel,
-  PageHeader,
-  type BaseHeaderProps,
-} from "@/components/custom/page-header";
+import { AdminPageHeader } from "@/components/custom/admin-page-header";
+import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-header-base";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
@@ -22,7 +19,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
   const openInvite = useMemberModalStore((s) => s.openCreate);
 
   return (
-    <PageHeader
+    <AdminPageHeader
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}
@@ -37,7 +34,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
               size="sm"
               variant="default"
               onClick={openInvite}
-              className="gap-1"
+              className="gap-0"
             >
               <Plus className="w-4 h-4" />
               <ActionLabel>Invite</ActionLabel>

@@ -2,7 +2,8 @@ import type { FC, ReactNode } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ActionLabel, PageHeader } from "@/components/custom/page-header";
+import { DashboardPageHeader } from "@/components/custom/dashboard-page-header";
+import { ActionLabel } from "@/components/custom/page-header-base";
 import type { EventsCount } from "../types";
 
 interface DashboardHeaderProps {
@@ -43,14 +44,14 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
     ) : undefined;
 
   const action: ReactNode = (
-    <Button size="sm" className="gap-1" onClick={onCreateEvent}>
+    <Button size="sm" className="gap-0" onClick={onCreateEvent}>
       <Plus className="size-3.5" />
       <ActionLabel>New event</ActionLabel>
     </Button>
   );
 
   return (
-    <PageHeader
+    <DashboardPageHeader
       title="Planning Dashboard"
       description="Manage and track all your upcoming events."
       meta={meta}
@@ -58,7 +59,6 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
       isLoading={isLoading}
       isRefetching={isFetching}
       refetch={refetch}
-      showSidebarTrigger={false}
     />
   );
 };

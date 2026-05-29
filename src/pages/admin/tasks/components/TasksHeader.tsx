@@ -3,11 +3,8 @@ import { ArchiveRestore, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import {
-  ActionLabel,
-  PageHeader,
-  type BaseHeaderProps,
-} from "@/components/custom/page-header";
+import { AdminPageHeader } from "@/components/custom/admin-page-header";
+import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-header-base";
 
 import Odometer from "@/components/animations/animate-odometer";
 import { useAccess } from "../../hooks/useAccess";
@@ -43,7 +40,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <PageHeader
+    <AdminPageHeader
       title="Tasks"
       description="Assign, track, and manage to-dos across your team. Stay on top of what needs to get done before the big day."
       isLoading={isLoading}
@@ -130,7 +127,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
               </Tooltip>
             )}
             {canCreate("tasks") && (
-              <Button size="sm" onClick={openCreate} className="gap-1">
+              <Button size="sm" className="gap-0" onClick={openCreate}>
                 <Plus className="size-4" />{" "}
                 <ActionLabel lockOpen={isDragging}>Task</ActionLabel>
               </Button>

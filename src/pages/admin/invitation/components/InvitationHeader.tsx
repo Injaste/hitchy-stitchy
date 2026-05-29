@@ -5,11 +5,8 @@ import { Link } from "react-router-dom";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { Button } from "@/components/ui/button";
-import {
-  ActionLabel,
-  PageHeader,
-  type BaseHeaderProps,
-} from "@/components/custom/page-header";
+import { AdminPageHeader } from "@/components/custom/admin-page-header";
+import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-header-base";
 
 interface InvitationHeaderProps extends BaseHeaderProps {}
 
@@ -22,7 +19,7 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
   const { slug } = useAdminStore();
 
   return (
-    <PageHeader
+    <AdminPageHeader
       title="Invitation"
       description="Design and configure your wedding RSVP page. Choose a theme, customise the look, and control how guests respond."
       isLoading={isLoading}
@@ -32,8 +29,8 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
       action={
         slug && (
           <Button variant="outline" size="sm" asChild>
-            <Link to={`/${slug}`} target="_blank" className="gap-1">
-              <ActionLabel>Open live page</ActionLabel>
+            <Link to={`/${slug}`} target="_blank" className="gap-0">
+              <ActionLabel side="right">Open live page</ActionLabel>
               <ExternalLink />
             </Link>
           </Button>

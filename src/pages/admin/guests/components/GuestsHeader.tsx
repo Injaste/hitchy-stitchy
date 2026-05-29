@@ -2,11 +2,8 @@ import type { FC } from "react";
 import { Plus, Upload, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  ActionLabel,
-  PageHeader,
-  type BaseHeaderProps,
-} from "@/components/custom/page-header";
+import { AdminPageHeader } from "@/components/custom/admin-page-header";
+import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-header-base";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
@@ -31,7 +28,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
   const canAdd = canCreate("guests");
 
   return (
-    <PageHeader
+    <AdminPageHeader
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}
@@ -45,14 +42,13 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
               size="sm"
               variant="default"
               onClick={openCreate}
-              className="gap-1"
+              className="gap-0"
             >
               <Plus className="w-4 h-4" /> <ActionLabel>Guest</ActionLabel>
             </Button>
             {/* <Button
               size="sm"
               variant="ghost"
-              className="gap-1"
               onClick={downloadGuestTemplate}
             >
               <Download className="w-4 h-4" /> Template
@@ -61,7 +57,6 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
               size="sm"
               variant="outline"
               onClick={openImport}
-              className="gap-1"
             >
               <Upload className="w-4 h-4" /> Import CSV
             </Button> */}

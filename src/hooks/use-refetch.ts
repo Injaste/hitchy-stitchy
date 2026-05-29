@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const COOLDOWN_MS = 10_000;
 
-export function useRefetch(refetch: () => void, cooldownMs = COOLDOWN_MS) {
+const useRefetch = (refetch: () => void, cooldownMs = COOLDOWN_MS) => {
   const [lastRefreshed, setLastRefreshed] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
 
@@ -33,4 +33,6 @@ export function useRefetch(refetch: () => void, cooldownMs = COOLDOWN_MS) {
   };
 
   return { handleRefresh, canRefresh, cooldownRemaining };
-}
+};
+
+export default useRefetch;

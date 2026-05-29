@@ -3,12 +3,11 @@ import { Plus } from "lucide-react";
 import { differenceInDays } from "date-fns";
 
 import { Button } from "@/components/ui/button";
-
+import { AdminPageHeader } from "@/components/custom/admin-page-header";
 import {
   ActionLabel,
-  PageHeader,
   type BaseHeaderProps,
-} from "@/components/custom/page-header";
+} from "@/components/custom/page-header-base";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
@@ -47,7 +46,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
     ) ?? 0;
 
   return (
-    <PageHeader
+    <AdminPageHeader
       title="Timeline"
       description="Track and manage scheduled events across your selected date range."
       isLoading={isLoading}
@@ -78,7 +77,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
           <Button
             size="sm"
             onClick={() => openCreateWithLabel(null)}
-            className="gap-1"
+            className="gap-0"
           >
             <Plus className="w-4 h-4" /> <ActionLabel>Timeline</ActionLabel>
           </Button>
