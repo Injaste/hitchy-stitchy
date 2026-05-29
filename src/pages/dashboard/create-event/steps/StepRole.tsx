@@ -1,8 +1,6 @@
-import { useState } from "react";
 import type { FC } from "react";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { Heart, CalendarCheck, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -16,6 +14,12 @@ import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
+  FormShell,
+  TextField,
+  FieldShell,
+  SubmitButton,
+} from "@/components/custom/form";
+import {
   stepRoleSchema,
   type StepRoleFormValues,
   type CreateRoleData,
@@ -23,13 +27,7 @@ import {
 } from "../../types";
 import { useSteps } from "@/components/custom/steps-direction";
 
-interface StepRoleProps {
-  defaultValues?: Partial<CreateRoleData>;
-  onSubmit: (data: CreateRoleData) => void;
-  onBack: (data: Partial<CreateRoleData>) => void;
-  isSubmitting?: boolean;
-  error?: Error | null;
-}
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 interface RoleOption {
   role: string;
@@ -43,6 +41,8 @@ const ROLE_OPTIONS: RoleOption[] = [
   { role: "Coordinator", shortRole: "Coord", icon: CalendarCheck },
   { role: "Other", shortRole: "Other", icon: User },
 ];
+
+// ─── Form hook ────────────────────────────────────────────────────────────────
 
 interface UseStepRoleFormOpts {
   defaultValues?: Partial<StepRoleFormValues>;
@@ -67,6 +67,16 @@ export const useStepRoleForm = ({
     },
   });
 
+// ─── Component ────────────────────────────────────────────────────────────────
+
+interface StepRoleProps {
+  defaultValues?: Partial<CreateRoleData>;
+  onSubmit: (data: CreateRoleData) => void;
+  onBack: (data: Partial<CreateRoleData>) => void;
+  isSubmitting?: boolean;
+  error?: Error | null;
+}
+
 const StepRole: FC<StepRoleProps> = ({
   defaultValues,
   onSubmit,
@@ -75,7 +85,6 @@ const StepRole: FC<StepRoleProps> = ({
   error,
 }) => {
   const { goTo } = useSteps<StepType>();
-  const [attemptCount, setAttemptCount] = useState(0);
 
   const isCustomDefault =
     defaultValues?.role_name &&
@@ -97,12 +106,9 @@ const StepRole: FC<StepRoleProps> = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAttemptCount((prev) => prev + 1);
-    form.handleSubmit();
-  };
+  const role = useStore(form.store, (s) => s.values.role);
+  const submissionAttempts = useStore(form.store, (s) => s.submissionAttempts);
+  const formIsSubmitting = useStore(form.store, (s) => s.isSubmitting);
 
   const handleBack = () => {
     const values = form.state.values;
@@ -113,7 +119,7 @@ const StepRole: FC<StepRoleProps> = ({
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <FormShell form={form} className="space-y-6">
       <div>
         <h3 className="font-semibold text-base text-foreground">
           What's your role?
@@ -123,169 +129,116 @@ const StepRole: FC<StepRoleProps> = ({
         </p>
       </div>
 
-      <FieldGroup className="block space-y-6">
-        <form.Field name="role">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel>Role</FieldLabel>
-                  <FieldContent>
-                    <RadioGroup
-                      value={field.state.value}
-                      onValueChange={(val) => {
-                        field.handleChange(val);
-                        field.handleBlur();
-                      }}
-                      className="grid grid-cols-2 gap-4"
+      <FieldGroup>
+        <FieldShell name="role" label="Role">
+          {(field) => (
+            <RadioGroup
+              value={field.state.value}
+              onValueChange={(val) => {
+                field.handleChange(val);
+                field.handleBlur();
+              }}
+              className="grid grid-cols-2 gap-4"
+            >
+              {ROLE_OPTIONS.map((option) => {
+                const Icon = option.icon;
+                const isSelected = field.state.value === option.role;
+                return (
+                  <FieldLabel
+                    key={option.role}
+                    htmlFor={option.role}
+                    className="relative cursor-pointer"
+                  >
+                    <Field
+                      orientation="horizontal"
+                      className="transition-colors hover:bg-muted/50"
                     >
-                      {ROLE_OPTIONS.map((option) => {
-                        const Icon = option.icon;
-                        const isSelected = field.state.value === option.role;
-                        return (
-                          <FieldLabel
-                            key={option.role}
-                            htmlFor={option.role}
-                            className="relative cursor-pointer"
-                          >
-                            <Field
-                              orientation="horizontal"
-                              className="transition-colors hover:bg-muted/50"
-                            >
-                              <FieldContent className="flex flex-col items-center gap-2">
-                                <Icon
-                                  className={cn(
-                                    "w-6 h-6",
-                                    isSelected
-                                      ? "text-primary"
-                                      : "text-muted-foreground",
-                                  )}
-                                />
-                                <FieldTitle
-                                  className={cn(
-                                    "text-sm font-medium",
-                                    isSelected
-                                      ? "text-primary"
-                                      : "text-foreground",
-                                  )}
-                                >
-                                  {option.role}
-                                </FieldTitle>
-                              </FieldContent>
-                              <RadioGroupItem
-                                value={option.role}
-                                id={option.role}
-                                className="absolute size-0 sr-only"
-                              />
-                            </Field>
-                          </FieldLabel>
-                        );
-                      })}
-                    </RadioGroup>
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
-
-        <form.Subscribe selector={(s) => s.values.role}>
-          {(role) => (
-            <AnimatePresence>
-              {role === "Other" && (
-                <motion.div
-                  key="custom-role"
-                  initial={{ opacity: 0, height: 0, y: -4 }}
-                  animate={{
-                    opacity: 1,
-                    height: "auto",
-                    y: 0,
-                    transition: { duration: 0.2 },
-                  }}
-                  exit={{
-                    opacity: 0,
-                    height: 0,
-                    y: -4,
-                    transition: { duration: 0.15 },
-                  }}
-                >
-                  <form.Field name="customRole">
-                    {(field) => {
-                      const hasError =
-                        Boolean(field.state.meta.errors.length) &&
-                        attemptCount > 0;
-                      return (
-                        <AnimateItem
-                          errors={field.state.meta.errors}
-                          hasError={hasError}
-                          attemptCount={attemptCount}
+                      <FieldContent className="flex flex-col items-center gap-2">
+                        <Icon
+                          className={cn(
+                            "w-6 h-6",
+                            isSelected
+                              ? "text-primary"
+                              : "text-muted-foreground",
+                          )}
+                        />
+                        <FieldTitle
+                          className={cn(
+                            "text-sm font-medium",
+                            isSelected ? "text-primary" : "text-foreground",
+                          )}
                         >
-                          <Field data-invalid={hasError} className="gap-2">
-                            <FieldLabel htmlFor="customRole">
-                              Your Role
-                            </FieldLabel>
-                            <FieldContent>
-                              <Input
-                                id="customRole"
-                                placeholder="e.g. Floor Manager"
-                                autoFocus
-                                value={field.state.value}
-                                onChange={(e) =>
-                                  field.handleChange(e.target.value)
-                                }
-                                onBlur={field.handleBlur}
-                              />
-                            </FieldContent>
-                          </Field>
-                        </AnimateItem>
-                      );
-                    }}
-                  </form.Field>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                          {option.role}
+                        </FieldTitle>
+                      </FieldContent>
+                      <RadioGroupItem
+                        value={option.role}
+                        id={option.role}
+                        className="absolute size-0 sr-only"
+                      />
+                    </Field>
+                  </FieldLabel>
+                );
+              })}
+            </RadioGroup>
           )}
-        </form.Subscribe>
+        </FieldShell>
+
+        <AnimatePresence>
+          {role === "Other" && (
+            <motion.div
+              key="custom-role"
+              initial={{ opacity: 0, height: 0, y: -4 }}
+              animate={{
+                opacity: 1,
+                height: "auto",
+                y: 0,
+                transition: { duration: 0.2 },
+              }}
+              exit={{
+                opacity: 0,
+                height: 0,
+                y: -4,
+                transition: { duration: 0.15 },
+              }}
+            >
+              <TextField
+                name="customRole"
+                label="Your Role"
+                placeholder="e.g. Floor Manager"
+                autoFocus
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimateItem
           hasError={Boolean(error)}
           error={error ?? undefined}
-          attemptCount={attemptCount}
+          attemptCount={submissionAttempts}
         />
       </FieldGroup>
 
-      <form.Subscribe selector={(s) => s.isSubmitting}>
-        {(isSubmitting_) => (
-          <div className="flex flex-col gap-3">
-            <Button
-              type="submit"
-              size="lg"
-              disabled={isSubmitting_ || isSubmitting}
-              className="w-full"
-            >
-              {isSubmitting_ || isSubmitting
-                ? "Creating your event…"
-                : "Create Event"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleBack}
-              disabled={isSubmitting_ || isSubmitting}
-              className="w-full text-muted-foreground"
-            >
-              Back
-            </Button>
-          </div>
-        )}
-      </form.Subscribe>
-    </form>
+      <div className="flex flex-col gap-3">
+        <SubmitButton
+          size="lg"
+          isPending={formIsSubmitting || !!isSubmitting}
+          isError={Boolean(error)}
+          className="w-full"
+        >
+          Create Event
+        </SubmitButton>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleBack}
+          disabled={formIsSubmitting || !!isSubmitting}
+          className="w-full text-muted-foreground"
+        >
+          Back
+        </Button>
+      </div>
+    </FormShell>
   );
 };
 

@@ -5,7 +5,7 @@ import { Mail, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { formatDateRange, getDaysUntil } from "@/lib/utils/utils-time";
+import { formatDateRange, getDaysUntil, getEventStatus } from "@/lib/utils/utils-time";
 import { itemFadeUp } from "@/lib/animations";
 import type { Event } from "../types";
 import { useClaimInviteMutation } from "../queries";
@@ -14,16 +14,17 @@ import ArraySeparator from "@/components/custom/array-separator";
 const InvitedCard: FC<{ event: Event }> = ({ event }) => {
   const { mutate: claimInvite, isPending } = useClaimInviteMutation();
   const countdown = getDaysUntil(event.date_start);
+  const status = getEventStatus(event.date_start, event.date_end);
 
   return (
     <motion.div variants={itemFadeUp}>
-      <Card variant="interactive" className="group h-full flex flex-col border-dashed bg-card/30">
+      <Card variant="interactive" className={`group/invited-card cursor-default${status === "past" ? " opacity-50 hover:opacity-100 transition-opacity" : ""}`}>
         <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
-          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0 group-hover/invited-card:bg-secondary/15 transition-colors">
             <Mail className="w-5 h-5 text-muted-foreground" />
           </div>
           <Badge variant="outline" className="capitalize text-muted-foreground">
-            Invited · {countdown}
+            {status === "past" ? "Invited" : `Invited · ${countdown}`}
           </Badge>
         </CardHeader>
 

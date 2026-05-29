@@ -7,6 +7,7 @@ import {
   differenceInYears,
   isToday,
   isTomorrow,
+  isYesterday,
   isPast,
   isFuture,
   startOfDay,
@@ -41,7 +42,15 @@ export function getDaysUntil(dateStr: string): string {
   const target = startOfDay(new Date(dateStr));
   const diff = differenceInDays(target, today);
 
-  if (diff < 0) return "Past";
+  if (isYesterday(target)) return "Yesterday";
+  if (diff < 0) {
+    const days = Math.abs(diff);
+    if (days < 30) return `${days} day${days !== 1 ? "s" : ""} ago`;
+    const months = Math.abs(differenceInMonths(target, today));
+    if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
+    const years = Math.abs(differenceInYears(target, today));
+    return `${years} year${years > 1 ? "s" : ""} ago`;
+  }
   if (isToday(target)) return "Today";
   if (isTomorrow(target)) return "Tomorrow";
 

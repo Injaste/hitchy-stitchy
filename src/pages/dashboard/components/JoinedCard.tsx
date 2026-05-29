@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CalendarDays, ArrowRight } from "lucide-react";
+import { CalendarDays, ArrowBigRight, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,16 +21,18 @@ const JoinedCard: FC<{ event: Event }> = ({ event }) => {
 
   return (
     <motion.div variants={itemFadeUp}>
-      <Card variant="interactive" className="group h-full flex flex-col">
+      <Card variant="interactive" className={`group/joined-card cursor-default${status === "past" ? " opacity-50 hover:opacity-100 transition-opacity" : ""}`}>
         <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover/joined-card:bg-primary/15 transition-colors">
             <CalendarDays className="w-5 h-5 text-primary" />
           </div>
           {status === "active" && (
-            <Badge className="capitalize">{status}</Badge>
+            <Badge variant="secondary" className="capitalize">
+              {status}
+            </Badge>
           )}
           {status === "upcoming" && (
-            <Badge variant="secondary" className="capitalize">
+            <Badge variant="default" className="capitalize">
               {countdown}
             </Badge>
           )}
@@ -54,12 +56,13 @@ const JoinedCard: FC<{ event: Event }> = ({ event }) => {
             <Link to={`/${event.slug}/admin`} className="flex-1">
               <Button size="sm" className="w-full gap-1.5 group/btn">
                 Open suite
-                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                <ArrowBigRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
               </Button>
             </Link>
-            <Link to={`/${event.slug}`}>
+            <Link to={`/${event.slug}`} target="_blank">
               <Button size="sm" variant="outline" className="shrink-0">
                 Invitation
+                <ExternalLink />
               </Button>
             </Link>
           </div>

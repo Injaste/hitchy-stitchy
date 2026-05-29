@@ -5,18 +5,20 @@ import Container from "@/components/custom/container";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 
-import { container, itemFadeIn } from "@/lib/animations";
+import { itemFadeUp } from "@/lib/animations";
 
 import { useCountEventsQuery, useEventsQuery } from "../queries";
 import type { EventsCount } from "../types";
 
 import DashboardTopbar from "./DashboardTopbar";
 import DashboardHeader from "./DashboardHeader";
+import DashboardStats from "./DashboardStats";
 import CreateEventView from "../create-event";
 
 import EventEmpty from "../states/EventEmpty";
-import EventSkeleton from "../states/EventSkeleton";
-import EventView from "../components/EventView";
+import DashboardSkeleton from "../states/DashboardSkeleton";
+import EventCard from "./EventCard";
+import EventCreate from "./EventCreate";
 
 const EMPTY_COUNT: EventsCount = { active: 0, upcoming: 0, pending: 0 };
 
@@ -37,7 +39,7 @@ const DashboardView = () => {
     if (isLoading)
       return (
         <ComponentFade key="skeleton">
-          <EventSkeleton />
+          <DashboardSkeleton />
         </ComponentFade>
       );
 
@@ -60,36 +62,58 @@ const DashboardView = () => {
       );
 
     return (
-      <ComponentFade key="events">
-        <EventView
-          events={events}
-          onCreateEvent={() => setIsCreateOpen(true)}
-        />
+      <ComponentFade key="content">
+        <DashboardStats eventsCount={eventsCount} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4">
+          <AnimatePresence>
+            {events.map((event, i) => (
+              <motion.div
+                key={event.id}
+                custom={i}
+                variants={itemFadeUp}
+                initial="hidden"
+                animate="show"
+                exit="hidden"
+                layout
+                transition={{ layout: { duration: 0.4, ease: "easeInOut" } }}
+              >
+                <EventCard event={event} />
+              </motion.div>
+            ))}
+            <motion.div
+              key="create"
+              custom={events.length}
+              variants={itemFadeUp}
+              initial="hidden"
+              animate="show"
+              exit="hidden"
+              layout
+              transition={{ layout: { duration: 0.4, ease: "easeInOut" } }}
+            >
+              <EventCreate onCreateEvent={() => setIsCreateOpen(true)} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </ComponentFade>
     );
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <motion.div variants={container} initial="hidden" animate="show">
-        <motion.div variants={itemFadeIn}>
-          <DashboardTopbar />
-        </motion.div>
+      <DashboardTopbar />
 
-        <DashboardHeader
-          eventsCount={eventsCount}
-          isLoading={isLoading}
-          isFetching={isFetching}
-          refetch={refetch}
-          onCreateEvent={() => setIsCreateOpen(true)}
-        />
+      <DashboardHeader
+        isLoading={isLoading}
+        isFetching={isFetching}
+        refetch={refetch}
+        onCreateEvent={() => setIsCreateOpen(true)}
+      />
 
-        <Container>
-          <div className="px-4 md:px-6 pt-4 pb-22 md:pt-6 md:pb-12 space-y-8">
-            <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
-          </div>
+      <div className="px-4 md:px-6">
+        <Container pageSpacing>
+          <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
         </Container>
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {isCreateOpen && (

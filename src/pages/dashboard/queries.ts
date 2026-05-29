@@ -7,10 +7,19 @@ import { getEventStatus } from "@/lib/utils/utils-time"
 export const eventsQueryKey = ["events"] as const
 export const pendingInvitesQueryKey = ["events", "invites"] as const
 
+const STATUS_ORDER = { active: 0, upcoming: 1, past: 2 } as const;
+
 export function useEventsQuery(enabled = true) {
   return useQuery({
     queryKey: eventsQueryKey,
     queryFn: fetchUserEvents,
+    select: (events) =>
+      [...events].sort((a, b) => {
+        const sa = STATUS_ORDER[getEventStatus(a.date_start, a.date_end)];
+        const sb = STATUS_ORDER[getEventStatus(b.date_start, b.date_end)];
+        if (sa !== sb) return sa - sb;
+        return a.date_start.localeCompare(b.date_start);
+      }),
     enabled,
   })
 }

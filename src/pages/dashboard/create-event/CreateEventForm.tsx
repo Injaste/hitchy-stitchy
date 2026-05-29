@@ -52,7 +52,7 @@ const CreateEventForm = () => {
               <p className="text-sm font-medium">Plan your event</p>
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-6 pb-6">
+          <CardContent>
             <CreateEventStepper activeStep={activeStep} />
 
             <StepsDirection

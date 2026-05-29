@@ -17,6 +17,7 @@ export interface FieldShellProps {
   description?: ReactNode;
   hint?: ReactNode;
   fieldClassName?: string;
+  labelClassName?: string;
   children: (field: AnyFieldApi, hasError: boolean) => ReactNode;
 }
 
@@ -27,6 +28,7 @@ const FieldShell = ({
   description,
   hint,
   fieldClassName,
+  labelClassName,
   children,
 }: FieldShellProps) => {
   const { attemptCount, form } = useFormShell();
@@ -47,7 +49,7 @@ const FieldShell = ({
               className={cn("gap-2", fieldClassName)}
             >
               {label && (
-                <FieldLabel>
+                <FieldLabel className={labelClassName}>
                   {label}
                   {optional && (
                     <span className="text-muted-foreground font-normal">

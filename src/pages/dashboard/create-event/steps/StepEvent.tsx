@@ -1,14 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FC } from "react";
 import { addDays, differenceInCalendarDays, format } from "date-fns";
-import {
-  CalendarIcon,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
-import { useForm } from "@tanstack/react-form";
+import { CalendarIcon } from "lucide-react";
+import { useForm, useStore } from "@tanstack/react-form";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { Input } from "@/components/ui/input";
@@ -19,20 +13,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { FieldGroup } from "@/components/ui/field";
 import {
-  Field,
-  FieldContent,
-  FieldLabel,
-  FieldGroup,
-} from "@/components/ui/field";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+  FormShell,
+  TextField,
+  FieldShell,
+  SubmitButton,
+} from "@/components/custom/form";
 import Odometer from "@/components/animations/animate-odometer";
 import { useSteps } from "@/components/custom/steps-direction";
+import { toSlug } from "@/hooks/useSlugCheck";
+import { formatDateRange } from "@/lib/utils/utils-time";
+import ArraySeparator from "@/components/custom/array-separator";
 
 import {
   stepEventSchema,
@@ -41,14 +33,7 @@ import {
   type StepType,
 } from "../../types";
 import type { DateRange } from "react-day-picker";
-import {
-  useSlugCheck,
-  toSafeSlug,
-  toSlug,
-  type SlugStatus,
-} from "@/hooks/useSlugCheck";
-import { formatDateRange } from "@/lib/utils/utils-time";
-import ArraySeparator from "@/components/custom/array-separator";
+import SlugInput, { type SlugInputHandle } from "../SlugInput";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -80,19 +65,7 @@ export const useStepEventForm = ({
     },
   });
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function SlugStatusIcon({ status }: { status: SlugStatus }) {
-  if (status === "checking")
-    return <Loader2 className="size-4.5 animate-spin text-muted-foreground" />;
-  if (status === "available")
-    return <CheckCircle2 className="size-4.5 text-success" />;
-  if (status === "taken")
-    return <XCircle className="size-4.5 text-destructive" />;
-  if (status === "error")
-    return <AlertCircle className="size-4.5 text-warning" />;
-  return null;
-}
+// ─── Component ────────────────────────────────────────────────────────────────
 
 interface StepEventProps {
   defaultValues?: Partial<CreateEventData>;
@@ -101,9 +74,10 @@ interface StepEventProps {
 
 const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
   const { goTo } = useSteps<StepType>();
-  const [attemptCount, setAttemptCount] = useState(0);
   const [eventName, setEventName] = useState(defaultValues?.event_name ?? "");
   const [slugTouched, setSlugTouched] = useState(false);
+  const [slugIsTaken, setSlugIsTaken] = useState(false);
+  const slugRef = useRef<SlugInputHandle>(null);
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>(
     defaultValues?.date_start
@@ -120,7 +94,6 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
   );
 
   const isMobile = useIsMobile();
-  const { status: slugStatus, scheduleCheck, checkNow } = useSlugCheck();
 
   const form = useStepEventForm({
     defaultValues: {
@@ -131,7 +104,7 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
       date_end: defaultValues?.date_end ?? dateRange?.to?.toString(),
     },
     onSubmit: async (value) => {
-      const taken = await checkNow(value.slug);
+      const taken = await slugRef.current?.checkNow(value.slug);
       if (taken) return;
 
       onNext({
@@ -146,19 +119,15 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
     },
   });
 
+  const slugValue = useStore(form.store, (s) => s.values.slug);
+  const isSubmitting = useStore(form.store, (s) => s.isSubmitting);
+
   useEffect(() => {
     if (slugTouched) return;
     const generated = toSlug(defaultValues?.slug ?? eventName);
     form.setFieldValue("slug", generated);
-    scheduleCheck(generated);
+    slugRef.current?.scheduleCheck(generated);
   }, [eventName, slugTouched]);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAttemptCount((prev) => prev + 1);
-    form.handleSubmit();
-  };
 
   const dateLabel =
     dateRange?.from && dateRange?.to
@@ -169,250 +138,151 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
       : "Pick your event dates";
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      <FieldGroup className="block space-y-6">
-        <form.Field name="display_name">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel
-                    htmlFor="displayName"
-                    className="flex justify-between"
-                  >
-                    Your Name
-                    <span className="text-xs text-muted-foreground font-normal">
-                      — how you appear to your team
-                    </span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id="displayName"
-                      placeholder="e.g. Danish"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
+    <FormShell form={form} className="space-y-6">
+      <FieldGroup>
+        <TextField
+          name="display_name"
+          labelClassName="flex justify-between w-full"
+          label={
+            <>
+              Your Name
+              <span className="text-xs text-muted-foreground font-normal">
+                — how you appear to your team
+              </span>
+            </>
+          }
+          placeholder="e.g. Danish"
+        />
 
-        <form.Field name="event_name">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel htmlFor="event_name">Event Name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id="event_name"
-                      placeholder="e.g. Danish & Nadhirah Wedding"
-                      value={field.state.value}
-                      onChange={(e) => {
-                        field.handleChange(e.target.value);
-                        setEventName(e.target.value);
-                      }}
-                      onBlur={field.handleBlur}
-                    />
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
+        {/* FieldShell used directly so onChange can also sync setEventName state */}
+        <FieldShell name="event_name" label="Event Name">
+          {(field) => (
+            <Input
+              placeholder="e.g. Danish & Nadhirah Wedding"
+              value={field.state.value}
+              onChange={(e) => {
+                field.handleChange(e.target.value);
+                setEventName(e.target.value);
+              }}
+              onBlur={field.handleBlur}
+            />
+          )}
+        </FieldShell>
 
-        <form.Field name="date_start">
-          {(field) => {
-            const hasError =
-              Boolean(field.state.meta.errors.length) && attemptCount > 0;
-            return (
-              <AnimateItem
-                errors={field.state.meta.errors}
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel className="flex justify-between">
-                    <span>Event Dates</span>
+        <FieldShell
+          name="date_start"
+          labelClassName="flex justify-between w-full"
+          label={
+            <>
+              <span>Event Dates</span>
+              {dateRange?.from && dateRange?.to && (
+                <span className="text-xs text-muted-foreground font-normal">
+                  {(() => {
+                    const days =
+                      differenceInCalendarDays(dateRange.to, dateRange.from) +
+                      1;
+                    return (
+                      <>
+                        {"— "}
+                        <Odometer value={days} />
+                        {days > 1 ? " days" : " day"}
+                      </>
+                    );
+                  })()}
+                </span>
+              )}
+            </>
+          }
+        >
+          {() => (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-2 font-normal"
+                >
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  <ArraySeparator
+                    items={[...dateLabel]}
+                    separator="-"
+                    className="text-sm"
+                  />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={(range) => {
+                    setDateRange(range);
+                    form.setFieldValue(
+                      "date_start",
+                      range?.from ? format(range.from, "yyyy-MM-dd") : "",
+                    );
+                    form.setFieldValue(
+                      "date_end",
+                      range?.to ? format(range.to, "yyyy-MM-dd") : "",
+                    );
+                  }}
+                  numberOfMonths={isMobile ? 1 : 2}
+                  disabled={{ before: new Date() }}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+        </FieldShell>
 
-                    {dateRange?.from && dateRange?.to && (
-                      <span className="text-xs text-muted-foreground font-normal">
-                        {(() => {
-                          const days =
-                            differenceInCalendarDays(
-                              dateRange.to,
-                              dateRange.from,
-                            ) + 1;
-                          return (
-                            <>
-                              {"— "}
-                              <Odometer value={days} />
-                              {days > 1 ? " days" : " day"}
-                            </>
-                          );
-                        })()}
-                      </span>
-                    )}
-                  </FieldLabel>
-                  <FieldContent>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start gap-2 font-normal"
-                        >
-                          <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                          <ArraySeparator
-                            items={[...dateLabel]}
-                            separator="-"
-                            className="text-sm"
-                          />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="range"
-                          selected={dateRange}
-                          onSelect={(range) => {
-                            setDateRange(range);
-                            form.setFieldValue(
-                              "date_start",
-                              range?.from
-                                ? format(range.from, "yyyy-MM-dd")
-                                : "",
-                            );
-                            form.setFieldValue(
-                              "date_end",
-                              range?.to ? format(range.to, "yyyy-MM-dd") : "",
-                            );
-                          }}
-                          numberOfMonths={isMobile ? 1 : 2}
-                          disabled={{ before: new Date() }}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
-
-        <form.Field name="slug">
-          {(field) => {
-            const hasError =
-              (Boolean(field.state.meta.errors.length) && attemptCount > 0) ||
-              slugStatus === "taken";
-
-            return (
-              <AnimateItem
-                errors={
-                  slugStatus === "taken"
-                    ? [
-                        {
-                          message:
-                            "This slug is already taken. Please choose another.",
-                        },
-                      ]
-                    : field.state.meta.errors
+        <FieldShell name="slug" label="Event URL">
+          {(field, hasError) => (
+            <SlugInput
+              ref={slugRef}
+              id="slug"
+              value={field.state.value}
+              invalid={hasError || slugIsTaken}
+              onChange={(safe) => {
+                setSlugTouched(true);
+                field.handleChange(safe);
+              }}
+              onBlur={(currentValue) => {
+                field.handleBlur();
+                if (!currentValue) {
+                  const generated = toSlug(eventName);
+                  if (generated) {
+                    form.setFieldValue("slug", generated);
+                    slugRef.current?.scheduleCheck(generated);
+                  }
                 }
-                hasError={hasError}
-                attemptCount={attemptCount}
-              >
-                <Field data-invalid={hasError} className="gap-2">
-                  <FieldLabel htmlFor="slug">Event URL</FieldLabel>
-                  <FieldContent>
-                    <InputGroup>
-                      <InputGroupInput
-                        id="slug"
-                        placeholder="e.g. my-wedding"
-                        value={field.state.value}
-                        onChange={(e) => {
-                          const safe = toSafeSlug(e.target.value);
-                          setSlugTouched(Boolean(safe));
-                          field.handleChange(safe);
-                          scheduleCheck(safe);
-                        }}
-                        onBlur={(e) => {
-                          field.handleBlur();
-                          const normalized = toSlug(e.target.value);
-                          if (normalized !== field.state.value) {
-                            field.handleChange(normalized);
-                            scheduleCheck(normalized);
-                          }
-                        }}
-                      />
-                      <InputGroupAddon align="inline-end">
-                        <SlugStatusIcon status={slugStatus} />
-                      </InputGroupAddon>
-                    </InputGroup>
+              }}
+              onTakenChange={setSlugIsTaken}
+            />
+          )}
+        </FieldShell>
 
-                    <div className="text-foreground mt-4 p-4 rounded-md border border-secondary/30 bg-secondary/30">
-                      <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
-                        Your Unique Wedding Links
-                      </h4>
-                      <div className="space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                          <span className="text-sm italic min-w-[40px]">
-                            Admin:
-                          </span>
-                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
-                            {`${BASE_URL}/${field.state.value || "my-wedding"}/admin`}
-                          </code>
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                          <span className="text-sm italic min-w-[40px]">
-                            RSVP:
-                          </span>
-                          <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
-                            {`${BASE_URL}/${field.state.value || "my-wedding"}`}
-                          </code>
-                        </div>
-                      </div>
-                    </div>
-                  </FieldContent>
-                </Field>
-              </AnimateItem>
-            );
-          }}
-        </form.Field>
+        <div className="text-foreground p-4 rounded-md border border-secondary/30 bg-secondary/30">
+          <h4 className="text-2xs uppercase tracking-widest font-semibold mb-3">
+            Your Unique Wedding Links
+          </h4>
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+              <span className="text-sm italic min-w-[40px]">Admin:</span>
+              <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
+                {`${BASE_URL}/${slugValue || "my-wedding"}/admin`}
+              </code>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+              <span className="text-sm italic min-w-[40px]">RSVP:</span>
+              <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
+                {`${BASE_URL}/${slugValue || "my-wedding"}`}
+              </code>
+            </div>
+          </div>
+        </div>
       </FieldGroup>
 
-      <form.Subscribe selector={(s) => s.isSubmitting}>
-        {(isSubmitting) => (
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Verifying…
-              </>
-            ) : (
-              "Continue"
-            )}
-          </Button>
-        )}
-      </form.Subscribe>
-    </form>
+      <SubmitButton size="lg" isPending={isSubmitting} className="w-full">
+        Continue
+      </SubmitButton>
+    </FormShell>
   );
 };
 

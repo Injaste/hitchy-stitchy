@@ -13,7 +13,7 @@ interface TextFieldProps extends NativeInputProps {
   optional?: boolean;
   description?: ReactNode;
   hint?: ReactNode;
-  /** Transform raw input before writing to form state (e.g. `(v) => v.toUpperCase()`). */
+  labelClassName?: string;
   transform?: (value: string) => string;
 }
 
@@ -23,6 +23,7 @@ const TextField = ({
   optional,
   description,
   hint,
+  labelClassName,
   transform,
   type = "text",
   ...inputProps
@@ -33,6 +34,7 @@ const TextField = ({
     optional={optional}
     description={description}
     hint={hint}
+    labelClassName={labelClassName}
   >
     {(field) => (
       <Input
