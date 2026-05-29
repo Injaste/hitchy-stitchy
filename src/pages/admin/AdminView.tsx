@@ -2,7 +2,7 @@ import { useOutlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import ComponentFade from "@/components/animations/animate-component-fade";
-import { cn } from "@/lib/utils";
+import { ScrollView } from "@/components/custom/scroll-view";
 
 import { useAdminStore } from "./store/useAdminStore";
 import { useBootstrap } from "./bootstrap/hooks/useBootstrap";
@@ -39,21 +39,20 @@ const AdminView = () => {
             <AdminSidebar />
             <SidebarInset className="flex flex-col flex-1 ">
               <AdminTopbar />
-              <div
-                className={cn(
-                  "flex flex-col px-3 md:px-6 pb-2 md:pb-5",
-                  activePage === "tasks" && "h-full",
-                )}
-              >
-                <AnimatePresence mode="wait">
-                  <ComponentFade
-                    key={activePage}
-                    className="flex flex-col flex-1 min-h-0"
+              <AnimatePresence mode="wait">
+                <ComponentFade
+                  key={activePage}
+                  className="flex flex-col flex-1 min-h-0"
+                >
+                  <ScrollView
+                    className="px-3 md:px-6 pb-2 md:pb-5"
+                    gradientBottom
+                    gradientClass="from-background"
                   >
                     {currentOutlet}
-                  </ComponentFade>
-                </AnimatePresence>
-              </div>
+                  </ScrollView>
+                </ComponentFade>
+              </AnimatePresence>
             </SidebarInset>
             <PingModal />
             <ActiveCueModal />

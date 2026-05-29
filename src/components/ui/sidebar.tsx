@@ -25,7 +25,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
-import { ScrollView } from "../custom/scroll-view";
 import { useCueStore } from "@/pages/admin/store/useCueStore";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -326,13 +325,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
         className,
       )}
     >
-      <ScrollView
-        gradientBottom
-        gradientClass="from-background"
-        className="rounded-[inherit]"
-      >
-        {props.children}
-      </ScrollView>
+      {props.children}
     </motion.main>
   );
 }
