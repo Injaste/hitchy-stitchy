@@ -71,10 +71,10 @@
   /* ── Forms & Focus ── */
   --color-border: oklch(0.9 0.012 50);
   --color-input: oklch(0.9 0.012 50);
-  --color-ring: oklch(0.52 0.12 350);
+  --color-ring: oklch(0.58 0.2 349);
 
   /* ── Charts ── */
-  --color-chart-1: oklch(0.52 0.12 350); /* dusty mauve-rose */
+  --color-chart-1: oklch(0.58 0.2 349); /* vivid rose */
   --color-chart-2: oklch(0.54 0.11 168); /* eucalyptus sage */
   --color-chart-3: oklch(0.28 0.05 50); /* espresso */
   --color-chart-4: oklch(0.72 0.13 85); /* champagne gold */
@@ -83,12 +83,12 @@
   /* ── Sidebar ── */
   --color-sidebar: oklch(0.99 0.013 50); /* matches --color-background */
   --color-sidebar-foreground: oklch(0.22 0.04 50);
-  --color-sidebar-primary: oklch(0.52 0.12 350);
+  --color-sidebar-primary: oklch(0.58 0.2 349);
   --color-sidebar-primary-foreground: oklch(1 0 0);
   --color-sidebar-accent: oklch(0.93 0.015 350); /* matches --color-accent */
   --color-sidebar-accent-foreground: oklch(0.22 0.04 50);
   --color-sidebar-border: oklch(0.88 0.015 50);
-  --color-sidebar-ring: oklch(0.52 0.12 350);
+  --color-sidebar-ring: oklch(0.58 0.2 349);
 
   /* ── Gradients ── */
   --gradient-brand: linear-gradient(
