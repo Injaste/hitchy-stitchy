@@ -35,7 +35,7 @@
   --color-popover-foreground: oklch(0.22 0.04 50);
 
   /* ── Brand ── */
-  --color-primary: oklch(0.52 0.12 350); /* dusty mauve-rose */
+  --color-primary: oklch(0.58 0.2 349);
   --color-primary-foreground: oklch(1 0 0);
   --color-secondary: oklch(
     0.54 0.11 168
@@ -96,7 +96,7 @@
     oklch(0.52 0.12 350) 0%,
     oklch(0.42 0.1 330) 100%
   );
---gradient-shimmer: linear-gradient(
+  --gradient-shimmer: linear-gradient(
     90deg,
     oklch(0.72 0.1 80) 0%,
     oklch(0.82 0.14 85) 40%,
@@ -157,7 +157,8 @@
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px oklch(from var(--color-muted) l c h / 0.4) inset;
+    -webkit-box-shadow: 0 0 0px 1000px
+      oklch(from var(--color-muted) l c h / 0.4) inset;
     -webkit-text-fill-color: var(--color-foreground);
     transition: background-color 5000s ease-in-out 0s;
   }
