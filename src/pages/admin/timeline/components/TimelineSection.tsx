@@ -1,7 +1,7 @@
 import { type FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
+import { container, itemFadeUp } from "@/lib/animations";
 import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
 import { getLatestTime } from "../utils";
 
@@ -87,21 +87,15 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
               </motion.div>
             </div>
 
-            {/* Left fade — only when scrolled */}
-            {showLeftFade && (
-              <motion.div
-                variants={itemFadeIn}
-                className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent"
-              />
-            )}
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent transition-opacity"
+              style={{ opacity: showLeftFade ? 1 : 0 }}
+            />
 
-            {/* Right fade — only when more content */}
-            {showRightFade && (
-              <motion.div
-                variants={itemFadeIn}
-                className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent"
-              />
-            )}
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent transition-opacity"
+              style={{ opacity: showRightFade ? 1 : 0 }}
+            />
           </div>
         </div>
       </div>

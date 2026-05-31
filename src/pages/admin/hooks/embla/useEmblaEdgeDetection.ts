@@ -6,8 +6,9 @@ export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) =
   const [showRightFade, setShowRightFade] = useState(false);
 
   const updateEdges = useCallback((api: EmblaCarouselType) => {
-    setShowLeftFade(api.canScrollPrev());
-    setShowRightFade(api.canScrollNext());
+    const progress = api.scrollProgress();
+    setShowLeftFade(progress > 0);
+    setShowRightFade(progress < 1);
   }, [])
 
   useEffect(() => {
