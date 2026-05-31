@@ -13,6 +13,15 @@ import type { Member } from "../types";
 import MemberCard from "./MemberCard";
 import MemberStats from "./MemberStats";
 
+/** Couple (bride/groom) first, root second, everyone else third. */
+function sortMembers(members: Member[]): Member[] {
+  return [...members].sort((a, b) => {
+    const rank = (m: Member) =>
+      m.is_bride || m.is_groom ? 0 : m.is_root ? 1 : 2;
+    return rank(a) - rank(b);
+  });
+}
+
 interface MembersViewProps {
   data: Member[] | undefined;
   isLoading: boolean;
@@ -65,7 +74,7 @@ const MembersView: FC<MembersViewProps> = ({
         <MemberStats data={data} isLoading={isLoading} isError={isError} />
         <ul className="flex flex-col gap-3 lg:gap-6 mt-4">
           <AnimatePresence>
-            {data.map((member, i) => (
+            {sortMembers(data).map((member, i) => (
               <motion.li
                 key={member.id}
                 custom={i}

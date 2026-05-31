@@ -118,7 +118,7 @@ const TaskArchivedSheet = () => {
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           <span className="inline-flex items-center gap-1">
                             <Archive className="size-4 text-muted-foreground" />
-                            {format(parseISO(task.archived_at), "d MMM yyyy")}
+                            {task.archived_at ? format(parseISO(task.archived_at), "d MMM yyyy") : "—"}
                           </span>
                           {task.priority && (
                             <span

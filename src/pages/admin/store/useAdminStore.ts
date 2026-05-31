@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type AdminBootstrapContext, type RoleCategory } from "../types";
+import type { AdminBootstrapContext } from "../types";
 
 interface AdminState extends AdminBootstrapContext {
   isBootstrapped: boolean;
@@ -18,9 +18,12 @@ export const useAdminStore = create<AdminState>((set) => ({
   memberDisplayName: "",
   memberRoleId: "",
   memberRoleName: "",
-  memberRoleShortName: "",
-  memberRoleCategory: "general" as RoleCategory,
-  isAdmin: false,
+  isRoot: false,
+  permissions: {},
+  memberLabel: null,
+  isBride: false,
+  isGroom: false,
+  isTopTier: false,
   isBootstrapped: false,
   bootstrapError: null,
 

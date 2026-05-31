@@ -3,15 +3,18 @@ import type {
   Member,
   InviteMemberPayload,
   UpdateMemberPayload,
-  UpdateMyDisplayNamePayload,
+  UpdateMemberRolePayload,
+  UpdateMemberCouplePayload,
   FreezeMemberPayload,
   DeleteMemberPayload,
 } from "./types"
 
 const MEMBER_FIELDS = `
-  id, event_id, user_id, role_id, email, display_name, invited_by,
-  frozen_at, invited_at, joined_at, rejected_at, created_at, updated_at, preferences,
-  role:event_roles ( id, event_id, name, short_name, category, description, created_at, updated_at )
+  id, event_id, user_id, role_id, email, display_name,
+  is_root, label, is_bride, is_groom, notes,
+  invited_by, frozen_at, invited_at, joined_at, rejected_at,
+  created_at, updated_at, preferences,
+  role:event_roles ( id, event_id, name, permissions, created_at, updated_at )
 `
 
 export async function fetchMembers(eventId: string): Promise<Member[]> {
@@ -32,6 +35,8 @@ export async function inviteMember(payload: InviteMemberPayload): Promise<Member
     p_email: payload.email,
     p_display_name: payload.display_name,
     p_role_id: payload.role_id,
+    p_label: payload.label,
+    p_notes: payload.notes,
   })
 
   if (error) throw new Error(error.message)
@@ -43,22 +48,35 @@ export async function updateMember(payload: UpdateMemberPayload): Promise<Member
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_display_name: payload.display_name,
-    p_role_id: payload.role_id,
+    p_label: payload.label,
+    p_notes: payload.notes,
   })
 
   if (error) throw new Error(error.message)
   return data as Member
 }
 
-export async function updateMyDisplayName(
-  payload: UpdateMyDisplayNamePayload
-): Promise<void> {
-  const { error } = await supabase.rpc("update_my_display_name", {
+export async function updateMemberCouple(payload: UpdateMemberCouplePayload): Promise<Member> {
+  const { data, error } = await supabase.rpc("update_member_couple", {
     p_event_id: payload.event_id,
-    p_display_name: payload.display_name,
+    p_id: payload.id,
+    p_is_bride: payload.is_bride,
+    p_is_groom: payload.is_groom,
   })
 
   if (error) throw new Error(error.message)
+  return data as Member
+}
+
+export async function updateMemberRole(payload: UpdateMemberRolePayload): Promise<Member> {
+  const { data, error } = await supabase.rpc("update_member_role", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+    p_role_id: payload.role_id,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as Member
 }
 
 export async function freezeMember(payload: FreezeMemberPayload): Promise<Member> {

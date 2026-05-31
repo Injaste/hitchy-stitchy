@@ -7,7 +7,6 @@ import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-head
 
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import RolesSheet from "../../roles/components/RolesSheet";
 
 const MembersHeader: FC<BaseHeaderProps> = ({
   isError,
@@ -27,20 +26,17 @@ const MembersHeader: FC<BaseHeaderProps> = ({
       title="Members"
       description="Everyone with access to this event. Manage who's on your team and control their active status."
       action={
-        <div className="flex items-center gap-2">
-          <RolesSheet />
-          {canCreate("members") && (
-            <Button
-              size="sm"
-              variant="default"
-              onClick={openInvite}
-              className="gap-0"
-            >
-              <Plus className="w-4 h-4" />
-              <ActionLabel>Invite</ActionLabel>
-            </Button>
-          )}
-        </div>
+        canCreate("members") && (
+          <Button
+            size="sm"
+            variant="default"
+            onClick={openInvite}
+            className="gap-0"
+          >
+            <Plus className="w-4 h-4" />
+            <ActionLabel>Invite</ActionLabel>
+          </Button>
+        )
       }
     />
   );

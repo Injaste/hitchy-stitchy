@@ -11,20 +11,21 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import NotesMarkdown from "@/components/custom/notes-markdown";
 import {
   Calendar,
   CheckCircle2,
   Clock,
   Mail,
+  StickyNote,
   Snowflake,
   UserX,
 } from "lucide-react";
+import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { useRoleModalStore } from "../../roles/hooks/useRoleModalStore";
+import { getMemberRank } from "../../utils/memberUtils";
 
 const MemberDetailModal = () => {
   const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen);
@@ -34,10 +35,13 @@ const MemberDetailModal = () => {
   const openDelete = useMemberModalStore((s) => s.openDelete);
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
 
-  const openRoleDetail = useRoleModalStore((s) => s.openDetail);
-
   const { canUpdate } = useAccess();
-  const { memberId } = useAdminStore();
+  const {
+    memberId,
+    isRoot: callerIsRoot,
+    isBride: memberIsBride,
+    isGroom: memberIsGroom,
+  } = useAdminStore();
 
   if (!selectedItem) return null;
   const member = selectedItem;
@@ -46,17 +50,27 @@ const MemberDetailModal = () => {
   const isInvitedByMe = member.invited_by === memberId;
   const canSeeEmail = isSelf || isInvitedByMe;
 
-  const isRoot = member.role.category === "root";
+  const isRoot = member.is_root;
+  const isCouple = member.is_bride || member.is_groom;
   const isRejected = !!member.rejected_at;
   const isFrozen = !!member.frozen_at;
   const isPending = !member.joined_at && !isRejected;
+
+  // Hierarchy: caller can only act on members ranked strictly below them.
+  const callerRank = callerIsRoot ? 0 : memberIsBride || memberIsGroom ? 1 : 2;
+  const targetRank = getMemberRank(member);
+  const callerOutranks = callerRank < targetRank;
 
   const statusConfig = isRejected
     ? { icon: UserX, label: "Declined", className: "text-destructive/60" }
     : isFrozen
       ? { icon: Snowflake, label: "Frozen", className: "text-destructive" }
       : isPending
-        ? { icon: Clock, label: "Pending invite", className: "text-muted-foreground" }
+        ? {
+            icon: Clock,
+            label: "Pending invite",
+            className: "text-muted-foreground",
+          }
         : { icon: CheckCircle2, label: "Active", className: "text-primary" };
 
   const StatusIcon = statusConfig.icon;
@@ -88,10 +102,16 @@ const MemberDetailModal = () => {
   ].filter(Boolean) as { label: string; date: string; time: string }[];
 
   const canManage = canUpdate("members");
+
+  // Edit: caller must strictly outrank target. No self-edit.
+  const canEdit = canManage && !isRejected && !isFrozen && callerOutranks;
+
+  // Delete/Freeze: require strict hierarchy AND target must not be a couple member.
+  const canDestructive = canManage && !isRoot && !isCouple && callerOutranks;
+
   const destructiveActions = [
-    canManage && !isRoot && { label: "Delete", onClick: openDelete },
-    canManage &&
-      !isRoot &&
+    canDestructive && { label: "Delete", onClick: openDelete },
+    canDestructive &&
       !isRejected &&
       canUpdate("members.freeze") && {
         label: isFrozen ? "Restore access" : "Freeze access",
@@ -99,40 +119,70 @@ const MemberDetailModal = () => {
         variant: isFrozen ? ("outline" as const) : ("destructive" as const),
       },
   ];
-  const primaryAction = canManage &&
-    !isRejected &&
-    !isFrozen && { label: "Edit", onClick: openEdit };
+  const primaryAction = canEdit && { label: "Edit", onClick: openEdit };
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{member.display_name}</DialogTitle>
-          <DialogDescription>Member profile and access details.</DialogDescription>
+          <DialogTitle className="flex items-center gap-2 flex-wrap">
+            {member.display_name}
+            {member.is_bride && (
+              <Badge variant="default" className="text-2xs">
+                Bride
+              </Badge>
+            )}
+            {member.is_groom && (
+              <Badge variant="default" className="text-2xs">
+                Groom
+              </Badge>
+            )}
+          </DialogTitle>
+          <DialogDescription>
+            Member profile and access details.
+          </DialogDescription>
         </DialogHeader>
 
         <DialogBody>
           <div className="space-y-6">
-            {/* Role */}
+            {/* Role + Label */}
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Role
               </p>
-              <Badge
-                variant="action"
-                className="text-2xs tracking-wide"
-                onClick={() => openRoleDetail(member.role)}
-              >
-                {member.role.short_name} · {member.role.name}
-              </Badge>
-              <NotesMarkdown content={member.role.description} />
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="outline" className="text-2xs tracking-wide">
+                  {member.role.name}
+                </Badge>
+                {member.label && (
+                  <Badge variant="secondary" className="text-2xs tracking-wide">
+                    {member.label}
+                  </Badge>
+                )}
+              </div>
             </div>
+
+            {/* Notes */}
+            {member.notes && (
+              <>
+                <Separator />
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                    <StickyNote strokeWidth={3} className="w-3 h-3" />
+                    Notes
+                  </p>
+                  <NotesMarkdown content={member.notes} />
+                </div>
+              </>
+            )}
 
             <Separator />
 
             {/* Status */}
             <div className="flex items-center gap-2">
-              <StatusIcon className={`w-4 h-4 shrink-0 ${statusConfig.className}`} />
+              <StatusIcon
+                className={`w-4 h-4 shrink-0 ${statusConfig.className}`}
+              />
               <span className={`text-sm font-medium ${statusConfig.className}`}>
                 {statusConfig.label}
               </span>

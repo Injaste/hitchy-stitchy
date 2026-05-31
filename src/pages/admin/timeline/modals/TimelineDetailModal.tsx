@@ -18,8 +18,8 @@ import { Separator } from "@/components/ui/separator";
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import NotesMarkdown from "@/components/custom/notes-markdown";
-import { useRolesQuery } from "@/pages/admin/roles/queries";
-import { getRoleName } from "@/pages/admin/utils/memberUtils";
+import { useMembersQuery } from "@/pages/admin/members/queries";
+import { getMemberName } from "@/pages/admin/utils/memberUtils";
 
 const TimelineDetailModal = () => {
   const isDetailOpen = useTimelineModalStore((s) => s.isDetailOpen);
@@ -29,7 +29,7 @@ const TimelineDetailModal = () => {
   const openDelete = useTimelineModalStore((s) => s.openDelete);
 
   const { canUpdate, canDelete } = useAccess();
-  const { data: roles = [] } = useRolesQuery();
+  const { data: members = [] } = useMembersQuery();
 
   if (!selectedItem) return null;
 
@@ -72,7 +72,7 @@ const TimelineDetailModal = () => {
 
             <div className="space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Assigned roles
+                Assignees
               </p>
               {item.assignees.length === 0 ? (
                 <p className="text-sm text-muted-foreground/50 italic">
@@ -86,7 +86,7 @@ const TimelineDetailModal = () => {
                       variant="secondary"
                       className="text-xs font-normal"
                     >
-                      {getRoleName(id, roles)}
+                      {getMemberName(id, members)}
                     </Badge>
                   ))}
                 </div>

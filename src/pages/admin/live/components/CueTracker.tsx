@@ -6,7 +6,7 @@ import { useAdminStore } from "../../store/useAdminStore";
 import { useCueStore } from "../../store/useCueStore";
 
 export function CueTracker() {
-  const { memberRoleCategory, isAdmin } = useAdminStore();
+  const { isTopTier: isAdmin } = useAdminStore();
   const { activeCue } = useCueStore();
 
   if (!activeCue) {

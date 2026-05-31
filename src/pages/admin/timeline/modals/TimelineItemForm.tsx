@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import AssigneeField from "@/pages/admin/components/AssigneeField";
-import { useRolesQuery } from "@/pages/admin/roles/queries";
+import { useMembersQuery } from "@/pages/admin/members/queries";
 
 import { FieldGroup } from "@/components/ui/field";
 import { DialogBody } from "@/components/ui/dialog";
@@ -16,6 +16,7 @@ import {
   type SelectFieldOption,
 } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { isActiveMember } from "@/pages/admin/utils/memberUtils";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { generateEventDays } from "../utils";
@@ -52,12 +53,15 @@ export const useTimelineItemForm = ({
 
 const TimelineItemForm = () => {
   const { dateStart, dateEnd } = useAdminStore();
-  const { data: roles = [] } = useRolesQuery();
+  const { data: members = [] } = useMembersQuery();
   const { data: timelineData } = useTimelineQuery();
   const labelDays = timelineData?.days ?? [];
   const labelOptions = timelineData?.labels ?? [];
 
-  const roleItems = roles.map((r) => ({ id: r.id, label: r.name }));
+  // Only active members are assignable.
+  const memberItems = members
+    .filter(isActiveMember)
+    .map((m) => ({ id: m.id, label: m.display_name }));
 
   const eventDays = useMemo(() => {
     if (!dateStart || !dateEnd) return [];
@@ -116,15 +120,15 @@ const TimelineItemForm = () => {
 
         <FieldShell
           name="assignees"
-          label="Assigned roles"
+          label="Assignees"
           optional
-          hint="Which roles are responsible for this item?"
+          hint="Which team members are responsible for this item?"
         >
           {(field) => (
             <AssigneeField
               value={field.state.value}
               onChange={field.handleChange}
-              items={roleItems}
+              items={memberItems}
             />
           )}
         </FieldShell>

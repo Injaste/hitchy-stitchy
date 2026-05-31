@@ -1,4 +1,4 @@
-import { Snowflake, Sun, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 
 import {
   AlertDialog,

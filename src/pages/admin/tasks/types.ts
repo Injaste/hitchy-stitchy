@@ -17,7 +17,7 @@ export interface Task {
   assignees: string[]; // event_members.id[]
   due_at: string | null; // "yyyy-MM-dd"
   completed_at: string | null;
-  archived_at: string;
+  archived_at: string | null;
   created_at: string;
   updated_at: string;
 }

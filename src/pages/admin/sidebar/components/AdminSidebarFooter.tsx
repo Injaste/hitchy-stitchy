@@ -22,8 +22,7 @@ import AdminLogout from "../AdminLogout";
 const AdminSidebarFooter = () => {
   const { state } = useSidebar();
   const isMobile = useIsMobile();
-  const { memberDisplayName, memberRoleName, memberRoleShortName } =
-    useAdminStore();
+  const { memberDisplayName, memberRoleName } = useAdminStore();
   const hasCue = useCueStore((s) => s.hasCue);
   const setActiveCue = useCueStore((s) => s.setActiveCue);
 
@@ -46,7 +45,14 @@ const AdminSidebarFooter = () => {
                     state === "expanded" || isMobile ? "size-9" : "size-8",
                   )}
                 >
-                  {memberRoleShortName}
+                  {memberDisplayName
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((w) => w[0])
+                    .join("")
+                    .toUpperCase() || "?"}
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">

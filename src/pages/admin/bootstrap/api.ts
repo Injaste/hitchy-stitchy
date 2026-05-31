@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { AdminBootstrapContext } from "../types";
-import { isAdminMember } from "./utils";
+import { isAdminMember as isTopTier } from "./utils";
 
 export async function fetchBootstrapContext(
   slug: string,
@@ -10,23 +10,31 @@ export async function fetchBootstrapContext(
   });
 
   if (error) throw new Error(error.message);
-  if (!data?.length)
-    throw new Error("You are not an active member of this event");
+  if (!data) throw new Error("You are not an active member of this event");
 
-  const row = data[0];
+  const member = data.member;
+  const role = data.role;
+
+  // TODO they should automatically be false if not explicitly true...
+  const isBride = member.is_bride ?? false;
+  const isGroom = member.is_groom ?? false;
+  const isRoot = member.is_root ?? false;
 
   return {
-    slug: row.slug,
-    eventId: row.event_id,
-    eventName: row.event_name,
-    dateStart: row.date_start,
-    dateEnd: row.date_end,
-    memberId: row.member_id,
-    memberDisplayName: row.member_display_name,
-    memberRoleId: row.member_role_id,
-    memberRoleName: row.member_role_name,
-    memberRoleShortName: row.member_role_short_name,
-    memberRoleCategory: row.member_role_category,
-    isAdmin: isAdminMember(row.member_role_category),
+    slug: data.slug,
+    eventId: data.event_id,
+    eventName: data.event_name,
+    dateStart: data.date_start,
+    dateEnd: data.date_end,
+    memberId: member.id,
+    memberDisplayName: member.display_name,
+    memberRoleId: role.id,
+    memberRoleName: role.name,
+    isRoot,
+    isBride,
+    isGroom,
+    permissions: role.permissions ?? {},
+    memberLabel: member.label ?? null,
+    isTopTier: isTopTier(isRoot, isBride, isGroom),
   };
 }

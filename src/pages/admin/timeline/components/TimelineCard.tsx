@@ -11,8 +11,8 @@ import { formatTimeRange } from "@/lib/utils/utils-time";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import type { Timeline } from "../types";
-import { useRolesQuery } from "@/pages/admin/roles/queries";
-import { getRoleName } from "@/pages/admin/utils/memberUtils";
+import { useMembersQuery } from "@/pages/admin/members/queries";
+import { getMemberName } from "@/pages/admin/utils/memberUtils";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -22,7 +22,7 @@ interface TimelineCardProps {
 
 const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
-  const { data: roles = [] } = useRolesQuery();
+  const { data: members = [] } = useMembersQuery();
 
   const timeItems = formatTimeRange(item.time_start, item.time_end);
 
@@ -54,7 +54,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
             <span className="text-xs text-muted-foreground font-sans pt-1">
               {item.assignees
                 .slice(0, 2)
-                .map((id) => getRoleName(id, roles))
+                .map((id) => getMemberName(id, members))
                 .join(", ")}
               {item.assignees.length > 2 && `, +${item.assignees.length - 2}`}
             </span>

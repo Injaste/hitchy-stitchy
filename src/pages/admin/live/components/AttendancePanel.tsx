@@ -1,21 +1,13 @@
-import { Check, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-import { useAdminStore } from "../../store/useAdminStore";
 import { useMembersQuery } from "../../members/queries";
-import { useMarkArrivedMutation } from "../queries";
 
 export function AttendancePanel() {
-  const { memberId, isAdmin } = useAdminStore();
   const { data: members } = useMembersQuery();
-  const { mutate: markArrived } = useMarkArrivedMutation();
 
   const activeMembers = (members ?? []).filter((m) => !m.frozen_at);
   // const arrivedCount = activeMembers.filter((m) => m.arrived_at).length;
-
-  const canMark = (memberIdToMark: string) =>
-    isAdmin || memberIdToMark === memberId;
 
   return (
     <div className="space-y-3">
@@ -30,7 +22,14 @@ export function AttendancePanel() {
             className="flex items-center gap-3 rounded-lg border border-border p-2.5"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-              {m.role?.short_name?.slice(0, 2) ?? "–"}
+              {m.display_name
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w: string) => w[0])
+                .join("")
+                .toUpperCase() || "?"}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-foreground truncate">

@@ -109,7 +109,7 @@ const DashboardView = () => {
         onCreateEvent={() => setIsCreateOpen(true)}
       />
 
-      <div className="px-4 md:px-6">
+      <div className="px-4 md:px-6 pb-4 md:pb-6">
         <Container pageSpacing>
           <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
         </Container>

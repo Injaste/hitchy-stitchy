@@ -1,23 +1,19 @@
 import type { FC } from "react";
 import { AnimatePresence } from "framer-motion";
 import ComponentFade from "@/components/animations/animate-component-fade";
-import type { CategoryPermissions } from "../types";
+import type { Role } from "../../roles/types";
 
 import PermissionsTable from "./PermissionsTable";
 import PermissionsSkeleton from "../states/PermissionsSkeleton";
 import PermissionsError from "../states/PermissionsError";
 
 interface PermissionsViewProps {
-  data: CategoryPermissions[] | undefined;
+  data: Role[] | undefined;
   isLoading: boolean;
   isError: boolean;
 }
 
-const PermissionsView: FC<PermissionsViewProps> = ({
-  data,
-  isLoading,
-  isError,
-}) => {
+const PermissionsView: FC<PermissionsViewProps> = ({ data, isLoading, isError }) => {
   const renderBody = () => {
     if (isLoading)
       return (
@@ -35,7 +31,7 @@ const PermissionsView: FC<PermissionsViewProps> = ({
 
     return (
       <ComponentFade key="content">
-        <PermissionsTable data={data} />
+        <PermissionsTable roles={data} />
       </ComponentFade>
     );
   };

@@ -19,7 +19,7 @@ import useActivePage from "../../hooks/useActivePage";
 import NavItem from "../NavItem";
 
 const AdminSidebarContent = () => {
-  const { slug, isAdmin } = useAdminStore();
+  const { slug, isTopTier } = useAdminStore();
   const activePage = useActivePage();
   const base = `/${slug}/admin`;
 
@@ -67,7 +67,7 @@ const AdminSidebarContent = () => {
         </SidebarGroupContent>
       </SidebarGroup>
 
-      {isAdmin && (
+      {isTopTier && (
         <>
           <SidebarSeparator className="mx-4" />
 

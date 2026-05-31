@@ -3,7 +3,6 @@ import { useMutation } from "@/lib/query/useMutation"
 import { truncate } from "@/lib/utils"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
-import { isAdminMember } from "@/pages/admin/bootstrap/utils"
 import { fetchRoles, createRole, updateRole, deleteRole } from "./api"
 import type { CreateRolePayload, UpdateRolePayload, DeleteRolePayload, Role } from "./types"
 import type { Member } from "../members/types"
@@ -49,16 +48,16 @@ export function useRoleMutations() {
         setMembers((old) =>
           old?.map((m) => m.role_id === result.id ? { ...m, role: result } : m) ?? []
         )
-
+        // Sync bootstrap context if the current user's role was updated.
+        // Note: isRoot / isAdmin are flags on event_members, not on the role —
+        // renaming or changing a role's permissions does not affect them.
         if (result.id === memberRoleId) {
           queryClient.setQueryData<AdminBootstrapContext>(
             adminKeys.bootstrap(slug!),
             (old) => old && {
               ...old,
               memberRoleName: result.name,
-              memberRoleShortName: result.short_name,
-              memberRoleCategory: result.category,
-              isAdmin: isAdminMember(result.category),
+              permissions: result.permissions,
             },
           )
         }

@@ -45,19 +45,10 @@ export function createModalStore<T, U extends object = {}>(
           set({ isDetailOpen: false, isDeleteOpen: true } as Partial<
             ModalState<T> & U
           >),
-        openDetail: (item) => {
-          // Close first to allow looping of opening modals.. eg member > role > member > role ....
-          set({
-            isDeleteOpen: false,
-            selectedItem: null,
-          } as Partial<ModalState<T> & U>);
-
-          setTimeout(() => {
-            set({ isDetailOpen: true, selectedItem: item } as Partial<
-              ModalState<T> & U
-            >);
-          }, 0);
-        },
+        openDetail: (item) =>
+          set({ isDetailOpen: true, selectedItem: item } as Partial<
+            ModalState<T> & U
+          >),
         setIsCreateMore: (v) =>
           set({ isCreateMore: v } as Partial<ModalState<T> & U>),
 
