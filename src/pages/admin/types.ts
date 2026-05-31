@@ -18,7 +18,7 @@ export interface AdminBootstrapContext {
   isBride: boolean;
   isGroom: boolean;
   /** Shorthand: isRoot or is a couple member */
-  isTopTier: boolean;
+  isSuperAdmin: boolean;
 }
 
 export const TIME_REGEX = /^\d{2}:\d{2}(:\d{2})?$/;

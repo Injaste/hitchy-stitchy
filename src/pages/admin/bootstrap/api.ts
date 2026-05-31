@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { AdminBootstrapContext } from "../types";
-import { isAdminMember as isTopTier } from "./utils";
+import { isSuperAdmin } from "./utils";
 
 export async function fetchBootstrapContext(
   slug: string,
@@ -35,6 +35,6 @@ export async function fetchBootstrapContext(
     isGroom,
     permissions: role.permissions ?? {},
     memberLabel: member.label ?? null,
-    isTopTier: isTopTier(isRoot, isBride, isGroom),
+    isSuperAdmin: isSuperAdmin(isRoot, isBride, isGroom),
   };
 }

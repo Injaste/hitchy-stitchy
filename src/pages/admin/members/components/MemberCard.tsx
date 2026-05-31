@@ -91,16 +91,6 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                   </Badge>
                 )}
 
-                {/* Role badge */}
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-2xs tracking-wide shrink-0",
-                    isRejected && "opacity-50",
-                  )}
-                >
-                  {member.role.name}
-                </Badge>
               </div>
 
               {/* Per-member notes */}

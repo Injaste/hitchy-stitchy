@@ -67,8 +67,9 @@ export function useMemberMutations() {
       onSuccess: (result: Member) => {
         setMembers(
           (old) =>
-            old?.map((m) => (m.id === result.id ? { ...m, ...result } : m)) ??
-            [],
+            old?.map((m) =>
+              m.id === result.id ? { ...result, role: m.role } : m,
+            ) ?? [],
         );
         // Sync bootstrap context if the current user's display_name or label changed.
         if (result.id === memberId) {
@@ -147,7 +148,7 @@ export function useMemberMutations() {
                 ...old,
                 isBride: result.is_bride,
                 isGroom: result.is_groom,
-                isTopTier: old.isRoot || result.is_bride || result.is_groom,
+                isSuperAdmin: old.isRoot || result.is_bride || result.is_groom,
               },
           );
         }

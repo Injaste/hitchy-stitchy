@@ -13,6 +13,7 @@ export async function fetchRoles(eventId: string): Promise<Role[]> {
     .from("event_roles")
     .select(ROLE_FIELDS)
     .eq("event_id", eventId)
+    .neq("name", "SuperAdmin")
     .order("name", { ascending: true });
 
   if (error) throw new Error(error.message);

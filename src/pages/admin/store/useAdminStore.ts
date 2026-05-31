@@ -23,7 +23,7 @@ export const useAdminStore = create<AdminState>((set) => ({
   memberLabel: null,
   isBride: false,
   isGroom: false,
-  isTopTier: false,
+  isSuperAdmin: false,
   isBootstrapped: false,
   bootstrapError: null,
 

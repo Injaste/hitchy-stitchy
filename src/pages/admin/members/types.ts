@@ -27,7 +27,7 @@ export interface Member {
   created_at: string;
   updated_at: string;
   preferences: Record<string, unknown>;
-  role: Role;
+  role: Role | null;
 }
 
 export const inviteMemberSchema = z.object({
@@ -61,8 +61,7 @@ export const editMemberSchema = z.object({
     .string()
     .max(500, "Notes is too long")
     .transform((v) => v.trim() || null),
-  /** Form-level couple representation — "" means neither bride nor groom. */
-  couple_role: z.enum(["", "bride", "groom"]),
+  couple_role: z.enum(["bride", "groom"]).nullable(),
 });
 
 export type InviteMemberValues = z.infer<typeof inviteMemberSchema>;

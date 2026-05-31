@@ -15,7 +15,7 @@ interface MemberStatsProps {
 }
 
 const MemberStats: FC<MemberStatsProps> = ({ data, isLoading, isError }) => {
-  const { isTopTier } = useAdminStore();
+  const { isSuperAdmin } = useAdminStore();
 
   if (isLoading || isError || !data?.length) return null;
 
@@ -38,7 +38,7 @@ const MemberStats: FC<MemberStatsProps> = ({ data, isLoading, isError }) => {
     label: active === 1 ? "member" : "members",
   };
 
-  const statItems: StatItem[] = !isTopTier
+  const statItems: StatItem[] = !isSuperAdmin
     ? [memberStat]
     : ([
         memberStat,

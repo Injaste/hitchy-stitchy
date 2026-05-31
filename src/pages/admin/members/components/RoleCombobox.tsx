@@ -64,7 +64,7 @@ const RoleCombobox: FC<RoleComboboxProps> = ({
     >
       <ComboboxInput
         placeholder={placeholder}
-        showClear={!!value && !disabled}
+        showClear={false}
         onBlur={onBlur}
         disabled={disabled}
       />

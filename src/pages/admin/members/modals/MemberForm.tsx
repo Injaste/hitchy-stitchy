@@ -63,7 +63,7 @@ export const useMemberEditForm = ({
       role_id: defaultValues?.role_id ?? "",
       label: defaultValues?.label ?? "",
       notes: defaultValues?.notes ?? "",
-      couple_role: defaultValues?.couple_role ?? ("" as "" | "bride" | "groom"),
+      couple_role: defaultValues?.couple_role ?? null,
     },
     validators: {
       onSubmit: editMemberSchema,
@@ -78,6 +78,8 @@ interface MemberFormProps {
   mode: "invite" | "edit";
   /** Lock the role selector (e.g. target is root, or caller doesn't outrank target). */
   lockRole?: boolean;
+  /** Show the role selector. Always true in invite mode; gated by isSuperAdmin in edit mode. */
+  showRole?: boolean;
   /** When set in edit mode, renders a disabled email field. Omit to hide. */
   email?: string;
   /** Show the couple role selector (root or existing couple member only). */
@@ -91,6 +93,7 @@ interface MemberFormProps {
 const MemberForm = ({
   mode,
   lockRole = false,
+  showRole = true,
   email,
   showCoupleRole = false,
   brideTakenBy = null,
@@ -98,7 +101,7 @@ const MemberForm = ({
 }: MemberFormProps) => {
   // Build couple options, hiding slots already held by another member.
   const coupleOptions = useMemo<SelectFieldOption[]>(() => {
-    const opts: SelectFieldOption[] = [{ value: "", label: "None" }];
+    const opts: SelectFieldOption[] = [];
     if (!brideTakenBy) opts.push({ value: "bride", label: "Bride" });
     if (!groomTakenBy) opts.push({ value: "groom", label: "Groom" });
     return opts;
@@ -142,17 +145,19 @@ const MemberForm = ({
           </Field>
         )}
 
-        <FieldShell name="role_id" label="Role">
-          {(field) => (
-            <RoleCombobox
-              value={field.state.value ?? ""}
-              onChange={(roleId) => field.handleChange(roleId)}
-              onBlur={field.handleBlur}
-              placeholder="Select a role"
-              disabled={lockRole}
-            />
-          )}
-        </FieldShell>
+        {showRole && (
+          <FieldShell name="role_id" label="Role">
+            {(field) => (
+              <RoleCombobox
+                value={field.state.value ?? ""}
+                onChange={(roleId) => field.handleChange(roleId)}
+                onBlur={field.handleBlur}
+                placeholder="Select a role"
+                disabled={lockRole}
+              />
+            )}
+          </FieldShell>
+        )}
 
         <FieldShell name="label" label="Label" optional>
           {(field) => (
@@ -170,6 +175,8 @@ const MemberForm = ({
             name="couple_role"
             label="Couple role"
             optional
+            nullable
+            nullLabel="None"
             options={coupleOptions}
             description={coupleDescription}
           />

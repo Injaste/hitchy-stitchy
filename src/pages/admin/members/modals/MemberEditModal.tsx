@@ -5,8 +5,7 @@ import {
 } from "@/components/custom/form";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { useMemberMutations } from "../queries";
-import { useMembersQuery } from "../queries";
+import { useMemberMutations, useMembersQuery } from "../queries";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { getMemberRank } from "../../utils/memberUtils";
 
@@ -16,24 +15,18 @@ const MemberEditModal = () => {
   const isEditOpen = useMemberModalStore((s) => s.isEditOpen);
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
-  const {
-    eventId,
-    memberId,
-    isRoot: callerIsRoot,
-    isBride: memberIsBride,
-    isGroom: memberIsGroom,
-  } = useAdminStore();
+  const { eventId, memberId, isSuperAdmin } = useAdminStore();
   const { update, updateRole, updateCouple } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
 
   // Hierarchy: role field is editable only when caller strictly outranks target.
-  const callerRank = callerIsRoot ? 0 : memberIsBride || memberIsGroom ? 1 : 2;
+  const callerRank = isSuperAdmin ? 0 : 2;
   const targetRank = selectedItem ? getMemberRank(selectedItem) : 2;
   const callerOutranks = callerRank < targetRank;
   const isSelf = selectedItem?.id === memberId;
 
   // Couple role field visible to root users or members who already hold a couple role.
-  const showCoupleRole = callerIsRoot || memberIsBride || memberIsGroom;
+  const showCoupleRole = isSuperAdmin;
 
   // Detect which couple slots are already held by someone other than the current target.
   const existingBride = members.find(
@@ -48,8 +41,8 @@ const MemberEditModal = () => {
       ? "bride"
       : selectedItem.is_groom
         ? "groom"
-        : ""
-    : "";
+        : null
+    : null;
 
   const form = useMemberEditForm({
     defaultValues: selectedItem
@@ -58,7 +51,7 @@ const MemberEditModal = () => {
           role_id: selectedItem.role_id ?? "",
           label: selectedItem.label ?? "",
           notes: selectedItem.notes ?? "",
-          couple_role: currentCoupleRole as "" | "bride" | "groom",
+          couple_role: currentCoupleRole,
         }
       : undefined,
     onSubmit: (values) => {
@@ -115,6 +108,7 @@ const MemberEditModal = () => {
 
       <MemberForm
         mode="edit"
+        showRole={isSuperAdmin}
         lockRole={lockRole}
         email={canSeeEmail ? selectedItem.email : undefined}
         showCoupleRole={showCoupleRole}

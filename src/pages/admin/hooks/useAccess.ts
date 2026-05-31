@@ -5,10 +5,10 @@ type Action = "create" | "read" | "update" | "delete";
 export type Permission = `${Resource}:${Action}`;
 
 export function useAccess() {
-  const { isTopTier, permissions } = useAdminStore();
+  const { isSuperAdmin, permissions } = useAdminStore();
 
   const allow = (...perms: Permission[]): boolean => {
-    if (isTopTier) return true;
+    if (isSuperAdmin) return true;
     return perms.every((p) => {
       const [resource, action] = p.split(":") as [string, string];
       return permissions[resource]?.[action] === true;
@@ -33,8 +33,7 @@ export function useAccess() {
     );
 
   return {
-    isRoot: isTopTier,
-    isTopTier: useAdminStore.getState().isTopTier,
+    isSuperAdmin: useAdminStore.getState().isSuperAdmin,
     canRead,
     canCreate,
     canUpdate,

@@ -36,12 +36,7 @@ const MemberDetailModal = () => {
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
 
   const { canUpdate } = useAccess();
-  const {
-    memberId,
-    isRoot: callerIsRoot,
-    isBride: memberIsBride,
-    isGroom: memberIsGroom,
-  } = useAdminStore();
+  const { memberId, isSuperAdmin } = useAdminStore();
 
   if (!selectedItem) return null;
   const member = selectedItem;
@@ -57,7 +52,7 @@ const MemberDetailModal = () => {
   const isPending = !member.joined_at && !isRejected;
 
   // Hierarchy: caller can only act on members ranked strictly below them.
-  const callerRank = callerIsRoot ? 0 : memberIsBride || memberIsGroom ? 1 : 2;
+  const callerRank = isSuperAdmin ? 0 : 2;
   const targetRank = getMemberRank(member);
   const callerOutranks = callerRank < targetRank;
 
@@ -103,8 +98,7 @@ const MemberDetailModal = () => {
 
   const canManage = canUpdate("members");
 
-  // Edit: caller must strictly outrank target. No self-edit.
-  const canEdit = canManage && !isRejected && !isFrozen && callerOutranks;
+  const canEdit = canManage && !isRejected && !isFrozen && (isSuperAdmin || callerOutranks);
 
   // Delete/Freeze: require strict hierarchy AND target must not be a couple member.
   const canDestructive = canManage && !isRoot && !isCouple && callerOutranks;
@@ -146,21 +140,27 @@ const MemberDetailModal = () => {
         <DialogBody>
           <div className="space-y-6">
             {/* Role + Label */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Role
-              </p>
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="text-2xs tracking-wide">
-                  {member.role.name}
-                </Badge>
-                {member.label && (
-                  <Badge variant="secondary" className="text-2xs tracking-wide">
-                    {member.label}
-                  </Badge>
+            {(isSuperAdmin || member.label) && (
+              <div className="space-y-2">
+                {isSuperAdmin && (
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Role
+                  </p>
                 )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {isSuperAdmin && (
+                    <Badge variant="outline" className="text-2xs tracking-wide">
+                      {member.role?.name ?? "Unknown role"}
+                    </Badge>
+                  )}
+                  {member.label && (
+                    <Badge variant="secondary" className="text-2xs tracking-wide">
+                      {member.label}
+                    </Badge>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Notes */}
             {member.notes && (

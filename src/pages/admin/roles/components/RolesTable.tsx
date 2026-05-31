@@ -18,7 +18,7 @@ interface Props {
 
 const RolesTable: FC<Props> = ({ roles, availableResources }) => {
   const { eventId } = useAdminStore();
-  const { canCreate, canUpdate, canDelete } = useAccess();
+  const { isSuperAdmin } = useAccess();
   const { create, update } = useRoleMutations();
   const openDeleteRole = useRolesModalStore((s) => s.openDeleteRole);
 
@@ -54,7 +54,7 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
   }, []);
 
   const handleToggle = (role: Role, resource: Resource, next: AccessLevel) => {
-    if (!canUpdate("roles")) return;
+    if (!isSuperAdmin) return;
     const newPerms = applyAccessLevel(role.permissions, resource, next);
     update.mutate({
       event_id: eventId!,
@@ -65,7 +65,7 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
   };
 
   const handleRename = (role: Role, name: string) => {
-    if (!canUpdate("roles")) return;
+    if (!isSuperAdmin) return;
     update.mutate({ event_id: eventId!, id: role.id, name });
   };
 
@@ -77,7 +77,7 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
     setAddingRole(false);
   };
 
-  const colCount = 1 + roles.length + (canCreate("roles") ? 1 : 0);
+  const colCount = 1 + roles.length + (isSuperAdmin ? 1 : 0);
 
   return (
     <div
@@ -88,9 +88,9 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
       <table className="w-full text-sm border-separate border-spacing-0">
         <RolesTableHeader
           roles={roles}
-          canCreate={canCreate("roles")}
-          canDelete={canDelete("roles")}
-          canEdit={canUpdate("roles")}
+          canCreate={isSuperAdmin}
+          canDelete={isSuperAdmin}
+          canEdit={isSuperAdmin}
           addingRole={addingRole}
           newRoleName={newRoleName}
           onSetAddingRole={setAddingRole}
@@ -102,13 +102,13 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
           roles={roles}
           availableResources={availableResources}
           colCount={colCount}
-          canCreate={canCreate("roles")}
-          canUpdate={canUpdate("roles")}
+          canCreate={isSuperAdmin}
+          canUpdate={isSuperAdmin}
           onToggle={handleToggle}
         />
         <RolesTableFooter
           colCount={colCount}
-          canUpdate={canUpdate("roles")}
+          canUpdate={isSuperAdmin}
         />
       </table>
     </div>
