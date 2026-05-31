@@ -59,7 +59,7 @@ const AdminSidebarContent = () => {
             />
             <NavItem
               icon={KeyRound}
-              label="Permissions"
+              label="Role Access"
               to={`${base}/permissions`}
               isActive={activePage === "permissions"}
             />

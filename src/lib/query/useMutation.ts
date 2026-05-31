@@ -2,12 +2,21 @@ import { useMutation as useTanstackMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { MutationOptions } from "./types";
 
-export function useMutation<TArgs, TResult>(
+export function useMutation<TArgs, TResult, TContext = unknown>(
   fn: (args: TArgs) => Promise<TResult>,
-  options: MutationOptions<TResult, TArgs>,
+  options: MutationOptions<TResult, TArgs, TContext>,
 ) {
-  const { mutateAsync: _mutateAsync, isPending, isSuccess: _isSuccess, error, isError, data, reset } = useTanstackMutation({
+  const {
+    mutateAsync: _mutateAsync,
+    isPending,
+    isSuccess: _isSuccess,
+    error,
+    isError,
+    data,
+    reset,
+  } = useTanstackMutation<TResult, Error, TArgs, TContext>({
     mutationFn: fn,
+    onMutate: options.onMutate,
 
     onSuccess(result, args) {
       options.onSuccess?.(result, args);
@@ -15,26 +24,31 @@ export function useMutation<TArgs, TResult>(
       if ("toast" in options && options.toast) return;
 
       if (!("silent" in options)) {
-        const msg = typeof options.successMessage === "function"
-          ? options.successMessage(result, args)
-          : options.successMessage;
+        const msg =
+          typeof options.successMessage === "function"
+            ? options.successMessage(result, args)
+            : options.successMessage;
         toast.success(msg);
       }
     },
 
-    onError(err, args) {
+    onError(err, args, context) {
       const error = err instanceof Error ? err : new Error(String(err));
-      options.onError?.(error, args);
+      options.onError?.(error, args, context);
       if (!("toast" in options) && !("silent" in options)) {
-        const msg = typeof options.errorMessage === "function"
-          ? options.errorMessage(error, args)
-          : options.errorMessage;
+        const msg =
+          typeof options.errorMessage === "function"
+            ? options.errorMessage(error, args)
+            : options.errorMessage;
         toast.error(msg);
       }
     },
   });
 
-  async function mutate(args: TArgs, callbacks?: { onSuccess?: () => void }): Promise<void> {
+  async function mutate(
+    args: TArgs,
+    callbacks?: { onSuccess?: () => void },
+  ): Promise<void> {
     if ("toast" in options && options.toast) {
       const promise = _mutateAsync(args);
       toast.promise(promise, {
@@ -42,16 +56,26 @@ export function useMutation<TArgs, TResult>(
         success: options.toast.success as string,
         error: options.toast.error as string,
       });
-      await promise.then(() => callbacks?.onSuccess?.()).catch(() => { });
+      await promise.then(() => callbacks?.onSuccess?.()).catch(() => {});
       return;
     }
-    await _mutateAsync(args).then(() => callbacks?.onSuccess?.()).catch(() => { });
+    await _mutateAsync(args)
+      .then(() => callbacks?.onSuccess?.())
+      .catch(() => {});
   }
-
 
   async function mutateAsync(args: TArgs): Promise<TResult> {
     return _mutateAsync(args);
   }
 
-  return { mutate, mutateAsync, isPending, isSuccess: _isSuccess, error, isError, data, reset };
+  return {
+    mutate,
+    mutateAsync,
+    isPending,
+    isSuccess: _isSuccess,
+    error,
+    isError,
+    data,
+    reset,
+  };
 }

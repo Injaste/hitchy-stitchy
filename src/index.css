@@ -126,6 +126,22 @@
     @apply font-sans;
   }
 
+  /* ── Thin scrollbars (WebKit/Blink) ── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
   body[data-scroll-locked="1"] {
     overflow: hidden;
     touch-action: none;

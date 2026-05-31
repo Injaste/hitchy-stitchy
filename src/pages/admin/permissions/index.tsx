@@ -4,11 +4,16 @@ import PermissionsView from "./components/PermissionsView";
 import Container from "@/components/custom/container";
 
 const Permissions = () => {
-  const { data, isLoading, isError } = usePermissionsQuery();
+  const { data, isLoading, isError, isRefetching, refetch } = usePermissionsQuery();
 
   return (
     <>
-      <PermissionsHeader />
+      <PermissionsHeader
+        isLoading={isLoading}
+        isError={isError}
+        isRefetching={isRefetching}
+        refetch={refetch}
+      />
       <Container pageSpacing>
         <PermissionsView data={data} isLoading={isLoading} isError={isError} />
       </Container>

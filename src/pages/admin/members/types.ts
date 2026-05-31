@@ -62,7 +62,7 @@ export const editMemberSchema = z.object({
     .max(500, "Notes is too long")
     .transform((v) => v.trim() || null),
   /** Form-level couple representation — "" means neither bride nor groom. */
-  couple_role: z.enum(["", "bride", "groom"]).default(""),
+  couple_role: z.enum(["", "bride", "groom"]),
 });
 
 export type InviteMemberValues = z.infer<typeof inviteMemberSchema>;

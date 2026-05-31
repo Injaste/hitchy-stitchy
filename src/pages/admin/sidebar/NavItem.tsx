@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { toSlug } from "@/hooks/useSlugCheck";
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -14,7 +13,7 @@ const NavItem = ({ icon: Icon, label, to, isActive, badge }: NavItemProps) => {
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
-    <SidebarMenuItem id={toSlug(label)}>
+    <SidebarMenuItem id={to.split("/").pop()}>
       <SidebarMenuButton
         asChild
         variant="ghost"
