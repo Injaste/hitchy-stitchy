@@ -3,8 +3,8 @@ import { useMutation } from "@/lib/query/useMutation"
 import { truncate } from "@/lib/utils"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
-import { fetchRoles, createRole, updateRole, deleteRole } from "./api"
-import type { CreateRolePayload, UpdateRolePayload, DeleteRolePayload, Role } from "./types"
+import { fetchRoles, createRole, updateRole, deleteRole, fetchAvailableResources } from "./api"
+import type { Role, CreateRolePayload, UpdateRolePayload, DeleteRolePayload } from "./types"
 import type { Member } from "../members/types"
 import type { AdminBootstrapContext } from "../types"
 
@@ -17,14 +17,12 @@ export function useRolesQuery() {
   })
 }
 
-type UpdateSnapshot = {
-  roles: Role[] | undefined
-  members: Member[] | undefined
-  bootstrap: AdminBootstrapContext | undefined
-}
-
-type RemoveSnapshot = {
-  roles: Role[] | undefined
+export function useAvailableResourcesQuery() {
+  return useQuery({
+    queryKey: adminKeys.availableResources(),
+    queryFn: fetchAvailableResources,
+    staleTime: Infinity,
+  })
 }
 
 export function useRoleMutations() {
@@ -48,52 +46,12 @@ export function useRoleMutations() {
     },
   )
 
-  const update = useMutation<UpdateRolePayload, Role, UpdateSnapshot>(
+  const update = useMutation(
     (payload: UpdateRolePayload) => updateRole(payload),
     {
       successMessage: (result: Role) => `"${truncate(result.name)}" updated`,
       errorMessage: (err) => err.message,
-      onMutate: (payload) => {
-        const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!))
-        const members = queryClient.getQueryData<Member[]>(adminKeys.members(slug!))
-        const bootstrap = queryClient.getQueryData<AdminBootstrapContext>(adminKeys.bootstrap(slug!))
-
-        setRoles((old) => old?.map((r) => {
-          if (r.id !== payload.id) return r
-          return {
-            ...r,
-            ...(payload.name !== undefined && { name: payload.name }),
-            ...(payload.permissions !== undefined && { permissions: payload.permissions }),
-          }
-        }) ?? [])
-
-        setMembers((old) => old?.map((m) => {
-          if (m.role_id !== payload.id) return m
-          return {
-            ...m,
-            role: {
-              ...m.role!,
-              ...(payload.name !== undefined && { name: payload.name }),
-              ...(payload.permissions !== undefined && { permissions: payload.permissions }),
-            },
-          }
-        }) ?? [])
-
-        if (payload.id === memberRoleId) {
-          queryClient.setQueryData<AdminBootstrapContext>(
-            adminKeys.bootstrap(slug!),
-            (old) => old && {
-              ...old,
-              ...(payload.name !== undefined && { memberRoleName: payload.name }),
-              ...(payload.permissions !== undefined && { permissions: payload.permissions }),
-            },
-          )
-        }
-
-        return { roles, members, bootstrap }
-      },
       onSuccess: (result: Role) => {
-        // Sync with server result (timestamps etc.)
         setRoles((old) => old?.map((r) => r.id === result.id ? result : r) ?? [])
         setMembers((old) =>
           old?.map((m) => m.role_id === result.id ? { ...m, role: result } : m) ?? []
@@ -105,32 +63,24 @@ export function useRoleMutations() {
           )
         }
       },
-      onError: (_err, _payload, context) => {
-        if (context?.roles) setRoles(() => context.roles!)
-        if (context?.members) setMembers(() => context.members!)
-        if (context?.bootstrap) {
-          queryClient.setQueryData(adminKeys.bootstrap(slug!), context.bootstrap)
-        }
+      onError: () => {
+        queryClient.invalidateQueries({ queryKey: adminKeys.roles(slug!) })
       },
     },
   )
 
-  const remove = useMutation<DeleteRolePayload, void, RemoveSnapshot>(
+  const remove = useMutation(
     (payload: DeleteRolePayload) => deleteRole(payload),
     {
       successMessage: (_: void, args: DeleteRolePayload) =>
         `"${truncate(args.name)}" deleted`,
       errorMessage: (err) => err.message,
-      onMutate: (payload) => {
-        const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!))
-        setRoles((old) => old?.filter((r) => r.id !== payload.id) ?? [])
-        return { roles }
-      },
-      onSuccess: () => {
+      onSuccess: (_: void, args: DeleteRolePayload) => {
+        setRoles((old) => old?.filter((r) => r.id !== args.id) ?? [])
         queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) })
       },
-      onError: (_err, _payload, context) => {
-        if (context?.roles) setRoles(() => context.roles!)
+      onError: () => {
+        queryClient.invalidateQueries({ queryKey: adminKeys.roles(slug!) })
       },
     },
   )

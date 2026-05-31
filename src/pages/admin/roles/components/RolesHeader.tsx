@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { AdminPageHeader } from "@/components/custom/admin-page-header";
 import type { BaseHeaderProps } from "@/components/custom/page-header-base";
 
-const PermissionsHeader: FC<BaseHeaderProps> = ({ isLoading, isError, isRefetching, refetch }) => (
+const RolesHeader: FC<BaseHeaderProps> = ({ isLoading, isError, isRefetching, refetch }) => (
   <AdminPageHeader
     title="Role Access"
     description="Create and manage roles. Click any cell to adjust what each role can access."
@@ -13,4 +13,4 @@ const PermissionsHeader: FC<BaseHeaderProps> = ({ isLoading, isError, isRefetchi
   />
 );
 
-export default PermissionsHeader;
+export default RolesHeader;

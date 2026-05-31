@@ -1,23 +1,23 @@
 import { useState, useRef, type FC } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2 } from "lucide-react";
-import type { Role } from "../../roles/types";
+import type { Role } from "../types";
+import { useRolesModalStore } from "../hooks/useRolesModalStore";
 
 interface RoleHeaderProps {
   role: Role;
   canDelete: boolean;
   canEdit: boolean;
-  onDelete: (role: Role) => void;
   onRename: (role: Role, name: string) => void;
 }
 
-export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onDelete, onRename }) => {
+export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRename }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(role.name);
   const inputRef = useRef<HTMLInputElement>(null);
+  const openDeleteRole = useRolesModalStore((s) => s.openDeleteRole);
 
   const startEdit = () => {
     if (!canEdit) return;
@@ -51,35 +51,38 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onDe
             autoFocus
           />
         ) : (
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={startEdit}
+            disabled={!canEdit}
             title={canEdit ? "Click to rename" : undefined}
             className={cn(
-              "text-xs font-semibold text-foreground truncate block w-full text-center",
-              canEdit && "hover:text-primary transition-colors cursor-text",
-              !canEdit && "cursor-default",
+              "h-auto w-full px-1 py-0 text-xs font-semibold text-foreground truncate justify-center bg-transparent hover:bg-transparent disabled:opacity-100",
+              canEdit && "hover:text-primary cursor-text",
             )}
           >
             {role.name}
-          </button>
+          </Button>
         )}
       </div>
       {canDelete && (
-        <button
+        <Button
           type="button"
-          onClick={() => onDelete(role)}
+          size="icon"
+          variant="ghost"
+          onClick={() => openDeleteRole(role)}
           title="Delete role"
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-destructive transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100"
         >
           <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        </Button>
       )}
     </div>
   );
 };
 
-interface PermissionsTableHeaderProps {
+interface RolesTableHeaderProps {
   roles: Role[];
   canCreate: boolean;
   canDelete: boolean;
@@ -89,11 +92,10 @@ interface PermissionsTableHeaderProps {
   onSetAddingRole: (v: boolean) => void;
   onSetNewRoleName: (v: string) => void;
   onCreate: () => void;
-  onDelete: (role: Role) => void;
   onRename: (role: Role, name: string) => void;
 }
 
-const PermissionsTableHeader: FC<PermissionsTableHeaderProps> = ({
+const RolesTableHeader: FC<RolesTableHeaderProps> = ({
   roles,
   canCreate,
   canDelete,
@@ -103,7 +105,6 @@ const PermissionsTableHeader: FC<PermissionsTableHeaderProps> = ({
   onSetAddingRole,
   onSetNewRoleName,
   onCreate,
-  onDelete,
   onRename,
 }) => (
   <thead className="sticky top-0 z-10 bg-card">
@@ -118,7 +119,6 @@ const PermissionsTableHeader: FC<PermissionsTableHeaderProps> = ({
             role={role}
             canDelete={canDelete}
             canEdit={canEdit}
-            onDelete={onDelete}
             onRename={onRename}
           />
         </th>
@@ -169,4 +169,4 @@ const PermissionsTableHeader: FC<PermissionsTableHeaderProps> = ({
   </thead>
 );
 
-export default PermissionsTableHeader;
+export default RolesTableHeader;

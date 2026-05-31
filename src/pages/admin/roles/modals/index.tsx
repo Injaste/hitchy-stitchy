@@ -1,3 +1,9 @@
-// Role management has moved to the Permissions page (src/pages/admin/permissions).
-const RoleModals = () => null;
-export default RoleModals;
+import DeleteRoleModal from "./DeleteRoleModal";
+
+const RolesModals = () => (
+  <>
+    <DeleteRoleModal />
+  </>
+);
+
+export default RolesModals;

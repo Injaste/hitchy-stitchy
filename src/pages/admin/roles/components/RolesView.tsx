@@ -1,37 +1,38 @@
 import type { FC } from "react";
 import { AnimatePresence } from "framer-motion";
 import ComponentFade from "@/components/animations/animate-component-fade";
-import type { Role } from "../../roles/types";
+import type { Role } from "../types";
 
-import PermissionsTable from "./PermissionsTable";
-import PermissionsSkeleton from "../states/PermissionsSkeleton";
-import PermissionsError from "../states/PermissionsError";
+import RolesTable from "./RolesTable";
+import RolesSkeleton from "../states/RolesSkeleton";
+import RolesError from "../states/RolesError";
 
-interface PermissionsViewProps {
+interface RolesViewProps {
   data: Role[] | undefined;
+  availableResources: string[];
   isLoading: boolean;
   isError: boolean;
 }
 
-const PermissionsView: FC<PermissionsViewProps> = ({ data, isLoading, isError }) => {
+const RolesView: FC<RolesViewProps> = ({ data, availableResources, isLoading, isError }) => {
   const renderBody = () => {
     if (isLoading)
       return (
         <ComponentFade key="skeleton">
-          <PermissionsSkeleton />
+          <RolesSkeleton />
         </ComponentFade>
       );
 
     if (isError || !data)
       return (
         <ComponentFade key="error">
-          <PermissionsError />
+          <RolesError />
         </ComponentFade>
       );
 
     return (
       <ComponentFade key="content">
-        <PermissionsTable roles={data} />
+        <RolesTable roles={data} availableResources={availableResources} />
       </ComponentFade>
     );
   };
@@ -39,4 +40,4 @@ const PermissionsView: FC<PermissionsViewProps> = ({ data, isLoading, isError })
   return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
 };
 
-export default PermissionsView;
+export default RolesView;

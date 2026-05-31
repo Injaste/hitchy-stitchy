@@ -48,3 +48,11 @@ export async function deleteRole(payload: DeleteRolePayload): Promise<void> {
   });
   if (error) throw new Error(error.message);
 }
+
+export async function fetchAvailableResources(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("event_role_permissions")
+    .select("resource");
+  if (error) throw new Error(error.message);
+  return [...new Set((data ?? []).map((row) => row.resource as string))];
+}

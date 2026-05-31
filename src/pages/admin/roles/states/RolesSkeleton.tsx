@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-const PermissionsSkeleton = () => (
+const RolesSkeleton = () => (
   <div className="rounded-xl border border-border/60 overflow-hidden">
     <div className="border-b border-border/60 bg-muted/40 px-5 py-3.5 flex gap-4">
       <Skeleton className="h-4 w-[36%]" />
@@ -21,4 +21,4 @@ const PermissionsSkeleton = () => (
   </div>
 );
 
-export default PermissionsSkeleton;
+export default RolesSkeleton;
