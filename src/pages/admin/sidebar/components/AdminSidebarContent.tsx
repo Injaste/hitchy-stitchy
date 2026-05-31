@@ -2,7 +2,7 @@ import {
   Clock,
   CheckSquare,
   Users,
-  KeyRound,
+  Shield,
   Mail,
   ClipboardList,
 } from "lucide-react";
@@ -58,7 +58,7 @@ const AdminSidebarContent = () => {
               isActive={activePage === "members"}
             />
             <NavItem
-              icon={KeyRound}
+              icon={Shield}
               label="Role Access"
               to={`${base}/roles`}
               isActive={activePage === "roles"}

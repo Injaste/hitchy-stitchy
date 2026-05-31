@@ -88,7 +88,7 @@ const MemberEditModal = () => {
 
   // Lock role if target is root OR caller doesn't outrank target (incl. self).
   const lockRole = selectedItem.is_root || !callerOutranks;
-  const canSeeEmail = isSelf || selectedItem.invited_by === memberId;
+  const canSeeEmail = isSuperAdmin;
 
   return (
     <FormDialog

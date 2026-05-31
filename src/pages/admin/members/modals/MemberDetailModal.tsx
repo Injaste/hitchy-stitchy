@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Clock,
   Mail,
+  Shield,
   StickyNote,
   Snowflake,
   UserX,
@@ -42,8 +43,7 @@ const MemberDetailModal = () => {
   const member = selectedItem;
 
   const isSelf = member.id === memberId;
-  const isInvitedByMe = member.invited_by === memberId;
-  const canSeeEmail = isSelf || isInvitedByMe;
+  const canSeeEmail = isSuperAdmin;
 
   const isRoot = member.is_root;
   const isCouple = member.is_bride || member.is_groom;
@@ -131,6 +131,11 @@ const MemberDetailModal = () => {
                 Groom
               </Badge>
             )}
+            {member.label && (
+              <Badge variant="secondary" className="text-2xs">
+                {member.label}
+              </Badge>
+            )}
           </DialogTitle>
           <DialogDescription>
             Member profile and access details.
@@ -139,28 +144,19 @@ const MemberDetailModal = () => {
 
         <DialogBody>
           <div className="space-y-6">
-            {/* Role + Label */}
-            {(isSuperAdmin || member.label) && (
+            {/* Role */}
+            {isSuperAdmin && (
               <div className="space-y-2">
-                {isSuperAdmin && (
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Role
-                  </p>
-                )}
-                <div className="flex items-center gap-2 flex-wrap">
-                  {isSuperAdmin && (
-                    <Badge variant="outline" className="text-2xs tracking-wide">
-                      {member.role?.name ?? "Unknown role"}
-                    </Badge>
-                  )}
-                  {member.label && (
-                    <Badge variant="secondary" className="text-2xs tracking-wide">
-                      {member.label}
-                    </Badge>
-                  )}
-                </div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Role
+                </p>
+                <Badge variant="outline" className="text-2xs tracking-wide">
+                  <Shield className="w-3 h-3" />
+                  {member.role?.name ?? "Unknown role"}
+                </Badge>
               </div>
             )}
+
 
             {/* Notes */}
             {member.notes && (
