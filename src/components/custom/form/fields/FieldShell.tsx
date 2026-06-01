@@ -6,6 +6,7 @@ import {
   FieldDescription,
   FieldLabel,
 } from "@/components/ui/field";
+import { Badge } from "@/components/ui/badge";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { cn } from "@/lib/utils";
 import { useFormShell } from "../form-context";
@@ -52,10 +53,9 @@ const FieldShell = ({
                 <FieldLabel className={labelClassName}>
                   {label}
                   {optional && (
-                    <span className="text-muted-foreground font-normal">
-                      {" "}
-                      (optional)
-                    </span>
+                    <Badge variant="outline" className="font-normal text-2xs">
+                      Optional
+                    </Badge>
                   )}
                 </FieldLabel>
               )}
