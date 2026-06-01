@@ -152,7 +152,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
   const googleCalendarUrl = eventDate
     ? "https://calendar.google.com/calendar/render?action=TEMPLATE" +
       "&text=" +
-      encodeURIComponent(`${groom_name ?? ""} ${bride_name ?? ""}`) +
+      encodeURIComponent(`Wedding of ${groom_name ?? ""} ${bride_name ?? ""}`) +
       "&dates=" +
       encodeURIComponent(
         `${safeFormat(eventDate, "yyyyMMdd")}/${safeFormat(eventDate, "yyyyMMdd")}`,
@@ -162,7 +162,10 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
     : null;
 
   return (
-    <section id="details" className="pt-20 pb-10 px-4 bg-(--um-card)/60 relative z-10">
+    <section
+      id="details"
+      className="pt-20 pb-10 px-4 bg-(--um-card)/60 relative z-10"
+    >
       <div className="max-w-4xl mx-auto text-center">
         {/* Intro */}
         <motion.div
