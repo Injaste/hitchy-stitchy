@@ -152,7 +152,9 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
   const googleCalendarUrl = eventDate
     ? "https://calendar.google.com/calendar/render?action=TEMPLATE" +
       "&text=" +
-      encodeURIComponent(`Wedding of ${groom_name ?? ""} ${bride_name ?? ""}`) +
+      encodeURIComponent(
+        `Wedding of ${groom_name ?? ""} & ${bride_name ?? ""}`,
+      ) +
       "&dates=" +
       encodeURIComponent(
         `${safeFormat(eventDate, "yyyyMMdd")}/${safeFormat(eventDate, "yyyyMMdd")}`,
