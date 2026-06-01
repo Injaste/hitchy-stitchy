@@ -130,6 +130,8 @@ const StepRole: FC<StepRoleProps> = ({
       </div>
 
       <FieldGroup>
+        {/* Bespoke: icon-card grid per option — a generic RadioField can't express
+            this layout without a custom render prop, which is just FieldShell again. */}
         <FieldShell name="role" label="Role">
           {(field) => (
             <RadioGroup

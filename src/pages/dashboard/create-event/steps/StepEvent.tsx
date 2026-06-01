@@ -5,7 +5,6 @@ import { CalendarIcon } from "lucide-react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -154,20 +153,12 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
           placeholder="e.g. Danish"
         />
 
-        {/* FieldShell used directly so onChange can also sync setEventName state */}
-        <FieldShell name="event_name" label="Event Name">
-          {(field) => (
-            <Input
-              placeholder="e.g. Danish & Nadhirah Wedding"
-              value={field.state.value}
-              onChange={(e) => {
-                field.handleChange(e.target.value);
-                setEventName(e.target.value);
-              }}
-              onBlur={field.handleBlur}
-            />
-          )}
-        </FieldShell>
+        <TextField
+          name="event_name"
+          label="Event Name"
+          placeholder="e.g. Danish & Nadhirah Wedding"
+          onValueChange={setEventName}
+        />
 
         <FieldShell
           name="date_start"

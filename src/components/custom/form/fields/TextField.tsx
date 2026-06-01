@@ -15,6 +15,8 @@ interface TextFieldProps extends NativeInputProps {
   hint?: ReactNode;
   labelClassName?: string;
   transform?: (value: string) => string;
+  /** Called with the new value on every change, alongside the form's own handleChange. */
+  onValueChange?: (value: string) => void;
 }
 
 const TextField = ({
@@ -25,6 +27,7 @@ const TextField = ({
   hint,
   labelClassName,
   transform,
+  onValueChange,
   type = "text",
   ...inputProps
 }: TextFieldProps) => (
@@ -41,11 +44,11 @@ const TextField = ({
         {...inputProps}
         type={type}
         value={field.state.value ?? ""}
-        onChange={(e) =>
-          field.handleChange(
-            transform ? transform(e.target.value) : e.target.value,
-          )
-        }
+        onChange={(e) => {
+          const v = transform ? transform(e.target.value) : e.target.value;
+          field.handleChange(v);
+          onValueChange?.(v);
+        }}
         onBlur={field.handleBlur}
       />
     )}
