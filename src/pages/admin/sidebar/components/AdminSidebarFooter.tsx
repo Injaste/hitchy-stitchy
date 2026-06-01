@@ -42,8 +42,8 @@ const AdminSidebarFooter = () => {
               >
                 <div
                   className={cn(
-                    "flex shrink-0 aspect-square items-center justify-center rounded-lg bg-muted text-xs font-medium text-muted-foreground capitalize truncate",
-                    state === "expanded" || isMobile ? "size-9" : "size-8",
+                    "flex shrink-0 aspect-square items-center justify-center bg-muted text-xs font-medium text-muted-foreground capitalize truncate transition-colors group-hover/menu-button:bg-primary group-hover/menu-button:text-primary-foreground group-data-[state=open]/menu-button:bg-primary group-data-[state=open]/menu-button:text-primary-foreground",
+                    state === "expanded" || isMobile ? "size-9 rounded-md" : "size-8 rounded-full",
                   )}
                 >
                   {memberDisplayName
@@ -66,7 +66,7 @@ const AdminSidebarFooter = () => {
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-full">
+            <DropdownMenuContent side="top" align="start" style={{ width: "var(--radix-popper-anchor-width)" }}>
               <DropdownMenuItem
                 onClick={() => {
                   if (hasCue) return setActiveCue(null);
