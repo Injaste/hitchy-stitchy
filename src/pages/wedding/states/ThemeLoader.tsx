@@ -41,7 +41,7 @@ const ThemeLoader: FC<{ loadedCompleted: () => void }> = ({
           className="flex flex-col items-center justify-center gap-4 mb-8"
         >
           <Logo
-            imageClassName="w-32 h-32"
+            imageClassName="w-44 h-44 -mb-11"
             brandClassName="text-2xl"
             showBrand
             showTagline

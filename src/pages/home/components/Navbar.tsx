@@ -18,7 +18,7 @@ export function Navbar() {
 
         <Link to="/" className="flex items-center gap-2.5 group">
           <Logo
-            imageClassName="w-8 h-8"
+            imageClassName="w-12 h-12 -mb-3"
             brandClassName="text-lg font-bold"
             showBrand
             direction="row"

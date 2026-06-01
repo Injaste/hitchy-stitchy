@@ -17,7 +17,7 @@ const DashboardTopbar = () => {
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <Link to="/" className="flex items-center gap-2.5 group">
             <Logo
-              imageClassName="w-8 h-8"
+              imageClassName="w-12 h-12 -mb-3"
               brandClassName="text-base font-bold"
               showBrand
               direction="row"

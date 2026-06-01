@@ -9,7 +9,7 @@ const AdminErrorLayout = ({ errorMessage, isOffline }: AdminErrorLayoutProps) =>
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="text-center max-w-sm">
-        <Logo imageClassName="w-16 h-16" className="mx-auto mb-4" />
+        <Logo imageClassName="w-24 h-24 -mb-6" className="mx-auto mb-4" />
         <h2 className="text-lg font-semibold text-foreground mb-2">
           {isOffline ? "You're offline" : "Unable to load event"}
         </h2>

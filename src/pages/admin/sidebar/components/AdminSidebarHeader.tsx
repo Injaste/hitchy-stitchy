@@ -36,7 +36,7 @@ const AdminSidebarHeader = () => {
                   "group-hover/logo:opacity-0",
               )}
             >
-              <Logo className="shrink-0" imageClassName="size-8" />
+              <Logo className="shrink-0" imageClassName="size-12 -mb-3" />
               <AnimatePresence initial={false}>
                 {(state === "expanded" || isMobile) && (
                   <motion.div

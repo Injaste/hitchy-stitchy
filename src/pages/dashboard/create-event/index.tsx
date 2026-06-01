@@ -33,7 +33,7 @@ const CreateEventView = ({ onClose }: CreateEventViewProps) => {
           className="text-center mb-10"
         >
           <Logo
-            imageClassName="w-16 h-16"
+            imageClassName="w-24 h-24 -mb-6"
             className="mb-4"
             showBrand
             showTagline

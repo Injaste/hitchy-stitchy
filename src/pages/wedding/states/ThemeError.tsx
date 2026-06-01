@@ -8,7 +8,7 @@ const ThemeError = () => {
   return (
     <>
       <div className="flex flex-col items-center gap-2 mb-12">
-        <Logo imageClassName="w-10 h-10" />
+        <Logo imageClassName="w-14 h-14 -mb-3.5" />
       </div>
 
       <div className="max-w-xs flex flex-col items-center gap-6">

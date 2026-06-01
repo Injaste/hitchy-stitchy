@@ -12,7 +12,7 @@ export function Footer() {
         {/* Logo block */}
         <div className="flex flex-col items-start gap-5 shrink-0 w-64">
           <Logo
-            imageClassName="w-12 h-12"
+            imageClassName="w-16 h-16 -mb-4"
             brandClassName="text-lg"
             showBrand
             showTagline

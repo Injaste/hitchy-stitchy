@@ -123,7 +123,7 @@ const Signup = () => {
           variants={itemScaleIn}
           className="flex items-center flex-col mb-6"
         >
-          <Logo className="w-16 h-16 mb-4" />
+          <Logo className="mb-4" imageClassName="w-24 h-24 -mb-6" />
           <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
             A Wedding Planning Suite

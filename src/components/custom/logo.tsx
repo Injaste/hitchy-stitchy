@@ -29,12 +29,17 @@ const Logo = ({
     )}
   >
     <img
-      src="/images/unique-muslim/dannad.png"
+      src="/images/logo.png"
       alt="Hitchy Stitchy"
       className={cn("object-contain", imageClassName)}
     />
     {showName && (
-      <div className={cn("flex flex-col", textAlign === "left" ? "text-left" : "text-center")}>
+      <div
+        className={cn(
+          "flex flex-col",
+          textAlign === "left" ? "text-left" : "text-center",
+        )}
+      >
         <span
           className={cn(
             "font-display font-semibold text-foreground tracking-wide",
