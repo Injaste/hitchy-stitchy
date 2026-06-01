@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { StickyNote, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { parseLocalDate, formatTimeRange } from "@/lib/utils/utils-time";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -87,15 +87,7 @@ const TimelineDetailModal = () => {
               </div>
             )}
 
-            {item.assignees.length > 0 && <Separator />}
-
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-                <StickyNote className="w-3 h-3 shrink-0" />
-                Notes
-              </p>
-              <NotesMarkdown content={item.details} />
-            </div>
+            <NotesMarkdown content={item.details} />
           </div>
         </DialogBody>
 
