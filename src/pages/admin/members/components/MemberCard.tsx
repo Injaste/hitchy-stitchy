@@ -8,18 +8,10 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { type Member } from "../types";
 import MemberStatus from "./MemberStatus";
-import { getMemberStatus } from "../utils";
+import { getInitials, getMemberStatus } from "../utils";
 
 interface MemberCardProps {
   member: Member;
-}
-
-/** Derive 1–2 initials from a display name. */
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 const MemberCard: FC<MemberCardProps> = ({ member }) => {
@@ -47,7 +39,7 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
         className="absolute inset-0 rounded-[inherit] z-0 cursor-pointer"
       />
       <CardContent>
-        <div className="flex gap-4 sm:gap-8">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
           <div className="flex gap-3 flex-1 min-w-0">
             {/* Name-initials bubble */}
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
@@ -68,12 +60,18 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
 
                 {/* Couple indicator */}
                 {member.is_bride && (
-                  <Badge variant="default" className="text-2xs tracking-wide shrink-0">
+                  <Badge
+                    variant="default"
+                    className="text-2xs tracking-wide shrink-0"
+                  >
                     Bride
                   </Badge>
                 )}
                 {member.is_groom && (
-                  <Badge variant="default" className="text-2xs tracking-wide shrink-0">
+                  <Badge
+                    variant="default"
+                    className="text-2xs tracking-wide shrink-0"
+                  >
                     Groom
                   </Badge>
                 )}
@@ -90,20 +88,40 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                     {member.label}
                   </Badge>
                 )}
-
               </div>
 
-              {/* Per-member notes */}
               {member.notes && (
-                <NotesMarkdown content={member.notes} size="sm" />
+                <div className="hidden sm:block">
+                  {member.notes ? (
+                    <NotesMarkdown content={member.notes} size="sm" />
+                  ) : (
+                    <p className="text-xs text-muted-foreground/40">—</p>
+                  )}
+                </div>
+              )}
+
+              {status !== "active" && (
+                <MemberStatus
+                  member={member}
+                  className="text-xs italic shrink-0 self-center flex sm:hidden"
+                />
               )}
             </div>
           </div>
 
+          {member.notes && (
+            <div className="sm:hidden">
+              {member.notes ? (
+                <NotesMarkdown content={member.notes} size="sm" />
+              ) : (
+                <p className="text-xs text-muted-foreground/40">—</p>
+              )}
+            </div>
+          )}
           {status !== "active" && (
             <MemberStatus
               member={member}
-              className="text-xs italic shrink-0 self-center"
+              className="text-xs italic shrink-0 self-center hidden sm:flex"
             />
           )}
         </div>

@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
-  DialogDescription,
   DialogDetailActions,
   DialogHeader,
   DialogTitle,
@@ -17,7 +16,6 @@ import {
   Clock,
   Mail,
   Shield,
-  StickyNote,
   Snowflake,
   UserX,
 } from "lucide-react";
@@ -27,6 +25,7 @@ import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { getMemberRank } from "../../utils/memberUtils";
+import { getInitials } from "../utils";
 
 const MemberDetailModal = () => {
   const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen);
@@ -117,79 +116,63 @@ const MemberDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 flex-wrap">
-            {member.display_name}
-            {member.is_bride && (
-              <Badge variant="default" className="text-2xs">
-                Bride
-              </Badge>
-            )}
-            {member.is_groom && (
-              <Badge variant="default" className="text-2xs">
-                Groom
-              </Badge>
-            )}
-            {member.label && (
-              <Badge variant="secondary" className="text-2xs">
-                {member.label}
-              </Badge>
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            Member profile and access details.
-          </DialogDescription>
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
+              {getInitials(member.display_name)}
+            </div>
+            <div className="min-w-0 space-y-1">
+              <DialogTitle className="flex items-center gap-2 flex-wrap">
+                {member.display_name}
+                {member.is_bride && (
+                  <Badge variant="default" className="text-2xs">
+                    Bride
+                  </Badge>
+                )}
+                {member.is_groom && (
+                  <Badge variant="default" className="text-2xs">
+                    Groom
+                  </Badge>
+                )}
+                {member.label && (
+                  <Badge variant="secondary" className="text-2xs">
+                    {member.label}
+                  </Badge>
+                )}
+              </DialogTitle>
+              <div
+                className={`flex items-center gap-1.5 text-xs font-medium ${statusConfig.className}`}
+              >
+                <StatusIcon className="size-3.5 shrink-0" />
+                {statusConfig.label}
+              </div>
+            </div>
+          </div>
         </DialogHeader>
 
         <DialogBody>
           <div className="space-y-6">
-            {/* Role */}
+            {/* Notes — what this person handles */}
+            <NotesMarkdown content={member.notes} />
+
+            {/* Access */}
             {isSuperAdmin && (
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Role
-                </p>
-                <Badge variant="outline" className="text-2xs tracking-wide">
-                  <Shield className="w-3 h-3" />
-                  {member.role?.name ?? "Unknown role"}
-                </Badge>
-              </div>
-            )}
-
-
-            {/* Notes */}
-            {member.notes && (
               <>
                 <Separator />
-                <div className="space-y-1.5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-                    <StickyNote strokeWidth={3} className="w-3 h-3" />
-                    Notes
-                  </p>
-                  <NotesMarkdown content={member.notes} />
+                <div className="space-y-2">
+                  <Badge variant="outline" className="text-2xs tracking-wide">
+                    <Shield className="w-3 h-3" />
+                    {member.role?.name ?? "Unknown role"}
+                  </Badge>
+                  {canSeeEmail && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Mail className="w-3.5 h-3.5 shrink-0" />
+                      <span>{member.email}</span>
+                    </div>
+                  )}
                 </div>
               </>
-            )}
-
-            <Separator />
-
-            {/* Status */}
-            <div className="flex items-center gap-2">
-              <StatusIcon
-                className={`w-4 h-4 shrink-0 ${statusConfig.className}`}
-              />
-              <span className={`text-sm font-medium ${statusConfig.className}`}>
-                {statusConfig.label}
-              </span>
-            </div>
-
-            {/* Email */}
-            {canSeeEmail && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Mail className="w-3.5 h-3.5 shrink-0" />
-                <span>{member.email}</span>
-              </div>
             )}
 
             {/* History */}

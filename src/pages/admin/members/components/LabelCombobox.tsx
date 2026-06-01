@@ -90,7 +90,7 @@ const LabelCombobox: FC<LabelComboboxProps> = ({
                         className="text-muted-foreground"
                       >
                         <Plus className="size-4 shrink-0" />
-                        Add &ldquo;{trimmed}&rdquo;
+                        {trimmed}
                       </ComboboxItem>
                     )}
                   </ComboboxCollection>

@@ -20,6 +20,8 @@ interface RoleComboboxProps {
   onBlur?: () => void;
   placeholder?: string;
   disabled?: boolean;
+  /** Display name shown immediately while the roles query is still loading. */
+  initialDisplayName?: string;
 }
 
 const RoleCombobox: FC<RoleComboboxProps> = ({
@@ -28,6 +30,7 @@ const RoleCombobox: FC<RoleComboboxProps> = ({
   onBlur,
   placeholder,
   disabled = false,
+  initialDisplayName,
 }) => {
   const { data: roles = [] } = useRolesQuery();
 
@@ -46,7 +49,7 @@ const RoleCombobox: FC<RoleComboboxProps> = ({
     [roles],
   );
 
-  const displayValue = value ? (rolesById[value]?.name ?? null) : null;
+  const displayValue = value ? (rolesById[value]?.name ?? initialDisplayName ?? null) : null;
 
   return (
     <Combobox

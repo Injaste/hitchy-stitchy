@@ -25,9 +25,6 @@ const MemberEditModal = () => {
   const callerOutranks = callerRank < targetRank;
   const isSelf = selectedItem?.id === memberId;
 
-  // Couple role field visible to root users or members who already hold a couple role.
-  const showCoupleRole = isSuperAdmin;
-
   // Detect which couple slots are already held by someone other than the current target.
   const existingBride = members.find(
     (m) => m.is_bride && m.id !== selectedItem?.id,
@@ -35,6 +32,9 @@ const MemberEditModal = () => {
   const existingGroom = members.find(
     (m) => m.is_groom && m.id !== selectedItem?.id,
   );
+
+  // Hide if both slots are already held by other members — both switches would be disabled.
+  const showCoupleRole = isSuperAdmin && !(existingBride && existingGroom);
 
   const currentCoupleRole = selectedItem
     ? selectedItem.is_bride
@@ -111,6 +111,7 @@ const MemberEditModal = () => {
         showRole={isSuperAdmin}
         lockRole={lockRole}
         email={canSeeEmail ? selectedItem.email : undefined}
+        roleInitialName={selectedItem.role?.name ?? undefined}
         showCoupleRole={showCoupleRole}
         brideTakenBy={existingBride?.display_name ?? null}
         groomTakenBy={existingGroom?.display_name ?? null}

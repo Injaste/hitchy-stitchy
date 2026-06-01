@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { Info } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 
 import {
@@ -9,8 +9,14 @@ import {
 } from "@/components/ui/field";
 import { DialogBody } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { TextField, SelectField, type SelectFieldOption } from "@/components/custom/form";
+import { TextField } from "@/components/custom/form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import FieldShell from "@/components/custom/form/fields/FieldShell";
 
 import {
@@ -82,7 +88,9 @@ interface MemberFormProps {
   showRole?: boolean;
   /** When set in edit mode, renders a disabled email field. Omit to hide. */
   email?: string;
-  /** Show the couple role selector (root or existing couple member only). */
+  /** Pre-resolved role name — shown immediately while the roles query loads to avoid a flash. */
+  roleInitialName?: string;
+  /** Show the couple role switches (super admin only). */
   showCoupleRole?: boolean;
   /** Display name of another member who already holds the bride slot. */
   brideTakenBy?: string | null;
@@ -95,93 +103,149 @@ const MemberForm = ({
   lockRole = false,
   showRole = true,
   email,
+  roleInitialName,
   showCoupleRole = false,
   brideTakenBy = null,
   groomTakenBy = null,
 }: MemberFormProps) => {
-  // Build couple options, hiding slots already held by another member.
-  const coupleOptions = useMemo<SelectFieldOption[]>(() => {
-    const opts: SelectFieldOption[] = [];
-    if (!brideTakenBy) opts.push({ value: "bride", label: "Bride" });
-    if (!groomTakenBy) opts.push({ value: "groom", label: "Groom" });
-    return opts;
-  }, [brideTakenBy, groomTakenBy]);
-
-  const coupleDescription = useMemo(() => {
-    const taken = [
-      brideTakenBy && `Bride: ${brideTakenBy}`,
-      groomTakenBy && `Groom: ${groomTakenBy}`,
-    ].filter(Boolean);
-    return taken.length
-      ? `Slot${taken.length > 1 ? "s" : ""} already assigned — ${taken.join(" · ")}`
-      : "Sets the system couple identity for this member.";
-  }, [brideTakenBy, groomTakenBy]);
+  const showEmailField = mode === "invite" || !!email;
 
   return (
     <DialogBody>
       <FieldGroup>
-        <TextField
-          name="display_name"
-          label="Display name"
-          placeholder="e.g. Sarah Tan"
-        />
 
-        {mode === "invite" && (
-          <TextField
-            name="email"
-            label="Email"
-            type="email"
-            placeholder="sarah@example.com"
-            description="Email cannot be changed once assigned."
-          />
+        {/* ── Identity + access ─────────────────────────────────────── */}
+        {showEmailField ? (
+          /* display_name | email — 2-col */
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <TextField name="display_name" label="Display name" placeholder="e.g. Sarah Tan" />
+
+            {mode === "invite" && (
+              <TextField
+                name="email"
+                label={
+                  <span className="flex items-center gap-1">
+                    Email
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          tabIndex={0}
+                          className="inline-flex text-muted-foreground cursor-default"
+                        >
+                          <Info className="size-3" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Can't be changed after the invite is sent.
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
+                }
+                type="email"
+                placeholder="sarah@example.com"
+              />
+            )}
+
+            {mode === "edit" && email && (
+              <Field className="gap-2">
+                <FieldLabel>Email</FieldLabel>
+                <FieldContent>
+                  <Input type="email" value={email} disabled readOnly />
+                </FieldContent>
+              </Field>
+            )}
+          </div>
+        ) : (
+          <TextField name="display_name" label="Display name" placeholder="e.g. Sarah Tan" />
         )}
 
-        {mode === "edit" && email && (
-          <Field className="gap-2">
-            <FieldLabel>Email</FieldLabel>
-            <FieldContent>
-              <Input type="email" value={email} disabled readOnly />
-            </FieldContent>
-          </Field>
-        )}
+        {/* ── Role + Label ───────────────────────────────────────────── */}
+        {showRole ? (
+          /* role | label — 2-col */
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FieldShell name="role_id" label="Role">
+              {(field) => (
+                <RoleCombobox
+                  value={field.state.value ?? ""}
+                  onChange={(roleId) => field.handleChange(roleId)}
+                  onBlur={field.handleBlur}
+                  placeholder="Select a role"
+                  disabled={lockRole}
+                  initialDisplayName={roleInitialName}
+                />
+              )}
+            </FieldShell>
 
-        {showRole && (
-          <FieldShell name="role_id" label="Role">
+            <FieldShell name="label" label="Label" optional>
+              {(field) => (
+                <LabelCombobox
+                  value={field.state.value ?? ""}
+                  onChange={(v) => field.handleChange(v)}
+                  onBlur={field.handleBlur}
+                  placeholder="e.g. Maid of Honor"
+                />
+              )}
+            </FieldShell>
+          </div>
+        ) : (
+          <FieldShell name="label" label="Label" optional>
             {(field) => (
-              <RoleCombobox
+              <LabelCombobox
                 value={field.state.value ?? ""}
-                onChange={(roleId) => field.handleChange(roleId)}
+                onChange={(v) => field.handleChange(v)}
                 onBlur={field.handleBlur}
-                placeholder="Select a role"
-                disabled={lockRole}
+                placeholder="e.g. Maid of Honor"
               />
             )}
           </FieldShell>
         )}
 
-        <FieldShell name="label" label="Label" optional>
-          {(field) => (
-            <LabelCombobox
-              value={field.state.value ?? ""}
-              onChange={(v) => field.handleChange(v)}
-              onBlur={field.handleBlur}
-              placeholder="e.g. Maid of Honor"
-            />
-          )}
-        </FieldShell>
-
+        {/* ── Couple role ────────────────────────────────────────────── */}
         {mode === "edit" && showCoupleRole && (
-          <SelectField
-            name="couple_role"
-            label="Couple role"
-            optional
-            nullable
-            nullLabel="None"
-            options={coupleOptions}
-            description={coupleDescription}
-          />
+          <FieldShell name="couple_role" label="Couple role" optional>
+            {(field) => (
+              <div className="space-y-2">
+                {/* Bride */}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm">
+                    Bride
+                    {brideTakenBy && (
+                      <span className="ml-1.5 text-xs text-muted-foreground">
+                        · {brideTakenBy}
+                      </span>
+                    )}
+                  </span>
+                  <Switch
+                    size="sm"
+                    checked={field.state.value === "bride"}
+                    onCheckedChange={(v) => field.handleChange(v ? "bride" : null)}
+                    disabled={!!brideTakenBy}
+                  />
+                </div>
+
+                {/* Groom */}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm">
+                    Groom
+                    {groomTakenBy && (
+                      <span className="ml-1.5 text-xs text-muted-foreground">
+                        · {groomTakenBy}
+                      </span>
+                    )}
+                  </span>
+                  <Switch
+                    size="sm"
+                    checked={field.state.value === "groom"}
+                    onCheckedChange={(v) => field.handleChange(v ? "groom" : null)}
+                    disabled={!!groomTakenBy}
+                  />
+                </div>
+              </div>
+            )}
+          </FieldShell>
         )}
 
+        {/* ── Notes ─────────────────────────────────────────────────── */}
         <FieldShell name="notes" label="Notes" optional>
           {(field) => (
             <Textarea
@@ -193,6 +257,7 @@ const MemberForm = ({
             />
           )}
         </FieldShell>
+
       </FieldGroup>
     </DialogBody>
   );
