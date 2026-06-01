@@ -55,7 +55,7 @@ const MemberStats: FC<MemberStatsProps> = ({ data, isLoading, isError }) => {
             key={label}
             layout
             {...itemRevealInUp}
-            className="flex items-center gap-1.5 text-muted-foreground overflow-hidden"
+            className="flex items-center gap-1.5 text-muted-foreground overflow-hidden text-sm"
           >
             <Icon className="w-3.5 h-3.5 shrink-0" />
             <span className="font-medium text-foreground">
