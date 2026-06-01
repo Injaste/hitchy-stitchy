@@ -106,10 +106,7 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
           canUpdate={isSuperAdmin}
           onToggle={handleToggle}
         />
-        <RolesTableFooter
-          colCount={colCount}
-          canUpdate={isSuperAdmin}
-        />
+        <RolesTableFooter colCount={colCount} />
       </table>
     </div>
   );

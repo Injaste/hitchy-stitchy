@@ -5,7 +5,7 @@ interface AdminState extends AdminBootstrapContext {
   isBootstrapped: boolean;
   bootstrapError: string | null;
   setContext: (ctx: AdminBootstrapContext) => void;
-  setBootstrapError: (msg: string) => void;
+  setBootstrapError: (msg: string | null) => void;
 }
 
 export const useAdminStore = create<AdminState>((set) => ({

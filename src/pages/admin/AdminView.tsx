@@ -26,7 +26,7 @@ const AdminView = () => {
     <AnimatePresence mode="wait">
       {bootstrapError ? (
         <ComponentFade key="error">
-          <AdminErrorLayout errorMessage={bootstrapError} />
+          <AdminErrorLayout errorMessage={bootstrapError} isOffline={!navigator.onLine} />
         </ComponentFade>
       ) : !isBootstrapped ? (
         <ComponentFade key="loading">
