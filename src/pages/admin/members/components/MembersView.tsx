@@ -72,7 +72,7 @@ const MembersView: FC<MembersViewProps> = ({
     return (
       <ComponentFade key="content">
         <MemberStats data={data} isLoading={isLoading} isError={isError} />
-        <ul className="flex flex-col gap-3 lg:gap-6 mt-4">
+        <ul className="flex flex-col gap-3 lg:gap-4 mt-5">
           <AnimatePresence>
             {sortMembers(data).map((member, i) => (
               <motion.li
