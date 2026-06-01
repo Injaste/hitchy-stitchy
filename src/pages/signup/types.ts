@@ -11,6 +11,9 @@ export const signUpSchema = z.object({
   email: z.email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirm_password: z.string().min(1, "Please confirm your password"),
+  agree_terms: z.boolean().refine((v) => v === true, {
+    message: "Please agree to the Privacy Policy to continue",
+  }),
 }).refine((d) => d.password === d.confirm_password, {
   message: "Passwords do not match",
   path: ["confirm_password"],

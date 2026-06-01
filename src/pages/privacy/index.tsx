@@ -1,11 +1,21 @@
-import { Link } from "react-router-dom";
-import BackLink from "@/components/custom/back-link";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowBigLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Privacy() {
+  const navigate = useNavigate();
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-2xl px-6 py-16">
-        <BackLink to="/" label="Back" />
+        <Button variant="ghost" onClick={handleBack} className="flex gap-2 text-xs mb-16">
+          <ArrowBigLeft />
+          Back
+        </Button>
 
         <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
         <p className="text-sm text-muted-foreground mb-10">Last updated: May 2026</p>

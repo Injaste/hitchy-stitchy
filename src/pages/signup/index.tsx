@@ -20,6 +20,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
@@ -40,6 +41,7 @@ const useSignUpForm = ({ onSubmit }: UseSignUpFormOpts) =>
       email: "",
       password: "",
       confirm_password: "",
+      agree_terms: false,
     },
     validators: {
       onSubmit: signUpSchema,
@@ -215,6 +217,35 @@ const Signup = () => {
                     )}
                   </FieldShell>
 
+                  <FieldShell name="agree_terms">
+                    {(field) => (
+                      <div className="flex items-start gap-2">
+                        <Checkbox
+                          id="agree_terms"
+                          checked={!!field.state.value}
+                          onCheckedChange={(v) =>
+                            field.handleChange(v === true)
+                          }
+                          onBlur={field.handleBlur}
+                          className="mt-0.5"
+                        />
+                        <label
+                          htmlFor="agree_terms"
+                          className="text-xs font-normal leading-snug text-muted-foreground select-none"
+                        >
+                          I agree to the{" "}
+                          <Link
+                            to="/privacy"
+                            className="text-primary hover:underline"
+                          >
+                            Privacy Policy
+                          </Link>
+                          .
+                        </label>
+                      </div>
+                    )}
+                  </FieldShell>
+
                   <form.Subscribe selector={(s) => s.submissionAttempts}>
                     {(attempts) => (
                       <AnimateItem
@@ -226,13 +257,18 @@ const Signup = () => {
                   </form.Subscribe>
                 </FieldGroup>
 
-                <SubmitButton
-                  isPending={isPending}
-                  isError={Boolean(mutationError)}
-                  className="w-full"
-                >
-                  Create Account
-                </SubmitButton>
+                <form.Subscribe selector={(s) => s.values.agree_terms}>
+                  {(agreed) => (
+                    <SubmitButton
+                      isPending={isPending}
+                      isError={Boolean(mutationError)}
+                      disabled={!agreed}
+                      className="w-full"
+                    >
+                      Create Account
+                    </SubmitButton>
+                  )}
+                </form.Subscribe>
               </FormShell>
             </CardContent>
           </Card>
