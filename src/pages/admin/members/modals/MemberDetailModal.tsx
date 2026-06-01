@@ -98,7 +98,8 @@ const MemberDetailModal = () => {
 
   const canManage = canUpdate("members");
 
-  const canEdit = canManage && !isRejected && !isFrozen && (isSuperAdmin || callerOutranks);
+  const canEdit =
+    canManage && !isRejected && !isFrozen && (isSuperAdmin || callerOutranks);
 
   // Delete/Freeze: require strict hierarchy AND target must not be a couple member.
   const canDestructive = canManage && !isRoot && !isCouple && callerOutranks;
@@ -160,7 +161,6 @@ const MemberDetailModal = () => {
             {/* Access */}
             {isSuperAdmin && (
               <>
-                <Separator />
                 <div className="space-y-2">
                   <Badge variant="outline" className="text-2xs tracking-wide">
                     <Shield className="w-3 h-3" />
@@ -179,7 +179,6 @@ const MemberDetailModal = () => {
             {/* History */}
             {timelineItems.length > 0 && (
               <>
-                <Separator />
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
                     <History className="w-3 h-3 shrink-0" />
