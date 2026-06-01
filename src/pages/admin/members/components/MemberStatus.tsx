@@ -46,7 +46,7 @@ const MemberStatus = ({ member, className }: MemberStatusProps) => {
         className,
       )}
     >
-      <Icon className="size-3.5 shrink-0" /> {label}
+      <Icon className="size-3.5 shrink-0" /> <span className="hidden sm:inline">{label}</span>
     </span>
   );
 };

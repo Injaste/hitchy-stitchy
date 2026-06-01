@@ -40,14 +40,19 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
       />
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-          <div className="flex gap-3 flex-1 min-w-0">
+          <div
+            className={cn(
+              "flex gap-3 flex-1 min-w-0",
+              !member.notes && "items-center",
+            )}
+          >
             {/* Name-initials bubble */}
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
+            <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
               {getInitials(member.display_name)}
             </div>
 
             {/* Content */}
-            <div className="space-y-1.5 min-w-0">
+            <div className="space-y-1.5 flex-1 min-w-0">
               <div className="flex items-center gap-2 min-w-0 flex-wrap">
                 <p
                   className={cn(
@@ -88,34 +93,26 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                     {member.label}
                   </Badge>
                 )}
+
+                {status !== "active" && (
+                  <MemberStatus
+                    member={member}
+                    className="text-xs italic shrink-0 self-center flex sm:hidden ml-auto"
+                  />
+                )}
               </div>
 
               {member.notes && (
                 <div className="hidden sm:block">
-                  {member.notes ? (
-                    <NotesMarkdown content={member.notes} size="sm" />
-                  ) : (
-                    <p className="text-xs text-muted-foreground/40">—</p>
-                  )}
+                  <NotesMarkdown content={member.notes} size="sm" />
                 </div>
-              )}
-
-              {status !== "active" && (
-                <MemberStatus
-                  member={member}
-                  className="text-xs italic shrink-0 self-center flex sm:hidden"
-                />
               )}
             </div>
           </div>
 
           {member.notes && (
             <div className="sm:hidden">
-              {member.notes ? (
-                <NotesMarkdown content={member.notes} size="sm" />
-              ) : (
-                <p className="text-xs text-muted-foreground/40">—</p>
-              )}
+              <NotesMarkdown content={member.notes} size="sm" />
             </div>
           )}
           {status !== "active" && (

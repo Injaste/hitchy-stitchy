@@ -22,7 +22,8 @@ import AdminLogout from "../AdminLogout";
 const AdminSidebarFooter = () => {
   const { state } = useSidebar();
   const isMobile = useIsMobile();
-  const { memberDisplayName, memberRoleName } = useAdminStore();
+  const { memberDisplayName, memberLabel, isBride, isGroom } = useAdminStore();
+  const displayLabel = memberLabel ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
   const hasCue = useCueStore((s) => s.hasCue);
   const setActiveCue = useCueStore((s) => s.setActiveCue);
 
@@ -54,11 +55,13 @@ const AdminSidebarFooter = () => {
                     .join("")
                     .toUpperCase() || "?"}
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className={cn("grid flex-1 text-left text-sm leading-tight", !displayLabel && "content-center")}>
                   <span className="truncate font-medium">
                     {memberDisplayName}
                   </span>
-                  <span className="truncate text-xs">{memberRoleName}</span>
+                  {displayLabel && (
+                    <span className="truncate text-xs">{displayLabel}</span>
+                  )}
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
