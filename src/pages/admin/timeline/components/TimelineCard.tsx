@@ -7,9 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { formatTimeRange } from "@/lib/utils/utils-time";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useAdminStore } from "../../store/useAdminStore";
 import type { Timeline } from "../types";
 import { useMembersQuery } from "@/pages/admin/members/queries";
 import { getMemberName } from "@/pages/admin/utils/memberUtils";
@@ -22,6 +24,7 @@ interface TimelineCardProps {
 
 const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
+  const { memberId } = useAdminStore();
   const { data: members = [] } = useMembersQuery();
 
   const timeItems = formatTimeRange(item.time_start, item.time_end);
@@ -44,20 +47,25 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
             {item.title}
           </CardTitle>
 
+          {item.assignees.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-1.5">
+              {[...item.assignees].sort((a) => (a === memberId ? -1 : 1)).slice(0, 3).map((id) => (
+                <Badge key={id} variant={id === memberId ? "default" : "outline"} className="text-xs font-normal">
+                  {getMemberName(id, members)}
+                </Badge>
+              ))}
+              {item.assignees.length > 3 && (
+                <Badge variant="outline" className="text-xs font-normal">
+                  +{item.assignees.length - 3}
+                </Badge>
+              )}
+            </div>
+          )}
+
           {item.details && (
             <CardDescription className="pt-1.5 h-full w-full text-accent">
               <NotesMarkdown content={item.details} size="sm" />
             </CardDescription>
-          )}
-
-          {item.assignees.length > 0 && (
-            <span className="text-xs text-muted-foreground font-sans pt-1">
-              {item.assignees
-                .slice(0, 2)
-                .map((id) => getMemberName(id, members))
-                .join(", ")}
-              {item.assignees.length > 2 && `, +${item.assignees.length - 2}`}
-            </span>
           )}
         </CardHeader>
       </Card>

@@ -16,7 +16,6 @@ import {
   type SelectFieldOption,
 } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { isActiveMember } from "@/pages/admin/utils/memberUtils";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { generateEventDays } from "../utils";
@@ -58,9 +57,8 @@ const TimelineItemForm = () => {
   const labelDays = timelineData?.days ?? [];
   const labelOptions = timelineData?.labels ?? [];
 
-  // Only active members are assignable.
   const memberItems = members
-    .filter(isActiveMember)
+    .filter((m) => !m.frozen_at && !m.rejected_at)
     .map((m) => ({ id: m.id, label: m.display_name }));
 
   const eventDays = useMemo(() => {
@@ -83,26 +81,28 @@ const TimelineItemForm = () => {
           placeholder="e.g. Bridal prep"
         />
 
-        <FieldShell name="label" label="Label" optional>
-          {(field) => (
-            <LabelCombobox
-              value={field.state.value}
-              onChange={field.handleChange}
-              onBlur={field.handleBlur}
-              days={labelDays}
-              labels={labelOptions}
-              placeholder="e.g. Nikah, Sanding"
-            />
-          )}
-        </FieldShell>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <SelectField
+            name="day"
+            label="Day"
+            options={dayOptions}
+            placeholder="Select a day"
+            placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
+          />
 
-        <SelectField
-          name="day"
-          label="Day"
-          options={dayOptions}
-          placeholder="Select a day"
-          placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
-        />
+          <FieldShell name="label" label="Label" optional>
+            {(field) => (
+              <LabelCombobox
+                value={field.state.value}
+                onChange={field.handleChange}
+                onBlur={field.handleBlur}
+                days={labelDays}
+                labels={labelOptions}
+                placeholder="e.g. Nikah, Sanding"
+              />
+            )}
+          </FieldShell>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <TimeField name="time_start" label="Start time" />
@@ -111,18 +111,18 @@ const TimelineItemForm = () => {
 
         <TextareaField
           name="details"
-          label="Additional Items"
+          label="Notes"
           optional
           rows={3}
           placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
-          description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
+          hint="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
         />
 
         <FieldShell
           name="assignees"
           label="Assignees"
           optional
-          hint="Which team members are responsible for this item?"
+          description="Which team members are responsible for this item?"
         >
           {(field) => (
             <AssigneeField

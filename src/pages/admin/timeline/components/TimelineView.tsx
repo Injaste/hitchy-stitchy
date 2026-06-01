@@ -91,7 +91,7 @@ const TimelineView: FC<TimelineViewProps> = ({
           <AnimatePresence mode="wait">
             {activeDay && (
               <ComponentFade key={activeDay.day}>
-                <TimelineSection day={activeDay} dayIndex={activeDayIndex} />
+                <TimelineSection day={activeDay} />
               </ComponentFade>
             )}
           </AnimatePresence>

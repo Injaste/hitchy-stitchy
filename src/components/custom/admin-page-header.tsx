@@ -13,6 +13,7 @@ import { HeaderActions, type BaseHeaderProps } from "./page-header-base";
 
 interface AdminPageHeaderProps extends BaseHeaderProps {
   title: string;
+  titleSuffix?: ReactNode;
   description: string;
   meta?: ReactNode;
   action?: ReactNode;
@@ -54,6 +55,7 @@ const SidebarTriggerSection: FC<{ isMobile: boolean }> = ({ isMobile }) => {
 
 export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
   title,
+  titleSuffix,
   description,
   meta,
   action,
@@ -78,7 +80,15 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">
               <SidebarTriggerSection isMobile={isMobile} />
-              <h1 className="text-xl font-semibold">{title}</h1>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-xl font-semibold">{title}</h1>
+                {titleSuffix && (
+                  <>
+                    <span className="text-base font-normal text-muted-foreground/50">•</span>
+                    {titleSuffix}
+                  </>
+                )}
+              </div>
             </div>
             <div className="shrink-0">
               <HeaderActions

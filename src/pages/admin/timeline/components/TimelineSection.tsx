@@ -106,10 +106,9 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
 
 interface TimelineSectionProps {
   day: TimelineGroupedDay;
-  dayIndex: number;
 }
 
-const TimelineSection: FC<TimelineSectionProps> = ({ day, dayIndex }) => {
+const TimelineSection: FC<TimelineSectionProps> = ({ day }) => {
   const allItems = day.labelGroups.flatMap((g) => g.items);
   const earliest = allItems[0]?.time_start ?? "";
   const latest = getLatestTime(allItems);
@@ -117,7 +116,6 @@ const TimelineSection: FC<TimelineSectionProps> = ({ day, dayIndex }) => {
   return (
     <div className="space-y-10">
       <div className="flex flex-col gap-1 font-medium">
-        <h2>Day {dayIndex + 1}</h2>
         <ArraySeparator
           items={[
             earliest && latest && (

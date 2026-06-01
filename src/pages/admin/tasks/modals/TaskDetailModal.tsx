@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { StickyNote, Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, History, StickyNote, Users } from "lucide-react";
 
 import {
   Dialog,
@@ -100,7 +100,8 @@ const TaskDetailModal = () => {
             </div>
 
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                <Users className="w-3 h-3 shrink-0" />
                 Assigned members
               </p>
               {task.assignees.length === 0 ? (
@@ -126,8 +127,8 @@ const TaskDetailModal = () => {
 
             <div className="space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-                <StickyNote strokeWidth={3} className="w-3 h-3" />
-                Details
+                <StickyNote className="w-3 h-3 shrink-0" />
+                Notes
               </p>
               <NotesMarkdown content={task.details} />
             </div>
@@ -135,7 +136,8 @@ const TaskDetailModal = () => {
             <Separator />
 
             <div className="space-y-1.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                <History className="w-3 h-3 shrink-0" />
                 History
               </p>
               <div className="space-y-1">
