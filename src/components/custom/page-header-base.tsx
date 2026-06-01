@@ -27,8 +27,8 @@ export const ActionLabel: FC<{
       animate={{
         width: hasScrolled ? 0 : "auto",
         opacity: hasScrolled ? 0 : 1,
-        paddingLeft: hasScrolled ? 0 : side === "left" ? 6 : 0,
-        paddingRight: hasScrolled ? 0 : side === "right" ? 6 : 0,
+        marginLeft: hasScrolled ? 0 : side === "left" ? "0.375rem" : 0,
+        marginRight: hasScrolled ? 0 : side === "right" ? "0.375rem" : 0,
       }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
       className="overflow-hidden whitespace-nowrap"

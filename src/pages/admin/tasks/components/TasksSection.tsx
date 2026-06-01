@@ -119,7 +119,7 @@ const TasksSection: FC<TasksSectionProps> = ({
         >
           <div
             ref={droppableRef}
-            className="flex flex-col gap-3 min-h-[60px] rounded-xl p-2"
+            className="flex flex-col gap-3 min-h-[60px] lg:rounded-xl lg:p-2"
           >
             {taskIds.map((id, itemIndex) => {
               const task = tasksById.get(id);
