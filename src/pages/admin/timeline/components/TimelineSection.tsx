@@ -70,21 +70,24 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
         <div>
           <div className="relative">
             <div ref={emblaRef} className="overflow-hidden p-1">
-              <motion.div variants={container} className="flex gap-3">
+              <div className="flex gap-3">
                 <AnimatePresence>
-                  {group.items.map((item) => (
+                  {group.items.map((item, i) => (
                     <motion.div
+                      key={item.id}
+                      custom={i}
                       variants={itemFadeUp}
+                      initial="hidden"
+                      animate="show"
                       exit="hidden"
                       layout
-                      key={item.id}
                       className="shrink-0 w-72 self-stretch"
                     >
                       <TimelineCard item={item} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             </div>
 
             <div
@@ -102,7 +105,6 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
     </div>
   );
 };
-
 
 interface TimelineSectionProps {
   day: TimelineGroupedDay;
