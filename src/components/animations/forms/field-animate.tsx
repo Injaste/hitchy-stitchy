@@ -37,7 +37,7 @@ const AnimateItem = ({
   }, [attemptCount, hasError]);
 
   return (
-    <div ref={scope}>
+    <div ref={scope} className="empty:hidden">
       {children}
       <AnimateError hasError={hasError} errors={errors} error={error} />
     </div>

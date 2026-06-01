@@ -458,8 +458,8 @@ function SidebarContent({
             )}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
-          {children}
         </div>
+        {children}
       </div>
     </SidebarHoverContext.Provider>
   );

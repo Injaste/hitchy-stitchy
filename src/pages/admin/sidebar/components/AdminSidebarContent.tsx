@@ -5,6 +5,7 @@ import {
   Shield,
   Mail,
   ClipboardList,
+  Settings,
 } from "lucide-react";
 import {
   SidebarContent,
@@ -92,6 +93,19 @@ const AdminSidebarContent = () => {
           </SidebarGroup>
         </>
       )}
+
+      <SidebarGroup className="mt-auto">
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <NavItem
+              icon={Settings}
+              label="Settings"
+              to={`${base}/settings`}
+              isActive={activePage === "settings"}
+            />
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
     </SidebarContent>
   );
 };

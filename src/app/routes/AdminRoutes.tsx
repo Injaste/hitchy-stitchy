@@ -7,6 +7,7 @@ import Members from "@/pages/admin/members";
 import Roles from "@/pages/admin/roles";
 import Guests from "@/pages/admin/guests";
 import Invitation from "@/pages/admin/invitation";
+import Settings from "@/pages/admin/settings";
 
 const Admin = lazy(() => import("@/pages/admin"));
 
@@ -21,6 +22,7 @@ const AdminRoutes = () => (
     <Route path="invitation" element={<Invitation />} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />
+    <Route path="settings" element={<Settings />} />
   </Route>
 );
 
