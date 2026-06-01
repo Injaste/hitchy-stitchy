@@ -37,7 +37,7 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRe
     <div className="group relative flex justify-center px-4 py-3.5">
       <div className="min-w-0 max-w-full text-center">
         {editing ? (
-          <input
+          <Input
             ref={inputRef}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -46,7 +46,7 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRe
               if (e.key === "Enter") commit();
               if (e.key === "Escape") { setEditing(false); setDraft(role.name); }
             }}
-            className="w-full text-xs font-semibold bg-transparent outline-none rounded-sm ring-1 ring-primary/50 px-0.5 text-center"
+            className="h-7 text-xs text-center"
             maxLength={60}
             autoFocus
           />

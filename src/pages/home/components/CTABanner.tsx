@@ -119,6 +119,8 @@ export function CTABanner() {
             <div className="w-full max-w-sm">
               <FormShell ref={formRef} form={form}>
                 <FieldGroup>
+                  {/* Bespoke: InputGroup with an inline submit button — can't use
+                      TextField since the button lives inside the input addon. */}
                   <FieldShell name="email">
                     {(field) => (
                       <InputGroup>

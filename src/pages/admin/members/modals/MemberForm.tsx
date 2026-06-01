@@ -8,7 +8,6 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { DialogBody } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -16,6 +15,7 @@ import {
   TextField,
   TextareaField,
   LabelComboboxField,
+  FormBody,
 } from "@/components/custom/form";
 import {
   Tooltip,
@@ -123,7 +123,7 @@ const MemberForm = ({
   }, [members]);
 
   return (
-    <DialogBody>
+    <FormBody>
       <FieldGroup>
         {/* ── Identity + access ─────────────────────────────────────── */}
         {showEmailField ? (
@@ -162,6 +162,8 @@ const MemberForm = ({
             )}
 
             {mode === "edit" && email && (
+              // Not form-bound — email is a display-only prop passed from the
+              // parent; it can't be changed after the invite is sent.
               <Field className="gap-2">
                 <FieldLabel>Email</FieldLabel>
                 <FieldContent>
@@ -265,7 +267,7 @@ const MemberForm = ({
           placeholder="What this person is responsible for…"
         />
       </FieldGroup>
-    </DialogBody>
+    </FormBody>
   );
 };
 

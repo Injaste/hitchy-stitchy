@@ -160,6 +160,8 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
           onValueChange={setEventName}
         />
 
+        {/* Bespoke: drives a range calendar popover across two fields (date_start +
+            date_end) — no DateField equivalent for range pickers. */}
         <FieldShell
           name="date_start"
           labelClassName="flex justify-between w-full"
@@ -223,6 +225,8 @@ const StepEvent: FC<StepEventProps> = ({ defaultValues, onNext }) => {
           )}
         </FieldShell>
 
+        {/* Bespoke: SlugInput handles its own availability check and safe-char
+            filtering — can't be expressed by a plain TextField. */}
         <FieldShell name="slug" label="Event URL">
           {(field, hasError) => (
             <SlugInput
