@@ -7,6 +7,8 @@ export { default as FormCard } from "./FormCard";
 export { default as FormCardHeader } from "./FormCardHeader";
 export { default as FormCardFooter } from "./FormCardFooter";
 export { default as SubmitButton } from "./SubmitButton";
+export { default as LabelComboboxField } from "./LabelComboboxField";
+export type { LabelGroup } from "./LabelComboboxField";
 export { useFormShell } from "./form-context";
 export { useCloseOnSuccess } from "./useCloseOnSuccess";
 

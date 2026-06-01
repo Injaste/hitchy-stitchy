@@ -1,0 +1,49 @@
+import type { ReactNode } from "react";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import FieldShell from "./FieldShell";
+
+interface CheckboxFieldProps {
+  name: string;
+  /** Content shown beside the checkbox — may include links/markup. */
+  label: ReactNode;
+  description?: ReactNode;
+  hint?: ReactNode;
+  /** Class for the checkbox + label row. */
+  className?: string;
+  labelClassName?: string;
+}
+
+const CheckboxField = ({
+  name,
+  label,
+  description,
+  hint,
+  className,
+  labelClassName,
+}: CheckboxFieldProps) => (
+  <FieldShell name={name} description={description} hint={hint}>
+    {(field) => (
+      <div className={cn("flex items-start gap-2", className)}>
+        <Checkbox
+          id={name}
+          checked={!!field.state.value}
+          onCheckedChange={(v) => field.handleChange(v === true)}
+          onBlur={field.handleBlur}
+        />
+        <Label
+          htmlFor={name}
+          className={cn(
+            "text-xs font-normal leading-snug text-muted-foreground select-none",
+            labelClassName,
+          )}
+        >
+          {label}
+        </Label>
+      </div>
+    )}
+  </FieldShell>
+);
+
+export default CheckboxField;

@@ -13,14 +13,15 @@ import {
   TextareaField,
   SelectField,
   TimeField,
+  LabelComboboxField,
   type SelectFieldOption,
+  type LabelGroup,
 } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { generateEventDays } from "../utils";
 import { useTimelineQuery } from "../queries";
-import LabelCombobox from "../components/LabelCombobox";
 
 interface UseTimelineItemFormOpts {
   defaultValues?: Partial<TimelineItemFormValues>;
@@ -72,6 +73,16 @@ const TimelineItemForm = () => {
     icon: <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />,
   }));
 
+  // Existing labels grouped per day, for the label picker.
+  const labelGroups: LabelGroup[] = labelDays
+    .map((day, idx) => ({
+      label: `Day ${idx + 1}`,
+      items: day.labelGroups
+        .filter((g) => g.label !== null)
+        .map((g) => g.label as string),
+    }))
+    .filter((g) => g.items.length > 0);
+
   return (
     <DialogBody>
       <FieldGroup>
@@ -90,18 +101,14 @@ const TimelineItemForm = () => {
             placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
           />
 
-          <FieldShell name="label" label="Label" optional>
-            {(field) => (
-              <LabelCombobox
-                value={field.state.value}
-                onChange={field.handleChange}
-                onBlur={field.handleBlur}
-                days={labelDays}
-                labels={labelOptions}
-                placeholder="e.g. Nikah, Sanding"
-              />
-            )}
-          </FieldShell>
+          <LabelComboboxField
+            name="label"
+            label="Label"
+            optional
+            groups={labelGroups}
+            matchAgainst={labelOptions}
+            placeholder="e.g. Nikah, Sanding"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">

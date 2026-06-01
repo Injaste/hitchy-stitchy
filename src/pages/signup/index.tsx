@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useForm } from "@tanstack/react-form";
-import { UserPlus, Eye, EyeOff, CheckCircle2 } from "lucide-react";
+import { UserPlus, CheckCircle2 } from "lucide-react";
 import Logo from "@/components/custom/logo";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,17 +10,11 @@ import { FieldGroup } from "@/components/ui/field";
 import {
   FormShell,
   TextField,
-  FieldShell,
+  PasswordField,
+  CheckboxField,
   SubmitButton,
 } from "@/components/custom/form";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
@@ -55,8 +49,6 @@ const useSignUpForm = ({ onSubmit }: UseSignUpFormOpts) =>
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const Signup = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
 
   const {
@@ -157,94 +149,35 @@ const Signup = () => {
                     autoComplete="email"
                   />
 
-                  <FieldShell name="password" label="Password">
-                    {(field) => (
-                      <InputGroup>
-                        <InputGroupInput
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          autoComplete="new-password"
-                        />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupButton
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => setShowPassword((p) => !p)}
-                            className="absolute right-0.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                          >
-                            {showPassword ? (
-                              <EyeOff className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
-                    )}
-                  </FieldShell>
+                  <PasswordField
+                    name="password"
+                    label="Password"
+                    placeholder="Password"
+                    autoComplete="new-password"
+                  />
 
-                  <FieldShell name="confirm_password" label="Confirm password">
-                    {(field) => (
-                      <InputGroup>
-                        <InputGroupInput
-                          type={showConfirm ? "text" : "password"}
-                          placeholder="Confirm password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          autoComplete="new-password"
-                        />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupButton
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => setShowConfirm((p) => !p)}
-                            className="absolute right-0.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                          >
-                            {showConfirm ? (
-                              <EyeOff className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
-                    )}
-                  </FieldShell>
+                  <PasswordField
+                    name="confirm_password"
+                    label="Confirm password"
+                    placeholder="Confirm password"
+                    autoComplete="new-password"
+                  />
 
-                  <FieldShell name="agree_terms">
-                    {(field) => (
-                      <div className="flex items-start gap-2">
-                        <Checkbox
-                          id="agree_terms"
-                          checked={!!field.state.value}
-                          onCheckedChange={(v) =>
-                            field.handleChange(v === true)
-                          }
-                          onBlur={field.handleBlur}
-                          className="mt-0.5"
-                        />
-                        <label
-                          htmlFor="agree_terms"
-                          className="text-xs font-normal leading-snug text-muted-foreground select-none"
+                  <CheckboxField
+                    name="agree_terms"
+                    label={
+                      <>
+                        I agree to the{" "}
+                        <Link
+                          to="/privacy"
+                          className="text-primary hover:underline"
                         >
-                          I agree to the{" "}
-                          <Link
-                            to="/privacy"
-                            className="text-primary hover:underline"
-                          >
-                            Privacy Policy
-                          </Link>
-                          .
-                        </label>
-                      </div>
-                    )}
-                  </FieldShell>
+                          Privacy Policy
+                        </Link>
+                        .
+                      </>
+                    }
+                  />
 
                   <form.Subscribe selector={(s) => s.submissionAttempts}>
                     {(attempts) => (

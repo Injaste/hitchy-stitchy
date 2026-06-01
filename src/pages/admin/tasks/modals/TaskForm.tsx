@@ -8,6 +8,7 @@ import {
   TextareaField,
   SelectField,
   DateField,
+  LabelComboboxField,
   type SelectFieldOption,
 } from "@/components/custom/form";
 import AssigneeField from "@/pages/admin/components/AssigneeField";
@@ -16,7 +17,6 @@ import { isActiveMember } from "@/pages/admin/utils/memberUtils";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
 import { useTasksQuery } from "../queries";
-import LabelCombobox from "../components/LabelCombobox";
 
 const PRIORITY_OPTIONS: SelectFieldOption[] = [
   { value: "low", label: "Low" },
@@ -73,17 +73,13 @@ const TaskForm = () => {
           placeholder="e.g. Confirm florist delivery time"
         />
 
-        <FieldShell name="label" label="Label" optional>
-          {(field) => (
-            <LabelCombobox
-              value={field.state.value}
-              onChange={field.handleChange}
-              onBlur={field.handleBlur}
-              labels={labelOptions}
-              placeholder="e.g. Nikah, Sanding"
-            />
-          )}
-        </FieldShell>
+        <LabelComboboxField
+          name="label"
+          label="Label"
+          optional
+          groups={[{ items: labelOptions }]}
+          placeholder="e.g. Nikah, Sanding"
+        />
 
         <div className="grid grid-cols-2 gap-3">
           <SelectField

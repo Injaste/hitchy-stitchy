@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Info } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 
@@ -10,14 +11,17 @@ import {
 import { DialogBody } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { TextField } from "@/components/custom/form";
+import {
+  FieldShell,
+  TextField,
+  TextareaField,
+  LabelComboboxField,
+} from "@/components/custom/form";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import FieldShell from "@/components/custom/form/fields/FieldShell";
 
 import {
   inviteMemberSchema,
@@ -25,8 +29,9 @@ import {
   type InviteMemberValues,
   type EditMemberValues,
 } from "../types";
-import RoleCombobox from "../components/RoleCombobox";
-import LabelCombobox from "../components/LabelCombobox";
+import RoleComboboxField from "../components/RoleComboboxField";
+import { useMembersQuery } from "../queries";
+import { cn } from "@/lib/utils";
 
 interface UseMemberInviteFormOpts {
   defaultValues?: Partial<InviteMemberValues>;
@@ -110,15 +115,25 @@ const MemberForm = ({
 }: MemberFormProps) => {
   const showEmailField = mode === "invite" || !!email;
 
+  const { data: members = [] } = useMembersQuery();
+  const existingLabels = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of members) if (m.label) set.add(m.label);
+    return Array.from(set).sort();
+  }, [members]);
+
   return (
     <DialogBody>
       <FieldGroup>
-
         {/* ── Identity + access ─────────────────────────────────────── */}
         {showEmailField ? (
           /* display_name | email — 2-col */
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TextField name="display_name" label="Display name" placeholder="e.g. Sarah Tan" />
+            <TextField
+              name="display_name"
+              label="Display name"
+              placeholder="e.g. Sarah Tan"
+            />
 
             {mode === "invite" && (
               <TextField
@@ -156,49 +171,41 @@ const MemberForm = ({
             )}
           </div>
         ) : (
-          <TextField name="display_name" label="Display name" placeholder="e.g. Sarah Tan" />
+          <TextField
+            name="display_name"
+            label="Display name"
+            placeholder="e.g. Sarah Tan"
+          />
         )}
 
-        {/* ── Role + Label ───────────────────────────────────────────── */}
-        {showRole ? (
-          /* role | label — 2-col */
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FieldShell name="role_id" label="Role">
-              {(field) => (
-                <RoleCombobox
-                  value={field.state.value ?? ""}
-                  onChange={(roleId) => field.handleChange(roleId)}
-                  onBlur={field.handleBlur}
-                  placeholder="Select a role"
-                  disabled={lockRole}
-                  initialDisplayName={roleInitialName}
-                />
-              )}
-            </FieldShell>
-
-            <FieldShell name="label" label="Label" optional>
-              {(field) => (
-                <LabelCombobox
-                  value={field.state.value ?? ""}
-                  onChange={(v) => field.handleChange(v)}
-                  onBlur={field.handleBlur}
-                  placeholder="e.g. Maid of Honor"
-                />
-              )}
-            </FieldShell>
-          </div>
-        ) : (
-          <FieldShell name="label" label="Label" optional>
-            {(field) => (
-              <LabelCombobox
-                value={field.state.value ?? ""}
-                onChange={(v) => field.handleChange(v)}
-                onBlur={field.handleBlur}
-                placeholder="e.g. Maid of Honor"
-              />
-            )}
-          </FieldShell>
-        )}
+        <div
+          className={cn(
+            "grid gap-4",
+            showRole ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1",
+          )}
+        >
+          {showRole && (
+            // RoleComboboxField can't use LabelComboboxField: the form stores a
+            // role ID but displays a name, so it needs its own ID↔name mapping
+            // and an initialDisplayName fallback while the roles query loads.
+            <RoleComboboxField
+              name="role_id"
+              label="Role"
+              placeholder="Select a role"
+              disabled={lockRole}
+              initialDisplayName={roleInitialName}
+            />
+          )}
+          <LabelComboboxField
+            name="label"
+            label="Label"
+            optional
+            groups={[{ items: existingLabels }]}
+            placeholder="e.g. Maid of Honor"
+            emptyText="Type to add a label."
+            createLabel={(input) => input}
+          />
+        </div>
 
         {/* ── Couple role ────────────────────────────────────────────── */}
         {mode === "edit" && showCoupleRole && (
@@ -218,7 +225,9 @@ const MemberForm = ({
                   <Switch
                     size="sm"
                     checked={field.state.value === "bride"}
-                    onCheckedChange={(v) => field.handleChange(v ? "bride" : null)}
+                    onCheckedChange={(v) =>
+                      field.handleChange(v ? "bride" : null)
+                    }
                     disabled={!!brideTakenBy}
                   />
                 </div>
@@ -236,7 +245,9 @@ const MemberForm = ({
                   <Switch
                     size="sm"
                     checked={field.state.value === "groom"}
-                    onCheckedChange={(v) => field.handleChange(v ? "groom" : null)}
+                    onCheckedChange={(v) =>
+                      field.handleChange(v ? "groom" : null)
+                    }
                     disabled={!!groomTakenBy}
                   />
                 </div>
@@ -246,18 +257,13 @@ const MemberForm = ({
         )}
 
         {/* ── Notes ─────────────────────────────────────────────────── */}
-        <FieldShell name="notes" label="Notes" optional>
-          {(field) => (
-            <Textarea
-              value={field.state.value ?? ""}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              placeholder="What this person is responsible for…"
-              rows={3}
-            />
-          )}
-        </FieldShell>
-
+        <TextareaField
+          name="notes"
+          label="Notes"
+          optional
+          rows={3}
+          placeholder="What this person is responsible for…"
+        />
       </FieldGroup>
     </DialogBody>
   );

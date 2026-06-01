@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "@tanstack/react-form";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, NotebookPen } from "lucide-react";
+import { NotebookPen } from "lucide-react";
 import Logo from "@/components/custom/logo";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,15 +9,9 @@ import { FieldGroup } from "@/components/ui/field";
 import {
   FormShell,
   TextField,
-  FieldShell,
+  PasswordField,
   SubmitButton,
 } from "@/components/custom/form";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
@@ -47,8 +40,6 @@ const useSignInForm = ({ onSubmit }: UseSignInFormOpts) =>
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const SignIn = () => {
-  const [showPassword, setShowPassword] = useState(false);
-
   const {
     mutateAsync: login,
     isPending,
@@ -101,35 +92,11 @@ const SignIn = () => {
                     autoComplete="email"
                   />
 
-                  <FieldShell name="password" label="Password">
-                    {(field) => (
-                      <InputGroup>
-                        <InputGroupInput
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                        />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupButton
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => setShowPassword((p) => !p)}
-                            onMouseLeave={() => setShowPassword(false)}
-                            className="absolute right-0.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                          >
-                            {showPassword ? (
-                              <EyeOff className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
-                    )}
-                  </FieldShell>
+                  <PasswordField
+                    name="password"
+                    label="Password"
+                    placeholder="Password"
+                  />
 
                   <div className="-mt-1 text-right">
                     <Link
