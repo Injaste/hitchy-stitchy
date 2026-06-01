@@ -106,7 +106,7 @@
   /* ── Radius ── */
   --radius: 0.75rem;
 
-  --scrollbar-thumb: var(--color-border);
+  --scrollbar-thumb: oklch(from var(--color-foreground) l c h / 0.3);
   --scrollbar-thumb-hover: oklch(
     from var(--color-muted-foreground) l c h / 0.5
   );
