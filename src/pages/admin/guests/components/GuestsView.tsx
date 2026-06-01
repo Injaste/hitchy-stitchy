@@ -50,13 +50,19 @@ const GuestsView: FC<GuestsViewProps> = ({
 
   const canBulkUpdate = canUpdate("guests");
 
-  const filtered = (data ?? []).filter((g) => {
-    const matchesStatus = statusFilter === "all" || g.status === statusFilter;
-    const q = search.toLowerCase();
-    const matchesSearch =
-      !q || g.name.toLowerCase().includes(q) || g.phone.includes(q);
-    return matchesStatus && matchesSearch;
-  });
+  const filtered = useMemo(
+    () =>
+      (data ?? []).filter((g) => {
+        const matchesStatus =
+          statusFilter === "all" || g.status === statusFilter;
+        const q = search.toLowerCase();
+        const matchesSearch =
+          !q || g.name.toLowerCase().includes(q) || g.phone.includes(q);
+        return matchesStatus && matchesSearch;
+      }),
+    [data, search, statusFilter],
+  );
+
 
   const filteredIds = useMemo(() => filtered.map((g) => g.id), [filtered]);
   const allFilteredSelected =

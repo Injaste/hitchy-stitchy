@@ -1,8 +1,8 @@
-import { type FC } from "react";
+import { useCallback, useRef, type FC } from "react";
 import { useAccess } from "../../hooks/useAccess";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
-import type { Guest } from "../types";
+import type { Guest, GuestStatus } from "../types";
 
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -32,6 +32,16 @@ const GuestsTable: FC<GuestsTableProps> = ({
   const openDelete = useGuestModalStore((s) => s.openDelete);
   const { canUpdate, canDelete } = useAccess();
   const { updateStatus } = useGuestMutations();
+
+  // The mutation object is a fresh reference every render; route the row's
+  // call through a stable callback so memo() on GuestsRow holds.
+  const updateStatusRef = useRef(updateStatus);
+  updateStatusRef.current = updateStatus;
+  const handleUpdateStatus = useCallback(
+    (guest: Guest, status: GuestStatus) =>
+      updateStatusRef.current.mutate({ guest, status }),
+    [],
+  );
 
   const canEdit = canUpdate("guests");
   const canRemove = canDelete("guests");
@@ -107,7 +117,8 @@ const GuestsTable: FC<GuestsTableProps> = ({
                   canEdit={canEdit}
                   canRemove={canRemove}
                   hasCrudActions={hasCrudActions}
-                  updateStatus={updateStatus}
+                  onUpdateStatus={handleUpdateStatus}
+                  isUpdating={updateStatus.isPending}
                 />
               ))}
             </>

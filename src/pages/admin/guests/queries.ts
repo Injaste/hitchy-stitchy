@@ -2,7 +2,6 @@ import { useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { useMutation } from "@/lib/query/useMutation"
-import { supabase } from "@/lib/supabase"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 
@@ -13,6 +12,7 @@ import {
   updateGuests,
   deleteGuest,
   bulkImportGuests,
+  subscribeToGuests,
 } from "./api"
 import type {
   CreateGuestPayload,
@@ -41,25 +41,27 @@ export function useGuestsRealtime() {
   useEffect(() => {
     if (!eventId || !slug) return
 
-    const channel = supabase
-      .channel(`admin-guests-${eventId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "event_rsvps",
-          filter: `event_id=eq.${eventId}`,
-        },
-        () => {
-          qc.invalidateQueries({ queryKey: adminKeys.guests(slug) })
-        },
-      )
-      .subscribe()
+    const unsubscribe = subscribeToGuests(eventId, (payload) => {
+      qc.setQueryData<Guest[]>(adminKeys.guests(slug), (old) => {
+        // Not loaded yet — let the initial query handle it.
+        if (!old) return old
 
-    return () => {
-      supabase.removeChannel(channel)
-    }
+        if (payload.eventType === "DELETE") {
+          const id = (payload.old as Partial<Guest>).id
+          return id ? old.filter((g) => g.id !== id) : old
+        }
+
+        // INSERT/UPDATE: upsert by id. Replacing in place dedupes the
+        // echo of our own optimistic write; genuinely new rows (e.g. a
+        // public RSVP) prepend to match the created_at-desc fetch order.
+        const row = payload.new as unknown as Guest
+        return old.some((g) => g.id === row.id)
+          ? old.map((g) => (g.id === row.id ? row : g))
+          : [row, ...old]
+      })
+    })
+
+    return unsubscribe
   }, [eventId, slug, qc])
 }
 
@@ -174,7 +176,3 @@ export function useGuestMutations() {
 
   return { create, update, updateStatus, bulkUpdateGuests, remove, bulkImport }
 }
-
-/*
-TODO FIX UP REALTIME UPDATES ON GUESTS
-*/

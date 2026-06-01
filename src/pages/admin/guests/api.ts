@@ -1,3 +1,5 @@
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
+
 import { supabase } from "@/lib/supabase"
 import type {
   Guest,
@@ -141,3 +143,24 @@ export async function bulkImportGuests({
 
 // TODO LATER import guest should be smart and check for already exising phone numbers and display in a new upload bulk guest modal, to identify new ones and what will be updated
 // TODO TO ALSO UPDATE AND ENSURE THE SYSTEM IS SMART TO UNDERSTAND WHAT TO UPDATE AND WHAT TO INSERT
+
+export function subscribeToGuests(
+  eventId: string,
+  onChange: (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => void,
+): () => void {
+  const channel = supabase
+    .channel(`admin-guests-${eventId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "event_rsvps",
+        filter: `event_id=eq.${eventId}`,
+      },
+      onChange,
+    )
+    .subscribe()
+
+  return () => { supabase.removeChannel(channel) }
+}

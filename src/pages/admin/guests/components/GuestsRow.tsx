@@ -36,7 +36,8 @@ interface GuestsRowProps {
   canEdit: boolean;
   canRemove: boolean;
   hasCrudActions: boolean;
-  updateStatus: any;
+  onUpdateStatus: (guest: Guest, status: GuestStatus) => void;
+  isUpdating: boolean;
 }
 
 const statusBadge = {
@@ -59,7 +60,8 @@ const GuestsRow: FC<GuestsRowProps> = memo(
     canEdit,
     canRemove,
     hasCrudActions,
-    updateStatus,
+    onUpdateStatus,
+    isUpdating,
   }) => {
     const badge = statusBadge[guest.status];
 
@@ -124,13 +126,8 @@ const GuestsRow: FC<GuestsRowProps> = memo(
                 <Button
                   variant="ghost-success"
                   size="icon-sm"
-                  onClick={() =>
-                    updateStatus.mutate({
-                      guest,
-                      status: "confirmed",
-                    })
-                  }
-                  disabled={updateStatus.isPending}
+                  onClick={() => onUpdateStatus(guest, "confirmed")}
+                  disabled={isUpdating}
                 >
                   <CheckCircle className="w-4 h-4" />
                 </Button>
@@ -147,13 +144,8 @@ const GuestsRow: FC<GuestsRowProps> = memo(
               {guest.status !== "confirmed" && (
                 <DropdownMenuItem
                   variant="success"
-                  onClick={() =>
-                    updateStatus.mutate({
-                      guest,
-                      status: "confirmed",
-                    })
-                  }
-                  disabled={updateStatus.isPending}
+                  onClick={() => onUpdateStatus(guest, "confirmed")}
+                  disabled={isUpdating}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Confirm
@@ -162,13 +154,8 @@ const GuestsRow: FC<GuestsRowProps> = memo(
               {guest.status !== "cancelled" && (
                 <DropdownMenuItem
                   variant="destructive"
-                  onClick={() =>
-                    updateStatus.mutate({
-                      guest,
-                      status: "cancelled",
-                    })
-                  }
-                  disabled={updateStatus.isPending}
+                  onClick={() => onUpdateStatus(guest, "cancelled")}
+                  disabled={isUpdating}
                 >
                   <XCircle className="w-4 h-4 mr-2" />
                   Cancel
