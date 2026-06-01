@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
-  DialogDescription,
   DialogDetailActions,
   DialogHeader,
   DialogTitle,
@@ -66,10 +65,9 @@ const TaskDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>{task.title}</DialogTitle>
-          <DialogDescription>Task details and status.</DialogDescription>
         </DialogHeader>
 
         <DialogBody>

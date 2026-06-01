@@ -42,10 +42,7 @@ const MemberInviteModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader
-        title="Invite member"
-        description="Send an invitation to join this event."
-      />
+      <FormDialogHeader title="Invite member" />
 
       <MemberForm mode="invite" />
 

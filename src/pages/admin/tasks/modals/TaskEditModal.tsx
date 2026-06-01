@@ -57,10 +57,7 @@ const TaskEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormDialogHeader
-        title="Edit task"
-        description="Update the task details."
-      />
+      <FormDialogHeader title="Edit task" />
 
       <TaskForm />
 

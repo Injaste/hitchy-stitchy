@@ -54,10 +54,7 @@ const CreateThemeModal = () => {
       isSuccess={create.isSuccess}
       isError={create.isError}
     >
-      <FormDialogHeader
-        title="Name your theme"
-        description="Give this theme a name so you can identify it later."
-      />
+      <FormDialogHeader title="Name your theme" />
 
       <DialogBody>
         <FieldGroup>

@@ -44,10 +44,7 @@ const GuestCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader
-        title="Add guest"
-        description="Add a new guest to your list. You can update their RSVP status later."
-      />
+      <FormDialogHeader title="Add guest" />
 
       <GuestForm maxGuest={invitation.guest_count_max} />
 

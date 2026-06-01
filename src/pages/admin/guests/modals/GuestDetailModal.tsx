@@ -14,7 +14,6 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
-  DialogDescription,
   DialogDetailActions,
   DialogHeader,
   DialogTitle,
@@ -87,10 +86,9 @@ const GuestDetailModal = () => {
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>{guest.name}</DialogTitle>
-          <DialogDescription>Guest RSVP details.</DialogDescription>
         </DialogHeader>
 
         <DialogBody>

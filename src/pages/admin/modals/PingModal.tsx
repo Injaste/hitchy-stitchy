@@ -1,5 +1,5 @@
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Send } from 'lucide-react'
@@ -11,12 +11,9 @@ export function PingModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) close() }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Send a Ping</DialogTitle>
-          <DialogDescription>
-            Nudge a team member to check in.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="py-4 space-y-3">

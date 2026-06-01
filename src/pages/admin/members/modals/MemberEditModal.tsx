@@ -101,10 +101,7 @@ const MemberEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError || updateRole.isError || updateCouple.isError}
     >
-      <FormDialogHeader
-        title="Edit member"
-        description="Update this member's details or role."
-      />
+      <FormDialogHeader title="Edit member" />
 
       <MemberForm
         mode="edit"

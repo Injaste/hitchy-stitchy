@@ -49,10 +49,7 @@ const TimelineEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormDialogHeader
-        title="Edit item"
-        description="Update the details of this schedule item."
-      />
+      <FormDialogHeader title="Edit item" />
 
       <TimelineItemForm />
 

@@ -41,10 +41,7 @@ const CreateTimelineItemModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader
-        title="Add schedule item"
-        description="Add a new item to the event timeline."
-      />
+      <FormDialogHeader title="Add schedule item" />
 
       <TimelineItemForm />
 

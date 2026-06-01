@@ -54,10 +54,7 @@ const GuestEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormDialogHeader
-        title="Edit guest"
-        description="Update this guest's details."
-      />
+      <FormDialogHeader title="Edit guest" />
 
       <GuestForm maxGuest={invitation.guest_count_max} />
 

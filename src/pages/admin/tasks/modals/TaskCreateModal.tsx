@@ -49,10 +49,7 @@ const TaskCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader
-        title="Add task"
-        description="Create a new task for this event."
-      />
+      <FormDialogHeader title="Add task" />
 
       <TaskForm />
 

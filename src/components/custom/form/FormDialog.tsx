@@ -165,6 +165,7 @@ const FormDialog = ({
     <FormShellContext.Provider value={contextValue}>
       <Dialog open={internalOpen} onOpenChange={handleOpenChange}>
         <DialogContent
+          aria-describedby={undefined}
           className={contentClassName}
           animate={animate}
           onAnimationComplete={() => setAnimate("idle")}

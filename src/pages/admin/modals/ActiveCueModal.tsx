@@ -1,5 +1,5 @@
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Play } from 'lucide-react'
@@ -11,12 +11,9 @@ export function ActiveCueModal() {
 
   return (
     <Dialog open={isCueModalOpen} onOpenChange={(open) => { if (!open) closeCueModal() }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Active Cue</DialogTitle>
-          <DialogDescription>
-            Currently live event cue details.
-          </DialogDescription>
         </DialogHeader>
 
         {activeCue ? (
