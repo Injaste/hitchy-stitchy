@@ -11,11 +11,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import NotesMarkdown from "@/components/custom/notes-markdown";
+import { Badge } from "@/components/ui/badge";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
-import { useMembersQuery } from "@/pages/admin/members/queries";
-import { getMemberName } from "@/pages/admin/utils/memberUtils";
+import MemberBadge from "@/pages/admin/members/components/MemberBadge";
 import {
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS,
@@ -54,7 +54,6 @@ const statusCard: Record<TaskStatus, string> = {
 const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
-  const { data: members = [] } = useMembersQuery();
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -169,14 +168,17 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
           )}
 
           {task.assignees.length > 0 && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground font-sans">
+            <div className="flex flex-wrap items-center gap-1 text-muted-foreground">
               <Users className="w-3 h-3 shrink-0" />
-              {task.assignees
-                .slice(0, 2)
-                .map((id) => getMemberName(id, members))
-                .join(", ")}
-              {task.assignees.length > 2 && ` +${task.assignees.length - 2}`}
-            </span>
+              {task.assignees.slice(0, 2).map((id) => (
+                <MemberBadge key={id} memberId={id} variant="secondary" />
+              ))}
+              {task.assignees.length > 2 && (
+                <Badge variant="secondary" className="text-xs font-normal">
+                  +{task.assignees.length - 2}
+                </Badge>
+              )}
+            </div>
           )}
         </div>
       </CardHeader>

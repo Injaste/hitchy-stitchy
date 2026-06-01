@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 import { cn } from "@/lib/utils";
@@ -18,8 +17,7 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { PRIORITY_LABELS, PRIORITY_BADGE_CLASS, STATUS_LABELS } from "../types";
 import TaskStatusIcon from "../components/TaskStatusIcon";
-import { useMembersQuery } from "@/pages/admin/members/queries";
-import { getMemberName } from "@/pages/admin/utils/memberUtils";
+import MemberBadge from "@/pages/admin/members/components/MemberBadge";
 
 const TaskDetailModal = () => {
   const isDetailOpen = useTaskModalStore((s) => s.isDetailOpen);
@@ -30,7 +28,6 @@ const TaskDetailModal = () => {
   const openArchive = useTaskModalStore((s) => s.openArchive);
 
   const { canUpdate, canDelete } = useAccess();
-  const { data: members = [] } = useMembersQuery();
 
   if (!selectedItem) return null;
   const task = selectedItem;
@@ -111,13 +108,7 @@ const TaskDetailModal = () => {
               ) : (
                 <div className="flex flex-wrap gap-1.5">
                   {task.assignees.map((id) => (
-                    <Badge
-                      key={id}
-                      variant="secondary"
-                      className="text-xs font-normal"
-                    >
-                      {getMemberName(id, members)}
-                    </Badge>
+                    <MemberBadge key={id} memberId={id} variant="secondary" />
                   ))}
                 </div>
               )}

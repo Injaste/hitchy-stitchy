@@ -13,8 +13,7 @@ import { formatTimeRange } from "@/lib/utils/utils-time";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useAdminStore } from "../../store/useAdminStore";
 import type { Timeline } from "../types";
-import { useMembersQuery } from "@/pages/admin/members/queries";
-import { getMemberName } from "@/pages/admin/utils/memberUtils";
+import MemberBadge from "@/pages/admin/members/components/MemberBadge";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -25,7 +24,6 @@ interface TimelineCardProps {
 const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
   const { memberId } = useAdminStore();
-  const { data: members = [] } = useMembersQuery();
 
   const timeItems = formatTimeRange(item.time_start, item.time_end);
 
@@ -50,9 +48,11 @@ const TimelineCard: FC<TimelineCardProps> = ({ item }) => {
           {item.assignees.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-1.5">
               {[...item.assignees].sort((a) => (a === memberId ? -1 : 1)).slice(0, 3).map((id) => (
-                <Badge key={id} variant={id === memberId ? "default" : "outline"} className="text-xs font-normal">
-                  {getMemberName(id, members)}
-                </Badge>
+                <MemberBadge
+                  key={id}
+                  memberId={id}
+                  variant={id === memberId ? "default" : "outline"}
+                />
               ))}
               {item.assignees.length > 3 && (
                 <Badge variant="outline" className="text-xs font-normal">

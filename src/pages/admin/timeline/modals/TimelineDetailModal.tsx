@@ -18,8 +18,7 @@ import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import NotesMarkdown from "@/components/custom/notes-markdown";
-import { useMembersQuery } from "@/pages/admin/members/queries";
-import { getMemberName } from "@/pages/admin/utils/memberUtils";
+import MemberBadge from "@/pages/admin/members/components/MemberBadge";
 
 const TimelineDetailModal = () => {
   const isDetailOpen = useTimelineModalStore((s) => s.isDetailOpen);
@@ -30,7 +29,6 @@ const TimelineDetailModal = () => {
 
   const { canUpdate, canDelete } = useAccess();
   const { memberId } = useAdminStore();
-  const { data: members = [] } = useMembersQuery();
 
   if (!selectedItem) return null;
 
@@ -75,13 +73,11 @@ const TimelineDetailModal = () => {
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {[...item.assignees].sort((a) => (a === memberId ? -1 : 1)).map((id) => (
-                    <Badge
+                    <MemberBadge
                       key={id}
+                      memberId={id}
                       variant={id === memberId ? "default" : "outline"}
-                      className="text-xs font-normal"
-                    >
-                      {getMemberName(id, members)}
-                    </Badge>
+                    />
                   ))}
                 </div>
               </div>
