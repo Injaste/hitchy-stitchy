@@ -7,6 +7,7 @@ import LoadingState from "@/components/custom/states/loading-state";
 
 const Home = lazy(() => import("@/pages/home"));
 const Signup = lazy(() => import("@/pages/signup"));
+const ResetPassword = lazy(() => import("@/pages/reset-password"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Templates = lazy(() => import("@/pages/wedding"));
 const Privacy = lazy(() => import("@/pages/privacy"));
@@ -14,6 +15,7 @@ const Privacy = lazy(() => import("@/pages/privacy"));
 const standaloneRoutes = [
   { path: "/", element: Home, fade: true },
   { path: "/signup", element: Signup, fade: true },
+  { path: "/reset-password", element: ResetPassword, fade: true },
   { path: "/dashboard", element: Dashboard, fade: true },
   { path: "/privacy", element: Privacy, fade: true },
 ];

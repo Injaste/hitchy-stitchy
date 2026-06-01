@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "@tanstack/react-form";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, NotebookPen } from "lucide-react";
@@ -129,6 +130,15 @@ const SignIn = () => {
                       </InputGroup>
                     )}
                   </FieldShell>
+
+                  <div className="-mt-1 text-right">
+                    <Link
+                      to="/reset-password"
+                      className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
 
                   <form.Subscribe selector={(s) => s.submissionAttempts}>
                     {(attempts) => (
