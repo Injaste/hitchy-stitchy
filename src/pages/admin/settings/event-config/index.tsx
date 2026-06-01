@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format, eachDayOfInterval } from "date-fns";
+import { format } from "date-fns";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { CalendarIcon, Pencil, X, AlertTriangle } from "lucide-react";
@@ -24,8 +24,6 @@ import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { useUpdateEventMutation } from "./queries";
-import { fadeUp } from "@/pages/admin/animations";
 import { formatDateRange } from "@/lib/utils/utils-time";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -37,17 +35,6 @@ const schema = z.object({
   date_start: z.string().min(1, "Please select event dates."),
   date_end: z.string().min(1, "Please select event dates."),
 });
-
-function DisplayRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-muted-foreground uppercase tracking-widest">
-        {label}
-      </span>
-      <span className="text-sm font-medium text-foreground">{value}</span>
-    </div>
-  );
-}
 
 export function EventSettingsSection() {
   const { eventName, eventId, dateStart, dateEnd } = useAdminStore();
@@ -69,7 +56,7 @@ export function EventSettingsSection() {
       onSubmit: schema,
       onChange: schema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async () => {
       if (!eventId) return;
     },
   });

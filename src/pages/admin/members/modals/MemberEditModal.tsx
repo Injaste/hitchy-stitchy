@@ -15,7 +15,7 @@ const MemberEditModal = () => {
   const isEditOpen = useMemberModalStore((s) => s.isEditOpen);
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
-  const { eventId, memberId, isSuperAdmin } = useAdminStore();
+  const { eventId, isSuperAdmin } = useAdminStore();
   const { update, updateRole, updateCouple } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
 
@@ -23,8 +23,6 @@ const MemberEditModal = () => {
   const callerRank = isSuperAdmin ? 0 : 2;
   const targetRank = selectedItem ? getMemberRank(selectedItem) : 2;
   const callerOutranks = callerRank < targetRank;
-  const isSelf = selectedItem?.id === memberId;
-
   // Detect which couple slots are already held by someone other than the current target.
   const existingBride = members.find(
     (m) => m.is_bride && m.id !== selectedItem?.id,

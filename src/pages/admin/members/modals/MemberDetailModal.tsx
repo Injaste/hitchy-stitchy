@@ -37,12 +37,11 @@ const MemberDetailModal = () => {
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
 
   const { canUpdate } = useAccess();
-  const { memberId, isSuperAdmin } = useAdminStore();
+  const { isSuperAdmin } = useAdminStore();
 
   if (!selectedItem) return null;
   const member = selectedItem;
 
-  const isSelf = member.id === memberId;
   const canSeeEmail = isSuperAdmin;
 
   const isRoot = member.is_root;

@@ -34,7 +34,7 @@ export function useMembersQuery() {
 }
 
 export function useMemberMutations() {
-  const { slug, eventId, memberId } = useAdminStore();
+  const { slug, memberId } = useAdminStore();
   const queryClient = useQueryClient();
 
   const setMembers = (fn: (old: Member[] | undefined) => Member[]) =>

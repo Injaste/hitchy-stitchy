@@ -1,5 +1,4 @@
 import { Play, SkipForward, ListOrdered } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { useAdminStore } from "../../store/useAdminStore";

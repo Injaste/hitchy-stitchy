@@ -10,7 +10,7 @@ const mockNotificationPrefs: NotificationPrefs = {
 
 // TODO: replace with live Supabase query
 export async function fetchNotificationPrefs(
-  eventId: string, memberId: string,
+  _eventId: string, _memberId: string,
 ): Promise<NotificationPrefs> {
   await new Promise((r) => setTimeout(r, 200))
   return mockNotificationPrefs

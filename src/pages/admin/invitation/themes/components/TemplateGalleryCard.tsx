@@ -5,7 +5,6 @@ import {
   MoreHorizontal,
   Globe,
   Trash2,
-  Sparkles,
   RotateCw,
 } from "lucide-react";
 import { toast } from "sonner";

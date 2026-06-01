@@ -3,7 +3,6 @@ import { useState, useRef, useLayoutEffect, type FC } from "react";
 import { useAdminStore } from "../../store/useAdminStore";
 import { useRoleMutations } from "../queries";
 import { useAccess } from "../../hooks/useAccess";
-import { useRolesModalStore } from "../hooks/useRolesModalStore";
 import type { Role } from "../types";
 import { type AccessLevel, type Resource, applyAccessLevel } from "../types";
 
@@ -20,7 +19,6 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
   const { eventId } = useAdminStore();
   const { isSuperAdmin } = useAccess();
   const { create, update } = useRoleMutations();
-  const openDeleteRole = useRolesModalStore((s) => s.openDeleteRole);
 
   const [addingRole, setAddingRole] = useState(false);
   const [newRoleName, setNewRoleName] = useState("");

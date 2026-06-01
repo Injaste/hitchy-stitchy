@@ -6,7 +6,7 @@ const mockAppearance: AppearanceConfig = {
 }
 
 // TODO: replace with live Supabase query
-export async function fetchAppearance(eventId: string): Promise<AppearanceConfig> {
+export async function fetchAppearance(_eventId: string): Promise<AppearanceConfig> {
   await new Promise((r) => setTimeout(r, 200))
   return mockAppearance
 }

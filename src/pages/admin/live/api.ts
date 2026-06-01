@@ -7,7 +7,7 @@ import type {
 import { mockLiveLogs } from './data'
 
 // TODO: replace with live Supabase query
-export async function fetchLiveLogs(eventId: string): Promise<LiveLog[]> {
+export async function fetchLiveLogs(_eventId: string): Promise<LiveLog[]> {
   await new Promise((r) => setTimeout(r, 200))
   return mockLiveLogs
 }
@@ -23,11 +23,11 @@ export async function insertLiveLog(payload: InsertLiveLogPayload): Promise<Live
 }
 
 // TODO: replace with live Supabase query
-export async function markArrived(payload: MarkArrivedPayload): Promise<void> {
+export async function markArrived(_payload: MarkArrivedPayload): Promise<void> {
   await new Promise((r) => setTimeout(r, 200))
 }
 
 // TODO: replace with live Supabase query
-export async function advanceCue(payload: AdvanceCuePayload): Promise<void> {
+export async function advanceCue(_payload: AdvanceCuePayload): Promise<void> {
   await new Promise((r) => setTimeout(r, 200))
 }
