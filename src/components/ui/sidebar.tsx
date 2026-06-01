@@ -433,11 +433,11 @@ function SidebarContent({
           "no-scrollbar flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden overflow-auto",
           className,
         )}
+        onMouseLeave={onMouseLeave}
         {...props}
       >
         <div
           ref={containerRef as React.Ref<HTMLDivElement>}
-          onMouseLeave={onMouseLeave}
           className="relative z-0"
         >
           {activeId && (
