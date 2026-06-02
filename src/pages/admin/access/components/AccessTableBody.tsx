@@ -7,12 +7,14 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { AccessGroup } from "../types";
 import {
   type AccessLevel,
   type Resource,
   ALL_RESOURCES,
   RESOURCE_GROUPS,
+  RESOURCE_HINTS,
   RESOURCE_LABELS,
   deriveAccessLevel,
   getResourcePermission,
@@ -100,7 +102,18 @@ const AccessTableBody: FC<AccessTableBodyProps> = ({
               )}
             >
               <td className="px-5 py-3.5 font-medium text-foreground/90">
-                {RESOURCE_LABELS[resource]}
+                {RESOURCE_HINTS[resource] ? (
+                  <Tooltip>
+                    <TooltipTrigger className="underline decoration-dotted underline-offset-2 cursor-default">
+                      {RESOURCE_LABELS[resource]}
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="text-xs">
+                      {RESOURCE_HINTS[resource]}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  RESOURCE_LABELS[resource]
+                )}
               </td>
 
               {accessGroups.map((accessGroup) => (
