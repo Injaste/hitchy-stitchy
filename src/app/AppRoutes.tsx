@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import AdminRoutes from "./routes/AdminRoutes";
@@ -57,6 +57,8 @@ const AppRoutes = () => {
           />
 
           {AdminRoutes()}
+
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>
     </Suspense>

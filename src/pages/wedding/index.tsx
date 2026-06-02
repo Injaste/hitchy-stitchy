@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Lenis } from "lenis/react";
+import { useNavigate } from "react-router-dom";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePublicEvent, usePublicEventRealtime } from "./queries";
-import ThemeError from "./states/ThemeError";
 import ThemeLoader from "./states/ThemeLoader";
 import ThemeState from "./states/ThemeState";
 import { FallbackTheme, themeRegistry } from "./templates";
@@ -20,6 +20,7 @@ interface WeddingProps {
 const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   const isMobile = useIsMobile();
   const [isReady, setIsReady] = useState(false);
+  const navigate = useNavigate();
 
   const isPreview = !!previewConfig;
 
@@ -35,6 +36,12 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   usePublicEventRealtime(!isPreview ? (eventConfig?.event_id ?? null) : null);
 
   const hasError = !isPreview && !!error;
+  const isNotFound = !isPreview && !isLoading && !eventConfig && !error;
+
+  useEffect(() => {
+    if (hasError || isNotFound) navigate("/", { replace: true });
+  }, [hasError, isNotFound, navigate]);
+
   const showStateOverlay =
     !isReady || (!isPreview && (isLoading || !eventConfig || hasError));
 
@@ -45,12 +52,8 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   const renderOverlayContent = () => {
     if (!showStateOverlay) return null;
 
-    if (!isPreview && (hasError || (!isLoading && !eventConfig))) {
-      return (
-        <ComponentFade key="error">
-          <ThemeError />
-        </ComponentFade>
-      );
+    if (!isPreview && (hasError || isNotFound)) {
+      return null;
     }
 
     if (!isPreview && isLoading) {
