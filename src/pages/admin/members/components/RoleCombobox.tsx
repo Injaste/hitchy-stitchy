@@ -1,4 +1,5 @@
-import { useMemo, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
+import { Plus } from "lucide-react";
 
 import {
   Combobox,
@@ -9,82 +10,105 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  ComboboxSeparator,
 } from "@/components/ui/combobox";
 
-import { useRolesQuery } from "../../roles/queries";
-import type { Role } from "../../roles/types";
+import { useMembersQuery } from "../queries";
 
 interface RoleComboboxProps {
   value: string;
-  onChange: (roleId: string) => void;
+  onChange: (value: string) => void;
   onBlur?: () => void;
   placeholder?: string;
-  disabled?: boolean;
-  /** Display name shown immediately while the roles query is still loading. */
-  initialDisplayName?: string;
 }
+
+const CREATE_PREFIX = "__create__:";
 
 const RoleCombobox: FC<RoleComboboxProps> = ({
   value,
   onChange,
   onBlur,
   placeholder,
-  disabled = false,
-  initialDisplayName,
 }) => {
-  const { data: roles = [] } = useRolesQuery();
+  const [inputValue, setInputValue] = useState("");
+  const { data: members = [] } = useMembersQuery();
 
-  const rolesById = useMemo(
-    () => Object.fromEntries(roles.map((r) => [r.id, r])),
-    [roles],
+  // Collect distinct roles already used across members.
+  const existingRoles = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of members) {
+      if (m.role) set.add(m.role);
+    }
+    return Array.from(set).sort();
+  }, [members]);
+
+  const trimmed = inputValue.trim();
+  const exactMatch = existingRoles.some(
+    (r) => r.toLowerCase() === trimmed.toLowerCase(),
   );
+  const showCreate = trimmed.length > 0 && !exactMatch;
 
-  const rolesByName = useMemo(
-    () => Object.fromEntries(roles.map((r) => [r.name, r])),
-    [roles],
-  );
-
-  const items = useMemo(
-    () => [{ value: "roles", items: roles.map((r) => r.name) }],
-    [roles],
-  );
-
-  const displayValue = value ? (rolesById[value]?.name ?? initialDisplayName ?? null) : null;
+  const items = useMemo(() => {
+    const base = existingRoles.length
+      ? [{ value: "existing", items: existingRoles }]
+      : [];
+    if (!showCreate) return base;
+    return [...base, { value: CREATE_PREFIX, items: [`${CREATE_PREFIX}${trimmed}`] }];
+  }, [existingRoles, showCreate, trimmed]);
 
   return (
     <Combobox
-      value={displayValue}
+      value={value || null}
       onValueChange={(v) => {
         if (!v) return onChange("");
-        const role = rolesByName[v] as Role | undefined;
-        if (role) {
-          onChange(role.id);
-          onBlur?.();
-        }
+        onChange(v.startsWith(CREATE_PREFIX) ? v.slice(CREATE_PREFIX.length) : v);
+        onBlur?.();
       }}
+      onInputValueChange={setInputValue}
       items={items}
       autoHighlight
     >
       <ComboboxInput
         placeholder={placeholder}
-        showClear={false}
+        showClear={!!value}
         onBlur={onBlur}
-        disabled={disabled}
       />
       <ComboboxContent>
-        <ComboboxEmpty>No roles yet — add them in Roles &amp; Permissions.</ComboboxEmpty>
+        <ComboboxEmpty>Type to add a role.</ComboboxEmpty>
         <ComboboxList>
-          {(group: { value: string; items: string[] }) => (
-            <ComboboxGroup key={group.value} items={group.items}>
-              <ComboboxCollection>
-                {(name: string) => (
-                  <ComboboxItem key={name} value={name}>
-                    {name}
-                  </ComboboxItem>
-                )}
-              </ComboboxCollection>
-            </ComboboxGroup>
-          )}
+          {(group: { value: string; items: string[] }, index: number) => {
+            const isCreate = group.value === CREATE_PREFIX;
+            if (isCreate) {
+              return (
+                <ComboboxGroup key={CREATE_PREFIX} items={group.items}>
+                  {index > 0 && <ComboboxSeparator />}
+                  <ComboboxCollection>
+                    {(item: string) => (
+                      <ComboboxItem
+                        key={item}
+                        value={item}
+                        className="text-muted-foreground"
+                      >
+                        <Plus className="size-4 shrink-0" />
+                        {trimmed}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxCollection>
+                </ComboboxGroup>
+              );
+            }
+            return (
+              <ComboboxGroup key={group.value} items={group.items}>
+                <ComboboxCollection>
+                  {(item: string) => (
+                    <ComboboxItem key={item} value={item}>
+                      {item}
+                    </ComboboxItem>
+                  )}
+                </ComboboxCollection>
+              </ComboboxGroup>
+            );
+          }}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>

@@ -8,17 +8,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import SubmitButton from "@/components/custom/form/SubmitButton";
-import { useRolesModalStore } from "../hooks/useRolesModalStore";
-import { useRoleMutations } from "../queries";
+import { useAccessModalStore } from "../hooks/useAccessModalStore";
+import { useAccessGroupMutations } from "../queries";
 
-const DeleteRoleModal = () => {
-  const { isDeleteOpen, selectedItem: role, closeAll } = useRolesModalStore();
-  const { remove } = useRoleMutations();
+const DeleteAccessGroupModal = () => {
+  const { isDeleteOpen, selectedItem: group, closeAll } = useAccessModalStore();
+  const { remove } = useAccessGroupMutations();
 
   const handleConfirm = () => {
-    if (!role) return;
+    if (!group) return;
     remove.mutate(
-      { event_id: role.event_id, id: role.id, name: role.name },
+      { event_id: group.event_id, id: group.id, name: group.name },
       { onSuccess: closeAll },
     );
   };
@@ -27,11 +27,11 @@ const DeleteRoleModal = () => {
     <AlertDialog open={isDeleteOpen} onOpenChange={(open) => !open && closeAll()}>
       <AlertDialogContent>
         <AlertDialogHeader className="text-destructive">
-          <AlertDialogTitle>Delete role</AlertDialogTitle>
+          <AlertDialogTitle>Delete access group</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to delete{" "}
-            <span className="font-semibold text-foreground">"{role?.name}"</span>
-            ? Members assigned to this role will lose it but stay in the event.
+            <span className="font-semibold text-foreground">"{group?.name}"</span>
+            ? Members assigned to this group will lose it but stay in the event.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -55,4 +55,4 @@ const DeleteRoleModal = () => {
   );
 };
 
-export default DeleteRoleModal;
+export default DeleteAccessGroupModal;

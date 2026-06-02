@@ -25,8 +25,8 @@ import {
   type InviteMemberValues,
   type EditMemberValues,
 } from "../types";
+import AccessGroupCombobox from "../components/AccessGroupCombobox";
 import RoleCombobox from "../components/RoleCombobox";
-import LabelCombobox from "../components/LabelCombobox";
 
 interface UseMemberInviteFormOpts {
   defaultValues?: Partial<InviteMemberValues>;
@@ -41,8 +41,8 @@ export const useMemberInviteForm = ({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
       email: defaultValues?.email ?? "",
-      role_id: defaultValues?.role_id ?? "",
-      label: defaultValues?.label ?? "",
+      access_group_id: defaultValues?.access_group_id ?? "",
+      role: defaultValues?.role ?? "",
       notes: defaultValues?.notes ?? "",
     },
     validators: {
@@ -66,8 +66,8 @@ export const useMemberEditForm = ({
   useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
-      role_id: defaultValues?.role_id ?? "",
-      label: defaultValues?.label ?? "",
+      access_group_id: defaultValues?.access_group_id ?? "",
+      role: defaultValues?.role ?? "",
       notes: defaultValues?.notes ?? "",
       couple_role: defaultValues?.couple_role ?? null,
     },
@@ -82,14 +82,14 @@ export const useMemberEditForm = ({
 
 interface MemberFormProps {
   mode: "invite" | "edit";
-  /** Lock the role selector (e.g. target is root, or caller doesn't outrank target). */
-  lockRole?: boolean;
-  /** Show the role selector. Always true in invite mode; gated by isSuperAdmin in edit mode. */
-  showRole?: boolean;
+  /** Lock the access group selector (e.g. target is root, or caller doesn't outrank target). */
+  lockAccessGroup?: boolean;
+  /** Show the access group selector. Always true in invite mode; gated by isSuperAdmin in edit mode. */
+  showAccessGroup?: boolean;
   /** When set in edit mode, renders a disabled email field. Omit to hide. */
   email?: string;
-  /** Pre-resolved role name — shown immediately while the roles query loads to avoid a flash. */
-  roleInitialName?: string;
+  /** Pre-resolved access group name — shown immediately while the access groups query loads to avoid a flash. */
+  accessGroupInitialName?: string;
   /** Show the couple role switches (super admin only). */
   showCoupleRole?: boolean;
   /** Display name of another member who already holds the bride slot. */
@@ -100,10 +100,10 @@ interface MemberFormProps {
 
 const MemberForm = ({
   mode,
-  lockRole = false,
-  showRole = true,
+  lockAccessGroup = false,
+  showAccessGroup = true,
   email,
-  roleInitialName,
+  accessGroupInitialName,
   showCoupleRole = false,
   brideTakenBy = null,
   groomTakenBy = null,
@@ -159,26 +159,26 @@ const MemberForm = ({
           <TextField name="display_name" label="Display name" placeholder="e.g. Sarah Tan" />
         )}
 
-        {/* ── Role + Label ───────────────────────────────────────────── */}
-        {showRole ? (
-          /* role | label — 2-col */
+        {/* ── Access + Role ──────────────────────────────────────────── */}
+        {showAccessGroup ? (
+          /* access | role — 2-col */
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FieldShell name="role_id" label="Role">
+            <FieldShell name="access_group_id" label="Access">
               {(field) => (
-                <RoleCombobox
+                <AccessGroupCombobox
                   value={field.state.value ?? ""}
-                  onChange={(roleId) => field.handleChange(roleId)}
+                  onChange={(accessGroupId) => field.handleChange(accessGroupId)}
                   onBlur={field.handleBlur}
-                  placeholder="Select a role"
-                  disabled={lockRole}
-                  initialDisplayName={roleInitialName}
+                  placeholder="Select an access group"
+                  disabled={lockAccessGroup}
+                  initialDisplayName={accessGroupInitialName}
                 />
               )}
             </FieldShell>
 
-            <FieldShell name="label" label="Label" optional>
+            <FieldShell name="role" label="Role" optional>
               {(field) => (
-                <LabelCombobox
+                <RoleCombobox
                   value={field.state.value ?? ""}
                   onChange={(v) => field.handleChange(v)}
                   onBlur={field.handleBlur}
@@ -188,9 +188,9 @@ const MemberForm = ({
             </FieldShell>
           </div>
         ) : (
-          <FieldShell name="label" label="Label" optional>
+          <FieldShell name="role" label="Role" optional>
             {(field) => (
-              <LabelCombobox
+              <RoleCombobox
                 value={field.state.value ?? ""}
                 onChange={(v) => field.handleChange(v)}
                 onBlur={field.handleBlur}

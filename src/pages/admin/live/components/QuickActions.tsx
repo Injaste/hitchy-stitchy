@@ -14,7 +14,7 @@ const actions: { type: LiveLogType; label: string; icon: React.ElementType; msg:
 ]
 
 export function QuickActions() {
-  const { eventId, memberId, memberDisplayName, memberRoleName } = useAdminStore()
+  const { eventId, memberId, memberDisplayName, memberAccessGroupName } = useAdminStore()
   const openPing = usePingStore((s) => s.open)
   const { mutate: insertLog } = useInsertLogMutation()
 
@@ -23,7 +23,7 @@ export function QuickActions() {
       event_id: eventId,
       member_id: memberId,
       member_display_name: memberDisplayName,
-      role: memberRoleName,
+      role: memberAccessGroupName,
       type: action.type,
       msg: action.msg,
     })

@@ -6,14 +6,14 @@ export interface AdminBootstrapContext {
   dateEnd: string; // "yyyy-MM-dd"
   memberId: string;
   memberDisplayName: string;
-  memberRoleId: string;
-  memberRoleName: string;
+  memberAccessGroupId: string;
+  memberAccessGroupName: string;
   /** true when event_members.is_root = true (bypasses all permission checks) */
   isRoot: boolean;
-  /** Permissions jsonb from the member's role — nested: { resource: { action: bool } } */
+  /** Permissions jsonb from the member's access group — nested: { resource: { action: bool } } */
   permissions: Record<string, Record<string, boolean>>;
-  /** Free-text personal label, e.g. "Maid of Honor" */
-  memberLabel: string | null;
+  /** Free-text personal role/title, e.g. "Maid of Honor" */
+  memberRole: string | null;
   /** Couple identity flags from event_members */
   isBride: boolean;
   isGroom: boolean;

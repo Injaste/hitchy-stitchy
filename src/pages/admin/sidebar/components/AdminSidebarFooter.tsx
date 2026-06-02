@@ -22,8 +22,8 @@ import AdminLogout from "../AdminLogout";
 const AdminSidebarFooter = () => {
   const { state } = useSidebar();
   const isMobile = useIsMobile();
-  const { memberDisplayName, memberLabel, isBride, isGroom } = useAdminStore();
-  const displayLabel = memberLabel ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
+  const { memberDisplayName, memberRole, isBride, isGroom } = useAdminStore();
+  const displayLabel = memberRole ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
   const hasCue = useCueStore((s) => s.hasCue);
   const setActiveCue = useCueStore((s) => s.setActiveCue);
 

@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import type { Role } from "../types";
+import type { AccessGroup } from "../types";
 import {
   type AccessLevel,
   type Resource,
@@ -20,20 +20,20 @@ import {
 import { ACCESS_CONFIG, LEVEL_ORDER } from "./access-config";
 
 const FIELD_SEP = "__";
-const fieldName = (roleId: string, resource: Resource) =>
-  `${roleId}${FIELD_SEP}${resource}`;
+const fieldName = (groupId: string, resource: Resource) =>
+  `${groupId}${FIELD_SEP}${resource}`;
 
-interface RolesTableBodyProps {
-  roles: Role[];
+interface AccessTableBodyProps {
+  accessGroups: AccessGroup[];
   availableResources: string[];
   colCount: number;
   canCreate: boolean;
   canUpdate: boolean;
-  onToggle: (role: Role, resource: Resource, next: AccessLevel) => void;
+  onToggle: (group: AccessGroup, resource: Resource, next: AccessLevel) => void;
 }
 
-const RolesTableBody: FC<RolesTableBodyProps> = ({
-  roles,
+const AccessTableBody: FC<AccessTableBodyProps> = ({
+  accessGroups,
   availableResources,
   colCount,
   canCreate,
@@ -51,14 +51,14 @@ const RolesTableBody: FC<RolesTableBodyProps> = ({
 
   const defaultValues = useMemo(() => {
     const vals: Record<string, AccessLevel> = {};
-    for (const role of roles) {
+    for (const group of accessGroups) {
       for (const resource of ALL_RESOURCES.filter((r) => availableSet.has(r))) {
-        const perm = getResourcePermission(role.permissions, resource);
-        vals[fieldName(role.id, resource)] = deriveAccessLevel(perm, resource);
+        const perm = getResourcePermission(group.permissions, resource);
+        vals[fieldName(group.id, resource)] = deriveAccessLevel(perm, resource);
       }
     }
     return vals;
-  }, [roles, availableSet]);
+  }, [accessGroups, availableSet]);
 
   const form = useForm({ defaultValues });
 
@@ -66,17 +66,17 @@ const RolesTableBody: FC<RolesTableBodyProps> = ({
     form.reset(defaultValues);
   }, [defaultValues, form]);
 
-  const rolesById = useMemo(
-    () => new Map(roles.map((r) => [r.id, r])),
-    [roles],
+  const groupsById = useMemo(
+    () => new Map(accessGroups.map((g) => [g.id, g])),
+    [accessGroups],
   );
 
   const handleChange = (name: string, next: AccessLevel) => {
     if (!next) return;
-    const [roleId, resource] = name.split(FIELD_SEP) as [string, Resource];
-    const role = rolesById.get(roleId);
-    if (!role || !role.name.trim()) return;
-    onToggle(role, resource, next);
+    const [groupId, resource] = name.split(FIELD_SEP) as [string, Resource];
+    const group = groupsById.get(groupId);
+    if (!group || !group.name.trim()) return;
+    onToggle(group, resource, next);
   };
 
   return (
@@ -103,9 +103,9 @@ const RolesTableBody: FC<RolesTableBodyProps> = ({
                 {RESOURCE_LABELS[resource]}
               </td>
 
-              {roles.map((role) => (
-                <td key={role.id}>
-                  <form.Field name={fieldName(role.id, resource)}>
+              {accessGroups.map((accessGroup) => (
+                <td key={accessGroup.id}>
+                  <form.Field name={fieldName(accessGroup.id, resource)}>
                     {(field) => {
                       const level = (field.state.value as AccessLevel) ?? "none";
                       const { icon: Icon, className } = ACCESS_CONFIG[level];
@@ -180,4 +180,4 @@ const RolesTableBody: FC<RolesTableBodyProps> = ({
   );
 };
 
-export default RolesTableBody;
+export default AccessTableBody;

@@ -1,6 +1,6 @@
-// ── Role ──────────────────────────────────────────────────────────────────────
+// ── Access Group ──────────────────────────────────────────────────────────────
 
-export interface Role {
+export interface AccessGroup {
   id: string
   event_id: string
   name: string
@@ -10,19 +10,19 @@ export interface Role {
   updated_at: string
 }
 
-export interface CreateRolePayload {
+export interface CreateAccessGroupPayload {
   event_id: string
   name: string
 }
 
-export interface UpdateRolePayload {
+export interface UpdateAccessGroupPayload {
   event_id: string
   id: string
   name?: string
   permissions?: Record<string, Record<string, boolean>>
 }
 
-export interface DeleteRolePayload {
+export interface DeleteAccessGroupPayload {
   event_id: string
   id: string
   name: string

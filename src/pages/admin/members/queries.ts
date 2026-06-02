@@ -7,7 +7,7 @@ import {
   fetchMembers,
   inviteMember,
   updateMember,
-  updateMemberRole,
+  updateMemberAccessGroup,
   updateMemberCouple,
   freezeMember,
   deleteMember,
@@ -16,12 +16,12 @@ import type {
   Member,
   InviteMemberPayload,
   UpdateMemberPayload,
-  UpdateMemberRolePayload,
+  UpdateMemberAccessGroupPayload,
   UpdateMemberCouplePayload,
   FreezeMemberPayload,
   DeleteMemberPayload,
 } from "./types";
-import type { Role } from "../roles/types";
+import type { AccessGroup } from "../access/types";
 import type { AdminBootstrapContext } from "../types";
 
 export function useMembersQuery() {
@@ -47,12 +47,12 @@ export function useMemberMutations() {
         `Invite sent to "${truncate(result.display_name)}"`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Member) => {
-        const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!));
-        const role = roles?.find((r) => r.id === result.role_id);
-        if (!role) {
+        const accessGroups = queryClient.getQueryData<AccessGroup[]>(adminKeys.accessGroups(slug!));
+        const accessGroup = accessGroups?.find((g) => g.id === result.access_group_id);
+        if (!accessGroup) {
           queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) });
         } else {
-          setMembers((old) => [...(old ?? []), { ...result, role }]);
+          setMembers((old) => [...(old ?? []), { ...result, accessGroup }]);
         }
       },
     },
@@ -68,10 +68,10 @@ export function useMemberMutations() {
         setMembers(
           (old) =>
             old?.map((m) =>
-              m.id === result.id ? { ...result, role: m.role } : m,
+              m.id === result.id ? { ...result, accessGroup: m.accessGroup } : m,
             ) ?? [],
         );
-        // Sync bootstrap context if the current user's display_name or label changed.
+        // Sync bootstrap context if the current user's display_name or role changed.
         if (result.id === memberId) {
           queryClient.setQueryData<AdminBootstrapContext>(
             adminKeys.bootstrap(slug!),
@@ -79,7 +79,7 @@ export function useMemberMutations() {
               old && {
                 ...old,
                 memberDisplayName: result.display_name,
-                memberLabel: result.label,
+                memberRole: result.role,
               },
           );
         }
@@ -87,36 +87,36 @@ export function useMemberMutations() {
     },
   );
 
-  const updateRole = useMutation(
-    (payload: UpdateMemberRolePayload) => updateMemberRole(payload),
+  const updateAccessGroup = useMutation(
+    (payload: UpdateMemberAccessGroupPayload) => updateMemberAccessGroup(payload),
     {
       successMessage: (result: Member) =>
-        `Role updated for "${truncate(result.display_name)}"`,
+        `Access updated for "${truncate(result.display_name)}"`,
       errorMessage: (err) => err.message,
       onSuccess: (result: Member) => {
-        const roles = queryClient.getQueryData<Role[]>(adminKeys.roles(slug!));
-        const newRole = roles?.find((r) => r.id === result.role_id);
-        if (!newRole) {
+        const accessGroups = queryClient.getQueryData<AccessGroup[]>(adminKeys.accessGroups(slug!));
+        const newAccessGroup = accessGroups?.find((g) => g.id === result.access_group_id);
+        if (!newAccessGroup) {
           queryClient.invalidateQueries({ queryKey: adminKeys.members(slug!) });
         } else {
           setMembers(
             (old) =>
               old?.map((m) =>
-                m.id === result.id ? { ...result, role: newRole } : m,
+                m.id === result.id ? { ...result, accessGroup: newAccessGroup } : m,
               ) ?? [],
           );
-          // Sync bootstrap context if the current user's role changed.
-          // isRoot / isAdmin are flags on event_members, not derived from the role —
-          // changing role_id does not affect them.
+          // Sync bootstrap context if the current user's access group changed.
+          // isRoot / isAdmin are flags on event_members, not derived from the access group —
+          // changing access_group_id does not affect them.
           if (result.id === memberId) {
             queryClient.setQueryData<AdminBootstrapContext>(
               adminKeys.bootstrap(slug!),
               (old) =>
                 old && {
                   ...old,
-                  memberRoleId: result.role_id,
-                  memberRoleName: newRole.name,
-                  permissions: newRole.permissions,
+                  memberAccessGroupId: result.access_group_id,
+                  memberAccessGroupName: newAccessGroup.name,
+                  permissions: newAccessGroup.permissions,
                 },
             );
           }
@@ -168,7 +168,7 @@ export function useMemberMutations() {
         setMembers(
           (old) =>
             old?.map((m) =>
-              m.id === result.id ? { ...result, role: m.role } : m,
+              m.id === result.id ? { ...result, accessGroup: m.accessGroup } : m,
             ) ?? [],
         );
       },
@@ -187,5 +187,5 @@ export function useMemberMutations() {
     },
   );
 
-  return { invite, update, updateRole, updateCouple, freeze, remove };
+  return { invite, update, updateAccessGroup, updateCouple, freeze, remove };
 }

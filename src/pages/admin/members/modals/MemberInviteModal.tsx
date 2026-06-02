@@ -24,8 +24,8 @@ const MemberInviteModal = () => {
         event_id: eventId!,
         display_name: values.display_name,
         email: values.email,
-        role_id: values.role_id,
-        label: values.label ?? null,
+        access_group_id: values.access_group_id,
+        role: values.role ?? null,
         notes: values.notes ?? null,
       });
     },

@@ -13,7 +13,7 @@ export async function fetchBootstrapContext(
   if (!data) throw new Error("You are not an active member of this event");
 
   const member = data.member;
-  const role = data.role;
+  const accessGroup = data.access_group;
 
   // TODO they should automatically be false if not explicitly true...
   const isBride = member.is_bride ?? false;
@@ -28,13 +28,13 @@ export async function fetchBootstrapContext(
     dateEnd: data.date_end,
     memberId: member.id,
     memberDisplayName: member.display_name,
-    memberRoleId: role.id,
-    memberRoleName: role.name,
+    memberAccessGroupId: accessGroup.id,
+    memberAccessGroupName: accessGroup.name,
     isRoot,
     isBride,
     isGroom,
-    permissions: role.permissions ?? {},
-    memberLabel: member.label ?? null,
+    permissions: accessGroup.permissions ?? {},
+    memberRole: member.role ?? null,
     isSuperAdmin: isSuperAdmin(isRoot, isBride, isGroom),
   };
 }

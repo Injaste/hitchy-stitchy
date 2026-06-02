@@ -81,8 +81,8 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                   </Badge>
                 )}
 
-                {/* Label badge (personal title) */}
-                {member.label && (
+                {/* Role badge (personal title) */}
+                {member.role && (
                   <Badge
                     variant="secondary"
                     className={cn(
@@ -90,7 +90,7 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                       isRejected && "opacity-50",
                     )}
                   >
-                    {member.label}
+                    {member.role}
                   </Badge>
                 )}
 
