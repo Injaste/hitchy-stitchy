@@ -7,15 +7,15 @@ import { groupMembersByRole } from "@/pages/admin/utils/memberUtils";
 
 import { FieldGroup } from "@/components/ui/field";
 import {
-  FieldShell,
   TextField,
   TextareaField,
   SelectField,
   TimeField,
-  AssigneeField,
   LabelComboboxField,
+  AssigneeField,
   FormBody,
   type SelectFieldOption,
+  type LabelGroup,
 } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
@@ -79,6 +79,16 @@ const TimelineItemForm = () => {
     icon: <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />,
   }));
 
+  // Existing labels grouped per day, for the label picker.
+  const labelGroups: LabelGroup[] = labelDays
+    .map((day, idx) => ({
+      label: `Day ${idx + 1}`,
+      items: day.labelGroups
+        .filter((g) => g.label !== null)
+        .map((g) => g.label as string),
+    }))
+    .filter((g) => g.items.length > 0);
+
   return (
     <FormBody>
       <FieldGroup>
@@ -91,6 +101,15 @@ const TimelineItemForm = () => {
             options={dayOptions}
             placeholder="Select a day"
             placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
+          />
+
+          <LabelComboboxField
+            name="label"
+            label="Label"
+            optional
+            groups={labelGroups}
+            matchAgainst={labelOptions}
+            placeholder="e.g. Nikah, Sanding"
           />
         </div>
 
