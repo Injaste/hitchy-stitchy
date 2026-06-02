@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import type {
   Timeline,
   TimelineGrouped,
@@ -101,4 +102,25 @@ export async function endTimelineItem(payload: EndTimelinePayload): Promise<Time
 
   if (error) throw new Error(error.message)
   return data as Timeline
+}
+
+export function subscribeToTimeline(
+  eventId: string,
+  onChange: (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => void,
+): () => void {
+  const channel = supabase
+    .channel(`admin-timeline-${eventId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "event_timelines",
+        filter: `event_id=eq.${eventId}`,
+      },
+      onChange,
+    )
+    .subscribe()
+
+  return () => { supabase.removeChannel(channel) }
 }

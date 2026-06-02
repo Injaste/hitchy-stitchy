@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMutation } from "@/lib/query/useMutation"
 import { truncate } from "@/lib/utils"
@@ -11,6 +12,7 @@ import {
   deleteTimelineItem,
   startTimelineItem,
   endTimelineItem,
+  subscribeToTimeline,
 } from "./api"
 import { groupTimeline } from "./utils"
 import type {
@@ -39,6 +41,38 @@ export function useActiveTimelineQuery() {
     queryFn: () => fetchActiveTimeline(eventId!),
     enabled: !!eventId,
   })
+}
+
+export function useTimelineRealtime() {
+  const { slug, eventId } = useAdminStore()
+  const qc = useQueryClient()
+
+  useEffect(() => {
+    if (!eventId || !slug) return
+
+    const unsubscribe = subscribeToTimeline(eventId, (payload) => {
+      qc.setQueryData<TimelineGrouped>(adminKeys.timeline(slug), (old) => {
+        if (!old) return old
+
+        const flat = old.days.flatMap((d) => d.labelGroups.flatMap((g) => g.items))
+
+        if (payload.eventType === "DELETE") {
+          const id = (payload.old as Partial<Timeline>).id
+          return id ? groupTimeline(flat.filter((i) => i.id !== id)) : old
+        }
+
+        const row = payload.new as unknown as Timeline
+        const next = flat.some((i) => i.id === row.id)
+          ? flat.map((i) => (i.id === row.id ? row : i))
+          : [...flat, row]
+        return groupTimeline(next)
+      })
+
+      qc.invalidateQueries({ queryKey: adminKeys.activeTimeline(slug) })
+    })
+
+    return unsubscribe
+  }, [eventId, slug, qc])
 }
 
 export function useTimelineMutations() {
@@ -96,7 +130,12 @@ export function useTimelineLifecycleMutations() {
   const { slug } = useAdminStore()
   const queryClient = useQueryClient()
 
-  const invalidate = () => {
+  const applyResult = (result: Timeline) => {
+    queryClient.setQueryData<TimelineGrouped>(adminKeys.timeline(slug!), (old) => {
+      if (!old) return old
+      const flat = old.days.flatMap((d) => d.labelGroups.flatMap((g) => g.items))
+      return groupTimeline(flat.map((item) => (item.id === result.id ? result : item)))
+    })
     queryClient.invalidateQueries({ queryKey: adminKeys.timeline(slug!) })
     queryClient.invalidateQueries({ queryKey: adminKeys.activeTimeline(slug!) })
   }
@@ -106,7 +145,7 @@ export function useTimelineLifecycleMutations() {
     {
       successMessage: (result: Timeline) => `"${truncate(result.title)}" is live`,
       errorMessage: (err) => err.message,
-      onSuccess: invalidate,
+      onSuccess: applyResult,
     },
   )
 
@@ -115,7 +154,7 @@ export function useTimelineLifecycleMutations() {
     {
       successMessage: (result: Timeline) => `"${truncate(result.title)}" ended`,
       errorMessage: (err) => err.message,
-      onSuccess: invalidate,
+      onSuccess: applyResult,
     },
   )
 

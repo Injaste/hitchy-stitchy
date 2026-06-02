@@ -5,7 +5,7 @@ import { container, itemFadeUp } from "@/lib/animations";
 import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
 import { getLatestTime } from "../utils";
 
-import type { TimelineGroupedDay, TimelineLabelGroup } from "../types";
+import type { Timeline, TimelineGroupedDay, TimelineLabelGroup } from "../types";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
@@ -20,9 +20,14 @@ import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 interface LabelCarouselProps {
   group: TimelineLabelGroup;
   isNotLastItem: boolean;
+  dayItems: Timeline[];
 }
 
-const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
+const LabelCarousel: FC<LabelCarouselProps> = ({
+  group,
+  isNotLastItem,
+  dayItems,
+}) => {
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
   const { canCreate } = useAccess();
@@ -83,7 +88,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({ group, isNotLastItem }) => {
                       layout
                       className="shrink-0 w-72 self-stretch"
                     >
-                      <TimelineCard item={item} />
+                      <TimelineCard item={item} dayItems={dayItems} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -145,6 +150,7 @@ const TimelineSection: FC<TimelineSectionProps> = ({ day }) => {
               <LabelCarousel
                 group={group}
                 isNotLastItem={idx < day.labelGroups.length - 1}
+                dayItems={allItems}
               />
             </motion.div>
           ))}

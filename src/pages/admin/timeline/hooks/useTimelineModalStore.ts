@@ -6,16 +6,25 @@ export interface TimelineCreatePrefill {
   label: string | null;
 }
 
+export interface TimelineConfirm {
+  item: Timeline;
+  kind: "start" | "end";
+  reason: "restart" | "early-start" | "early-end" | "will-end";
+}
+
 interface TimelineModalAdditional {
   createPrefill: TimelineCreatePrefill;
   setPrefillDay: (day: string | null) => void;
   openCreateWithLabel: (label: string | null) => void;
+
+  isConfirmOpen: boolean;
+  confirm: TimelineConfirm | null;
+  openConfirm: (confirm: TimelineConfirm) => void;
+  closeConfirm: () => void;
+  extendedCloseAll: () => void;
+  extendedReset: () => void;
 }
 
-// Note: createPrefill is NOT cleared on closeAll — same pattern as
-// selectedItem in the base modal store. It persists until the next
-// open* action overwrites it. Clearing it on close re-keys the create
-// modal mid-animation and the exit transition is skipped.
 export const useTimelineModalStore = createModalStore<Timeline, TimelineModalAdditional>(
   (set, get) => ({
     createPrefill: { day: null, label: null },
@@ -26,5 +35,16 @@ export const useTimelineModalStore = createModalStore<Timeline, TimelineModalAdd
         createPrefill: { ...get().createPrefill, label },
         isCreateOpen: true,
       }),
+
+    isConfirmOpen: false,
+    confirm: null,
+    openConfirm: (confirm) => set({ isConfirmOpen: true, confirm }),
+    closeConfirm: () => {
+      set({ isConfirmOpen: false });
+      // Defer clearing `confirm` so modal copy doesn't flicker during exit animation.
+      setTimeout(() => set({ confirm: null }), 200);
+    },
+    extendedCloseAll: () => set({ isConfirmOpen: false }),
+    extendedReset: () => set({ confirm: null }),
   }),
 );

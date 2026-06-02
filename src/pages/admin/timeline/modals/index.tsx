@@ -4,6 +4,7 @@ import TimelineCreateModal from "./TimelineCreateModal";
 import TimelineDetailModal from "./TimelineDetailModal";
 import TimelineEditModal from "./TimelineEditModal";
 import TimelineDeleteModal from "./TimelineDeleteModal";
+import TimelineConfirmModal from "./TimelineConfirmModal";
 
 const TimelineModals = () => {
   // Key the form-bearing edit modal by selectedItem.id so useForm
@@ -20,6 +21,7 @@ const TimelineModals = () => {
       <TimelineDetailModal />
       <TimelineEditModal key={selectedId ?? "none"} />
       <TimelineDeleteModal />
+      <TimelineConfirmModal />
     </>
   );
 };
