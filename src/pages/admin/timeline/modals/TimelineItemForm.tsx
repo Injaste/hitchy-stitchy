@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 import { useMembersQuery } from "@/pages/admin/members/queries";
-import { groupMembersByLabel } from "@/pages/admin/utils/memberUtils";
+import { groupMembersByRole } from "@/pages/admin/utils/memberUtils";
 
 import { FieldGroup } from "@/components/ui/field";
 import { DialogBody } from "@/components/ui/dialog";
@@ -66,7 +66,7 @@ const TimelineItemForm = () => {
     label: m.display_name,
   }));
 
-  const memberGroups = groupMembersByLabel(assignableMembers);
+  const memberGroups = groupMembersByRole(assignableMembers);
 
   const eventDays = useMemo(() => {
     if (!dateStart || !dateEnd) return [];

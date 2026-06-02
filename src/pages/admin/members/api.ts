@@ -3,18 +3,18 @@ import type {
   Member,
   InviteMemberPayload,
   UpdateMemberPayload,
-  UpdateMemberRolePayload,
+  UpdateMemberAccessGroupPayload,
   UpdateMemberCouplePayload,
   FreezeMemberPayload,
   DeleteMemberPayload,
 } from "./types"
 
 const MEMBER_FIELDS = `
-  id, event_id, user_id, role_id, email, display_name,
-  is_root, label, is_bride, is_groom, notes,
+  id, event_id, user_id, access_group_id, email, display_name,
+  is_root, role, is_bride, is_groom, notes,
   invited_by, frozen_at, invited_at, joined_at, rejected_at,
   created_at, updated_at, preferences,
-  role:event_roles ( id, event_id, name, permissions, created_at, updated_at )
+  accessGroup:event_access_groups ( id, event_id, name, permissions, created_at, updated_at )
 `
 
 export async function fetchMembers(eventId: string): Promise<Member[]> {
@@ -34,8 +34,8 @@ export async function inviteMember(payload: InviteMemberPayload): Promise<Member
     p_event_id: payload.event_id,
     p_email: payload.email,
     p_display_name: payload.display_name,
-    p_role_id: payload.role_id,
-    p_label: payload.label,
+    p_access_group_id: payload.access_group_id,
+    p_role: payload.role,
     p_notes: payload.notes,
   })
 
@@ -48,7 +48,7 @@ export async function updateMember(payload: UpdateMemberPayload): Promise<Member
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_display_name: payload.display_name,
-    p_label: payload.label,
+    p_role: payload.role,
     p_notes: payload.notes,
   })
 
@@ -68,11 +68,11 @@ export async function updateMemberCouple(payload: UpdateMemberCouplePayload): Pr
   return data as Member
 }
 
-export async function updateMemberRole(payload: UpdateMemberRolePayload): Promise<Member> {
-  const { data, error } = await supabase.rpc("update_member_role", {
+export async function updateMemberAccessGroup(payload: UpdateMemberAccessGroupPayload): Promise<Member> {
+  const { data, error } = await supabase.rpc("update_member_access_group", {
     p_event_id: payload.event_id,
     p_id: payload.id,
-    p_role_id: payload.role_id,
+    p_access_group_id: payload.access_group_id,
   })
 
   if (error) throw new Error(error.message)

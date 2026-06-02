@@ -36,7 +36,7 @@ export function AttendancePanel() {
                 {m.display_name}
               </p>
               <p className="text-xs text-muted-foreground">
-                {m.role?.name ?? "No role"}
+                {m.accessGroup?.name ?? "No access"}
               </p>
             </div>
             {/* {m.arrived_at ? ( */}

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Role } from "../roles/types";
+import type { AccessGroup } from "../access/types";
 
 export type MemberStatusLabel = "active" | "pending" | "frozen" | "rejected";
 
@@ -7,13 +7,13 @@ export interface Member {
   id: string;
   event_id: string;
   user_id: string | null;
-  role_id: string;
+  access_group_id: string;
   email: string;
   display_name: string;
-  /** Bypasses all permission checks — set directly on event_members, not derived from role */
+  /** Bypasses all permission checks — set directly on event_members, not derived from access group */
   is_root: boolean;
-  /** Free-text personal title, e.g. "Maid of Honor" */
-  label: string | null;
+  /** Free-text personal role/title, e.g. "Maid of Honor" */
+  role: string | null;
   /** Couple identity flags — at most one bride and one groom per event */
   is_bride: boolean;
   is_groom: boolean;
@@ -27,7 +27,7 @@ export interface Member {
   created_at: string;
   updated_at: string;
   preferences: Record<string, unknown>;
-  role: Role | null;
+  accessGroup: AccessGroup | null;
 }
 
 export const inviteMemberSchema = z.object({
@@ -36,10 +36,10 @@ export const inviteMemberSchema = z.object({
     .min(1, "Name is required")
     .max(80, "Name is too long"),
   email: z.email("Enter a valid email"),
-  role_id: z.string().min(1, "Select a role"),
-  label: z
+  access_group_id: z.string().min(1, "Select an access group"),
+  role: z
     .string()
-    .max(80, "Label is too long")
+    .max(80, "Role is too long")
     .transform((v) => v.trim() || null),
   notes: z
     .string()
@@ -52,10 +52,10 @@ export const editMemberSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(80, "Name is too long"),
-  role_id: z.string().min(1, "Select a role"),
-  label: z
+  access_group_id: z.string().min(1, "Select an access group"),
+  role: z
     .string()
-    .max(80, "Label is too long")
+    .max(80, "Role is too long")
     .transform((v) => v.trim() || null),
   notes: z
     .string()
@@ -71,17 +71,17 @@ export interface InviteMemberPayload {
   event_id: string;
   display_name: string;
   email: string;
-  role_id: string;
-  label: string | null;
+  access_group_id: string;
+  role: string | null;
   notes: string | null;
 }
 
-/** Payload for update_member RPC (display_name / label / notes only). */
+/** Payload for update_member RPC (display_name / role / notes only). */
 export interface UpdateMemberPayload {
   event_id: string;
   id: string;
   display_name: string;
-  label: string | null;
+  role: string | null;
   notes: string | null;
 }
 
@@ -93,11 +93,11 @@ export interface UpdateMemberCouplePayload {
   is_groom: boolean;
 }
 
-/** Payload for update_member_role RPC. */
-export interface UpdateMemberRolePayload {
+/** Payload for update_member_access_group RPC. */
+export interface UpdateMemberAccessGroupPayload {
   event_id: string;
   id: string;
-  role_id: string;
+  access_group_id: string;
 }
 
 export interface FreezeMemberPayload {

@@ -114,9 +114,9 @@ const MemberDetailModal = () => {
                     Groom
                   </Badge>
                 )}
-                {member.label && (
+                {member.role && (
                   <Badge variant="secondary" className="text-2xs">
-                    {member.label}
+                    {member.role}
                   </Badge>
                 )}
               </DialogTitle>
@@ -138,7 +138,7 @@ const MemberDetailModal = () => {
                 <div className="space-y-2">
                   <Badge variant="outline" className="text-2xs tracking-wide">
                     <Shield className="w-3 h-3" />
-                    {member.role?.name ?? "Unknown role"}
+                    {member.accessGroup?.name ?? "Unknown access group"}
                   </Badge>
                   {canSeeEmail && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">

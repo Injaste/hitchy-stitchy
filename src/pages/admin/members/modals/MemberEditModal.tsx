@@ -16,10 +16,10 @@ const MemberEditModal = () => {
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const { eventId, isSuperAdmin } = useAdminStore();
-  const { update, updateRole, updateCouple } = useMemberMutations();
+  const { update, updateAccessGroup, updateCouple } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
 
-  // Hierarchy: role field is editable only when caller strictly outranks target.
+  // Hierarchy: access group field is editable only when caller strictly outranks target.
   const callerRank = isSuperAdmin ? 0 : 2;
   const targetRank = selectedItem ? getMemberRank(selectedItem) : 2;
   const callerOutranks = callerRank < targetRank;
@@ -46,28 +46,28 @@ const MemberEditModal = () => {
     defaultValues: selectedItem
       ? {
           display_name: selectedItem.display_name,
-          role_id: selectedItem.role_id ?? "",
-          label: selectedItem.label ?? "",
+          access_group_id: selectedItem.access_group_id ?? "",
+          role: selectedItem.role ?? "",
           notes: selectedItem.notes ?? "",
           couple_role: currentCoupleRole,
         }
       : undefined,
     onSubmit: (values) => {
       if (!selectedItem) return;
-      // Always update display_name / label / notes.
+      // Always update display_name / role / notes.
       update.mutate({
         event_id: eventId!,
         id: selectedItem.id,
         display_name: values.display_name,
-        label: values.label ?? null,
+        role: values.role ?? null,
         notes: values.notes ?? null,
       });
-      // Role change: only if caller outranks target and role actually changed.
-      if (callerOutranks && values.role_id !== selectedItem.role_id) {
-        updateRole.mutate({
+      // Access group change: only if caller outranks target and it actually changed.
+      if (callerOutranks && values.access_group_id !== selectedItem.access_group_id) {
+        updateAccessGroup.mutate({
           event_id: eventId!,
           id: selectedItem.id,
-          role_id: values.role_id,
+          access_group_id: values.access_group_id,
         });
       }
       // Couple change: only if caller has couple-role permission and value changed.
@@ -84,8 +84,8 @@ const MemberEditModal = () => {
 
   if (!selectedItem) return null;
 
-  // Lock role if target is root OR caller doesn't outrank target (incl. self).
-  const lockRole = selectedItem.is_root || !callerOutranks;
+  // Lock access group if target is root OR caller doesn't outrank target (incl. self).
+  const lockAccessGroup = selectedItem.is_root || !callerOutranks;
   const canSeeEmail = isSuperAdmin;
 
   return (
@@ -94,19 +94,19 @@ const MemberEditModal = () => {
       open={isEditOpen}
       onOpenChange={closeAll}
       isPending={
-        update.isPending || updateRole.isPending || updateCouple.isPending
+        update.isPending || updateAccessGroup.isPending || updateCouple.isPending
       }
       isSuccess={update.isSuccess}
-      isError={update.isError || updateRole.isError || updateCouple.isError}
+      isError={update.isError || updateAccessGroup.isError || updateCouple.isError}
     >
       <FormDialogHeader title="Edit member" />
 
       <MemberForm
         mode="edit"
-        showRole={isSuperAdmin}
-        lockRole={lockRole}
+        showAccessGroup={isSuperAdmin}
+        lockAccessGroup={lockAccessGroup}
         email={canSeeEmail ? selectedItem.email : undefined}
-        roleInitialName={selectedItem.role?.name ?? undefined}
+        accessGroupInitialName={selectedItem.accessGroup?.name ?? undefined}
         showCoupleRole={showCoupleRole}
         brideTakenBy={existingBride?.display_name ?? null}
         groomTakenBy={existingGroom?.display_name ?? null}

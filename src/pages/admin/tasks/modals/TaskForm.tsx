@@ -12,7 +12,7 @@ import {
   type SelectFieldOption,
 } from "@/components/custom/form";
 import { useMembersQuery } from "@/pages/admin/members/queries";
-import { groupMembersByLabel } from "@/pages/admin/utils/memberUtils";
+import { groupMembersByRole } from "@/pages/admin/utils/memberUtils";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
 import { useTasksQuery } from "../queries";
@@ -60,7 +60,7 @@ const TaskForm = () => {
     label: m.display_name,
   }));
 
-  const memberGroups = groupMembersByLabel(assignableMembers);
+  const memberGroups = groupMembersByRole(assignableMembers);
 
   const labelOptions = Array.from(
     new Set(

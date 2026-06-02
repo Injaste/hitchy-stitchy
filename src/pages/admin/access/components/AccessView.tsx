@@ -1,38 +1,38 @@
 import type { FC } from "react";
 import { AnimatePresence } from "framer-motion";
 import ComponentFade from "@/components/animations/animate-component-fade";
-import type { Role } from "../types";
+import type { AccessGroup } from "../types";
 
-import RolesTable from "./RolesTable";
-import RolesSkeleton from "../states/RolesSkeleton";
-import RolesError from "../states/RolesError";
+import AccessTable from "./AccessTable";
+import AccessSkeleton from "../states/AccessSkeleton";
+import AccessError from "../states/AccessError";
 
-interface RolesViewProps {
-  data: Role[] | undefined;
+interface AccessViewProps {
+  data: AccessGroup[] | undefined;
   availableResources: string[];
   isLoading: boolean;
   isError: boolean;
 }
 
-const RolesView: FC<RolesViewProps> = ({ data, availableResources, isLoading, isError }) => {
+const AccessView: FC<AccessViewProps> = ({ data, availableResources, isLoading, isError }) => {
   const renderBody = () => {
     if (isLoading)
       return (
         <ComponentFade key="skeleton">
-          <RolesSkeleton />
+          <AccessSkeleton />
         </ComponentFade>
       );
 
     if (isError || !data)
       return (
         <ComponentFade key="error">
-          <RolesError />
+          <AccessError />
         </ComponentFade>
       );
 
     return (
       <ComponentFade key="content">
-        <RolesTable roles={data} availableResources={availableResources} />
+        <AccessTable accessGroups={data} availableResources={availableResources} />
       </ComponentFade>
     );
   };
@@ -40,4 +40,4 @@ const RolesView: FC<RolesViewProps> = ({ data, availableResources, isLoading, is
   return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
 };
 
-export default RolesView;
+export default AccessView;
