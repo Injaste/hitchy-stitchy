@@ -10,23 +10,15 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Calendar,
-  CheckCircle2,
-  Clock,
-  History,
-  Mail,
-  Shield,
-  Snowflake,
-  UserX,
-} from "lucide-react";
+import { Calendar, Clock, History, Mail, Shield } from "lucide-react";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { getMemberRank } from "../../utils/memberUtils";
-import { getInitials } from "../utils";
+import { getInitials, getMemberStatus } from "../utils";
+import MemberStatus from "../components/MemberStatus";
 
 const MemberDetailModal = () => {
   const isDetailOpen = useMemberModalStore((s) => s.isDetailOpen);
@@ -48,26 +40,12 @@ const MemberDetailModal = () => {
   const isCouple = member.is_bride || member.is_groom;
   const isRejected = !!member.rejected_at;
   const isFrozen = !!member.frozen_at;
-  const isPending = !member.joined_at && !isRejected;
+  const status = getMemberStatus(member);
 
   // Hierarchy: caller can only act on members ranked strictly below them.
   const callerRank = isSuperAdmin ? 0 : 2;
   const targetRank = getMemberRank(member);
   const callerOutranks = callerRank < targetRank;
-
-  const statusConfig = isRejected
-    ? { icon: UserX, label: "Declined", className: "text-destructive/60" }
-    : isFrozen
-      ? { icon: Snowflake, label: "Frozen", className: "text-destructive" }
-      : isPending
-        ? {
-            icon: Clock,
-            label: "Pending invite",
-            className: "text-muted-foreground",
-          }
-        : { icon: CheckCircle2, label: "Active", className: "text-primary" };
-
-  const StatusIcon = statusConfig.icon;
 
   const formatDate = "d MMM yyyy";
   const formatTime = "HH:mm";
@@ -120,7 +98,7 @@ const MemberDetailModal = () => {
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
               {getInitials(member.display_name)}
             </div>
             <div className="min-w-0 space-y-1">
@@ -142,12 +120,9 @@ const MemberDetailModal = () => {
                   </Badge>
                 )}
               </DialogTitle>
-              <div
-                className={`flex items-center gap-1.5 text-xs font-medium ${statusConfig.className}`}
-              >
-                <StatusIcon className="size-3.5 shrink-0" />
-                {statusConfig.label}
-              </div>
+              {status !== "active" && (
+                <MemberStatus member={member} className="text-xs" />
+              )}
             </div>
           </div>
         </DialogHeader>
