@@ -60,9 +60,9 @@ const AdminSidebarContent = () => {
             />
             <NavItem
               icon={Shield}
-              label="Role Access"
-              to={`${base}/roles`}
-              isActive={activePage === "roles"}
+              label="Access"
+              to={`${base}/access`}
+              isActive={activePage === "access"}
             />
           </SidebarMenu>
         </SidebarGroupContent>

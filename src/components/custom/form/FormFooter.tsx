@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,20 +14,25 @@ interface CreateMoreConfig {
   label?: string;
 }
 
-interface FormDialogFooterProps {
-  onCancel: () => void;
-  submitLabel: React.ReactNode;
-  cancelLabel?: React.ReactNode;
+interface FormFooterProps {
+  submitLabel: ReactNode;
+  /** When provided, renders a left-of-submit Cancel button (dialog forms). */
+  onCancel?: () => void;
+  cancelLabel?: ReactNode;
   /** When provided, renders the left-aligned "Create more" switch. */
   createMore?: CreateMoreConfig;
 }
 
-const FormDialogFooter = ({
-  onCancel,
+/**
+ * Shared footer for FormDialog and FormCard. A bare submit (no onCancel) gives
+ * the inline-card footer; passing onCancel/createMore gives the dialog footer.
+ */
+const FormFooter = ({
   submitLabel,
+  onCancel,
   cancelLabel = "Cancel",
   createMore,
-}: FormDialogFooterProps) => {
+}: FormFooterProps) => {
   const switchId = useId();
 
   return (
@@ -50,9 +55,11 @@ const FormDialogFooter = ({
           </div>
         )}
         <div className="flex flex-col-reverse gap-2 sm:flex-row">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            {cancelLabel}
-          </Button>
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              {cancelLabel}
+            </Button>
+          )}
           <SubmitButton>{submitLabel}</SubmitButton>
         </div>
       </DialogFooter>
@@ -60,4 +67,4 @@ const FormDialogFooter = ({
   );
 };
 
-export default FormDialogFooter;
+export default FormFooter;

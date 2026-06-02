@@ -1,7 +1,7 @@
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
 } from "@/components/custom/form";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
@@ -49,11 +49,11 @@ const TimelineEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormDialogHeader title="Edit item" />
+      <FormHeader title="Edit item" />
 
       <TimelineItemForm />
 
-      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
+      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

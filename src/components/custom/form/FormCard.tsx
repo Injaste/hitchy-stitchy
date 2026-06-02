@@ -30,6 +30,7 @@ const FormCard = ({
     isSuccess,
     isError,
     resetOnSuccess,
+    inDialog: false,
   });
 
   return (

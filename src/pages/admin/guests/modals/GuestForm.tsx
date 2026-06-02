@@ -2,11 +2,11 @@ import type { FC } from "react";
 import { useForm } from "@tanstack/react-form";
 
 import { FieldGroup } from "@/components/ui/field";
-import { DialogBody } from "@/components/ui/dialog";
 import {
   TextField,
   TextareaField,
   SelectField,
+  FormBody,
   type SelectFieldOption,
 } from "@/components/custom/form";
 
@@ -89,7 +89,7 @@ interface GuestFormProps {
 
 const GuestForm: FC<GuestFormProps> = ({ maxGuest }) => {
   return (
-    <DialogBody>
+    <FormBody>
       <FieldGroup>
         <TextField name="name" label="Name" placeholder="e.g. Ali Hassan" />
         <TextField
@@ -118,7 +118,7 @@ const GuestForm: FC<GuestFormProps> = ({ maxGuest }) => {
           placeholder="Notes you want to keep against this guest…"
         />
       </FieldGroup>
-    </DialogBody>
+    </FormBody>
   );
 };
 

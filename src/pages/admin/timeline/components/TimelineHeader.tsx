@@ -57,7 +57,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
           <ArraySeparator
             items={[activeDayLabel, activeDayDate].filter(Boolean)}
             separator={<span className="text-muted-foreground/50">·</span>}
-            className="text-base font-normal text-muted-foreground"
+            className="text-sm sm:text-base font-medium text-muted-foreground"
           />
         )
       }

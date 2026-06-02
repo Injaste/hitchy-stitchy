@@ -12,6 +12,11 @@ export interface FormShellContextValue {
   isPending?: boolean;
   isSuccess?: boolean;
   isError?: boolean;
+  /**
+   * True when rendered inside a modal FormDialog, false for an inline FormCard.
+   * Lets FormHeader/FormBody pick the dialog vs card variant.
+   */
+  inDialog?: boolean;
 }
 
 export const FormShellContext = createContext<FormShellContextValue | null>(null);

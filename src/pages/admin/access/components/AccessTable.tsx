@@ -1,27 +1,27 @@
 import { useState, useRef, useLayoutEffect, type FC } from "react";
 
 import { useAdminStore } from "../../store/useAdminStore";
-import { useRoleMutations } from "../queries";
+import { useAccessGroupMutations } from "../queries";
 import { useAccess } from "../../hooks/useAccess";
-import type { Role } from "../types";
+import type { AccessGroup } from "../types";
 import { type AccessLevel, type Resource, applyAccessLevel } from "../types";
 
-import RolesTableHeader from "./RolesTableHeader";
-import RolesTableBody from "./RolesTableBody";
-import RolesTableFooter from "./RolesTableFooter";
+import AccessTableHeader from "./AccessTableHeader";
+import AccessTableBody from "./AccessTableBody";
+import AccessTableFooter from "./AccessTableFooter";
 
 interface Props {
-  roles: Role[];
+  accessGroups: AccessGroup[];
   availableResources: string[];
 }
 
-const RolesTable: FC<Props> = ({ roles, availableResources }) => {
+const AccessTable: FC<Props> = ({ accessGroups, availableResources }) => {
   const { eventId } = useAdminStore();
   const { isSuperAdmin } = useAccess();
-  const { create, update } = useRoleMutations();
+  const { create, update } = useAccessGroupMutations();
 
-  const [addingRole, setAddingRole] = useState(false);
-  const [newRoleName, setNewRoleName] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [newName, setNewName] = useState("");
 
   const tableWrapRef = useRef<HTMLDivElement>(null);
   const [tableHeight, setTableHeight] = useState<number | undefined>();
@@ -51,31 +51,31 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
     return () => ro.disconnect();
   }, []);
 
-  const handleToggle = (role: Role, resource: Resource, next: AccessLevel) => {
+  const handleToggle = (group: AccessGroup, resource: Resource, next: AccessLevel) => {
     if (!isSuperAdmin) return;
-    const newPerms = applyAccessLevel(role.permissions, resource, next);
+    const newPerms = applyAccessLevel(group.permissions, resource, next);
     update.mutate({
       event_id: eventId!,
-      id: role.id,
-      name: role.name,
+      id: group.id,
+      name: group.name,
       permissions: newPerms,
     });
   };
 
-  const handleRename = (role: Role, name: string) => {
+  const handleRename = (group: AccessGroup, name: string) => {
     if (!isSuperAdmin) return;
-    update.mutate({ event_id: eventId!, id: role.id, name });
+    update.mutate({ event_id: eventId!, id: group.id, name });
   };
 
   const handleCreate = () => {
-    const name = newRoleName.trim();
+    const name = newName.trim();
     if (!name) return;
     create.mutate({ event_id: eventId!, name });
-    setNewRoleName("");
-    setAddingRole(false);
+    setNewName("");
+    setAdding(false);
   };
 
-  const colCount = 1 + roles.length + (isSuperAdmin ? 1 : 0);
+  const colCount = 1 + accessGroups.length + (isSuperAdmin ? 1 : 0);
 
   return (
     <div
@@ -84,30 +84,30 @@ const RolesTable: FC<Props> = ({ roles, availableResources }) => {
       style={tableHeight != null ? { maxHeight: tableHeight } : undefined}
     >
       <table className="w-full text-sm border-separate border-spacing-0">
-        <RolesTableHeader
-          roles={roles}
+        <AccessTableHeader
+          accessGroups={accessGroups}
           canCreate={isSuperAdmin}
           canDelete={isSuperAdmin}
           canEdit={isSuperAdmin}
-          addingRole={addingRole}
-          newRoleName={newRoleName}
-          onSetAddingRole={setAddingRole}
-          onSetNewRoleName={setNewRoleName}
+          adding={adding}
+          newName={newName}
+          onSetAdding={setAdding}
+          onSetNewName={setNewName}
           onCreate={handleCreate}
           onRename={handleRename}
         />
-        <RolesTableBody
-          roles={roles}
+        <AccessTableBody
+          accessGroups={accessGroups}
           availableResources={availableResources}
           colCount={colCount}
           canCreate={isSuperAdmin}
           canUpdate={isSuperAdmin}
           onToggle={handleToggle}
         />
-        <RolesTableFooter colCount={colCount} />
+        <AccessTableFooter colCount={colCount} />
       </table>
     </div>
   );
 };
 
-export default RolesTable;
+export default AccessTable;

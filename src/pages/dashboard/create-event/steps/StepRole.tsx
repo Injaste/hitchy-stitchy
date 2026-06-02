@@ -3,16 +3,9 @@ import { useForm, useStore } from "@tanstack/react-form";
 import { Heart, CalendarCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Field,
-  FieldContent,
-  FieldGroup,
-  FieldLabel,
-  FieldTitle,
-} from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import {
   FormShell,
   TextField,
@@ -144,42 +137,31 @@ const StepRole: FC<StepRoleProps> = ({
             >
               {ROLE_OPTIONS.map((option) => {
                 const Icon = option.icon;
-                const isSelected = field.state.value === option.role;
                 return (
-                  <FieldLabel
+                  <label
                     key={option.role}
                     htmlFor={option.role}
-                    className="relative cursor-pointer"
+                    onClick={
+                      option.role === "Other" && field.state.value === "Other"
+                        ? () => {
+                            requestAnimationFrame(() => {
+                              document
+                                .querySelector<HTMLInputElement>('[name="customRole"]')
+                                ?.focus();
+                            });
+                          }
+                        : undefined
+                    }
+                    className="flex h-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-input px-3 py-4 text-sm text-muted-foreground transition-all active:scale-[0.95] has-[[data-state=unchecked]]:hover:bg-accent has-[[data-state=unchecked]]:hover:text-accent-foreground has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:text-primary"
                   >
-                    <Field
-                      orientation="horizontal"
-                      className="transition-colors hover:bg-muted/50"
-                    >
-                      <FieldContent className="flex flex-col items-center gap-2">
-                        <Icon
-                          className={cn(
-                            "w-6 h-6",
-                            isSelected
-                              ? "text-primary"
-                              : "text-muted-foreground",
-                          )}
-                        />
-                        <FieldTitle
-                          className={cn(
-                            "text-sm font-medium",
-                            isSelected ? "text-primary" : "text-foreground",
-                          )}
-                        >
-                          {option.role}
-                        </FieldTitle>
-                      </FieldContent>
-                      <RadioGroupItem
-                        value={option.role}
-                        id={option.role}
-                        className="absolute size-0 sr-only"
-                      />
-                    </Field>
-                  </FieldLabel>
+                    <Icon className="size-5 shrink-0" />
+                    <span className="font-medium">{option.role}</span>
+                    <RadioGroupItem
+                      value={option.role}
+                      id={option.role}
+                      className="sr-only"
+                    />
+                  </label>
                 );
               })}
             </RadioGroup>

@@ -7,4 +7,6 @@ export { default as SwitchField } from "./SwitchField";
 export { default as CheckboxField } from "./CheckboxField";
 export { default as TimeField } from "./TimeField";
 export { default as DateField } from "./DateField";
+export { default as AssigneeField } from "./AssigneeField";
 export type { SelectFieldOption } from "./SelectField";
+export type { AssigneeItem, AssigneeGroup } from "./AssigneeField";

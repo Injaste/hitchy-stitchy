@@ -3,11 +3,11 @@ import { z } from "zod";
 
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
+  FormBody,
   TextField,
 } from "@/components/custom/form";
-import { DialogBody } from "@/components/ui/dialog";
 import { FieldGroup } from "@/components/ui/field";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
@@ -54,9 +54,9 @@ const CreateThemeModal = () => {
       isSuccess={create.isSuccess}
       isError={create.isError}
     >
-      <FormDialogHeader title="Name your theme" />
+      <FormHeader title="Name your theme" />
 
-      <DialogBody>
+      <FormBody>
         <FieldGroup>
           <TextField
             name="name"
@@ -65,9 +65,9 @@ const CreateThemeModal = () => {
             autoFocus
           />
         </FieldGroup>
-      </DialogBody>
+      </FormBody>
 
-      <FormDialogFooter onCancel={closeAll} submitLabel="Create" />
+      <FormFooter onCancel={closeAll} submitLabel="Create" />
     </FormDialog>
   );
 };

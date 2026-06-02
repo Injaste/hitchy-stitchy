@@ -1,7 +1,7 @@
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
 } from "@/components/custom/form";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
@@ -44,11 +44,11 @@ const GuestCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader title="Add guest" />
+      <FormHeader title="Add guest" />
 
       <GuestForm maxGuest={invitation.guest_count_max} />
 
-      <FormDialogFooter
+      <FormFooter
         onCancel={closeAll}
         submitLabel="Add guest"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}

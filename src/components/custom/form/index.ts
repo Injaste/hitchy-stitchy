@@ -1,11 +1,10 @@
 // Form-level
 export { default as FormShell } from "./FormShell";
 export { default as FormDialog } from "./FormDialog";
-export { default as FormDialogHeader } from "./FormDialogHeader";
-export { default as FormDialogFooter } from "./FormDialogFooter";
 export { default as FormCard } from "./FormCard";
-export { default as FormCardHeader } from "./FormCardHeader";
-export { default as FormCardFooter } from "./FormCardFooter";
+export { default as FormHeader } from "./FormHeader";
+export { default as FormBody } from "./FormBody";
+export { default as FormFooter } from "./FormFooter";
 export { default as SubmitButton } from "./SubmitButton";
 export { default as LabelComboboxField } from "./LabelComboboxField";
 export type { LabelGroup } from "./LabelComboboxField";

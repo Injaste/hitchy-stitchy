@@ -1,7 +1,7 @@
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
 } from "@/components/custom/form";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
@@ -54,11 +54,11 @@ const GuestEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormDialogHeader title="Edit guest" />
+      <FormHeader title="Edit guest" />
 
       <GuestForm maxGuest={invitation.guest_count_max} />
 
-      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
+      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

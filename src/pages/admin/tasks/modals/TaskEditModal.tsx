@@ -1,7 +1,7 @@
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
 } from "@/components/custom/form";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
@@ -57,11 +57,11 @@ const TaskEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormDialogHeader title="Edit task" />
+      <FormHeader title="Edit task" />
 
       <TaskForm />
 
-      <FormDialogFooter onCancel={closeAll} submitLabel="Save changes" />
+      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

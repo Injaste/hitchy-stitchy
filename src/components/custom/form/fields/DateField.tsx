@@ -8,6 +8,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { fieldRing, fieldSurface } from "@/components/ui/field-styles";
+import { cn } from "@/lib/utils";
 import FieldShell from "./FieldShell";
 
 interface DateFieldProps {
@@ -39,22 +41,28 @@ const DateField = ({
       description={description}
       hint={hint}
     >
-      {(field) => {
+      {(field, hasError) => {
         const value: string | null = field.state.value ?? null;
         return (
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-2 font-normal hover:bg-transparent aria-expanded:bg-transparent"
+              <button
+                type="button"
+                aria-invalid={hasError || undefined}
+                // data-[state=open] ring opacity (/70) mirrors fieldRing in field-styles.ts — keep in sync.
+                className={cn(
+                  fieldSurface,
+                  fieldRing,
+                  "flex h-9 w-full cursor-pointer items-center gap-2 px-2.5 text-sm data-[state=open]:border-ring data-[state=open]:ring-3 data-[state=open]:ring-ring/70",
+                )}
               >
-                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
                 <span className={value ? "" : "text-muted-foreground"}>
                   {value ? format(parseISO(value), "d MMM yyyy") : placeholder}
                 </span>
-              </Button>
+              </button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
               <Calendar
                 mode="single"
                 selected={value ? parseISO(value) : undefined}

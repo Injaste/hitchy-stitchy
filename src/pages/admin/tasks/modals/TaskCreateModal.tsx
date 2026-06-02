@@ -1,7 +1,7 @@
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
 } from "@/components/custom/form";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
@@ -49,11 +49,11 @@ const TaskCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader title="Add task" />
+      <FormHeader title="Add task" />
 
       <TaskForm />
 
-      <FormDialogFooter
+      <FormFooter
         onCancel={closeAll}
         submitLabel="Add task"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}

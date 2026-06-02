@@ -1,11 +1,12 @@
 export const adminKeys = {
   bootstrap: (slug: string) => [slug, 'bootstrap'] as const,
   timeline: (slug: string) => [slug, 'timeline'] as const,
+  activeTimeline: (slug: string) => [slug, 'timeline', 'active'] as const,
   tasks: (slug: string) => [slug, 'tasks'] as const,
   taskOrder: (slug: string) => [slug, 'task-order'] as const,
   archivedTasks: (slug: string) => [slug, 'archived-tasks'] as const,
   members: (slug: string) => [slug, 'members'] as const,
-  roles: (slug: string) => [slug, 'roles'] as const,
+  accessGroups: (slug: string) => [slug, 'access-groups'] as const,
   availableResources: () => ['available-resources'] as const,
   liveLogs: (slug: string) => [slug, 'live-logs'] as const,
   invitation: (slug: string) => [slug, 'invitation'] as const,

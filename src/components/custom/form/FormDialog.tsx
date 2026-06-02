@@ -50,6 +50,7 @@ const FormDialog = ({
     isSuccess,
     isError,
     resetOnSuccess,
+    inDialog: true,
   });
 
   // Keep internal open state in sync with the prop.

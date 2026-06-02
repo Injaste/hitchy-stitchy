@@ -5,15 +5,20 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore"
 import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import {
   fetchTimeline,
+  fetchActiveTimeline,
   createTimelineItem,
   updateTimelineItem,
   deleteTimelineItem,
+  startTimelineItem,
+  endTimelineItem,
 } from "./api"
 import { groupTimeline } from "./utils"
 import type {
   CreateTimelineItemPayload,
   DeleteTimelineItemPayload,
   UpdateTimelineItemPayload,
+  StartTimelinePayload,
+  EndTimelinePayload,
   Timeline,
   TimelineGrouped,
 } from "./types"
@@ -23,6 +28,15 @@ export function useTimelineQuery() {
   return useQuery({
     queryKey: adminKeys.timeline(slug!),
     queryFn: () => fetchTimeline(eventId!),
+    enabled: !!eventId,
+  })
+}
+
+export function useActiveTimelineQuery() {
+  const { slug, eventId } = useAdminStore()
+  return useQuery({
+    queryKey: adminKeys.activeTimeline(slug!),
+    queryFn: () => fetchActiveTimeline(eventId!),
     enabled: !!eventId,
   })
 }
@@ -76,4 +90,34 @@ export function useTimelineMutations() {
   )
 
   return { create, update, remove }
+}
+
+export function useTimelineLifecycleMutations() {
+  const { slug } = useAdminStore()
+  const queryClient = useQueryClient()
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: adminKeys.timeline(slug!) })
+    queryClient.invalidateQueries({ queryKey: adminKeys.activeTimeline(slug!) })
+  }
+
+  const start = useMutation(
+    (payload: StartTimelinePayload) => startTimelineItem(payload),
+    {
+      successMessage: (result: Timeline) => `"${truncate(result.title)}" is live`,
+      errorMessage: (err) => err.message,
+      onSuccess: invalidate,
+    },
+  )
+
+  const end = useMutation(
+    (payload: EndTimelinePayload) => endTimelineItem(payload),
+    {
+      successMessage: (result: Timeline) => `"${truncate(result.title)}" ended`,
+      errorMessage: (err) => err.message,
+      onSuccess: invalidate,
+    },
+  )
+
+  return { start, end }
 }

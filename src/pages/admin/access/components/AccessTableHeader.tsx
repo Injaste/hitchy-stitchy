@@ -3,25 +3,25 @@ import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Role } from "../types";
-import { useRolesModalStore } from "../hooks/useRolesModalStore";
+import type { AccessGroup } from "../types";
+import { useAccessModalStore } from "../hooks/useAccessModalStore";
 
-interface RoleHeaderProps {
-  role: Role;
+interface AccessGroupHeaderProps {
+  group: AccessGroup;
   canDelete: boolean;
   canEdit: boolean;
-  onRename: (role: Role, name: string) => void;
+  onRename: (group: AccessGroup, name: string) => void;
 }
 
-export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRename }) => {
+export const AccessGroupHeader: FC<AccessGroupHeaderProps> = ({ group, canDelete, canEdit, onRename }) => {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(role.name);
+  const [draft, setDraft] = useState(group.name);
   const inputRef = useRef<HTMLInputElement>(null);
-  const openDeleteRole = useRolesModalStore((s) => s.openDeleteRole);
+  const openDeleteAccessGroup = useAccessModalStore((s) => s.openDeleteAccessGroup);
 
   const startEdit = () => {
     if (!canEdit) return;
-    setDraft(role.name);
+    setDraft(group.name);
     setEditing(true);
     setTimeout(() => inputRef.current?.select(), 0);
   };
@@ -29,8 +29,8 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRe
   const commit = () => {
     setEditing(false);
     const trimmed = draft.trim();
-    if (trimmed && trimmed !== role.name) onRename(role, trimmed);
-    else setDraft(role.name);
+    if (trimmed && trimmed !== group.name) onRename(group, trimmed);
+    else setDraft(group.name);
   };
 
   return (
@@ -44,7 +44,7 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRe
             onBlur={commit}
             onKeyDown={(e) => {
               if (e.key === "Enter") commit();
-              if (e.key === "Escape") { setEditing(false); setDraft(role.name); }
+              if (e.key === "Escape") { setEditing(false); setDraft(group.name); }
             }}
             className="h-7 text-xs text-center"
             maxLength={60}
@@ -62,7 +62,7 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRe
               canEdit && "hover:text-primary cursor-text",
             )}
           >
-            {role.name}
+            {group.name}
           </Button>
         )}
       </div>
@@ -71,8 +71,8 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRe
           type="button"
           size="icon"
           variant="ghost"
-          onClick={() => openDeleteRole(role)}
-          title="Delete role"
+          onClick={() => openDeleteAccessGroup(group)}
+          title="Delete access group"
           className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground/40 hover:text-destructive opacity-0 group-hover:opacity-100"
         >
           <Trash2 className="w-3.5 h-3.5" />
@@ -82,28 +82,28 @@ export const RoleHeader: FC<RoleHeaderProps> = ({ role, canDelete, canEdit, onRe
   );
 };
 
-interface RolesTableHeaderProps {
-  roles: Role[];
+interface AccessTableHeaderProps {
+  accessGroups: AccessGroup[];
   canCreate: boolean;
   canDelete: boolean;
   canEdit: boolean;
-  addingRole: boolean;
-  newRoleName: string;
-  onSetAddingRole: (v: boolean) => void;
-  onSetNewRoleName: (v: string) => void;
+  adding: boolean;
+  newName: string;
+  onSetAdding: (v: boolean) => void;
+  onSetNewName: (v: string) => void;
   onCreate: () => void;
-  onRename: (role: Role, name: string) => void;
+  onRename: (group: AccessGroup, name: string) => void;
 }
 
-const RolesTableHeader: FC<RolesTableHeaderProps> = ({
-  roles,
+const AccessTableHeader: FC<AccessTableHeaderProps> = ({
+  accessGroups,
   canCreate,
   canDelete,
   canEdit,
-  addingRole,
-  newRoleName,
-  onSetAddingRole,
-  onSetNewRoleName,
+  adding,
+  newName,
+  onSetAdding,
+  onSetNewName,
   onCreate,
   onRename,
 }) => (
@@ -113,10 +113,10 @@ const RolesTableHeader: FC<RolesTableHeaderProps> = ({
         Feature
       </th>
 
-      {roles.map((role) => (
-        <th key={role.id} className="w-36">
-          <RoleHeader
-            role={role}
+      {accessGroups.map((group) => (
+        <th key={group.id} className="w-36">
+          <AccessGroupHeader
+            group={group}
             canDelete={canDelete}
             canEdit={canEdit}
             onRename={onRename}
@@ -126,23 +126,23 @@ const RolesTableHeader: FC<RolesTableHeaderProps> = ({
 
       {canCreate && (
         <th className="w-36">
-          {addingRole ? (
+          {adding ? (
             <div className="flex justify-center items-center gap-1 px-4 py-3.5">
               <Input
                 autoFocus
-                value={newRoleName}
-                onChange={(e) => onSetNewRoleName(e.target.value)}
+                value={newName}
+                onChange={(e) => onSetNewName(e.target.value)}
                 onBlur={() => {
-                  if (!newRoleName.trim()) {
-                    onSetAddingRole(false);
-                    onSetNewRoleName("");
+                  if (!newName.trim()) {
+                    onSetAdding(false);
+                    onSetNewName("");
                   }
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") onCreate();
-                  if (e.key === "Escape") { onSetAddingRole(false); onSetNewRoleName(""); }
+                  if (e.key === "Escape") { onSetAdding(false); onSetNewName(""); }
                 }}
-                placeholder="Role name"
+                placeholder="Access group name"
                 className="h-7 text-xs w-28"
                 maxLength={60}
               />
@@ -156,7 +156,7 @@ const RolesTableHeader: FC<RolesTableHeaderProps> = ({
                 size="sm"
                 variant="ghost"
                 className="h-7 gap-1 text-xs text-muted-foreground hover:text-foreground"
-                onClick={() => onSetAddingRole(true)}
+                onClick={() => onSetAdding(true)}
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add
@@ -169,4 +169,4 @@ const RolesTableHeader: FC<RolesTableHeaderProps> = ({
   </thead>
 );
 
-export default RolesTableHeader;
+export default AccessTableHeader;

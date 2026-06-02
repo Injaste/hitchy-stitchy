@@ -8,6 +8,7 @@ interface UseFormCoreOpts {
   isSuccess?: boolean;
   isError?: boolean;
   resetOnSuccess?: boolean;
+  inDialog?: boolean;
 }
 
 /** Shared behaviour between FormDialog and FormCard. */
@@ -17,6 +18,7 @@ export function useFormCore({
   isSuccess = false,
   isError = false,
   resetOnSuccess = false,
+  inDialog = false,
 }: UseFormCoreOpts) {
   const [attemptCount, setAttemptCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
@@ -70,8 +72,8 @@ export function useFormCore({
 
   // Stable reference so context consumers don't re-render unnecessarily.
   const contextValue = useMemo<FormShellContextValue>(
-    () => ({ attemptCount, form, isPending, isSuccess, isError }),
-    [attemptCount, form, isPending, isSuccess, isError],
+    () => ({ attemptCount, form, isPending, isSuccess, isError, inDialog }),
+    [attemptCount, form, isPending, isSuccess, isError, inDialog],
   );
 
   return { formRef, attemptCount, setAttemptCount, contextValue, handleSubmit, handleKeyDown };

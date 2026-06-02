@@ -53,7 +53,7 @@ const FieldShell = ({
                 <FieldLabel className={labelClassName}>
                   {label}
                   {optional && (
-                    <Badge variant="outline" className="font-normal text-2xs">
+                    <Badge variant="outline" className="h-4 px-1.5 py-0 font-normal text-2xs">
                       Optional
                     </Badge>
                   )}

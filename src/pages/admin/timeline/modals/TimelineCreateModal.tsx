@@ -1,7 +1,7 @@
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
 } from "@/components/custom/form";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
@@ -41,11 +41,11 @@ const CreateTimelineItemModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader title="Add schedule item" />
+      <FormHeader title="Add schedule item" />
 
       <TimelineItemForm />
 
-      <FormDialogFooter
+      <FormFooter
         onCancel={closeAll}
         submitLabel="Add item"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}

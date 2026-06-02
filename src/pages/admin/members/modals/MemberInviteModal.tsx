@@ -1,7 +1,7 @@
 import {
   FormDialog,
-  FormDialogFooter,
-  FormDialogHeader,
+  FormFooter,
+  FormHeader,
 } from "@/components/custom/form";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
@@ -24,8 +24,8 @@ const MemberInviteModal = () => {
         event_id: eventId!,
         display_name: values.display_name,
         email: values.email,
-        role_id: values.role_id,
-        label: values.label ?? null,
+        access_group_id: values.access_group_id,
+        role: values.role ?? null,
         notes: values.notes ?? null,
       });
     },
@@ -42,11 +42,11 @@ const MemberInviteModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormDialogHeader title="Invite member" />
+      <FormHeader title="Invite member" />
 
       <MemberForm mode="invite" />
 
-      <FormDialogFooter
+      <FormFooter
         onCancel={closeAll}
         submitLabel="Send invite"
         createMore={{

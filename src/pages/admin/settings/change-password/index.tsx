@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import { FieldGroup } from "@/components/ui/field";
 import {
   FormCard,
-  FormCardHeader,
-  FormCardFooter,
+  FormHeader,
+  FormBody,
+  FormFooter,
   PasswordField,
 } from "@/components/custom/form";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
@@ -49,9 +50,9 @@ const ChangePassword = () => {
           isError={isError}
           resetOnSuccess
         >
-          <FormCardHeader title="Change Password" />
+          <FormHeader title="Change Password" />
 
-          <div className="px-4">
+          <FormBody>
             <FieldGroup>
               <PasswordField
                 name="password"
@@ -75,9 +76,9 @@ const ChangePassword = () => {
                 )}
               </form.Subscribe>
             </FieldGroup>
-          </div>
+          </FormBody>
 
-          <FormCardFooter submitLabel="Update password" />
+          <FormFooter submitLabel="Update password" />
         </FormCard>
       </Container>
     </>

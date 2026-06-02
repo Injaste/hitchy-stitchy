@@ -1,9 +1,12 @@
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import Logo from "@/components/custom/logo";
+import { usePortalContainer } from "@/app/AppPortals";
 
-const LoadingState = () =>
-  createPortal(
+const LoadingState = () => {
+  const container = usePortalContainer() ?? document.body;
+
+  return createPortal(
     <motion.div
       key="loading-state"
       initial={{ opacity: 0 }}
@@ -38,7 +41,8 @@ const LoadingState = () =>
         ))}
       </div>
     </motion.div>,
-    document.body,
+    container,
   );
+};
 
 export default LoadingState;

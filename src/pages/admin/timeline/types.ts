@@ -2,16 +2,28 @@ import { z } from "zod";
 import { TIME_REGEX } from "../types";
 
 export interface Timeline {
-  id: string;
-  event_id: string;
-  day: string; // "yyyy-MM-dd"
-  label: string | null;
-  time_start: string; // "HH:mm"
-  time_end: string | null;
-  title: string;
-  details: string | null;
-  assignees: string[];
-  created_at: string;
+  id: string
+  event_id: string
+  day: string        // "yyyy-MM-dd"
+  label: string | null
+  time_start: string        // "HH:mm"
+  time_end: string | null
+  title: string
+  details: string | null
+  assignees: string[]
+  created_at: string
+  started_at: string | null   // ISO timestamp — set when item is started
+  ended_at: string | null     // ISO timestamp — set when item is ended
+}
+
+export interface StartTimelinePayload {
+  event_id: string
+  id: string
+}
+
+export interface EndTimelinePayload {
+  event_id: string
+  id: string
 }
 
 export interface TimelineLabelGroup {

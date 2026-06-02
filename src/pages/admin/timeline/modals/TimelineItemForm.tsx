@@ -2,20 +2,20 @@ import { useMemo } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
-import AssigneeField from "@/pages/admin/components/AssigneeField";
 import { useMembersQuery } from "@/pages/admin/members/queries";
+import { groupMembersByRole } from "@/pages/admin/utils/memberUtils";
 
 import { FieldGroup } from "@/components/ui/field";
-import { DialogBody } from "@/components/ui/dialog";
 import {
   FieldShell,
   TextField,
   TextareaField,
   SelectField,
   TimeField,
+  AssigneeField,
   LabelComboboxField,
+  FormBody,
   type SelectFieldOption,
-  type LabelGroup,
 } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
@@ -36,7 +36,7 @@ export const useTimelineItemForm = ({
     defaultValues: {
       day: defaultValues?.day ?? "",
       label: defaultValues?.label ?? "",
-      time_start: defaultValues?.time_start ?? "",
+      time_start: defaultValues?.time_start ?? "09:00",
       time_end: defaultValues?.time_end ?? "",
       title: defaultValues?.title ?? "",
       details: defaultValues?.details ?? "",
@@ -58,9 +58,15 @@ const TimelineItemForm = () => {
   const labelDays = timelineData?.days ?? [];
   const labelOptions = timelineData?.labels ?? [];
 
-  const memberItems = members
-    .filter((m) => !m.frozen_at && !m.rejected_at)
-    .map((m) => ({ id: m.id, label: m.display_name }));
+  const assignableMembers = members.filter(
+    (m) => !m.frozen_at && !m.rejected_at,
+  );
+  const memberItems = assignableMembers.map((m) => ({
+    id: m.id,
+    label: m.display_name,
+  }));
+
+  const memberGroups = groupMembersByRole(assignableMembers);
 
   const eventDays = useMemo(() => {
     if (!dateStart || !dateEnd) return [];
@@ -73,24 +79,10 @@ const TimelineItemForm = () => {
     icon: <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />,
   }));
 
-  // Existing labels grouped per day, for the label picker.
-  const labelGroups: LabelGroup[] = labelDays
-    .map((day, idx) => ({
-      label: `Day ${idx + 1}`,
-      items: day.labelGroups
-        .filter((g) => g.label !== null)
-        .map((g) => g.label as string),
-    }))
-    .filter((g) => g.items.length > 0);
-
   return (
-    <DialogBody>
+    <FormBody>
       <FieldGroup>
-        <TextField
-          name="title"
-          label="Title"
-          placeholder="e.g. Bridal prep"
-        />
+        <TextField name="title" label="Title" placeholder="e.g. Bridal prep" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SelectField
@@ -99,15 +91,6 @@ const TimelineItemForm = () => {
             options={dayOptions}
             placeholder="Select a day"
             placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
-          />
-
-          <LabelComboboxField
-            name="label"
-            label="Label"
-            optional
-            groups={labelGroups}
-            matchAgainst={labelOptions}
-            placeholder="e.g. Nikah, Sanding"
           />
         </div>
 
@@ -122,25 +105,19 @@ const TimelineItemForm = () => {
           optional
           rows={3}
           placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
-          hint="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
+          description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
         />
 
-        <FieldShell
+        <AssigneeField
           name="assignees"
           label="Assignees"
           optional
           description="Which team members are responsible for this item?"
-        >
-          {(field) => (
-            <AssigneeField
-              value={field.state.value}
-              onChange={field.handleChange}
-              items={memberItems}
-            />
-          )}
-        </FieldShell>
+          items={memberItems}
+          groups={memberGroups}
+        />
       </FieldGroup>
-    </DialogBody>
+    </FormBody>
   );
 };
 

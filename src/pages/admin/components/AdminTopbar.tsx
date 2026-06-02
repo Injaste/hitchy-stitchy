@@ -7,20 +7,17 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { useAdminStore } from "../store/useAdminStore";
-import { useCueStore } from "../store/useCueStore";
-import { usePingStore } from "../store/usePingStore";
 import { useIsMobile } from "@/hooks/use-mobile";
 import PortalToApp from "@/components/custom/portal-to-app";
 import Container from "@/components/custom/container";
+import { useActiveTimelineQuery } from "../timeline/queries";
 import { ActiveCueBanner } from "./ActiveCueBanner";
 
 const AdminTopbar = () => {
   const { state } = useSidebar();
-  const { slug } = useAdminStore();
   const isMobile = useIsMobile();
-  const { activeCue, hasCue } = useCueStore();
-  const openPing = usePingStore((s) => s.open);
+  const { data: active } = useActiveTimelineQuery();
+  const hasCue = !!active;
 
   return (
     <PortalToApp>

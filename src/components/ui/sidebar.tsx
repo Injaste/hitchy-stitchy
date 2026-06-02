@@ -25,7 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
-import { useCueStore } from "@/pages/admin/store/useCueStore";
+import { useActiveTimelineQuery } from "@/pages/admin/timeline/queries";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -304,7 +304,8 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
   const isMobile = useIsMobile();
   const { state } = useSidebar();
-  const { hasCue } = useCueStore();
+  const { data: activeTimeline } = useActiveTimelineQuery();
+  const hasCue = !!activeTimeline;
 
   return (
     <motion.main
@@ -407,7 +408,7 @@ function SidebarContent({
   React.useEffect(() => {
     if (!activeId) return;
 
-    const duration = 250;
+    const duration = 300;
     const start = performance.now();
     let raf: number;
 

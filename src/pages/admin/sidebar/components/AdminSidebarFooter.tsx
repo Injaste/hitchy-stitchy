@@ -1,4 +1,4 @@
-import { ChevronsUpDown, LayoutDashboard, ClockAlert } from "lucide-react";
+import { ChevronsUpDown, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   SidebarFooter,
@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAdminStore } from "../../store/useAdminStore";
-import { useCueStore } from "../../store/useCueStore";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import AdminLogout from "../AdminLogout";
@@ -22,10 +21,8 @@ import AdminLogout from "../AdminLogout";
 const AdminSidebarFooter = () => {
   const { state } = useSidebar();
   const isMobile = useIsMobile();
-  const { memberDisplayName, memberLabel, isBride, isGroom } = useAdminStore();
-  const displayLabel = memberLabel ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
-  const hasCue = useCueStore((s) => s.hasCue);
-  const setActiveCue = useCueStore((s) => s.setActiveCue);
+  const { memberDisplayName, memberRole, isBride, isGroom } = useAdminStore();
+  const displayLabel = memberRole ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
 
   return (
     <SidebarFooter>
@@ -67,20 +64,6 @@ const AdminSidebarFooter = () => {
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="start" style={{ width: "var(--radix-popper-anchor-width)" }}>
-              <DropdownMenuItem
-                onClick={() => {
-                  if (hasCue) return setActiveCue(null);
-                  setActiveCue({
-                    id: "1",
-                    dayId: "1",
-                    timeStart: "11 pm",
-                    title: "Test Cue",
-                  });
-                }}
-              >
-                <ClockAlert className="w-4 h-4" />
-                Test Start Cue
-              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/dashboard">
                   <LayoutDashboard className="w-4 h-4" />

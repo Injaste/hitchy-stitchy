@@ -13,7 +13,6 @@ import AdminTopbar from "./components/AdminTopbar";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
 import { PingModal } from "./modals/PingModal";
-import { ActiveCueModal } from "./modals/ActiveCueModal";
 import MemberModals from "./members/modals";
 
 const AdminView = () => {
@@ -26,7 +25,10 @@ const AdminView = () => {
     <AnimatePresence mode="wait">
       {bootstrapError ? (
         <ComponentFade key="error">
-          <AdminErrorLayout errorMessage={bootstrapError} isOffline={!navigator.onLine} />
+          <AdminErrorLayout
+            errorMessage={bootstrapError}
+            isOffline={!navigator.onLine}
+          />
         </ComponentFade>
       ) : !isBootstrapped ? (
         <ComponentFade key="loading">
@@ -54,7 +56,6 @@ const AdminView = () => {
               </AnimatePresence>
             </SidebarInset>
             <PingModal />
-            <ActiveCueModal />
             <MemberModals />
           </SidebarProvider>
         </ComponentFade>

@@ -1,5 +1,5 @@
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import type { Resource } from "../roles/types";
+import type { Resource } from "../access/types";
 
 type Action = "create" | "read" | "update" | "delete";
 export type Permission = `${Resource}:${Action}`;

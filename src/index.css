@@ -42,7 +42,7 @@
   ); /* eucalyptus sage — H=168 avoids clashing with success H=150 */
   --color-secondary-foreground: oklch(0.98 0.01 80);
   --color-accent: oklch(
-    0.93 0.015 350
+    0.91 0.035 350
   ); /* light rose tint — hover bg for dropdowns/menus */
   --color-accent-foreground: oklch(
     0.22 0.04 50
@@ -106,6 +106,7 @@
   /* ── Radius ── */
   --radius: 0.75rem;
 
+  /* TODO use default scrollbar, body default thickness, anything else should be thin */
   --scrollbar-thumb: oklch(from var(--color-foreground) l c h / 0.3);
   --scrollbar-thumb-hover: oklch(
     from var(--color-muted-foreground) l c h / 0.5
