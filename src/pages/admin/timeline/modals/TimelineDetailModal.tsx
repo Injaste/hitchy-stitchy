@@ -114,14 +114,26 @@ const TimelineDetailModal = () => {
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <div className="flex items-center justify-between gap-4">
                     <span>Started</span>
-                    <span className={item.started_at ? undefined : "text-muted-foreground/50"}>
-                      {item.started_at ? format(new Date(item.started_at), "h:mm a") : "—"}
+                    <span
+                      className={
+                        item.started_at ? undefined : "text-muted-foreground/50"
+                      }
+                    >
+                      {item.started_at
+                        ? format(new Date(item.started_at), "h:mm a")
+                        : "—"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
                     <span>Ended</span>
-                    <span className={item.ended_at ? undefined : "text-muted-foreground/50"}>
-                      {item.ended_at ? format(new Date(item.ended_at), "h:mm a") : "—"}
+                    <span
+                      className={
+                        item.ended_at ? undefined : "text-muted-foreground/50"
+                      }
+                    >
+                      {item.ended_at
+                        ? format(new Date(item.ended_at), "h:mm a")
+                        : "—"}
                     </span>
                   </div>
                 </div>
@@ -133,7 +145,7 @@ const TimelineDetailModal = () => {
                     {isActive && (
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="warning"
                         onClick={() => endItem(item)}
                         disabled={end.isPending}
                       >
@@ -142,7 +154,7 @@ const TimelineDetailModal = () => {
                     )}
                     <Button
                       size="sm"
-                      variant={isActive ? "secondary" : "default"}
+                      variant="success"
                       onClick={() => startItem(item)}
                       disabled={start.isPending}
                     >
@@ -161,8 +173,13 @@ const TimelineDetailModal = () => {
                 </p>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <div className="flex items-center justify-between gap-4">
-                    <span className="font-medium text-foreground">{otherActive.title}</span>
-                    <span>{otherActive.started_at && format(new Date(otherActive.started_at), "h:mm a")}</span>
+                    <span className="font-medium text-foreground">
+                      {otherActive.title}
+                    </span>
+                    <span>
+                      {otherActive.started_at &&
+                        format(new Date(otherActive.started_at), "h:mm a")}
+                    </span>
                   </div>
                   {showLifecycle && (
                     <p className="text-muted-foreground/70">

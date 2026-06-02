@@ -312,7 +312,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
       data-slot="sidebar-inset"
       initial={false}
       animate={{
-        marginTop: !isMobile ? (hasCue ? "4.5rem" : "0.5rem") : 0,
+        marginTop: isMobile ? (hasCue ? "3.5rem" : "0") : (hasCue ? "4.5rem" : "0.5rem"),
         marginLeft: !isMobile
           ? state === "collapsed"
             ? SIDEBAR_WIDTH_ICON

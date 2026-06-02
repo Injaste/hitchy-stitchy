@@ -53,6 +53,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
         {lifecycle === "start" && (
           <Button
             size="xs"
+            variant="success"
             className="relative z-10 shrink-0"
             disabled={start.isPending}
             onClick={(e) => {
@@ -66,7 +67,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
         {lifecycle === "end" && (
           <Button
             size="xs"
-            variant="secondary"
+            variant="warning"
             className="relative z-10 shrink-0"
             disabled={end.isPending}
             onClick={(e) => {

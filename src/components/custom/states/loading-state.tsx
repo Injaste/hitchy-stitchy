@@ -1,10 +1,17 @@
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 import Logo from "@/components/custom/logo";
 import { usePortalContainer } from "@/app/AppPortals";
 
 const LoadingState = () => {
   const container = usePortalContainer() ?? document.body;
+  const [slowMessage, setSlowMessage] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSlowMessage(true), 10000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return createPortal(
     <motion.div
@@ -22,23 +29,39 @@ const LoadingState = () => {
         showTagline
       />
 
-      <div className="flex gap-2" aria-label="Loading" role="status">
-        {[0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            className="w-2 h-2 rounded-full bg-foreground/40"
-            animate={{
-              opacity: [0.3, 1, 0.3],
-              y: [0, -5, 0],
-            }}
-            transition={{
-              duration: 1.2,
-              repeat: Infinity,
-              delay: i * 0.18,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex gap-2" aria-label="Loading" role="status">
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="w-2 h-2 rounded-full bg-foreground/40"
+              animate={{
+                opacity: [0.3, 1, 0.3],
+                y: [0, -5, 0],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                delay: i * 0.18,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+
+        <AnimatePresence>
+          {slowMessage && (
+            <motion.p
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-sm text-muted-foreground"
+            >
+              Taking longer than usual…
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>,
     container,

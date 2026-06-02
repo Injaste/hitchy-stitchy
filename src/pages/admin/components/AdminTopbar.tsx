@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Bell, Link, Radio } from "lucide-react";
 import {
   SidebarSeparator,
   SidebarTrigger,
@@ -10,8 +11,10 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import PortalToApp from "@/components/custom/portal-to-app";
 import Container from "@/components/custom/container";
+import ActiveCueBanner from "./ActiveCueBanner";
 import { useActiveTimelineQuery } from "../timeline/queries";
-import { ActiveCueBanner } from "./ActiveCueBanner";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const AdminTopbar = () => {
   const { state } = useSidebar();
@@ -28,10 +31,13 @@ const AdminTopbar = () => {
           opacity: hasCue ? 1 : 0,
         }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed top-2 right-2 z-50 rounded-2xl overflow-hidden shadow-sm ring-1 ring-sidebar-border bg-background transition-[left] duration-200 ease-linear"
+        className={cn(
+          "fixed top-0 md:top-2 right-0 md:right-2 z-50 md:rounded-2xl overflow-hidden bg-background ring-1 ring-sidebar-border transition-all",
+          isMobile && "shadow-sm",
+        )}
         style={{
           left: isMobile
-            ? 8
+            ? 0
             : state === "collapsed"
               ? SidebarWidthIcon
               : SidebarWidth,
@@ -40,24 +46,13 @@ const AdminTopbar = () => {
         <div className="bg-background/50 backdrop-blur-md">
           <Container>
             <div className="flex items-center justify-between gap-3 h-14 px-4 lg:px-0">
-              {isMobile && (
-                <div className="flex items-center gap-3">
-                  <SidebarTrigger className="-mx-1" />
-                  <SidebarSeparator
-                    orientation="vertical"
-                    className="mx-0 h-5 my-auto!"
-                  />
-                </div>
-              )}
+              <ActiveCueBanner active={active} />
 
-              <ActiveCueBanner />
-
-              {/* <div className="flex items-center gap-2 shrink-0">
+              {/* <div className="ml-auto flex items-center gap-2 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                  onClick={() => openPing()}
                 >
                   <Bell className="h-4 w-4" />
                 </Button>
@@ -72,12 +67,12 @@ const AdminTopbar = () => {
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  <Link to={`/${slug}/admin/live`}>
+                  <Link to={`/admin/live`}>
                     {hasCue ? (
                       <>
                         <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
                         <span className="max-w-[120px] truncate">
-                          {activeCue!.title}
+                          {active!.title}
                         </span>
                       </>
                     ) : (

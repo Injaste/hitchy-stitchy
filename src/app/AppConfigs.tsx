@@ -7,7 +7,9 @@ export const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
-      retry: 1,
+      networkMode: "offlineFirst",
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
       staleTime: 1000 * 60 * 5,
     },
   },

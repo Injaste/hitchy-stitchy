@@ -1,15 +1,19 @@
+import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { format } from "date-fns";
 import { Play } from "lucide-react";
 
 import { itemRevealInUp } from "@/lib/animations";
 import { formatTime } from "@/lib/utils/utils-time";
-import { useActiveTimelineQuery } from "../timeline/queries";
 import { useTimelineModalStore } from "../timeline/hooks/useTimelineModalStore";
 import { startDelayMinutes } from "../timeline/utils";
+import type { Timeline } from "../timeline/types";
 
-export function ActiveCueBanner() {
-  const { data: active } = useActiveTimelineQuery();
+interface ActiveCueBannerProps {
+  active?: Timeline | null;
+}
+
+const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
 
   return (
@@ -20,7 +24,7 @@ export function ActiveCueBanner() {
           {...itemRevealInUp}
           type="button"
           onClick={() => openDetail(active)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/15 transition-colors rounded-lg"
+          className="w-full flex items-center gap-3 md:px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/15 transition-colors rounded-lg"
         >
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
             <Play className="h-3 w-3 text-primary fill-primary" />
@@ -50,4 +54,6 @@ export function ActiveCueBanner() {
       )}
     </AnimatePresence>
   );
-}
+};
+
+export default ActiveCueBanner;
