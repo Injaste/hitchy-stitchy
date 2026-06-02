@@ -216,7 +216,6 @@ const MemberForm = ({
                     )}
                   </span>
                   <Switch
-                    size="sm"
                     checked={field.state.value === "bride"}
                     onCheckedChange={(v) => field.handleChange(v ? "bride" : null)}
                     disabled={!!brideTakenBy}
@@ -234,7 +233,6 @@ const MemberForm = ({
                     )}
                   </span>
                   <Switch
-                    size="sm"
                     checked={field.state.value === "groom"}
                     onCheckedChange={(v) => field.handleChange(v ? "groom" : null)}
                     disabled={!!groomTakenBy}

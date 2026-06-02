@@ -83,7 +83,7 @@ export const useConfigsForm = ({
   return useForm({
     defaultValues: {
       event_date: invitation.event_date ?? "",
-      event_time_start: invitation.event_time_start ?? "",
+      event_time_start: invitation.event_time_start ?? "09:00",
       event_time_end: invitation.event_time_end ?? "",
       rsvp_mode: invitation.rsvp_mode,
       rsvp_deadline_date: initDate,

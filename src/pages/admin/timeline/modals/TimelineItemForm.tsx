@@ -36,7 +36,7 @@ export const useTimelineItemForm = ({
     defaultValues: {
       day: defaultValues?.day ?? "",
       label: defaultValues?.label ?? "",
-      time_start: defaultValues?.time_start ?? "",
+      time_start: defaultValues?.time_start ?? "09:00",
       time_end: defaultValues?.time_end ?? "",
       title: defaultValues?.title ?? "",
       details: defaultValues?.details ?? "",

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import ArraySeparator from "@/components/custom/array-separator";
 import FieldShell from "./FieldShell";
 
 export interface AssigneeItem {
@@ -75,30 +75,32 @@ const AssigneeField = ({
               <div className="grid grid-cols-2 gap-2">
                 {groups.map((group) => {
                   const state = groupState(group.memberIds);
+                  const selectedCount = group.memberIds.filter((id) => value.includes(id)).length;
+                  const countLabel =
+                    state === "some"
+                      ? `${selectedCount}/${group.memberIds.length}`
+                      : group.memberIds.length;
                   return (
-                    <Button
+                    <label
                       key={group.name}
-                      type="button"
-                      variant="outline"
-                      size="lg"
-                      role="checkbox"
-                      aria-checked={
-                        state === "all" ? true : state === "some" ? "mixed" : false
-                      }
-                      onClick={() => toggleGroup(group.memberIds)}
-                      className={cn(
-                        "text-muted-foreground hover:border-border",
-                        state === "all" &&
-                          "border-foreground/40! bg-foreground/10! text-foreground",
-                        state === "some" &&
-                          "border-foreground/40! border-dashed! text-foreground",
-                      )}
+                      className="flex cursor-pointer items-center justify-center rounded-lg border border-input px-2.5 py-2 text-sm text-muted-foreground transition-all active:scale-[0.95] has-[[data-state=unchecked]]:hover:bg-accent has-[[data-state=unchecked]]:hover:text-accent-foreground has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:text-foreground has-[[data-state=indeterminate]]:border-dashed has-[[data-state=indeterminate]]:border-primary/40 has-[[data-state=indeterminate]]:bg-primary/5"
                     >
-                      <span className="min-w-0 truncate">{group.name}</span>
-                      <span className="text-muted-foreground/70">
-                        · {group.memberIds.length}
-                      </span>
-                    </Button>
+                      <Checkbox
+                        checked={
+                          state === "all"
+                            ? true
+                            : state === "some"
+                              ? "indeterminate"
+                              : false
+                        }
+                        onCheckedChange={() => toggleGroup(group.memberIds)}
+                        className="sr-only"
+                      />
+                      <ArraySeparator
+                        items={[group.name, countLabel]}
+                        className="min-w-0"
+                      />
+                    </label>
                   );
                 })}
               </div>
@@ -113,22 +115,17 @@ const AssigneeField = ({
               {items.map((item) => {
                 const checked = value.includes(item.id);
                 return (
-                  <Button
+                  <label
                     key={item.id}
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    role="checkbox"
-                    aria-checked={checked}
-                    onClick={() => toggle(item.id)}
-                    className={cn(
-                      "text-muted-foreground hover:border-border",
-                      checked &&
-                        "border-foreground/40! bg-foreground/10! text-foreground",
-                    )}
+                    className="flex cursor-pointer items-center justify-center rounded-lg border border-input px-2.5 py-2 text-sm text-muted-foreground transition-all active:scale-[0.95] has-[[data-state=unchecked]]:hover:bg-accent has-[[data-state=unchecked]]:hover:text-accent-foreground has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:text-foreground"
                   >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={() => toggle(item.id)}
+                      className="sr-only"
+                    />
                     <span className="min-w-0 truncate">{item.label}</span>
-                  </Button>
+                  </label>
                 );
               })}
             </div>
