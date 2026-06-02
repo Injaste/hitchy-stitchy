@@ -8,11 +8,11 @@ import {
   TextareaField,
   SelectField,
   DateField,
+  AssigneeField,
   type SelectFieldOption,
 } from "@/components/custom/form";
-import AssigneeField from "@/pages/admin/components/AssigneeField";
 import { useMembersQuery } from "@/pages/admin/members/queries";
-import { isActiveMember } from "@/pages/admin/utils/memberUtils";
+import { groupMembersByLabel } from "@/pages/admin/utils/memberUtils";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
 import { useTasksQuery } from "../queries";
@@ -52,9 +52,15 @@ const TaskForm = () => {
   const { data: members = [] } = useMembersQuery();
   const { data: tasks = [] } = useTasksQuery();
 
-  const memberItems = members
-    .filter(isActiveMember)
-    .map((m) => ({ id: m.id, label: m.display_name }));
+  const assignableMembers = members.filter(
+    (m) => !m.frozen_at && !m.rejected_at,
+  );
+  const memberItems = assignableMembers.map((m) => ({
+    id: m.id,
+    label: m.display_name,
+  }));
+
+  const memberGroups = groupMembersByLabel(assignableMembers);
 
   const labelOptions = Array.from(
     new Set(
@@ -106,20 +112,14 @@ const TaskForm = () => {
           description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
         />
 
-        <FieldShell
+        <AssigneeField
           name="assignees"
           label="Assigned members"
           optional
-          hint="Which team members are accountable for this task?"
-        >
-          {(field) => (
-            <AssigneeField
-              value={field.state.value}
-              onChange={field.handleChange}
-              items={memberItems}
-            />
-          )}
-        </FieldShell>
+          description="Which team members are accountable for this task?"
+          items={memberItems}
+          groups={memberGroups}
+        />
       </FieldGroup>
     </DialogBody>
   );

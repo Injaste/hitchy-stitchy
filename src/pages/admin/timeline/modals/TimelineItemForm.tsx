@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
-import AssigneeField from "@/pages/admin/components/AssigneeField";
 import { useMembersQuery } from "@/pages/admin/members/queries";
+import { groupMembersByLabel } from "@/pages/admin/utils/memberUtils";
 
 import { FieldGroup } from "@/components/ui/field";
 import { DialogBody } from "@/components/ui/dialog";
@@ -13,6 +13,7 @@ import {
   TextareaField,
   SelectField,
   TimeField,
+  AssigneeField,
   type SelectFieldOption,
 } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
@@ -57,9 +58,15 @@ const TimelineItemForm = () => {
   const labelDays = timelineData?.days ?? [];
   const labelOptions = timelineData?.labels ?? [];
 
-  const memberItems = members
-    .filter((m) => !m.frozen_at && !m.rejected_at)
-    .map((m) => ({ id: m.id, label: m.display_name }));
+  const assignableMembers = members.filter(
+    (m) => !m.frozen_at && !m.rejected_at,
+  );
+  const memberItems = assignableMembers.map((m) => ({
+    id: m.id,
+    label: m.display_name,
+  }));
+
+  const memberGroups = groupMembersByLabel(assignableMembers);
 
   const eventDays = useMemo(() => {
     if (!dateStart || !dateEnd) return [];
@@ -115,23 +122,17 @@ const TimelineItemForm = () => {
           optional
           rows={3}
           placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
-          hint="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
+          description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
         />
 
-        <FieldShell
+        <AssigneeField
           name="assignees"
           label="Assignees"
           optional
           description="Which team members are responsible for this item?"
-        >
-          {(field) => (
-            <AssigneeField
-              value={field.state.value}
-              onChange={field.handleChange}
-              items={memberItems}
-            />
-          )}
-        </FieldShell>
+          items={memberItems}
+          groups={memberGroups}
+        />
       </FieldGroup>
     </DialogBody>
   );

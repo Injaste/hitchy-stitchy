@@ -17,3 +17,23 @@ export function getMemberRank(
   if (m.is_bride || m.is_groom) return 1;
   return 2;
 }
+
+/**
+ * Groups members by their (non-empty) label, sorted by label name. Pass the
+ * same member set you show as individuals so groups stay consistent with it.
+ */
+export function groupMembersByLabel(
+  members: Pick<Member, "id" | "label">[],
+): { name: string; memberIds: string[] }[] {
+  const byLabel = new Map<string, string[]>();
+  for (const m of members) {
+    const name = m.label?.trim();
+    if (!name) continue;
+    const ids = byLabel.get(name) ?? [];
+    ids.push(m.id);
+    byLabel.set(name, ids);
+  }
+  return Array.from(byLabel, ([name, memberIds]) => ({ name, memberIds })).sort(
+    (a, b) => a.name.localeCompare(b.name),
+  );
+}
