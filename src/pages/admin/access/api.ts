@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import type {
   AccessGroup,
   CreateAccessGroupPayload,
@@ -56,4 +57,25 @@ export async function fetchAvailableResources(): Promise<string[]> {
     .select("resource");
   if (error) throw new Error(error.message);
   return [...new Set((data ?? []).map((row) => row.resource as string))];
+}
+
+export function subscribeToAccessGroups(
+  eventId: string,
+  onChange: (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => void,
+): () => void {
+  const channel = supabase
+    .channel(`admin-access-groups-${eventId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "event_access_groups",
+        filter: `event_id=eq.${eventId}`,
+      },
+      onChange,
+    )
+    .subscribe();
+
+  return () => { supabase.removeChannel(channel); };
 }

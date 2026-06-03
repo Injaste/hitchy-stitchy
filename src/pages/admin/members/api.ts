@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import type {
   Member,
   InviteMemberPayload,
@@ -96,4 +97,25 @@ export async function deleteMember(payload: DeleteMemberPayload): Promise<void> 
     p_id: payload.id,
   })
   if (error) throw new Error(error.message)
+}
+
+export function subscribeToMembers(
+  eventId: string,
+  onChange: (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => void,
+): () => void {
+  const channel = supabase
+    .channel(`admin-members-${eventId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "event_members",
+        filter: `event_id=eq.${eventId}`,
+      },
+      onChange,
+    )
+    .subscribe()
+
+  return () => { supabase.removeChannel(channel) }
 }

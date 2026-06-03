@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
 import { useAdminStore } from '../../store/useAdminStore'
 import { useBootstrapQuery } from '../queries'
+import { useAdminRealtime } from './useAdminRealtime'
 
 export function useBootstrap() {
   const { setContext, setBootstrapError } = useAdminStore()
   const { data, error, refetch } = useBootstrapQuery()
+
+  useAdminRealtime()
 
   useEffect(() => {
     if (data) setContext(data)
