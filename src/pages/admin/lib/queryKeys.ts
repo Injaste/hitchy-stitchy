@@ -8,7 +8,6 @@ export const adminKeys = {
   members: (slug: string) => [slug, 'members'] as const,
   accessGroups: (slug: string) => [slug, 'access-groups'] as const,
   availableResources: () => ['available-resources'] as const,
-  liveLogs: (slug: string) => [slug, 'live-logs'] as const,
   invitation: (slug: string) => [slug, 'invitation'] as const,
   guests: (slug: string) => [slug, 'guests'] as const,
   pages: (slug: string) => [slug, 'pages'] as const,

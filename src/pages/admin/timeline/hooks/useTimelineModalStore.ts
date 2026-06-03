@@ -9,7 +9,7 @@ export interface TimelineCreatePrefill {
 export interface TimelineConfirm {
   item: Timeline;
   kind: "start" | "end";
-  reason: "restart" | "early-start" | "early-end" | "will-end";
+  reason: "restart" | "early-start" | "early-end" | "will-end" | "confirm-end";
 }
 
 interface TimelineModalAdditional {

@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import Logo from "@/components/custom/logo";
 import { usePortalContainer } from "@/app/AppPortals";
+import LottieRaw from "lottie-react";
+
+const Lottie = (LottieRaw as any).default ?? LottieRaw;
+import loveParticle from "@/assets/lottie/love-particle.json";
 
 const LoadingState = () => {
   const container = usePortalContainer() ?? document.body;
@@ -30,23 +34,12 @@ const LoadingState = () => {
       />
 
       <div className="flex flex-col items-center gap-4">
-        <div className="flex gap-2" aria-label="Loading" role="status">
-          {[0, 1, 2].map((i) => (
-            <motion.span
-              key={i}
-              className="w-2 h-2 rounded-full bg-foreground/40"
-              animate={{
-                opacity: [0.3, 1, 0.3],
-                y: [0, -5, 0],
-              }}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                delay: i * 0.18,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
+        <div className="-my-10">
+          <Lottie
+            animationData={loveParticle}
+            loop
+            style={{ width: 120, height: 120 }}
+          />
         </div>
 
         <AnimatePresence>

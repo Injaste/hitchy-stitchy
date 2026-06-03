@@ -106,12 +106,6 @@
   /* ── Radius ── */
   --radius: 0.75rem;
 
-  /* TODO use default scrollbar, body default thickness, anything else should be thin */
-  --scrollbar-thumb: oklch(from var(--color-foreground) l c h / 0.3);
-  --scrollbar-thumb-hover: oklch(
-    from var(--color-muted-foreground) l c h / 0.5
-  );
-  --scrollbar-track: transparent;
 }
 
 @layer base {
@@ -122,25 +116,9 @@
   }
 
   html {
-    scrollbar-width: thin;
+    scrollbar-width: auto;
     scroll-behavior: smooth;
     @apply font-sans;
-  }
-
-  /* ── Thin scrollbars (WebKit/Blink) ── */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 9999px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
   }
 
   body[data-scroll-locked="1"] {

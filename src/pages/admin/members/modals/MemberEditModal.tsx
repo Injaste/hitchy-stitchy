@@ -110,6 +110,7 @@ const MemberEditModal = () => {
         showCoupleRole={showCoupleRole}
         brideTakenBy={existingBride?.display_name ?? null}
         groomTakenBy={existingGroom?.display_name ?? null}
+        isRoot={selectedItem.is_root}
       />
 
       <FormFooter onCancel={closeAll} submitLabel="Save changes" />

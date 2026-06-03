@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
-import { fieldVariant } from "../animations";
+import { fieldVariant } from "@/lib/animations";
 import type { RSVPFormClassNames, RSVPFormLabels } from "../types";
 
 interface FieldShellProps {

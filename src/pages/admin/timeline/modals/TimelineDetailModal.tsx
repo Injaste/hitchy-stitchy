@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { format } from "date-fns";
-import { Clock, Users } from "lucide-react";
+import { Clock, Play, RotateCcw, Square, Users } from "lucide-react";
 import { parseLocalDate, formatTimeRange } from "@/lib/utils/utils-time";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -149,6 +149,7 @@ const TimelineDetailModal = () => {
                         onClick={() => endItem(item)}
                         disabled={end.isPending}
                       >
+                        <Square className="size-3.5 fill-current" />
                         End
                       </Button>
                     )}
@@ -158,6 +159,11 @@ const TimelineDetailModal = () => {
                       onClick={() => startItem(item)}
                       disabled={start.isPending}
                     >
+                      {item.started_at ? (
+                        <RotateCcw className="size-3.5" />
+                      ) : (
+                        <Play className="size-3.5 fill-current" />
+                      )}
                       {startLabel}
                     </Button>
                   </div>

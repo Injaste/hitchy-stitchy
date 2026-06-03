@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
-import { fieldVariant } from "./animations";
+import { fieldVariant } from "@/lib/animations";
 
 import { FieldGroup } from "@/components/ui/field";
 import { buildRsvpSchema, type RSVPFormData } from "@/pages/wedding/types";

@@ -63,5 +63,3 @@ const TaskCreateModal = () => {
 };
 
 export default TaskCreateModal;
-
-// TODO find out why the opening of the modal feels more abrupt than the other create modals..

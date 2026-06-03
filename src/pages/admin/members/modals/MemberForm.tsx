@@ -1,5 +1,5 @@
 import { Info } from "lucide-react";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 
 import {
   Field,
@@ -29,6 +29,7 @@ import {
 } from "../types";
 import AccessGroupCombobox from "../components/AccessGroupCombobox";
 import RoleCombobox from "../components/RoleCombobox";
+import { useFormShell } from "@/components/custom/form/form-context";
 
 interface UseMemberInviteFormOpts {
   defaultValues?: Partial<InviteMemberValues>;
@@ -98,6 +99,8 @@ interface MemberFormProps {
   brideTakenBy?: string | null;
   /** Display name of another member who already holds the groom slot. */
   groomTakenBy?: string | null;
+  /** Target member is root — access group is forced to show "Superadmin" and locked. */
+  isRoot?: boolean;
 }
 
 const MemberForm = ({
@@ -109,8 +112,24 @@ const MemberForm = ({
   showCoupleRole = false,
   brideTakenBy = null,
   groomTakenBy = null,
+  isRoot = false,
 }: MemberFormProps) => {
   const showEmailField = mode === "invite" || !!email;
+  const { form } = useFormShell();
+  const coupleRole =
+    mode === "edit"
+      ? (useStore(form.store, (s: any) => s.values.couple_role) as
+          | "bride"
+          | "groom"
+          | null)
+      : null;
+  const forcedRole =
+    coupleRole === "bride" ? "Bride" : coupleRole === "groom" ? "Groom" : null;
+  const memberDisplayName =
+    mode === "edit"
+      ? (useStore(form.store, (s: any) => s.values.display_name) as string)
+      : null;
+  const forceAccessSuperadmin = isRoot || !!coupleRole;
 
   return (
     <FormBody>
@@ -168,7 +187,6 @@ const MemberForm = ({
         )}
 
         {/* ── Access + Role ──────────────────────────────────────────── */}
-        {/* TODO if is Superadmin, value should automatically be superadmin and not admin.. */}
         {showAccessGroup ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FieldShell name="access_group_id" label="Access">
@@ -180,8 +198,9 @@ const MemberForm = ({
                   }
                   onBlur={field.handleBlur}
                   placeholder="Select an access group"
-                  disabled={lockAccessGroup}
+                  disabled={lockAccessGroup || forceAccessSuperadmin}
                   initialDisplayName={accessGroupInitialName}
+                  overrideDisplayName={forceAccessSuperadmin ? "Superadmin" : undefined}
                 />
               )}
             </FieldShell>
@@ -189,10 +208,11 @@ const MemberForm = ({
             <FieldShell name="role" label="Role" optional>
               {(field) => (
                 <RoleCombobox
-                  value={field.state.value ?? ""}
+                  value={forcedRole ?? field.state.value ?? ""}
                   onChange={(v) => field.handleChange(v)}
                   onBlur={field.handleBlur}
-                  placeholder="e.g. Maid of Honor"
+                  placeholder={forcedRole ? "" : "e.g. Bridesmaid"}
+                  disabled={!!forcedRole}
                 />
               )}
             </FieldShell>
@@ -204,7 +224,7 @@ const MemberForm = ({
                 value={field.state.value ?? ""}
                 onChange={(v) => field.handleChange(v)}
                 onBlur={field.handleBlur}
-                placeholder="e.g. Maid of Honor"
+                placeholder="e.g. Bridesmaid"
               />
             )}
           </FieldShell>
@@ -218,9 +238,9 @@ const MemberForm = ({
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm">
                     Bride
-                    {brideTakenBy && (
+                    {(brideTakenBy || field.state.value === "bride") && (
                       <span className="ml-1.5 text-xs text-muted-foreground">
-                        · {brideTakenBy}
+                        · {brideTakenBy ?? memberDisplayName}
                       </span>
                     )}
                   </span>
@@ -236,9 +256,9 @@ const MemberForm = ({
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm">
                     Groom
-                    {groomTakenBy && (
+                    {(groomTakenBy || field.state.value === "groom") && (
                       <span className="ml-1.5 text-xs text-muted-foreground">
-                        · {groomTakenBy}
+                        · {groomTakenBy ?? memberDisplayName}
                       </span>
                     )}
                   </span>

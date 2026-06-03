@@ -1,5 +1,6 @@
 import type { FC } from "react";
-import { Clock } from "lucide-react";
+import { Clock, ClockCheck, Play, Square } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import {
   Card,
@@ -9,19 +10,25 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatTimeRange } from "@/lib/utils/utils-time";
 import { useNow } from "@/hooks/use-now";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineLifecycleActions } from "../hooks/useTimelineLifecycleActions";
 import { useActiveTimelineQuery } from "../queries";
-import { getCardLifecycle } from "../utils";
+import { getCardLifecycle, scheduledEndDate } from "../utils";
 import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
 import type { Timeline } from "../types";
 import MemberBadge from "@/pages/admin/members/components/MemberBadge";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ArraySeparator from "@/components/custom/array-separator";
+import { cn } from "@/lib/utils";
 
 interface TimelineCardProps {
   item: Timeline;
@@ -43,44 +50,83 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
     : null;
 
   return (
-    <div className="flex flex-col h-full">
+    <div
+      className={cn(
+        "flex flex-col h-full transition-opacity duration-500",
+        lifecycle === "done" && "opacity-50",
+      )}
+    >
       <div className="flex items-center justify-between gap-2 text-base text-primary">
         <div className="flex items-center gap-1.5 min-w-0">
-          <Clock className="size-4 shrink-0" />
+          {lifecycle === "done" ? (
+            <ClockCheck className="size-4 shrink-0" />
+          ) : (
+            <Clock className="size-4 shrink-0" />
+          )}
           <ArraySeparator items={timeItems} separator="-" className="gap-1" />
         </div>
 
-        {lifecycle === "start" && (
-          <Button
-            size="xs"
-            variant="success"
-            className="relative z-10 shrink-0"
-            disabled={start.isPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              startItem(item);
-            }}
-          >
-            Start
-          </Button>
-        )}
-        {lifecycle === "end" && (
-          <Button
-            size="xs"
-            variant="warning"
-            className="relative z-10 shrink-0"
-            disabled={end.isPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              endItem(item);
-            }}
-          >
-            End
-          </Button>
-        )}
+        <AnimatePresence mode="wait">
+          {lifecycle === "start" && (
+            <motion.div
+              key="start"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.15 } }}
+              exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.1 } }}
+              className="shrink-0"
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-xs"
+                    className="relative z-10"
+                    disabled={start.isPending}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startItem(item);
+                    }}
+                  >
+                    <Play className="size-3 fill-current" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Start</TooltipContent>
+              </Tooltip>
+            </motion.div>
+          )}
+          {lifecycle === "end" && (
+            <motion.div
+              key="end"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.15 } }}
+              exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.1 } }}
+              className="shrink-0"
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-xs"
+                    variant="secondary"
+                    className="relative z-10"
+                    disabled={end.isPending}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      endItem(item);
+                    }}
+                  >
+                    <Square className="size-3 fill-current" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>End</TooltipContent>
+              </Tooltip>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      <Card variant="interactive" className="relative mt-2 flex-1 h-full">
+      <Card
+        variant="interactive"
+        className="relative mt-2 flex-1 h-full overflow-hidden"
+      >
         <button
           onClick={() => openDetail(item)}
           aria-label={item.title}
@@ -117,6 +163,30 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
             </CardDescription>
           )}
         </CardHeader>
+
+        {lifecycle === "end" &&
+          item.started_at &&
+          (() => {
+            const end = scheduledEndDate(item);
+            if (!end) return null;
+            const pct = Math.min(
+              100,
+              Math.max(
+                0,
+                ((now.getTime() - new Date(item.started_at).getTime()) /
+                  (end.getTime() - new Date(item.started_at).getTime())) *
+                  100,
+              ),
+            );
+            return (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary/15">
+                <div
+                  className="h-full bg-primary/50 transition-all duration-30000 ease-linear"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            );
+          })()}
       </Card>
     </div>
   );

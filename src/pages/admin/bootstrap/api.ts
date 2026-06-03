@@ -15,7 +15,6 @@ export async function fetchBootstrapContext(
   const member = data.member;
   const accessGroup = data.access_group;
 
-  // TODO they should automatically be false if not explicitly true...
   const isBride = member.is_bride ?? false;
   const isGroom = member.is_groom ?? false;
   const isRoot = member.is_root ?? false;

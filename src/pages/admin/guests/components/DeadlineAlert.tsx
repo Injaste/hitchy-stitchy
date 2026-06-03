@@ -1,18 +1,20 @@
-import { differenceInDays, format } from "date-fns";
+import { differenceInDays, differenceInSeconds, format } from "date-fns";
 import { CalendarClock, CalendarX } from "lucide-react";
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useNow } from "@/hooks/use-now";
+import { formatRemainingTime } from "@/lib/utils/utils-time";
 import { useInvitationQuery } from "../../invitation/queries";
 
 const DeadlineAlert = () => {
   const { data: invitation } = useInvitationQuery();
+  const now = useNow(1_000);
 
   if (!invitation?.rsvp_deadline) return null;
 
   const deadline = new Date(invitation.rsvp_deadline.trim().replace(" ", "T"));
   if (isNaN(deadline.getTime())) return null;
-
-  const now = new Date();
+  const secondsLeft = differenceInSeconds(deadline, now);
   const daysLeft = differenceInDays(deadline, now);
   const isPast = deadline < now;
   const isUrgent = daysLeft < 3;
@@ -28,14 +30,17 @@ const DeadlineAlert = () => {
     ? `RSVP closed · ${formatted}`
     : `RSVP closes on ${formatted}`;
 
-  const daysLabel = `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`;
-  let description = `${daysLabel} for guests to submit their RSVP.`;
+  const timeLabel =
+    daysLeft < 1
+      ? `${formatRemainingTime(secondsLeft, 1)} left`
+      : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`;
+  let description = `${timeLabel} for guests to submit their RSVP.`;
 
   if (isPast) description = "Guests can no longer submit RSVPs.";
   else if (isUrgent)
-    description = `${daysLabel} — follow up with any pending guests now.`;
+    description = `${timeLabel} — follow up with any pending guests now.`;
   else if (isWarning)
-    description = `${daysLabel} — check for any guests who haven't responded.`;
+    description = `${timeLabel} — check for any guests who haven't responded.`;
 
   return (
     <Alert variant={variant} className="mb-6 sm:flex sm:flex-row">

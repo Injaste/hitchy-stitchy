@@ -20,6 +20,7 @@ interface RoleComboboxProps {
   onChange: (value: string) => void;
   onBlur?: () => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 const CREATE_PREFIX = "__create__:";
@@ -29,6 +30,7 @@ const RoleCombobox: FC<RoleComboboxProps> = ({
   onChange,
   onBlur,
   placeholder,
+  disabled = false,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const { data: members = [] } = useMembersQuery();
@@ -70,8 +72,9 @@ const RoleCombobox: FC<RoleComboboxProps> = ({
     >
       <ComboboxInput
         placeholder={placeholder}
-        showClear={!!value}
+        showClear={!!value && !disabled}
         onBlur={onBlur}
+        disabled={disabled}
       />
       <ComboboxContent>
         <ComboboxEmpty>Type to add a role.</ComboboxEmpty>

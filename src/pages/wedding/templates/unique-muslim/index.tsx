@@ -4,7 +4,6 @@ import Hero from "./Hero";
 import Details from "./Details";
 import Itinerary from "./Itinerary";
 import RSVP from "./RSVP";
-import FloatingIcons from "./FloatingIcons";
 import EnvelopePreloader from "./EnvelopePreloader";
 import type { ThemeProps } from "@/pages/wedding/templates/types";
 import { AnchorBar } from "@/pages/wedding/anchors";
@@ -103,7 +102,6 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         onExitComplete={() => setReady(true)}
       />
       <BackgroundImage src={bgImage} ready={ready} />
-      {/* <FloatingIcons /> */}
       <Hero eventConfig={eventConfig} pageConfig={pageConfig} ready={ready} />
       <Details eventConfig={eventConfig} pageConfig={pageConfig} />
       <Itinerary eventConfig={eventConfig} pageConfig={pageConfig} />

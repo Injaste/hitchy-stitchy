@@ -43,7 +43,7 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
           <div
             className={cn(
               "flex gap-3 flex-1 min-w-0",
-              !member.notes && "items-center",
+              member.notes && "items-center sm:items-start",
             )}
           >
             {/* Name-initials bubble */}

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Themes from "../themes";
 import Config from "../config";
@@ -8,19 +7,10 @@ const TABS = [
   { id: "config", label: "Configs", element: Config },
 ] as const;
 
-type TabId = (typeof TABS)[number]["id"];
-
 const InvitationTabs = () => {
-  const [activeTab, setActiveTab] = useState<TabId>("themes");
-
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={(v) => setActiveTab(v as TabId)}
-      tabOrder={TABS.map((t) => t.id)}
-      className="gap-6"
-    >
-      <TabsList activeValue={activeTab} className="w-full max-w-sm" aria-label="Invitation sections">
+    <Tabs defaultValue="themes" className="gap-6">
+      <TabsList className="w-full max-w-sm" aria-label="Invitation sections">
         {TABS.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id} className="flex-1 text-xs">
             {tab.label}

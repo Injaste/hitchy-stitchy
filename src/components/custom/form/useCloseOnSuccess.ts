@@ -9,5 +9,5 @@ export const useCloseOnSuccess = (
     if (!isSuccess || delay === false) return;
     const id = setTimeout(onClose, delay);
     return () => clearTimeout(id);
-  }, [isSuccess]);
+  }, [isSuccess, onClose, delay]);
 };

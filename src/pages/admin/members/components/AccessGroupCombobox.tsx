@@ -22,6 +22,8 @@ interface AccessGroupComboboxProps {
   disabled?: boolean;
   /** Display name shown immediately while the access groups query is still loading. */
   initialDisplayName?: string;
+  /** When set, always overrides the displayed name regardless of loaded data. */
+  overrideDisplayName?: string;
 }
 
 const AccessGroupCombobox: FC<AccessGroupComboboxProps> = ({
@@ -31,6 +33,7 @@ const AccessGroupCombobox: FC<AccessGroupComboboxProps> = ({
   placeholder,
   disabled = false,
   initialDisplayName,
+  overrideDisplayName,
 }) => {
   const { data: accessGroups = [] } = useAccessGroupsQuery();
 
@@ -49,7 +52,7 @@ const AccessGroupCombobox: FC<AccessGroupComboboxProps> = ({
     [accessGroups],
   );
 
-  const displayValue = value ? (groupsById[value]?.name ?? initialDisplayName ?? null) : null;
+  const displayValue = overrideDisplayName ?? (value ? (groupsById[value]?.name ?? initialDisplayName ?? null) : null);
 
   return (
     <Combobox

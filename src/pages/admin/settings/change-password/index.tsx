@@ -10,8 +10,6 @@ import {
   PasswordField,
 } from "@/components/custom/form";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
-import { AdminPageHeader } from "@/components/custom/admin-page-header";
-import Container from "@/components/custom/container";
 
 import { useChangePasswordMutation } from "./queries";
 import { changePasswordSchema } from "./types";
@@ -40,48 +38,44 @@ const ChangePassword = () => {
   });
 
   return (
-    <>
-      <AdminPageHeader title="Settings" description="Manage your account." />
-      <Container pageSpacing className="max-w-sm">
-        <FormCard
-          form={form}
-          isPending={isPending}
-          isSuccess={isSuccess}
-          isError={isError}
-          resetOnSuccess
-        >
-          <FormHeader title="Change Password" />
+    <FormCard
+      form={form}
+      isPending={isPending}
+      isSuccess={isSuccess}
+      isError={isError}
+      resetOnSuccess
+      className="max-w-sm"
+    >
+      <FormHeader title="Change Password" />
 
-          <FormBody>
-            <FieldGroup>
-              <PasswordField
-                name="password"
-                label="New password"
-                placeholder="New password"
-                autoComplete="new-password"
+      <FormBody>
+        <FieldGroup>
+          <PasswordField
+            name="password"
+            label="New password"
+            placeholder="New password"
+            autoComplete="new-password"
+          />
+          <PasswordField
+            name="confirm_password"
+            label="Confirm new password"
+            placeholder="Confirm new password"
+            autoComplete="new-password"
+          />
+          <form.Subscribe selector={(s) => s.submissionAttempts}>
+            {(attempts) => (
+              <AnimateItem
+                hasError={Boolean(mutationError)}
+                error={mutationError}
+                attemptCount={attempts}
               />
-              <PasswordField
-                name="confirm_password"
-                label="Confirm new password"
-                placeholder="Confirm new password"
-                autoComplete="new-password"
-              />
-              <form.Subscribe selector={(s) => s.submissionAttempts}>
-                {(attempts) => (
-                  <AnimateItem
-                    hasError={Boolean(mutationError)}
-                    error={mutationError}
-                    attemptCount={attempts}
-                  />
-                )}
-              </form.Subscribe>
-            </FieldGroup>
-          </FormBody>
+            )}
+          </form.Subscribe>
+        </FieldGroup>
+      </FormBody>
 
-          <FormFooter submitLabel="Update password" />
-        </FormCard>
-      </Container>
-    </>
+      <FormFooter submitLabel="Update password" />
+    </FormCard>
   );
 };
 
