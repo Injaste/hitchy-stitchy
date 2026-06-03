@@ -21,7 +21,14 @@ export function NotificationsSection() {
       return
     }
     setPermission(Notification.permission)
-    getPushSubscriptionStatus(memberId, eventId).then(setStatus)
+    getPushSubscriptionStatus(memberId, eventId).then((s) => {
+      setStatus(s)
+      // silently re-upsert if the browser already has a subscription,
+      // ensuring endpoint + slug are current in the DB
+      if (s === "subscribed" && Notification.permission === "granted") {
+        subscribeToPush(memberId, eventId, slug).catch(() => {})
+      }
+    })
   }, [memberId, eventId])
 
   const enable = async () => {
