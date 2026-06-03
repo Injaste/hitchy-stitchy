@@ -65,7 +65,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
           {group.label && (
             <p className="text-sm">
               <span className={cn(
-                "font-semibold",
+                "font-semibold transition-colors duration-500",
                 isActive && "text-primary",
                 isDone && "text-muted-foreground",
                 !isActive && !isDone && "text-foreground",

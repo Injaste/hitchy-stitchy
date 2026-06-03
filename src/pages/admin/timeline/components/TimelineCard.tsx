@@ -1,5 +1,6 @@
 import type { FC } from "react";
-import { Clock, ClockCheck } from "lucide-react";
+import { Clock, ClockCheck, Play, Square } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import {
   Card,
@@ -9,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatTimeRange } from "@/lib/utils/utils-time";
 import { useNow } from "@/hooks/use-now";
 
@@ -46,7 +48,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
   return (
     <div
       className={cn(
-        "flex flex-col h-full",
+        "flex flex-col h-full transition-opacity duration-500",
         lifecycle === "done" && "opacity-50",
       )}
     >
@@ -60,33 +62,55 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
           <ArraySeparator items={timeItems} separator="-" className="gap-1" />
         </div>
 
-        {lifecycle === "start" && (
-          <Button
-            size="xs"
-            className="relative z-10 shrink-0"
-            disabled={start.isPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              startItem(item);
-            }}
-          >
-            Start
-          </Button>
-        )}
-        {lifecycle === "end" && (
-          <Button
-            size="xs"
-            variant="secondary"
-            className="relative z-10 shrink-0"
-            disabled={end.isPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              endItem(item);
-            }}
-          >
-            End
-          </Button>
-        )}
+        <AnimatePresence mode="wait">
+          {lifecycle === "start" && (
+            <motion.div
+              key="start"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.15 } }}
+              exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.1 } }}
+              className="shrink-0"
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-xs"
+                    className="relative z-10"
+                    disabled={start.isPending}
+                    onClick={(e) => { e.stopPropagation(); startItem(item); }}
+                  >
+                    <Play className="size-3 fill-current" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Start</TooltipContent>
+              </Tooltip>
+            </motion.div>
+          )}
+          {lifecycle === "end" && (
+            <motion.div
+              key="end"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.15 } }}
+              exit={{ opacity: 0, scale: 0.6, transition: { duration: 0.1 } }}
+              className="shrink-0"
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-xs"
+                    variant="secondary"
+                    className="relative z-10"
+                    disabled={end.isPending}
+                    onClick={(e) => { e.stopPropagation(); endItem(item); }}
+                  >
+                    <Square className="size-3 fill-current" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>End</TooltipContent>
+              </Tooltip>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <Card variant="interactive" className="relative mt-2 flex-1 h-full overflow-hidden">

@@ -64,10 +64,10 @@ const TimelineConfirmModal = () => {
         <>
           <p>
             This will reset the start time to now. Previous run: started{" "}
-            {item.started_at && format(new Date(item.started_at), "h:mm a")}
-            {item.ended_at
-              ? `, ended ${format(new Date(item.ended_at), "h:mm a")}`
-              : " (still active)"}
+            {item.started_at && <span className="font-medium text-foreground">{format(new Date(item.started_at), "h:mm a")}</span>}
+            {item.ended_at ? (
+              <>, ended <span className="font-medium text-foreground">{format(new Date(item.ended_at), "h:mm a")}</span></>
+            ) : " (still active)"}
             .
           </p>
           {otherActive && <WillEndNote title={otherActive.title} />}
