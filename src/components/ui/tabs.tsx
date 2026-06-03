@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
-import ComponentSlide from "../animations/animate-component-slide";
+import ComponentFade from "../animations/animate-component-fade";
 
 interface TabsIndicatorContextValue {
   setRef: (id: string) => (el: HTMLElement | null) => void;
@@ -15,73 +15,70 @@ interface TabsIndicatorContextValue {
 const TabsIndicatorContext =
   React.createContext<TabsIndicatorContextValue | null>(null);
 
-type TabsDirection = 1 | -1 | 0;
-
-interface TabsDirectionContextValue {
-  direction: TabsDirection;
-}
-
-const TabsDirectionContext = React.createContext<TabsDirectionContextValue>({
-  direction: 0,
-});
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+// Hoists TabsContent panels and renders them through a single AnimatePresence so
+// only one panel is ever mounted during a transition — no double-render on switch.
 
 function Tabs({
   className,
   orientation = "horizontal",
-  tabOrder,
   value,
   defaultValue,
   onValueChange,
+  children,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root> & {
-  tabOrder?: string[] | readonly string[];
-}) {
-  // 0 = no directional slide (initial mount), 1 = forward, -1 = backward
-  const [direction, setDirection] = React.useState<TabsDirection>(0);
-
-  const prevValueRef = React.useRef<string | undefined>(value ?? defaultValue);
-  // Stays false until the user actually clicks a tab
-  const hasInteracted = React.useRef(false);
+}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+  const isControlled = value !== undefined;
+  const [internalValue, setInternalValue] = React.useState(defaultValue);
+  const activeValue = isControlled ? value : internalValue;
 
   const handleValueChange = React.useCallback(
-    (newValue: string) => {
-      if (newValue === prevValueRef.current) return;
-
-      hasInteracted.current = true;
-
-      if (tabOrder && prevValueRef.current) {
-        const prevIdx = tabOrder.indexOf(prevValueRef.current);
-        const nextIdx = tabOrder.indexOf(newValue);
-        if (prevIdx !== -1 && nextIdx !== -1) {
-          let sign: TabsDirection = 1;
-          if (nextIdx < prevIdx) sign = -1;
-          setDirection(sign);
-        }
-      }
-
-      prevValueRef.current = newValue;
-      onValueChange?.(newValue);
+    (v: string) => {
+      if (!isControlled) setInternalValue(v);
+      onValueChange?.(v);
     },
-    [tabOrder, onValueChange],
+    [isControlled, onValueChange],
   );
+
+  // Separate TabsContent panels from other children (TabsList, etc.)
+  const panels: { value: string; content: React.ReactNode }[] = [];
+  const rest: React.ReactNode[] = [];
+
+  React.Children.forEach(children, (child) => {
+    if (
+      React.isValidElement<{ value: string; children?: React.ReactNode }>(child) &&
+      child.type === TabsContent
+    ) {
+      panels.push({ value: child.props.value, content: child.props.children });
+    } else {
+      rest.push(child);
+    }
+  });
+
+  const activePanel = panels.find((p) => p.value === activeValue);
 
   return (
-    <TabsDirectionContext.Provider value={{ direction }}>
-      <TabsPrimitive.Root
-        data-slot="tabs"
-        data-orientation={orientation}
-        value={value}
-        defaultValue={defaultValue}
-        onValueChange={handleValueChange}
-        className={cn(
-          "gap-2 group/tabs flex data-horizontal:flex-col",
-          className,
+    <TabsPrimitive.Root
+      data-slot="tabs"
+      data-orientation={orientation}
+      value={value}
+      defaultValue={defaultValue}
+      onValueChange={handleValueChange}
+      className={cn("gap-2 group/tabs flex data-horizontal:flex-col", className)}
+      {...props}
+    >
+      {rest}
+      <AnimatePresence mode="wait">
+        {activePanel && (
+          <ComponentFade key={activeValue}>
+            {activePanel.content}
+          </ComponentFade>
         )}
-        {...props}
-      />
-    </TabsDirectionContext.Provider>
+      </AnimatePresence>
+    </TabsPrimitive.Root>
   );
 }
+
 // ─── TabsList ─────────────────────────────────────────────────────────────────
 
 const tabsListVariants = cva(
@@ -174,31 +171,11 @@ function TabsTrigger({
 }
 
 // ─── TabsContent ──────────────────────────────────────────────────────────────
-// Direction is read from TabsDirectionContext — no prop needed on the consumer.
-// `value` is used as the TabWrapper key so the animation re-fires every time
-// Radix mounts this panel (= every time this tab becomes active).
+// Pure marker — Tabs hoists its children into a single AnimatePresence above.
+// This component itself renders nothing.
 
-function TabsContent({
-  value,
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) {
-  const { direction } = React.useContext(TabsDirectionContext);
-
-  return (
-    <TabsPrimitive.Content
-      data-slot="tabs-content"
-      value={value}
-      className={cn("text-sm flex-1 outline-none", className)}
-      {...props}
-    >
-      <AnimatePresence mode="wait">
-        <ComponentSlide key={value} direction={direction} className="h-full">
-          {props.children}
-        </ComponentSlide>
-      </AnimatePresence>
-    </TabsPrimitive.Content>
-  );
+function TabsContent(_props: React.ComponentProps<typeof TabsPrimitive.Content>) {
+  return null;
 }
 
 export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants };

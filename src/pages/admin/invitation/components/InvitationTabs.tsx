@@ -17,7 +17,6 @@ const InvitationTabs = () => {
     <Tabs
       value={activeTab}
       onValueChange={(v) => setActiveTab(v as TabId)}
-      tabOrder={TABS.map((t) => t.id)}
       className="gap-6"
     >
       <TabsList activeValue={activeTab} className="w-full max-w-sm" aria-label="Invitation sections">
