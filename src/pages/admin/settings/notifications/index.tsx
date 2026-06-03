@@ -9,20 +9,20 @@ import {
 import type { PushStatus } from "./types"
 
 export function NotificationsSection() {
-  const { eventId } = useAdminStore()
+  const { memberId, eventId } = useAdminStore()
   const [status, setStatus] = useState<PushStatus>("loading")
   const [permission, setPermission] = useState<NotificationPermission | null>(null)
   const [isPending, setIsPending] = useState(false)
 
   useEffect(() => {
-    if (!eventId) return
+    if (!memberId || !eventId) return
     if (!("Notification" in window) || !("PushManager" in window)) {
       setStatus("unsupported")
       return
     }
     setPermission(Notification.permission)
-    getPushSubscriptionStatus(eventId).then(setStatus)
-  }, [eventId])
+    getPushSubscriptionStatus(memberId, eventId).then(setStatus)
+  }, [memberId, eventId])
 
   const enable = async () => {
     setIsPending(true)
@@ -32,7 +32,7 @@ export function NotificationsSection() {
         : await Notification.requestPermission()
       setPermission(perm)
       if (perm !== "granted") return
-      await subscribeToPush(eventId)
+      await subscribeToPush(memberId, eventId)
       setStatus("subscribed")
     } finally {
       setIsPending(false)
@@ -42,7 +42,7 @@ export function NotificationsSection() {
   const disable = async () => {
     setIsPending(true)
     try {
-      await unsubscribeFromPush(eventId)
+      await unsubscribeFromPush(memberId, eventId)
       setStatus("unsubscribed")
     } finally {
       setIsPending(false)
