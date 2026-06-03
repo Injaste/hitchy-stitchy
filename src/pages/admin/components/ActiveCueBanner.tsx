@@ -30,50 +30,56 @@ const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
           onClick={() => openDetail(active)}
           className="w-full flex items-center gap-3 px-2 py-2 text-sm cursor-pointer hover:bg-primary/15 transition-colors rounded-xl"
         >
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
-            <Play className="h-3 w-3 text-primary fill-primary" />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 mt-0.5 sm:mt-0">
+            <Play className="h-4 w-4 sm:h-3 sm:w-3 text-primary fill-primary" />
           </span>
-          <span className="font-medium text-primary">Live Now:</span>
-          <span className="text-foreground truncate">{active.title}</span>
-          <span className="text-muted-foreground ml-auto text-xs shrink-0 flex items-center gap-1.5">
-            <span className="flex items-center gap-1.5 min-w-0">
-              <Clock className="size-3 shrink-0" />
-              <ArraySeparator
-                items={formatTimeRange(active.time_start, active.time_end)}
-                separator="-"
-                className="gap-1"
-              />
-            </span>
+          <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-medium text-primary shrink-0">
+                Live Now:
+              </span>
+              <span className="text-foreground truncate">{active.title}</span>
+            </div>
+            <span className="text-muted-foreground sm:ml-auto text-xs shrink-0 flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 min-w-0">
+                <Clock className="size-3 shrink-0" />
+                <ArraySeparator
+                  items={formatTimeRange(active.time_start, active.time_end)}
+                  separator="-"
+                  className="gap-1"
+                />
+              </span>
 
-            {active.started_at && (
-              <>
-                <span aria-hidden>·</span>
-                <span className="flex items-center gap-1.5 min-w-0">
-                  <ClockCheck className="size-3 shrink-0" />
-                  {format(new Date(active.started_at), "h:mm a")}
-                </span>
-                {(() => {
-                  const delay = startDelayMinutes(active);
-                  return delay && delay > 0 ? (
-                    <span className="text-destructive font-medium">
-                      (+{delay}m)
-                    </span>
-                  ) : null;
-                })()}
-                {(() => {
-                  const end = scheduledEndDate(active);
-                  if (!end) return null;
-                  const remaining = differenceInSeconds(end, now);
-                  if (remaining <= 0) return null;
-                  return (
-                    <span className="text-muted-foreground">
-                      ({formatRemainingTime(remaining)} left)
-                    </span>
-                  );
-                })()}
-              </>
-            )}
-          </span>
+              {active.started_at && (
+                <>
+                  <span aria-hidden>·</span>
+                  <span className="flex items-center gap-1.5 min-w-0">
+                    <ClockCheck className="size-3 shrink-0" />
+                    {format(new Date(active.started_at), "h:mm a")}
+                  </span>
+                  {(() => {
+                    const delay = startDelayMinutes(active);
+                    return delay && delay > 0 ? (
+                      <span className="text-destructive font-medium">
+                        (+{delay}m)
+                      </span>
+                    ) : null;
+                  })()}
+                  {(() => {
+                    const end = scheduledEndDate(active);
+                    if (!end) return null;
+                    const remaining = differenceInSeconds(end, now);
+                    if (remaining <= 0) return null;
+                    return (
+                      <span className="text-muted-foreground">
+                        ({formatRemainingTime(remaining)} left)
+                      </span>
+                    );
+                  })()}
+                </>
+              )}
+            </span>
+          </div>
         </motion.button>
       )}
     </AnimatePresence>

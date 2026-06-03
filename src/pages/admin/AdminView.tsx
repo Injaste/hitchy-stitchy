@@ -14,6 +14,7 @@ import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
 import { PingModal } from "./modals/PingModal";
 import MemberModals from "./members/modals";
+import TimelineModals from "./timeline/modals";
 
 const AdminView = () => {
   useBootstrap();
@@ -57,6 +58,7 @@ const AdminView = () => {
             </SidebarInset>
             <PingModal />
             <MemberModals />
+            <TimelineModals />
           </SidebarProvider>
         </ComponentFade>
       )}

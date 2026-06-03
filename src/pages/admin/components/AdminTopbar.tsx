@@ -1,7 +1,5 @@
 import { motion } from "framer-motion";
 import {
-  SidebarSeparator,
-  SidebarTrigger,
   SidebarWidthIcon,
   SidebarWidth,
   useSidebar,
@@ -11,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import PortalToApp from "@/components/custom/portal-to-app";
 import Container from "@/components/custom/container";
 import { useActiveTimelineQuery } from "../timeline/queries";
+import ActiveCueBanner from "./ActiveCueBanner";
 
 const AdminTopbar = () => {
   const { state } = useSidebar();
@@ -27,7 +26,7 @@ const AdminTopbar = () => {
           opacity: hasCue ? 1 : 0,
         }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed top-2 right-2 z-50 rounded-2xl overflow-hidden shadow-sm ring-1 ring-sidebar-border bg-background transition-[left]"
+        className="fixed top-0 sm:top-2 right-0 sm:right-2 z-50 sm:rounded-2xl overflow-hidden shadow-sm sm:shadow-none ring-1 ring-sidebar-border bg-background transition-[left]"
         style={{
           left: isMobile
             ? 0
@@ -36,19 +35,10 @@ const AdminTopbar = () => {
               : SidebarWidth,
         }}
       >
-        <div className="bg-background/50 backdrop-blur-md">
+        <div className="flex justify-center items-center h-full w-full bg-background/50 backdrop-blur-md">
           <Container>
-            <div className="flex items-center justify-between gap-3 h-14 p-2">
-              {isMobile && (
-                <div className="flex items-center gap-3">
-                  <SidebarTrigger className="-mx-1" />
-                  <SidebarSeparator
-                    orientation="vertical"
-                    className="mx-0 h-5 my-auto!"
-                  />
-                </div>
-              )}
-
+            <div className="sm:px-2">
+              <ActiveCueBanner active={active} />
             </div>
           </Container>
         </div>
