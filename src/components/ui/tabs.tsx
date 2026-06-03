@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
 import ComponentFade from "../animations/animate-component-fade";
 
+const TabsValueContext = React.createContext<string | undefined>(undefined);
+
 interface TabsIndicatorContextValue {
   setRef: (id: string) => (el: HTMLElement | null) => void;
   onMouseEnter: (id: string) => void;
@@ -58,6 +60,7 @@ function Tabs({
   const activePanel = panels.find((p) => p.value === activeValue);
 
   return (
+    <TabsValueContext.Provider value={activeValue}>
     <TabsPrimitive.Root
       data-slot="tabs"
       data-orientation={orientation}
@@ -76,6 +79,7 @@ function Tabs({
         )}
       </AnimatePresence>
     </TabsPrimitive.Root>
+    </TabsValueContext.Provider>
   );
 }
 
@@ -99,12 +103,10 @@ const tabsListVariants = cva(
 function TabsList({
   className,
   variant = "default",
-  activeValue,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List> &
-  VariantProps<typeof tabsListVariants> & {
-    activeValue?: string;
-  }) {
+  VariantProps<typeof tabsListVariants>) {
+  const activeValue = React.useContext(TabsValueContext);
   const {
     containerRef,
     hoverIndicatorRef,
