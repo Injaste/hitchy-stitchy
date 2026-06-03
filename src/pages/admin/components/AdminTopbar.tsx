@@ -28,7 +28,7 @@ const AdminTopbar = () => {
           opacity: hasCue ? 1 : 0,
         }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed top-2 right-2 z-50 rounded-2xl overflow-hidden shadow-sm ring-1 ring-sidebar-border bg-background transition-[left] duration-200 ease-linear"
+        className="fixed top-2 right-2 z-50 rounded-2xl overflow-hidden shadow-sm ring-1 ring-sidebar-border bg-background transition-[left]"
         style={{
           left: isMobile
             ? 8
@@ -39,7 +39,7 @@ const AdminTopbar = () => {
       >
         <div className="bg-background/50 backdrop-blur-md">
           <Container>
-            <div className="flex items-center justify-between gap-3 h-14 px-4 lg:px-0">
+            <div className="flex items-center justify-between gap-3 h-14 p-2">
               {isMobile && (
                 <div className="flex items-center gap-3">
                   <SidebarTrigger className="-mx-1" />

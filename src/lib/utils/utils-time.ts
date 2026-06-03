@@ -105,6 +105,18 @@ const fmt = (value: number, unit: keyof typeof label, format: "short" | "long") 
   return format === "short" ? `${value}${l}` : `${value} ${l}${value !== 1 ? "s" : ""}`
 }
 
+export function formatRemainingTime(totalSeconds: number): string {
+  const d = Math.floor(totalSeconds / 86400);
+  const h = Math.floor((totalSeconds % 86400) / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
 export const calculateTimeDuration = (
   start: string,
   end: string,

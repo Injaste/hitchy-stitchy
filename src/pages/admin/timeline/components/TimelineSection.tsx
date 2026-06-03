@@ -10,12 +10,13 @@ import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
 import TimelineCard from "./TimelineCard";
-import { Circle, Plus } from "lucide-react";
+import { Circle, CircleCheck, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ArraySeparator from "@/components/custom/array-separator";
 import { Button } from "@/components/ui/button";
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useActiveTimelineQuery } from "../queries";
 
 interface LabelCarouselProps {
   group: TimelineLabelGroup;
@@ -34,6 +35,10 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
   const openCreateWithLabel = useTimelineModalStore(
     (s) => s.openCreateWithLabel,
   );
+  const { data: active } = useActiveTimelineQuery();
+
+  const isActive = group.items.some((i) => i.id === active?.id);
+  const isDone = !isActive && group.items.every((i) => i.started_at !== null);
 
   return (
     <div
@@ -43,13 +48,28 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
       )}
     >
       <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
-      <Circle className="size-5 text-primary/70 bg-background z-1 shrink-0" />
+
+      {isActive ? (
+        <div className="relative size-5 shrink-0 z-1 flex items-center justify-center bg-background">
+          <span className="animate-ping absolute h-3 w-3 rounded-full bg-primary/50" />
+          <span className="relative h-3 w-3 rounded-full bg-primary" />
+        </div>
+      ) : isDone ? (
+        <CircleCheck className="size-5 text-muted-foreground bg-background z-1 shrink-0" />
+      ) : (
+        <Circle className="size-5 text-primary/70 bg-background z-1 shrink-0" />
+      )}
 
       <div className="space-y-1 min-w-0 flex-1">
         <div className="flex items-center gap-2 ml-1 -mt-[3px]">
           {group.label && (
             <p className="text-sm">
-              <span className="font-semibold text-foreground">
+              <span className={cn(
+                "font-semibold",
+                isActive && "text-primary",
+                isDone && "text-muted-foreground",
+                !isActive && !isDone && "text-foreground",
+              )}>
                 {group.label}
               </span>
             </p>

@@ -4,15 +4,12 @@ function formatDuration(totalMinutes: number): string {
   const d = Math.floor(totalMinutes / 1440);
   const h = Math.floor((totalMinutes % 1440) / 60);
   const m = totalMinutes % 60;
-  return [
-    d > 0 && `${d}d`,
-    h > 0 && `${h}h`,
-    m > 0 && `${m}m`,
-  ]
-    .filter(Boolean)
-    .join(" ") || "< 1m";
+  return (
+    [d > 0 && `${d}d`, h > 0 && `${h}h`, m > 0 && `${m}m`]
+      .filter(Boolean)
+      .join(" ") || "< 1m"
+  );
 }
-
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -128,6 +125,12 @@ const TimelineConfirmModal = () => {
       titleSuffix: "?",
       action: "Start",
       body: otherActive ? <WillEndNote title={otherActive.title} /> : null,
+    },
+    "confirm-end": {
+      titlePrefix: "End",
+      titleSuffix: "?",
+      action: "End",
+      body: <p>This will mark the item as ended.</p>,
     },
   }[reason];
 

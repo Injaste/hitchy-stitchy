@@ -31,11 +31,8 @@ export function useTimelineLifecycleActions() {
   };
 
   const endItem = (item: Timeline) => {
-    if (isEarly(scheduledEndDate(item))) {
-      openConfirm({ item, kind: "end", reason: "early-end" });
-    } else {
-      end.mutate({ event_id: eventId!, id: item.id });
-    }
+    const reason = isEarly(scheduledEndDate(item)) ? "early-end" : "confirm-end";
+    openConfirm({ item, kind: "end", reason });
   };
 
   return { startItem, endItem, start, end };
