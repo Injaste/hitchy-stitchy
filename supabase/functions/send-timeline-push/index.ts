@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
 
     const { data: subscriptions, error } = await supabase
       .from("push_subscriptions")
-      .select("subscription")
+      .select("subscription, slug")
       .eq("event_id", record.event_id);
 
     if (error) throw error;
@@ -49,9 +49,11 @@ Deno.serve(async (req) => {
     });
 
     const results = await Promise.allSettled(
-      subscriptions.map((s) =>
-        sendWebPush(s.subscription as unknown as PushSubscription, notificationPayload)
-      ),
+      subscriptions.map((s) => {
+        const url = s.slug ? `/${s.slug}/admin/timeline` : "/"
+        const payload = JSON.stringify({ ...JSON.parse(notificationPayload), url })
+        return sendWebPush(s.subscription as unknown as PushSubscription, payload)
+      }),
     );
 
     // Clean up expired/unsubscribed devices (410 = subscription no longer valid)

@@ -9,7 +9,7 @@ import {
 import type { PushStatus } from "./types"
 
 export function NotificationsSection() {
-  const { memberId, eventId } = useAdminStore()
+  const { memberId, eventId, slug } = useAdminStore()
   const [status, setStatus] = useState<PushStatus>("loading")
   const [permission, setPermission] = useState<NotificationPermission | null>(null)
   const [isPending, setIsPending] = useState(false)
@@ -32,7 +32,7 @@ export function NotificationsSection() {
         : await Notification.requestPermission()
       setPermission(perm)
       if (perm !== "granted") return
-      await subscribeToPush(memberId, eventId)
+      await subscribeToPush(memberId, eventId, slug)
       setStatus("subscribed")
     } finally {
       setIsPending(false)
