@@ -12,7 +12,14 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return view
 }
 
-export async function subscribeToPush(memberId: string, eventId: string): Promise<void> {
+async function getAuthUserId(): Promise<string> {
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) throw new Error("Not authenticated")
+  return user.id
+}
+
+export async function subscribeToPush(eventId: string): Promise<void> {
+  const userId = await getAuthUserId()
   const registration = await navigator.serviceWorker.ready
   const existing = await registration.pushManager.getSubscription()
   const sub = existing ?? await registration.pushManager.subscribe({
@@ -23,14 +30,15 @@ export async function subscribeToPush(memberId: string, eventId: string): Promis
   const { error } = await supabase
     .from("push_subscriptions")
     .upsert(
-      { member_id: memberId, event_id: eventId, subscription: sub.toJSON() },
+      { member_id: userId, event_id: eventId, subscription: sub.toJSON() },
       { onConflict: "member_id,event_id" },
     )
 
   if (error) throw new Error(error.message)
 }
 
-export async function unsubscribeFromPush(memberId: string, eventId: string): Promise<void> {
+export async function unsubscribeFromPush(eventId: string): Promise<void> {
+  const userId = await getAuthUserId()
   const registration = await navigator.serviceWorker.ready
   const sub = await registration.pushManager.getSubscription()
   await sub?.unsubscribe()
@@ -38,22 +46,24 @@ export async function unsubscribeFromPush(memberId: string, eventId: string): Pr
   const { error } = await supabase
     .from("push_subscriptions")
     .delete()
-    .eq("member_id", memberId)
+    .eq("member_id", userId)
     .eq("event_id", eventId)
 
   if (error) throw new Error(error.message)
 }
 
 export async function getPushSubscriptionStatus(
-  memberId: string,
   eventId: string,
 ): Promise<"subscribed" | "unsubscribed" | "unsupported"> {
   if (!("PushManager" in window) || !("serviceWorker" in navigator)) return "unsupported"
 
+  const userId = await getAuthUserId().catch(() => null)
+  if (!userId) return "unsubscribed"
+
   const { data } = await supabase
     .from("push_subscriptions")
     .select("id")
-    .eq("member_id", memberId)
+    .eq("member_id", userId)
     .eq("event_id", eventId)
     .maybeSingle()
 

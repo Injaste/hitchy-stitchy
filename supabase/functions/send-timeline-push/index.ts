@@ -1,24 +1,25 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import webpush from "npm:web-push";
 
 const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY")!;
 const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT")!;
 
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-
 async function sendWebPush(subscription: PushSubscription, payload: string) {
+  const { default: webpush } = await import("npm:web-push");
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
   await webpush.sendNotification(subscription, payload);
 }
 
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
+    console.log("payload:", JSON.stringify(body));
     const record = body.record;
     const oldRecord = body.old_record;
 
     // Only fire when started_at just became non-null (item went live)
     const justStarted = record?.started_at && (!oldRecord || !oldRecord.started_at);
+    console.log("justStarted:", justStarted, "started_at:", record?.started_at, "old started_at:", oldRecord?.started_at);
     if (!justStarted) {
       return new Response("No meaningful change", { status: 200 });
     }
