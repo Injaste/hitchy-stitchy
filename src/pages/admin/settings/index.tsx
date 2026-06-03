@@ -3,11 +3,12 @@ import { AdminPageHeader } from "@/components/custom/admin-page-header";
 import Container from "@/components/custom/container";
 import Profile from "./profile";
 import ChangePassword from "./change-password";
+import { NotificationsSection } from "./notifications";
 
 const TABS = [
   { id: "profile", label: "Profile", element: Profile },
   { id: "change-password", label: "Password", element: ChangePassword },
-  { id: "preferences", label: "Preferences", element: null },
+  { id: "notifications", label: "Notifications", element: NotificationsSection },
 ] as const;
 
 const Settings = () => {

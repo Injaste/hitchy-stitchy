@@ -2,9 +2,37 @@ import path from "path"
 import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
+import { VitePWA } from "vite-plugin-pwa"
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
+      registerType: "prompt",
+      pwaAssets: { config: true },
+      manifest: {
+        name: "Hitchy Stitchy — Wedding Invitations & Planning Suite",
+        short_name: "Hitchy Stitchy",
+        description:
+          "Plan your perfect wedding day — beautiful digital invitations, RSVP tracking, live event tools, and everything your big day needs, all in one place.",
+        theme_color: "#c71f66",
+        background_color: "#fefbf8",
+        display: "standalone",
+        orientation: "portrait",
+        start_url: "/",
+        scope: "/",
+      },
+      injectManifest: {
+        globPatterns: ["**/*.{js,css,html,woff2,png,svg,ico}"],
+        globIgnores: ["pwa-logo.png"],
+      },
+      devOptions: { enabled: false },
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

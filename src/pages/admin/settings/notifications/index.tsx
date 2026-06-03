@@ -1,62 +1,93 @@
-import { useState, useEffect } from 'react'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-
-import { useAdminStore } from '../../store/useAdminStore'
-import { useNotificationPrefsQuery, useUpdateNotificationPrefsMutation } from './queries'
-import type { NotificationPrefs } from './types'
-
-type PrefKey = keyof NotificationPrefs
-
-const prefLabels: Record<PrefKey, string> = {
-  eventStarted: 'Event started',
-  taskAssigned: 'Task assigned to me',
-  pinged: 'Someone pinged me',
-  upcomingEvent: 'Upcoming event reminder',
-  bridesmaidsCheckin: 'Bridesmaid check-in',
-}
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { useAdminStore } from "../../store/useAdminStore"
+import {
+  getPushSubscriptionStatus,
+  subscribeToPush,
+  unsubscribeFromPush,
+} from "@/lib/push"
+import type { PushStatus } from "./types"
 
 export function NotificationsSection() {
-  const { eventId, memberId } = useAdminStore()
-  const { data: prefs, isLoading } = useNotificationPrefsQuery()
-  const { mutate: save, isPending } = useUpdateNotificationPrefsMutation()
-
-  const [localPrefs, setLocalPrefs] = useState<NotificationPrefs>({
-    eventStarted: true,
-    taskAssigned: true,
-    pinged: true,
-    upcomingEvent: true,
-    bridesmaidsCheckin: true,
-  })
+  const { memberId, eventId } = useAdminStore()
+  const [status, setStatus] = useState<PushStatus>("loading")
+  const [permission, setPermission] = useState<NotificationPermission | null>(null)
+  const [isPending, setIsPending] = useState(false)
 
   useEffect(() => {
-    if (prefs) setLocalPrefs(prefs)
-  }, [prefs])
+    if (!memberId || !eventId) return
+    if (!("Notification" in window) || !("PushManager" in window)) {
+      setStatus("unsupported")
+      return
+    }
+    setPermission(Notification.permission)
+    getPushSubscriptionStatus(memberId, eventId).then(setStatus)
+  }, [memberId, eventId])
 
-  if (isLoading) return <Skeleton className="h-48 rounded-xl" />
-
-  const toggle = (key: PrefKey) => {
-    setLocalPrefs((prev) => ({ ...prev, [key]: !prev[key] }))
+  const enable = async () => {
+    setIsPending(true)
+    try {
+      const perm = permission === "granted"
+        ? "granted"
+        : await Notification.requestPermission()
+      setPermission(perm)
+      if (perm !== "granted") return
+      await subscribeToPush(memberId, eventId)
+      setStatus("subscribed")
+    } finally {
+      setIsPending(false)
+    }
   }
 
-  const handleSave = () => {
-    save({ eventId, memberId, prefs: localPrefs })
+  const disable = async () => {
+    setIsPending(true)
+    try {
+      await unsubscribeFromPush(memberId, eventId)
+      setStatus("unsubscribed")
+    } finally {
+      setIsPending(false)
+    }
   }
+
+  if (status === "unsupported") {
+    return <p className="text-sm text-muted-foreground">Push notifications aren't supported on this browser.</p>
+  }
+
+  if (status === "subscribed") {
+    return (
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold">Push Notifications</h3>
+        <Button size="sm" variant="outline" disabled>Enabled on this device</Button>
+        <div>
+          <button
+            className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+            disabled={isPending}
+            onClick={disable}
+          >
+            Disable
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const blocked = permission === "denied"
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
-      <div className="space-y-3">
-        {(Object.keys(prefLabels) as PrefKey[]).map((key) => (
-          <div key={key} className="flex items-center justify-between">
-            <Label className="text-sm">{prefLabels[key]}</Label>
-            <Switch checked={localPrefs[key]} onCheckedChange={() => toggle(key)} />
-          </div>
-        ))}
-      </div>
-      <Button size="sm" onClick={handleSave} disabled={isPending}>Save</Button>
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold">Push Notifications</h3>
+      <p className="text-xs text-muted-foreground">
+        {blocked
+          ? "Notifications are blocked in your browser settings. You'll need to allow them there first."
+          : "Get notified on this device when a timeline item goes live."}
+      </p>
+      <Button
+        size="sm"
+        disabled={isPending || status === "loading" || blocked}
+        onClick={enable}
+      >
+        Enable on this device
+      </Button>
     </div>
   )
 }
