@@ -40,8 +40,8 @@ Deno.serve(async (req) => {
     }
 
     const notificationPayload = JSON.stringify({
-      title: "Timeline going live",
-      body: record.title ? `"${record.title}" has started` : "A timeline item has started",
+      title: record.label ?? record.title,
+      body: `${record.title} has started`,
       data: {
         event_id: record.event_id,
         timeline_id: record.id,
