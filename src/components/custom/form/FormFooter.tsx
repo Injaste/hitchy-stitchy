@@ -37,7 +37,6 @@ const FormFooter = ({
 
   return (
     <>
-      <Separator />
       <DialogFooter className={createMore ? "sm:justify-between" : undefined}>
         {createMore && (
           <div className="flex items-center gap-2">
