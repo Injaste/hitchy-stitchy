@@ -78,6 +78,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
+                    variant="success"
                     size="icon-xs"
                     className="relative z-10"
                     disabled={start.isPending}
@@ -105,7 +106,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
                 <TooltipTrigger asChild>
                   <Button
                     size="icon-xs"
-                    variant="secondary"
+                    variant="warning"
                     className="relative z-10"
                     disabled={end.isPending}
                     onClick={(e) => {
