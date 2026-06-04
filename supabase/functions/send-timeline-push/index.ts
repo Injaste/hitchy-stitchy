@@ -1,24 +1,25 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import webpush from "npm:web-push";
 
 const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY")!;
 const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT")!;
 
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-
 async function sendWebPush(subscription: PushSubscription, payload: string) {
+  const { default: webpush } = await import("npm:web-push");
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
   await webpush.sendNotification(subscription, payload);
 }
 
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
+    console.log("payload:", JSON.stringify(body));
     const record = body.record;
     const oldRecord = body.old_record;
 
     // Only fire when started_at just became non-null (item went live)
     const justStarted = record?.started_at && (!oldRecord || !oldRecord.started_at);
+    console.log("justStarted:", justStarted, "started_at:", record?.started_at, "old started_at:", oldRecord?.started_at);
     if (!justStarted) {
       return new Response("No meaningful change", { status: 200 });
     }
@@ -30,7 +31,7 @@ Deno.serve(async (req) => {
 
     const { data: subscriptions, error } = await supabase
       .from("push_subscriptions")
-      .select("subscription")
+      .select("subscription, slug")
       .eq("event_id", record.event_id);
 
     if (error) throw error;
@@ -39,8 +40,8 @@ Deno.serve(async (req) => {
     }
 
     const notificationPayload = JSON.stringify({
-      title: "Timeline going live",
-      body: record.title ? `"${record.title}" has started` : "A timeline item has started",
+      title: record.label ?? record.title,
+      body: `${record.title} has started`,
       data: {
         event_id: record.event_id,
         timeline_id: record.id,
@@ -48,9 +49,11 @@ Deno.serve(async (req) => {
     });
 
     const results = await Promise.allSettled(
-      subscriptions.map((s) =>
-        sendWebPush(s.subscription as unknown as PushSubscription, notificationPayload)
-      ),
+      subscriptions.map((s) => {
+        const url = s.slug ? `/${s.slug}/admin/timeline` : "/"
+        const payload = JSON.stringify({ ...JSON.parse(notificationPayload), url })
+        return sendWebPush(s.subscription as unknown as PushSubscription, payload)
+      }),
     );
 
     // Clean up expired/unsubscribed devices (410 = subscription no longer valid)

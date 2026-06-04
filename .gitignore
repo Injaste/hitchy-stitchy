@@ -42,3 +42,6 @@ __snapshots__/
 
 # Optional: Documentation
 out/
+
+# Supabase
+supabase/.temp/

@@ -9,7 +9,7 @@ import {
 import type { PushStatus } from "./types"
 
 export function NotificationsSection() {
-  const { memberId, eventId } = useAdminStore()
+  const { memberId, eventId, slug } = useAdminStore()
   const [status, setStatus] = useState<PushStatus>("loading")
   const [permission, setPermission] = useState<NotificationPermission | null>(null)
   const [isPending, setIsPending] = useState(false)
@@ -21,7 +21,14 @@ export function NotificationsSection() {
       return
     }
     setPermission(Notification.permission)
-    getPushSubscriptionStatus(memberId, eventId).then(setStatus)
+    getPushSubscriptionStatus(memberId, eventId).then((s) => {
+      setStatus(s)
+      // silently re-upsert if the browser already has a subscription,
+      // ensuring endpoint + slug are current in the DB
+      if (s === "subscribed" && Notification.permission === "granted") {
+        subscribeToPush(memberId, eventId, slug).catch(() => {})
+      }
+    })
   }, [memberId, eventId])
 
   const enable = async () => {
@@ -32,7 +39,7 @@ export function NotificationsSection() {
         : await Notification.requestPermission()
       setPermission(perm)
       if (perm !== "granted") return
-      await subscribeToPush(memberId, eventId)
+      await subscribeToPush(memberId, eventId, slug)
       setStatus("subscribed")
     } finally {
       setIsPending(false)
