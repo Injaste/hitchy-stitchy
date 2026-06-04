@@ -402,28 +402,7 @@ function SidebarContent({
     setRef,
     onMouseEnter,
     onMouseLeave,
-    refresh,
-  } = useIndicatorSlider("vertical", activeId);
-
-  React.useEffect(() => {
-    if (!activeId) return;
-
-    const duration = 300;
-    const start = performance.now();
-    let raf: number;
-
-    const tick = () => {
-      refresh(true);
-      if (performance.now() - start < duration) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        refresh();
-      }
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [state, refresh]);
+  } = useIndicatorSlider("vertical", activeId, state);
 
   return (
     <SidebarHoverContext.Provider value={{ setRef, onMouseEnter }}>
@@ -791,4 +770,5 @@ export {
   SIDEBAR_WIDTH as SidebarWidth,
   SIDEBAR_WIDTH_ICON as SidebarWidthIcon,
   useSidebar,
+  SidebarContext,
 };

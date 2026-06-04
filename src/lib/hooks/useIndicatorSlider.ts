@@ -16,6 +16,7 @@ interface IndicatorSliderResult {
 export default function useIndicatorSlider(
   direction: Direction = "vertical",
   activeId?: string,
+  animatingDep?: unknown,
 ): IndicatorSliderResult {
   const itemRefs = useRef<Record<string, HTMLElement | null>>({});
   const containerRef = useRef<HTMLElement | null>(null);
@@ -119,6 +120,27 @@ export default function useIndicatorSlider(
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [activeId, refresh]);
+
+  useEffect(() => {
+    if (!activeId || animatingDep === undefined) return;
+
+    const duration = 300;
+    const start = performance.now();
+    let raf: number;
+
+    const tick = () => {
+      refresh(true);
+      if (performance.now() - start < duration) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        refresh();
+      }
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animatingDep, refresh]);
 
 
   const setRef = useCallback(
