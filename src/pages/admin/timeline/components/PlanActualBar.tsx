@@ -44,8 +44,7 @@ const PlanActualBar: FC<PlanActualBarProps> = ({
   const t0 = Math.min(schedStart.getTime(), actualStart.getTime());
   const t1 = Math.max(schedEnd.getTime(), actualEnd.getTime());
   const span = Math.max(t1 - t0, 1);
-  // Inset the scale so edge points (and their dots) don't clip at 0 / 100%.
-  const pct = (ms: number) => 5 + ((ms - t0) / span) * 90;
+  const pct = (ms: number) => ((ms - t0) / span) * 100;
 
   const actLeft = pct(actualStart.getTime());
   const actWidth = Math.max(pct(actualEnd.getTime()) - actLeft, 1.5);
@@ -54,12 +53,14 @@ const PlanActualBar: FC<PlanActualBarProps> = ({
   const over = overMin > 0;
   const running = !item.ended_at;
 
+  // Pad by the dot radius so markers sit flush at the true 0 / 100% edges
+  // (children are positioned within this padded content box).
   const bar = (
-    <div className={cn("relative h-3", className)}>
+    <div className={cn("relative h-3 px-[5px]", className)}>
       <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-muted/50" />
       <div
         className={cn(
-          "absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full",
+          "absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full transition-all duration-1000",
           over ? "bg-warning" : "bg-success",
         )}
         style={{ left: `${actLeft}%`, width: `${actWidth}%` }}

@@ -30,7 +30,10 @@ const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
     const schedEnd = scheduledEndDate(active);
     if (!schedEnd) {
       const elapsed = differenceInSeconds(now, start);
-      return { metric: `${formatRemainingTime(elapsed, 1)} elapsed`, over: false };
+      return {
+        metric: `${formatRemainingTime(elapsed, 1)} elapsed`,
+        over: false,
+      };
     }
     const remaining = differenceInSeconds(schedEnd, now);
     const over = remaining < 0;
@@ -50,7 +53,7 @@ const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
           {...itemRevealInUp}
           type="button"
           onClick={() => openDetail(active)}
-          className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-sm cursor-pointer transition-colors hover:bg-primary/15"
+          className="flex w-full items-center gap-3 rounded-xl px-2.5 py-1 text-sm cursor-pointer transition-colors hover:bg-primary/15"
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20">
             <Play className="h-3 w-3 fill-primary text-primary" />
@@ -58,10 +61,12 @@ const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
 
           <div className="min-w-0 flex-1 space-y-1.5">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="shrink-0 font-medium text-primary">Live Now:</span>
-              <span className="min-w-0 truncate text-foreground">
-                {active.title}
+              <span className="shrink-0 font-medium text-primary">
+                Live Now:
               </span>
+              <h6 className="font-bold min-w-0 truncate text-foreground">
+                {active.title}
+              </h6>
               {cue && (
                 <span
                   className={cn(

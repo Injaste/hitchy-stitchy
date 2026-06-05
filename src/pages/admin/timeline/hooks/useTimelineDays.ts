@@ -40,8 +40,12 @@ export function useTimelineDays(data: TimelineGrouped | undefined) {
     range.forEach((day, i) => {
       if (itemDaySet.has(day)) lastFilled = i;
     });
-    const cutoff =
+    let cutoff =
       lastFilled === -1 ? 0 : Math.min(lastFilled + 1, range.length - 1);
+    // Always reveal through today when it's within the event, so the live day
+    // is reachable (and can be auto-selected) even if nothing's scheduled yet.
+    const todayIndex = range.indexOf(format(new Date(), "yyyy-MM-dd"));
+    if (todayIndex >= 0) cutoff = Math.max(cutoff, todayIndex);
     const visibleRange = range.slice(0, cutoff + 1);
 
     // Union with item-days to surface anything left outside the range.

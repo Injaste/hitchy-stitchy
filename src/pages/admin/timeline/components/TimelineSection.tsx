@@ -89,7 +89,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
               type="button"
               variant="ghost"
               size="icon-xs"
-              className="hidden transition-opacity lg:inline-flex lg:opacity-0 lg:group-hover/timeline-section:opacity-50 lg:hover:opacity-100"
+              className="hidden transition-opacity md:inline-flex md:opacity-0 md:group-hover/timeline-section:opacity-50 md:hover:opacity-100"
               onClick={() => openCreateWithLabel(group.label, suggestedTime)}
               aria-label={
                 group.label ? `Add item to ${group.label}` : "Add item"

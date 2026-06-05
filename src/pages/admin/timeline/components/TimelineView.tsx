@@ -1,5 +1,6 @@
 import { useEffect, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
@@ -42,12 +43,17 @@ const TimelineView: FC<TimelineViewProps> = ({
   const activeGroup = data?.days.find((d) => d.day === activeDay) ?? null;
 
   useEffect(() => {
-    if (!dayList.length) return;
-    // Seed the active tab when nothing is selected yet, or when the previously
-    // selected day no longer exists. Prefer the first day that has items so the
-    // user lands on content rather than an empty leading day.
+    // Wait for the query so the day list is final before locking a selection.
+    if (!data || !dayList.length) return;
+    // Seed the active tab when nothing is selected, or the selected day is gone.
+    // Prefer today (land on the live day during the event), else the first day
+    // with items.
     if (!activeDayId || !dayList.includes(activeDayId)) {
-      setActiveDayId(data?.days[0]?.day ?? dayList[0]);
+      const today = format(new Date(), "yyyy-MM-dd");
+      const seed = dayList.includes(today)
+        ? today
+        : (data.days[0]?.day ?? dayList[0]);
+      setActiveDayId(seed);
     }
   }, [dayList, activeDayId, setActiveDayId, data]);
 

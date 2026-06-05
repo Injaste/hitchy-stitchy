@@ -37,7 +37,7 @@ const AdminTopbar = () => {
       >
         <div className="flex justify-center items-center h-full w-full bg-background/50 backdrop-blur-md">
           <Container>
-            <div className="sm:px-2">
+            <div className="sm:px-1.5">
               <ActiveCueBanner active={active} />
             </div>
           </Container>
