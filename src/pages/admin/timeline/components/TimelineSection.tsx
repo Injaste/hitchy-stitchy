@@ -5,7 +5,11 @@ import { container, itemFadeUp } from "@/lib/animations";
 import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
 import { getLatestTime } from "../utils";
 
-import type { Timeline, TimelineGroupedDay, TimelineLabelGroup } from "../types";
+import type {
+  Timeline,
+  TimelineGroupedDay,
+  TimelineLabelGroup,
+} from "../types";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
@@ -68,17 +72,16 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
         <div className="flex items-center gap-2 ml-1 -mt-[3px]">
           {group.label && (
             <p className="text-sm">
-              <span className={cn(
-                "font-semibold transition-colors duration-500",
-                isActive && "text-primary",
-                isDone && "text-muted-foreground",
-                !isActive && !isDone && "text-foreground",
-              )}>
+              <span
+                className={cn(
+                  "font-semibold transition-colors duration-500",
+                  isActive && "text-primary",
+                  isDone && "text-muted-foreground",
+                  !isActive && !isDone && "text-foreground",
+                )}
+              >
                 {group.label}
               </span>
-              {group.items.length > 1 && (
-                <span className="text-muted-foreground"> · {group.items.length}</span>
-              )}
             </p>
           )}
           {canCreate("timeline") && (
@@ -86,7 +89,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
               type="button"
               variant="ghost"
               size="icon-xs"
-              className="opacity-60 hover:opacity-100 transition-opacity lg:opacity-0 lg:group-hover/timeline-section:opacity-50 lg:hover:opacity-100"
+              className="hidden transition-opacity lg:inline-flex lg:opacity-0 lg:group-hover/timeline-section:opacity-50 lg:hover:opacity-100"
               onClick={() => openCreateWithLabel(group.label, suggestedTime)}
               aria-label={
                 group.label ? `Add item to ${group.label}` : "Add item"

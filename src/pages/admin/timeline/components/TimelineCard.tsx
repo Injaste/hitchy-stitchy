@@ -16,12 +16,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { calculateTimeDuration, formatTimeRange } from "@/lib/utils/utils-time";
-import { useNow } from "@/hooks/use-now";
+import { useAdaptiveNow } from "@/hooks/use-now";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineLifecycleActions } from "../hooks/useTimelineLifecycleActions";
 import { useActiveTimelineQuery } from "../queries";
-import { getCardLifecycle, scheduledEndDate } from "../utils";
+import { getCardLifecycle, scheduledStartDate, scheduledEndDate } from "../utils";
 import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
 import type { Timeline } from "../types";
@@ -41,15 +41,19 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
   const { canUpdate } = useAccess();
   const { data: active } = useActiveTimelineQuery();
   const { startItem, endItem, start, end } = useTimelineLifecycleActions();
-  const now = useNow();
+
+  // Count toward the item's next meaningful moment (its end while live, else
+  // its start); the clock only ticks per-second when that moment is near.
+  const isRunning = !!item.started_at && !item.ended_at;
+  const targetDate = isRunning
+    ? scheduledEndDate(item)
+    : scheduledStartDate(item);
+  const now = useAdaptiveNow(targetDate ? targetDate.getTime() : null);
 
   const timeItems = formatTimeRange(item.time_start, item.time_end);
-  const duration = () =>
-    item.time_end ? (
-      <span className="text-2xs">
-        {calculateTimeDuration(item.time_start, item.time_end, "short")}
-      </span>
-    ) : null;
+  const duration = item.time_end
+    ? calculateTimeDuration(item.time_start, item.time_end, "short")
+    : null;
 
   const lifecycle = canUpdate("timeline")
     ? getCardLifecycle(item, dayItems, active?.id ?? null, now)
@@ -74,12 +78,11 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
               <ArraySeparator
                 items={timeItems}
                 separator="-"
-                className="gap-1 text-primary"
+                className="text-sm gap-1 text-primary"
               />,
-              duration(),
+              duration,
             ]}
-            separator="·"
-            className="gap-1 text-muted-foreground"
+            className="text-2xs gap-1 text-muted-foreground"
           />
         </div>
 
@@ -181,30 +184,6 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
             </CardDescription>
           )}
         </CardHeader>
-
-        {lifecycle === "end" &&
-          item.started_at &&
-          (() => {
-            const end = scheduledEndDate(item);
-            if (!end) return null;
-            const pct = Math.min(
-              100,
-              Math.max(
-                0,
-                ((now.getTime() - new Date(item.started_at).getTime()) /
-                  (end.getTime() - new Date(item.started_at).getTime())) *
-                  100,
-              ),
-            );
-            return (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary/15">
-                <div
-                  className="h-full bg-primary/50 transition-all duration-30000 ease-linear"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-            );
-          })()}
       </Card>
     </div>
   );

@@ -110,18 +110,19 @@ export function formatRemainingTime(totalSeconds: number, units: 1 | 2 = 2): str
   const h = Math.floor((totalSeconds % 86400) / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
+  const ss = String(s).padStart(2, "0");
 
   if (units === 1) {
     if (d > 0) return `${d}d`;
     if (h > 0) return `${h}h`;
     if (m > 0) return `${m}m`;
-    return `${s}s`;
+    return `${ss}s`;
   }
 
   if (d > 0) return `${d}d ${h}h`;
   if (h > 0) return `${h}h ${m}m`;
-  if (m > 0) return `${m}m ${s}s`;
-  return `${s}s`;
+  if (m > 0) return `${m}m ${ss}s`;
+  return `${ss}s`;
 }
 
 export const calculateTimeDuration = (

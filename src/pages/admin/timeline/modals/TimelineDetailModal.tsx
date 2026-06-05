@@ -1,7 +1,11 @@
 import { useMemo } from "react";
-import { format } from "date-fns";
+import { format, differenceInSeconds } from "date-fns";
 import { Clock, Play, RotateCcw, Square, Users } from "lucide-react";
-import { parseLocalDate, formatTimeRange } from "@/lib/utils/utils-time";
+import {
+  parseLocalDate,
+  formatTimeRange,
+  formatRemainingTime,
+} from "@/lib/utils/utils-time";
 import ArraySeparator from "@/components/custom/array-separator";
 
 import {
@@ -23,6 +27,10 @@ import { useTimelineLifecycleActions } from "../hooks/useTimelineLifecycleAction
 import { useTimelineQuery, useActiveTimelineQuery } from "../queries";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import MemberBadge from "@/pages/admin/members/components/MemberBadge";
+import { useNow } from "@/hooks/use-now";
+import { cn } from "@/lib/utils";
+import { scheduledStartDate } from "../utils";
+import PlanActualBar from "../components/PlanActualBar";
 
 const TimelineDetailModal = () => {
   const isDetailOpen = useTimelineModalStore((s) => s.isDetailOpen);
@@ -36,6 +44,9 @@ const TimelineDetailModal = () => {
   const { data } = useTimelineQuery();
   const { data: active } = useActiveTimelineQuery();
   const { startItem, endItem, start, end } = useTimelineLifecycleActions();
+  // Single modal instance — tick every second while open; don't run at all
+  // when closed (and refresh on open so it's correct immediately).
+  const now = useNow(isDetailOpen ? 1_000 : null);
 
   const item = useMemo(
     () =>
@@ -54,6 +65,45 @@ const TimelineDetailModal = () => {
   const otherActive = active && active.id !== item.id ? active : null;
   const showLifecycle = canUpdate("timeline");
   const startLabel = item.started_at ? "Restart" : "Start";
+
+  // Relative timing headline: elapsed while live, actual run when done, and a
+  // countdown (or overdue) when it hasn't started.
+  const timing = (() => {
+    if (item.started_at && item.ended_at) {
+      const secs = differenceInSeconds(
+        new Date(item.ended_at),
+        new Date(item.started_at),
+      );
+      return {
+        label: "Ran for",
+        value: formatRemainingTime(secs, 2),
+        tone: "muted" as const,
+      };
+    }
+    if (isActive && item.started_at) {
+      const secs = differenceInSeconds(now, new Date(item.started_at));
+      return {
+        label: "Running for",
+        value: formatRemainingTime(secs, 2),
+        tone: "live" as const,
+      };
+    }
+    if (!item.started_at) {
+      const secs = differenceInSeconds(scheduledStartDate(item), now);
+      return secs > 0
+        ? {
+            label: "Starts in",
+            value: formatRemainingTime(secs, 2),
+            tone: "muted" as const,
+          }
+        : {
+            label: "Overdue by",
+            value: formatRemainingTime(-secs, 2),
+            tone: "warn" as const,
+          };
+    }
+    return null;
+  })();
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -111,6 +161,26 @@ const TimelineDetailModal = () => {
                     </Badge>
                   )}
                 </p>
+                {timing && (
+                  <p
+                    className={cn(
+                      "flex items-center gap-1.5 text-sm font-medium",
+                      timing.tone === "live"
+                        ? "text-primary"
+                        : timing.tone === "warn"
+                          ? "text-warning"
+                          : "text-foreground",
+                    )}
+                  >
+                    {timing.tone === "live" && (
+                      <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+                    )}
+                    <span className="font-normal text-muted-foreground">
+                      {timing.label}
+                    </span>
+                    {timing.value}
+                  </p>
+                )}
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <div className="flex items-center justify-between gap-4">
                     <span>Started</span>
@@ -170,6 +240,8 @@ const TimelineDetailModal = () => {
                 </div>
               )}
             </div>
+
+            <PlanActualBar item={item} now={now} />
 
             {otherActive && (
               <div className="space-y-1.5">
