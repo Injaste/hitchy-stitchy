@@ -8,12 +8,20 @@ import { useInvitationQuery } from "../../invitation/queries";
 
 const DeadlineAlert = () => {
   const { data: invitation } = useInvitationQuery();
-  const now = useNow(1_000);
 
-  if (!invitation?.rsvp_deadline) return null;
+  const deadline = invitation?.rsvp_deadline
+    ? new Date(invitation.rsvp_deadline.trim().replace(" ", "T"))
+    : null;
 
-  const deadline = new Date(invitation.rsvp_deadline.trim().replace(" ", "T"));
-  if (isNaN(deadline.getTime())) return null;
+  // Only tick every second in the final hour, where the countdown shows
+  // seconds; above that the label changes by the minute at most, so a 1s
+  // re-render is wasted work.
+  const isParseable = !!deadline && !isNaN(deadline.getTime());
+  const underAnHour =
+    isParseable && differenceInSeconds(deadline!, new Date()) < 3_600;
+  const now = useNow(underAnHour ? 1_000 : 60_000);
+
+  if (!invitation?.rsvp_deadline || !deadline || !isParseable) return null;
   const secondsLeft = differenceInSeconds(deadline, now);
   const daysLeft = differenceInDays(deadline, now);
   const isPast = deadline < now;

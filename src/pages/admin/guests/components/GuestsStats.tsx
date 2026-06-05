@@ -43,7 +43,7 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
       value: stats.confirmed,
       sub: stats.confirmedPax,
       icon: CheckCircle,
-      iconClass: "text-emerald-500",
+      iconClass: "text-success",
     },
     {
       label: "Total RSVPs",
@@ -56,14 +56,14 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
       value: stats.pending,
       sub: null,
       icon: Clock,
-      iconClass: "text-amber-500",
+      iconClass: "text-warning",
     },
     {
       label: "Cancelled",
       value: stats.cancelled,
       sub: null,
       icon: XCircle,
-      iconClass: "text-rose-500",
+      iconClass: "text-destructive",
     },
   ];
 

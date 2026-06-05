@@ -19,6 +19,8 @@ const GuestEditModal = () => {
   const { data: invitation } = useInvitationQuery();
 
   const form = useGuestForm({
+    minGuest: invitation?.guest_count_min ?? 1,
+    maxGuest: invitation?.guest_count_max ?? 1,
     defaultValues: selectedItem
       ? {
           name: selectedItem.name,
@@ -56,7 +58,11 @@ const GuestEditModal = () => {
     >
       <FormHeader title="Edit guest" />
 
-      <GuestForm maxGuest={invitation.guest_count_max} />
+      <GuestForm
+        minGuest={invitation.guest_count_min}
+        maxGuest={invitation.guest_count_max}
+        showMessage={invitation.config.rsvp.fields.message.visible}
+      />
 
       <FormFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
