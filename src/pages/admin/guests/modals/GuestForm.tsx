@@ -35,48 +35,61 @@ const STATUS_OPTIONS: SelectFieldOption[] = [
 interface UseGuestFormOpts {
   defaultValues?: Partial<GuestFormValues>;
   onSubmit: (values: GuestFormValues) => void;
+  /** Party-size bounds from the invitation config; mirrors the create RPC. */
+  minGuest: number;
+  maxGuest: number;
 }
 
-export const useGuestForm = ({ defaultValues, onSubmit }: UseGuestFormOpts) =>
+// Schema errors plus a party-size range check against the invitation's
+// configured min/max, so the client matches what the RPC will accept.
+function validateGuestForm(
+  value: GuestFormValues,
+  minGuest: number,
+  maxGuest: number,
+) {
+  const fields: Record<string, { message: string }> = {};
+
+  const parsed = guestFormSchema.safeParse(value);
+  if (!parsed.success) {
+    const properties = z.treeifyError(parsed.error).properties ?? {};
+    for (const [key, tree] of Object.entries(properties)) {
+      if (tree?.errors?.length) fields[key] = { message: tree.errors[0] };
+    }
+  }
+
+  const count = Number(value.guest_count);
+  if (!fields.guest_count && Number.isFinite(count)) {
+    if (count < minGuest) {
+      fields.guest_count = {
+        message: `At least ${minGuest} ${minGuest === 1 ? "guest" : "guests"}`,
+      };
+    } else if (count > maxGuest) {
+      fields.guest_count = {
+        message: `At most ${maxGuest} ${maxGuest === 1 ? "guest" : "guests"}`,
+      };
+    }
+  }
+
+  return Object.keys(fields).length ? { fields } : undefined;
+}
+
+export const useGuestForm = ({
+  defaultValues,
+  onSubmit,
+  minGuest,
+  maxGuest,
+}: UseGuestFormOpts) =>
   useForm({
     defaultValues: {
       name: defaultValues?.name ?? "",
       phone: defaultValues?.phone ?? "",
-      guest_count: defaultValues?.guest_count ?? 1,
+      guest_count: defaultValues?.guest_count ?? minGuest,
       status: defaultValues?.status ?? "pending",
       message: defaultValues?.message ?? "",
     },
     validators: {
-      onSubmit: ({ value }) => {
-        const parsed = guestFormSchema.safeParse(value);
-
-        if (!parsed.success) {
-          const properties = z.treeifyError(parsed.error).properties ?? {};
-
-          const fields = Object.fromEntries(
-            Object.entries(properties)
-              .filter(([, tree]) => tree?.errors?.length)
-              .map(([key, tree]) => [key, { message: tree!.errors[0] }]),
-          );
-
-          return { fields };
-        }
-      },
-      onChange: ({ value }) => {
-        const parsed = guestFormSchema.safeParse(value);
-
-        if (!parsed.success) {
-          const properties = z.treeifyError(parsed.error).properties ?? {};
-
-          const fields = Object.fromEntries(
-            Object.entries(properties)
-              .filter(([, tree]) => tree?.errors?.length)
-              .map(([key, tree]) => [key, { message: tree!.errors[0] }]),
-          );
-
-          return { fields };
-        }
-      },
+      onSubmit: ({ value }) => validateGuestForm(value, minGuest, maxGuest),
+      onChange: ({ value }) => validateGuestForm(value, minGuest, maxGuest),
     },
     onSubmit: ({ value }) => {
       onSubmit(guestFormSchema.parse(value));
@@ -84,10 +97,18 @@ export const useGuestForm = ({ defaultValues, onSubmit }: UseGuestFormOpts) =>
   });
 
 interface GuestFormProps {
+  minGuest: number;
   maxGuest: number;
+  /** Hidden when the invitation's RSVP config disables the message field. */
+  showMessage: boolean;
 }
 
-const GuestForm: FC<GuestFormProps> = ({ maxGuest }) => {
+const GuestForm: FC<GuestFormProps> = ({ minGuest, maxGuest, showMessage }) => {
+  const countHint =
+    minGuest === maxGuest
+      ? `${maxGuest} ${maxGuest === 1 ? "guest" : "guests"}`
+      : `${minGuest}–${maxGuest} guests`;
+
   return (
     <FormBody>
       <FieldGroup>
@@ -103,20 +124,22 @@ const GuestForm: FC<GuestFormProps> = ({ maxGuest }) => {
             name="guest_count"
             label="Party size"
             type="number"
-            min={1}
+            min={minGuest}
             max={maxGuest}
             step={1}
-            hint={`Max: ${maxGuest} guests`}
+            hint={`Allowed: ${countHint}`}
           />
           <SelectField name="status" label="Status" options={STATUS_OPTIONS} />
         </div>
-        <TextareaField
-          name="message"
-          label="Message"
-          optional
-          rows={3}
-          placeholder="Notes you want to keep against this guest…"
-        />
+        {showMessage && (
+          <TextareaField
+            name="message"
+            label="Message"
+            optional
+            rows={3}
+            placeholder="Notes you want to keep against this guest…"
+          />
+        )}
       </FieldGroup>
     </FormBody>
   );

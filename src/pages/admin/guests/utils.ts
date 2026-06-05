@@ -1,6 +1,7 @@
 import Papa from "papaparse"
+import { format } from "date-fns"
 
-import { guestFormSchema, type ParsedGuestRow } from "./types"
+import { guestFormSchema, type Guest, type ParsedGuestRow } from "./types"
 
 const HEADER_ALIASES: Record<string, "name" | "phone" | "guest_count" | "message"> = {
   name: "name",
@@ -122,10 +123,42 @@ export function buildGuestTemplateBlob(): Blob {
 
 export function downloadGuestTemplate() {
   const blob = buildGuestTemplateBlob()
+  triggerDownload(blob, "guests-template.csv")
+}
+
+const EXPORT_COLUMNS = [
+  "name",
+  "phone",
+  "guest_count",
+  "status",
+  "source",
+  "message",
+  "created_at",
+] as const
+
+/** Serialises the given guests to a downloadable CSV (papaparse handles quoting). */
+export function exportGuestsCSV(guests: Guest[]) {
+  const rows = guests.map((g) => ({
+    name: g.name,
+    phone: g.phone,
+    guest_count: g.guest_count,
+    status: g.status,
+    source: g.source,
+    message: g.message ?? "",
+    created_at: format(new Date(g.created_at), "yyyy-MM-dd HH:mm"),
+  }))
+
+  const csv = Papa.unparse(rows, { columns: [...EXPORT_COLUMNS] })
+  // BOM makes Excel read UTF-8 correctly on Windows.
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" })
+  triggerDownload(blob, `guests-${format(new Date(), "yyyy-MM-dd-HHmm")}.csv`)
+}
+
+function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
   a.href = url
-  a.download = "guests-template.csv"
+  a.download = filename
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

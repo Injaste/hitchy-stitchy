@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 import { Search, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -17,6 +17,8 @@ interface GuestsFiltersProps {
   onStatusFilterChange: (value: StatusFilter) => void;
   filteredCount: number;
   totalCount: number;
+  /** Right-aligned toolbar slot (e.g. export). */
+  trailing?: ReactNode;
 }
 
 import { type VariantProps } from "class-variance-authority";
@@ -47,6 +49,7 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
   onStatusFilterChange,
   filteredCount,
   totalCount,
+  trailing,
 }) => {
   const isFiltered = search || statusFilter !== "all";
 
@@ -100,6 +103,8 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
             </Button>
           ))}
         </div>
+
+        {trailing && <div className="sm:ml-auto">{trailing}</div>}
       </div>
 
       {/* Entry count — right-aligned, contextual */}

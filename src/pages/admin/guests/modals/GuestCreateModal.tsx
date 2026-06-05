@@ -20,6 +20,8 @@ const GuestCreateModal = () => {
   const { data: invitation } = useInvitationQuery();
 
   const form = useGuestForm({
+    minGuest: invitation?.guest_count_min ?? 1,
+    maxGuest: invitation?.guest_count_max ?? 1,
     onSubmit: (values) => {
       create.mutate({
         name: values.name,
@@ -46,7 +48,11 @@ const GuestCreateModal = () => {
     >
       <FormHeader title="Add guest" />
 
-      <GuestForm maxGuest={invitation.guest_count_max} />
+      <GuestForm
+        minGuest={invitation.guest_count_min}
+        maxGuest={invitation.guest_count_max}
+        showMessage={invitation.config.rsvp.fields.message.visible}
+      />
 
       <FormFooter
         onCancel={closeAll}

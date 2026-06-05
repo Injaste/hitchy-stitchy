@@ -3,13 +3,16 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Copy,
   History,
   MessageSquare,
   Phone,
+  PhoneCall,
   UserPlus,
   Users,
   XCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -20,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
@@ -40,6 +44,11 @@ const GuestDetailModal = () => {
 
   if (!selectedItem) return null;
   const guest = selectedItem;
+
+  const copyPhone = () => {
+    navigator.clipboard.writeText(guest.phone);
+    toast.success("Phone copied");
+  };
 
   const statusVariant =
     guest.status === "confirmed"
@@ -102,19 +111,38 @@ const GuestDetailModal = () => {
 
             <div className="space-y-3">
               <Row icon={<Phone className="w-3 h-3" />} label="Phone">
-                {guest.phone}
+                <span className="inline-flex items-center gap-1">
+                  <span>{guest.phone}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Copy phone number"
+                    onClick={copyPhone}
+                  >
+                    <Copy className="size-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon-xs" asChild>
+                    <a
+                      href={`tel:${guest.phone.replace(/\s+/g, "")}`}
+                      aria-label={`Call ${guest.name}`}
+                    >
+                      <PhoneCall className="size-3.5" />
+                    </a>
+                  </Button>
+                </span>
               </Row>
               <Row icon={<Users className="w-3 h-3" />} label="Party size">
                 {guest.guest_count}
               </Row>
               {rsvpFields?.message.visible && (
-                <Row icon={<MessageSquare className="w-3 h-3" strokeWidth={2.5} />} label="Message">
+                <Row
+                  icon={<MessageSquare className="w-3 h-3" strokeWidth={2.5} />}
+                  label="Message"
+                >
                   {guest.message ?? "—"}
                 </Row>
               )}
             </div>
-
-            <Separator />
 
             <div className="space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">

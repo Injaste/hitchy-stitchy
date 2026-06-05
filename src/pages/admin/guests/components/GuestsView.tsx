@@ -15,6 +15,7 @@ import GuestsStats from "./GuestsStats";
 import GuestsTable from "./GuestsTable";
 import GuestsFilters from "./GuestsFilters";
 import GuestsBulkBar from "./GuestsBulkBar";
+import GuestsExport from "./GuestsExport";
 import { useGuestMutations } from "../queries";
 import DeadlineAlert from "./DeadlineAlert";
 
@@ -63,6 +64,11 @@ const GuestsView: FC<GuestsViewProps> = ({
     [data, search, statusFilter],
   );
 
+
+  const selectedRows = useMemo(
+    () => (data ?? []).filter((g) => selectedIds.has(g.id)),
+    [data, selectedIds],
+  );
 
   const filteredIds = useMemo(() => filtered.map((g) => g.id), [filtered]);
   const allFilteredSelected =
@@ -125,6 +131,7 @@ const GuestsView: FC<GuestsViewProps> = ({
           onStatusFilterChange={setStatusFilter}
           filteredCount={filtered.length}
           totalCount={data.length}
+          trailing={<GuestsExport visible={filtered} selected={selectedRows} />}
         />
         <AnimatePresence initial={false}>
           {canBulkUpdate && selectedIds.size > 0 && (
