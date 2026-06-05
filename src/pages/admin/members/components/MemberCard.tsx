@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
@@ -6,29 +7,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { type Member } from "../types";
+import { isSuperAdminMember } from "../../utils/memberUtils";
+import type { Member } from "../types";
 import MemberStatus from "./MemberStatus";
 import { getInitials, getMemberStatus } from "../utils";
 
 interface MemberCardProps {
   member: Member;
+  isSelf: boolean;
 }
 
-const MemberCard: FC<MemberCardProps> = ({ member }) => {
+const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
   const openDetail = useMemberModalStore((s) => s.openDetail);
 
   const status = getMemberStatus(member);
   const isRejected = status === "rejected";
   const isFrozen = status === "frozen";
-
   const isCouple = member.is_bride || member.is_groom;
+  const isSuperAdmin = isSuperAdminMember(member);
 
   return (
     <Card
       variant="interactive"
       className={cn(
         "relative border-l-4",
-        isCouple ? "border-l-primary" : "border-l-accent",
+        // Couple keeps the primary accent; otherwise the current user's own card
+        // gets a green accent in place of a "You" badge.
+        isCouple ? "border-l-primary" : isSelf ? "border-l-success" : "border-l-accent",
         isFrozen && "opacity-60",
         isRejected && "opacity-40",
       )}
@@ -46,13 +51,14 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
               member.notes && "items-center sm:items-start",
             )}
           >
-            {/* Name-initials bubble */}
+            {/* Initials bubble */}
             <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
               {getInitials(member.display_name)}
             </div>
 
             {/* Content */}
-            <div className="space-y-1.5 flex-1 min-w-0">
+            <div className="space-y-1 flex-1 min-w-0">
+              {/* Name row */}
               <div className="flex items-center gap-2 min-w-0 flex-wrap">
                 <p
                   className={cn(
@@ -63,32 +69,20 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                   {member.display_name}
                 </p>
 
-                {/* Couple indicator */}
                 {member.is_bride && (
-                  <Badge
-                    variant="default"
-                    className="text-2xs tracking-wide shrink-0"
-                  >
+                  <Badge variant="default" className="text-2xs tracking-wide shrink-0">
                     Bride
                   </Badge>
                 )}
                 {member.is_groom && (
-                  <Badge
-                    variant="default"
-                    className="text-2xs tracking-wide shrink-0"
-                  >
+                  <Badge variant="default" className="text-2xs tracking-wide shrink-0">
                     Groom
                   </Badge>
                 )}
-
-                {/* Role badge (personal title) */}
                 {member.role && (
                   <Badge
                     variant="secondary"
-                    className={cn(
-                      "text-2xs tracking-wide shrink-0",
-                      isRejected && "opacity-50",
-                    )}
+                    className={cn("text-2xs tracking-wide shrink-0", isRejected && "opacity-50")}
                   >
                     {member.role}
                   </Badge>
@@ -102,8 +96,16 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
                 )}
               </div>
 
+              {/* Access group — superadmins (couple/root) always have full access */}
+              {(isSuperAdmin || member.accessGroup?.name) && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground/70">
+                  <Shield className="w-3 h-3 shrink-0" />
+                  <span>{isSuperAdmin ? "Full access" : member.accessGroup?.name}</span>
+                </div>
+              )}
+
               {member.notes && (
-                <div className="hidden sm:block">
+                <div className="hidden sm:block pt-0.5">
                   <NotesMarkdown content={member.notes} size="sm" />
                 </div>
               )}
@@ -115,6 +117,7 @@ const MemberCard: FC<MemberCardProps> = ({ member }) => {
               <NotesMarkdown content={member.notes} size="sm" />
             </div>
           )}
+
           {status !== "active" && (
             <MemberStatus
               member={member}

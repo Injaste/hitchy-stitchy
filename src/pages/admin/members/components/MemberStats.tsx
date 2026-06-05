@@ -1,12 +1,12 @@
 import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Clock, Snowflake, UserX, Users } from "lucide-react";
+import { Users } from "lucide-react";
 
 import Odometer from "@/components/animations/animate-odometer";
 import { itemRevealInUp } from "@/lib/animations";
-import { isActiveMember } from "@/pages/admin/utils/memberUtils";
-import { useAdminStore } from "../../store/useAdminStore";
-import type { Member } from "../types";
+import { useAccess } from "../../hooks/useAccess";
+import type { Member, MemberStatusLabel } from "../types";
+import { getMemberStatus, MEMBER_STATUS_CONFIG } from "../utils";
 
 interface MemberStatsProps {
   data?: Member[];
@@ -15,37 +15,35 @@ interface MemberStatsProps {
 }
 
 const MemberStats: FC<MemberStatsProps> = ({ data, isLoading, isError }) => {
-  const { isSuperAdmin } = useAdminStore();
+  const { isSuperAdmin } = useAccess();
 
   if (isLoading || isError || !data?.length) return null;
 
-  const { active, pending, frozen, rejected } = data.reduce(
-    (acc, m) => {
-      if (isActiveMember(m)) acc.active++;
-      else if (!m.frozen_at && m.joined_at === null) acc.pending++;
-      if (m.frozen_at) acc.frozen++;
-      if (m.rejected_at !== null) acc.rejected++;
-      return acc;
-    },
-    { active: 0, pending: 0, frozen: 0, rejected: 0 },
+  // Derive counts from a single canonical status per member — no double-counting.
+  const counts = data.reduce(
+    (acc, m) => { acc[getMemberStatus(m)]++; return acc; },
+    { active: 0, pending: 0, frozen: 0, rejected: 0 } as Record<MemberStatusLabel, number>,
   );
 
   type StatItem = { icon: typeof Users; value: number; label: string };
 
   const memberStat: StatItem = {
     icon: Users,
-    value: active,
-    label: active === 1 ? "member" : "members",
+    value: counts.active,
+    label: counts.active === 1 ? "member" : "members",
   };
 
-  const statItems: StatItem[] = !isSuperAdmin
-    ? [memberStat]
-    : ([
-        memberStat,
-        pending > 0 && { icon: Clock, value: pending, label: "pending" },
-        rejected > 0 && { icon: UserX, value: rejected, label: "rejected" },
-        frozen > 0 && { icon: Snowflake, value: frozen, label: "frozen" },
-      ].filter(Boolean) as StatItem[]);
+  const toStatItems = (statuses: MemberStatusLabel[]): StatItem[] =>
+    statuses
+      .filter((s) => counts[s] > 0)
+      .map((s) => ({ icon: MEMBER_STATUS_CONFIG[s].icon, value: counts[s], label: s }));
+
+  const statItems: StatItem[] = [
+    memberStat,
+    // Pending is visible to everyone; frozen/rejected only to superadmins.
+    ...toStatItems(["pending"]),
+    ...(isSuperAdmin ? toStatItems(["frozen", "rejected"]) : []),
+  ];
 
   return (
     <motion.div layout className="grid grid-cols-2 gap-x-8 gap-y-2 w-fit">

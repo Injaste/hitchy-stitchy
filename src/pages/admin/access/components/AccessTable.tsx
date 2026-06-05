@@ -1,10 +1,7 @@
-import { useState, useRef, useLayoutEffect, type FC } from "react";
+import { useState, useRef, useLayoutEffect, useMemo, type FC } from "react";
 
-import { useAdminStore } from "../../store/useAdminStore";
-import { useAccessGroupMutations } from "../queries";
-import { useAccess } from "../../hooks/useAccess";
+import { useMembersQuery } from "../../members/queries";
 import type { AccessGroup } from "../types";
-import { type AccessLevel, type Resource, applyAccessLevel } from "../types";
 
 import AccessTableHeader from "./AccessTableHeader";
 import AccessTableBody from "./AccessTableBody";
@@ -12,19 +9,26 @@ import AccessTableFooter from "./AccessTableFooter";
 
 interface Props {
   accessGroups: AccessGroup[];
+  /** Resource catalog from event_resources (source of truth for what exists). */
   availableResources: string[];
 }
 
 const AccessTable: FC<Props> = ({ accessGroups, availableResources }) => {
-  const { eventId } = useAdminStore();
-  const { isSuperAdmin } = useAccess();
-  const { create, update } = useAccessGroupMutations();
-
-  const [adding, setAdding] = useState(false);
-  const [newName, setNewName] = useState("");
+  const { data: members } = useMembersQuery();
 
   const tableWrapRef = useRef<HTMLDivElement>(null);
   const [tableHeight, setTableHeight] = useState<number | undefined>();
+
+  // Count members per access group for display.
+  const memberCounts = useMemo(() => {
+    return (members ?? []).reduce(
+      (acc, m) => {
+        acc[m.access_group_id] = (acc[m.access_group_id] ?? 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+  }, [members]);
 
   useLayoutEffect(() => {
     const el = tableWrapRef.current;
@@ -34,10 +38,7 @@ const AccessTable: FC<Props> = ({ accessGroups, availableResources }) => {
       let node = el.parentElement;
       while (node) {
         const { overflow, overflowY } = getComputedStyle(node);
-        if (/(auto|scroll)/.test(overflow + overflowY)) {
-          scrollParent = node;
-          break;
-        }
+        if (/(auto|scroll)/.test(overflow + overflowY)) { scrollParent = node; break; }
         node = node.parentElement;
       }
       const parentBottom = scrollParent.getBoundingClientRect().bottom;
@@ -51,31 +52,11 @@ const AccessTable: FC<Props> = ({ accessGroups, availableResources }) => {
     return () => ro.disconnect();
   }, []);
 
-  const handleToggle = (group: AccessGroup, resource: Resource, next: AccessLevel) => {
-    if (!isSuperAdmin) return;
-    const newPerms = applyAccessLevel(group.permissions, resource, next);
-    update.mutate({
-      event_id: eventId!,
-      id: group.id,
-      name: group.name,
-      permissions: newPerms,
-    });
-  };
+  const colCount = 1 + accessGroups.length;
 
-  const handleRename = (group: AccessGroup, name: string) => {
-    if (!isSuperAdmin) return;
-    update.mutate({ event_id: eventId!, id: group.id, name });
-  };
-
-  const handleCreate = () => {
-    const name = newName.trim();
-    if (!name) return;
-    create.mutate({ event_id: eventId!, name });
-    setNewName("");
-    setAdding(false);
-  };
-
-  const colCount = 1 + accessGroups.length + (isSuperAdmin ? 1 : 0);
+  // Group columns split the remaining width evenly (with a min so they don't
+  // collapse) — the wrapper scrolls X when the mins exceed the viewport.
+  const groupColWidth = `${Math.floor(100 / Math.max(accessGroups.length, 1))}%`;
 
   return (
     <div
@@ -86,23 +67,13 @@ const AccessTable: FC<Props> = ({ accessGroups, availableResources }) => {
       <table className="w-full text-sm border-separate border-spacing-0">
         <AccessTableHeader
           accessGroups={accessGroups}
-          canCreate={isSuperAdmin}
-          canDelete={isSuperAdmin}
-          canEdit={isSuperAdmin}
-          adding={adding}
-          newName={newName}
-          onSetAdding={setAdding}
-          onSetNewName={setNewName}
-          onCreate={handleCreate}
-          onRename={handleRename}
+          memberCounts={memberCounts}
+          groupColWidth={groupColWidth}
         />
         <AccessTableBody
           accessGroups={accessGroups}
           availableResources={availableResources}
           colCount={colCount}
-          canCreate={isSuperAdmin}
-          canUpdate={isSuperAdmin}
-          onToggle={handleToggle}
         />
         <AccessTableFooter colCount={colCount} />
       </table>

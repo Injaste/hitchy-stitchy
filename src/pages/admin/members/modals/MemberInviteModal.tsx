@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react";
 import {
   FormDialog,
   FormFooter,
@@ -7,6 +8,7 @@ import {
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations } from "../queries";
+import { useAccessGroupsQuery } from "../../access/queries";
 
 import MemberForm, { useMemberInviteForm } from "./MemberForm";
 
@@ -18,7 +20,15 @@ const MemberInviteModal = () => {
   const { eventId } = useAdminStore();
   const { invite } = useMemberMutations();
 
+  // New invites default to the Team group.
+  const { data: accessGroups = [] } = useAccessGroupsQuery();
+  const teamId = useMemo(
+    () => accessGroups.find((g) => g.name === "Team")?.id ?? "",
+    [accessGroups],
+  );
+
   const form = useMemberInviteForm({
+    defaultValues: { access_group_id: teamId },
     onSubmit: (values) => {
       invite.mutate({
         event_id: eventId!,
@@ -30,6 +40,13 @@ const MemberInviteModal = () => {
       });
     },
   });
+
+  // Seed the Team default once groups load / whenever the modal reopens empty.
+  useEffect(() => {
+    if (isInviteOpen && teamId && !form.getFieldValue("access_group_id")) {
+      form.setFieldValue("access_group_id", teamId);
+    }
+  }, [isInviteOpen, teamId, form]);
 
   return (
     <FormDialog

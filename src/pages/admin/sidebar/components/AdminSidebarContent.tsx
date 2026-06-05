@@ -16,78 +16,108 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useAdminStore } from "../../store/useAdminStore";
+import { useAccess } from "../../hooks/useAccess";
 import useActivePage from "../../hooks/useActivePage";
 import NavItem from "../NavItem";
 
 const AdminSidebarContent = () => {
-  const { slug, isSuperAdmin } = useAdminStore();
+  const { slug } = useAdminStore();
+  const { canRead } = useAccess();
   const activePage = useActivePage();
   const base = `/${slug}/admin`;
 
+  const showTimeline = canRead("timeline");
+  const showTasks = canRead("tasks");
+  // The member roster is viewable by every active member; managing it needs members:full.
+  const showMembers = true;
+  const showAccess = canRead("access");
+  const showGuests = canRead("guests");
+  const showInvitation = canRead("invitation") || canRead("themes");
+
+  const hasOperations = showTimeline || showTasks;
+  const hasTeam = showMembers || showAccess;
+  const hasRSVP = showGuests || showInvitation;
+
   return (
     <SidebarContent activeId={activePage}>
-      <SidebarGroup>
-        <SidebarGroupLabel>Operations</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <NavItem
-              icon={Clock}
-              label="Timeline"
-              to={`${base}/timeline`}
-              isActive={activePage === "timeline"}
-            />
-            <NavItem
-              icon={CheckSquare}
-              label="Tasks"
-              to={`${base}/tasks`}
-              isActive={activePage === "tasks"}
-            />
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
+      {hasOperations && (
+        <SidebarGroup>
+          <SidebarGroupLabel>Operations</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {showTimeline && (
+                <NavItem
+                  icon={Clock}
+                  label="Timeline"
+                  to={`${base}/timeline`}
+                  isActive={activePage === "timeline"}
+                />
+              )}
+              {showTasks && (
+                <NavItem
+                  icon={CheckSquare}
+                  label="Tasks"
+                  to={`${base}/tasks`}
+                  isActive={activePage === "tasks"}
+                />
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      )}
 
-      <SidebarSeparator className="mx-4" />
-
-      <SidebarGroup>
-        <SidebarGroupLabel>Teams</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <NavItem
-              icon={Users}
-              label="Members"
-              to={`${base}/members`}
-              isActive={activePage === "members"}
-            />
-            <NavItem
-              icon={Shield}
-              label="Access"
-              to={`${base}/access`}
-              isActive={activePage === "access"}
-            />
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-
-      {isSuperAdmin && (
+      {hasTeam && (
         <>
           <SidebarSeparator className="mx-4" />
+          <SidebarGroup>
+            <SidebarGroupLabel>Teams</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {showMembers && (
+                  <NavItem
+                    icon={Users}
+                    label="Members"
+                    to={`${base}/members`}
+                    isActive={activePage === "members"}
+                  />
+                )}
+                {showAccess && (
+                  <NavItem
+                    icon={Shield}
+                    label="Access"
+                    to={`${base}/access`}
+                    isActive={activePage === "access"}
+                  />
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </>
+      )}
 
+      {hasRSVP && (
+        <>
+          <SidebarSeparator className="mx-4" />
           <SidebarGroup>
             <SidebarGroupLabel>RSVP</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <NavItem
-                  icon={Mail}
-                  label="Invitation"
-                  to={`${base}/invitation`}
-                  isActive={activePage === "invitation"}
-                />
-                <NavItem
-                  icon={ClipboardList}
-                  label="Guests"
-                  to={`${base}/guests`}
-                  isActive={activePage === "guests"}
-                />
+                {showInvitation && (
+                  <NavItem
+                    icon={Mail}
+                    label="Invitation"
+                    to={`${base}/invitation`}
+                    isActive={activePage === "invitation"}
+                  />
+                )}
+                {showGuests && (
+                  <NavItem
+                    icon={ClipboardList}
+                    label="Guests"
+                    to={`${base}/guests`}
+                    isActive={activePage === "guests"}
+                  />
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

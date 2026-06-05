@@ -1,12 +1,11 @@
-import { useAccessGroupsQuery, useAvailableResourcesQuery } from "./queries";
+import { useAccessGroupsQuery, useResourcesQuery } from "./queries";
 import AccessHeader from "./components/AccessHeader";
 import AccessView from "./components/AccessView";
-import AccessModals from "./modals";
 import Container from "@/components/custom/container";
 
 const Access = () => {
   const { data: accessGroups, isLoading: accessGroupsLoading, isError: accessGroupsError, isRefetching, refetch } = useAccessGroupsQuery();
-  const { data: availableResources = [], isLoading: resourcesLoading, isError: resourcesError } = useAvailableResourcesQuery();
+  const { data: availableResources = [], isLoading: resourcesLoading, isError: resourcesError } = useResourcesQuery();
 
   const isLoading = accessGroupsLoading || resourcesLoading;
   const isError = accessGroupsError || resourcesError;
@@ -27,7 +26,6 @@ const Access = () => {
           isError={isError}
         />
       </Container>
-      <AccessModals />
     </>
   );
 };

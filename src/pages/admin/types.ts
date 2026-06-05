@@ -10,8 +10,8 @@ export interface AdminBootstrapContext {
   memberAccessGroupName: string;
   /** true when event_members.is_root = true (bypasses all permission checks) */
   isRoot: boolean;
-  /** Permissions jsonb from the member's access group — nested: { resource: { action: bool } } */
-  permissions: Record<string, Record<string, boolean>>;
+  /** Permissions jsonb from the member's access group — flat: { resource: "none" | "read" | "full" } */
+  permissions: Record<string, import("./access/types").AccessLevel>;
   /** Free-text personal role/title, e.g. "Maid of Honor" */
   memberRole: string | null;
   /** Couple identity flags from event_members */

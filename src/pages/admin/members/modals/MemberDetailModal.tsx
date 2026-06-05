@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, History, Mail, Shield } from "lucide-react";
+import { Calendar, Clock, Copy, History, Mail, Shield } from "lucide-react";
+import { toast } from "sonner";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useAccess } from "../../hooks/useAccess";
-import { useAdminStore } from "../../store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { getMemberRank } from "../../utils/memberUtils";
 import { getInitials, getMemberStatus } from "../utils";
+import { isSuperAdminMember } from "../../utils/memberUtils";
 import MemberStatus from "../components/MemberStatus";
 
 const MemberDetailModal = () => {
@@ -28,24 +28,21 @@ const MemberDetailModal = () => {
   const openDelete = useMemberModalStore((s) => s.openDelete);
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
 
-  const { canUpdate } = useAccess();
-  const { isSuperAdmin } = useAdminStore();
+  const {
+    canManageMembers,
+    canView,
+    canSeeMemberEmail,
+    guardEditMember,
+    guardDeleteMember,
+    guardFreezeMember,
+  } = useAccess();
 
   if (!selectedItem) return null;
   const member = selectedItem;
 
-  const canSeeEmail = isSuperAdmin;
-
-  const isRoot = member.is_root;
-  const isCouple = member.is_bride || member.is_groom;
   const isRejected = !!member.rejected_at;
   const isFrozen = !!member.frozen_at;
   const status = getMemberStatus(member);
-
-  // Hierarchy: caller can only act on members ranked strictly below them.
-  const callerRank = isSuperAdmin ? 0 : 2;
-  const targetRank = getMemberRank(member);
-  const callerOutranks = callerRank < targetRank;
 
   const formatDate = "d MMM yyyy";
   const formatTime = "HH:mm";
@@ -73,25 +70,16 @@ const MemberDetailModal = () => {
     },
   ].filter(Boolean) as { label: string; date: string; time: string }[];
 
-  const canManage = canUpdate("members");
-
-  const canEdit =
-    canManage && !isRejected && !isFrozen && (isSuperAdmin || callerOutranks);
-
-  // Delete/Freeze: require strict hierarchy AND target must not be a couple member.
-  const canDestructive = canManage && !isRoot && !isCouple && callerOutranks;
-
   const destructiveActions = [
-    canDestructive && { label: "Delete", onClick: openDelete },
-    canDestructive &&
-      !isRejected &&
-      canUpdate("members.freeze") && {
-        label: isFrozen ? "Restore access" : "Freeze access",
-        onClick: openFreeze,
-        variant: isFrozen ? ("outline" as const) : ("destructive" as const),
-      },
+    guardDeleteMember(member) && { label: "Delete", onClick: openDelete },
+    guardFreezeMember(member) && {
+      label: isFrozen ? "Restore access" : "Freeze access",
+      onClick: openFreeze,
+      variant: isFrozen ? ("outline" as const) : ("freeze" as const),
+    },
   ];
-  const primaryAction = canEdit && { label: "Edit", onClick: openEdit };
+  const primaryAction = guardEditMember(member) && { label: "Edit", onClick: openEdit };
+  const hasActions = !!primaryAction || destructiveActions.some(Boolean);
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -127,31 +115,51 @@ const MemberDetailModal = () => {
           </div>
         </DialogHeader>
 
-        <DialogBody>
+        <DialogBody className={!hasActions ? "pb-4" : undefined}>
           <div className="space-y-6">
             {/* Notes — what this person handles */}
             <NotesMarkdown content={member.notes} />
 
-            {/* Access */}
-            {isSuperAdmin && (
-              <>
-                <div className="space-y-2">
-                  <Badge variant="outline" className="text-2xs tracking-wide">
-                    <Shield className="w-3 h-3" />
-                    {member.accessGroup?.name ?? "Unknown access group"}
-                  </Badge>
-                  {canSeeEmail && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Mail className="w-3.5 h-3.5 shrink-0" />
-                      <span>{member.email}</span>
-                    </div>
-                  )}
-                </div>
-              </>
+            {/* Pending hint — shown to superadmins for members who haven't joined yet */}
+            {status === "pending" && canSeeMemberEmail && (
+              <div className="rounded-md bg-muted px-3 py-2.5 space-y-1.5">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  They'll appear active once they sign up with this email and accept the invite.
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(member.email ?? "");
+                    toast.success("Email copied");
+                  }}
+                  className="flex items-center gap-1.5 text-xs text-foreground hover:text-primary transition-colors cursor-pointer"
+                >
+                  <Copy className="w-3 h-3 shrink-0" />
+                  {member.email}
+                </button>
+              </div>
+            )}
+
+            {/* Access group + email + permissions */}
+            {canView("access") && (
+              <div className="space-y-2">
+                <Badge variant="outline" className="text-2xs tracking-wide">
+                  <Shield className="w-3 h-3" />
+                  {isSuperAdminMember(member)
+                    ? "Full access"
+                    : (member.accessGroup?.name ?? "Unknown access group")}
+                </Badge>
+
+                {canSeeMemberEmail && status !== "pending" && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Mail className="w-3.5 h-3.5 shrink-0" />
+                    <span>{member.email}</span>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* History */}
-            {timelineItems.length > 0 && (
+            {canManageMembers && timelineItems.length > 0 && (
               <>
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
@@ -184,12 +192,15 @@ const MemberDetailModal = () => {
           </div>
         </DialogBody>
 
-        <Separator />
-
-        <DialogDetailActions
-          destructive={destructiveActions}
-          primary={primaryAction}
-        />
+        {hasActions && (
+          <>
+            <Separator />
+            <DialogDetailActions
+              destructive={destructiveActions}
+              primary={primaryAction}
+            />
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

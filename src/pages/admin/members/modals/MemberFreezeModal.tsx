@@ -36,7 +36,7 @@ const MemberFreezeModal = () => {
   return (
     <AlertDialog open={isFreezeOpen} onOpenChange={closeAll}>
       <AlertDialogContent>
-        <AlertDialogHeader>
+        <AlertDialogHeader className={willFreeze ? "text-freeze" : undefined}>
           <AlertDialogTitle className="flex items-center gap-2">
             {willFreeze ? (
               <Snowflake className="size-5 shrink-0" />
@@ -78,7 +78,7 @@ const MemberFreezeModal = () => {
           </AlertDialogCancel>
           <SubmitButton
             type="button"
-            variant={willFreeze ? "destructive" : "default"}
+            variant={willFreeze ? "freeze" : "default"}
             size="sm"
             onClick={handleConfirm}
             isPending={freeze.isPending}

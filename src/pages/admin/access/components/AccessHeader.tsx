@@ -5,7 +5,7 @@ import type { BaseHeaderProps } from "@/components/custom/page-header-base";
 const AccessHeader: FC<BaseHeaderProps> = ({ isLoading, isError, isRefetching, refetch }) => (
   <AdminPageHeader
     title="Access"
-    description="Create and manage access groups. Click any cell to adjust what each group can access."
+    description="What each access group can see and edit. Assign members to a group from the Members page."
     isLoading={isLoading}
     isError={isError}
     isRefetching={isRefetching}

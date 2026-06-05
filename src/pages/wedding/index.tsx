@@ -4,7 +4,7 @@ import { Lenis } from "lenis/react";
 import { useNavigate } from "react-router-dom";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-media-query";
 import { usePublicEvent, usePublicEventRealtime } from "./queries";
 import ThemeLoader from "./states/ThemeLoader";
 import ThemeState from "./states/ThemeState";

@@ -5,7 +5,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-media-query";
 import PortalToApp from "@/components/custom/portal-to-app";
 import Container from "@/components/custom/container";
 import { useActiveTimelineQuery } from "../timeline/queries";

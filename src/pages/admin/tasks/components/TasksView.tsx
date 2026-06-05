@@ -6,7 +6,7 @@ import { Feedback } from "@dnd-kit/dom";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import Container from "@/components/custom/container";
 import ErrorState from "@/components/custom/states/error-state";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-media-query";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";

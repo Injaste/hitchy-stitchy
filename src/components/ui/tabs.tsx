@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
 import ComponentFade from "../animations/animate-component-fade";
+import { SidebarContext } from "./sidebar";
 
 const TabsValueContext = React.createContext<string | undefined>(undefined);
 
@@ -107,6 +108,7 @@ function TabsList({
 }: React.ComponentProps<typeof TabsPrimitive.List> &
   VariantProps<typeof tabsListVariants>) {
   const activeValue = React.useContext(TabsValueContext);
+  const sidebar = React.useContext(SidebarContext);
   const {
     containerRef,
     hoverIndicatorRef,
@@ -114,7 +116,7 @@ function TabsList({
     setRef,
     onMouseEnter,
     onMouseLeave,
-  } = useIndicatorSlider("horizontal", activeValue);
+  } = useIndicatorSlider("horizontal", activeValue, sidebar?.state);
 
   return (
     <TabsIndicatorContext.Provider value={{ setRef, onMouseEnter }}>
