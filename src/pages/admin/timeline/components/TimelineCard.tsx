@@ -44,9 +44,12 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
   const now = useNow();
 
   const timeItems = formatTimeRange(item.time_start, item.time_end);
-  const duration = item.time_end
-    ? calculateTimeDuration(item.time_start, item.time_end, "short")
-    : null;
+  const duration = () =>
+    item.time_end ? (
+      <span className="text-2xs">
+        {calculateTimeDuration(item.time_start, item.time_end, "short")}
+      </span>
+    ) : null;
 
   const lifecycle = canUpdate("timeline")
     ? getCardLifecycle(item, dayItems, active?.id ?? null, now)
@@ -66,12 +69,18 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
           ) : (
             <Clock className="size-4 shrink-0" />
           )}
-          <ArraySeparator items={timeItems} separator="-" className="gap-1" />
-          {duration && (
-            <span className="text-2xs text-muted-foreground shrink-0">
-              · {duration}
-            </span>
-          )}
+          <ArraySeparator
+            items={[
+              <ArraySeparator
+                items={timeItems}
+                separator="-"
+                className="gap-1 text-primary"
+              />,
+              duration(),
+            ]}
+            separator="·"
+            className="gap-1 text-muted-foreground"
+          />
         </div>
 
         <AnimatePresence mode="wait">
