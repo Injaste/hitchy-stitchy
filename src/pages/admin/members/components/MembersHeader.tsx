@@ -14,7 +14,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
   isRefetching,
   refetch,
 }) => {
-  const { canCreate } = useAccess();
+  const { canManageMembers } = useAccess();
   const openInvite = useMemberModalStore((s) => s.openCreate);
 
   return (
@@ -26,7 +26,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
       title="Members"
       description="Everyone with access to this event. Manage who's on your team and control their active status."
       action={
-        canCreate("members") && (
+        canManageMembers && (
           <Button
             size="sm"
             variant="default"

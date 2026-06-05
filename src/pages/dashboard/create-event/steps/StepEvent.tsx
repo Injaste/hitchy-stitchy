@@ -3,7 +3,7 @@ import type { FC } from "react";
 import { addDays, differenceInCalendarDays, format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm, useStore } from "@tanstack/react-form";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-media-query";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";

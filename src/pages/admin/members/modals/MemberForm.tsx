@@ -1,13 +1,7 @@
 import { Info } from "lucide-react";
 import { useForm, useStore } from "@tanstack/react-form";
 
-import {
-  Field,
-  FieldContent,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { FieldGroup } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import {
   FieldShell,
@@ -69,6 +63,7 @@ export const useMemberEditForm = ({
   useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
+      email: defaultValues?.email ?? "",
       access_group_id: defaultValues?.access_group_id ?? "",
       role: defaultValues?.role ?? "",
       notes: defaultValues?.notes ?? "",
@@ -143,40 +138,30 @@ const MemberForm = ({
               placeholder="e.g. Sarah Tan"
             />
 
-            {mode === "invite" && (
-              <TextField
-                name="email"
-                label={
-                  <span className="flex items-center gap-1">
-                    Email
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span
-                          tabIndex={0}
-                          className="inline-flex text-muted-foreground cursor-default"
-                        >
-                          <Info className="size-3" />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Can't be changed after the invite is sent.
-                      </TooltipContent>
-                    </Tooltip>
-                  </span>
-                }
-                type="email"
-                placeholder="sarah@example.com"
-              />
-            )}
-
-            {mode === "edit" && email && (
-              <Field className="gap-2">
-                <FieldLabel>Email</FieldLabel>
-                <FieldContent>
-                  <Input type="email" value={email} disabled readOnly />
-                </FieldContent>
-              </Field>
-            )}
+            <TextField
+              name="email"
+              label={
+                <span className="flex items-center gap-1">
+                  Email
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        tabIndex={0}
+                        className="inline-flex text-muted-foreground cursor-default"
+                      >
+                        <Info className="size-3" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Can't be changed after the invite is sent.
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+              }
+              type="email"
+              placeholder="sarah@example.com"
+              disabled={mode === "edit"}
+            />
           </div>
         ) : (
           <TextField

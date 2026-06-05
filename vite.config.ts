@@ -29,6 +29,7 @@ export default defineConfig({
       injectManifest: {
         globPatterns: ["**/*.{js,css,html,woff2,png,svg,ico}"],
         globIgnores: ["pwa-logo.png"],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB — admin bundle exceeds workbox 2 MB default
       },
       devOptions: { enabled: false },
     }),

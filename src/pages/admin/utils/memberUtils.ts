@@ -10,12 +10,15 @@ export function getMemberName(id: string, members: Member[]): string {
   return members.find((m) => m.id === id)?.display_name ?? "Unknown";
 }
 
-export function getMemberRank(
+/**
+ * Whether a member bypasses all permission checks — mirrors the server's
+ * is_super_admin(): root (event owner) or couple (bride/groom).
+ * Note: this is about the *member*, not the current viewer (use useAccess for that).
+ */
+export function isSuperAdminMember(
   m: Pick<Member, "is_root" | "is_bride" | "is_groom">,
-): number {
-  if (m.is_root) return 0;
-  if (m.is_bride || m.is_groom) return 1;
-  return 2;
+): boolean {
+  return m.is_root || m.is_bride || m.is_groom;
 }
 
 /**

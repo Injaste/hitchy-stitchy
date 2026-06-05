@@ -63,3 +63,19 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+## 5. Project-Specific Rules (Hitchy Stitchy)
+
+**Context:** Re-read any file before editing it — don't trust memory or conversation history for current file state. Before creating a utility, hook, component, or RPC, search (Grep/Glob) to confirm one doesn't already exist.
+
+**Backend:** The database is not in this repo. The source of truth is `supabase/schema.sql` + `supabase/migrations/`. Never call `supabase.rpc("name")` unless that function is confirmed in schema.sql or a migration. Every backend change gets a timestamped migration file — no undocumented schema changes.
+
+**Access:** `useAccess()` is the sole client gate. Never read `isSuperAdmin` or `permissions` directly from `useAdminStore()` in UI components. Client gating is UX only — the server (RLS + RPCs) is the real boundary.
+
+**Primitives:** Match the existing feature-folder pattern (`pages/admin/{domain}/api.ts`, `queries.ts`, `types.ts`, `components/`, `modals/`). Reuse `components/ui/`, `lib/query/useMutation.ts`, `lib/animations.ts`, and `pages/admin/lib/queryKeys.ts` before writing new ones.
+
+**Verification:** Run `npm run build` (not just `tsc`) before marking any task done — Vite catches things tsc misses.
+
+**Cleanliness:** No `console.log`, commented-out code, or `// TODO` left in committed files. Use `docs/LAUNCH-TODO.md` for deferred work.

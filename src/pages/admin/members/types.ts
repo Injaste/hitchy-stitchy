@@ -8,7 +8,8 @@ export interface Member {
   event_id: string;
   user_id: string | null;
   access_group_id: string;
-  email: string;
+  /** null when the viewer isn't a manager/superadmin (gated by get_members RPC) */
+  email: string | null;
   display_name: string;
   /** Bypasses all permission checks — set directly on event_members, not derived from access group */
   is_root: boolean;
@@ -21,7 +22,8 @@ export interface Member {
   notes: string | null;
   invited_by: string | null;
   frozen_at: string | null;
-  invited_at: string;
+  /** null for non-managers (audit field, gated by get_members) */
+  invited_at: string | null;
   joined_at: string | null;
   rejected_at: string | null;
   created_at: string;
@@ -52,6 +54,8 @@ export const editMemberSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(80, "Name is too long"),
+  // Read-only in edit mode — present so the form can render the disabled field.
+  email: z.string(),
   access_group_id: z.string().min(1, "Select an access group"),
   role: z
     .string()

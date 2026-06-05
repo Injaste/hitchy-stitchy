@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useRegisterScrollSource } from "@/hooks/use-register-scroll-source";
 import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-media-query";
 import ScrollGradient from "@/components/custom/scroll-gradient";
 
 import type { Task, TaskStatus } from "../types";

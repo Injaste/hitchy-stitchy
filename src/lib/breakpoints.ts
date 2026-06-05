@@ -5,3 +5,5 @@ export const BREAKPOINTS = {
   xl: 1280,
   "2xl": 1536,
 } as const;
+
+export type Breakpoint = keyof typeof BREAKPOINTS;

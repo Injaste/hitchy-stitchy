@@ -10,21 +10,10 @@ import type {
   DeleteMemberPayload,
 } from "./types"
 
-const MEMBER_FIELDS = `
-  id, event_id, user_id, access_group_id, email, display_name,
-  is_root, role, is_bride, is_groom, notes,
-  invited_by, frozen_at, invited_at, joined_at, rejected_at,
-  created_at, updated_at, preferences,
-  accessGroup:event_access_groups ( id, event_id, name, permissions, created_at, updated_at )
-`
-
 export async function fetchMembers(eventId: string): Promise<Member[]> {
-  const { data, error } = await supabase
-    .from("event_members")
-    .select(MEMBER_FIELDS)
-    .eq("event_id", eventId)
-    .order("rejected_at", { ascending: true, nullsFirst: true })
-    .order("created_at", { ascending: true })
+  // Routed through an RPC so email is gated server-side (managers/superadmin only);
+  // the email column is REVOKEd from direct selects.
+  const { data, error } = await supabase.rpc("get_members", { p_event_id: eventId })
 
   if (error) throw new Error(error.message)
   return (data ?? []) as unknown as Member[]
@@ -99,6 +88,11 @@ export async function deleteMember(payload: DeleteMemberPayload): Promise<void> 
   if (error) throw new Error(error.message)
 }
 
+/**
+ * Realtime on event_members. RLS scopes reads to the caller's own row, so this
+ * only ever delivers changes to YOUR row (incl. your own freeze/removal). The
+ * roster list itself is read via the gated get_members RPC.
+ */
 export function subscribeToMembers(
   eventId: string,
   onChange: (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => void,
@@ -119,3 +113,4 @@ export function subscribeToMembers(
 
   return () => { supabase.removeChannel(channel) }
 }
+

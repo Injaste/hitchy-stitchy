@@ -68,6 +68,10 @@
     0.22 0.04 50
   ); /* dark text — amber bg needs dark fg */
 
+  /* ── Freeze ── */
+  --color-freeze: oklch(0.6 0.12 230); /* icy cyan-blue — for freeze/suspend actions */
+  --color-freeze-foreground: oklch(1 0 0);
+
   /* ── Forms & Focus ── */
   --color-border: oklch(0.9 0.012 50);
   --color-input: oklch(0.9 0.012 50);
@@ -195,3 +199,16 @@
     scale: 1;
   }
 }
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to   { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to   { height: 0; }
+}
+
+.animate-accordion-down { animation: accordion-down 0.2s ease-out; }
+.animate-accordion-up   { animation: accordion-up   0.2s ease-out; }

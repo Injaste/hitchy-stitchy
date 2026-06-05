@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useHasScrolled } from "@/hooks/use-has-scrolled";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-media-query";
 import { usePageTitle } from "@/hooks/use-page-title";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { Separator } from "../ui/separator";

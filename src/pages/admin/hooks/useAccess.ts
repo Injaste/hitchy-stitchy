@@ -1,43 +1,64 @@
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import type { Resource } from "../access/types";
-
-type Action = "create" | "read" | "update" | "delete";
-export type Permission = `${Resource}:${Action}`;
+import {
+  guardEditMember,
+  guardDeleteMember,
+  guardFreezeMember,
+  guardChangeAccessGroup,
+  type CallerPolicy,
+} from "@/lib/access/policy";
+import { getLevel, type Resource } from "../access/types";
 
 export function useAccess() {
-  const { isSuperAdmin, permissions } = useAdminStore();
+  // All values reactive — no getState() snapshot.
+  const isSuperAdmin = useAdminStore((s) => s.isSuperAdmin);
+  const memberId = useAdminStore((s) => s.memberId);
+  const permissions = useAdminStore((s) => s.permissions);
 
-  const allow = (...perms: Permission[]): boolean => {
-    if (isSuperAdmin) return true;
-    return perms.every((p) => {
-      const [resource, action] = p.split(":") as [string, string];
-      return permissions[resource]?.[action] === true;
-    });
+  // Two verbs underpin everything: can you see it, can you edit it.
+  const canView = (...resources: Resource[]) =>
+    isSuperAdmin ||
+    resources.every((r) => getLevel(permissions, r) !== "none");
+  const canEdit = (...resources: Resource[]) =>
+    isSuperAdmin || resources.every((r) => getLevel(permissions, r) === "full");
+
+  // Back-compat verb names consumed across timeline/tasks/guests/etc. Reads map
+  // to canView; every write action maps to the single edit level.
+  const canRead = canView;
+  const canCreate = canEdit;
+  const canUpdate = canEdit;
+  const canDelete = canEdit;
+
+  // Intent-named capabilities.
+  const canManageMembers = canEdit("members"); // invite/edit/delete/freeze the team
+  const canManageCouple = isSuperAdmin;
+  const canSeeMemberEmail = isSuperAdmin || canManageMembers;
+
+  const caller: CallerPolicy = {
+    isSuperAdmin,
+    memberId,
+    canManageTeam: canManageMembers,
   };
 
-  const canRead = (...resources: Resource[]) =>
-    allow(...resources.map((r): Permission => `${r}:read`));
-  const canCreate = (...resources: Resource[]) =>
-    allow(...resources.map((r): Permission => `${r}:create`));
-  const canUpdate = (...resources: Resource[]) =>
-    allow(...resources.map((r): Permission => `${r}:update`));
-  const canDelete = (...resources: Resource[]) =>
-    allow(...resources.map((r): Permission => `${r}:delete`));
-  const canManage = (...resources: Resource[]) =>
-    allow(
-      ...resources.flatMap((r): Permission[] => [
-        `${r}:create`,
-        `${r}:update`,
-        `${r}:delete`,
-      ]),
-    );
-
   return {
-    isSuperAdmin: useAdminStore.getState().isSuperAdmin,
+    isSuperAdmin,
+    canView,
+    canEdit,
     canRead,
     canCreate,
     canUpdate,
     canDelete,
-    canManage,
+    // Identity-named capabilities
+    canManageMembers,
+    canManageCouple,
+    canSeeMemberEmail,
+    // Guards — target-specific shields (from lib/access/policy.ts)
+    guardEditMember: (target: Parameters<typeof guardEditMember>[1]) =>
+      guardEditMember(caller, target),
+    guardDeleteMember: (target: Parameters<typeof guardDeleteMember>[1]) =>
+      guardDeleteMember(caller, target),
+    guardFreezeMember: (target: Parameters<typeof guardFreezeMember>[1]) =>
+      guardFreezeMember(caller, target),
+    guardChangeAccessGroup: (target: Parameters<typeof guardChangeAccessGroup>[1]) =>
+      guardChangeAccessGroup(caller, target),
   };
 }

@@ -1,8 +1,6 @@
-import { CheckCircle2, Clock, Snowflake, UserX } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { type Member, type MemberStatusLabel } from "../types";
-import { getMemberStatus } from "../utils";
+import type { Member } from "../types";
+import { getMemberStatus, MEMBER_STATUS_CONFIG } from "../utils";
 
 interface MemberStatusProps {
   member: Pick<Member, "joined_at" | "rejected_at" | "frozen_at">;
@@ -10,33 +8,8 @@ interface MemberStatusProps {
 }
 
 const MemberStatus = ({ member, className }: MemberStatusProps) => {
-  const config: Record<
-    MemberStatusLabel,
-    { icon: LucideIcon; label: string; className: string }
-  > = {
-    active: { icon: CheckCircle2, label: "Active", className: "text-primary" },
-    pending: {
-      icon: Clock,
-      label: "Pending invite",
-      className: "text-muted-foreground",
-    },
-    frozen: {
-      icon: Snowflake,
-      label: "Frozen",
-      className: "text-destructive",
-    },
-    rejected: {
-      icon: UserX,
-      label: "Declined",
-      className: "text-destructive/60",
-    },
-  };
-
-  const {
-    icon: Icon,
-    label,
-    className: colorClass,
-  } = config[getMemberStatus(member)];
+  const { icon: Icon, label, className: colorClass } =
+    MEMBER_STATUS_CONFIG[getMemberStatus(member)];
 
   return (
     <span
@@ -46,7 +19,8 @@ const MemberStatus = ({ member, className }: MemberStatusProps) => {
         className,
       )}
     >
-      <Icon className="size-3.5 shrink-0" /> <span className="hidden sm:inline">{label}</span>
+      <Icon className="size-3.5 shrink-0" />
+      <span className="hidden sm:inline">{label}</span>
     </span>
   );
 };

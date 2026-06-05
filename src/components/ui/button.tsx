@@ -26,6 +26,8 @@ const buttonVariants = cva(
           "bg-success/10 text-success hover:bg-success/20 focus-visible:border-success/40 focus-visible:ring-success/20",
         warning:
           "bg-warning/10 text-warning hover:bg-warning/20 focus-visible:border-warning/40 focus-visible:ring-warning/20",
+        freeze:
+          "bg-freeze/10 text-freeze hover:bg-freeze/20 focus-visible:border-freeze/40 focus-visible:ring-freeze/20",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
         link: "",
