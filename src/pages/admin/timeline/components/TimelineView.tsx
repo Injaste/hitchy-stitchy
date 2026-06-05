@@ -6,8 +6,10 @@ import ErrorState from "@/components/custom/states/error-state";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useTimelineDays } from "../hooks/useTimelineDays";
 import TimelineSkeleton from "../states/TimelineSkeleton";
 import TimelineEmpty from "../states/TimelineEmpty";
+import TimelineDayEmpty from "../states/TimelineDayEmpty";
 
 import type { TimelineGrouped } from "../types";
 
@@ -36,20 +38,18 @@ const TimelineView: FC<TimelineViewProps> = ({
   const setActiveDayId = useTimelineModalStore((s) => s.setPrefillDay);
   const { canCreate } = useAccess();
 
-  const days = data?.days ?? [];
-  const activeDayIndex = activeDayId
-    ? days.findIndex((d) => d.day === activeDayId)
-    : 0;
-  const activeDay = days[activeDayIndex] ?? days[0] ?? null;
+  const { dayList, activeDay, hasItems } = useTimelineDays(data);
+  const activeGroup = data?.days.find((d) => d.day === activeDay) ?? null;
 
   useEffect(() => {
-    if (!days.length) return;
-    // Seed the active tab to day 1 when nothing is selected yet, or reset
-    // to day 1 if the previously selected day no longer exists in the data.
-    if (!activeDayId || !days.some((d) => d.day === activeDayId)) {
-      setActiveDayId(days[0].day);
+    if (!dayList.length) return;
+    // Seed the active tab when nothing is selected yet, or when the previously
+    // selected day no longer exists. Prefer the first day that has items so the
+    // user lands on content rather than an empty leading day.
+    if (!activeDayId || !dayList.includes(activeDayId)) {
+      setActiveDayId(data?.days[0]?.day ?? dayList[0]);
     }
-  }, [days, activeDayId, setActiveDayId]);
+  }, [dayList, activeDayId, setActiveDayId, data]);
 
   const renderBody = () => {
     if (isLoading)
@@ -70,7 +70,7 @@ const TimelineView: FC<TimelineViewProps> = ({
         </ComponentFade>
       );
 
-    if (!days.length)
+    if (!hasItems)
       return (
         <ComponentFade key="empty">
           <TimelineEmpty
@@ -83,16 +83,26 @@ const TimelineView: FC<TimelineViewProps> = ({
     return (
       <ComponentFade key="content">
         <DayTabs
-          days={days}
-          activeDayId={activeDay?.day ?? ""}
+          days={dayList}
+          activeDayId={activeDay ?? ""}
           onSelect={setActiveDayId}
         />
         <div className="mt-8">
           <AnimatePresence mode="wait">
-            {activeDay && (
-              <ComponentFade key={activeDay.day}>
-                <TimelineSection day={activeDay} />
+            {activeGroup ? (
+              <ComponentFade key={activeGroup.day}>
+                <TimelineSection day={activeGroup} />
               </ComponentFade>
+            ) : (
+              activeDay && (
+                <ComponentFade key={`empty-${activeDay}`}>
+                  <TimelineDayEmpty
+                    day={activeDay}
+                    canCreate={canCreate("timeline")}
+                    onAdd={() => openCreateWithLabel(null)}
+                  />
+                </ComponentFade>
+              )
             )}
           </AnimatePresence>
         </div>

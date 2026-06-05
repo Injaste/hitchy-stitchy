@@ -15,7 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { formatTimeRange } from "@/lib/utils/utils-time";
+import { calculateTimeDuration, formatTimeRange } from "@/lib/utils/utils-time";
 import { useNow } from "@/hooks/use-now";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
@@ -44,6 +44,9 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
   const now = useNow();
 
   const timeItems = formatTimeRange(item.time_start, item.time_end);
+  const duration = item.time_end
+    ? calculateTimeDuration(item.time_start, item.time_end, "short")
+    : null;
 
   const lifecycle = canUpdate("timeline")
     ? getCardLifecycle(item, dayItems, active?.id ?? null, now)
@@ -64,6 +67,11 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
             <Clock className="size-4 shrink-0" />
           )}
           <ArraySeparator items={timeItems} separator="-" className="gap-1" />
+          {duration && (
+            <span className="text-2xs text-muted-foreground shrink-0">
+              · {duration}
+            </span>
+          )}
         </div>
 
         <AnimatePresence mode="wait">

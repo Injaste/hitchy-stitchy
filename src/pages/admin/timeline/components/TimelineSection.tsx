@@ -40,6 +40,10 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
   const isActive = group.items.some((i) => i.id === active?.id);
   const isDone = !isActive && group.items.every((i) => i.started_at !== null);
 
+  // Prefill the next item's start with the last item's end (or start) time.
+  const lastItem = group.items[group.items.length - 1];
+  const suggestedTime = lastItem.time_end ?? lastItem.time_start;
+
   return (
     <div
       className={cn(
@@ -72,23 +76,24 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
               )}>
                 {group.label}
               </span>
+              {group.items.length > 1 && (
+                <span className="text-muted-foreground"> · {group.items.length}</span>
+              )}
             </p>
           )}
           {canCreate("timeline") && (
-            <div className="hidden lg:block">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="opacity-0 group-hover/timeline-section:opacity-50 hover:opacity-100 transition-opacity"
-                onClick={() => openCreateWithLabel(group.label)}
-                aria-label={
-                  group.label ? `Add item to ${group.label}` : "Add item"
-                }
-              >
-                <Plus className="size-4" />
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className="opacity-60 hover:opacity-100 transition-opacity lg:opacity-0 lg:group-hover/timeline-section:opacity-50 lg:hover:opacity-100"
+              onClick={() => openCreateWithLabel(group.label, suggestedTime)}
+              aria-label={
+                group.label ? `Add item to ${group.label}` : "Add item"
+              }
+            >
+              <Plus className="size-4" />
+            </Button>
           )}
         </div>
 

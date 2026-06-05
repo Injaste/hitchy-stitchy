@@ -4,6 +4,7 @@ import type { Timeline } from "../types";
 export interface TimelineCreatePrefill {
   day: string | null;
   label: string | null;
+  time_start: string | null;
 }
 
 export interface TimelineConfirm {
@@ -15,7 +16,7 @@ export interface TimelineConfirm {
 interface TimelineModalAdditional {
   createPrefill: TimelineCreatePrefill;
   setPrefillDay: (day: string | null) => void;
-  openCreateWithLabel: (label: string | null) => void;
+  openCreateWithLabel: (label: string | null, timeStart?: string | null) => void;
 
   isConfirmOpen: boolean;
   confirm: TimelineConfirm | null;
@@ -27,12 +28,12 @@ interface TimelineModalAdditional {
 
 export const useTimelineModalStore = createModalStore<Timeline, TimelineModalAdditional>(
   (set, get) => ({
-    createPrefill: { day: null, label: null },
+    createPrefill: { day: null, label: null, time_start: null },
     setPrefillDay: (day) =>
       set({ createPrefill: { ...get().createPrefill, day } }),
-    openCreateWithLabel: (label) =>
+    openCreateWithLabel: (label, timeStart = null) =>
       set({
-        createPrefill: { ...get().createPrefill, label },
+        createPrefill: { ...get().createPrefill, label, time_start: timeStart },
         isCreateOpen: true,
       }),
 
