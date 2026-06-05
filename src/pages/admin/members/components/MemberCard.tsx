@@ -69,19 +69,9 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
                   {member.display_name}
                 </p>
 
-                {member.is_bride && (
-                  <Badge variant="default" className="text-2xs tracking-wide shrink-0">
-                    Bride
-                  </Badge>
-                )}
-                {member.is_groom && (
-                  <Badge variant="default" className="text-2xs tracking-wide shrink-0">
-                    Groom
-                  </Badge>
-                )}
                 {member.role && (
                   <Badge
-                    variant="secondary"
+                    variant={isSuperAdmin ? "default" : "secondary"}
                     className={cn("text-2xs tracking-wide shrink-0", isRejected && "opacity-50")}
                   >
                     {member.role}

@@ -6,8 +6,10 @@ export { default as FormHeader } from "./FormHeader";
 export { default as FormBody } from "./FormBody";
 export { default as FormFooter } from "./FormFooter";
 export { default as SubmitButton } from "./SubmitButton";
-export { default as LabelComboboxField } from "./LabelComboboxField";
-export type { LabelGroup } from "./LabelComboboxField";
+export {
+  default as SelectComboField,
+  type SelectComboGroup,
+} from "./SelectComboField";
 export { useFormShell } from "./form-context";
 export { useCloseOnSuccess } from "./useCloseOnSuccess";
 

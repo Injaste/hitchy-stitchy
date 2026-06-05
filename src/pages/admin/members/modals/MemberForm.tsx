@@ -8,6 +8,7 @@ import {
   TextField,
   TextareaField,
   FormBody,
+  SelectComboField,
 } from "@/components/custom/form";
 import {
   Tooltip,
@@ -22,7 +23,7 @@ import {
   type EditMemberValues,
 } from "../types";
 import AccessGroupCombobox from "../components/AccessGroupCombobox";
-import RoleCombobox from "../components/RoleCombobox";
+import { useMembersQuery } from "../queries";
 import { useFormShell } from "@/components/custom/form/form-context";
 
 interface UseMemberInviteFormOpts {
@@ -94,7 +95,7 @@ interface MemberFormProps {
   brideTakenBy?: string | null;
   /** Display name of another member who already holds the groom slot. */
   groomTakenBy?: string | null;
-  /** Target member is root — access group is forced to show "Superadmin" and locked. */
+  /** Target member is root — access group is forced to show "SuperAdmin" and locked. */
   isRoot?: boolean;
 }
 
@@ -111,6 +112,14 @@ const MemberForm = ({
 }: MemberFormProps) => {
   const showEmailField = mode === "invite" || !!email;
   const { form } = useFormShell();
+  const { data: members = [] } = useMembersQuery();
+  const roleOptions = Array.from(
+    new Set(
+      members
+        .map((m) => m.role)
+        .filter((r): r is string => !!r && r.trim().length > 0),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
   const coupleRole =
     mode === "edit"
       ? (useStore(form.store, (s: any) => s.values.couple_role) as
@@ -118,13 +127,11 @@ const MemberForm = ({
           | "groom"
           | null)
       : null;
-  const forcedRole =
-    coupleRole === "bride" ? "Bride" : coupleRole === "groom" ? "Groom" : null;
   const memberDisplayName =
     mode === "edit"
       ? (useStore(form.store, (s: any) => s.values.display_name) as string)
       : null;
-  const forceAccessSuperadmin = isRoot || !!coupleRole;
+  const forceAccessSuperAdmin = isRoot || !!coupleRole;
 
   return (
     <FormBody>
@@ -153,7 +160,7 @@ const MemberForm = ({
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      Can't be changed after the invite is sent.
+                      Cannot be changed once invite is sent.
                     </TooltipContent>
                   </Tooltip>
                 </span>
@@ -183,36 +190,33 @@ const MemberForm = ({
                   }
                   onBlur={field.handleBlur}
                   placeholder="Select an access group"
-                  disabled={lockAccessGroup || forceAccessSuperadmin}
+                  disabled={lockAccessGroup || forceAccessSuperAdmin}
                   initialDisplayName={accessGroupInitialName}
-                  overrideDisplayName={forceAccessSuperadmin ? "Superadmin" : undefined}
+                  overrideDisplayName={
+                    forceAccessSuperAdmin ? "SuperAdmin" : undefined
+                  }
                 />
               )}
             </FieldShell>
 
-            <FieldShell name="role" label="Role" optional>
-              {(field) => (
-                <RoleCombobox
-                  value={forcedRole ?? field.state.value ?? ""}
-                  onChange={(v) => field.handleChange(v)}
-                  onBlur={field.handleBlur}
-                  placeholder={forcedRole ? "" : "e.g. Bridesmaid"}
-                  disabled={!!forcedRole}
-                />
-              )}
-            </FieldShell>
+            <SelectComboField
+              name="role"
+              label="Role"
+              groups={[{ items: roleOptions }]}
+              placeholder="e.g. Bridesmaid"
+              emptyText="Type to add a role."
+              createOption={(input) => input}
+            />
           </div>
         ) : (
-          <FieldShell name="role" label="Role" optional>
-            {(field) => (
-              <RoleCombobox
-                value={field.state.value ?? ""}
-                onChange={(v) => field.handleChange(v)}
-                onBlur={field.handleBlur}
-                placeholder="e.g. Bridesmaid"
-              />
-            )}
-          </FieldShell>
+          <SelectComboField
+            name="role"
+            label="Role"
+            groups={[{ items: roleOptions }]}
+            placeholder="e.g. Bridesmaid"
+            emptyText="Type to add a role."
+            createOption={(input) => input}
+          />
         )}
 
         {/* ── Couple role ────────────────────────────────────────────── */}
@@ -231,9 +235,12 @@ const MemberForm = ({
                   </span>
                   <Switch
                     checked={field.state.value === "bride"}
-                    onCheckedChange={(v) =>
-                      field.handleChange(v ? "bride" : null)
-                    }
+                    onCheckedChange={(v) => {
+                      field.handleChange(v ? "bride" : null);
+                      if (v && !form.getFieldValue("role")?.trim()) {
+                        form.setFieldValue("role", "Bride");
+                      }
+                    }}
                     disabled={!!brideTakenBy}
                   />
                 </div>
@@ -249,9 +256,12 @@ const MemberForm = ({
                   </span>
                   <Switch
                     checked={field.state.value === "groom"}
-                    onCheckedChange={(v) =>
-                      field.handleChange(v ? "groom" : null)
-                    }
+                    onCheckedChange={(v) => {
+                      field.handleChange(v ? "groom" : null);
+                      if (v && !form.getFieldValue("role")?.trim()) {
+                        form.setFieldValue("role", "Groom");
+                      }
+                    }}
                     disabled={!!groomTakenBy}
                   />
                 </div>
