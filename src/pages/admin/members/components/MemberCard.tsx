@@ -2,15 +2,16 @@ import type { FC } from "react";
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { isSuperAdminMember } from "../../utils/memberUtils";
 import type { Member } from "../types";
+import MemberAvatar from "./MemberAvatar";
+import MemberRole from "./MemberRole";
 import MemberStatus from "./MemberStatus";
-import { getInitials, getMemberStatus } from "../utils";
+import { getMemberStatus } from "../utils";
 
 interface MemberCardProps {
   member: Member;
@@ -33,7 +34,11 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
         "relative border-l-4",
         // Couple keeps the primary accent; otherwise the current user's own card
         // gets a green accent in place of a "You" badge.
-        isCouple ? "border-l-primary" : isSelf ? "border-l-success" : "border-l-accent",
+        isCouple
+          ? "border-l-primary"
+          : isSelf
+            ? "border-l-success"
+            : "border-l-accent",
         isFrozen && "opacity-60",
         isRejected && "opacity-40",
       )}
@@ -52,9 +57,7 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
             )}
           >
             {/* Initials bubble */}
-            <div className="flex h-9 w-9 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
-              {getInitials(member.display_name)}
-            </div>
+            <MemberAvatar member={member} className="sm:h-12 sm:w-12" />
 
             {/* Content */}
             <div className="space-y-1 flex-1 min-w-0">
@@ -69,14 +72,7 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
                   {member.display_name}
                 </p>
 
-                {member.role && (
-                  <Badge
-                    variant={isSuperAdmin ? "default" : "secondary"}
-                    className={cn("text-2xs tracking-wide shrink-0", isRejected && "opacity-50")}
-                  >
-                    {member.role}
-                  </Badge>
-                )}
+                <MemberRole member={member} />
 
                 {status !== "active" && (
                   <MemberStatus
@@ -90,7 +86,9 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
               {(isSuperAdmin || member.accessGroup?.name) && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground/70">
                   <Shield className="w-3 h-3 shrink-0" />
-                  <span>{isSuperAdmin ? "Full access" : member.accessGroup?.name}</span>
+                  <span>
+                    {isSuperAdmin ? "Full access" : member.accessGroup?.name}
+                  </span>
                 </div>
               )}
 

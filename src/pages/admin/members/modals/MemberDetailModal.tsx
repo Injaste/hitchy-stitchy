@@ -16,8 +16,10 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { getInitials, getMemberStatus } from "../utils";
+import { getMemberStatus } from "../utils";
 import { isSuperAdminMember } from "../../utils/memberUtils";
+import MemberAvatar from "../components/MemberAvatar";
+import MemberRole from "../components/MemberRole";
 import MemberStatus from "../components/MemberStatus";
 
 const MemberDetailModal = () => {
@@ -40,7 +42,6 @@ const MemberDetailModal = () => {
   if (!selectedItem) return null;
   const member = selectedItem;
 
-  const isRejected = !!member.rejected_at;
   const isFrozen = !!member.frozen_at;
   const status = getMemberStatus(member);
 
@@ -78,7 +79,10 @@ const MemberDetailModal = () => {
       variant: isFrozen ? ("outline" as const) : ("freeze" as const),
     },
   ];
-  const primaryAction = guardEditMember(member) && { label: "Edit", onClick: openEdit };
+  const primaryAction = guardEditMember(member) && {
+    label: "Edit",
+    onClick: openEdit,
+  };
   const hasActions = !!primaryAction || destructiveActions.some(Boolean);
 
   return (
@@ -86,27 +90,11 @@ const MemberDetailModal = () => {
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide">
-              {getInitials(member.display_name)}
-            </div>
+            <MemberAvatar member={member} />
             <div className="min-w-0 space-y-1">
               <DialogTitle className="flex items-center gap-2 flex-wrap">
                 {member.display_name}
-                {member.is_bride && (
-                  <Badge variant="default" className="text-2xs">
-                    Bride
-                  </Badge>
-                )}
-                {member.is_groom && (
-                  <Badge variant="default" className="text-2xs">
-                    Groom
-                  </Badge>
-                )}
-                {member.role && (
-                  <Badge variant="secondary" className="text-2xs">
-                    {member.role}
-                  </Badge>
-                )}
+                <MemberRole member={member} />
               </DialogTitle>
               {status !== "active" && (
                 <MemberStatus member={member} className="text-xs" />
@@ -124,7 +112,8 @@ const MemberDetailModal = () => {
             {status === "pending" && canSeeMemberEmail && (
               <div className="rounded-md bg-muted px-3 py-2.5 space-y-1.5">
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  They'll appear active once they sign up with this email and accept the invite.
+                  They'll appear active once they sign up with this email and
+                  accept the invite.
                 </p>
                 <button
                   onClick={() => {
