@@ -50,7 +50,6 @@ export interface CreateEventData {
 
 export interface CreateRoleData {
   role_name: string
-  role_short_name: string
 }
 
 export interface CreateEventPayload extends CreateEventData, CreateRoleData { }

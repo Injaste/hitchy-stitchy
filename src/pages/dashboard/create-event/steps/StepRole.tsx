@@ -23,16 +23,15 @@ import { useSteps } from "@/components/custom/steps-direction";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 interface RoleOption {
-  role: string;
-  shortRole: string;
+  role: CreateRoleData["role_name"];
   icon: React.ComponentType<{ className?: string }>;
 }
 
 const ROLE_OPTIONS: RoleOption[] = [
-  { role: "Bride", shortRole: "Bride", icon: Heart },
-  { role: "Groom", shortRole: "Groom", icon: Heart },
-  { role: "Coordinator", shortRole: "Coord", icon: CalendarCheck },
-  { role: "Other", shortRole: "Other", icon: User },
+  { role: "Bride", icon: Heart },
+  { role: "Groom", icon: Heart },
+  { role: "Coordinator", icon: CalendarCheck },
+  { role: "Other", icon: User },
 ];
 
 // ─── Form hook ────────────────────────────────────────────────────────────────
@@ -90,11 +89,9 @@ const StepRole: FC<StepRoleProps> = ({
     },
     onSubmit: (value) => {
       if (value.role === "Other") {
-        const trimmed = value.customRole.trim();
-        onSubmit({ role_name: trimmed, role_short_name: trimmed.slice(0, 10) });
+        onSubmit({ role_name: value.customRole.trim() });
       } else {
-        const option = ROLE_OPTIONS.find((o) => o.role === value.role)!;
-        onSubmit({ role_name: option.role, role_short_name: option.shortRole });
+        onSubmit({ role_name: value.role });
       }
     },
   });
@@ -146,7 +143,9 @@ const StepRole: FC<StepRoleProps> = ({
                         ? () => {
                             requestAnimationFrame(() => {
                               document
-                                .querySelector<HTMLInputElement>('[name="customRole"]')
+                                .querySelector<HTMLInputElement>(
+                                  '[name="customRole"]',
+                                )
                                 ?.focus();
                             });
                           }
