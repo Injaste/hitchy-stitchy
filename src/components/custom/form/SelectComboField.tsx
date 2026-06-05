@@ -15,26 +15,26 @@ import {
 } from "@/components/ui/combobox";
 import FieldShell from "./fields/FieldShell";
 
-export interface LabelGroup {
+export interface SelectComboGroup {
   /** Optional heading. When present, renders a ComboboxLabel above the items. */
   label?: string;
   items: string[];
 }
 
-interface LabelComboboxFieldProps {
+interface SelectComboFieldProps {
   name: string;
   label?: ReactNode;
   optional?: boolean;
   description?: ReactNode;
   hint?: ReactNode;
   /** Grouped options. A group with a `label` renders a heading; without one it's flat. */
-  groups: LabelGroup[];
+  groups: SelectComboGroup[];
   placeholder?: string;
   emptyText?: ReactNode;
   /** Source for the "already exists" check. Defaults to every group's items flattened. */
   matchAgainst?: string[];
-  /** Renders the create-row content. Defaults to «Add "x" as new label». */
-  createLabel?: (input: string) => ReactNode;
+  /** Renders the create-row content. Defaults to «Add "x" as new option». */
+  createOption?: (input: string) => ReactNode;
 }
 
 const CREATE_PREFIX = "__create__:";
@@ -45,7 +45,7 @@ interface RenderGroup {
   items: string[];
 }
 
-const LabelComboboxField = ({
+const SelectComboField = ({
   name,
   label,
   optional,
@@ -53,10 +53,10 @@ const LabelComboboxField = ({
   hint,
   groups,
   placeholder,
-  emptyText = "No labels yet — type to create one.",
+  emptyText = "No options yet — type to create one.",
   matchAgainst,
-  createLabel = (input) => <>Add &ldquo;{input}&rdquo; as new label</>,
-}: LabelComboboxFieldProps) => {
+  createOption = (input) => <>Add &ldquo;{input}&rdquo; as new option</>,
+}: SelectComboFieldProps) => {
   const [inputValue, setInputValue] = useState("");
 
   const trimmed = inputValue.trim();
@@ -128,7 +128,7 @@ const LabelComboboxField = ({
                             className="text-muted-foreground"
                           >
                             <Plus className="size-4 shrink-0" />
-                            {createLabel(trimmed)}
+                            {createOption(trimmed)}
                           </ComboboxItem>
                         )}
                       </ComboboxCollection>
@@ -160,4 +160,4 @@ const LabelComboboxField = ({
   );
 };
 
-export default LabelComboboxField;
+export default SelectComboField;

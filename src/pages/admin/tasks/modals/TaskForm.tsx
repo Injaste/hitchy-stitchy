@@ -6,7 +6,7 @@ import {
   TextareaField,
   SelectField,
   DateField,
-  LabelComboboxField,
+  SelectComboField,
   AssigneeField,
   FormBody,
   type SelectFieldOption,
@@ -77,7 +77,7 @@ const TaskForm = () => {
           placeholder="e.g. Confirm florist delivery time"
         />
 
-        <LabelComboboxField
+        <SelectComboField
           name="label"
           label="Label"
           optional

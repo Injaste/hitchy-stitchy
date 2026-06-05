@@ -45,8 +45,7 @@ export async function createEvent(
     p_date_start: payload.date_start,
     p_date_end: payload.date_end,
     p_display_name: payload.display_name,
-    p_role_name: payload.role_name,
-    p_role_short_name: payload.role_short_name,
+    p_role: payload.role_name,
   })
 
   if (error) throw new Error(getFriendlyErrorMessage(error))

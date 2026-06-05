@@ -11,11 +11,11 @@ import {
   TextareaField,
   SelectField,
   TimeField,
-  LabelComboboxField,
+  SelectComboField,
   AssigneeField,
   FormBody,
   type SelectFieldOption,
-  type LabelGroup,
+  type SelectComboGroup,
 } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
@@ -80,7 +80,7 @@ const TimelineItemForm = () => {
   }));
 
   // Existing labels grouped per day, for the label picker.
-  const labelGroups: LabelGroup[] = labelDays
+  const labelGroups: SelectComboGroup[] = labelDays
     .map((day, idx) => ({
       label: `Day ${idx + 1}`,
       items: day.labelGroups
@@ -103,7 +103,7 @@ const TimelineItemForm = () => {
             placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
           />
 
-          <LabelComboboxField
+          <SelectComboField
             name="label"
             label="Label"
             optional

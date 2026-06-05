@@ -1,7 +1,7 @@
 -- Migration: collapse access to a fixed 3-level model (none/read/full)
 --
 -- Replaces the dynamic per-action permission matrix with two seeded, read-only
--- access groups (Admin, Team). Superadmin (couple/owner) stays flag-derived via
+-- access groups (Admin, Team). SuperAdmin (couple/owner) stays flag-derived via
 -- is_super_admin() and bypasses everything — there is no longer a SuperAdmin
 -- *group* (it was an empty-perm home the flag never reads).
 --

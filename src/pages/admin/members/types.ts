@@ -41,8 +41,9 @@ export const inviteMemberSchema = z.object({
   access_group_id: z.string().min(1, "Select an access group"),
   role: z
     .string()
-    .max(80, "Role is too long")
-    .transform((v) => v.trim() || null),
+    .trim()
+    .min(1, "Role is required")
+    .max(80, "Role is too long"),
   notes: z
     .string()
     .max(500, "Notes is too long")
@@ -59,8 +60,9 @@ export const editMemberSchema = z.object({
   access_group_id: z.string().min(1, "Select an access group"),
   role: z
     .string()
-    .max(80, "Role is too long")
-    .transform((v) => v.trim() || null),
+    .trim()
+    .min(1, "Role is required")
+    .max(80, "Role is too long"),
   notes: z
     .string()
     .max(500, "Notes is too long")
