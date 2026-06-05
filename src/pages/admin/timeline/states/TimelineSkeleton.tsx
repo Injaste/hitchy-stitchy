@@ -23,7 +23,7 @@ const TimelineSkeleton = () => {
       <div className="flex gap-2 overflow-hidden">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="flex flex-col items-center gap-1.5">
-            <Skeleton className="h-14 w-20 rounded-md shrink-0" />
+            <Skeleton className="h-16 w-16 rounded-xl shrink-0" />
             <Skeleton className="h-3 w-10" />
           </div>
         ))}

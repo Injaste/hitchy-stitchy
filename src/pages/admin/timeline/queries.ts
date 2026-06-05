@@ -30,7 +30,7 @@ export function useTimelineQuery() {
   return useQuery({
     queryKey: adminKeys.timeline(slug!),
     queryFn: () => fetchTimeline(eventId!),
-    enabled: !!eventId,
+    enabled: !!eventId && !!slug,
   })
 }
 
@@ -39,7 +39,7 @@ export function useActiveTimelineQuery() {
   return useQuery({
     queryKey: adminKeys.activeTimeline(slug!),
     queryFn: () => fetchActiveTimeline(eventId!),
-    enabled: !!eventId,
+    enabled: !!eventId && !!slug,
   })
 }
 

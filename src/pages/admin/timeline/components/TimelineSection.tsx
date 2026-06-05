@@ -5,7 +5,11 @@ import { container, itemFadeUp } from "@/lib/animations";
 import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
 import { getLatestTime } from "../utils";
 
-import type { Timeline, TimelineGroupedDay, TimelineLabelGroup } from "../types";
+import type {
+  Timeline,
+  TimelineGroupedDay,
+  TimelineLabelGroup,
+} from "../types";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 
@@ -40,6 +44,10 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
   const isActive = group.items.some((i) => i.id === active?.id);
   const isDone = !isActive && group.items.every((i) => i.started_at !== null);
 
+  // Prefill the next item's start with the last item's end (or start) time.
+  const lastItem = group.items[group.items.length - 1];
+  const suggestedTime = lastItem.time_end ?? lastItem.time_start;
+
   return (
     <div
       className={cn(
@@ -64,31 +72,31 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
         <div className="flex items-center gap-2 ml-1 -mt-[3px]">
           {group.label && (
             <p className="text-sm">
-              <span className={cn(
-                "font-semibold transition-colors duration-500",
-                isActive && "text-primary",
-                isDone && "text-muted-foreground",
-                !isActive && !isDone && "text-foreground",
-              )}>
+              <span
+                className={cn(
+                  "font-semibold transition-colors duration-500",
+                  isActive && "text-primary",
+                  isDone && "text-muted-foreground",
+                  !isActive && !isDone && "text-foreground",
+                )}
+              >
                 {group.label}
               </span>
             </p>
           )}
           {canCreate("timeline") && (
-            <div className="hidden lg:block">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="opacity-0 group-hover/timeline-section:opacity-50 hover:opacity-100 transition-opacity"
-                onClick={() => openCreateWithLabel(group.label)}
-                aria-label={
-                  group.label ? `Add item to ${group.label}` : "Add item"
-                }
-              >
-                <Plus className="size-4" />
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className="hidden transition-opacity md:inline-flex md:opacity-0 md:group-hover/timeline-section:opacity-50 md:hover:opacity-100"
+              onClick={() => openCreateWithLabel(group.label, suggestedTime)}
+              aria-label={
+                group.label ? `Add item to ${group.label}` : "Add item"
+              }
+            >
+              <Plus className="size-4" />
+            </Button>
           )}
         </div>
 

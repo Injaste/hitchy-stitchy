@@ -19,8 +19,8 @@ const label = {
   day: { short: "d", long: "day" },
   hour: { short: "h", long: "hour" },
   minute: { short: "m", long: "minute" },
-  second: { short: "s", long: "second" }
-}
+  second: { short: "s", long: "second" },
+};
 
 export function formatDateRange(from: string, to: string): string[] {
   const start = new Date(from);
@@ -63,7 +63,10 @@ export function getDaysUntil(dateStr: string): string {
   return `${years} year${years > 1 ? "s" : ""} away`;
 }
 
-export function getEventStatus(dateStart: string, dateEnd: string): EventStatus {
+export function getEventStatus(
+  dateStart: string,
+  dateEnd: string,
+): EventStatus {
   const today = startOfDay(new Date());
   const start = startOfDay(new Date(dateStart));
   const end = startOfDay(new Date(dateEnd));
@@ -99,48 +102,58 @@ export function formatTime(time: string, hour24: boolean = false) {
   return `${hour}:${min}${ampm}`;
 }
 
-const fmt = (value: number, unit: keyof typeof label, format: "short" | "long") => {
-  if (value === 0) return ""
-  const l = label[unit][format]
-  return format === "short" ? `${value}${l}` : `${value} ${l}${value !== 1 ? "s" : ""}`
-}
+const fmt = (
+  value: number,
+  unit: keyof typeof label,
+  format: "short" | "long",
+) => {
+  if (value === 0) return "";
+  const l = label[unit][format];
+  return format === "short"
+    ? `${value}${l}`
+    : `${value} ${l}${value !== 1 ? "s" : ""}`;
+};
 
-export function formatRemainingTime(totalSeconds: number, units: 1 | 2 = 2): string {
+export function formatRemainingTime(
+  totalSeconds: number,
+  units: 1 | 2 = 2,
+): string {
   const d = Math.floor(totalSeconds / 86400);
   const h = Math.floor((totalSeconds % 86400) / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
+  const ss = m > 0 ? String(s).padStart(2, "0") : s;
 
   if (units === 1) {
     if (d > 0) return `${d}d`;
     if (h > 0) return `${h}h`;
     if (m > 0) return `${m}m`;
-    return `${s}s`;
+    return `${ss}s`;
   }
 
   if (d > 0) return `${d}d ${h}h`;
   if (h > 0) return `${h}h ${m}m`;
-  if (m > 0) return `${m}m ${s}s`;
-  return `${s}s`;
+  if (m > 0) return `${m}m ${ss}s`;
+  return `${ss}s`;
 }
 
 export const calculateTimeDuration = (
   start: string,
   end: string,
-  format: "short" | "long" = "short"
+  format: "short" | "long" = "short",
 ): string => {
   const toMinutes = (t: string) => {
-    const [h, m] = t.split(":").map(Number)
-    return h * 60 + m
-  }
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + m;
+  };
 
-  const total = toMinutes(end) - toMinutes(start)
-  if (total <= 0) return ""
+  const total = toMinutes(end) - toMinutes(start);
+  if (total <= 0) return "";
 
-  const h = Math.floor(total / 60)
-  const m = total % 60
+  const h = Math.floor(total / 60);
+  const m = total % 60;
 
   return [fmt(h, "hour", format), fmt(m, "minute", format)]
     .filter(Boolean)
-    .join(" ")
-}
+    .join(" ");
+};

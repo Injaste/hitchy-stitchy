@@ -24,6 +24,7 @@ const CreateTimelineItemModal = () => {
     defaultValues: {
       day: createPrefill.day ?? "",
       label: createPrefill.label ?? "",
+      time_start: createPrefill.time_start ?? undefined,
     },
     onSubmit: (values) => {
       create.mutate({ event_id: eventId!, ...values });

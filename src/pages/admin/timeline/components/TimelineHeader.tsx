@@ -11,6 +11,7 @@ import {
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useTimelineDays } from "../hooks/useTimelineDays";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange, parseLocalDate } from "@/lib/utils/utils-time";
 import type { TimelineGrouped } from "../types";
@@ -32,22 +33,16 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
     (s) => s.openCreateWithLabel,
   );
   const { dateStart, dateEnd } = useAdminStore();
-  const activeDayId = useTimelineModalStore((s) => s.createPrefill.day);
+  const { activeIndex, activeDay, hasItems } = useTimelineDays(data);
 
   const dayCount =
     dateStart && dateEnd
       ? differenceInDays(new Date(dateEnd), new Date(dateStart)) + 1
       : null;
 
-  const days = data?.days ?? [];
-  const activeIndex = activeDayId
-    ? days.findIndex((d) => d.day === activeDayId)
-    : 0;
-  const safeIndex = Math.max(activeIndex, 0);
-  const activeDayLabel = days.length ? `Day ${safeIndex + 1}` : null;
-  const activeDayDate = days[safeIndex]
-    ? format(parseLocalDate(days[safeIndex].day), "MMM d")
-    : null;
+  const activeDayLabel = hasItems ? `Day ${activeIndex + 1}` : null;
+  const activeDayDate =
+    hasItems && activeDay ? format(parseLocalDate(activeDay), "MMM d") : null;
 
   return (
     <AdminPageHeader

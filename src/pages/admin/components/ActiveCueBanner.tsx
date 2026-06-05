@@ -1,24 +1,49 @@
 import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { differenceInSeconds, format } from "date-fns";
-import { Clock, ClockCheck, Play } from "lucide-react";
+import { differenceInSeconds } from "date-fns";
+import { Play } from "lucide-react";
 
 import { itemRevealInUp } from "@/lib/animations";
 import type { Timeline } from "../timeline/types";
 
-import { formatRemainingTime, formatTimeRange } from "@/lib/utils/utils-time";
+import { formatRemainingTime } from "@/lib/utils/utils-time";
 import { useTimelineModalStore } from "../timeline/hooks/useTimelineModalStore";
-import { scheduledEndDate, startDelayMinutes } from "../timeline/utils";
-import ArraySeparator from "@/components/custom/array-separator";
+import { scheduledEndDate } from "../timeline/utils";
 import { useNow } from "@/hooks/use-now";
+import { cn } from "@/lib/utils";
+import PlanActualBar from "../timeline/components/PlanActualBar";
 
 interface ActiveCueBannerProps {
   active?: Timeline | null;
 }
 
 const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
-  const now = useNow(1_000);
+  // Tick per-second only while something is live.
+  const now = useNow(active ? 1_000 : null);
   const openDetail = useTimelineModalStore((s) => s.openDetail);
+
+  // The one thing that matters live: how it's tracking — time remaining or how
+  // far over. The plan-vs-actual bar (shared with the detail) carries the rest.
+  const cue = (() => {
+    if (!active?.started_at) return null;
+    const start = new Date(active.started_at);
+    const schedEnd = scheduledEndDate(active);
+    if (!schedEnd) {
+      const elapsed = differenceInSeconds(now, start);
+      return {
+        metric: `${formatRemainingTime(elapsed, 1)} elapsed`,
+        over: false,
+      };
+    }
+    const remaining = differenceInSeconds(schedEnd, now);
+    const over = remaining < 0;
+    return {
+      metric: over
+        ? `${formatRemainingTime(-remaining, 1)} over`
+        : `${formatRemainingTime(remaining, 1)} left`,
+      over,
+    };
+  })();
 
   return (
     <AnimatePresence>
@@ -28,57 +53,33 @@ const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
           {...itemRevealInUp}
           type="button"
           onClick={() => openDetail(active)}
-          className="w-full flex items-center gap-3 px-2 py-2 text-sm cursor-pointer hover:bg-primary/15 transition-colors rounded-xl"
+          className="flex w-full items-center gap-3 rounded-xl px-2.5 py-1 text-sm cursor-pointer transition-colors hover:bg-primary/15"
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 mt-0.5 sm:mt-0">
-            <Play className="h-4 w-4 sm:h-3 sm:w-3 text-primary fill-primary" />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20">
+            <Play className="h-3 w-3 fill-primary text-primary" />
           </span>
-          <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-3">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-medium text-primary shrink-0">
+
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="shrink-0 font-medium text-primary">
                 Live Now:
               </span>
-              <span className="text-foreground truncate">{active.title}</span>
-            </div>
-            <span className="text-muted-foreground sm:ml-auto text-xs shrink-0 flex items-center gap-1.5">
-              <span className="flex items-center gap-1.5 min-w-0">
-                <Clock className="size-3 shrink-0" />
-                <ArraySeparator
-                  items={formatTimeRange(active.time_start, active.time_end)}
-                  separator="-"
-                  className="gap-1"
-                />
-              </span>
-
-              {active.started_at && (
-                <>
-                  <span aria-hidden>·</span>
-                  <span className="flex items-center gap-1.5 min-w-0">
-                    <ClockCheck className="size-3 shrink-0" />
-                    {format(new Date(active.started_at), "h:mm a")}
-                  </span>
-                  {(() => {
-                    const delay = startDelayMinutes(active);
-                    return delay && delay > 0 ? (
-                      <span className="text-destructive font-medium">
-                        (+{delay}m)
-                      </span>
-                    ) : null;
-                  })()}
-                  {(() => {
-                    const end = scheduledEndDate(active);
-                    if (!end) return null;
-                    const remaining = differenceInSeconds(end, now);
-                    if (remaining <= 0) return null;
-                    return (
-                      <span className="text-muted-foreground">
-                        ({formatRemainingTime(remaining)} left)
-                      </span>
-                    );
-                  })()}
-                </>
+              <h6 className="font-bold min-w-0 truncate text-foreground">
+                {active.title}
+              </h6>
+              {cue && (
+                <span
+                  className={cn(
+                    "ml-auto shrink-0 text-xs font-medium tabular-nums",
+                    cue.over ? "text-warning" : "text-muted-foreground",
+                  )}
+                >
+                  {cue.metric}
+                </span>
               )}
-            </span>
+            </div>
+
+            <PlanActualBar item={active} now={now} compact />
           </div>
         </motion.button>
       )}

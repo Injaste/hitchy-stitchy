@@ -14,6 +14,7 @@ import {
   SelectComboField,
   AssigneeField,
   FormBody,
+  useFormShell,
   type SelectFieldOption,
   type SelectComboGroup,
 } from "@/components/custom/form";
@@ -51,8 +52,27 @@ export const useTimelineItemForm = ({
     },
   });
 
+const DURATION_PRESETS = [30, 60, 120] as const;
+
+// Adds minutes to an "HH:mm" time, clamped to 23:59 (no crossing midnight).
+const addMinutesToTime = (time: string, mins: number): string => {
+  const [h, m] = time.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return time;
+  const total = Math.min(h * 60 + m + mins, 23 * 60 + 59);
+  const hh = String(Math.floor(total / 60)).padStart(2, "0");
+  const mm = String(total % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+};
+
 const TimelineItemForm = () => {
+  const { form } = useFormShell();
   const { dateStart, dateEnd } = useAdminStore();
+
+  const setEndFromDuration = (mins: number) => {
+    const start = form.getFieldValue("time_start") as string | undefined;
+    if (!start) return;
+    form.setFieldValue("time_end", addMinutesToTime(start, mins));
+  };
   const { data: members = [] } = useMembersQuery();
   const { data: timelineData } = useTimelineQuery();
   const labelDays = timelineData?.days ?? [];
@@ -115,7 +135,26 @@ const TimelineItemForm = () => {
 
         <div className="grid grid-cols-2 gap-3">
           <TimeField name="time_start" label="Start time" />
-          <TimeField name="time_end" label="End time" optional />
+          <TimeField
+            name="time_end"
+            label="End time"
+            optional
+            clearable
+            hint={
+              <span className="flex flex-wrap items-center gap-1">
+                {DURATION_PRESETS.map((mins) => (
+                  <button
+                    key={mins}
+                    type="button"
+                    onClick={() => setEndFromDuration(mins)}
+                    className="rounded-md border border-border px-1.5 py-0.5 text-2xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    {mins < 60 ? `${mins}m` : `${mins / 60}h`}
+                  </button>
+                ))}
+              </span>
+            }
+          />
         </div>
 
         <TextareaField

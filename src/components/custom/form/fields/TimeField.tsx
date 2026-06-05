@@ -1,9 +1,10 @@
 import type { ComponentProps, ReactNode } from "react";
-import { Clock } from "lucide-react";
+import { Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
 import FieldShell from "./FieldShell";
@@ -19,6 +20,8 @@ interface TimeFieldProps extends NativeInputProps {
   optional?: boolean;
   description?: ReactNode;
   hint?: ReactNode;
+  /** Show a clear (×) button when the field has a value. */
+  clearable?: boolean;
 }
 
 const TimeField = ({
@@ -28,6 +31,7 @@ const TimeField = ({
   description,
   hint,
   className,
+  clearable,
   ...inputProps
 }: TimeFieldProps) => (
   <FieldShell
@@ -53,6 +57,17 @@ const TimeField = ({
             className,
           )}
         />
+        {clearable && field.state.value && (
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              size="icon-xs"
+              aria-label="Clear time"
+              onClick={() => field.handleChange("")}
+            >
+              <X />
+            </InputGroupButton>
+          </InputGroupAddon>
+        )}
       </InputGroup>
     )}
   </FieldShell>
