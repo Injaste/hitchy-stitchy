@@ -5,16 +5,20 @@ import { useBootstrapQuery } from '../queries'
 import { useAdminRealtime } from './useAdminRealtime'
 
 export function useBootstrap() {
-  const { setContext, setBootstrapError } = useAdminStore()
-  const { data, error, refetch } = useBootstrapQuery()
+  const setContext = useAdminStore((s) => s.setContext)
+  const query = useBootstrapQuery()
+  const { data, refetch } = query
   const { pathname } = useLocation()
 
   useAdminRealtime()
 
+  // Mirror a successful bootstrap into the store so the rest of the admin shell
+  // can read event/member context. Loading and error gating is driven directly
+  // off the slug-keyed query in AdminView (not the store), so stale state from a
+  // previously viewed event can never flash across navigation between events.
   useEffect(() => {
     if (data) setContext(data)
-    if (error) setBootstrapError((error as Error).message)
-  }, [data, error])
+  }, [data])
 
   // Re-validate access on signals realtime can't deliver. When a member is frozen
   // or removed, RLS hides their own row, so Supabase Realtime never sends the
@@ -46,4 +50,6 @@ export function useBootstrap() {
     }
     refetch()
   }, [pathname, refetch])
+
+  return query
 }

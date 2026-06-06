@@ -1,5 +1,6 @@
 import { ShieldOff, SnowflakeIcon } from "lucide-react";
 import Logo from "@/components/custom/logo";
+import BackLink from "@/components/custom/back-link";
 
 interface AdminErrorLayoutProps {
   errorMessage: string;
@@ -74,6 +75,17 @@ const AdminErrorLayout = ({ errorMessage, isOffline }: AdminErrorLayoutProps) =>
           <p className="text-xs text-muted-foreground">
             Please contact support if this issue persists.
           </p>
+        )}
+
+        {/* Every non-offline state denies access to *this* event (lockout or an
+            unexpected bootstrap error), so the only useful action is to leave for
+            the dashboard and their other events. Offline is excluded: it
+            self-recovers on reconnect, and the dashboard would fail to load while
+            offline anyway. */}
+        {!isOffline && (
+          <div className="mt-6">
+            <BackLink to="/dashboard" label="Back to dashboard" />
+          </div>
         )}
       </div>
     </div>

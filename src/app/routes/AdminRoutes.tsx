@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { Route, Navigate } from "react-router-dom";
 import RequireRead from "@/components/custom/require-read";
+import ComponentFade from "@/components/animations/animate-component-fade";
 
 import Timeline from "@/pages/admin/timeline";
 import Tasks from "@/pages/admin/tasks";
@@ -13,7 +14,14 @@ import Settings from "@/pages/admin/settings";
 const Admin = lazy(() => import("@/pages/admin"));
 
 const AdminRoutes = () => (
-  <Route path="/:slug/admin" element={<Admin />}>
+  <Route
+    path="/:slug/admin"
+    element={
+      <ComponentFade>
+        <Admin />
+      </ComponentFade>
+    }
+  >
     <Route index element={<Navigate to="timeline" replace />} />
     <Route path="timeline" element={<RequireRead resource="timeline"><Timeline /></RequireRead>} />
     <Route path="tasks" element={<RequireRead resource="tasks"><Tasks /></RequireRead>} />

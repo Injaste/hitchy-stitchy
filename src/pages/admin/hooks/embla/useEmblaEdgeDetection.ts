@@ -6,8 +6,17 @@ export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) =
   const [showRightFade, setShowRightFade] = useState(false);
 
   const updateEdges = useCallback((api: EmblaCarouselType) => {
-    setShowLeftFade(api.canScrollPrev());
-    setShowRightFade(api.canScrollNext());
+    // Drive the fades off live scroll position rather than canScrollPrev/Next:
+    // those are derived from the selected snap index, which only changes on
+    // settle/select, so mid-drag they report stale values and the fade pops in
+    // a frame late (a visible sharp edge). scrollProgress reads offsetLocation
+    // directly, updating every scroll frame for an immediate, smooth fade.
+    const progress = api.scrollProgress();
+    // When nothing overflows, progress is 0 — gate on actual scrollability so we
+    // don't show the end fade on a carousel that can't scroll.
+    const canScroll = api.canScrollPrev() || api.canScrollNext();
+    setShowLeftFade(canScroll && progress > 0.01);
+    setShowRightFade(canScroll && progress < 0.99);
   }, [])
 
   useEffect(() => {

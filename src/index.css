@@ -11,6 +11,9 @@
   --text-2xs: 10px;
   --text-3xs: 9px;
 
+  --breakpoint-2xs: 22rem;
+  --breakpoint-xs: 30rem;
+
   --default-transition-duration: 200ms;
 
   --radius-2xl: 1.25rem;
