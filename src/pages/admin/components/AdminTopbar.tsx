@@ -1,49 +1,34 @@
 import { motion } from "framer-motion";
-import {
-  SidebarWidthIcon,
-  SidebarWidth,
-  useSidebar,
-} from "@/components/ui/sidebar";
-
-import { useIsMobile } from "@/hooks/use-media-query";
-import PortalToApp from "@/components/custom/portal-to-app";
 import Container from "@/components/custom/container";
 import { useActiveTimelineQuery } from "../timeline/queries";
 import ActiveCueBanner from "./ActiveCueBanner";
 
 const AdminTopbar = () => {
-  const { state } = useSidebar();
-  const isMobile = useIsMobile();
   const { data: active } = useActiveTimelineQuery();
   const hasCue = !!active;
 
   return (
-    <PortalToApp>
-      <motion.header
-        initial={false}
-        animate={{
-          height: hasCue ? 56 : 0,
-          opacity: hasCue ? 1 : 0,
-        }}
-        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed top-0 sm:top-2 right-0 sm:right-2 z-50 sm:rounded-2xl overflow-hidden shadow-sm sm:shadow-none ring-1 ring-sidebar-border bg-background transition-[left]"
-        style={{
-          left: isMobile
-            ? 0
-            : state === "collapsed"
-              ? SidebarWidthIcon
-              : SidebarWidth,
-        }}
-      >
-        <div className="flex justify-center items-center h-full w-full bg-background/50 backdrop-blur-md">
-          <Container>
-            <div className="sm:px-1.5">
-              <ActiveCueBanner active={active} />
-            </div>
-          </Container>
-        </div>
-      </motion.header>
-    </PortalToApp>
+    // In-flow (not fixed): the topbar is a flex sibling above the ScrollView, so it
+    // stays put without fixed positioning — it lives outside the scroll container.
+    // Its animated height reserves/releases its own space, so SidebarInset no longer
+    // needs a cue-based marginTop to make room.
+    <motion.header
+      initial={false}
+      animate={{
+        height: hasCue ? 56 : 0,
+        opacity: hasCue ? 1 : 0,
+      }}
+      transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+      className="shrink-0 overflow-hidden sm:rounded-2xl shadow-sm sm:shadow-none ring-1 ring-sidebar-border bg-background"
+    >
+      <div className="flex justify-center items-center h-full w-full bg-background/50 backdrop-blur-md">
+        <Container>
+          <div className="px-1 sm:px-1.5">
+            <ActiveCueBanner active={active} />
+          </div>
+        </Container>
+      </div>
+    </motion.header>
   );
 };
 

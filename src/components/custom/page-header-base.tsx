@@ -31,7 +31,7 @@ export const ActionLabel: FC<{
         marginRight: hasScrolled ? 0 : side === "right" ? "0.375rem" : 0,
       }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="overflow-hidden whitespace-nowrap"
+      className="hidden sm:inline overflow-hidden whitespace-nowrap"
     >
       {children}
     </motion.span>

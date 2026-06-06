@@ -86,7 +86,6 @@ export const ScrollView = forwardRef<HTMLDivElement, ScrollViewProps>(
               side="top"
               visible={canScrollUp}
               fromClass={gradientClass}
-              heightClass="h-8"
             />
           )}
           <div
@@ -107,7 +106,6 @@ export const ScrollView = forwardRef<HTMLDivElement, ScrollViewProps>(
               side="bottom"
               visible={canScrollDown}
               fromClass={gradientClass}
-              heightClass="h-8"
             />
           )}
         </div>
