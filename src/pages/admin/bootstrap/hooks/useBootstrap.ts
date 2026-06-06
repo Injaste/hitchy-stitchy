@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useAdminStore } from '../../store/useAdminStore'
 import { useBootstrapQuery } from '../queries'
 import { useAdminRealtime } from './useAdminRealtime'
+import { useAutoPushSubscribe } from './useAutoPushSubscribe'
 
 export function useBootstrap() {
   const setContext = useAdminStore((s) => s.setContext)
@@ -11,6 +12,7 @@ export function useBootstrap() {
   const { pathname } = useLocation()
 
   useAdminRealtime()
+  useAutoPushSubscribe()
 
   // Mirror a successful bootstrap into the store so the rest of the admin shell
   // can read event/member context. Loading and error gating is driven directly
