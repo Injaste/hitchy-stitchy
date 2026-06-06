@@ -30,13 +30,20 @@ const AdminSidebarHeader = () => {
             <SidebarMenuButton
               size="lg"
               className={cn(
-                "pointer-events-none",
+                "pointer-events-none gap-0",
                 !isMobile &&
                   state === "collapsed" &&
                   "group-hover/logo:opacity-0",
               )}
             >
-              <Logo className="shrink-0" imageClassName="size-12 -mb-3" />
+              <Logo
+                className="shrink-0 -mb-1"
+                imageClassName={
+                  !isMobile && state === "collapsed"
+                    ? "size-11 -ml-1"
+                    : "size-12"
+                }
+              />
               <AnimatePresence initial={false}>
                 {(state === "expanded" || isMobile) && (
                   <motion.div
