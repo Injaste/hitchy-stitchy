@@ -48,8 +48,7 @@ const AdminView = () => {
         <ComponentFade key="app">
           <SidebarProvider>
             <AdminSidebar />
-            <SidebarInset className="flex flex-col flex-1 ">
-              <AdminTopbar />
+            <SidebarInset topbar={<AdminTopbar />} className="flex flex-col flex-1">
               <AnimatePresence mode="wait">
                 <ComponentFade
                   key={activePage}

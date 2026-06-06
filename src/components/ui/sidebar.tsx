@@ -31,12 +31,14 @@ import ScrollGradient from "@/components/custom/scroll-gradient";
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH_OFFSET = "15.5rem";
 const SIDEBAR_WIDTH_MOBILE = "16rem";
 // Icon-rail panel width — injected as the --sidebar-width-icon CSS var on the
 // provider (sidebar.tsx is the source of truth for these dimensions). The collapsed
 // container adds its own padding on top of this, so the resulting content-offset
 // footprint is SIDEBAR_WIDTH_ICON_INSET, not this value.
 const SIDEBAR_WIDTH_ICON = "3rem";
+const SIDEBAR_WIDTH_ICON_OFFSET = "3.5rem";
 // Collapsed-rail *footprint* (panel + container padding) used for SidebarInset's
 // marginLeft offset. Kept as a plain rem value so framer interpolates the collapse
 // animation against SIDEBAR_WIDTH. Deliberately larger than the panel width above —
@@ -140,12 +142,6 @@ function SidebarProvider({
 
   return (
     <SidebarContext.Provider value={contextValue}>
-      {/* sidebar.tsx is the source of truth for the rail dimensions — inject the
-          width vars here. Note --sidebar-width-icon is the icon *panel* width
-          (SIDEBAR_WIDTH_ICON, 3rem), NOT the collapsed footprint
-          (SIDEBAR_WIDTH_ICON_INSET, 4rem) used for the content offset. Injecting the
-          footprint here would make the rail wider than the offset and overlap the
-          content. */}
       <div
         data-slot="sidebar-wrapper"
         style={
@@ -316,30 +312,40 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 // top gap is a static margin (md:mt-2): the cue banner now lives in-flow inside the
 // inset (AdminTopbar), so it reserves its own space via flex rather than via a
 // cue-dependent marginTop here.
-function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+
+interface SidebarInsetProps extends React.ComponentProps<"main"> {
+  topbar: React.ReactNode;
+}
+
+function SidebarInset({ topbar, className, ...props }: SidebarInsetProps) {
   const isMobile = useIsMobile();
   const { state } = useSidebar();
 
   return (
-    <motion.main
+    <motion.div
       data-slot="sidebar-inset"
       initial={false}
       animate={{
         marginLeft: !isMobile
           ? state === "collapsed"
-            ? SIDEBAR_WIDTH_ICON_INSET
-            : SIDEBAR_WIDTH
+            ? SIDEBAR_WIDTH_ICON_OFFSET
+            : SIDEBAR_WIDTH_OFFSET
           : 0,
       }}
       transition={{ duration: 0.2, ease: "linear" }}
-      className={cn(
-        "relative flex w-full flex-1 flex-col bg-background overflow-hidden md:mt-2",
-        "md:mb-2 md:mr-2 md:rounded-2xl md:shadow-sm md:ring-1 md:ring-sidebar-border",
-        className,
-      )}
+      className="relative flex flex-1 flex-col overflow-hidden md:p-2"
     >
-      {props.children}
-    </motion.main>
+      {topbar}
+      <main
+        className={cn(
+          "bg-background",
+          "md:rounded-2xl overflow-hidden md:ring-1 md:ring-sidebar-border",
+          className,
+        )}
+      >
+        {props.children}
+      </main>
+    </motion.div>
   );
 }
 
