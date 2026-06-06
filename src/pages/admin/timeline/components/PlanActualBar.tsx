@@ -1,8 +1,8 @@
 import type { FC } from "react";
-import { differenceInMinutes } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 
 import { cn } from "@/lib/utils";
-import { formatTime } from "@/lib/utils/utils-time";
+import { formatTime, formatRemainingTime } from "@/lib/utils/utils-time";
 import { scheduledStartDate, scheduledEndDate } from "../utils";
 import type { Timeline } from "../types";
 
@@ -49,8 +49,14 @@ const PlanActualBar: FC<PlanActualBarProps> = ({
   const actLeft = pct(actualStart.getTime());
   const actWidth = Math.max(pct(actualEnd.getTime()) - actLeft, 1.5);
 
-  const overMin = differenceInMinutes(actualEnd, schedEnd);
-  const over = overMin > 0;
+  // ±5-min grace on both ends (weddings rarely run to the minute). Overrun
+  // beyond grace drives the warning; a late start is surfaced in the text only.
+  const GRACE_SEC = 5 * 60;
+  const startLateSec = differenceInSeconds(actualStart, schedStart);
+  const endOverSec = differenceInSeconds(actualEnd, schedEnd);
+  const over = endOverSec > GRACE_SEC;
+  const under = endOverSec < -GRACE_SEC;
+  const lateStart = startLateSec > GRACE_SEC;
   const running = !item.ended_at;
 
   // Pad by the dot radius so markers sit flush at the true 0 / 100% edges
@@ -74,26 +80,27 @@ const PlanActualBar: FC<PlanActualBarProps> = ({
 
   const statusText = running
     ? over
-      ? `Running · ${overMin}m over`
+      ? `Running · ${formatRemainingTime(endOverSec, 2)} over`
       : "Running"
     : over
-      ? `${overMin}m over`
-      : overMin < 0
-        ? `${-overMin}m under`
-        : "On time";
+      ? `${formatRemainingTime(endOverSec, 2)} over`
+      : lateStart
+        ? `Started ${formatRemainingTime(startLateSec, 2)} late`
+        : under
+          ? `${formatRemainingTime(-endOverSec, 2)} under`
+          : "On time";
 
   return (
-    <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Plan vs actual
-      </p>
+    <div className="space-y-1.5">
       {bar}
       <div className="flex justify-between text-2xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-primary" />
           Planned {formatTime(item.time_start)}–{formatTime(item.time_end!)}
         </span>
-        <span className={over ? "text-warning" : undefined}>{statusText}</span>
+        <span className={over || lateStart ? "text-warning" : undefined}>
+          {statusText}
+        </span>
       </div>
     </div>
   );

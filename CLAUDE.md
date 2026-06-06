@@ -79,3 +79,5 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 **Verification:** Run `npm run build` (not just `tsc`) before marking any task done — Vite catches things tsc misses.
 
 **Cleanliness:** No `console.log`, commented-out code, or `// TODO` left in committed files. Use `docs/LAUNCH-TODO.md` for deferred work.
+
+**Comments — explain *why*, not *what*:** The code already says what it does; a comment must add what the code can't. Don't narrate mechanics (`// loop over items`, `// add 1 to the index`). Do capture intent and the non-obvious: why a guard/edge case exists, what real-world scenario triggers it, why a value was chosen, or a tradeoff taken. Litmus test: if deleting the comment loses no understanding, delete it. Example — for an out-of-range fallback, don't write "if dayNum is 0, show a date"; write *why* dayNum can be 0 (the event dates were shortened after the item was scheduled, leaving an orphan day) and why we keep it visible.
