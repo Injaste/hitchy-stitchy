@@ -22,6 +22,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { generateEventDays } from "../utils";
+import { parseLocalDate } from "@/lib/utils/utils-time";
 import { useTimelineQuery } from "../queries";
 
 interface UseTimelineItemFormOpts {
@@ -93,20 +94,31 @@ const TimelineItemForm = () => {
     return generateEventDays(dateStart, dateEnd);
   }, [dateStart, dateEnd]);
 
+  const eventDayStrings = eventDays.map((d) => format(d, "yyyy-MM-dd"));
+
   const dayOptions: SelectFieldOption[] = eventDays.map((d) => ({
     value: format(d, "yyyy-MM-dd"),
     label: format(d, "d MMM yyyy (EEE)"),
     icon: <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />,
   }));
 
-  // Existing labels grouped per day, for the label picker.
+  // Existing labels grouped per day, for the label picker. Number each group by
+  // its real position in the event range — not its index among days-with-items,
+  // which would mislabel (e.g. Day 2 showing as "Day 1" when Day 1 is empty).
   const labelGroups: SelectComboGroup[] = labelDays
-    .map((day, idx) => ({
-      label: `Day ${idx + 1}`,
-      items: day.labelGroups
-        .filter((g) => g.label !== null)
-        .map((g) => g.label as string),
-    }))
+    .map((day) => {
+      const dayNum = eventDayStrings.indexOf(day.day) + 1;
+      return {
+        // dayNum is 0 only when this item's day sits outside the current event
+        // range — which happens if the event dates were shortened after the
+        // item was scheduled. Keep such orphans visible with a date label
+        // rather than dropping them or showing a bogus "Day 0".
+        label: dayNum > 0 ? `Day ${dayNum}` : format(parseLocalDate(day.day), "d MMM"),
+        items: day.labelGroups
+          .filter((g) => g.label !== null)
+          .map((g) => g.label as string),
+      };
+    })
     .filter((g) => g.items.length > 0);
 
   return (

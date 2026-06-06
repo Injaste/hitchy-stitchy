@@ -1,6 +1,14 @@
 import { useMemo } from "react";
 import { format, differenceInSeconds } from "date-fns";
-import { Clock, Play, RotateCcw, Square, Users } from "lucide-react";
+import {
+  Circle,
+  CircleCheck,
+  Clock,
+  Play,
+  RotateCcw,
+  Square,
+  Users,
+} from "lucide-react";
 import {
   parseLocalDate,
   formatTimeRange,
@@ -62,45 +70,29 @@ const TimelineDetailModal = () => {
   const timeLabel = formatTimeRange(item.time_start, item.time_end);
 
   const isActive = active?.id === item.id;
+  const done = !!item.started_at && !isActive;
   const otherActive = active && active.id !== item.id ? active : null;
   const showLifecycle = canUpdate("timeline");
   const startLabel = item.started_at ? "Restart" : "Start";
 
-  // Relative timing headline: elapsed while live, actual run when done, and a
-  // countdown (or overdue) when it hasn't started.
+  // Relative timing: countdown before start, elapsed while live, run when done.
   const timing = (() => {
     if (item.started_at && item.ended_at) {
       const secs = differenceInSeconds(
         new Date(item.ended_at),
         new Date(item.started_at),
       );
-      return {
-        label: "Ran for",
-        value: formatRemainingTime(secs, 2),
-        tone: "muted" as const,
-      };
+      return { label: "Ran for", value: formatRemainingTime(secs, 2) };
     }
     if (isActive && item.started_at) {
       const secs = differenceInSeconds(now, new Date(item.started_at));
-      return {
-        label: "Running for",
-        value: formatRemainingTime(secs, 2),
-        tone: "live" as const,
-      };
+      return { label: "Running for", value: formatRemainingTime(secs, 2) };
     }
     if (!item.started_at) {
       const secs = differenceInSeconds(scheduledStartDate(item), now);
       return secs > 0
-        ? {
-            label: "Starts in",
-            value: formatRemainingTime(secs, 2),
-            tone: "muted" as const,
-          }
-        : {
-            label: "Overdue by",
-            value: formatRemainingTime(-secs, 2),
-            tone: "warn" as const,
-          };
+        ? { label: "Starts in", value: formatRemainingTime(secs, 2) }
+        : { label: "Overdue by", value: formatRemainingTime(-secs, 2) };
     }
     return null;
   })();
@@ -150,68 +142,45 @@ const TimelineDetailModal = () => {
 
             <NotesMarkdown content={item.details} />
 
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1.5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-                  <Clock className="w-3 h-3 shrink-0" />
-                  Status
-                  {isActive && (
-                    <Badge variant="default" className="text-2xs font-normal">
-                      Live
-                    </Badge>
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  {isActive ? (
+                    <span className="relative flex size-5 shrink-0 items-center justify-center">
+                      <span className="absolute size-4 animate-ping rounded-full bg-primary/50" />
+                      <span className="size-4 rounded-full bg-primary" />
+                    </span>
+                  ) : done ? (
+                    <CircleCheck className="size-5 shrink-0 text-muted-foreground" />
+                  ) : (
+                    <Circle className="size-5 shrink-0 text-primary/70" />
                   )}
-                </p>
-                {timing && (
-                  <p
-                    className={cn(
-                      "flex items-center gap-1.5 text-sm font-medium",
-                      timing.tone === "live"
-                        ? "text-primary"
-                        : timing.tone === "warn"
-                          ? "text-warning"
-                          : "text-foreground",
-                    )}
-                  >
-                    {timing.tone === "live" && (
-                      <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-                    )}
-                    <span className="font-normal text-muted-foreground">
-                      {timing.label}
-                    </span>
-                    {timing.value}
-                  </p>
-                )}
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <div className="flex items-center justify-between gap-4">
-                    <span>Started</span>
-                    <span
-                      className={
-                        item.started_at ? undefined : "text-muted-foreground/50"
-                      }
+                  <div className="space-y-0.5">
+                    <p
+                      className={cn(
+                        "text-sm font-medium leading-none",
+                        isActive
+                          ? "text-primary"
+                          : done
+                            ? "text-muted-foreground"
+                            : "text-foreground",
+                      )}
                     >
-                      {item.started_at
-                        ? format(new Date(item.started_at), "h:mm a")
-                        : "—"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span>Ended</span>
-                    <span
-                      className={
-                        item.ended_at ? undefined : "text-muted-foreground/50"
-                      }
-                    >
-                      {item.ended_at
-                        ? format(new Date(item.ended_at), "h:mm a")
-                        : "—"}
-                    </span>
+                      {isActive ? "Live" : done ? "Done" : "Upcoming"}
+                    </p>
+                    {timing && (
+                      <p className="text-xs text-muted-foreground">
+                        {timing.label}{" "}
+                        <span className="font-medium text-foreground">
+                          {timing.value}
+                        </span>
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {showLifecycle && (
-                <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  <div className="flex gap-2">
+                {showLifecycle && (
+                  <div className="flex shrink-0 gap-2">
                     {isActive && (
                       <Button
                         size="sm"
@@ -237,11 +206,11 @@ const TimelineDetailModal = () => {
                       {startLabel}
                     </Button>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <PlanActualBar item={item} now={now} />
+              <PlanActualBar item={item} now={now} />
+            </div>
 
             {otherActive && (
               <div className="space-y-1.5">
