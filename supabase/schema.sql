@@ -417,6 +417,11 @@ CREATE TABLE public.push_subscriptions (
 
   CONSTRAINT push_subscriptions_pkey PRIMARY KEY (id),
 
+  -- One row per device endpoint PER EVENT (migration 20260606000001). Lets a
+  -- single device hold a subscription for every event it has entered; the
+  -- client upserts on (endpoint, event_id).
+  CONSTRAINT push_subscriptions_endpoint_event_key UNIQUE (endpoint, event_id),
+
   CONSTRAINT push_subscriptions_member_id_fk
     FOREIGN KEY (member_id) REFERENCES public.event_members (id) ON DELETE CASCADE,
   CONSTRAINT push_subscriptions_event_id_fk
@@ -424,15 +429,16 @@ CREATE TABLE public.push_subscriptions (
 );
 
 -- -----------------------------------------------------------------------------
--- subscribers  [inferred from RLS — INSERT-only for anon/authenticated]
--- Newsletter / waitlist signups (pre-launch).
+-- waitlist_signups  [inferred from RLS — INSERT-only for anon/authenticated]
+-- Pre-launch "notify me at launch" email list. (Renamed from `subscribers` in
+-- migration 20260606000000 to avoid confusion with push_subscriptions.)
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.subscribers (
+CREATE TABLE public.waitlist_signups (
   id         uuid        NOT NULL DEFAULT gen_random_uuid(),
   email      text        NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
 
-  CONSTRAINT subscribers_pkey PRIMARY KEY (id)
+  CONSTRAINT waitlist_signups_pkey PRIMARY KEY (id)
 );
 
 
@@ -535,7 +541,7 @@ ALTER TABLE public.event_timelines          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_vendors            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events                   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.push_subscriptions       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.subscribers              ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.waitlist_signups         ENABLE ROW LEVEL SECURITY;
 
 
 -- =============================================================================
@@ -637,8 +643,8 @@ CREATE POLICY "member owns subscription" ON public.push_subscriptions
     )
   );
 
--- subscribers — open insert for newsletter signups
-CREATE POLICY subscribers_insert ON public.subscribers
+-- waitlist_signups — open insert for public launch-waitlist signups
+CREATE POLICY waitlist_signups_insert ON public.waitlist_signups
   FOR INSERT TO anon, authenticated
   WITH CHECK (true);
 
@@ -808,6 +814,37 @@ $$;
 --   create_theme, update_theme, delete_theme, publish_theme
 --   update_invitation, update_event, update_profile, change_password, delete_event
 --   fetch_events, fetch_pending_invites (if RPCs, else direct selects)
+
+-- update_notification_preferences — member edits their OWN notification feature
+-- flags (added by migration 20260606000001). Merges into
+-- event_members.preferences->'notifications'; default-on by absence.
+CREATE OR REPLACE FUNCTION public.update_notification_preferences(
+  p_event_id      uuid,
+  p_notifications jsonb
+)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_prefs  jsonb;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  UPDATE event_members
+  SET preferences = jsonb_set(
+        COALESCE(preferences, '{}'::jsonb),
+        '{notifications}',
+        COALESCE(preferences -> 'notifications', '{}'::jsonb) || p_notifications,
+        true
+      )
+  WHERE id = v_caller.id
+  RETURNING preferences INTO v_prefs;
+
+  RETURN v_prefs;
+END;
+$$;
 
 
 -- =============================================================================

@@ -1,100 +1,95 @@
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { useAdminStore } from "../../store/useAdminStore"
-import {
-  getPushSubscriptionStatus,
-  subscribeToPush,
-  unsubscribeFromPush,
-} from "@/lib/push"
-import type { PushStatus } from "./types"
+import { subscribeToPush } from "./api"
+import { useNotificationPrefsQuery, useSetNotificationPrefsMutation } from "./queries"
+import { NOTIFICATION_FEATURES } from "./types"
+
+type PermState = NotificationPermission | "unsupported"
+
+const pushSupported = () => "Notification" in window && "PushManager" in window
 
 export function NotificationsSection() {
   const { memberId, eventId, slug } = useAdminStore()
-  const [status, setStatus] = useState<PushStatus>("loading")
-  const [permission, setPermission] = useState<NotificationPermission | null>(null)
-  const [isPending, setIsPending] = useState(false)
+  const { data: prefs } = useNotificationPrefsQuery()
+  const setPrefs = useSetNotificationPrefsMutation()
+  const [permission, setPermission] = useState<PermState>("default")
 
   useEffect(() => {
-    if (!memberId || !eventId) return
-    if (!("Notification" in window) || !("PushManager" in window)) {
-      setStatus("unsupported")
+    setPermission(pushSupported() ? Notification.permission : "unsupported")
+  }, [])
+
+  // Default-on by absence: a feature is enabled unless explicitly set to false.
+  const featureEnabled = (key: string) => (prefs?.[key] ?? true) !== false
+  const granted = permission === "granted"
+  // The master reflects the whole pipeline: this device can receive (granted)
+  // AND at least one feature is on. Device transport itself is automatic
+  // (useAutoPushSubscribe), so there's no separate device toggle to fight it.
+  const masterOn = granted && NOTIFICATION_FEATURES.some((f) => featureEnabled(f.key))
+
+  const writeAll = (enabled: boolean) =>
+    setPrefs.mutate(Object.fromEntries(NOTIFICATION_FEATURES.map((f) => [f.key, enabled])))
+
+  const toggleMaster = async (next: boolean) => {
+    if (!next) {
+      writeAll(false)
       return
     }
-    setPermission(Notification.permission)
-    getPushSubscriptionStatus(memberId, eventId).then((s) => {
-      setStatus(s)
-      // silently re-upsert if the browser already has a subscription,
-      // ensuring endpoint + slug are current in the DB
-      if (s === "subscribed" && Notification.permission === "granted") {
-        subscribeToPush(memberId, eventId, slug).catch(() => {})
-      }
-    })
-  }, [memberId, eventId])
-
-  const enable = async () => {
-    setIsPending(true)
-    try {
-      const perm = permission === "granted"
-        ? "granted"
-        : await Notification.requestPermission()
+    // Turning on must guarantee this device can actually receive: grab the
+    // browser permission (if never asked) and register the subscription before
+    // flipping the feature flags on.
+    let perm = Notification.permission
+    if (perm === "default") {
+      perm = await Notification.requestPermission()
       setPermission(perm)
-      if (perm !== "granted") return
-      await subscribeToPush(memberId, eventId, slug)
-      setStatus("subscribed")
-    } finally {
-      setIsPending(false)
     }
+    if (perm !== "granted") return
+    subscribeToPush(memberId, eventId, slug).catch(() => {})
+    writeAll(true)
   }
 
-  const disable = async () => {
-    setIsPending(true)
-    try {
-      await unsubscribeFromPush(memberId, eventId)
-      setStatus("unsubscribed")
-    } finally {
-      setIsPending(false)
-    }
-  }
+  const toggleFeature = (key: string, next: boolean) => setPrefs.mutate({ [key]: next })
 
-  if (status === "unsupported") {
-    return <p className="text-sm text-muted-foreground">Push notifications aren't supported on this browser.</p>
-  }
-
-  if (status === "subscribed") {
+  if (permission === "unsupported") {
     return (
-      <div className="space-y-3">
-        <h3 className="text-sm font-semibold">Push Notifications</h3>
-        <Button size="sm" variant="outline" disabled>Enabled on this device</Button>
-        <div>
-          <button
-            className="text-xs text-muted-foreground underline-offset-2 hover:underline"
-            disabled={isPending}
-            onClick={disable}
-          >
-            Disable
-          </button>
-        </div>
-      </div>
+      <p className="text-sm text-muted-foreground">
+        Push notifications aren't supported on this browser.
+      </p>
     )
   }
 
   const blocked = permission === "denied"
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold">Push Notifications</h3>
-      <p className="text-xs text-muted-foreground">
-        {blocked
-          ? "Notifications are blocked in your browser settings. You'll need to allow them there first."
-          : "Get notified on this device when a timeline item goes live."}
-      </p>
-      <Button
-        size="sm"
-        disabled={isPending || status === "loading" || blocked}
-        onClick={enable}
-      >
-        Enable on this device
-      </Button>
+    <div className="space-y-5">
+      <label className="flex items-center justify-between gap-4">
+        <div className="space-y-0.5">
+          <p className="text-sm font-semibold">All notifications</p>
+          <p className="text-xs text-muted-foreground">
+            {blocked
+              ? "Blocked in your browser settings — allow notifications there to turn these on."
+              : "Receive push notifications on this device."}
+          </p>
+        </div>
+        <Switch
+          checked={masterOn}
+          disabled={blocked || setPrefs.isPending}
+          onCheckedChange={toggleMaster}
+        />
+      </label>
+
+      <div className="space-y-3 border-t pt-4">
+        {NOTIFICATION_FEATURES.map((feature) => (
+          <label key={feature.key} className="flex items-center justify-between gap-4">
+            <span className="text-sm">{feature.label}</span>
+            <Switch
+              checked={granted && featureEnabled(feature.key)}
+              disabled={!granted || setPrefs.isPending}
+              onCheckedChange={(next) => toggleFeature(feature.key, next)}
+            />
+          </label>
+        ))}
+      </div>
     </div>
   )
 }

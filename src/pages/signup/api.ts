@@ -16,7 +16,7 @@ export async function signupUser({ fullName, email, password }: SignupCredential
 
 export async function subscribeUser(payload: SubscribePayload): Promise<true> {
   const { error } = await supabase
-    .from("subscribers")
+    .from("waitlist_signups")
     .insert({ email: payload.email });
 
   if (error) {
