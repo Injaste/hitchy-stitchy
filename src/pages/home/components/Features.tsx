@@ -87,8 +87,8 @@ export function Features() {
                     className="w-full lg:w-1/2"
                   >
                     <div className="flex items-center gap-3 mb-5">
-                      <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <feature.icon className="w-4.5 h-4.5 text-primary" aria-hidden="true" />
+                      <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center">
+                        <feature.icon className="w-4.5 h-4.5 text-primary-foreground" aria-hidden="true" />
                       </div>
                       <p className="text-xs uppercase tracking-widest text-primary font-semibold">
                         {feature.label}

@@ -38,7 +38,7 @@ function StatCounter({ value, label }: { value: string; label: string }) {
       variants={statItem}
       className="flex flex-col items-center text-center sm:px-8 gap-2"
     >
-      <motion.span className="font-display font-bold text-4xl md:text-5xl text-primary">
+      <motion.span className="font-display font-bold text-4xl md:text-5xl bg-gradient-brand bg-clip-text text-transparent">
         {display}
       </motion.span>
       <span className="text-sm text-muted-foreground tracking-wide">
