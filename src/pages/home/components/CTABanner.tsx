@@ -132,13 +132,13 @@ export function CTABanner() {
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
                         />
-                        <InputGroupAddon align="inline-end" className="p-1.25">
+                        <InputGroupAddon align="inline-end" className="p-0.75">
                           <InputGroupButton
                             type="submit"
                             variant="default"
                             size="sm"
                             disabled={isPending}
-                            className="rounded-md rounded-l-none"
+                            className="rounded-l-none"
                           >
                             {isPending ? (
                               <LoaderCircle className="animate-spin" />
