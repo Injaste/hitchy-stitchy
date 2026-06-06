@@ -1,4 +1,4 @@
-import { useOutlet } from "react-router-dom";
+import { useOutlet, useParams } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import ComponentFade from "@/components/animations/animate-component-fade";
@@ -17,21 +17,29 @@ import MemberModals from "./members/modals";
 import TimelineModals from "./timeline/modals";
 
 const AdminView = () => {
-  useBootstrap();
+  const { data, error } = useBootstrap();
+  const { slug } = useParams<{ slug: string }>();
   const currentOutlet = useOutlet();
-  const { isBootstrapped, bootstrapError } = useAdminStore();
+  const storeSlug = useAdminStore((s) => s.slug);
   const activePage = useActivePage();
+
+  // Gate off the slug-keyed query, never the global store. The store lags a frame
+  // behind navigation (its context is written by an effect), so reading it here is
+  // what made a previous event's error/shell flash before the new event resolved.
+  // `data` plus a storeSlug match guarantees the shell only mounts once the store's
+  // context has actually caught up to the event in the URL — no stale-context flash.
+  const isReady = !!data && storeSlug === slug;
 
   return (
     <AnimatePresence mode="wait">
-      {bootstrapError ? (
+      {error ? (
         <ComponentFade key="error">
           <AdminErrorLayout
-            errorMessage={bootstrapError}
+            errorMessage={(error as Error).message}
             isOffline={!navigator.onLine}
           />
         </ComponentFade>
-      ) : !isBootstrapped ? (
+      ) : !isReady ? (
         <ComponentFade key="loading">
           <LoadingState />
         </ComponentFade>
