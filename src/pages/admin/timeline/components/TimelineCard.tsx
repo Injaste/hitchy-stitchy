@@ -21,7 +21,11 @@ import { useAdaptiveNow } from "@/hooks/use-now";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineLifecycleActions } from "../hooks/useTimelineLifecycleActions";
 import { useActiveTimelineQuery } from "../queries";
-import { getCardLifecycle, scheduledStartDate, scheduledEndDate } from "../utils";
+import {
+  getCardLifecycle,
+  scheduledStartDate,
+  scheduledEndDate,
+} from "../utils";
 import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
 import type { Timeline } from "../types";
@@ -146,7 +150,10 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
 
       <Card
         variant="interactive"
-        className="relative mt-2 flex-1 h-full overflow-hidden"
+        className={cn(
+          "relative mt-2 flex-1 h-full overflow-hidden transition-all",
+          lifecycle === "end" && "ring-2 ring-primary",
+        )}
       >
         <button
           onClick={() => openDetail(item)}

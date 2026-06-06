@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { useEffect, type FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { container, itemFadeUp } from "@/lib/animations";
@@ -43,6 +43,17 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
 
   const isActive = group.items.some((i) => i.id === active?.id);
   const isDone = !isActive && group.items.every((i) => i.started_at !== null);
+
+  // When an item in this group goes live, glide the carousel so the live card
+  // is centered — handy on small screens where the live card can sit off-screen
+  // behind an edge fade. Keyed on the active id (not group.items) so it fires
+  // only on go-live, leaving the user free to scroll away while it stays live.
+  useEffect(() => {
+    if (!emblaApi || group.items.length <= 1) return;
+    const index = group.items.findIndex((i) => i.id === active?.id);
+    if (index === -1) return;
+    emblaApi.scrollTo(index);
+  }, [emblaApi, active?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prefill the next item's start with the last item's end (or start) time.
   const lastItem = group.items[group.items.length - 1];
