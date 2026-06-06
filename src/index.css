@@ -94,12 +94,43 @@
   --color-sidebar-border: oklch(0.88 0.015 50);
   --color-sidebar-ring: oklch(0.58 0.2 349);
 
-  /* ── Gradients ── */
+  /* ── Gradients ──
+     Two-tier system. All expressive gradients derive from --color-primary via
+     relative-colour syntax (oklch(from ...)) instead of hard-coding channels,
+     so they follow any future change to the brand hue automatically — the old
+     hard-coded --gradient-brand had silently drifted off the current primary.
+
+     Tier 1 (surface): a near-invisible wash for general depth. Safe anywhere —
+       landing, dashboard, admin card/section headers — because it never touches
+       legibility. This is the "polish" tier.
+     Tier 2 (brand / ai): expressive, spent deliberately. brand = primary CTAs &
+       chrome; ai = the reserved signature for AI surfaces. Kept scarce on
+       purpose so it still reads as "special" when AI features ship — if it were
+       everywhere it would stop signalling anything. */
+
+  /* Tier 1 — subtle surface wash: card white → faintest rose tint. */
+  --gradient-surface: linear-gradient(
+    180deg,
+    var(--color-card) 0%,
+    oklch(from var(--color-primary) 0.97 0.018 h) 100%
+  );
+
+  /* Tier 2 — brand: primary → a deeper, slightly hue-rotated rose. */
   --gradient-brand: linear-gradient(
     135deg,
-    oklch(0.52 0.12 350) 0%,
-    oklch(0.42 0.1 330) 100%
+    var(--color-primary) 0%,
+    oklch(from var(--color-primary) calc(l - 0.12) c calc(h - 20)) 100%
   );
+
+  /* Tier 2 — ai signature: primary rose sweeping toward violet (h - 45) for the
+     iridescent feel that reads as "AI" while staying inside the brand family.
+     Reserve this for AI entry points / generated content, not general UI. */
+  --gradient-ai: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    oklch(from var(--color-primary) calc(l + 0.04) c calc(h - 45)) 100%
+  );
+
   --gradient-shimmer: linear-gradient(
     90deg,
     oklch(0.72 0.1 80) 0%,
@@ -167,6 +198,19 @@
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     @apply appearance-none;
+  }
+
+  /* Token-only gradient utilities — components reference these by name so the
+     "no raw oklch in components" rule holds for gradients too. See the gradient
+     token block for the two-tier intent (surface = polish, brand/ai = reserved). */
+  .bg-gradient-surface {
+    background-image: var(--gradient-surface);
+  }
+  .bg-gradient-brand {
+    background-image: var(--gradient-brand);
+  }
+  .bg-gradient-ai {
+    background-image: var(--gradient-ai);
   }
 }
 

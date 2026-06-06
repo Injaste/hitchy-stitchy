@@ -76,7 +76,15 @@ export function Hero() {
         animate="show"
         className="font-bold text-5xl md:text-7xl lg:text-8xl text-foreground leading-[1.05] tracking-tight max-w-4xl"
       >
-        Every moment, <span className="text-primary italic">beautifully</span>
+        Every moment,{" "}
+        {/* inline-block + padding: background-clip:text bounds the gradient to a
+            box that ignores the italic slant overhang and the 'y' descender, so
+            without breathing room the right edge and tail get clipped. The
+            negative bottom margin cancels the extra height so line spacing in
+            the headline is unchanged. */}
+        <span className="inline-block bg-gradient-brand bg-clip-text pr-[0.28em] pb-[0.18em] -mb-[0.18em] text-transparent italic">
+          beautifully
+        </span>
         <br />
         orchestrated.
       </motion.h1>
@@ -107,9 +115,12 @@ export function Hero() {
           </Button>
         </Link> */}
         <a href="#get-started">
-          <Button size="lg" className="gap-2 min-w-44 text-base">
+          <Button
+            size="lg"
+            className="gap-1.5 min-w-44 text-base bg-gradient-brand hover:shadow-lg hover:shadow-primary/25"
+          >
             Create Your Event
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 transition-transform group-hover/button:translate-x-1" />
           </Button>
         </a>
         <Link to="/dashboard">

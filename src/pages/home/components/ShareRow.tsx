@@ -27,15 +27,15 @@ const ShareRow = () => {
   return canNativeShare ? (
     <button
       onClick={handleShare}
-      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+      className="group inline-flex items-center gap-2 rounded-lg bg-card px-3 py-2 text-sm text-muted-foreground ring-1 ring-border hover:text-foreground hover:ring-foreground/20 transition-colors cursor-pointer"
     >
-      <Share2 className="w-4 h-4" />
+      <Share2 className="w-4 h-4 transition-colors group-hover:text-primary" />
       Share Hitchy Stitchy
     </button>
   ) : (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+      className="group inline-flex items-center gap-2 rounded-lg bg-card px-3 py-2 text-sm text-muted-foreground ring-1 ring-border hover:text-foreground hover:ring-foreground/20 transition-colors cursor-pointer"
     >
       {copied ? (
         <>
@@ -44,7 +44,7 @@ const ShareRow = () => {
         </>
       ) : (
         <>
-          <Copy className="w-4 h-4" />
+          <Copy className="w-4 h-4 transition-colors group-hover:text-primary" />
           Share Hitchy Stitchy
         </>
       )}

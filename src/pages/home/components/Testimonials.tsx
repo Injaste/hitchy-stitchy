@@ -99,7 +99,7 @@ export function Testimonials() {
             <div className="absolute right-0 top-0 bottom-0 w-24 bg-linear-to-l from-muted/20 to-transparent z-10 pointer-events-none" />
 
             <div
-              className="flex gap-6 pb-4"
+              className="flex gap-6 py-4"
               style={{
                 animation: "hs-marquee 38s linear infinite",
                 animationPlayState: paused ? "paused" : "running",

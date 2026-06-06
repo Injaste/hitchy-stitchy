@@ -73,7 +73,7 @@ export function CTABanner() {
   return (
     <section
       id="get-started"
-      className="py-28 px-6 md:px-12 text-center relative overflow-hidden"
+      className="bg-gradient-surface py-28 px-6 md:px-12 text-center relative overflow-hidden"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/6 blur-[80px]" />

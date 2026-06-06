@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/custom/logo";
 import ShareRow from "./ShareRow";
@@ -47,15 +48,17 @@ export function Footer() {
         <p className="text-xs text-muted-foreground">
           © {new Date().getFullYear()} Hitchy Stitchy. All rights reserved.
         </p>
-        <p className="text-xs text-muted-foreground">
-          Questions?{" "}
+        <div className="flex items-center text-xs text-muted-foreground">
           <a
             href="mailto:izhandanish@hitchystitchy.com"
-            className="underline hover:text-foreground transition-colors"
+            className="group inline-flex items-center gap-2 rounded-lg bg-card px-3 py-1.5 ring-1 ring-border hover:text-foreground hover:ring-primary/30 transition-colors"
           >
-            izhandanish@hitchystitchy.com
+            <span className="flex items-center justify-center rounded-md bg-primary/10 p-1 text-primary transition-colors group-hover:bg-primary/15">
+              <Mail className="w-3.5 h-3.5" />
+            </span>
+            <span className="font-medium">Get in touch</span>
           </a>
-        </p>
+        </div>
         <a href="#get-started">
           <Button size="sm">Subscribe Now</Button>
         </a>
