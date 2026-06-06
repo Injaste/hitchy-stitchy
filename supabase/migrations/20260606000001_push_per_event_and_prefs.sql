@@ -24,7 +24,7 @@ BEGIN
   WHERE c.conrelid = 'public.push_subscriptions'::regclass
     AND c.contype = 'u'
     AND (
-      SELECT array_agg(a.attname ORDER BY a.attname)
+      SELECT array_agg(a.attname::text ORDER BY a.attname)
       FROM pg_attribute a
       WHERE a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
     ) = ARRAY['endpoint'];
@@ -47,7 +47,7 @@ BEGIN
     AND NOT i.indisprimary
     AND NOT EXISTS (SELECT 1 FROM pg_constraint c WHERE c.conindid = i.indexrelid)
     AND (
-      SELECT array_agg(a.attname ORDER BY a.attname)
+      SELECT array_agg(a.attname::text ORDER BY a.attname)
       FROM pg_attribute a
       WHERE a.attrelid = i.indrelid AND a.attnum = ANY (i.indkey)
     ) = ARRAY['endpoint'];
