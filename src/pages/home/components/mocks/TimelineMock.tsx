@@ -132,16 +132,16 @@ export function TimelineMock() {
           </div>
         ))}
 
-        {/* New cue sliding in */}
-        <AnimatePresence>
-          {showNewCue && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: -8 }}
-              animate={{ opacity: 1, height: "auto", y: 0 }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
-            >
+        {/* New cue — kept permanently in the layout so the card's height never
+            changes. The old approach animated height:0→auto, which grew the card
+            on every cycle and shoved every section below it down the page. Now
+            the slot always reserves its space and the cue only fades/slides in
+            place via opacity + transform, which don't affect layout. */}
+        <motion.div
+          initial={false}
+          animate={{ opacity: showNewCue ? 1 : 0, y: showNewCue ? 0 : -8 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        >
               <div className="flex items-center gap-3 rounded-xl p-3 bg-primary/5 border border-primary/15 border-dashed">
                 <div className="shrink-0 w-6 h-6 rounded-full bg-primary/10 border border-primary/25 flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
@@ -176,9 +176,7 @@ export function TimelineMock() {
                   </div>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </motion.div>
 
         {/* Add button */}
         <motion.button

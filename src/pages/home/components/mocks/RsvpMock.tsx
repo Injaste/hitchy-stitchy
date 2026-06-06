@@ -87,34 +87,16 @@ export function RsvpMock() {
         </span>
       </div>
 
-      <AnimatePresence mode="wait">
-        {phase === "success" ? (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="p-8 flex flex-col items-center text-center gap-4"
-          >
-            <div className="w-14 h-14 rounded-full bg-secondary/15 border border-secondary/30 flex items-center justify-center">
-              <Check className="w-7 h-7 text-secondary" strokeWidth={2.5} />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground text-base">RSVP Confirmed!</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                See you there, {FULL_NAME.split(" ")[0]} 🎉
-              </p>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="form"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-5 space-y-5"
-          >
+      {/* The form stays mounted so it always defines the card's height; on
+          success it just fades while the confirmation overlays the same space.
+          The old mode="wait" swap exchanged a tall form for a shorter panel,
+          which resized the card and shifted every section below it each cycle. */}
+      <div className="relative">
+        <motion.div
+          animate={{ opacity: phase === "success" ? 0 : 1 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="p-5 space-y-5"
+        >
             {/* Name field */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
@@ -178,9 +160,33 @@ export function RsvpMock() {
                 "Confirm Attendance"
               )}
             </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+
+        {/* Success confirmation overlays the form's reserved space so the card
+            keeps the form's height instead of collapsing to the panel's. */}
+        <AnimatePresence>
+          {phase === "success" && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 bg-card flex flex-col items-center justify-center text-center gap-4 p-8"
+            >
+              <div className="w-14 h-14 rounded-full bg-secondary/15 border border-secondary/30 flex items-center justify-center">
+                <Check className="w-7 h-7 text-secondary" strokeWidth={2.5} />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground text-base">RSVP Confirmed!</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  See you there, {FULL_NAME.split(" ")[0]} 🎉
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

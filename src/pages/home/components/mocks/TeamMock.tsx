@@ -89,16 +89,16 @@ export function TeamMock() {
           </div>
         ))}
 
-        {/* New member */}
-        <AnimatePresence>
-          {showNew && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: -6 }}
-              animate={{ opacity: 1, height: "auto", y: 0 }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
-            >
+        {/* New member — kept permanently in the layout so the card's height
+            never changes. Animating height:0→auto (the old approach) grew the
+            card each cycle and pushed every section below it down the page;
+            now the slot always reserves its space and the member only fades in
+            place via opacity + transform, which don't affect layout. */}
+        <motion.div
+          initial={false}
+          animate={{ opacity: showNew ? 1 : 0, y: showNew ? 0 : -6 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        >
               <div className="flex items-center gap-3 rounded-xl p-3 bg-primary/5 border border-primary/10">
                 <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                   {NEW_MEMBER.initials}
@@ -122,9 +122,7 @@ export function TeamMock() {
                   )}
                 </AnimatePresence>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </motion.div>
 
         {/* Invite button */}
         <motion.button
