@@ -8,21 +8,13 @@ interface ComponentFadeProps {
   initialVisible?: boolean;
 }
 
-const pageTransition: Variants = {
-  hidden: {
-    opacity: 0,
-    filter: "blur(2px)",
-  },
-  show: {
-    opacity: 1,
-    filter: "",
-    transition: { duration: 0.35, ease: "easeOut" },
-  },
-  exit: {
-    opacity: 0,
-    filter: "blur(2px)",
-    transition: { duration: 0.25, ease: "easeIn" },
-  },
+// Opacity only. Unlike `filter`, opacity does not create a containing block, so
+// this is safe to wrap around `position: fixed` elements (sidebar, topbar) — they
+// fade with the page while still anchoring to the viewport.
+const fade: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.35, ease: "easeOut" } },
+  exit: { opacity: 0, transition: { duration: 0.25, ease: "easeIn" } },
 };
 
 const ComponentFade: FC<ComponentFadeProps> = ({ children, className, initialVisible }) => {
@@ -31,7 +23,7 @@ const ComponentFade: FC<ComponentFadeProps> = ({ children, className, initialVis
       initial={initialVisible ? "show" : "hidden"}
       animate="show"
       exit="exit"
-      variants={pageTransition}
+      variants={fade}
       className={className}
     >
       {children}

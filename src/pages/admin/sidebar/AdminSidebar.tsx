@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Sidebar, SidebarSeparator } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar";
-import PortalToApp from "@/components/custom/portal-to-app";
 import { BREAKPOINTS } from "@/lib/breakpoints";
 import AdminSidebarHeader from "./components/AdminSidebarHeader";
 import AdminSidebarContent from "./components/AdminSidebarContent";
@@ -23,15 +22,13 @@ const AdminSidebar = () => {
   }, []);
 
   return (
-    <PortalToApp>
-      <Sidebar collapsible="icon">
-        <AdminSidebarHeader />
-        <SidebarSeparator />
-        <AdminSidebarContent />
-        <SidebarSeparator />
-        <AdminSidebarFooter />
-      </Sidebar>
-    </PortalToApp>
+    <Sidebar collapsible="icon">
+      <AdminSidebarHeader />
+      <SidebarSeparator />
+      <AdminSidebarContent />
+      <SidebarSeparator />
+      <AdminSidebarFooter />
+    </Sidebar>
   );
 };
 

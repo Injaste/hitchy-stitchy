@@ -27,13 +27,21 @@ import {
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
 import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
 import ScrollGradient from "@/components/custom/scroll-gradient";
-import { useActiveTimelineQuery } from "@/pages/admin/timeline/queries";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "16rem";
-const SIDEBAR_WIDTH_ICON = "4rem";
+// Icon-rail panel width — injected as the --sidebar-width-icon CSS var on the
+// provider (sidebar.tsx is the source of truth for these dimensions). The collapsed
+// container adds its own padding on top of this, so the resulting content-offset
+// footprint is SIDEBAR_WIDTH_ICON_INSET, not this value.
+const SIDEBAR_WIDTH_ICON = "3rem";
+// Collapsed-rail *footprint* (panel + container padding) used for SidebarInset's
+// marginLeft offset. Kept as a plain rem value so framer interpolates the collapse
+// animation against SIDEBAR_WIDTH. Deliberately larger than the panel width above —
+// don't reconcile them to the same value.
+const SIDEBAR_WIDTH_ICON_INSET = "4rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 type SidebarContextProps = {
@@ -132,6 +140,12 @@ function SidebarProvider({
 
   return (
     <SidebarContext.Provider value={contextValue}>
+      {/* sidebar.tsx is the source of truth for the rail dimensions — inject the
+          width vars here. Note --sidebar-width-icon is the icon *panel* width
+          (SIDEBAR_WIDTH_ICON, 3rem), NOT the collapsed footprint
+          (SIDEBAR_WIDTH_ICON_INSET, 4rem) used for the content offset. Injecting the
+          footprint here would make the rail wider than the offset and overlap the
+          content. */}
       <div
         data-slot="sidebar-wrapper"
         style={
@@ -215,16 +229,12 @@ function Sidebar({
       data-side={side}
       data-slot="sidebar"
     >
-      {/* Handles the sidebar gap on desktop */}
-      <div
-        data-slot="sidebar-gap"
-        className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0",
-          "group-data-[side=right]:rotate-180",
-          "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]",
-        )}
-      />
+      {/* No in-flow gap: this app reserves the sidebar's space via SidebarInset's
+          animated `marginLeft` (see SidebarInset) rather than the stock gap spacer.
+          A non-zero gap here would double-count that offset now that the sidebar
+          renders in-tree (it used to be portaled out, which hid the gap). The
+          fixed container below still floats over the reserved margin. */}
+      <div data-slot="sidebar-gap" className="w-0" />
       <div
         data-slot="sidebar-container"
         data-side={side}
@@ -302,28 +312,28 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
 }
 
 // ── Inset ────────────────────────────────────────────────────────────────────
-// marginLeft driven by framer-motion + sidebar context (no peer selectors)
+// marginLeft driven by framer-motion + sidebar context (no peer selectors). The
+// top gap is a static margin (md:mt-2): the cue banner now lives in-flow inside the
+// inset (AdminTopbar), so it reserves its own space via flex rather than via a
+// cue-dependent marginTop here.
 function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
   const isMobile = useIsMobile();
   const { state } = useSidebar();
-  const { data: activeTimeline } = useActiveTimelineQuery();
-  const hasCue = !!activeTimeline;
 
   return (
     <motion.main
       data-slot="sidebar-inset"
       initial={false}
       animate={{
-        marginTop: isMobile ? (hasCue ? "3.5rem" : "0") : (hasCue ? "4.5rem" : "0.5rem"),
         marginLeft: !isMobile
           ? state === "collapsed"
-            ? SIDEBAR_WIDTH_ICON
+            ? SIDEBAR_WIDTH_ICON_INSET
             : SIDEBAR_WIDTH
           : 0,
       }}
       transition={{ duration: 0.2, ease: "linear" }}
       className={cn(
-        "relative flex w-full flex-1 flex-col bg-background overflow-hidden",
+        "relative flex w-full flex-1 flex-col bg-background overflow-hidden md:mt-2",
         "md:mb-2 md:mr-2 md:rounded-2xl md:shadow-sm md:ring-1 md:ring-sidebar-border",
         className,
       )}
@@ -793,8 +803,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
-  SIDEBAR_WIDTH as SidebarWidth,
-  SIDEBAR_WIDTH_ICON as SidebarWidthIcon,
   useSidebar,
   SidebarContext,
 };
