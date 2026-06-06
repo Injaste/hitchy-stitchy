@@ -7,9 +7,19 @@ import { scheduledStartDate, scheduledEndDate } from "../utils";
 import type { Timeline } from "../types";
 
 // A scheduled marker (start/end) overlaid on the actual bar.
-const Marker = ({ left }: { left: number }) => (
+const Marker = ({
+  left,
+  position,
+}: {
+  left: number;
+  position: "start" | "end";
+}) => (
   <span
-    className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
+    className={cn(
+      "absolute top-1/2 size-2.5 -translate-y-1/2 rounded-full bg-primary aspect-square",
+      position === "start" && "-translate-x-0.25",
+      position === "end" && "-translate-x-2.5",
+    )}
     style={{ left: `${left}%` }}
   />
 );
@@ -71,8 +81,8 @@ const PlanActualBar: FC<PlanActualBarProps> = ({
         )}
         style={{ left: `${actLeft}%`, width: `${actWidth}%` }}
       />
-      <Marker left={pct(schedStart.getTime())} />
-      <Marker left={pct(schedEnd.getTime())} />
+      <Marker left={pct(schedStart.getTime())} position="start" />
+      <Marker left={pct(schedEnd.getTime())} position="end" />
     </div>
   );
 
