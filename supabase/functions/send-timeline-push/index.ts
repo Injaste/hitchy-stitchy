@@ -31,12 +31,24 @@ Deno.serve(async (req) => {
 
     const { data: subscriptions, error } = await supabase
       .from("push_subscriptions")
-      .select("subscription, slug")
+      .select("subscription, slug, event_members!push_subscriptions_member_id_fk(preferences)")
       .eq("event_id", record.event_id);
 
     if (error) throw error;
     if (!subscriptions?.length) {
       return new Response("No subscribers", { status: 200 });
+    }
+
+    // Respect per-member feature preferences (default-on by absence): a member
+    // who switched "timeline" off keeps their device rows but is skipped here.
+    // This is the reusable pattern — future feature functions check their own key.
+    const targeted = subscriptions.filter((s) => {
+      const member = Array.isArray(s.event_members) ? s.event_members[0] : s.event_members;
+      const notifications = (member?.preferences ?? {}).notifications ?? {};
+      return notifications.timeline !== false;
+    });
+    if (!targeted.length) {
+      return new Response("No opted-in subscribers", { status: 200 });
     }
 
     const notificationPayload = JSON.stringify({
@@ -49,7 +61,7 @@ Deno.serve(async (req) => {
     });
 
     const results = await Promise.allSettled(
-      subscriptions.map((s) => {
+      targeted.map((s) => {
         const url = s.slug ? `/${s.slug}/admin/timeline` : "/"
         const payload = JSON.stringify({ ...JSON.parse(notificationPayload), url })
         return sendWebPush(s.subscription as unknown as PushSubscription, payload)
@@ -58,7 +70,7 @@ Deno.serve(async (req) => {
 
     // Clean up expired/unsubscribed devices (410 = subscription no longer valid)
     const expired = results
-      .map((r, i) => ({ r, sub: subscriptions[i] }))
+      .map((r, i) => ({ r, sub: targeted[i] }))
       .filter(({ r }) => r.status === "rejected" && (r as PromiseRejectedResult).reason?.statusCode === 410);
 
     if (expired.length) {
