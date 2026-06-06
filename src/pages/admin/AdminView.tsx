@@ -47,7 +47,7 @@ const AdminView = () => {
                   className="flex flex-col flex-1 min-h-0"
                 >
                   <ScrollView
-                    className="px-3 md:px-5 pb-3 md:pb-5 overflow-x-hidden"
+                    className="px-3 pb-3 md:px-5 md:pb-5 overflow-x-hidden"
                     gradientBottom
                     gradientClass="from-background"
                   >

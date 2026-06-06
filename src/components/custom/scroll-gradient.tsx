@@ -25,7 +25,7 @@ const ScrollGradient: FC<ScrollGradientProps> = ({
   side,
   visible,
   fromClass = "from-background",
-  heightClass = "h-6",
+  heightClass = "h-10",
   className,
 }) => (
   <div
@@ -33,9 +33,7 @@ const ScrollGradient: FC<ScrollGradientProps> = ({
     className={cn(
       "pointer-events-none absolute inset-x-0 z-10 transition-opacity duration-300 to-transparent",
       heightClass,
-      side === "top"
-        ? "top-0 bg-linear-to-b"
-        : "bottom-0 bg-linear-to-t",
+      side === "top" ? "-top-px bg-linear-to-b" : "-bottom-px bg-linear-to-t",
       fromClass,
       visible ? "opacity-100" : "opacity-0",
       className,

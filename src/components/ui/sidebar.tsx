@@ -25,6 +25,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useIndicatorSlider from "@/lib/hooks/useIndicatorSlider";
+import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
+import ScrollGradient from "@/components/custom/scroll-gradient";
 import { useActiveTimelineQuery } from "@/pages/admin/timeline/queries";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -404,42 +406,66 @@ function SidebarContent({
     onMouseLeave,
   } = useIndicatorSlider("vertical", activeId, state);
 
+  const { scrollRef, canScrollUp, canScrollDown, onScroll } =
+    useScrollVisibility();
+
+  // In collapsed (icon) mode the scroll area is overflow-hidden, so scrollHeight
+  // can still exceed clientHeight while the user cannot actually scroll. Gating on
+  // the expanded state keeps a phantom fade from showing on the icon rail.
+  const isExpanded = state !== "collapsed";
+
   return (
     <SidebarHoverContext.Provider value={{ setRef, onMouseEnter }}>
-      <div
-        data-slot="sidebar-content"
-        data-sidebar="content"
-        className={cn(
-          "no-scrollbar flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden overflow-auto",
-          className,
-        )}
-        onMouseLeave={onMouseLeave}
-        {...props}
-      >
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <ScrollGradient
+          side="top"
+          visible={isExpanded && canScrollUp}
+          fromClass="from-sidebar"
+          heightClass="h-8"
+        />
         <div
-          ref={containerRef as React.Ref<HTMLDivElement>}
-          className="relative z-0"
+          ref={scrollRef}
+          data-slot="sidebar-content"
+          data-sidebar="content"
+          className={cn(
+            "no-scrollbar flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden overflow-auto",
+            className,
+          )}
+          onScroll={onScroll}
+          onMouseLeave={onMouseLeave}
+          {...props}
         >
-          {activeId && (
+          <div
+            ref={containerRef as React.Ref<HTMLDivElement>}
+            className="relative z-0"
+          >
+            {activeId && (
+              <motion.div
+                ref={activeIndicatorRef}
+                className={cn(
+                  "absolute left-2 right-2 bg-sidebar-primary/85 rounded-lg -z-10 pointer-events-none group-data-[collapsible=icon]:rounded-full",
+                  indicatorClassName,
+                )}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
             <motion.div
-              ref={activeIndicatorRef}
+              ref={hoverIndicatorRef}
               className={cn(
-                "absolute left-2 right-2 bg-sidebar-primary/85 rounded-lg -z-10 pointer-events-none group-data-[collapsible=icon]:rounded-full",
+                "absolute left-2 right-2 bg-primary/40 rounded-lg -z-10 pointer-events-none opacity-0 group-data-[collapsible=icon]:rounded-full",
                 indicatorClassName,
               )}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
             />
-          )}
-          <motion.div
-            ref={hoverIndicatorRef}
-            className={cn(
-              "absolute left-2 right-2 bg-primary/40 rounded-lg -z-10 pointer-events-none opacity-0 group-data-[collapsible=icon]:rounded-full",
-              indicatorClassName,
-            )}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          />
+          </div>
+          {children}
         </div>
-        {children}
+        <ScrollGradient
+          side="bottom"
+          visible={isExpanded && canScrollDown}
+          fromClass="from-sidebar"
+          heightClass="h-8"
+        />
       </div>
     </SidebarHoverContext.Provider>
   );

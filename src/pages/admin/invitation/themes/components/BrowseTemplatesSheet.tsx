@@ -42,10 +42,8 @@ const BrowseTemplatesSheet = ({
             Pick a template to start a new theme.
           </SheetDescription>
         </SheetHeader>
-        <ScrollView className="flex-1">
-          <div className="p-6">
-            <BrowseTemplatesGallery templates={templates} onEdit={onEdit} />
-          </div>
+        <ScrollView className="flex-1 p-6">
+          <BrowseTemplatesGallery templates={templates} onEdit={onEdit} />
         </ScrollView>
       </SheetContent>
     </Sheet>
