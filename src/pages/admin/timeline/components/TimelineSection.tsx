@@ -33,7 +33,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
   isNotLastItem,
   dayItems,
 }) => {
-  const { emblaRef, emblaApi } = useEmblaCarouselApi();
+  const { emblaRef, emblaApi } = useEmblaCarouselApi("center");
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
   const { canCreate } = useAccess();
   const openCreateWithLabel = useTimelineModalStore(
@@ -114,7 +114,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
                       animate="show"
                       exit="hidden"
                       layout
-                      className="shrink-0 w-72 self-stretch"
+                      className="shrink-0 w-[calc(100%_-_4rem)] 2xs:w-[calc(100%_-_5rem)] xs:w-[calc(100%_-_6rem)] sm:w-72 self-stretch"
                     >
                       <TimelineCard item={item} dayItems={dayItems} />
                     </motion.div>
@@ -124,12 +124,12 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
             </div>
 
             <div
-              className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent transition-opacity"
+              className="pointer-events-none absolute inset-y-0 left-0 w-8 2xs:w-10 xs:w-12 bg-linear-to-r from-background to-transparent transition-opacity"
               style={{ opacity: showLeftFade ? 1 : 0 }}
             />
 
             <div
-              className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent transition-opacity"
+              className="pointer-events-none absolute inset-y-0 right-0 w-8 2xs:w-10 xs:w-12 bg-linear-to-l from-background to-transparent transition-opacity"
               style={{ opacity: showRightFade ? 1 : 0 }}
             />
           </div>
