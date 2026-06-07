@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { useMembersQuery } from "@/pages/admin/members/queries";
 import { groupMembersByRole } from "@/pages/admin/utils/memberUtils";
 
@@ -22,8 +22,12 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
 import { generateEventDays } from "../utils";
-import { parseLocalDate } from "@/lib/utils/utils-time";
 import { useTimelineQuery } from "../queries";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface UseTimelineItemFormOpts {
   defaultValues?: Partial<TimelineItemFormValues>;
@@ -69,15 +73,41 @@ const TimelineItemForm = () => {
   const { form } = useFormShell();
   const { dateStart, dateEnd } = useAdminStore();
 
+  // Which preset just got clamped to 23:59, so we can flash a tooltip on it.
+  const [cappedPreset, setCappedPreset] = useState<number | null>(null);
+  const capTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(capTimer.current), []);
+
   const setEndFromDuration = (mins: number) => {
     const start = form.getFieldValue("time_start") as string | undefined;
     if (!start) return;
     form.setFieldValue("time_end", addMinutesToTime(start, mins));
+
+    // addMinutesToTime clamps to 23:59 because a schedule item lives on a single
+    // day — we don't model items spilling past midnight into the next day. When a
+    // preset would have crossed midnight the end silently lands on 23:59, which
+    // looks like the +Xm did the wrong math; flash a tooltip to explain it.
+    const [h, m] = start.split(":").map(Number);
+    const crossedMidnight = h * 60 + m + mins > 23 * 60 + 59;
+    clearTimeout(capTimer.current);
+    if (crossedMidnight) {
+      setCappedPreset(mins);
+      capTimer.current = setTimeout(() => setCappedPreset(null), 2500);
+    } else {
+      setCappedPreset(null);
+    }
   };
   const { data: members = [] } = useMembersQuery();
   const { data: timelineData } = useTimelineQuery();
-  const labelDays = timelineData?.days ?? [];
-  const labelOptions = timelineData?.labels ?? [];
+  const days = timelineData?.days ?? [];
+  const allLabels = timelineData?.labels ?? [];
+
+  // The day this item will live on. Tracked live (not just at open) so changing
+  // the Day field re-resolves which labels count as "on this day".
+  const selectedDay = useStore(
+    form.store,
+    (s: unknown) => (s as { values: TimelineItemFormValues }).values.day,
+  );
 
   const assignableMembers = members.filter(
     (m) => !m.frozen_at && !m.rejected_at,
@@ -94,32 +124,29 @@ const TimelineItemForm = () => {
     return generateEventDays(dateStart, dateEnd);
   }, [dateStart, dateEnd]);
 
-  const eventDayStrings = eventDays.map((d) => format(d, "yyyy-MM-dd"));
-
   const dayOptions: SelectFieldOption[] = eventDays.map((d) => ({
     value: format(d, "yyyy-MM-dd"),
     label: format(d, "d MMM yyyy (EEE)"),
     icon: <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />,
   }));
 
-  // Existing labels grouped per day, for the label picker. Number each group by
-  // its real position in the event range — not its index among days-with-items,
-  // which would mislabel (e.g. Day 2 showing as "Day 1" when Day 1 is empty).
-  const labelGroups: SelectComboGroup[] = labelDays
-    .map((day) => {
-      const dayNum = eventDayStrings.indexOf(day.day) + 1;
-      return {
-        // dayNum is 0 only when this item's day sits outside the current event
-        // range — which happens if the event dates were shortened after the
-        // item was scheduled. Keep such orphans visible with a date label
-        // rather than dropping them or showing a bogus "Day 0".
-        label: dayNum > 0 ? `Day ${dayNum}` : format(parseLocalDate(day.day), "d MMM"),
-        items: day.labelGroups
-          .filter((g) => g.label !== null)
-          .map((g) => g.label as string),
-      };
-    })
-    .filter((g) => g.items.length > 0);
+  // Label picker, framed around the day being edited rather than by calendar day.
+  // "On this day" are the labels already on the selected day — picking one merges
+  // the item into that existing section. "From other days" are every other label
+  // name, de-duplicated and without day headings, so reusing a name reads as
+  // "reuse the name here", not "this label belongs to Day N".
+  const onThisDay =
+    days
+      .find((d) => d.day === selectedDay)
+      ?.labelGroups.filter((g) => g.label !== null)
+      .map((g) => g.label as string) ?? [];
+  const onThisDaySet = new Set(onThisDay);
+  const otherLabels = allLabels.filter((l) => !onThisDaySet.has(l));
+
+  const labelGroups: SelectComboGroup[] = [
+    ...(onThisDay.length ? [{ label: "On this day", items: onThisDay }] : []),
+    ...(otherLabels.length ? [{ label: "From other days", items: otherLabels }] : []),
+  ];
 
   return (
     <FormBody>
@@ -140,7 +167,7 @@ const TimelineItemForm = () => {
             label="Label"
             optional
             groups={labelGroups}
-            matchAgainst={labelOptions}
+            matchAgainst={allLabels}
             placeholder="e.g. Nikah, Sanding"
           />
         </div>
@@ -155,14 +182,20 @@ const TimelineItemForm = () => {
             hint={
               <span className="flex flex-wrap items-center gap-1">
                 {DURATION_PRESETS.map((mins) => (
-                  <button
-                    key={mins}
-                    type="button"
-                    onClick={() => setEndFromDuration(mins)}
-                    className="rounded-md border border-border px-1.5 py-0.5 text-2xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  >
-                    {mins < 60 ? `${mins}m` : `${mins / 60}h`}
-                  </button>
+                  <Tooltip key={mins} open={cappedPreset === mins}>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setEndFromDuration(mins)}
+                        className="rounded-md border border-border px-1.5 py-0.5 text-2xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        {mins < 60 ? `${mins}m` : `${mins / 60}h`}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Capped at 23:59 — items can't cross midnight
+                    </TooltipContent>
+                  </Tooltip>
                 ))}
               </span>
             }
