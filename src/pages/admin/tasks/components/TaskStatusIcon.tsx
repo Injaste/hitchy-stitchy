@@ -13,7 +13,7 @@ const TaskStatusIcon: FC<TaskStatusIconProps> = ({ status, className }) => {
     return (
       <CircleCheck
         className={cn(
-          "size-6 shrink-0 text-primary-foreground fill-primary/80",
+          "size-6 shrink-0 text-primary-foreground fill-success",
           className,
         )}
         strokeWidth={2}

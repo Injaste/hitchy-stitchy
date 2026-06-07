@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-media-query";
 
 interface LabelTabsProps {
   labels: string[];
@@ -33,12 +34,10 @@ const LabelTabs: FC<LabelTabsProps> = ({ labels, activeLabel, onSelect }) => {
             return (
               <Button
                 key={label}
+                size={useIsMobile() ? "sm" : "lg"}
                 onClick={() => onSelect(label)}
                 variant={active ? "default" : "outline"}
-                className={cn(
-                  "h-auto! py-1.5 px-3 lg:py-2.5 lg:px-5",
-                  !active && "bg-background",
-                )}
+                className={cn(!active && "bg-background")}
               >
                 <span className="font-display text-sm font-medium">
                   {label}

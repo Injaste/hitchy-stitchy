@@ -14,7 +14,7 @@ import { HeaderActions, type BaseHeaderProps } from "./page-header-base";
 interface AdminPageHeaderProps extends BaseHeaderProps {
   title: string;
   titleSuffix?: ReactNode;
-  description: string;
+  description?: string;
   meta?: ReactNode;
   action?: ReactNode;
   collapseMeta?: boolean;
@@ -118,10 +118,14 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
             : { height: "auto", opacity: 1, marginTop: 0 }
         }
         transition={{ duration: 0.22, ease: "easeOut" }}
-        style={{ overflow: "hidden" }}
+        // Only clip while a page actually collapses its meta — otherwise the
+        // hidden overflow slices focus rings on controls living in the meta row.
+        style={{ overflow: collapseMeta ? "hidden" : undefined }}
       >
         <Container>
-          <p className="text-sm text-muted-foreground/80">{description}</p>
+          {description && (
+            <p className="text-sm text-muted-foreground/80">{description}</p>
+          )}
           {meta && (
             <div className="text-sm tracking-wide text-muted-foreground pt-3">
               {meta}

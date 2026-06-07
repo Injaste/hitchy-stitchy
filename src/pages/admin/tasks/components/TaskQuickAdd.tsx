@@ -79,32 +79,34 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
   };
 
   return (
-    <AnimatePresence mode="popLayout">
+    <AnimatePresence mode="wait">
       {!isAdding ? (
         <motion.div
           key="button"
-          className="hidden lg:block"
           variants={itemFadeIn}
           initial="hidden"
           animate="show"
           exit="hidden"
         >
           <Button
-            className="w-full min-h-[108px] flex items-center justify-center px-4 rounded-xl border border-dashed border-border"
+            className="w-full h-9 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
             variant="ghost"
             onClick={() => setIsAdding(true)}
           >
-            <Plus className="size-4.5" /> Task
+            <Plus className="size-4" /> Add task
           </Button>
         </motion.div>
       ) : (
         <motion.div
           key="form"
-          className="hidden lg:block scroll-mb-8"
+          className="scroll-mb-8"
           variants={itemFadeIn}
           initial="hidden"
           animate="show"
           exit="hidden"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") cancel();
+          }}
         >
           <FormShell ref={formRef} form={form} onBlur={handleBlur}>
             <Card>

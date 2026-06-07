@@ -10,7 +10,7 @@ interface ScrollGradientProps {
    * Default `from-background` matches the page surface.
    */
   fromClass?: string;
-  /** Override the gradient height. Default h-6 (~24px). */
+  /** Override the gradient height. Default h-10 (~40px). */
   heightClass?: string;
   className?: string;
 }

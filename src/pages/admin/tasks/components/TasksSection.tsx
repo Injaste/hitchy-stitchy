@@ -10,9 +10,7 @@ import { taskSectionEnter } from "@/lib/animations";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useRegisterScrollSource } from "@/hooks/use-register-scroll-source";
 import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
-import { useIsMobile } from "@/hooks/use-media-query";
 import ScrollGradient from "@/components/custom/scroll-gradient";
 
 import type { Task, TaskStatus } from "../types";
@@ -30,6 +28,14 @@ interface TasksSectionProps {
   tasksById: Map<string, Task>;
 }
 
+// Stacked (mobile) order: In progress → To do → Done. Reset to DOM order
+// (To do → In progress → Done) once the grid kicks in at md.
+const MOBILE_ORDER: Record<TaskStatus, string> = {
+  in_progress: "order-1",
+  todo: "order-2",
+  done: "order-3",
+};
+
 const TasksSection: FC<TasksSectionProps> = ({
   status,
   index,
@@ -37,7 +43,6 @@ const TasksSection: FC<TasksSectionProps> = ({
   taskIds,
   tasksById,
 }) => {
-  const isMobile = useIsMobile();
   const {
     scrollRef,
     canScrollUp,
@@ -45,9 +50,7 @@ const TasksSection: FC<TasksSectionProps> = ({
     onScroll: onScrollUpdate,
   } = useScrollVisibility();
 
-  useRegisterScrollSource(scrollRef, !isMobile);
-
-  const { ref: droppableRef, isDropTarget } = useDroppable({
+  const { ref: droppableRef } = useDroppable({
     id: status,
     type: "column",
     accept: "item",
@@ -60,6 +63,8 @@ const TasksSection: FC<TasksSectionProps> = ({
   const isDone = status === "done";
   const count = taskIds.length;
   const hasTasks = count > 0;
+  // True when the column overflows (its vertical scrollbar is showing).
+  const hasColumnScroll = canScrollUp || canScrollDown;
 
   return (
     <motion.section
@@ -68,14 +73,13 @@ const TasksSection: FC<TasksSectionProps> = ({
       animate="show"
       custom={index * 0.08}
       className={cn(
-        "flex flex-col gap-3 min-w-0 lg:transition-colors lg:duration-200",
-        "lg:grid lg:grid-rows-[auto_auto_minmax(0,1fr)] lg:gap-3 lg:rounded-xl lg:bg-card/40 lg:ring-1 lg:ring-border/60 lg:p-3",
-        hasTasks ? "" : "hidden lg:grid",
-        isDropTarget && "lg:ring-primary/40 lg:bg-primary/0.03",
+        "flex flex-col gap-3 min-w-0 rounded-xl bg-task-column ring-1 ring-border/60 p-3",
+        MOBILE_ORDER[status],
+        "md:order-0 md:grid md:grid-rows-[auto_auto_minmax(0,1fr)] md:gap-3",
       )}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 lg:min-h-8">
+      <div className="flex items-center gap-2 md:min-h-8">
         <TaskStatusIcon status={status} />
         <span className="text-sm font-display font-medium text-foreground/70">
           {label}
@@ -106,20 +110,25 @@ const TasksSection: FC<TasksSectionProps> = ({
       <Separator />
 
       {/* Scroll body */}
-      <div className="relative lg:min-h-0 lg:-mr-3">
+      <div className="relative md:min-h-0">
         <ScrollGradient
           side="top"
           visible={canScrollUp}
-          fromClass="from-card/60"
+          fromClass="from-task-column"
         />
         <div
           ref={scrollRef}
           onScroll={onScrollUpdate}
-          className="flex flex-col gap-3 lg:absolute lg:inset-0 lg:overflow-y-auto lg:[scrollbar-width:thin] lg:pl-1 lg:pr-3 lg:py-1"
+          className="flex flex-col gap-3 md:absolute md:inset-0 md:overflow-y-auto md:[scrollbar-width:thin] md:px-2 md:pt-2"
         >
           <div
             ref={droppableRef}
-            className="flex flex-col gap-3 min-h-[60px] lg:rounded-xl lg:p-2"
+            // shrink-0 stops the flex algorithm from collapsing this to the
+            // viewport height (min-h lets it shrink) — otherwise cards overflow
+            // past it and the bottom padding lands mid-content. The pb keeps the
+            // last card one card-gap clear of the composer overlay (a scroll
+            // container's own padding is dropped at the scroll end in flexbox).
+            className="flex flex-col gap-3 shrink-0 md:pb-14"
           >
             {taskIds.map((id, itemIndex) => {
               const task = tasksById.get(id);
@@ -135,19 +144,30 @@ const TasksSection: FC<TasksSectionProps> = ({
             })}
           </div>
         </div>
-        <ScrollGradient
-          side="bottom"
-          visible={canScrollDown}
-          fromClass="from-card/60"
-        />
-      </div>
 
-      {/* Footer */}
-      {canCreate("tasks") && (
-        <div className="hidden lg:block">
-          <TaskQuickAdd status={status} />
-        </div>
-      )}
+        {/* Composer — in-flow block below the cards on mobile; a pinned
+            overlay (cards scroll under it) once the column scrolls at md. */}
+        {canCreate("tasks") ? (
+          <div
+            className={cn(
+              "pt-3 md:pointer-events-none md:absolute md:left-0 md:bottom-0 md:px-2 md:pb-2 md:pt-3 md:bg-linear-to-t md:from-task-column md:from-80% md:to-transparent",
+              // While scrolling, hold the right edge clear of the 10px scrollbar
+              // gutter so the composer never paints over the column's scrollbar.
+              hasColumnScroll ? "md:right-2.5" : "md:right-0",
+            )}
+          >
+            <div className="md:pointer-events-auto">
+              <TaskQuickAdd status={status} />
+            </div>
+          </div>
+        ) : (
+          <ScrollGradient
+            side="bottom"
+            visible={canScrollDown}
+            fromClass="from-task-column"
+          />
+        )}
+      </div>
     </motion.section>
   );
 };
@@ -171,9 +191,9 @@ const SortableTaskItem: FC<{
     <div
       ref={ref}
       data-dragging={isDragging || undefined}
-      className="data-[dragging]:opacity-50"
+      className="data-dragging:opacity-50"
     >
-      <TaskCard task={task} dragHandleRef={handleRef} />
+      <TaskCard task={task} dragHandleRef={handleRef} isDragging={isDragging} />
     </div>
   );
 };
