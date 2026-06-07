@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -27,9 +26,8 @@ import {
   scheduledEndDate,
 } from "../utils";
 import { useAccess } from "../../hooks/useAccess";
-import { useAdminStore } from "../../store/useAdminStore";
 import type { Timeline } from "../types";
-import MemberBadge from "@/pages/admin/members/components/MemberBadge";
+import AssigneeStack from "../../components/AssigneeStack";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ArraySeparator from "@/components/custom/array-separator";
 import { cn } from "@/lib/utils";
@@ -41,7 +39,6 @@ interface TimelineCardProps {
 
 const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
-  const { memberId } = useAdminStore();
   const { canUpdate } = useAccess();
   const { data: active } = useActiveTimelineQuery();
   const { startItem, endItem, start, end } = useTimelineLifecycleActions();
@@ -165,25 +162,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
             {item.title}
           </CardTitle>
 
-          {item.assignees.length > 0 && (
-            <div className="flex flex-wrap gap-1 pt-1.5">
-              {[...item.assignees]
-                .sort((a) => (a === memberId ? -1 : 1))
-                .slice(0, 3)
-                .map((id) => (
-                  <MemberBadge
-                    key={id}
-                    memberId={id}
-                    variant={id === memberId ? "default" : "outline"}
-                  />
-                ))}
-              {item.assignees.length > 3 && (
-                <Badge variant="outline" className="text-xs font-normal">
-                  +{item.assignees.length - 3}
-                </Badge>
-              )}
-            </div>
-          )}
+          <AssigneeStack ids={item.assignees} className="pt-1.5" />
 
           {item.details && (
             <CardDescription className="pt-1.5 h-full w-full text-accent">

@@ -17,7 +17,7 @@ import { useTaskMutations } from "../queries";
 import { type Task, type TaskPriority, type TaskStatus } from "../types";
 import { Button } from "@/components/ui/button";
 import TaskStatusIcon from "./TaskStatusIcon";
-import AssigneeStack from "./AssigneeStack";
+import AssigneeStack from "../../components/AssigneeStack";
 
 interface TaskCardProps {
   task: Task;
