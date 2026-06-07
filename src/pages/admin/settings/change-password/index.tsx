@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
+import { KeyRound } from "lucide-react";
 
 import { FieldGroup } from "@/components/ui/field";
 import {
@@ -7,9 +8,9 @@ import {
   FormHeader,
   FormBody,
   FormFooter,
+  FormError,
   PasswordField,
 } from "@/components/custom/form";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
 
 import { useChangePasswordMutation } from "./queries";
 import { changePasswordSchema } from "./types";
@@ -46,7 +47,7 @@ const ChangePassword = () => {
       resetOnSuccess
       className="max-w-sm"
     >
-      <FormHeader title="Change Password" />
+      <FormHeader icon={<KeyRound className="size-4" />} title="Change Password" />
 
       <FormBody>
         <FieldGroup>
@@ -62,15 +63,7 @@ const ChangePassword = () => {
             placeholder="Confirm new password"
             autoComplete="new-password"
           />
-          <form.Subscribe selector={(s) => s.submissionAttempts}>
-            {(attempts) => (
-              <AnimateItem
-                hasError={Boolean(mutationError)}
-                error={mutationError}
-                attemptCount={attempts}
-              />
-            )}
-          </form.Subscribe>
+          <FormError error={mutationError} />
         </FieldGroup>
       </FormBody>
 

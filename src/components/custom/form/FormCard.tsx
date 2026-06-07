@@ -37,7 +37,7 @@ const FormCard = ({
     <FormShellContext.Provider value={contextValue}>
       <div
         className={cn(
-          "relative grid gap-4 rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10",
+          "relative grid gap-4 rounded-xl bg-card text-sm text-card-foreground ring-1 ring-foreground/10",
           className,
         )}
       >

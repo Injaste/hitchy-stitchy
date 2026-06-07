@@ -4,21 +4,20 @@ import { CheckCircle2, ArrowBigDown, LoaderCircle } from "lucide-react";
 import { useForm } from "@tanstack/react-form";
 
 import { FieldGroup } from "@/components/ui/field";
-import { FormShell, FieldShell } from "@/components/custom/form";
+import { FormShell, FieldShell, FormError } from "@/components/custom/form";
 import {
   InputGroup,
   InputGroupInput,
   InputGroupAddon,
   InputGroupButton,
 } from "@/components/ui/input-group";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
 
 import { FloralSVG } from "./Decorations";
-import { useSubscribeMutation } from "@/pages/signup/queries";
+import { useSubscribeMutation } from "@/pages/home/queries";
 import {
   subscribeSchema,
   type SubscribeFormValues,
-} from "@/pages/signup/types";
+} from "@/pages/home/types";
 
 // ─── Form hook ────────────────────────────────────────────────────────────────
 
@@ -150,15 +149,7 @@ export function CTABanner() {
                       </InputGroup>
                     )}
                   </FieldShell>
-                  <form.Subscribe selector={(s) => s.submissionAttempts}>
-                    {(attempts) => (
-                      <AnimateItem
-                        hasError={Boolean(error)}
-                        error={error}
-                        attemptCount={attempts}
-                      />
-                    )}
-                  </form.Subscribe>
+                  <FormError error={error} />
                 </FieldGroup>
               </FormShell>
             </div>

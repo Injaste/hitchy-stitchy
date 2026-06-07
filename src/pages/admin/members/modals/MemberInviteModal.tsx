@@ -1,4 +1,6 @@
 import { useEffect, useMemo } from "react";
+import { Users } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -59,7 +61,7 @@ const MemberInviteModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormHeader title="Invite member" />
+      <FormHeader icon={<Users className="size-4" />} title="Invite member" />
 
       <MemberForm mode="invite" />
 

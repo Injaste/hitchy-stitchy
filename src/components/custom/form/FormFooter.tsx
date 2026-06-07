@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +22,13 @@ interface FormFooterProps {
   cancelLabel?: ReactNode;
   /** When provided, renders the left-aligned "Create more" switch. */
   createMore?: CreateMoreConfig;
+  /**
+   * Full-width submit instead of the right-aligned dialog footer. Used by the
+   * public auth cards, whose primary action spans the card.
+   */
+  fullWidth?: boolean;
+  /** Disables the submit — e.g. gating signup on the terms checkbox. */
+  submitDisabled?: boolean;
 }
 
 /**
@@ -32,6 +40,8 @@ const FormFooter = ({
   onCancel,
   cancelLabel = "Cancel",
   createMore,
+  fullWidth = false,
+  submitDisabled = false,
 }: FormFooterProps) => {
   const switchId = useId();
 
@@ -53,13 +63,23 @@ const FormFooter = ({
             </Label>
           </div>
         )}
-        <div className="flex flex-col-reverse gap-2 sm:flex-row">
+        <div
+          className={cn(
+            "flex flex-col-reverse gap-2 sm:flex-row",
+            fullWidth && "w-full",
+          )}
+        >
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               {cancelLabel}
             </Button>
           )}
-          <SubmitButton>{submitLabel}</SubmitButton>
+          <SubmitButton
+            disabled={submitDisabled}
+            className={fullWidth ? "w-full" : undefined}
+          >
+            {submitLabel}
+          </SubmitButton>
         </div>
       </DialogFooter>
     </>

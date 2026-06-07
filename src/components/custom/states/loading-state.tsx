@@ -7,6 +7,7 @@ import LottieRaw from "lottie-react";
 
 const Lottie = (LottieRaw as any).default ?? LottieRaw;
 import loveParticle from "@/assets/lottie/love-particle.json";
+import ComponentFade from "@/components/animations/animate-component-fade";
 
 const LoadingState = () => {
   const container = usePortalContainer() ?? document.body;
@@ -18,12 +19,8 @@ const LoadingState = () => {
   }, []);
 
   return createPortal(
-    <motion.div
+    <ComponentFade
       key="loading-state"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
       className="fixed inset-0 flex flex-col justify-center items-center gap-10 bg-background z-99999"
     >
       <Logo
@@ -56,7 +53,7 @@ const LoadingState = () => {
           )}
         </AnimatePresence>
       </div>
-    </motion.div>,
+    </ComponentFade>,
     container,
   );
 };

@@ -5,17 +5,18 @@ import { useForm } from "@tanstack/react-form";
 import { UserPlus, CheckCircle2 } from "lucide-react";
 import Logo from "@/components/custom/logo";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import {
-  FormShell,
+  FormCard,
+  FormHeader,
+  FormBody,
+  FormFooter,
+  FormError,
   TextField,
   PasswordField,
   CheckboxField,
-  SubmitButton,
 } from "@/components/custom/form";
 import { Button } from "@/components/ui/button";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
 
@@ -123,88 +124,78 @@ const Signup = () => {
         </motion.div>
 
         <motion.div variants={itemFadeUp}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-muted-foreground">
-                <UserPlus className="size-4" />
-                <p className="text-sm font-medium">Create your account</p>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormShell form={form}>
-                <FieldGroup>
-                  <TextField
-                    name="full_name"
-                    label="Full name"
-                    placeholder="Full name"
-                    autoFocus
-                    autoComplete="name"
-                  />
+          <FormCard
+            form={form}
+            isPending={isPending}
+            isError={Boolean(mutationError)}
+          >
+            <FormHeader
+              icon={<UserPlus className="size-4" />}
+              title="Create your account"
+            />
 
-                  <TextField
-                    name="email"
-                    label="Email"
-                    type="email"
-                    placeholder="Email"
-                    autoComplete="email"
-                  />
+            <FormBody>
+              <FieldGroup>
+                <TextField
+                  name="full_name"
+                  label="Full name"
+                  placeholder="Full name"
+                  autoFocus
+                  autoComplete="name"
+                />
 
-                  <PasswordField
-                    name="password"
-                    label="Password"
-                    placeholder="Password"
-                    autoComplete="new-password"
-                  />
+                <TextField
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="Email"
+                  autoComplete="email"
+                />
 
-                  <PasswordField
-                    name="confirm_password"
-                    label="Confirm password"
-                    placeholder="Confirm password"
-                    autoComplete="new-password"
-                  />
+                <PasswordField
+                  name="password"
+                  label="Password"
+                  placeholder="Password"
+                  autoComplete="new-password"
+                />
 
-                  <CheckboxField
-                    name="agree_terms"
-                    label={
-                      <>
-                        I agree to the{" "}
-                        <Link
-                          to="/privacy"
-                          className="text-primary hover:underline"
-                        >
-                          Privacy Policy
-                        </Link>
-                        .
-                      </>
-                    }
-                  />
+                <PasswordField
+                  name="confirm_password"
+                  label="Confirm password"
+                  placeholder="Confirm password"
+                  autoComplete="new-password"
+                />
 
-                  <form.Subscribe selector={(s) => s.submissionAttempts}>
-                    {(attempts) => (
-                      <AnimateItem
-                        hasError={Boolean(mutationError)}
-                        error={mutationError}
-                        attemptCount={attempts}
-                      />
-                    )}
-                  </form.Subscribe>
-                </FieldGroup>
+                <CheckboxField
+                  name="agree_terms"
+                  label={
+                    <>
+                      I agree to the{" "}
+                      <Link
+                        to="/privacy"
+                        className="text-primary hover:underline"
+                      >
+                        Privacy Policy
+                      </Link>
+                      .
+                    </>
+                  }
+                />
 
-                <form.Subscribe selector={(s) => s.values.agree_terms}>
-                  {(agreed) => (
-                    <SubmitButton
-                      isPending={isPending}
-                      isError={Boolean(mutationError)}
-                      disabled={!agreed}
-                      className="w-full"
-                    >
-                      Create Account
-                    </SubmitButton>
-                  )}
-                </form.Subscribe>
-              </FormShell>
-            </CardContent>
-          </Card>
+                <FormError error={mutationError} />
+              </FieldGroup>
+            </FormBody>
+
+            <form.Subscribe selector={(s) => s.values.agree_terms}>
+              {(agreed) => (
+                <FormFooter
+                  submitLabel="Create Account"
+                  fullWidth
+                  submitDisabled={!agreed}
+                />
+              )}
+            </form.Subscribe>
+          </FormCard>
         </motion.div>
 
         <motion.div
@@ -214,7 +205,7 @@ const Signup = () => {
           <p className="text-xs text-muted-foreground">
             Already have an account?{" "}
             <Link
-              to="/dashboard"
+              to="/login"
               className="text-primary hover:underline font-medium"
             >
               Sign in

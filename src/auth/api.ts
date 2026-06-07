@@ -1,17 +1,10 @@
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
-import type { LoginCredentials } from "./types";
-
 export async function getUser() {
   const { data, error } = await supabase.auth.getUser();
   if (error) throw new Error(error.message);
   return data.user ?? null;
-}
-
-export async function loginUser({ email, password }: LoginCredentials): Promise<void> {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(error.message);
 }
 
 export async function logoutUser(): Promise<void> {

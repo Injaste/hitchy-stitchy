@@ -32,7 +32,7 @@ export function Navbar() {
           <a href="#get-started">
             <Button size="sm">Subscribe Now</Button>
           </a>
-          <Link to="/dashboard">
+          <Link to="/login">
             <Button
               variant="ghost"
               size="sm"

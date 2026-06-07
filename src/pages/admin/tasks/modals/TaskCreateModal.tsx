@@ -1,3 +1,5 @@
+import { ListTodo } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -49,7 +51,7 @@ const TaskCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormHeader title="Add task" />
+      <FormHeader icon={<ListTodo className="size-4" />} title="Add task" />
 
       <TaskForm />
 

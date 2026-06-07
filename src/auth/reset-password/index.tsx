@@ -5,11 +5,16 @@ import { KeyRound, MailCheck } from "lucide-react";
 import { useState } from "react";
 import Logo from "@/components/custom/logo";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
-import { FormShell, TextField, SubmitButton } from "@/components/custom/form";
+import {
+  FormCard,
+  FormHeader,
+  FormBody,
+  FormFooter,
+  FormError,
+  TextField,
+} from "@/components/custom/form";
 import { Button } from "@/components/ui/button";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
 
@@ -78,7 +83,7 @@ const ResetPassword = () => {
               . Follow the link to set a new password.
             </p>
             <div className="flex flex-col gap-3">
-              <Link to="/dashboard">
+              <Link to="/login">
                 <Button className="w-full">Back to Sign in</Button>
               </Link>
               <BackLink to="/" label="Back to Home" />
@@ -109,54 +114,41 @@ const ResetPassword = () => {
         </motion.div>
 
         <motion.div variants={itemFadeUp}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-muted-foreground">
-                <KeyRound className="size-4" />
-                <p className="text-sm font-medium">Reset your password</p>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormShell form={form}>
-                <FieldGroup>
-                  <TextField
-                    name="email"
-                    label="Email"
-                    type="email"
-                    placeholder="Email"
-                    autoFocus
-                    autoComplete="email"
-                    description="Enter the email linked to your account and we'll send you a reset link."
-                  />
+          <FormCard
+            form={form}
+            isPending={isPending}
+            isError={Boolean(mutationError)}
+          >
+            <FormHeader
+              icon={<KeyRound className="size-4" />}
+              title="Reset your password"
+            />
 
-                  <form.Subscribe selector={(s) => s.submissionAttempts}>
-                    {(attempts) => (
-                      <AnimateItem
-                        hasError={Boolean(mutationError)}
-                        error={mutationError}
-                        attemptCount={attempts}
-                      />
-                    )}
-                  </form.Subscribe>
-                </FieldGroup>
+            <FormBody>
+              <FieldGroup>
+                <TextField
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="Email"
+                  autoFocus
+                  autoComplete="email"
+                  description="Enter the email linked to your account and we'll send you a reset link."
+                />
 
-                <SubmitButton
-                  isPending={isPending}
-                  isError={Boolean(mutationError)}
-                  className="w-full"
-                >
-                  Send reset link
-                </SubmitButton>
-              </FormShell>
-            </CardContent>
-          </Card>
+                <FormError error={mutationError} />
+              </FieldGroup>
+            </FormBody>
+
+            <FormFooter submitLabel="Send reset link" fullWidth />
+          </FormCard>
         </motion.div>
 
         <motion.div variants={itemFadeUp} className="text-center mt-6 space-y-2">
           <p className="text-xs text-muted-foreground">
             Remember your password?{" "}
             <Link
-              to="/dashboard"
+              to="/login"
               className="text-primary hover:underline font-medium"
             >
               Sign in

@@ -58,7 +58,11 @@ const PasswordField = ({
               onMouseLeave={() => setShow(false)}
               className="absolute right-0.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {show ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
@@ -68,3 +72,5 @@ const PasswordField = ({
 };
 
 export default PasswordField;
+
+// TODO autofill complete, overlays ontop of the group instead of within the group boundary container

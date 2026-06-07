@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { CircleUser } from "lucide-react";
 
 import { FieldGroup } from "@/components/ui/field";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -52,7 +53,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
       isError={update.isError}
       className="max-w-sm"
     >
-      <FormHeader title="Profile" />
+      <FormHeader icon={<CircleUser className="size-4" />} title="Profile" />
 
       <FormBody>
         <FieldGroup>

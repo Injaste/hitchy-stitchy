@@ -4,12 +4,12 @@ import { Heart, CalendarCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FieldGroup } from "@/components/ui/field";
-import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   FormShell,
   TextField,
   FieldShell,
+  FormError,
   SubmitButton,
 } from "@/components/custom/form";
 import {
@@ -97,7 +97,6 @@ const StepRole: FC<StepRoleProps> = ({
   });
 
   const role = useStore(form.store, (s) => s.values.role);
-  const submissionAttempts = useStore(form.store, (s) => s.submissionAttempts);
   const formIsSubmitting = useStore(form.store, (s) => s.isSubmitting);
 
   const handleBack = () => {
@@ -195,11 +194,7 @@ const StepRole: FC<StepRoleProps> = ({
           )}
         </AnimatePresence>
 
-        <AnimateItem
-          hasError={Boolean(error)}
-          error={error ?? undefined}
-          attemptCount={submissionAttempts}
-        />
+        <FormError error={error} />
       </FieldGroup>
 
       <div className="flex flex-col gap-3">

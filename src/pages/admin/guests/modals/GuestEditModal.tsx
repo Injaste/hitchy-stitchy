@@ -1,3 +1,5 @@
+import { User } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -56,7 +58,7 @@ const GuestEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormHeader title="Edit guest" />
+      <FormHeader icon={<User className="size-4" />} title="Edit guest" />
 
       <GuestForm
         minGuest={invitation.guest_count_min}

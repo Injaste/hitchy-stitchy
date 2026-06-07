@@ -6,14 +6,16 @@ import AdminRoutes from "./routes/AdminRoutes";
 import LoadingState from "@/components/custom/states/loading-state";
 
 const Home = lazy(() => import("@/pages/home"));
-const Signup = lazy(() => import("@/pages/signup"));
-const ResetPassword = lazy(() => import("@/pages/reset-password"));
+const Login = lazy(() => import("@/auth/sign-in"));
+const Signup = lazy(() => import("@/auth/sign-up"));
+const ResetPassword = lazy(() => import("@/auth/reset-password"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Templates = lazy(() => import("@/pages/wedding"));
 const Privacy = lazy(() => import("@/pages/privacy"));
 
 const standaloneRoutes = [
   { path: "/", element: Home, fade: true },
+  { path: "/login", element: Login, fade: true },
   { path: "/signup", element: Signup, fade: true },
   { path: "/reset-password", element: ResetPassword, fade: true },
   { path: "/dashboard", element: Dashboard, fade: true },
