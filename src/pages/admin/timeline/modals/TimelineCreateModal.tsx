@@ -1,3 +1,5 @@
+import { Clock } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -42,7 +44,7 @@ const CreateTimelineItemModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormHeader title="Add schedule item" />
+      <FormHeader icon={<Clock className="size-4" />} title="Add schedule item" />
 
       <TimelineItemForm />
 

@@ -20,13 +20,3 @@ export const signUpSchema = z.object({
 })
 
 export type SignUpFormValues = z.infer<typeof signUpSchema>
-
-export interface SubscribePayload {
-  email: string
-}
-
-export const subscribeSchema = z.object({
-  email: z.email("Enter a valid email"),
-})
-
-export type SubscribeFormValues = z.infer<typeof subscribeSchema>

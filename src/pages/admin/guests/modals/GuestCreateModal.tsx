@@ -1,3 +1,5 @@
+import { User } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -46,7 +48,7 @@ const GuestCreateModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormHeader title="Add guest" />
+      <FormHeader icon={<User className="size-4" />} title="Add guest" />
 
       <GuestForm
         minGuest={invitation.guest_count_min}

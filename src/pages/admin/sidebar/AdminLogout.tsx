@@ -21,7 +21,10 @@ const AdminLogout = () => {
   const { mutate: logout } = useLogoutMutation();
 
   const handleLogout = () => {
-    logout({ onSuccess: () => navigate(`/${slug}`) });
+    // onSuccess is the second arg (callbacks) — passing it as the first arg
+    // (mutation vars) silently drops it, leaving AuthGate to bounce to /login.
+    // Admin logout returns to the public event page, per the dialog copy.
+    logout(undefined, { onSuccess: () => navigate(`/${slug}`) });
   };
 
   return (

@@ -1,3 +1,5 @@
+import { Users } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -108,7 +110,7 @@ const MemberEditModal = () => {
       isSuccess={update.isSuccess || updateAccessGroup.isSuccess || updateCouple.isSuccess}
       isError={update.isError || updateAccessGroup.isError || updateCouple.isError}
     >
-      <FormHeader title="Edit member" />
+      <FormHeader icon={<Users className="size-4" />} title="Edit member" />
 
       <MemberForm
         mode="edit"

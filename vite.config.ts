@@ -47,6 +47,11 @@ export default defineConfig({
         manualChunks(id: string) {
           const n = id.replaceAll("\\", "/")
 
+          // NOTE: these named vendor splits are currently inert under Vite 8 /
+          // Rolldown — the function-form manualChunks doesn't emit them, so the
+          // big libs collapse into page-admin/shared. Only vendor-libs (the
+          // catch-all) materializes. Proper fix (migrate to output.advancedChunks)
+          // is tracked in docs/LAUNCH-TODO.md; kept here to document intent.
           if (n.includes("node_modules/framer-motion")) return "vendor-motion"
           if (n.includes("node_modules/@supabase")) return "vendor-supabase"
           if (n.includes("node_modules/@tanstack")) return "vendor-tanstack"
@@ -69,10 +74,11 @@ export default defineConfig({
           if (n.includes("node_modules/")) return "vendor-libs"
 
           if (n.includes("/src/pages/home")) return "page-home"
-          if (n.includes("/src/pages/signup")) return "page-signup"
+          // The public auth pages (login, sign-up, reset) are small — one chunk.
+          if (n.includes("/src/auth/sign-in") ||
+            n.includes("/src/auth/sign-up") ||
+            n.includes("/src/auth/reset-password")) return "page-auth"
           if (n.includes("/src/pages/dashboard")) return "page-dashboard"
-          if (n.includes("/src/pages/create-event")) return "page-create-event"
-          if (n.includes("/src/pages/invitation")) return "page-invitation"
           if (n.includes("/src/pages/admin")) return "page-admin"
 
           if (n.includes("/src/")) return "shared"

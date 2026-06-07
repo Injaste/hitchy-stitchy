@@ -123,7 +123,7 @@ export function Hero() {
             <ArrowRight className="w-4 h-4 transition-transform group-hover/button:translate-x-1" />
           </Button>
         </a>
-        <Link to="/dashboard">
+        <Link to="/login">
           <Button variant="outline" size="lg" className="min-w-44 text-base">
             Sign in
           </Button>

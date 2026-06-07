@@ -29,7 +29,7 @@ const CreateEventForm = () => {
   const {
     mutateAsync: createEvent,
     isPending,
-    error,
+    error: mutationError,
     isError,
     reset: resetCreateEvent,
   } = useCreateEventMutation();
@@ -76,7 +76,7 @@ const CreateEventForm = () => {
                   }}
                   onSubmit={handleSubmit}
                   isSubmitting={isPending}
-                  error={error}
+                  error={mutationError}
                 />
               )}
             </StepsDirection>

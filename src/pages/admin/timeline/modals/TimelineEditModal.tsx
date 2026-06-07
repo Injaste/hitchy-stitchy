@@ -1,3 +1,5 @@
+import { Clock } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -49,7 +51,7 @@ const TimelineEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormHeader title="Edit item" />
+      <FormHeader icon={<Clock className="size-4" />} title="Edit item" />
 
       <TimelineItemForm />
 

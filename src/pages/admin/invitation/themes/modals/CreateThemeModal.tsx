@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
+import { Palette } from "lucide-react";
 
 import {
   FormDialog,
@@ -54,7 +55,7 @@ const CreateThemeModal = () => {
       isSuccess={create.isSuccess}
       isError={create.isError}
     >
-      <FormHeader title="Name your theme" />
+      <FormHeader icon={<Palette className="size-4" />} title="Name your theme" />
 
       <FormBody>
         <FieldGroup>

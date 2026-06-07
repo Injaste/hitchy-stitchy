@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useFormShell } from "./form-context";
 
 interface FormHeaderProps {
   title: ReactNode;
+  /** Leading icon rendered before the title. */
+  icon?: ReactNode;
 }
 
 /**
@@ -12,18 +15,25 @@ interface FormHeaderProps {
  * DialogTitle (required for Radix a11y); inline cards render a matching plain
  * div, since DialogTitle needs Dialog context.
  */
-const FormHeader = ({ title }: FormHeaderProps) => {
+const FormHeader = ({ title, icon }: FormHeaderProps) => {
   const { inDialog } = useFormShell();
 
   return (
     <DialogHeader>
       {inDialog ? (
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle className={icon ? "flex items-center gap-2" : undefined}>
+          {icon}
+          {title}
+        </DialogTitle>
       ) : (
         <div
           data-slot="dialog-title"
-          className="cn-font-heading font-display text-base leading-none font-medium"
+          className={cn(
+            "cn-font-heading font-display text-base leading-none font-medium",
+            icon && "flex items-center gap-2",
+          )}
         >
+          {icon}
           {title}
         </div>
       )}

@@ -1,3 +1,5 @@
+import { ListTodo } from "lucide-react";
+
 import {
   FormDialog,
   FormFooter,
@@ -57,7 +59,7 @@ const TaskEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormHeader title="Edit task" />
+      <FormHeader icon={<ListTodo className="size-4" />} title="Edit task" />
 
       <TaskForm />
 
