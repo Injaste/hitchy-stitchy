@@ -19,82 +19,45 @@ import { widthReveal } from "@/lib/animations";
 import { useIsMobile } from "@/hooks/use-media-query";
 
 import { useMembersQuery } from "../../members/queries";
-import {
-  useTasksFilterStore,
-  type PriorityFilter,
-} from "../hooks/useTasksFilter";
+import { useTasksFilterStore } from "../hooks/useTasksFilter";
 
-const PRIORITY_VALUES: { value: PriorityFilter; label: string }[] = [
-  { value: "high", label: "High" },
-  { value: "medium", label: "Medium" },
-  { value: "low", label: "Low" },
-  { value: "none", label: "No priority" },
-];
-
-interface FilterControlsProps {
-  priority: PriorityFilter | null;
+interface AssigneeSelectProps {
   memberId: string | null;
-  setPriority: (p: PriorityFilter | null) => void;
   setMemberId: (id: string | null) => void;
   members: { id: string; display_name: string }[] | undefined;
   triggerClassName?: string;
 }
 
-const FilterControls: FC<FilterControlsProps> = ({
-  priority,
+const AssigneeSelect: FC<AssigneeSelectProps> = ({
   memberId,
-  setPriority,
   setMemberId,
   members,
   triggerClassName,
 }) => (
-  <>
-    <Select
-      value={priority ?? "all"}
-      onValueChange={(v) =>
-        setPriority(v === "all" ? null : (v as PriorityFilter))
-      }
-    >
-      <SelectTrigger className={triggerClassName}>
-        <SelectValue placeholder="Priority" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All priorities</SelectItem>
-        {PRIORITY_VALUES.map((p) => (
-          <SelectItem key={p.value} value={p.value}>
-            {p.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-
-    <Select
-      value={memberId ?? "all"}
-      onValueChange={(v) => setMemberId(v === "all" ? null : v)}
-    >
-      <SelectTrigger className={triggerClassName}>
-        <SelectValue placeholder="Assignee" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All assignees</SelectItem>
-        {members?.map((m) => (
-          <SelectItem key={m.id} value={m.id}>
-            {m.display_name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </>
+  <Select
+    value={memberId ?? "all"}
+    onValueChange={(v) => setMemberId(v === "all" ? null : v)}
+  >
+    <SelectTrigger className={triggerClassName}>
+      <SelectValue placeholder="Assignee" />
+    </SelectTrigger>
+    <SelectContent position="popper" align="end">
+      <SelectItem value="all">All assignees</SelectItem>
+      {members?.map((m) => (
+        <SelectItem key={m.id} value={m.id}>
+          {m.display_name}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
 );
 
 const TasksFilter: FC = () => {
   const isMobile = useIsMobile();
-  const priority = useTasksFilterStore((s) => s.priority);
   const memberId = useTasksFilterStore((s) => s.memberId);
-  const setPriority = useTasksFilterStore((s) => s.setPriority);
   const setMemberId = useTasksFilterStore((s) => s.setMemberId);
   const reset = useTasksFilterStore((s) => s.reset);
-  const activeCount = (priority ? 1 : 0) + (memberId ? 1 : 0);
+  const activeCount = memberId ? 1 : 0;
   const { data: members } = useMembersQuery();
 
   if (isMobile) {
@@ -117,10 +80,8 @@ const TasksFilter: FC = () => {
         </PopoverTrigger>
         <PopoverContent align="end" className="w-64 p-3 space-y-3">
           <div className="flex flex-col gap-2 [&>button]:w-full">
-            <FilterControls
-              priority={priority}
+            <AssigneeSelect
               memberId={memberId}
-              setPriority={setPriority}
               setMemberId={setMemberId}
               members={members}
               triggerClassName="w-full"
@@ -142,13 +103,11 @@ const TasksFilter: FC = () => {
 
   return (
     <div className="flex items-center gap-2 shrink-0">
-      <FilterControls
-        priority={priority}
+      <AssigneeSelect
         memberId={memberId}
-        setPriority={setPriority}
         setMemberId={setMemberId}
         members={members}
-        triggerClassName="h-9 w-[140px]"
+        triggerClassName="h-9 w-[150px]"
       />
       <AnimatePresence initial={false}>
         {activeCount > 0 && (

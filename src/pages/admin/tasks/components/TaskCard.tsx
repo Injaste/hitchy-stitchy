@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Calendar, GripVertical, Users } from "lucide-react";
+import { Calendar, GripVertical } from "lucide-react";
 import { format, isBefore, startOfToday } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -11,36 +11,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import NotesMarkdown from "@/components/custom/notes-markdown";
-import { Badge } from "@/components/ui/badge";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTaskMutations } from "../queries";
-import MemberBadge from "@/pages/admin/members/components/MemberBadge";
-import {
-  PRIORITY_BADGE_CLASS,
-  PRIORITY_LABELS,
-  type Task,
-  type TaskPriority,
-  type TaskStatus,
-} from "../types";
+import { type Task, type TaskPriority, type TaskStatus } from "../types";
 import { Button } from "@/components/ui/button";
 import TaskStatusIcon from "./TaskStatusIcon";
+import AssigneeStack from "./AssigneeStack";
 
 interface TaskCardProps {
   task: Task;
   dragHandleRef?: (element: Element | null) => void;
+  isDragging?: boolean;
 }
 
 const priorityBar: Record<TaskPriority, string> = {
   high: "bg-destructive/70",
   medium: "bg-warning/60",
   low: "bg-foreground/30",
-};
-
-const statusCard: Record<TaskStatus, string> = {
-  todo: "",
-  in_progress: "ring-primary/30",
-  done: "opacity-60",
 };
 
 /**
@@ -51,7 +39,7 @@ const statusCard: Record<TaskStatus, string> = {
  * listeners (dnd-kit treats a click without movement as a click, not a
  * drag).
  */
-const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
+const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
 
@@ -67,27 +55,34 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
     !!task.due_at &&
     isBefore(parseLocalDate(task.due_at), startOfToday());
 
+  const hasMeta = !!task.due_at || task.assignees.length > 0;
+
   return (
     <Card
       data-task-id={task.id}
       onClick={() => openDetail(task)}
       variant="interactive"
+      size="sm"
       className={cn(
-        "group/task-card relative",
-        statusCard[task.status],
-        isOverdue && "ring-1 ring-destructive/30",
+        "group/task-card relative gap-2 transition-all",
+        isDone && "opacity-60",
+        // Overdue owns its ring at every state so the shared
+        // interactive `hover:ring-secondary` can't flip the alarm green.
+        isOverdue && "ring-destructive/40 hover:ring-destructive/60",
+        // While being dragged, the card carries a success ring (wins over
+        // the base/overdue/interactive rings via order + width).
+        isDragging && "ring-2 ring-success",
       )}
     >
-      {isOverdue && (
-        <span className="pointer-events-none absolute inset-0 rounded-[inherit] ring-1 ring-destructive animate-pulse" />
+      {/* Priority — the single priority signal */}
+      {task.priority && (
+        <span
+          className={cn(
+            "absolute left-0 inset-y-2 w-1 rounded-full",
+            priorityBar[task.priority],
+          )}
+        />
       )}
-
-      <div
-        className={cn(
-          "absolute left-0 inset-y-2 w-1 rounded-full",
-          task.priority ? priorityBar[task.priority] : "bg-border",
-        )}
-      />
 
       {/* Drag handle — always visible on mobile, appears on hover on desktop */}
       <button
@@ -96,28 +91,34 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
         aria-label="Drag to reorder"
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          "absolute top-2.5 right-2.5 z-10 rounded p-1 touch-none",
+          "absolute top-2 right-2 z-10 rounded p-1 touch-none",
           "cursor-grab active:cursor-grabbing",
           "text-muted-foreground/40 hover:text-muted-foreground/70",
           "transition-opacity duration-150",
-          "opacity-100 lg:opacity-0 lg:group-hover/task-card:opacity-100",
+          "opacity-100 md:opacity-0 md:group-hover/task-card:opacity-100",
         )}
       >
         <GripVertical className="size-4" />
       </button>
 
-      <CardHeader className="space-y-1.5">
-        <div className="flex items-start gap-3 pr-6">
+      <CardHeader className="gap-2">
+        <div className="flex items-start gap-2.5 pr-6">
           <Button
             onClick={handleToggle}
             className="group/task-button-hover relative shrink-0 items-start -mx-2.5 h-fit"
             variant="empty"
           >
-            <TaskStatusIcon status={task.status} />
+            <TaskStatusIcon
+              status={task.status}
+              className={cn(
+                task.status !== "done" &&
+                  "transition-opacity duration-200 group-hover/task-button-hover:opacity-0",
+              )}
+            />
             {task.status !== "done" && (
               <TaskStatusIcon
                 status="done"
-                className="absolute -top-0.5 opacity-0 transition-opacity duration-200 group-hover/task-button-hover:opacity-60"
+                className="absolute -top-0.5 opacity-0 transition-opacity duration-200 group-hover/task-button-hover:opacity-100"
               />
             )}
           </Button>
@@ -132,55 +133,32 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef }) => {
         </div>
 
         {task.details && (
-          <CardDescription>
+          <CardDescription className="line-clamp-2">
             <NotesMarkdown size="sm" content={task.details} />
           </CardDescription>
         )}
 
-        <div className="space-y-1.5">
-          {(task.priority || task.due_at) && (
-            <div className="flex items-center justify-between gap-2">
-              {task.priority ? (
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium font-sans tracking-wide",
-                    PRIORITY_BADGE_CLASS[task.priority],
-                  )}
-                >
-                  {PRIORITY_LABELS[task.priority]}
-                </span>
-              ) : (
-                <span />
-              )}
-
-              {task.due_at && (
-                <span
-                  className={cn(
-                    "flex items-center gap-1 text-xs font-sans",
-                    isOverdue ? "text-destructive/70" : "text-muted-foreground",
-                  )}
-                >
-                  <Calendar className="w-3 h-3 shrink-0" />
-                  {format(parseLocalDate(task.due_at), "d MMM yyyy")}
-                </span>
-              )}
-            </div>
-          )}
-
-          {task.assignees.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1 text-muted-foreground">
-              <Users className="w-3 h-3 shrink-0" />
-              {task.assignees.slice(0, 2).map((id) => (
-                <MemberBadge key={id} memberId={id} variant="secondary" />
-              ))}
-              {task.assignees.length > 2 && (
-                <Badge variant="secondary" className="text-xs font-normal">
-                  +{task.assignees.length - 2}
-                </Badge>
-              )}
-            </div>
-          )}
-        </div>
+        {hasMeta && (
+          <div className="flex items-center justify-between gap-2">
+            {task.due_at ? (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 text-xs font-sans",
+                  isOverdue
+                    ? "text-destructive font-medium"
+                    : "text-muted-foreground",
+                )}
+              >
+                <Calendar className="size-3 shrink-0" />
+                {isOverdue && "Overdue · "}
+                {format(parseLocalDate(task.due_at), "d MMM")}
+              </span>
+            ) : (
+              <span />
+            )}
+            <AssigneeStack ids={task.assignees} />
+          </div>
+        )}
       </CardHeader>
     </Card>
   );

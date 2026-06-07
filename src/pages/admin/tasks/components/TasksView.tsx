@@ -1,4 +1,4 @@
-import { useMemo, type FC, type ReactNode } from "react";
+import { useMemo, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 import { DragDropProvider } from "@dnd-kit/react";
 import { Feedback } from "@dnd-kit/dom";
@@ -6,7 +6,6 @@ import { Feedback } from "@dnd-kit/dom";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import Container from "@/components/custom/container";
 import ErrorState from "@/components/custom/states/error-state";
-import { useIsMobile } from "@/hooks/use-media-query";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
@@ -15,7 +14,6 @@ import { useTaskDnd, type ItemsByStatus } from "../hooks/useTaskDnd";
 import {
   STATUS_LABELS,
   STATUS_ORDER_DESKTOP,
-  STATUS_ORDER_MOBILE,
   type Task,
   type TaskOrder,
   type TaskStatus,
@@ -23,7 +21,6 @@ import {
 import { applyOrder } from "../utils";
 import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
-import TasksFilterBar from "./TasksFilterBar";
 import TasksSection from "./TasksSection";
 import TasksDndErrorBoundary from "./TasksDndErrorBoundary";
 
@@ -45,7 +42,6 @@ const TasksView: FC<TasksViewProps> = ({
   refetch,
 }) => {
   const openCreate = useTaskModalStore((s) => s.openCreate);
-  const isMobile = useIsMobile();
   const { canCreate } = useAccess();
 
   const orderedTasks = useMemo(
@@ -53,10 +49,7 @@ const TasksView: FC<TasksViewProps> = ({
     [data, taskOrder],
   );
 
-  const { tabs, activeLabel, setActiveLabel, filteredTasks } =
-    useTasksFilter(orderedTasks);
-
-  const order = isMobile ? STATUS_ORDER_MOBILE : STATUS_ORDER_DESKTOP;
+  const { filteredTasks } = useTasksFilter(orderedTasks);
 
   const baseItemsByStatus = useMemo<ItemsByStatus>(() => {
     const map: ItemsByStatus = { todo: [], in_progress: [], done: [] };
@@ -103,19 +96,10 @@ const TasksView: FC<TasksViewProps> = ({
 
     return (
       <ComponentFade key="content">
-        <div className="flex flex-col gap-6 lg:grid lg:h-full lg:grid-rows-[auto_minmax(0,1fr)] lg:gap-6">
-          <TasksFilterBar
-            tabs={tabs}
-            activeLabel={activeLabel}
-            onSelect={setActiveLabel}
-          />
+        <div className="md:h-full md:grid md:grid-rows-[minmax(0,1fr)]">
           <TasksDndErrorBoundary
             fallback={
-              <ColumnsLayout
-                order={order}
-                items={baseItemsByStatus}
-                tasksById={tasksById}
-              />
+              <Board items={baseItemsByStatus} tasksById={tasksById} />
             }
           >
             <DragDropProvider
@@ -128,11 +112,7 @@ const TasksView: FC<TasksViewProps> = ({
               onDragOver={onDragOver}
               onDragEnd={onDragEnd}
             >
-              <ColumnsLayout
-                order={order}
-                items={items}
-                tasksById={tasksById}
-              />
+              <Board items={items} tasksById={tasksById} />
             </DragDropProvider>
           </TasksDndErrorBoundary>
         </div>
@@ -141,25 +121,26 @@ const TasksView: FC<TasksViewProps> = ({
   };
 
   return (
-    <Container pageSpacing className="flex flex-col lg:mt-6 lg:flex-1 lg:min-h-0 lg:grid lg:grid-rows-[minmax(0,1fr)]">
+    <Container pageSpacing className="flex flex-col md:mt-6 md:flex-1 md:min-h-0 md:grid md:grid-rows-[minmax(0,1fr)]">
       <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
     </Container>
   );
 };
 
-const SectionsRow: FC<{ children: ReactNode }> = ({ children }) => (
-  <div className="flex flex-col gap-12 lg:grid lg:grid-flow-col lg:auto-cols-[minmax(360px,1fr)] lg:gap-6 lg:overflow-x-auto lg:overflow-y-hidden lg:px-1 lg:-mx-1 lg:py-1">
-    {children}
-  </div>
-);
-
-const ColumnsLayout: FC<{
-  order: TaskStatus[];
+/**
+ * The lane board. Two layouts:
+ *  - Below md: lanes stack vertically (CSS order puts In progress first); the
+ *    page scrolls the whole stack.
+ *  - md and up: a 3-column grid that fills the height, each lane scrolling its
+ *    own cards independently. Lanes hold a 300px min width and the board
+ *    scrolls horizontally once they no longer fit, so cards never get cramped.
+ */
+const Board: FC<{
   items: ItemsByStatus;
   tasksById: Map<string, Task>;
-}> = ({ order, items, tasksById }) => (
-  <SectionsRow>
-    {order.map((status, columnIndex) => (
+}> = ({ items, tasksById }) => (
+  <div className="flex flex-col gap-5 md:h-full md:grid md:grid-cols-[repeat(3,minmax(300px,1fr))] md:gap-5 md:overflow-x-auto md:overflow-y-hidden md:px-1 md:-mx-1 md:pt-1 md:pb-2">
+    {(STATUS_ORDER_DESKTOP as TaskStatus[]).map((status, columnIndex) => (
       <TasksSection
         key={status}
         status={status}
@@ -169,7 +150,7 @@ const ColumnsLayout: FC<{
         tasksById={tasksById}
       />
     ))}
-  </SectionsRow>
+  </div>
 );
 
 export default TasksView;

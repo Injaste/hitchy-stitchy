@@ -14,7 +14,7 @@ const Tasks = () => {
   const order = useTaskOrderQuery();
 
   return (
-    <div className="flex flex-col lg:h-full lg:min-h-0">
+    <div className="flex flex-col md:h-full md:min-h-0">
       <TasksHeader
         isLoading={tasks.isLoading}
         isError={tasks.isError}

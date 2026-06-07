@@ -1,34 +1,27 @@
 import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 
-import { ALL_LABEL, type Task, type TaskPriority } from "../types";
-
-export type PriorityFilter = TaskPriority | "none";
+import { ALL_LABEL, type Task } from "../types";
 
 interface TasksFilterStore {
   activeLabel: string;
-  priority: PriorityFilter | null;
   memberId: string | null;
   setActiveLabel: (label: string) => void;
-  setPriority: (p: PriorityFilter | null) => void;
   setMemberId: (id: string | null) => void;
   reset: () => void;
 }
 
 export const useTasksFilterStore = create<TasksFilterStore>((set) => ({
   activeLabel: ALL_LABEL,
-  priority: null,
   memberId: null,
   setActiveLabel: (activeLabel) => set({ activeLabel }),
-  setPriority: (priority) => set({ priority }),
   setMemberId: (memberId) => set({ memberId }),
-  reset: () => set({ priority: null, memberId: null }),
+  reset: () => set({ memberId: null }),
 }));
 
 export function useTasksFilter(tasks: Task[]) {
   const activeLabel = useTasksFilterStore((s) => s.activeLabel);
   const setActiveLabel = useTasksFilterStore((s) => s.setActiveLabel);
-  const priority = useTasksFilterStore((s) => s.priority);
   const memberId = useTasksFilterStore((s) => s.memberId);
 
   const tabs = useMemo(() => {
@@ -48,20 +41,18 @@ export function useTasksFilter(tasks: Task[]) {
 
   const filteredTasks = useMemo(() => {
     const labelActive = activeLabel !== ALL_LABEL;
-    const priorityActive = priority !== null;
     const memberActive = memberId !== null;
 
-    if (!labelActive && !priorityActive && !memberActive) return tasks;
+    if (!labelActive && !memberActive) return tasks;
 
     return tasks.filter((t) => {
       if (labelActive && t.label !== activeLabel) return false;
-      if (priorityActive && (t.priority ?? "none") !== priority) return false;
       if (memberActive && !t.assignees.includes(memberId)) return false;
       return true;
     });
-  }, [tasks, activeLabel, priority, memberId]);
+  }, [tasks, activeLabel, memberId]);
 
-  const activeCount = (priority ? 1 : 0) + (memberId ? 1 : 0);
+  const activeCount = memberId ? 1 : 0;
 
   return {
     tabs,
