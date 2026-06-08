@@ -14,11 +14,11 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground hover:bg-primary/80 shadow-sm border-primary",
         outline:
-          "border-border bg-transparent shadow-xs hover:bg-primary/20 hover:text-foreground aria-expanded:bg-primary/20 aria-expanded:text-foreground",
+          "border-border bg-transparent shadow-xs hover:bg-primary/10 hover:text-foreground aria-expanded:bg-primary/20 aria-expanded:text-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
-          "hover:bg-primary/20 hover:text-foreground aria-expanded:bg-primary/20 aria-expanded:text-foreground",
+          "hover:bg-primary/10 hover:text-foreground aria-expanded:bg-primary/20 aria-expanded:text-foreground",
         "ghost-success":
           "text-success hover:bg-success/10 focus-visible:border-success/40 focus-visible:ring-success/20",
         card: "block whitespace-normal bg-none border-none hover:[&>.card]:ring-secondary hover:[&>.card]:shadow-sm text-left",

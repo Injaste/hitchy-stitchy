@@ -85,7 +85,7 @@ const TemplateGalleryCard = ({
       )}
 
       <div
-        className="absolute inset-x-0 bottom-0 h-2/5 backdrop-blur-md pointer-events-none"
+        className="absolute inset-x-0 bottom-0 h-2/5 backdrop-blur-md rounded-b-xl pointer-events-none"
         style={{
           maskImage:
             "linear-gradient(to bottom, transparent 0%, black 40%, black 100%)",
