@@ -11,4 +11,5 @@ scroll to answer a simple question is a tax on every task.
 - [forms.md](forms.md) — form primitives (bundles vs shells), when to use which, and how to surface form errors (inline vs toast).
 - [auth.md](auth.md) — auth folder structure, the `AuthGate` → `/login` pattern, the login/session/redirect flow, and logout destinations.
 - [mutations.md](mutations.md) — the `useMutation` wrapper (silent/toast/promise), and where mutation side effects live (data → hook, UI/routing → call site).
+- [destructive-actions.md](destructive-actions.md) — how deletes are gated: type-to-confirm for high-stakes deletes (the match rule + tier-per-action table), and the planned server-side soft-delete/undo.
 - [bundling.md](bundling.md) — the `manualChunks` strategy, the Rolldown vendor-split caveat, and lazy-route chunking.

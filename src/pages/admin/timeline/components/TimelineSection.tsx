@@ -129,7 +129,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
                       animate="show"
                       exit="hidden"
                       layout
-                      className="shrink-0 w-[calc(100%_-_4rem)] 2xs:w-[calc(100%_-_5rem)] xs:w-[calc(100%_-_6rem)] sm:w-72 self-stretch"
+                      className="shrink-0 w-[calc(100%-4rem)] 2xs:w-[calc(100%-5rem)] xs:w-[calc(100%-6rem)] sm:w-72 self-stretch"
                     >
                       <TimelineCard item={item} dayItems={dayItems} />
                     </motion.div>

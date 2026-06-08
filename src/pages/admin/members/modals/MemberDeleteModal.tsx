@@ -36,6 +36,7 @@ const MemberDeleteModal = () => {
           to will remain, but their name will be removed from those assignments.
         </>
       }
+      confirmPhrase={member.display_name}
       confirmLabel="Delete access"
       onConfirm={handleConfirm}
       isPending={remove.isPending}
