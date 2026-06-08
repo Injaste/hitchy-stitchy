@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { Plus, ListTodo } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import EmptyState from "@/components/custom/states/empty-state";
 
 interface TasksEmptyProps {
   onAdd: () => void;
@@ -10,28 +10,23 @@ interface TasksEmptyProps {
 }
 
 const TasksEmpty: FC<TasksEmptyProps> = ({ onAdd, canCreate }) => (
-  <Card className="border border-border/50 border-dashed ring-0 bg-transparent shadow-none">
-    <CardContent className="flex flex-col items-center justify-center text-center py-24 px-8">
-      <div className="w-16 h-16 rounded-full bg-muted border border-dashed border-border flex items-center justify-center mb-6">
-        <ListTodo className="w-6 h-6 text-muted-foreground/50" />
+  <EmptyState
+    icon={
+      <div className="w-16 h-16 rounded-full bg-primary/10 border border-dashed border-primary/20 flex items-center justify-center">
+        <ListTodo className="w-7 h-7 text-primary" />
       </div>
-
-      <h2 className="font-display text-xl font-medium text-foreground mb-2">
-        Nothing on the list yet
-      </h2>
-      <p className="text-muted-foreground text-sm max-w-[26ch] leading-relaxed mb-8">
-        Add your first task to keep everything in one place — from florals to
-        final fittings.
-      </p>
-
-      {canCreate && (
+    }
+    title="Nothing on the list yet"
+    description="Add your first task to keep everything in one place — from florals to final fittings."
+    action={
+      canCreate ? (
         <Button onClick={onAdd} className="gap-1">
           <Plus className="w-4 h-4" />
           Add First Task
         </Button>
-      )}
-    </CardContent>
-  </Card>
+      ) : undefined
+    }
+  />
 );
 
 export default TasksEmpty;
