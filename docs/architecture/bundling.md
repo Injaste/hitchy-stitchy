@@ -7,7 +7,7 @@ with `vendor-libs` as the catch-all.
 
 > ⚠️ Inert under Vite 8 / Rolldown — only `vendor-libs` emits; the big libs
 > collapse into `page-admin` (~2.1 MB) + `shared`. Fix = migrate to
-> `output.advancedChunks` (see `LAUNCH-TODO.md`). Rules kept (with a NOTE) to
+> `output.advancedChunks` (see `../todo/launch.md`). Rules kept (with a NOTE) to
 > document intent.
 
 **Layer 2 — src by route** (these work):

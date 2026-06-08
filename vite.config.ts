@@ -51,7 +51,7 @@ export default defineConfig({
           // Rolldown — the function-form manualChunks doesn't emit them, so the
           // big libs collapse into page-admin/shared. Only vendor-libs (the
           // catch-all) materializes. Proper fix (migrate to output.advancedChunks)
-          // is tracked in docs/LAUNCH-TODO.md; kept here to document intent.
+          // is tracked in docs/todo/launch.md; kept here to document intent.
           if (n.includes("node_modules/framer-motion")) return "vendor-motion"
           if (n.includes("node_modules/@supabase")) return "vendor-supabase"
           if (n.includes("node_modules/@tanstack")) return "vendor-tanstack"

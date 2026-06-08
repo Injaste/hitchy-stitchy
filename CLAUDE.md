@@ -78,6 +78,6 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **Verification:** Run `npm run build` (not just `tsc`) before marking any task done — Vite catches things tsc misses.
 
-**Cleanliness:** No `console.log`, commented-out code, or `// TODO` left in committed files. Use `docs/LAUNCH-TODO.md` for deferred work.
+**Cleanliness:** No `console.log`, commented-out code, or `// TODO` left in committed files. Use `docs/todo/` for deferred work.
 
 **Architecture & conventions:** Detailed standards and rationale live in [`docs/architecture/`](docs/architecture/README.md) — read the relevant one before working in that area: [conventions](docs/architecture/conventions.md) (naming, comment style), [forms](docs/architecture/forms.md) (primitive tiers; inline `<FormError>` vs toast, coupled to `silent`), [auth](docs/architecture/auth.md) (gate → `/login`, redirect-sanitize, login cache write, logout), [mutations](docs/architecture/mutations.md) (wrapper modes; side effects: data/cache → query hook, UI/routing → call site), [bundling](docs/architecture/bundling.md) (chunk strategy; vendor split inert under Rolldown). Keep these current when you change the underlying behavior.
