@@ -16,15 +16,23 @@ export const MEMBER_STATUS_CONFIG: Record<
   MemberStatusLabel,
   { icon: LucideIcon; label: string; className: string }
 > = {
-  active:   { icon: CheckCircle2, label: "Active",         className: "text-primary" },
-  pending:  { icon: Clock,        label: "Pending invite",  className: "text-muted-foreground" },
-  frozen:   { icon: Snowflake,    label: "Frozen",          className: "text-warning" },
-  rejected: { icon: UserX,        label: "Declined",        className: "text-destructive/60" },
+  active: { icon: CheckCircle2, label: "Active", className: "text-primary" },
+  pending: {
+    icon: Clock,
+    label: "Pending invite",
+    className: "text-muted-foreground",
+  },
+  frozen: { icon: Snowflake, label: "Frozen", className: "text-freeze" },
+  rejected: {
+    icon: UserX,
+    label: "Declined",
+    className: "text-destructive/60",
+  },
 };
 
 export type MemberGroups = {
-  couple: Member[];   // bride + groom
-  active: Member[];   // joined or pending (not couple, not inactive)
+  couple: Member[]; // bride + groom
+  active: Member[]; // joined or pending (not couple, not inactive)
   inactive: Member[]; // frozen or rejected
 };
 

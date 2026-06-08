@@ -1,5 +1,13 @@
 import { format, differenceInMinutes } from "date-fns";
 
+import ConfirmAlertModal from "@/components/custom/confirm-alert-modal";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
+
+import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useTimelineLifecycleMutations, useActiveTimelineQuery } from "../queries";
+import { useAdminStore } from "../../store/useAdminStore";
+import { scheduledStartDate, scheduledEndDate } from "../utils";
+
 function formatDuration(totalMinutes: number): string {
   const d = Math.floor(totalMinutes / 1440);
   const h = Math.floor((totalMinutes % 1440) / 60);
@@ -10,22 +18,6 @@ function formatDuration(totalMinutes: number): string {
       .join(" ") || "< 1m"
   );
 }
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import SubmitButton from "@/components/custom/form/SubmitButton";
-import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
-
-import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
-import { useTimelineLifecycleMutations, useActiveTimelineQuery } from "../queries";
-import { useAdminStore } from "../../store/useAdminStore";
-import { scheduledStartDate, scheduledEndDate } from "../utils";
 
 const WillEndNote = ({ title }: { title: string }) => (
   <p>
@@ -135,42 +127,24 @@ const TimelineConfirmModal = () => {
   }[reason];
 
   return (
-    <AlertDialog open={isConfirmOpen} onOpenChange={closeConfirm}>
-      <AlertDialogContent size="sm">
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {config.titlePrefix}{" "}
-            <span className="font-medium text-foreground">"{item.title}"</span>
-            {" "}{config.titleSuffix}
-          </AlertDialogTitle>
-          <AlertDialogDescription asChild>
-            <div className="space-y-1.5 text-left">
-              {config.body}
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel
-            variant="outline"
-            size="sm"
-            onClick={closeConfirm}
-            disabled={mutation.isPending}
-          >
-            Cancel
-          </AlertDialogCancel>
-          <SubmitButton
-            type="button"
-            size="sm"
-            onClick={handleConfirm}
-            isPending={mutation.isPending}
-            isSuccess={mutation.isSuccess}
-            isError={mutation.isError}
-          >
-            {config.action}
-          </SubmitButton>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmAlertModal
+      open={isConfirmOpen}
+      onOpenChange={closeConfirm}
+      title={
+        <>
+          {config.titlePrefix}{" "}
+          <span className="font-medium text-foreground">"{item.title}"</span>
+          {" "}{config.titleSuffix}
+        </>
+      }
+      confirmLabel={config.action}
+      onConfirm={handleConfirm}
+      isPending={mutation.isPending}
+      isSuccess={mutation.isSuccess}
+      isError={mutation.isError}
+    >
+      {config.body}
+    </ConfirmAlertModal>
   );
 };
 

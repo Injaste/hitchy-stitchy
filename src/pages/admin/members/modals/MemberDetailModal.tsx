@@ -76,7 +76,7 @@ const MemberDetailModal = () => {
     guardFreezeMember(member) && {
       label: isFrozen ? "Restore access" : "Freeze access",
       onClick: openFreeze,
-      variant: isFrozen ? ("outline" as const) : ("freeze" as const),
+      variant: isFrozen ? ("warning" as const) : ("freeze" as const),
     },
   ];
   const primaryAction = guardEditMember(member) && {
