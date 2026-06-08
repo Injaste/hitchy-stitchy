@@ -127,7 +127,7 @@ function DialogBody({ className, children, ...props }: ScrollViewProps) {
       gradientTop
       gradientBottom
       gradientClass="from-popover"
-      className={cn("max-h-[50vh] p-4", className)}
+      className={cn("max-h-[50vh] px-4", className)}
       {...props}
     >
       {children}

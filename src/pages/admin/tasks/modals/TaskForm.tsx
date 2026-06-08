@@ -23,6 +23,12 @@ const PRIORITY_OPTIONS: SelectFieldOption[] = [
   { value: "high", label: "High" },
 ];
 
+const STATUS_OPTIONS: SelectFieldOption[] = [
+  { value: "todo", label: "To do" },
+  { value: "in_progress", label: "In progress" },
+  { value: "done", label: "Done" },
+];
+
 interface UseTaskFormOpts {
   defaultValues?: Partial<TaskFormValues>;
   onSubmit: (values: TaskFormValues) => void;
@@ -34,6 +40,7 @@ export const useTaskForm = ({ defaultValues, onSubmit }: UseTaskFormOpts) =>
       title: defaultValues?.title ?? "",
       details: defaultValues?.details ?? "",
       label: defaultValues?.label ?? "",
+      status: defaultValues?.status ?? "todo",
       priority: defaultValues?.priority ?? null,
       due_at: defaultValues?.due_at ?? null,
       assignees: defaultValues?.assignees ?? [],
@@ -77,13 +84,21 @@ const TaskForm = () => {
           placeholder="e.g. Confirm florist delivery time"
         />
 
-        <SelectComboField
-          name="label"
-          label="Label"
-          optional
-          groups={[{ items: labelOptions }]}
-          placeholder="e.g. Nikah, Sanding"
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <SelectComboField
+            name="label"
+            label="Label"
+            optional
+            groups={[{ items: labelOptions }]}
+            placeholder="e.g. Nikah, Sanding"
+          />
+
+          <SelectField
+            name="status"
+            label="Status"
+            options={STATUS_OPTIONS}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <SelectField

@@ -18,6 +18,15 @@ Until then, the in-app pending UX shows a hint + copy-email button (superadmins 
 ### Signup success "Go to Dashboard" destination
 **Status:** deferred until signup is fully enabled (today `signupUser` early-returns and the home signup links are commented out — pre-launch waitlist mode). **Issue:** the signup success screen (`src/auth/sign-up/index.tsx`, the "Account created! Check your inbox" branch) has a **"Go to Dashboard"** button → `/dashboard`. A just-signed-up user isn't authenticated yet (must confirm email first), so `AuthGate` bounces `/dashboard` → `/login` — the button promises "dashboard" but delivers "login". **When enabling signup:** relabel to "Continue to login" (or drop the CTA and lean on the "check your inbox" copy) and decide the post-confirmation flow.
 
+## Events & Days
+
+### Reconcile `event_days` when an event's date range is edited
+**Status:** deferred — no event-edit path exists yet. **Context:** the day/segment spine (migration `20260608000001`) seeds `event_days` + a default `event_segments` row **only at `create_event`**. There is intentionally **no trigger** keeping days in sync with the date range, so editing an event's `date_start`/`date_end` later will NOT adjust days on its own.
+
+**When event editing is built, the date-change handler (in `update_event`) must:**
+- **Adding days** (range extended) — seed the new `event_days` rows + a default segment each (same loop as `create_event`). Safe, do automatically.
+- **Shortening** (range reduced) — **never silently delete** days. The trigger/RPC stays add-only; deletion is always an explicit, confirmed user action. The edit UI should warn when out-of-range days hold content ("Day 3 has 5 timeline items…") and let the user keep / move-to-another-day / confirm-delete. Only *truly empty* out-of-range days (default segment, zero items, and — later — zero check-ins/guests/etc.) are safe to auto-clean.
+
 ## Performance / Bundle
 
 ### Vendor chunk splitting is inert under Vite 8 / Rolldown

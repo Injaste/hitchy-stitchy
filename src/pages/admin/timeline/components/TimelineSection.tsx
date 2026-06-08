@@ -66,7 +66,11 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
         isNotLastItem && "pb-10",
       )}
     >
-      <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full" />
+      <div className="absolute top-0 bottom-0 left-[9px] border border-foreground/50 rounded-full">
+        {!isNotLastItem && (
+          <div className="absolute -bottom-0.5 -translate-x-0.5 w-1 h-8 bg-linear-to-t from-background from-10% to-transparent" />
+        )}
+      </div>
 
       {isActive ? (
         <div className="relative size-5 shrink-0 z-1 flex items-center justify-center bg-background">
@@ -125,7 +129,7 @@ const LabelCarousel: FC<LabelCarouselProps> = ({
                       animate="show"
                       exit="hidden"
                       layout
-                      className="shrink-0 w-[calc(100%_-_4rem)] 2xs:w-[calc(100%_-_5rem)] xs:w-[calc(100%_-_6rem)] sm:w-72 self-stretch"
+                      className="shrink-0 w-[calc(100%-4rem)] 2xs:w-[calc(100%-5rem)] xs:w-[calc(100%-6rem)] sm:w-72 self-stretch"
                     >
                       <TimelineCard item={item} dayItems={dayItems} />
                     </motion.div>

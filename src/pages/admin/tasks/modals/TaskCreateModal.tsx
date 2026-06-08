@@ -32,7 +32,7 @@ const TaskCreateModal = () => {
         title: values.title,
         details: values.details,
         label: values.label,
-        status: "todo",
+        status: values.status,
         priority: values.priority,
         due_at: values.due_at,
         assignees: values.assignees,

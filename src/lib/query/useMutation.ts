@@ -47,7 +47,7 @@ export function useMutation<TArgs, TResult, TContext = unknown>(
 
   async function mutate(
     args: TArgs,
-    callbacks?: { onSuccess?: () => void },
+    callbacks?: { onSuccess?: () => void; onError?: () => void },
   ): Promise<void> {
     if ("toast" in options && options.toast) {
       const promise = _mutateAsync(args);
@@ -56,12 +56,14 @@ export function useMutation<TArgs, TResult, TContext = unknown>(
         success: options.toast.success as string,
         error: options.toast.error as string,
       });
-      await promise.then(() => callbacks?.onSuccess?.()).catch(() => {});
+      await promise
+        .then(() => callbacks?.onSuccess?.())
+        .catch(() => callbacks?.onError?.());
       return;
     }
     await _mutateAsync(args)
       .then(() => callbacks?.onSuccess?.())
-      .catch(() => {});
+      .catch(() => callbacks?.onError?.());
   }
 
   async function mutateAsync(args: TArgs): Promise<TResult> {

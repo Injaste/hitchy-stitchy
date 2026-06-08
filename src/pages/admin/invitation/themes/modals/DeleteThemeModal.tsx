@@ -34,6 +34,7 @@ const DeleteThemeModal = () => {
           This action cannot be undone.
         </>
       }
+      confirmPhrase={theme.name}
       confirmLabel="Delete"
       onConfirm={handleConfirm}
       isPending={remove.isPending}

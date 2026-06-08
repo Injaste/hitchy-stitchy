@@ -15,10 +15,8 @@ import {
   STATUS_LABELS,
   STATUS_ORDER_DESKTOP,
   type Task,
-  type TaskOrder,
   type TaskStatus,
 } from "../types";
-import { applyOrder } from "../utils";
 import TasksSkeleton from "../states/TasksSkeleton";
 import TasksEmpty from "../states/TasksEmpty";
 import TasksSection from "./TasksSection";
@@ -26,7 +24,6 @@ import TasksDndErrorBoundary from "./TasksDndErrorBoundary";
 
 interface TasksViewProps {
   data: Task[] | undefined;
-  taskOrder: TaskOrder | null | undefined;
   isLoading: boolean;
   isError: boolean;
   isRefetching: boolean;
@@ -35,18 +32,28 @@ interface TasksViewProps {
 
 const TasksView: FC<TasksViewProps> = ({
   data,
-  taskOrder,
   isLoading,
   isError,
   isRefetching,
   refetch,
 }) => {
   const openCreate = useTaskModalStore((s) => s.openCreate);
-  const { canCreate } = useAccess();
+  const { canCreate, canUpdate } = useAccess();
+  const canDrag = canUpdate("tasks");
 
+  // Server returns ORDER BY status, position; we re-sort client-side so
+  // optimistic position writes (drag, checkbox) reflect before any refetch.
+  // Bucketing by status below means a flat (position, created_at) sort yields
+  // the right order within each column.
   const orderedTasks = useMemo(
-    () => (data ? applyOrder(data, taskOrder) : []),
-    [data, taskOrder],
+    () =>
+      data
+        ? [...data].sort(
+            (a, b) =>
+              a.position - b.position || a.created_at.localeCompare(b.created_at),
+          )
+        : [],
+    [data],
   );
 
   const { filteredTasks } = useTasksFilter(orderedTasks);
@@ -94,27 +101,31 @@ const TasksView: FC<TasksViewProps> = ({
         </ComponentFade>
       );
 
+    const staticBoard = (
+      <Board items={baseItemsByStatus} tasksById={tasksById} canDrag={false} />
+    );
+
     return (
       <ComponentFade key="content">
         <div className="md:h-full md:grid md:grid-rows-[minmax(0,1fr)]">
-          <TasksDndErrorBoundary
-            fallback={
-              <Board items={baseItemsByStatus} tasksById={tasksById} />
-            }
-          >
-            <DragDropProvider
-              plugins={(defaults) => [
-                ...defaults.filter((p) => p !== Feedback),
-                Feedback.configure({ feedback: "clone" }),
-              ]}
-              sensors={sensors}
-              onDragStart={onDragStart}
-              onDragOver={onDragOver}
-              onDragEnd={onDragEnd}
-            >
-              <Board items={items} tasksById={tasksById} />
-            </DragDropProvider>
-          </TasksDndErrorBoundary>
+          {canDrag ? (
+            <TasksDndErrorBoundary fallback={staticBoard}>
+              <DragDropProvider
+                plugins={(defaults) => [
+                  ...defaults.filter((p) => p !== Feedback),
+                  Feedback.configure({ feedback: "clone" }),
+                ]}
+                sensors={sensors}
+                onDragStart={onDragStart}
+                onDragOver={onDragOver}
+                onDragEnd={onDragEnd}
+              >
+                <Board items={items} tasksById={tasksById} canDrag />
+              </DragDropProvider>
+            </TasksDndErrorBoundary>
+          ) : (
+            staticBoard
+          )}
         </div>
       </ComponentFade>
     );
@@ -138,7 +149,8 @@ const TasksView: FC<TasksViewProps> = ({
 const Board: FC<{
   items: ItemsByStatus;
   tasksById: Map<string, Task>;
-}> = ({ items, tasksById }) => (
+  canDrag: boolean;
+}> = ({ items, tasksById, canDrag }) => (
   <div className="flex flex-col gap-5 md:h-full md:grid md:grid-cols-[repeat(3,minmax(300px,1fr))] md:gap-5 md:overflow-x-auto md:overflow-y-hidden md:px-1 md:-mx-1 md:pt-1 md:pb-2">
     {(STATUS_ORDER_DESKTOP as TaskStatus[]).map((status, columnIndex) => (
       <TasksSection
@@ -148,6 +160,7 @@ const Board: FC<{
         label={STATUS_LABELS[status]}
         taskIds={items[status]}
         tasksById={tasksById}
+        canDrag={canDrag}
       />
     ))}
   </div>
