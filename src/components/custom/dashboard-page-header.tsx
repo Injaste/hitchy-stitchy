@@ -47,7 +47,7 @@ export const DashboardPageHeader: FC<DashboardPageHeaderProps> = ({
 
         <div
           className={cn(
-            "pointer-events-none absolute inset-x-0 top-full h-8 bg-linear-to-b from-background to-transparent transition-opacity duration-200",
+            "pointer-events-none absolute inset-x-0 top-full h-8 bg-linear-to-b from-background to-transparent transition-opacity",
             hasScrolled ? "opacity-100" : "opacity-0",
           )}
         />

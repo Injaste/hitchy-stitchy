@@ -39,7 +39,9 @@ const CheckboxField = ({
             labelClassName,
           )}
         >
-          {label}
+          {/* Wrap in one element so the Label's flex `gap` doesn't space out
+              multi-part labels (text + link + punctuation). */}
+          <span>{label}</span>
         </Label>
       </div>
     )}

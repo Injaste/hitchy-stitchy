@@ -68,7 +68,7 @@ const AdminSidebarHeader = () => {
             </SidebarMenuButton>
 
             {!isMobile && state === "collapsed" && (
-              <SidebarTrigger className="absolute inset-0 h-full w-full rounded-full opacity-0 transition-opacity duration-200 group-hover/logo:opacity-100" />
+              <SidebarTrigger className="absolute inset-0 h-full w-full rounded-full opacity-0 transition-opacity group-hover/logo:opacity-100" />
             )}
           </div>
         </SidebarMenuItem>

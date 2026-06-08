@@ -31,7 +31,7 @@ const ScrollGradient: FC<ScrollGradientProps> = ({
   <div
     aria-hidden
     className={cn(
-      "pointer-events-none absolute inset-x-0 z-10 transition-opacity duration-300 to-transparent",
+      "pointer-events-none absolute inset-x-0 z-10 transition-opacity to-transparent",
       heightClass,
       side === "top" ? "-top-px bg-linear-to-b" : "-bottom-px bg-linear-to-t",
       fromClass,

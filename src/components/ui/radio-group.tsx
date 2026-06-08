@@ -25,18 +25,30 @@ function RadioGroupItem({
     <RadioGroupPrimitive.Item
       data-slot="radio-group-item"
       className={cn(
-        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 cursor-pointer rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2",
+        "group/radio peer relative flex aspect-square size-4 shrink-0 cursor-pointer rounded-full border border-input bg-transparent outline-none after:absolute after:-inset-x-3 after:-inset-y-2",
+        "transition-[transform,box-shadow] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100",
         fieldRing,
-        "disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:aria-checked:border-primary data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground",
         className,
       )}
       {...props}
     >
+      {/* The filled state is one piece: a primary overlay (covering the ring)
+          fades in via opacity. Once it lands, the dot pops on top — and the
+          whole thing reverses on deselect. */}
       <RadioGroupPrimitive.Indicator
+        forceMount
         data-slot="radio-group-indicator"
-        className="flex size-4 items-center justify-center"
+        className={cn(
+          "absolute -inset-px flex items-center justify-center rounded-full bg-primary",
+          "opacity-0 transition-opacity ease-out group-data-[state=checked]/radio:opacity-100",
+        )}
       >
-        <span className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
+        <span
+          className={cn(
+            "size-2 rounded-full bg-primary-foreground",
+            "scale-0 transition-transform ease-[cubic-bezier(0.34,1.56,0.64,1)] group-data-[state=checked]/radio:delay-150 group-data-[state=checked]/radio:scale-100",
+          )}
+        />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );

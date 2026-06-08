@@ -94,7 +94,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
           "absolute top-2 right-2 z-10 rounded p-1 touch-none",
           "cursor-grab active:cursor-grabbing",
           "text-muted-foreground/40 hover:text-muted-foreground/70",
-          "transition-opacity duration-150",
+          "transition-opacity",
           "opacity-100 md:opacity-0 md:group-hover/task-card:opacity-100",
         )}
       >
@@ -112,13 +112,13 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
               status={task.status}
               className={cn(
                 task.status !== "done" &&
-                  "transition-opacity duration-200 group-hover/task-button-hover:opacity-0",
+                  "transition-opacity group-hover/task-button-hover:opacity-0",
               )}
             />
             {task.status !== "done" && (
               <TaskStatusIcon
                 status="done"
-                className="absolute -top-0.5 opacity-0 transition-opacity duration-200 group-hover/task-button-hover:opacity-100"
+                className="absolute -top-0.5 opacity-0 transition-opacity group-hover/task-button-hover:opacity-100"
               />
             )}
           </Button>

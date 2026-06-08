@@ -84,7 +84,9 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
                 <h1 className="text-xl font-semibold">{title}</h1>
                 {titleSuffix && (
                   <>
-                    <span className="text-base font-normal text-muted-foreground/50">•</span>
+                    <span className="text-base font-normal text-muted-foreground/50">
+                      •
+                    </span>
                     {titleSuffix}
                   </>
                 )}
@@ -104,7 +106,7 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
 
         <div
           className={cn(
-            "pointer-events-none absolute inset-x-0 top-full h-8 bg-linear-to-b from-background to-transparent transition-opacity duration-200",
+            "pointer-events-none absolute inset-x-0 top-full h-8 bg-linear-to-b from-background to-transparent transition-opacity",
             hasScrolled ? "opacity-100" : "opacity-0",
           )}
         />

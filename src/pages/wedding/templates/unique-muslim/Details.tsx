@@ -245,7 +245,7 @@ const Details = ({ eventConfig, pageConfig }: ThemeProps) => {
               >
                 <motion.div
                   variants={scaleIn(idx * 0.15 + 0.05)}
-                  className="w-16 h-16 rounded-full bg-(--um-card) flex items-center justify-center text-(--um-primary) mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm border border-(--um-primary)/20"
+                  className="w-16 h-16 rounded-full bg-(--um-card) flex items-center justify-center text-(--um-primary) mb-4 group-hover:scale-110 transition-transform shadow-sm border border-(--um-primary)/20"
                 >
                   <item.icon size={28} />
                 </motion.div>
