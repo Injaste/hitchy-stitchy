@@ -3,7 +3,6 @@ export const adminKeys = {
   timeline: (slug: string) => [slug, 'timeline'] as const,
   activeTimeline: (slug: string) => [slug, 'timeline', 'active'] as const,
   tasks: (slug: string) => [slug, 'tasks'] as const,
-  taskOrder: (slug: string) => [slug, 'task-order'] as const,
   archivedTasks: (slug: string) => [slug, 'archived-tasks'] as const,
   members: (slug: string) => [slug, 'members'] as const,
   accessGroups: (slug: string) => [slug, 'access-groups'] as const,

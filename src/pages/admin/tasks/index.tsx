@@ -1,7 +1,8 @@
-import { useTasksQuery, useTaskOrderQuery } from "./queries";
+import { useTasksQuery } from "./queries";
 import TasksHeader from "./components/TasksHeader";
 import TasksView from "./components/TasksView";
 import TaskModals from "./modals";
+import CardFlyOverlay from "./components/CardFlyOverlay";
 
 /**
  * Tasks page entry. Composition only — all data prep, layout, and
@@ -11,7 +12,6 @@ import TaskModals from "./modals";
  */
 const Tasks = () => {
   const tasks = useTasksQuery();
-  const order = useTaskOrderQuery();
 
   return (
     <div className="flex flex-col md:h-full md:min-h-0">
@@ -24,13 +24,13 @@ const Tasks = () => {
       />
       <TasksView
         data={tasks.data}
-        taskOrder={order.data}
         isLoading={tasks.isLoading}
         isError={tasks.isError}
         isRefetching={tasks.isRefetching}
         refetch={tasks.refetch}
       />
       <TaskModals />
+      <CardFlyOverlay />
     </div>
   );
 };

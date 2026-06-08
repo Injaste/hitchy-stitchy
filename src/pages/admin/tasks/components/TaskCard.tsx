@@ -13,6 +13,7 @@ import {
 import NotesMarkdown from "@/components/custom/notes-markdown";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useCardFly } from "../hooks/useCardFly";
 import { useTaskMutations } from "../queries";
 import { type Task, type TaskPriority, type TaskStatus } from "../types";
 import { Button } from "@/components/ui/button";
@@ -42,11 +43,21 @@ const priorityBar: Record<TaskPriority, string> = {
 const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
+  const isFlying = useCardFly((s) => s.flight?.id === task.id);
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     const next: TaskStatus = task.status === "done" ? "todo" : "done";
-    update.mutate({ ...task, status: next });
+    // checkbox teleports the card to another column → fly it there,
+    // ringed green when completing (into Done), neutral when reopening
+    useCardFly.getState().takeOff(task.id, next === "done" ? "success" : undefined);
+    update.mutate(
+      { ...task, status: next },
+      {
+        onSuccess: () => useCardFly.getState().land(task.id),
+        onError: () => useCardFly.getState().clear(),
+      },
+    );
   };
 
   const isDone = task.status === "done";
@@ -71,7 +82,9 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
         isOverdue && "ring-destructive/40 hover:ring-destructive/60",
         // While being dragged, the card carries a success ring (wins over
         // the base/overdue/interactive rings via order + width).
-        isDragging && "ring-2 ring-success",
+        isDragging && "ring-2 ring-success shadow-lg",
+        // hidden while its clone is mid-flight (useCardFly)
+        isFlying && "opacity-0",
       )}
     >
       {/* Priority — the single priority signal */}
@@ -84,22 +97,25 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
         />
       )}
 
-      {/* Drag handle — always visible on mobile, appears on hover on desktop */}
-      <button
-        ref={dragHandleRef}
-        type="button"
-        aria-label="Drag to reorder"
-        onClick={(e) => e.stopPropagation()}
-        className={cn(
-          "absolute top-2 right-2 z-10 rounded p-1 touch-none",
-          "cursor-grab active:cursor-grabbing",
-          "text-muted-foreground/40 hover:text-muted-foreground/70",
-          "transition-opacity",
-          "opacity-100 md:opacity-0 md:group-hover/task-card:opacity-100",
-        )}
-      >
-        <GripVertical className="size-4" />
-      </button>
+      {/* Drag handle — only when draggable (tasks:update). Always visible on
+          mobile, appears on hover on desktop. */}
+      {dragHandleRef && (
+        <button
+          ref={dragHandleRef}
+          type="button"
+          aria-label="Drag to reorder"
+          onClick={(e) => e.stopPropagation()}
+          className={cn(
+            "absolute top-2 right-2 z-10 rounded p-1 touch-none",
+            "cursor-grab active:cursor-grabbing",
+            "text-muted-foreground/40 hover:text-muted-foreground/70",
+            "transition-opacity",
+            "opacity-100 md:opacity-0 md:group-hover/task-card:opacity-100",
+          )}
+        >
+          <GripVertical className="size-4" />
+        </button>
+      )}
 
       <CardHeader className="gap-2">
         <div className="flex items-start gap-2.5 pr-6">

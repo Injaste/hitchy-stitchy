@@ -26,6 +26,7 @@ interface TasksSectionProps {
   label: string;
   taskIds: string[];
   tasksById: Map<string, Task>;
+  canDrag: boolean;
 }
 
 // Stacked (mobile) order: In progress → To do → Done. Reset to DOM order
@@ -42,6 +43,7 @@ const TasksSection: FC<TasksSectionProps> = ({
   label,
   taskIds,
   tasksById,
+  canDrag,
 }) => {
   const {
     scrollRef,
@@ -133,13 +135,17 @@ const TasksSection: FC<TasksSectionProps> = ({
             {taskIds.map((id, itemIndex) => {
               const task = tasksById.get(id);
               if (!task) return null;
-              return (
+              return canDrag ? (
                 <SortableTaskItem
                   key={id}
                   task={task}
                   group={status}
                   index={itemIndex}
                 />
+              ) : (
+                <div key={id}>
+                  <TaskCard task={task} />
+                </div>
               );
             })}
           </div>

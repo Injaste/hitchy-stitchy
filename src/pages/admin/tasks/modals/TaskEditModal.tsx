@@ -7,6 +7,7 @@ import {
 } from "@/components/custom/form";
 
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useCardFly } from "../hooks/useCardFly";
 import { useTaskMutations } from "../queries";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
@@ -27,6 +28,7 @@ const TaskEditModal = () => {
           title: selectedItem.title,
           details: selectedItem.details ?? "",
           label: selectedItem.label ?? "",
+          status: selectedItem.status,
           priority: selectedItem.priority,
           due_at: selectedItem.due_at,
           assignees: selectedItem.assignees,
@@ -34,17 +36,28 @@ const TaskEditModal = () => {
       : undefined,
     onSubmit: (values) => {
       if (!selectedItem) return;
-      update.mutate({
-        event_id: eventId!,
-        id: selectedItem.id,
-        title: values.title,
-        details: values.details,
-        label: values.label,
-        status: selectedItem.status,
-        priority: values.priority,
-        due_at: values.due_at,
-        assignees: values.assignees,
-      });
+      const statusChanged = values.status !== selectedItem.status;
+      // a status change moves the card to another column → fly it across
+      if (statusChanged) useCardFly.getState().takeOff(selectedItem.id);
+      update.mutate(
+        {
+          event_id: eventId!,
+          id: selectedItem.id,
+          title: values.title,
+          details: values.details,
+          label: values.label,
+          status: values.status,
+          priority: values.priority,
+          due_at: values.due_at,
+          assignees: values.assignees,
+        },
+        statusChanged
+          ? {
+              onSuccess: () => useCardFly.getState().land(selectedItem.id),
+              onError: () => useCardFly.getState().clear(),
+            }
+          : undefined,
+      );
     },
   });
 

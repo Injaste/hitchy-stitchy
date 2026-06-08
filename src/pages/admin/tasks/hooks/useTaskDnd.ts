@@ -14,7 +14,8 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { useTaskMutations } from "../queries";
 import { useTaskModalStore } from "./useTaskModalStore";
-import type { Task, TaskOrder, TaskStatus } from "../types";
+import { useCardFly } from "./useCardFly";
+import type { Task, TaskStatus } from "../types";
 
 export type ItemsByStatus = Record<TaskStatus, string[]>;
 
@@ -28,21 +29,37 @@ const sensors = [
   KeyboardSensor,
 ];
 
+// Fractional position for a card landing at `index` within `columnIds`:
+// the midpoint of its neighbours, or appended/prepended at the column ends.
+// Neighbour positions come from the committed cache (tasksById).
+const positionFor = (
+  columnIds: string[],
+  index: number,
+  tasksById: Map<string, Task>,
+): number => {
+  const prev = tasksById.get(columnIds[index - 1] ?? "")?.position;
+  const next = tasksById.get(columnIds[index + 1] ?? "")?.position;
+
+  if (prev != null && next != null) return (prev + next) / 2;
+  if (prev != null) return prev + 1000;
+  if (next != null) return next / 2;
+  return 1000; // empty column
+};
+
 export const useTaskDnd = (
   baseItemsByStatus: ItemsByStatus,
   tasksById: Map<string, Task>,
 ) => {
   const { slug, eventId } = useAdminStore();
   const queryClient = useQueryClient();
-  const { saveOrder, saveStatuses } = useTaskMutations();
+  const { move: moveTask } = useTaskMutations();
   const setDragging = useTaskModalStore((s) => s.setDragging);
 
   const [items, setItems] = useState<ItemsByStatus>(baseItemsByStatus);
   const [activeId, setActiveId] = useState<string | null>(null);
   const snapshot = useRef<ItemsByStatus>(baseItemsByStatus);
-  const startStatusRef = useRef<TaskStatus | null>(null);
-  // Tracks whether onDragOver fired at least once. Prevents spurious
-  // saveOrder calls when the handle is clicked without dragging.
+  // Tracks whether onDragOver fired at least once. Prevents a spurious
+  // move when the handle is clicked without dragging.
   const hasMoved = useRef(false);
 
   useEffect(() => {
@@ -56,9 +73,8 @@ export const useTaskDnd = (
       setActiveId(id);
       setDragging(true);
       snapshot.current = items;
-      startStatusRef.current = tasksById.get(id)?.status ?? null;
     },
-    [items, tasksById, setDragging],
+    [items, setDragging],
   );
 
   const onDragOver = useCallback((event: DragOverEvent) => {
@@ -69,9 +85,7 @@ export const useTaskDnd = (
 
   const onDragEnd = useCallback(
     (event: DragEndEvent) => {
-      const startStatus = startStatusRef.current;
       const id = String(event.operation.source?.id ?? "");
-      startStatusRef.current = null;
       setActiveId(null);
       setDragging(false);
 
@@ -82,46 +96,50 @@ export const useTaskDnd = (
 
       // Handle clicked without dragging — nothing to persist.
       if (!hasMoved.current) return;
-
       if (!slug || !eventId) return;
 
       const endStatus = (Object.keys(items) as TaskStatus[]).find((s) =>
         items[s].includes(id),
       );
+      if (!endStatus) return;
 
-      const finalTaskOrder: TaskOrder = {
-        event_id: eventId,
-        todo: items.todo,
-        in_progress: items.in_progress,
-        done: items.done,
-      };
-      queryClient.setQueryData<TaskOrder>(
-        adminKeys.taskOrder(slug),
-        finalTaskOrder,
+      const index = items[endStatus].indexOf(id);
+      const position = positionFor(items[endStatus], index, tasksById);
+
+      // remember where it sat, so a failed move can revert deterministically
+      const before = tasksById.get(id);
+
+      // Optimistic: patch the moved card's status + position; TasksView sorts
+      // by position, so the board holds the dropped placement. move.onSuccess
+      // reconciles with the server row.
+      queryClient.setQueryData<Task[]>(adminKeys.tasks(slug), (prev) =>
+        prev?.map((t) =>
+          t.id === id ? { ...t, status: endStatus, position } : t,
+        ) ?? prev,
       );
 
-      const moved = tasksById.get(id);
-      if (moved && startStatus && endStatus && startStatus !== endStatus) {
-        queryClient.setQueryData<Task[]>(adminKeys.tasks(slug), (prev) =>
-          prev?.map((t) => (t.id === id ? { ...t, status: endStatus } : t)) ??
-          prev,
-        );
-        saveStatuses.mutate({
-          event_id: eventId,
-          id: moved.id,
-          title: moved.title,
-          details: moved.details,
-          label: moved.label,
-          status: endStatus,
-          priority: moved.priority,
-          due_at: moved.due_at,
-          assignees: moved.assignees,
-        });
-      }
-
-      saveOrder.mutate(finalTaskOrder);
+      moveTask.mutate(
+        { event_id: eventId, id, status: endStatus, position },
+        {
+          // server rejected: fly the card back from where it was dropped to home
+          onError: () => {
+            const fly = useCardFly.getState();
+            fly.takeOff(id, "destructive");
+            if (before) {
+              queryClient.setQueryData<Task[]>(adminKeys.tasks(slug), (prev) =>
+                prev?.map((t) =>
+                  t.id === id
+                    ? { ...t, status: before.status, position: before.position }
+                    : t,
+                ) ?? prev,
+              );
+            }
+            fly.land(id);
+          },
+        },
+      );
     },
-    [items, slug, eventId, tasksById, queryClient, saveOrder, saveStatuses, setDragging],
+    [items, slug, eventId, tasksById, queryClient, moveTask, setDragging],
   );
 
   return { sensors, items, activeId, onDragStart, onDragOver, onDragEnd };

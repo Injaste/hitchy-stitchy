@@ -14,6 +14,7 @@ export interface Task {
   label: string | null;
   status: TaskStatus;
   priority: TaskPriority | null;
+  position: number;
   assignees: string[]; // event_members.id[]
   due_at: string | null; // "yyyy-MM-dd"
   completed_at: string | null;
@@ -40,6 +41,7 @@ export const taskFormSchema = z.object({
       }
     })
     .transform((v) => v.trim() || null),
+  status: z.enum(["todo", "in_progress", "done"]),
   priority: z.enum(["low", "medium", "high"]).nullable(),
   due_at: z.string().nullable(),
   assignees: z.array(z.string()),
@@ -83,6 +85,22 @@ export interface ArchiveTasksPayload {
   label: string;
 }
 
+export interface MoveTaskPayload {
+  event_id: string;
+  id: string;
+  status: TaskStatus;
+  position: number;
+}
+
+// Card-fly overlay animation (useCardFly / CardFlyOverlay)
+export interface FlyRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+export type FlyRing = "success" | "destructive";
 
 export const STATUS_ORDER_MOBILE: TaskStatus[] = [
   "in_progress",
@@ -112,10 +130,3 @@ export const PRIORITY_BADGE_CLASS: Record<TaskPriority, string> = {
   medium: "bg-warning/10 text-warning ring-1 ring-warning/30",
   low: "bg-foreground/5 text-foreground ring-1 ring-foreground/15",
 };
-
-export interface TaskOrder {
-  event_id: string;
-  todo: string[];
-  in_progress: string[];
-  done: string[];
-}
