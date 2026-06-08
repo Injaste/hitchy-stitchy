@@ -1,5 +1,5 @@
 import { useEffect, useState, type FC, type ReactNode } from "react";
-import { CircleCheck, Snowflake, TriangleAlert } from "lucide-react";
+import { CircleCheck, Snowflake, Sun, TriangleAlert } from "lucide-react";
 
 import {
   AlertDialog,
@@ -30,7 +30,8 @@ type ConfirmVariant =
   | "destructive"
   | "warning"
   | "success"
-  | "freeze";
+  | "freeze"
+  | "sun";
 
 // Each variant drives the header text colour, the confirm button variant (same
 // key name — see <SubmitButton variant={variant} />), and a default icon. The
@@ -55,6 +56,10 @@ const VARIANTS: Record<
   freeze: {
     headerClass: "text-freeze",
     icon: <Snowflake className="size-5 shrink-0" />,
+  },
+  sun: {
+    headerClass: "text-sun",
+    icon: <Sun className="size-5 shrink-0" />,
   },
 };
 

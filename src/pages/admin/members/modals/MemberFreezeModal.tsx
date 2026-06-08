@@ -1,5 +1,3 @@
-import { Sun } from "lucide-react";
-
 import ConfirmAlertModal from "@/components/custom/confirm-alert-modal";
 import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 
@@ -28,8 +26,7 @@ const MemberFreezeModal = () => {
     <ConfirmAlertModal
       open={isFreezeOpen}
       onOpenChange={closeAll}
-      variant={willFreeze ? "freeze" : "warning"}
-      icon={willFreeze ? undefined : <Sun className="size-5 shrink-0" />}
+      variant={willFreeze ? "freeze" : "sun"}
       title={willFreeze ? "Freeze access" : "Restore access"}
       description={
         willFreeze ? (

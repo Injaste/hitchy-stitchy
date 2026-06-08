@@ -32,6 +32,7 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
       variant="interactive"
       className={cn(
         "relative border-l-4",
+        isFrozen && "hover:ring-freeze",
         // Couple keeps the primary accent; otherwise the current user's own card
         // gets a green accent in place of a "You" badge.
         isCouple
