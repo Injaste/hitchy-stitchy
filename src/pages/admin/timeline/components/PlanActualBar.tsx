@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { differenceInSeconds } from "date-fns";
 
 import { cn } from "@/lib/utils";
-import { formatTime, formatRemainingTime } from "@/lib/utils/utils-time";
+import { calculateTimeDuration, formatRemainingTime } from "@/lib/utils/utils-time";
 import { scheduledStartDate, scheduledEndDate } from "../utils";
 import type { Timeline } from "../types";
 
@@ -106,7 +106,7 @@ const PlanActualBar: FC<PlanActualBarProps> = ({
       <div className="flex justify-between text-2xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-primary" />
-          Planned {formatTime(item.time_start)}–{formatTime(item.time_end!)}
+          Planned {calculateTimeDuration(item.time_start, item.time_end!)}
         </span>
         <span className={over || lateStart ? "text-warning" : undefined}>
           {statusText}
