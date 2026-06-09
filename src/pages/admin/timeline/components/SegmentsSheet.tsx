@@ -1,4 +1,5 @@
 import { useEffect, useState, type FC } from "react";
+import { format } from "date-fns";
 import { GalleryVerticalEnd, GripVertical, Plus, Trash2 } from "lucide-react";
 import {
   DragDropProvider,
@@ -12,10 +13,12 @@ import { Feedback } from "@dnd-kit/dom";
 import { RestrictToVerticalAxis } from "@dnd-kit/abstract/modifiers";
 
 import { cn } from "@/lib/utils";
+import { parseLocalDate } from "@/lib/utils/utils-time";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SubmitButton from "@/components/custom/form/SubmitButton";
 import ConfirmAlertModal from "@/components/custom/confirm-alert-modal";
+import { ScrollView } from "@/components/custom/scroll-view";
 import {
   Sheet,
   SheetContent,
@@ -92,7 +95,7 @@ const SortableSegmentRow: FC<SortableRowProps> = ({
     >
       <div
         className={cn(
-          "flex items-center gap-1 rounded-lg border border-border bg-card p-1.5 transition-shadow",
+          "flex items-center gap-1 rounded-lg border border-border bg-card p-1.5 shadow-xs transition-shadow",
           isDragging && "ring-2 ring-success shadow-lg",
           failed && "ring-2 ring-destructive",
         )}
@@ -204,7 +207,10 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetContent
+          side="right"
+          className="w-full bg-gradient-surface sm:max-w-md"
+        >
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -214,12 +220,12 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
             </SheetTitle>
             <SheetDescription>
               {day.segments.length}{" "}
-              {day.segments.length === 1 ? "segment" : "segments"} in this day —
-              drag to reorder.
+              {day.segments.length === 1 ? "segment" : "segments"} on{" "}
+              {format(parseLocalDate(day.date), "EEEE, do MMMM yyyy")}
             </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 space-y-2 overflow-y-auto px-4">
+          <ScrollView className="space-y-2 px-4 py-2">
             <DragDropProvider
               modifiers={[RestrictToVerticalAxis]}
               plugins={(defaults) => [
@@ -252,7 +258,7 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
                 );
               })}
             </DragDropProvider>
-          </div>
+          </ScrollView>
 
           {canCreate("timeline") && (
             <div className="flex items-center gap-2 border-t p-4">
@@ -295,7 +301,11 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
           pendingDelete &&
           eventId &&
           remove.mutate(
-            { event_id: eventId, id: pendingDelete.id, name: pendingDelete.name },
+            {
+              event_id: eventId,
+              id: pendingDelete.id,
+              name: pendingDelete.name,
+            },
             { onSuccess: () => setPendingDelete(null) },
           )
         }
