@@ -12,7 +12,10 @@ import ConfirmationSection from "../sections/ConfirmationSection";
 
 const schema = z
   .object({
-    event_date: z.string().transform((v) => v.trim() || null),
+    event_date: z
+      .string()
+      .nullable()
+      .transform((v) => v?.trim() || null),
     event_time_start: z
       .string()
       .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
@@ -22,7 +25,10 @@ const schema = z
       .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")
       .transform((v) => v.trim() || null),
     rsvp_mode: z.enum(RSVP_MODES),
-    rsvp_deadline_date: z.string().transform((v) => v.trim() || null),
+    rsvp_deadline_date: z
+      .string()
+      .nullable()
+      .transform((v) => v?.trim() || null),
     rsvp_deadline_time: z
       .string()
       .refine((v) => v === "" || TIME_REGEX.test(v), "Please enter a valid time")

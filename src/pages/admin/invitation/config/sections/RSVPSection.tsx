@@ -20,9 +20,12 @@ const DeadlineFields = () => {
   );
 
   useEffect(() => {
-    if (!dateValue) return;
     const currentTime: string = form.getFieldValue("rsvp_deadline_time") ?? "";
-    if (!currentTime) form.setFieldValue("rsvp_deadline_time", "23:59");
+    if (dateValue) {
+      if (!currentTime) form.setFieldValue("rsvp_deadline_time", "23:59");
+    } else if (currentTime) {
+      form.setFieldValue("rsvp_deadline_time", "");
+    }
   }, [dateValue, form]);
 
   const hasDate = !!dateValue;
