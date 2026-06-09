@@ -82,9 +82,19 @@ const SelectField = ({
               </span>
             )}
           </SelectTrigger>
-          <SelectContent position="popper">
+          {/* Dropdown always matches the trigger width; long labels truncate
+              rather than widening it. To get a bigger dropdown, widen the
+              trigger (its layout container). */}
+          <SelectContent
+            position="popper"
+            style={{
+              width: "var(--radix-select-trigger-width)",
+            }}
+          >
             {nullable && (
-              <SelectItem value={NULL_SENTINEL}>{nullLabel}</SelectItem>
+              <SelectItem value={NULL_SENTINEL}>
+                <span className="min-w-0 truncate">{nullLabel}</span>
+              </SelectItem>
             )}
             {options.map((opt) => (
               <SelectItem
@@ -93,7 +103,7 @@ const SelectField = ({
                 disabled={opt.disabled}
               >
                 {opt.icon}
-                {opt.label}
+                <span className="min-w-0 truncate">{opt.label}</span>
               </SelectItem>
             ))}
           </SelectContent>

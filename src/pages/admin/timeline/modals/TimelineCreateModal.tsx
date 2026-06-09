@@ -11,7 +11,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineMutations, useTimelineQuery } from "../queries";
-import { getLatestTime } from "../utils";
+import { findSegment, getLatestTime, segmentItems } from "../utils";
 
 import TimelineItemForm, { useTimelineItemForm } from "./TimelineItemForm";
 
@@ -27,7 +27,7 @@ const CreateTimelineItemModal = () => {
 
   const form = useTimelineItemForm({
     defaultValues: {
-      day: createPrefill.day ?? "",
+      segment_id: createPrefill.segment_id ?? "",
       label: createPrefill.label ?? "",
       time_start: createPrefill.time_start ?? undefined,
     },
@@ -49,14 +49,14 @@ const CreateTimelineItemModal = () => {
   useEffect(() => {
     if (!isCreateMore || !create.isSuccess || !create.data) return;
     const created = create.data;
-    const dayItems =
-      timelineData?.days
-        .find((d) => d.day === created.day)
-        ?.labelGroups.flatMap((g) => g.items) ?? [];
+    const seg = timelineData
+      ? findSegment(timelineData.days, created.segment_id)
+      : undefined;
+    const segItems = seg ? segmentItems(seg) : [];
     const sameLabel = created.label
-      ? dayItems.filter((i) => i.label === created.label)
+      ? segItems.filter((i) => i.label === created.label)
       : [];
-    const pool = sameLabel.length ? sameLabel : dayItems;
+    const pool = sameLabel.length ? sameLabel : segItems;
     const latest = getLatestTime([...pool, created]);
     if (latest) form.setFieldValue("time_start", latest);
   }, [create.isSuccess]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -72,7 +72,10 @@ const CreateTimelineItemModal = () => {
       closeDelay={isCreateMore ? false : 300}
       resetOnSuccess={isCreateMore}
     >
-      <FormHeader icon={<Clock className="size-4" />} title="Add schedule item" />
+      <FormHeader
+        icon={<Clock className="size-4" />}
+        title={createPrefill.title ?? "Add schedule item"}
+      />
 
       <TimelineItemForm />
 

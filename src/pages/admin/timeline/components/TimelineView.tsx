@@ -8,6 +8,7 @@ import ErrorState from "@/components/custom/states/error-state";
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineDays } from "../hooks/useTimelineDays";
+import { defaultSegmentId, dayHasItems } from "../utils";
 import TimelineSkeleton from "../states/TimelineSkeleton";
 import TimelineEmpty from "../states/TimelineEmpty";
 import TimelineDayEmpty from "../states/TimelineDayEmpty";
@@ -15,7 +16,7 @@ import TimelineDayEmpty from "../states/TimelineDayEmpty";
 import type { TimelineGrouped } from "../types";
 
 import DayTabs from "./DayTabs";
-import TimelineSection from "./TimelineSection";
+import TimelineDay from "./TimelineDay";
 
 interface TimelineViewProps {
   data: TimelineGrouped | undefined;
@@ -32,30 +33,23 @@ const TimelineView: FC<TimelineViewProps> = ({
   refetch,
   isRefetching,
 }) => {
-  const openCreateWithLabel = useTimelineModalStore(
-    (s) => s.openCreateWithLabel,
-  );
-  const activeDayId = useTimelineModalStore((s) => s.createPrefill.day);
-  const setActiveDayId = useTimelineModalStore((s) => s.setPrefillDay);
+  const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const selectedDate = useTimelineModalStore((s) => s.createPrefill.date);
+  const setActiveDate = useTimelineModalStore((s) => s.setActiveDate);
   const { canCreate } = useAccess();
 
-  const { dayList, activeDay, hasItems } = useTimelineDays(data);
-  const activeGroup = data?.days.find((d) => d.day === activeDay) ?? null;
+  const { dates, activeDate, activeDay, hasItems } = useTimelineDays(data);
 
   useEffect(() => {
     // Wait for the query so the day list is final before locking a selection.
-    if (!data || !dayList.length) return;
+    if (!data || !dates.length) return;
     // Seed the active tab when nothing is selected, or the selected day is gone.
-    // Prefer today (land on the live day during the event), else the first day
-    // with items.
-    if (!activeDayId || !dayList.includes(activeDayId)) {
+    // Prefer today (land on the live day during the event), else the first day.
+    if (!selectedDate || !dates.includes(selectedDate)) {
       const today = format(new Date(), "yyyy-MM-dd");
-      const seed = dayList.includes(today)
-        ? today
-        : (data.days[0]?.day ?? dayList[0]);
-      setActiveDayId(seed);
+      setActiveDate(dates.includes(today) ? today : (dates[0] ?? null));
     }
-  }, [dayList, activeDayId, setActiveDayId, data]);
+  }, [dates, selectedDate, setActiveDate, data]);
 
   const renderBody = () => {
     if (isLoading)
@@ -80,7 +74,7 @@ const TimelineView: FC<TimelineViewProps> = ({
       return (
         <ComponentFade key="empty">
           <TimelineEmpty
-            onAdd={() => openCreateWithLabel(null)}
+            onAdd={() => openCreate(defaultSegmentId(data?.days[0]))}
             canCreate={canCreate("timeline")}
           />
         </ComponentFade>
@@ -89,23 +83,23 @@ const TimelineView: FC<TimelineViewProps> = ({
     return (
       <ComponentFade key="content">
         <DayTabs
-          days={dayList}
-          activeDayId={activeDay ?? ""}
-          onSelect={setActiveDayId}
+          dates={dates}
+          activeDate={activeDate ?? ""}
+          onSelect={setActiveDate}
         />
         <div className="mt-8">
           <AnimatePresence mode="wait">
-            {activeGroup ? (
-              <ComponentFade key={activeGroup.day}>
-                <TimelineSection day={activeGroup} />
+            {activeDay && dayHasItems(activeDay) ? (
+              <ComponentFade key={activeDay.date}>
+                <TimelineDay day={activeDay} />
               </ComponentFade>
             ) : (
-              activeDay && (
-                <ComponentFade key={`empty-${activeDay}`}>
+              activeDate && (
+                <ComponentFade key={`empty-${activeDate}`}>
                   <TimelineDayEmpty
-                    day={activeDay}
+                    day={activeDate}
                     canCreate={canCreate("timeline")}
-                    onAdd={() => openCreateWithLabel(null)}
+                    onAdd={() => openCreate(defaultSegmentId(activeDay))}
                   />
                 </ComponentFade>
               )

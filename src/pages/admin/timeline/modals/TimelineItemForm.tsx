@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMembersQuery } from "@/pages/admin/members/queries";
@@ -18,11 +17,10 @@ import {
   type SelectFieldOption,
   type SelectComboGroup,
 } from "@/components/custom/form";
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import { timelineItemFormSchema, type TimelineItemFormValues } from "../types";
-import { generateEventDays } from "../utils";
 import { useTimelineQuery } from "../queries";
+import { findSegment } from "../utils";
 import {
   Tooltip,
   TooltipContent,
@@ -40,7 +38,7 @@ export const useTimelineItemForm = ({
 }: UseTimelineItemFormOpts) =>
   useForm({
     defaultValues: {
-      day: defaultValues?.day ?? "",
+      segment_id: defaultValues?.segment_id ?? "",
       label: defaultValues?.label ?? "",
       time_start: defaultValues?.time_start ?? "09:00",
       time_end: defaultValues?.time_end ?? "",
@@ -71,7 +69,6 @@ const addMinutesToTime = (time: string, mins: number): string => {
 
 const TimelineItemForm = () => {
   const { form } = useFormShell();
-  const { dateStart, dateEnd } = useAdminStore();
 
   // Which preset just got clamped to 23:59, so we can flash a tooltip on it.
   const [cappedPreset, setCappedPreset] = useState<number | null>(null);
@@ -102,11 +99,11 @@ const TimelineItemForm = () => {
   const days = timelineData?.days ?? [];
   const allLabels = timelineData?.labels ?? [];
 
-  // The day this item will live on. Tracked live (not just at open) so changing
-  // the Day field re-resolves which labels count as "on this day".
-  const selectedDay = useStore(
+  // The segment this item lives in. Tracked live (not just at open) so changing
+  // the Segment field re-resolves which labels count as "in this segment".
+  const selectedSegmentId = useStore(
     form.store,
-    (s: unknown) => (s as { values: TimelineItemFormValues }).values.day,
+    (s: unknown) => (s as { values: TimelineItemFormValues }).values.segment_id,
   );
 
   const assignableMembers = members.filter(
@@ -119,33 +116,40 @@ const TimelineItemForm = () => {
 
   const memberGroups = groupMembersByRole(assignableMembers);
 
-  const eventDays = useMemo(() => {
-    if (!dateStart || !dateEnd) return [];
-    return generateEventDays(dateStart, dateEnd);
-  }, [dateStart, dateEnd]);
+  // Every segment across the event, labelled "Day N · <segment>".
+  const segmentOptions: SelectFieldOption[] = useMemo(
+    () =>
+      days.flatMap((d, i) =>
+        d.segments.map((s) => ({
+          value: s.id,
+          label: s.name ? `Day ${i + 1} · ${s.name}` : `Day ${i + 1}`,
+          icon: (
+            <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
+          ),
+        })),
+      ),
+    [days],
+  );
 
-  const dayOptions: SelectFieldOption[] = eventDays.map((d) => ({
-    value: format(d, "yyyy-MM-dd"),
-    label: format(d, "d MMM yyyy (EEE)"),
-    icon: <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />,
-  }));
-
-  // Label picker, framed around the day being edited rather than by calendar day.
-  // "On this day" are the labels already on the selected day — picking one merges
-  // the item into that existing section. "From other days" are every other label
-  // name, de-duplicated and without day headings, so reusing a name reads as
-  // "reuse the name here", not "this label belongs to Day N".
-  const onThisDay =
-    days
-      .find((d) => d.day === selectedDay)
-      ?.labelGroups.filter((g) => g.label !== null)
+  // Label picker framed around the selected segment. "In this segment" are the
+  // labels already there — picking one merges the item into that existing group.
+  // "Other labels" are every other name, de-duplicated, so reusing a name reads
+  // as "reuse the name here", not "this label belongs elsewhere".
+  const selectedSegment = findSegment(days, selectedSegmentId);
+  const inThisSegment =
+    selectedSegment?.labelGroups
+      .filter((g) => g.label !== null)
       .map((g) => g.label as string) ?? [];
-  const onThisDaySet = new Set(onThisDay);
-  const otherLabels = allLabels.filter((l) => !onThisDaySet.has(l));
+  const inSegmentSet = new Set(inThisSegment);
+  const otherLabels = allLabels.filter((l) => !inSegmentSet.has(l));
 
   const labelGroups: SelectComboGroup[] = [
-    ...(onThisDay.length ? [{ label: "On this day", items: onThisDay }] : []),
-    ...(otherLabels.length ? [{ label: "From other days", items: otherLabels }] : []),
+    ...(inThisSegment.length
+      ? [{ label: "In this segment", items: inThisSegment }]
+      : []),
+    ...(otherLabels.length
+      ? [{ label: "Other labels", items: otherLabels }]
+      : []),
   ];
 
   return (
@@ -155,10 +159,10 @@ const TimelineItemForm = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SelectField
-            name="day"
-            label="Day"
-            options={dayOptions}
-            placeholder="Select a day"
+            name="segment_id"
+            label="Segment"
+            options={segmentOptions}
+            placeholder="Select a segment"
             placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
           />
 
@@ -168,7 +172,7 @@ const TimelineItemForm = () => {
             optional
             groups={labelGroups}
             matchAgainst={allLabels}
-            placeholder="e.g. Nikah, Sanding"
+            placeholder="e.g. Vows, Toast"
           />
         </div>
 

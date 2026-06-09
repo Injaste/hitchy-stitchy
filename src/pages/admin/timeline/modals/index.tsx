@@ -13,7 +13,7 @@ const TimelineModals = () => {
   // Same idea for create: key by prefill so each open re-inits defaults
   // when the user switches tabs or clicks "+" on a different label group.
   const createPrefill = useTimelineModalStore((s) => s.createPrefill);
-  const createKey = `${createPrefill.day ?? ""}|${createPrefill.label ?? ""}|${createPrefill.time_start ?? ""}`;
+  const createKey = `${createPrefill.segment_id ?? ""}|${createPrefill.label ?? ""}|${createPrefill.time_start ?? ""}`;
 
   return (
     <>

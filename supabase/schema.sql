@@ -279,7 +279,8 @@ CREATE TABLE public.event_tasks (
 CREATE TABLE public.event_timelines (
   id         uuid        NOT NULL DEFAULT gen_random_uuid(),
   event_id   uuid        NOT NULL,
-  day        date        NOT NULL,
+  day        date        NOT NULL,     -- kept during the day→segment transition (migration 20260608000001); dropped in Stage 2
+  segment_id uuid,                     -- → event_segments.id (FK added below); set by timeline RPCs in Stage 2, backfilled from `day` for now
   label      text,
   time_start time        NOT NULL,
   time_end   time,
@@ -301,6 +302,55 @@ CREATE TABLE public.event_timelines (
 CREATE UNIQUE INDEX one_active_timeline_per_event
   ON public.event_timelines (event_id)
   WHERE started_at IS NOT NULL AND ended_at IS NULL;
+
+-- -----------------------------------------------------------------------------
+-- event_days  [added migration 20260608000001]
+-- One row per calendar date of an event, seeded by create_event for each date in
+-- the range. `date` is the single source of truth for a day.
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.event_days (
+  id         uuid        NOT NULL DEFAULT gen_random_uuid(),
+  event_id   uuid        NOT NULL,
+  date       date        NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+
+  CONSTRAINT event_days_pkey              PRIMARY KEY (id),
+  CONSTRAINT event_days_event_id_date_key UNIQUE (event_id, date),
+  CONSTRAINT event_days_event_id_fk
+    FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
+);
+
+-- -----------------------------------------------------------------------------
+-- event_segments  [added migration 20260608000001]
+-- The "bigger grouping" within a day (e.g. Akad Nikah, Reception). name IS NULL
+-- marks the default segment — the UI renders flat until a second is added.
+-- event_id is denormalised for RLS (mirrors other child tables).
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.event_segments (
+  id         uuid        NOT NULL DEFAULT gen_random_uuid(),
+  event_id   uuid        NOT NULL,
+  day_id     uuid        NOT NULL,
+  name       text,
+  sort_order integer     NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+
+  CONSTRAINT event_segments_pkey PRIMARY KEY (id),
+  CONSTRAINT event_segments_event_id_fk
+    FOREIGN KEY (event_id) REFERENCES public.events (id)     ON DELETE CASCADE,
+  CONSTRAINT event_segments_day_id_fk
+    FOREIGN KEY (day_id)   REFERENCES public.event_days (id) ON DELETE CASCADE
+);
+
+-- At most one default (NULL-name) segment per day.
+CREATE UNIQUE INDEX event_segments_one_default_per_day
+  ON public.event_segments (day_id) WHERE name IS NULL;
+
+-- event_timelines.segment_id FK — added after event_segments exists (forward ref).
+ALTER TABLE public.event_timelines
+  ADD CONSTRAINT event_timelines_segment_id_fk
+    FOREIGN KEY (segment_id) REFERENCES public.event_segments (id) ON DELETE CASCADE;
 
 -- -----------------------------------------------------------------------------
 -- event_resources  [confirmed]
@@ -512,6 +562,17 @@ CREATE INDEX event_timelines_event_id_idx
 CREATE INDEX event_timelines_event_id_day_time_start_idx
   ON public.event_timelines (event_id, day, time_start);
 -- Note: a duplicate index event_timelines_event_id_day_time_start_idx1 exists in prod — consider dropping it.
+CREATE INDEX event_timelines_segment_id_idx
+  ON public.event_timelines (segment_id);
+
+CREATE INDEX event_days_event_id_idx
+  ON public.event_days (event_id);
+
+CREATE INDEX event_segments_event_id_idx
+  ON public.event_segments (event_id);
+CREATE INDEX event_segments_day_id_idx
+  ON public.event_segments (day_id);
+-- (event_segments_one_default_per_day partial unique index defined with the table)
 
 CREATE INDEX event_vendors_event_id_idx
   ON public.event_vendors (event_id);
@@ -528,6 +589,8 @@ CREATE UNIQUE INDEX event_invitation_event_id_idx
 ALTER TABLE public.event_access_groups      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_announcement_reads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_announcements      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_days               ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_segments           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_invitation         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_live_logs          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_members            ENABLE ROW LEVEL SECURITY;
@@ -574,6 +637,14 @@ CREATE POLICY event_announcements_select ON public.event_announcements
       )
     )
   );
+
+CREATE POLICY event_days_select ON public.event_days
+  FOR SELECT TO authenticated
+  USING (is_event_member(event_id));
+
+CREATE POLICY event_segments_select ON public.event_segments
+  FOR SELECT TO authenticated
+  USING (is_event_member(event_id));
 
 CREATE POLICY event_invitation_select ON public.event_invitation
   FOR SELECT TO authenticated
@@ -848,6 +919,135 @@ $$;
 
 
 -- =============================================================================
+-- DAY / SEGMENT SPINE — RPCs  [added migration 20260608000003]
+-- Day + default-segment seeding is explicit in create_event (no trigger).
+-- Segment CRUD RPCs below are gated on the `timeline` resource.
+-- =============================================================================
+
+-- create_segment — add a named segment to a day.
+CREATE OR REPLACE FUNCTION public.create_segment(p_event_id uuid, p_day_id uuid, p_name text)
+RETURNS event_segments LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_seg   event_segments;
+  v_order integer;
+BEGIN
+  IF NOT has_event_permission(p_event_id, 'timeline', 'create') THEN
+    RAISE EXCEPTION 'Insufficient permission to add segments';
+  END IF;
+
+  IF btrim(COALESCE(p_name, '')) = '' THEN
+    RAISE EXCEPTION 'Segment name is required';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM event_days WHERE id = p_day_id AND event_id = p_event_id
+  ) THEN
+    RAISE EXCEPTION 'Day not found for this event';
+  END IF;
+
+  SELECT COALESCE(max(sort_order), -1) + 1 INTO v_order
+  FROM event_segments WHERE day_id = p_day_id;
+
+  INSERT INTO event_segments (event_id, day_id, name, sort_order)
+  VALUES (p_event_id, p_day_id, btrim(p_name), v_order)
+  RETURNING * INTO v_seg;
+
+  RETURN v_seg;
+END;
+$$;
+
+-- update_segment — rename a segment.
+CREATE OR REPLACE FUNCTION public.update_segment(p_event_id uuid, p_id uuid, p_name text)
+RETURNS event_segments LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_seg event_segments;
+BEGIN
+  IF NOT has_event_permission(p_event_id, 'timeline', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update segments';
+  END IF;
+
+  IF btrim(COALESCE(p_name, '')) = '' THEN
+    RAISE EXCEPTION 'Segment name is required';
+  END IF;
+
+  UPDATE event_segments
+  SET name = btrim(p_name)
+  WHERE id = p_id AND event_id = p_event_id
+  RETURNING * INTO v_seg;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Segment not found';
+  END IF;
+
+  RETURN v_seg;
+END;
+$$;
+
+-- delete_segment — reassign its items to an adjacent segment, then delete.
+CREATE OR REPLACE FUNCTION public.delete_segment(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_seg    event_segments;
+  v_target uuid;
+  v_count  integer;
+BEGIN
+  IF NOT has_event_permission(p_event_id, 'timeline', 'delete') THEN
+    RAISE EXCEPTION 'Insufficient permission to delete segments';
+  END IF;
+
+  SELECT * INTO v_seg
+  FROM event_segments WHERE id = p_id AND event_id = p_event_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Segment not found';
+  END IF;
+
+  SELECT count(*) INTO v_count
+  FROM event_segments WHERE day_id = v_seg.day_id;
+  IF v_count <= 1 THEN
+    RAISE EXCEPTION 'A day must keep at least one segment';
+  END IF;
+
+  SELECT id INTO v_target
+  FROM event_segments
+  WHERE day_id = v_seg.day_id AND id <> p_id AND sort_order < v_seg.sort_order
+  ORDER BY sort_order DESC
+  LIMIT 1;
+
+  IF v_target IS NULL THEN
+    SELECT id INTO v_target
+    FROM event_segments
+    WHERE day_id = v_seg.day_id AND id <> p_id
+    ORDER BY sort_order ASC
+    LIMIT 1;
+  END IF;
+
+  UPDATE event_timelines SET segment_id = v_target WHERE segment_id = p_id;
+
+  DELETE FROM event_segments WHERE id = p_id;
+END;
+$$;
+
+-- reorder_segments — set sort_order from the given id order, within one day.
+CREATE OR REPLACE FUNCTION public.reorder_segments(p_event_id uuid, p_day_id uuid, p_ids uuid[])
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  IF NOT has_event_permission(p_event_id, 'timeline', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to reorder segments';
+  END IF;
+
+  UPDATE event_segments es
+  SET sort_order = pos.ord - 1
+  FROM (
+    SELECT id, ord FROM unnest(p_ids) WITH ORDINALITY AS t(id, ord)
+  ) pos
+  WHERE es.id = pos.id
+    AND es.event_id = p_event_id
+    AND es.day_id   = p_day_id;
+END;
+$$;
+
+
+-- =============================================================================
 -- TRIGGERS  [confirmed from live DB dump]
 -- =============================================================================
 
@@ -865,6 +1065,16 @@ CREATE TRIGGER touch_updated_at_event_announcement_reads
 
 CREATE TRIGGER touch_updated_at_event_announcements
   BEFORE UPDATE ON public.event_announcements
+  FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+
+-- event_days / event_segments touch triggers are auto-attached by
+-- auto_attach_triggers_on_create at CREATE TABLE time (listed for completeness).
+CREATE TRIGGER touch_updated_at_event_days
+  BEFORE UPDATE ON public.event_days
+  FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+
+CREATE TRIGGER touch_updated_at_event_segments
+  BEFORE UPDATE ON public.event_segments
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 
 CREATE TRIGGER touch_updated_at_event_invitation

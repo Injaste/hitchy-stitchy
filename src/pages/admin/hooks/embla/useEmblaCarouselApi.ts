@@ -7,11 +7,15 @@ import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
  *   when the slide is sized to fit between them; Embla still clamps the first and
  *   last snaps flush to the edges. "start" is the plain left-aligned behaviour.
  */
-export const useEmblaCarouselApi = (align: "start" | "center" = "start") => {
+export const useEmblaCarouselApi = (
+  align: "start" | "center" = "start",
+  startIndex?: number,
+) => {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       containScroll: "keepSnaps",
       align,
+      startIndex,
       watchDrag: (api) => api.canScrollNext() || api.canScrollPrev(),
     },
     [WheelGesturesPlugin()],

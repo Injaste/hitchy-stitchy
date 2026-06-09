@@ -1,7 +1,15 @@
-import { addDays, differenceInMinutes } from "date-fns";
+import { differenceInMinutes } from "date-fns";
 
 import { parseLocalDate } from "@/lib/utils/utils-time";
-import type { Timeline, TimelineGrouped, TimelineGroupedDay } from "./types";
+import type {
+  Timeline,
+  EventDay,
+  EventSegment,
+  TimelineGrouped,
+  TimelineGroupedDay,
+  TimelineGroupedSegment,
+  TimelineLabelGroup,
+} from "./types";
 
 export function scheduledStartDate(
   item: Pick<Timeline, "day" | "time_start">,
@@ -78,42 +86,58 @@ export function getLatestTime(items: Timeline[]): string {
   }, "");
 }
 
-export function generateEventDays(dateStart: string, dateEnd: string): Date[] {
-  const start = parseLocalDate(dateStart);
-  const end = parseLocalDate(dateEnd);
-  const days: Date[] = [];
-  let cur = start;
-  while (cur <= end) {
-    days.push(cur);
-    cur = addDays(cur, 1);
-  }
-  return days;
+// ── Grouped-tree accessors ──────────────────────────────────────────────────
+// Small pure helpers so components don't re-implement the same flatMaps/lookups.
+
+/** All items in a segment (flattened across its label groups). */
+export function segmentItems(segment: TimelineGroupedSegment): Timeline[] {
+  return segment.labelGroups.flatMap((g) => g.items);
 }
 
-interface LabelBucket {
-  label: string | null;
+/** All items in a day (flattened across its segments). */
+export function dayItems(day: TimelineGroupedDay): Timeline[] {
+  return day.segments.flatMap(segmentItems);
+}
+
+/** Whether a day holds any timeline item at all. */
+export function dayHasItems(day: TimelineGroupedDay): boolean {
+  return day.segments.some((s) => s.labelGroups.length > 0);
+}
+
+/** The default (unnamed) segment of a day — the fallback target for "add item". */
+export function defaultSegmentId(
+  day: TimelineGroupedDay | null | undefined,
+): string | null {
+  return (
+    day?.segments.find((s) => s.name === null)?.id ??
+    day?.segments[0]?.id ??
+    null
+  );
+}
+
+/** Find a segment by id across all days. */
+export function findSegment(
+  days: TimelineGroupedDay[],
+  segmentId: string,
+): TimelineGroupedSegment | undefined {
+  return days.flatMap((d) => d.segments).find((s) => s.id === segmentId);
+}
+
+/** Build-time accumulator: a label group plus an `earliest` sort key (dropped from the result). */
+interface LabelBucket extends TimelineLabelGroup {
   earliest: string;
-  items: Timeline[];
 }
 
-export function groupTimeline(items: Timeline[]): TimelineGrouped {
-  const byDay = new Map<string, Map<string, LabelBucket>>();
-  const labelSet = new Set<string>();
+/** Bucket a segment's items by label, ordered by their earliest start. */
+function buildLabelGroups(items: Timeline[]): TimelineLabelGroup[] {
+  const byLabel = new Map<string, LabelBucket>();
 
   for (const item of items) {
-    let dayMap = byDay.get(item.day);
-    if (!dayMap) {
-      dayMap = new Map();
-      byDay.set(item.day, dayMap);
-    }
-
     // Leading space ensures unlabelled items sort after labelled ones in the Map.
     const key = item.label ?? ` ${item.id}`;
-    if (item.label) labelSet.add(item.label);
-
-    const bucket = dayMap.get(key);
+    const bucket = byLabel.get(key);
     if (!bucket) {
-      dayMap.set(key, {
+      byLabel.set(key, {
         label: item.label,
         earliest: item.time_start,
         items: [item],
@@ -124,27 +148,76 @@ export function groupTimeline(items: Timeline[]): TimelineGrouped {
     }
   }
 
-  const days: TimelineGroupedDay[] = [...byDay.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([day, dayMap]) => {
-      const labelGroups = [...dayMap.values()]
-        .sort((a, b) => a.earliest.localeCompare(b.earliest))
-        .map(({ label, items }) => ({
-          label,
-          items:
-            items.length === 1
-              ? items
-              : items.sort(
-                  (a, b) =>
-                    a.time_start.localeCompare(b.time_start) ||
-                    a.created_at.localeCompare(b.created_at),
-                ),
-        }));
-      return { day, labelGroups };
-    });
+  return [...byLabel.values()]
+    .sort((a, b) => a.earliest.localeCompare(b.earliest))
+    .map(({ label, items }) => ({
+      label,
+      items:
+        items.length === 1
+          ? items
+          : items.sort(
+              (a, b) =>
+                a.time_start.localeCompare(b.time_start) ||
+                a.created_at.localeCompare(b.created_at),
+            ),
+    }));
+}
+
+/**
+ * Build the day → segment → label tree from the raw rows. Days and segments come
+ * from event_days / event_segments (so empty ones still render and are addable);
+ * items are slotted into their segment by segment_id, then grouped by label.
+ */
+export function groupTimeline(
+  items: Timeline[],
+  eventDays: EventDay[],
+  eventSegments: EventSegment[],
+): TimelineGrouped {
+  const itemsBySegment = new Map<string, Timeline[]>();
+  const labelSet = new Set<string>();
+
+  for (const item of items) {
+    if (item.label) labelSet.add(item.label);
+    const arr = itemsBySegment.get(item.segment_id);
+    if (arr) arr.push(item);
+    else itemsBySegment.set(item.segment_id, [item]);
+  }
+
+  const segmentsByDay = new Map<string, EventSegment[]>();
+  for (const s of eventSegments) {
+    const arr = segmentsByDay.get(s.day_id);
+    if (arr) arr.push(s);
+    else segmentsByDay.set(s.day_id, [s]);
+  }
+
+  const days = [...eventDays]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((d) => ({
+      date: d.date,
+      day_id: d.id,
+      segments: (segmentsByDay.get(d.id) ?? [])
+        .sort(
+          (a, b) =>
+            a.sort_order - b.sort_order ||
+            (a.name ?? "").localeCompare(b.name ?? ""),
+        )
+        .map((s) => ({
+          id: s.id,
+          name: s.name,
+          sort_order: s.sort_order,
+          labelGroups: buildLabelGroups(itemsBySegment.get(s.id) ?? []),
+        })),
+    }));
 
   return {
     days,
     labels: [...labelSet].sort((a, b) => a.localeCompare(b)),
+    eventDays,
+    eventSegments,
   };
+}
+
+/** Flatten the grouped tree back to a flat item list (for optimistic re-grouping). */
+export function flattenTimeline(grouped: TimelineGrouped): Timeline[] {
+  return grouped.days.flatMap(dayItems);
 }
