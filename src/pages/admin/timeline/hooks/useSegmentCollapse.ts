@@ -5,6 +5,9 @@ interface SegmentCollapseState {
   /** Collapsed segment ids → true. Keyed by segment id; persisted to localStorage. */
   collapsed: Record<string, boolean>;
   toggle: (id: string) => void;
+  /** Collapse / expand a set of segments at once (scoped to the given ids). */
+  collapseAll: (ids: string[]) => void;
+  expandAll: (ids: string[]) => void;
 }
 
 /**
@@ -17,6 +20,14 @@ export const useSegmentCollapse = create<SegmentCollapseState>()(
       collapsed: {},
       toggle: (id) =>
         set((s) => ({ collapsed: { ...s.collapsed, [id]: !s.collapsed[id] } })),
+      collapseAll: (ids) =>
+        set((s) => ({
+          collapsed: { ...s.collapsed, ...Object.fromEntries(ids.map((id) => [id, true])) },
+        })),
+      expandAll: (ids) =>
+        set((s) => ({
+          collapsed: { ...s.collapsed, ...Object.fromEntries(ids.map((id) => [id, false])) },
+        })),
     }),
     { name: "hs-timeline-segment-collapse" },
   ),

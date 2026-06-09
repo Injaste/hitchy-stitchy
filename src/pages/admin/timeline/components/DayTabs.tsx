@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { type FC, useEffect } from "react";
 import { format } from "date-fns";
 import { parseLocalDate } from "@/lib/utils/utils-time";
 import { AnimatePresence, motion } from "framer-motion";
@@ -7,6 +7,7 @@ import { itemFadeIn, itemFadeUp } from "@/lib/animations";
 
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
+import { useActiveTimelineQuery } from "../queries";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -17,16 +18,26 @@ interface DayTabsProps {
 }
 
 const DayTabs: FC<DayTabsProps> = ({ dates, activeDate, onSelect }) => {
+  const { data: active } = useActiveTimelineQuery();
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const todayIndex = dates.indexOf(todayStr);
+  const activeDayIndex = active ? dates.indexOf(active.day) : -1;
 
-  // Start positioned at today (embla clamps near the ends, and owns all
-  // scrolling/drag from there — no manual scroll-into-view to fight the user).
-  const { emblaRef, emblaApi } = useEmblaCarouselApi(
-    "start",
-    todayIndex < 0 ? undefined : todayIndex,
-  );
+  // Where the rail lands: the live item's day first, then today, then day 1.
+  const targetIndex =
+    activeDayIndex >= 0 ? activeDayIndex : todayIndex >= 0 ? todayIndex : 0;
+
+  // Position there on mount via startIndex, then re-center reactively if the
+  // live day moves (mirrors the card carousel). targetIndex is a stable number,
+  // so the effect only fires on a real change — it won't fight a user who has
+  // scrolled the rail themselves.
+  const { emblaRef, emblaApi } = useEmblaCarouselApi("start", targetIndex);
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.scrollTo(targetIndex);
+  }, [emblaApi, targetIndex]);
 
   return (
     <div className="mb-6">
