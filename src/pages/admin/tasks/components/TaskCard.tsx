@@ -50,7 +50,9 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
     const next: TaskStatus = task.status === "done" ? "todo" : "done";
     // checkbox teleports the card to another column → fly it there,
     // ringed green when completing (into Done), neutral when reopening
-    useCardFly.getState().takeOff(task.id, next === "done" ? "success" : undefined);
+    useCardFly
+      .getState()
+      .takeOff(task.id, next === "done" ? "success" : undefined);
     update.mutate(
       { ...task, status: next },
       {
@@ -75,7 +77,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
       variant="interactive"
       size="sm"
       className={cn(
-        "group/task-card relative gap-2 transition-all",
+        "group/task-card relative gap-2 transition-all shadow-xs",
         isDone && "opacity-60",
         // Overdue owns its ring at every state so the shared
         // interactive `hover:ring-secondary` can't flip the alarm green.
