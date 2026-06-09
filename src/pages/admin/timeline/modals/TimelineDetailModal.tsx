@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useAdminStore } from "../../store/useAdminStore";
@@ -238,8 +237,6 @@ const TimelineDetailModal = () => {
             )}
           </div>
         </DialogBody>
-
-        <Separator />
 
         <DialogDetailActions
           destructive={[

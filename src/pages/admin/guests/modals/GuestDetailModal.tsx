@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useInvitationQuery } from "../../invitation/queries";
@@ -178,8 +177,6 @@ const GuestDetailModal = () => {
             </div>
           </div>
         </DialogBody>
-
-        <Separator />
 
         <DialogDetailActions
           destructive={destructiveActions}

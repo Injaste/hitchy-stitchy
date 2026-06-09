@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Calendar, Clock, Copy, History, Mail, Shield } from "lucide-react";
 import { toast } from "sonner";
 import NotesMarkdown from "@/components/custom/notes-markdown";
@@ -182,13 +181,10 @@ const MemberDetailModal = () => {
         </DialogBody>
 
         {hasActions && (
-          <>
-            <Separator />
-            <DialogDetailActions
-              destructive={destructiveActions}
-              primary={primaryAction}
-            />
-          </>
+          <DialogDetailActions
+            destructive={destructiveActions}
+            primary={primaryAction}
+          />
         )}
       </DialogContent>
     </Dialog>
