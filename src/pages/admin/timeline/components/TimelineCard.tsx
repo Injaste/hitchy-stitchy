@@ -148,7 +148,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
       <Card
         variant="interactive"
         className={cn(
-          "relative mt-2 flex-1 h-full overflow-hidden transition-all",
+          "relative mt-2 flex-1 h-full overflow-hidden shadow-sm transition-all",
           lifecycle === "end" && "ring-2 ring-primary",
         )}
       >

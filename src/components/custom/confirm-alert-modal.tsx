@@ -142,8 +142,8 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
           )}
         </AlertDialogHeader>
 
-        <AlertDialogBody>
-          {confirmPhrase && (
+        {confirmPhrase && (
+          <AlertDialogBody>
             <div className="grid gap-1.5">
               <Label
                 htmlFor="confirm-phrase-input"
@@ -167,8 +167,8 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
                 spellCheck={false}
               />
             </div>
-          )}
-        </AlertDialogBody>
+          </AlertDialogBody>
+        )}
 
         <AlertDialogFooter>
           <AlertDialogCancel
