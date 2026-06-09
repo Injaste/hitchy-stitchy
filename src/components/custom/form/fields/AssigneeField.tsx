@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import ArraySeparator from "@/components/custom/array-separator";
 import FieldShell from "./FieldShell";
 
@@ -77,15 +77,17 @@ const AssigneeField = ({
                   const state = groupState(group.memberIds);
                   const selectedCount = group.memberIds.filter((id) => value.includes(id)).length;
                   const countLabel =
-                    state === "some"
-                      ? `${selectedCount}/${group.memberIds.length}`
-                      : group.memberIds.length;
+                    group.memberIds.length === 1
+                      ? null
+                      : state === "some"
+                        ? `${selectedCount}/${group.memberIds.length}`
+                        : group.memberIds.length;
                   return (
                     <label
                       key={group.name}
                       className="flex cursor-pointer items-center justify-center rounded-lg border border-input px-2.5 py-2 text-sm text-muted-foreground transition-all active:scale-[0.95] has-[[data-state=unchecked]]:hover:bg-accent has-[[data-state=unchecked]]:hover:text-accent-foreground has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:text-foreground has-[[data-state=indeterminate]]:border-dashed has-[[data-state=indeterminate]]:border-primary/40 has-[[data-state=indeterminate]]:bg-primary/5"
                     >
-                      <Checkbox
+                      <CheckboxPrimitive.Root
                         checked={
                           state === "all"
                             ? true
@@ -119,7 +121,7 @@ const AssigneeField = ({
                     key={item.id}
                     className="flex cursor-pointer items-center justify-center rounded-lg border border-input px-2.5 py-2 text-sm text-muted-foreground transition-all active:scale-[0.95] has-[[data-state=unchecked]]:hover:bg-accent has-[[data-state=unchecked]]:hover:text-accent-foreground has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:text-foreground"
                   >
-                    <Checkbox
+                    <CheckboxPrimitive.Root
                       checked={checked}
                       onCheckedChange={() => toggle(item.id)}
                       className="sr-only"

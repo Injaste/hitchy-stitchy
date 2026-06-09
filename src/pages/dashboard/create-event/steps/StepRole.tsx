@@ -2,7 +2,8 @@ import type { FC } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { Heart, CalendarCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { FieldGroup } from "@/components/ui/field";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -154,7 +155,7 @@ const StepRole: FC<StepRoleProps> = ({
                   >
                     <Icon className="size-5 shrink-0" />
                     <span className="font-medium">{option.role}</span>
-                    <RadioGroupItem
+                    <RadioGroupPrimitive.Item
                       value={option.role}
                       id={option.role}
                       className="sr-only"
