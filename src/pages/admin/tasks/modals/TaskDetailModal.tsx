@@ -147,8 +147,6 @@ const TaskDetailModal = () => {
           </div>
         </DialogBody>
 
-        <Separator />
-
         <DialogDetailActions
           destructive={destructiveActions}
           primary={primaryAction}
