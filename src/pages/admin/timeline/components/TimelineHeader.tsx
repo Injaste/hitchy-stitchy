@@ -12,7 +12,7 @@ import {
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineDays } from "../hooks/useTimelineDays";
-import { getLatestTime } from "../utils";
+import { dayItems, defaultSegmentId, getLatestTime } from "../utils";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange, parseLocalDate } from "@/lib/utils/utils-time";
 import type { TimelineGrouped } from "../types";
@@ -30,11 +30,9 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   data,
 }) => {
   const { canCreate } = useAccess();
-  const openCreateWithLabel = useTimelineModalStore(
-    (s) => s.openCreateWithLabel,
-  );
+  const openCreate = useTimelineModalStore((s) => s.openCreate);
   const { dateStart, dateEnd } = useAdminStore();
-  const { activeIndex, activeDay, hasItems } = useTimelineDays(data);
+  const { activeIndex, activeDate, activeDay, hasItems } = useTimelineDays(data);
 
   const dayCount =
     dateStart && dateEnd
@@ -43,17 +41,13 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
 
   const activeDayLabel = hasItems ? `Day ${activeIndex + 1}` : null;
   const activeDayDate =
-    hasItems && activeDay ? format(parseLocalDate(activeDay), "MMM d") : null;
+    hasItems && activeDate ? format(parseLocalDate(activeDate), "MMM d") : null;
 
-  // The header create opens at the end of the day currently in view: prefill the
-  // next item's start with that day's latest end (or start) time, mirroring the
-  // per-label "+" buttons. An empty day yields "" → null, so the form falls back
-  // to its 09:00 default.
-  const activeDayItems =
-    data?.days
-      .find((d) => d.day === activeDay)
-      ?.labelGroups.flatMap((g) => g.items) ?? [];
-  const suggestedStart = getLatestTime(activeDayItems) || null;
+  // The header create opens at the end of the day in view: prefill the next
+  // item's start with that day's latest time and target its default segment.
+  const suggestedStart =
+    (activeDay ? getLatestTime(dayItems(activeDay)) : "") || null;
+  const targetSegmentId = defaultSegmentId(activeDay);
 
   return (
     <AdminPageHeader
@@ -91,7 +85,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
         canCreate("timeline") && (
           <Button
             size="sm"
-            onClick={() => openCreateWithLabel(null, suggestedStart)}
+            onClick={() => openCreate(targetSegmentId, null, suggestedStart)}
             className="gap-0"
           >
             <Plus className="w-4 h-4" /> <ActionLabel>Timeline</ActionLabel>

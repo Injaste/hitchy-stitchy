@@ -25,7 +25,7 @@ const TimelineEditModal = () => {
   const form = useTimelineItemForm({
     defaultValues: selectedItem
       ? {
-          day: selectedItem.day,
+          segment_id: selectedItem.segment_id,
           label: selectedItem.label ?? "",
           time_start: selectedItem.time_start,
           time_end: selectedItem.time_end ?? "",

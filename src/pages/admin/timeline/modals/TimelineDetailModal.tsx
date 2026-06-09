@@ -37,7 +37,7 @@ import NotesMarkdown from "@/components/custom/notes-markdown";
 import MemberBadge from "@/pages/admin/members/components/MemberBadge";
 import { useNow } from "@/hooks/use-now";
 import { cn } from "@/lib/utils";
-import { scheduledStartDate } from "../utils";
+import { flattenTimeline, scheduledStartDate } from "../utils";
 import PlanActualBar from "../components/PlanActualBar";
 
 const TimelineDetailModal = () => {
@@ -58,9 +58,9 @@ const TimelineDetailModal = () => {
 
   const item = useMemo(
     () =>
-      data?.days
-        .flatMap((d) => d.labelGroups.flatMap((g) => g.items))
-        .find((i) => i.id === selectedItem?.id) ?? selectedItem,
+      (data ? flattenTimeline(data) : []).find(
+        (i) => i.id === selectedItem?.id,
+      ) ?? selectedItem,
     [data, selectedItem],
   );
 

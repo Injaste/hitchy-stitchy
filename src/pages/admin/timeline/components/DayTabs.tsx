@@ -11,16 +11,22 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 interface DayTabsProps {
-  days: string[];
-  activeDayId: string;
-  onSelect: (id: string) => void;
+  dates: string[];
+  activeDate: string;
+  onSelect: (date: string) => void;
 }
 
-const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
-  const { emblaRef, emblaApi } = useEmblaCarouselApi();
-  const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
-
+const DayTabs: FC<DayTabsProps> = ({ dates, activeDate, onSelect }) => {
   const todayStr = format(new Date(), "yyyy-MM-dd");
+  const todayIndex = dates.indexOf(todayStr);
+
+  // Start positioned at today (embla clamps near the ends, and owns all
+  // scrolling/drag from there — no manual scroll-into-view to fight the user).
+  const { emblaRef, emblaApi } = useEmblaCarouselApi(
+    "start",
+    todayIndex < 0 ? undefined : todayIndex,
+  );
+  const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   return (
     <div className="mb-6">
@@ -28,13 +34,13 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
         <div ref={emblaRef} className="overflow-hidden p-1">
           <div className="flex gap-2">
             <AnimatePresence>
-              {days.map((day, idx) => {
-                const date = parseLocalDate(day);
-                const active = day === activeDayId;
-                const isToday = day === todayStr;
+              {dates.map((date, idx) => {
+                const parsed = parseLocalDate(date);
+                const active = date === activeDate;
+                const isToday = date === todayStr;
                 return (
                   <motion.div
-                    key={day}
+                    key={date}
                     custom={idx}
                     variants={itemFadeUp}
                     initial="hidden"
@@ -45,7 +51,7 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                   >
                   <button
                     type="button"
-                    onClick={() => onSelect(day)}
+                    onClick={() => onSelect(date)}
                     aria-pressed={active}
                     className={cn(
                       "group/timeline-day-tab w-16 overflow-hidden rounded-xl border border-border bg-card shadow-sm cursor-pointer transition-transform active:scale-[0.95]",
@@ -59,14 +65,14 @@ const DayTabs: FC<DayTabsProps> = ({ days, activeDayId, onSelect }) => {
                           : "bg-muted text-muted-foreground",
                       )}
                     >
-                      {format(date, "MMM")}
+                      {format(parsed, "MMM")}
                     </div>
                     <div className="py-2">
                       <div className="font-display text-2xl font-bold leading-none text-foreground">
-                        {format(date, "d")}
+                        {format(parsed, "d")}
                       </div>
                       <div className="mt-1 text-2xs uppercase tracking-wide text-muted-foreground">
-                        {format(date, "EEE")}
+                        {format(parsed, "EEE")}
                       </div>
                     </div>
                   </button>

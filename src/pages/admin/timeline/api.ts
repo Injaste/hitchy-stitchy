@@ -2,30 +2,52 @@ import { supabase } from "@/lib/supabase"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import type {
   Timeline,
+  EventDay,
+  EventSegment,
   TimelineGrouped,
   CreateTimelineItemPayload,
   UpdateTimelineItemPayload,
   DeleteTimelineItemPayload,
   StartTimelinePayload,
   EndTimelinePayload,
+  CreateSegmentPayload,
+  UpdateSegmentPayload,
+  DeleteSegmentPayload,
+  ReorderSegmentsPayload,
 } from "./types"
 import { groupTimeline } from "./utils"
 
 const TIMELINE_COLUMNS =
-  "id, event_id, day, label, time_start, time_end, title, details, assignees, created_at, started_at, ended_at"
+  "id, event_id, day, segment_id, label, time_start, time_end, title, details, assignees, created_at, started_at, ended_at"
 
 export async function fetchTimeline(eventId: string): Promise<TimelineGrouped> {
-  const { data, error } = await supabase
-    .from("event_timelines")
-    .select(TIMELINE_COLUMNS)
-    .eq("event_id", eventId)
-    .order("day", { ascending: true })
-    .order("time_start", { ascending: true })
+  const [daysRes, segmentsRes, itemsRes] = await Promise.all([
+    supabase
+      .from("event_days")
+      .select("id, date")
+      .eq("event_id", eventId)
+      .order("date", { ascending: true }),
+    supabase
+      .from("event_segments")
+      .select("id, event_id, day_id, name, sort_order")
+      .eq("event_id", eventId)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("event_timelines")
+      .select(TIMELINE_COLUMNS)
+      .eq("event_id", eventId)
+      .order("time_start", { ascending: true }),
+  ])
 
-  if (error) throw new Error(error.message)
-  if (!data?.length) return { days: [], labels: [] }
+  if (daysRes.error) throw new Error(daysRes.error.message)
+  if (segmentsRes.error) throw new Error(segmentsRes.error.message)
+  if (itemsRes.error) throw new Error(itemsRes.error.message)
 
-  return groupTimeline(data as Timeline[])
+  return groupTimeline(
+    (itemsRes.data ?? []) as Timeline[],
+    (daysRes.data ?? []) as EventDay[],
+    (segmentsRes.data ?? []) as EventSegment[],
+  )
 }
 
 export async function fetchActiveTimeline(eventId: string): Promise<Timeline | null> {
@@ -45,7 +67,7 @@ export async function fetchActiveTimeline(eventId: string): Promise<Timeline | n
 export async function createTimelineItem(payload: CreateTimelineItemPayload): Promise<Timeline> {
   const { data, error } = await supabase.rpc("create_timeline", {
     p_event_id: payload.event_id,
-    p_day: payload.day,
+    p_segment_id: payload.segment_id,
     p_label: payload.label,
     p_time_start: payload.time_start,
     p_time_end: payload.time_end,
@@ -62,7 +84,7 @@ export async function updateTimelineItem(payload: UpdateTimelineItemPayload): Pr
   const { data, error } = await supabase.rpc("update_timeline", {
     p_event_id: payload.event_id,
     p_id: payload.id,
-    p_day: payload.day,
+    p_segment_id: payload.segment_id,
     p_label: payload.label,
     p_time_start: payload.time_start,
     p_time_end: payload.time_end,
@@ -102,6 +124,47 @@ export async function endTimelineItem(payload: EndTimelinePayload): Promise<Time
 
   if (error) throw new Error(error.message)
   return data as Timeline
+}
+
+export async function createSegment(payload: CreateSegmentPayload): Promise<EventSegment> {
+  const { data, error } = await supabase.rpc("create_segment", {
+    p_event_id: payload.event_id,
+    p_day_id: payload.day_id,
+    p_name: payload.name,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as EventSegment
+}
+
+export async function updateSegment(payload: UpdateSegmentPayload): Promise<EventSegment> {
+  const { data, error } = await supabase.rpc("update_segment", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+    p_name: payload.name,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as EventSegment
+}
+
+export async function deleteSegment(payload: DeleteSegmentPayload): Promise<void> {
+  const { error } = await supabase.rpc("delete_segment", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+  })
+
+  if (error) throw new Error(error.message)
+}
+
+export async function reorderSegments(payload: ReorderSegmentsPayload): Promise<void> {
+  const { error } = await supabase.rpc("reorder_segments", {
+    p_event_id: payload.event_id,
+    p_day_id: payload.day_id,
+    p_ids: payload.ids,
+  })
+
+  if (error) throw new Error(error.message)
 }
 
 export function subscribeToTimeline(

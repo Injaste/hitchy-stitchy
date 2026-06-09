@@ -130,6 +130,8 @@ const TimelineConfirmModal = () => {
     <ConfirmAlertModal
       open={isConfirmOpen}
       onOpenChange={closeConfirm}
+      variant={confirm.kind === "end" ? "warning" : "success"}
+      icon={null}
       title={
         <>
           {config.titlePrefix}{" "}

@@ -2,9 +2,14 @@ import { createModalStore } from "../../hooks/useModalStore";
 import type { Timeline } from "../types";
 
 export interface TimelineCreatePrefill {
-  day: string | null;
+  /** The active day tab ("yyyy-MM-dd"). Drives which day is shown. */
+  date: string | null;
+  /** The segment a new item will be created in. */
+  segment_id: string | null;
   label: string | null;
   time_start: string | null;
+  /** Indicative create-modal header (e.g. "Add to Reception"); null = default. */
+  title: string | null;
 }
 
 export interface TimelineConfirm {
@@ -15,10 +20,12 @@ export interface TimelineConfirm {
 
 interface TimelineModalAdditional {
   createPrefill: TimelineCreatePrefill;
-  setPrefillDay: (day: string | null) => void;
-  openCreateWithLabel: (
-    label: string | null,
+  setActiveDate: (date: string | null) => void;
+  openCreate: (
+    segmentId: string | null,
+    label?: string | null,
     timeStart?: string | null,
+    title?: string | null,
   ) => void;
 
   isConfirmOpen: boolean;
@@ -33,12 +40,24 @@ export const useTimelineModalStore = createModalStore<
   Timeline,
   TimelineModalAdditional
 >((set, get) => ({
-  createPrefill: { day: null, label: null, time_start: null },
-  setPrefillDay: (day) =>
-    set({ createPrefill: { ...get().createPrefill, day } }),
-  openCreateWithLabel: (label, timeStart = null) =>
+  createPrefill: {
+    date: null,
+    segment_id: null,
+    label: null,
+    time_start: null,
+    title: null,
+  },
+  setActiveDate: (date) =>
+    set({ createPrefill: { ...get().createPrefill, date } }),
+  openCreate: (segmentId, label = null, timeStart = null, title = null) =>
     set({
-      createPrefill: { ...get().createPrefill, label, time_start: timeStart },
+      createPrefill: {
+        ...get().createPrefill,
+        segment_id: segmentId,
+        label,
+        time_start: timeStart,
+        title,
+      },
       isCreateOpen: true,
     }),
 
