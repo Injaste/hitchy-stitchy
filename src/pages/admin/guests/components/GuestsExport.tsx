@@ -35,7 +35,9 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
         onClick={() => exportGuestsCSV(allGuests)}
       >
         <Download className="w-3.5 h-3.5" />
-        Export {allGuests.length} selected
+        <span className="hidden sm:inline">
+          Export {allGuests.length} selected
+        </span>
       </Button>
     );
   }
@@ -58,7 +60,7 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
         onClick={() => exportGuestsCSV(guests)}
       >
         <Download className="w-3.5 h-3.5" />
-        Export
+        <span className="hidden sm:inline">Export</span>
       </Button>
     );
   }
@@ -73,7 +75,7 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
           disabled={guests.length === 0}
         >
           <Download className="w-3.5 h-3.5" />
-          Export
+          <span className="hidden sm:inline">Export</span>
           <ChevronDown className="w-3 h-3" />
         </Button>
       </DropdownMenuTrigger>

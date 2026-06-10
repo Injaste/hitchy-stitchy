@@ -80,31 +80,33 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
           )}
         </div>
 
-        {/* Status pills */}
-        <div
-          role="group"
-          aria-label="Filter by status"
-          className="flex items-center gap-1.5"
-        >
-          {STATUS_PILLS.map((pill) => (
-            <Button
-              key={pill.value}
-              type="button"
-              size="sm"
-              variant={pill.variant}
-              onClick={() => onStatusFilterChange(pill.value)}
-              className={cn(
-                "text-xs",
-                statusFilter !== pill.value &&
-                  `bg-transparent text-muted-foreground ${STATUS_PILLS_HOVER_CLASS[pill.variant]}`,
-              )}
-            >
-              {pill.label}
-            </Button>
-          ))}
-        </div>
+        <div className="flex items-center gap-1.5">
+          {/* Status pills */}
+          <div
+            role="group"
+            aria-label="Filter by status"
+            className="flex items-center gap-1.5"
+          >
+            {STATUS_PILLS.map((pill) => (
+              <Button
+                key={pill.value}
+                type="button"
+                size="sm"
+                variant={pill.variant}
+                onClick={() => onStatusFilterChange(pill.value)}
+                className={cn(
+                  "text-xs",
+                  statusFilter !== pill.value &&
+                    `bg-transparent text-muted-foreground ${STATUS_PILLS_HOVER_CLASS[pill.variant]}`,
+                )}
+              >
+                {pill.label}
+              </Button>
+            ))}
+          </div>
 
-        {trailing && <div className="sm:ml-auto">{trailing}</div>}
+          {trailing && <div className="ml-auto">{trailing}</div>}
+        </div>
       </div>
 
       {/* Entry count — right-aligned, contextual */}
