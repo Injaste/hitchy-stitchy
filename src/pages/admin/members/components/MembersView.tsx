@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { itemFadeUp } from "@/lib/animations";
 import ErrorState from "@/components/custom/states/error-state";
+import NoResults from "@/components/custom/states/no-results";
 import { Input } from "@/components/ui/input";
 import {
   Accordion,
@@ -88,68 +89,70 @@ const MembersView: FC<MembersViewProps> = ({
   );
 
   const renderContent = () => {
-    // No results after search
+    // No results after search — blur-swap against the list (mirrors BudgetView).
     if (search.trim() && totalVisible === 0) {
       return (
-        <p className="text-sm text-muted-foreground text-center py-12">
-          No members match your search.
-        </p>
+        <ComponentFade key="no-match" useBlur>
+          <NoResults message="No members match your search." />
+        </ComponentFade>
       );
     }
 
     return (
-      <div className="space-y-6">
-        {/* Couple */}
-        {couple.length > 0 && (
-          <div>
-            <p className="text-2xs font-semibold tracking-widest uppercase text-muted-foreground/60 mb-3">
-              Couple
-            </p>
-            {renderList(couple)}
-          </div>
-        )}
-
-        {/* Active team */}
-        {active.length > 0 && (
-          <div>
-            {couple.length > 0 && (
+      <ComponentFade key="results" useBlur>
+        <div className="space-y-6">
+          {/* Couple */}
+          {couple.length > 0 && (
+            <div>
               <p className="text-2xs font-semibold tracking-widest uppercase text-muted-foreground/60 mb-3">
-                Team
+                Couple
               </p>
-            )}
-            {renderList(active)}
-          </div>
-        )}
+              {renderList(couple)}
+            </div>
+          )}
 
-        {/* Inactive — collapsed by default */}
-        {inactive.length > 0 && (
-          <Accordion type="single" collapsible>
-            <AccordionItem value="inactive" className="border-none">
-              <AccordionTrigger className="w-fit flex-none gap-1.5 py-1 text-xs font-normal text-muted-foreground hover:text-foreground hover:no-underline">
-                {inactive.length} inactive
-              </AccordionTrigger>
-              {/* px-1 / py give the cards' 1px ring room inside the overflow-hidden content */}
-              <AccordionContent className="px-1 pt-3 pb-1">
-                {renderList(inactive)}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        )}
-      </div>
+          {/* Active team */}
+          {active.length > 0 && (
+            <div>
+              {couple.length > 0 && (
+                <p className="text-2xs font-semibold tracking-widest uppercase text-muted-foreground/60 mb-3">
+                  Team
+                </p>
+              )}
+              {renderList(active)}
+            </div>
+          )}
+
+          {/* Inactive — collapsed by default */}
+          {inactive.length > 0 && (
+            <Accordion type="single" collapsible>
+              <AccordionItem value="inactive" className="border-none">
+                <AccordionTrigger className="w-fit flex-none gap-1.5 py-1 text-xs font-normal text-muted-foreground hover:text-foreground hover:no-underline">
+                  {inactive.length} inactive
+                </AccordionTrigger>
+                {/* px-1 / py give the cards' 1px ring room inside the overflow-hidden content */}
+                <AccordionContent className="px-1 pt-3 pb-1">
+                  {renderList(inactive)}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
+        </div>
+      </ComponentFade>
     );
   };
 
   const renderBody = () => {
     if (isLoading)
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <MembersSkeleton />
         </ComponentFade>
       );
 
     if (isError)
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <ErrorState
             message="We couldn't load your members. Please try again."
             onRetry={refetch}
@@ -160,16 +163,13 @@ const MembersView: FC<MembersViewProps> = ({
 
     if (!data?.length)
       return (
-        <ComponentFade key="empty">
-          <MembersEmpty
-            onInvite={openInvite}
-            canCreate={canManageMembers}
-          />
+        <ComponentFade key="empty" useBlur>
+          <MembersEmpty onInvite={openInvite} canCreate={canManageMembers} />
         </ComponentFade>
       );
 
     return (
-      <ComponentFade key="content">
+      <ComponentFade key="content" useBlur>
         <MemberStats data={data} isLoading={isLoading} isError={isError} />
 
         {/* Search */}
@@ -183,7 +183,9 @@ const MembersView: FC<MembersViewProps> = ({
           />
         </div>
 
-        {renderContent()}
+        <AnimatePresence mode="wait" initial={false}>
+          {renderContent()}
+        </AnimatePresence>
       </ComponentFade>
     );
   };
