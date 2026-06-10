@@ -1,39 +1,21 @@
 import { useMemo, useState } from "react"
 import type { FC } from "react"
 import { AnimatePresence } from "framer-motion"
-import { Search } from "lucide-react"
 
 import ComponentFade from "@/components/animations/animate-component-fade"
 import ErrorState from "@/components/custom/states/error-state"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
 
 import { useAccess } from "../../hooks/useAccess"
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore"
 import { computeSummary, dueInfo, sortExpenses, statusOf } from "../utils"
 import type { BudgetData } from "../api"
+import type { ExpenseFilter } from "../types"
 
 import BudgetSummary from "./BudgetSummary"
+import ExpenseFilters from "./ExpenseFilters"
 import ExpensesSheet from "./ExpensesSheet"
 import BudgetSkeleton from "../states/BudgetSkeleton"
 import BudgetEmpty from "../states/BudgetEmpty"
-
-const FILTER_PILLS = [
-  { value: "all", label: "All", variant: "secondary" },
-  { value: "outstanding", label: "Outstanding", variant: "warning" },
-  { value: "overdue", label: "Overdue", variant: "destructive" },
-  { value: "paid", label: "Paid", variant: "success" },
-] as const
-
-type ExpenseFilter = (typeof FILTER_PILLS)[number]["value"]
-
-const FILTER_HOVER: Record<string, string> = {
-  secondary: "hover:text-secondary-foreground",
-  warning: "hover:text-warning",
-  destructive: "hover:text-destructive",
-  success: "hover:text-success",
-}
 
 interface BudgetViewProps {
   data?: BudgetData
@@ -83,7 +65,7 @@ const BudgetView: FC<BudgetViewProps> = ({
   const renderBody = () => {
     if (isLoading) {
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <BudgetSkeleton />
         </ComponentFade>
       )
@@ -91,7 +73,7 @@ const BudgetView: FC<BudgetViewProps> = ({
 
     if (isError || !data) {
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <ErrorState
             message="We couldn't load your budget. Please try again."
             onRetry={refetch}
@@ -101,76 +83,38 @@ const BudgetView: FC<BudgetViewProps> = ({
       )
     }
 
-    const hasExpenses = data.expenses.length > 0
+    // The hero stays mounted in every loaded state so the budget total is
+    // editable inline even before any expense exists.
+    if (data.expenses.length === 0) {
+      return (
+        <ComponentFade key="empty" useBlur>
+          <div className="space-y-4">
+            <BudgetSummary summary={summary} />
+            <BudgetEmpty onAdd={openCreate} canCreate={canCreate("budget")} />
+          </div>
+        </ComponentFade>
+      )
+    }
+
     const visibleSpent = filtered.reduce((s, e) => s + e.amount, 0)
     const visiblePaid = filtered.reduce((s, e) => s + e.paid, 0)
 
     return (
-      <ComponentFade key="content">
+      <ComponentFade key="content" useBlur>
         <div className="space-y-4">
-          {/* Hero is always shown when loaded, so the budget stays editable
-              inline even before any expenses exist. */}
           <BudgetSummary summary={summary} />
-
-          <AnimatePresence mode="wait" initial={false}>
-            {hasExpenses ? (
-              <ComponentFade key="sheet">
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <div className="relative flex-1">
-                      <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search item, vendor or payer…"
-                        className="rounded-full pl-9"
-                      />
-                    </div>
-
-                    <div
-                      role="group"
-                      aria-label="Filter expenses"
-                      className="flex flex-wrap items-center gap-1.5"
-                    >
-                      {FILTER_PILLS.map((pill) => (
-                        <Button
-                          key={pill.value}
-                          type="button"
-                          size="sm"
-                          variant={pill.variant}
-                          onClick={() => setFilter(pill.value)}
-                          className={cn(
-                            "text-xs",
-                            filter !== pill.value &&
-                              `bg-transparent text-muted-foreground ${FILTER_HOVER[pill.variant]}`,
-                          )}
-                        >
-                          {pill.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {filtered.length > 0 ? (
-                    <ExpensesSheet
-                      expenses={filtered}
-                      totalSpent={visibleSpent}
-                      totalPaid={visiblePaid}
-                      onRowClick={openEditItem}
-                    />
-                  ) : (
-                    <div className="rounded-xl border border-border bg-card py-12 text-center text-sm text-muted-foreground">
-                      No expenses match your search.
-                    </div>
-                  )}
-                </div>
-              </ComponentFade>
-            ) : (
-              <ComponentFade key="empty">
-                <BudgetEmpty onAdd={openCreate} canCreate={canCreate("budget")} />
-              </ComponentFade>
-            )}
-          </AnimatePresence>
+          <ExpenseFilters
+            search={search}
+            onSearchChange={setSearch}
+            filter={filter}
+            onFilterChange={setFilter}
+          />
+          <ExpensesSheet
+            expenses={filtered}
+            totalSpent={visibleSpent}
+            totalPaid={visiblePaid}
+            onRowClick={openEditItem}
+          />
         </div>
       </ComponentFade>
     )

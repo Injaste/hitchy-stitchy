@@ -2,6 +2,15 @@ import { z } from "zod"
 
 export type ExpenseStatus = "paid" | "partial" | "unpaid"
 
+export const FILTER_PILLS = [
+  { value: "all", label: "All", variant: "secondary" },
+  { value: "outstanding", label: "Outstanding", variant: "warning" },
+  { value: "overdue", label: "Overdue", variant: "destructive" },
+  { value: "paid", label: "Paid", variant: "success" },
+] as const
+
+export type ExpenseFilter = (typeof FILTER_PILLS)[number]["value"]
+
 export interface Expense {
   id: string
   event_id: string
