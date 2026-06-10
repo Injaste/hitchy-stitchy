@@ -2,7 +2,7 @@
 
 **Goal:** bring vendors back (they were dropped in migration
 `20260605000002_drop_unimplemented_features`) as a **day-scoped rebuild**, per the
-[payments handoff](../PHASE-1-PAYMENTS-HANDOFF.md). Two facets:
+[payments handoff](../payment-plans/phase-1.md). Two facets:
 1. **Vendor CRM (couple-side)** — contacts, contracts, payments; ties to Budget + Timeline.
 2. **Vendor collaborators (Advanced)** — vendors as **day-scoped members** who log in
    and see only their day(s), enforced server-side.

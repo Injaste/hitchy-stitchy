@@ -29,7 +29,7 @@ money + banquet features below are things a US tool structurally can't match her
 | 7 | [Invitation templates](mvp-phase-7-invitation-templates.md) | Engine done; authoring 3–5 designs so the invite side carries weight. | low (per design) |
 
 **Monetization is deliberately last** and already documented — see
-[`PHASE-1-PAYMENTS-HANDOFF.md`](../PHASE-1-PAYMENTS-HANDOFF.md). Don't build
+[`phase-1.md`](../payment-plans/phase-1.md). Don't build
 billing inside these phases; just declare each feature's intended tier as you go.
 
 ## Cross-cutting SG glue (thread through every phase, cheap)
