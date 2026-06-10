@@ -19,6 +19,7 @@ interface LabelTabsProps {
 const LabelTabs: FC<LabelTabsProps> = ({ labels, activeLabel, onSelect }) => {
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
+  const isMobile = useIsMobile();
 
   const labelsKey = labels.join("|");
   useEffect(() => {
@@ -34,7 +35,7 @@ const LabelTabs: FC<LabelTabsProps> = ({ labels, activeLabel, onSelect }) => {
             return (
               <Button
                 key={label}
-                size={useIsMobile() ? "sm" : "lg"}
+                size={isMobile ? "sm" : "lg"}
                 onClick={() => onSelect(label)}
                 variant={active ? "default" : "outline"}
                 className={cn(!active && "bg-background")}
