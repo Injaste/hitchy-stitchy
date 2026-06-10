@@ -2,6 +2,11 @@ import { useMutation as useTanstackMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { MutationOptions } from "./types";
 
+// Error toasts linger longer than success — long enough to read a server
+// message, short enough not to stack in the corner. Success keeps sonner's
+// default (~4s).
+const ERROR_TOAST_DURATION = 8000;
+
 export function useMutation<TArgs, TResult, TContext = unknown>(
   fn: (args: TArgs) => Promise<TResult>,
   options: MutationOptions<TResult, TArgs, TContext>,
@@ -40,7 +45,7 @@ export function useMutation<TArgs, TResult, TContext = unknown>(
           typeof options.errorMessage === "function"
             ? options.errorMessage(error, args)
             : options.errorMessage;
-        toast.error(msg);
+        toast.error(msg, { duration: ERROR_TOAST_DURATION, closeButton: true });
       }
     },
   });
@@ -51,10 +56,24 @@ export function useMutation<TArgs, TResult, TContext = unknown>(
   ): Promise<void> {
     if ("toast" in options && options.toast) {
       const promise = _mutateAsync(args);
+      const errorMsg = options.toast.error;
       toast.promise(promise, {
         loading: options.toast.loading,
         success: options.toast.success as string,
-        error: options.toast.error as string,
+        // Only the error state gets the longer duration and a close button;
+        // success stays default.
+        error:
+          typeof errorMsg === "function"
+            ? (e: Error) => ({
+                message: errorMsg(e),
+                duration: ERROR_TOAST_DURATION,
+                closeButton: true,
+              })
+            : {
+                message: errorMsg,
+                duration: ERROR_TOAST_DURATION,
+                closeButton: true,
+              },
       });
       await promise
         .then(() => callbacks?.onSuccess?.())

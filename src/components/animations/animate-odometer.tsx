@@ -63,17 +63,40 @@ const OdometerDigit: FC<OdometerDigitProps> = ({ value }) => {
 interface OdometerProps {
   value: number;
   pad?: number;
+  /** Static text rendered before the digits (e.g. a currency symbol). */
+  prefix?: string;
+  /** Group with thousands separators (commas render static; digits still roll). */
+  group?: boolean;
 }
 
-const Odometer = ({ value, pad }: OdometerProps) => (
-  <span className="inline-flex items-center">
-    {String(value)
-      .padStart(pad ?? 0, "0")
-      .split("")
-      .map((d, i) => (
-        <OdometerDigit key={i} value={Number(d)} />
-      ))}
-  </span>
-);
+const Odometer = ({ value, pad, prefix, group }: OdometerProps) => {
+  const base = group
+    ? Math.round(value).toLocaleString("en-US")
+    : String(value);
+  const chars = (pad ? base.padStart(pad, "0") : base).split("");
+
+  return (
+    <span className="inline-flex items-center">
+      {prefix && (
+        <span className="inline-flex items-center" style={{ marginRight: "0.05em" }}>
+          {prefix}
+        </span>
+      )}
+      {chars.map((ch, i) =>
+        /\d/.test(ch) ? (
+          <OdometerDigit key={i} value={Number(ch)} />
+        ) : (
+          <span
+            key={i}
+            className="inline-flex items-center justify-center"
+            style={{ height: "1.5em" }}
+          >
+            {ch}
+          </span>
+        ),
+      )}
+    </span>
+  );
+};
 
 export default Odometer;

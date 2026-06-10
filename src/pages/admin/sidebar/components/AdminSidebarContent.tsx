@@ -5,6 +5,7 @@ import {
   Shield,
   Mail,
   ClipboardList,
+  Wallet,
   Settings,
 } from "lucide-react";
 import {
@@ -28,6 +29,7 @@ const AdminSidebarContent = () => {
 
   const showTimeline = canRead("timeline");
   const showTasks = canRead("tasks");
+  const showBudget = canRead("budget");
   // The member roster is viewable by every active member; managing it needs members:full.
   const showMembers = true;
   const showAccess = canRead("access");
@@ -35,6 +37,7 @@ const AdminSidebarContent = () => {
   const showInvitation = canRead("invitation") || canRead("themes");
 
   const hasOperations = showTimeline || showTasks;
+  const hasMoney = showBudget;
   const hasTeam = showMembers || showAccess;
   const hasRSVP = showGuests || showInvitation;
 
@@ -64,6 +67,27 @@ const AdminSidebarContent = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+      )}
+
+      {hasMoney && (
+        <>
+          <SidebarSeparator className="mx-4" />
+          <SidebarGroup>
+            <SidebarGroupLabel>Money</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {showBudget && (
+                  <NavItem
+                    icon={Wallet}
+                    label="Budget Tracker"
+                    to={`${base}/budget-tracker`}
+                    isActive={activePage === "budget-tracker"}
+                  />
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </>
       )}
 
       {hasTeam && (
