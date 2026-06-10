@@ -1,7 +1,7 @@
 # Handover — Soft-delete + Undo
 
 Self-contained brief for picking up the **undo-on-delete** feature. The terse
-architecture note lives in [docs/architecture/destructive-actions.md](architecture/destructive-actions.md);
+architecture note lives in [docs/architecture/destructive-actions.md](../architecture/destructive-actions.md);
 this is the detailed implementation plan.
 
 ## Status
@@ -191,7 +191,7 @@ SELECT cron.schedule('purge-expired', '0 * * * *', 'SELECT public.purge_expired(
 
 ## Client: the undo-button logic
 
-Per [mutations.md](architecture/mutations.md): cache → query hook, toast/UI → call
+Per [mutations.md](../architecture/mutations.md): cache → query hook, toast/UI → call
 site. Two ordinary `useMutation` calls per feature:
 
 - **`softDelete`** — optimistic-remove the row from the list cache; RPC sets

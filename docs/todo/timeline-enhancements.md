@@ -66,12 +66,12 @@ delete / reorder shows live (today only items sync). **Backend:** enable realtim
 on the table; mirror `subscribeToTimeline`. **Frontend:** a `useSegmentsRealtime`
 that patches `eventSegments` in the cache and re-`groupTimeline`s. **Complexity:**
 medium. **Note:** coordinate with the deferred soft-delete work
-(`SOFT-DELETE-UNDO-HANDOFF.md`) — both touch the realtime handlers.
+(`soft-delete-undo.md`) — both touch the realtime handlers.
 
 ### 7. Segment presets (SG-first)
 **What:** One-tap "add a standard set" — e.g. **Akad/Nikah · Bersanding/Reception ·
 Tea ceremony · Photoshoot**. **Why:** matches the SG multi-ceremony reality
-(see `PHASE-1-PAYMENTS-HANDOFF.md` product context); saves manual setup.
+(see `../payment-plans/phase-1.md` product context); saves manual setup.
 **Backend:** batched `create_segment`, or a `seed_segments` RPC. **Complexity:**
 low-medium (mostly a curated preset list).
 
@@ -134,4 +134,4 @@ also feeds the pending **check-ins / live-logs** features. **Touch:** FE
    can't reach hidden day tabs.
 4. **Segment metadata** — is color/icon (#8) worth a schema change, or skip?
 5. **Tier-gating** — do any of these (run-sheet export, presets) belong behind a
-   plan tier per `PHASE-1-PAYMENTS-HANDOFF.md`? Declare it as each is built.
+   plan tier per `../payment-plans/phase-1.md`? Declare it as each is built.

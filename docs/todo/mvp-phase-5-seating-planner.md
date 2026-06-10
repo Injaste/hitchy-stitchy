@@ -54,7 +54,7 @@ phases; do it once guests + dietary are stable.
    Leaning table-level for MVP.
 
 ## Grounding
-- DnD reference: `src/pages/admin/tasks/` (`useTaskDnd.ts`, `TasksSection.tsx`), `useCardFly` + `CardFlyOverlay`; notes in [`TIMELINE-ENHANCEMENTS-HANDOFF.md`](../TIMELINE-ENHANCEMENTS-HANDOFF.md).
+- DnD reference: `src/pages/admin/tasks/` (`useTaskDnd.ts`, `TasksSection.tsx`), `useCardFly` + `CardFlyOverlay`; notes in [`timeline-enhancements.md`](timeline-enhancements.md).
 - Guests source: `src/pages/admin/guests/`, table `event_rsvps`.
 - Day/segment spine: `event_days` / `event_segments`, `useTimelineDays.ts`.
 - Recipe + guardrails: [mvp-overview.md](mvp-overview.md).
