@@ -75,6 +75,7 @@ const Signup = () => {
       return (
         <ComponentFade
           key="success"
+          useBlur
           className="flex min-h-screen items-center justify-center px-4"
         >
           <div className="w-full max-w-sm">
@@ -109,7 +110,7 @@ const Signup = () => {
       );
 
     return (
-      <ComponentFade key="signup">
+      <ComponentFade key="signup" useBlur>
         <motion.div
           variants={container}
           initial="hidden"

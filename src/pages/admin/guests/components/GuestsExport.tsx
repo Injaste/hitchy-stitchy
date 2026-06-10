@@ -1,4 +1,5 @@
-import type { FC } from "react";
+import { useState, type FC } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { widthReveal } from "@/lib/animations";
 import type { Guest } from "../types";
 import { exportGuestsCSV } from "../utils";
 
@@ -25,6 +27,8 @@ interface GuestsExportProps {
  * only when the visible set actually contains cancelled guests.
  */
 const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   // Explicit selection — export exactly what was picked, no menu.
   if (allGuests.length > 0) {
     return (
@@ -49,52 +53,63 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
     exportConfirmedGuests.length > 0 &&
     exportConfirmedGuests.length < guests.length;
 
-  // Nothing to choose between — a single plain action is enough.
-  if (!isMixed) {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        className="text-xs"
-        disabled={guests.length === 0}
-        onClick={() => exportGuestsCSV(guests)}
-      >
-        <Download className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Export</span>
-      </Button>
-    );
-  }
-
+  // A single button that stays mounted across the mixed / not-mixed flip, so the
+  // chevron can reveal and collapse via AnimatePresence. When not mixed the menu
+  // is held closed and a click exports directly — preserving one-click export.
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      open={isMixed && menuOpen}
+      onOpenChange={(open) => {
+        // Only the mixed view has a menu; ignore Radix's open requests
+        // otherwise so a not-mixed click can't leave `menuOpen` stuck true
+        // (which would pop the menu the moment the view turns mixed).
+        if (isMixed) setMenuOpen(open);
+      }}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
           size="sm"
           className="text-xs"
           disabled={guests.length === 0}
+          onClick={isMixed ? undefined : () => exportGuestsCSV(guests)}
         >
           <Download className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Export</span>
-          <ChevronDown className="w-3 h-3" />
+          <AnimatePresence initial={false}>
+            {isMixed && (
+              <motion.span
+                key="chevron"
+                variants={widthReveal}
+                initial="hidden"
+                animate="show"
+                exit="hidden"
+                className="inline-flex overflow-hidden"
+              >
+                <ChevronDown className="w-3 h-3" />
+              </motion.span>
+            )}
+          </AnimatePresence>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem
-          className="flex items-center justify-between"
-          onClick={() => exportGuestsCSV(exportConfirmedGuests)}
-        >
-          <span>Confirmed</span>
-          <span>— {exportConfirmedGuests.length}</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="flex items-center justify-between"
-          onClick={() => exportGuestsCSV(guests)}
-        >
-          <span>All</span>
-          <span>— {guests.length}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
+      {isMixed && (
+        <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuItem
+            className="flex items-center justify-between"
+            onClick={() => exportGuestsCSV(exportConfirmedGuests)}
+          >
+            <span>Confirmed</span>
+            <span>— {exportConfirmedGuests.length}</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex items-center justify-between"
+            onClick={() => exportGuestsCSV(guests)}
+          >
+            <span>All</span>
+            <span>— {guests.length}</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      )}
     </DropdownMenu>
   );
 };

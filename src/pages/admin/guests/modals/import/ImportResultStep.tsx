@@ -2,6 +2,7 @@ import type { FC } from "react"
 import { CheckCircle2, AlertTriangle, MinusCircle, RefreshCw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 
 import type { ImportResult } from "../../types"
 
@@ -98,7 +99,7 @@ interface SummaryTileProps {
 }
 
 const SummaryTile: FC<SummaryTileProps> = ({ icon, label, value, tone }) => (
-  <div className="rounded-xl border border-border bg-card px-4 py-3 text-center">
+  <Card className="gap-0 px-4 py-3 text-center">
     <div
       className={`flex items-center justify-center gap-1.5 mb-1 ${
         tone === "primary" ? "text-primary" : "text-muted-foreground"
@@ -108,7 +109,7 @@ const SummaryTile: FC<SummaryTileProps> = ({ icon, label, value, tone }) => (
       <span className="text-[11px] uppercase tracking-wide font-medium">{label}</span>
     </div>
     <p className="text-2xl font-semibold text-foreground">{value}</p>
-  </div>
+  </Card>
 )
 
 export default ImportResultStep

@@ -1,10 +1,12 @@
-import { useCallback, useRef, type FC } from "react";
+import { useCallback, useLayoutEffect, useRef, useState, type FC } from "react";
 import { useAccess } from "../../hooks/useAccess";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
 import type { Guest, GuestStatus } from "../types";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
+import ScrollGradient from "@/components/custom/scroll-gradient";
 
 import GuestsRow from "./GuestsRow";
 
@@ -53,9 +55,48 @@ const GuestsTable: FC<GuestsTableProps> = ({
       ? "indeterminate"
       : false;
 
+  // The body scrolls under a pinned header, so the top fade has to start at the
+  // header's bottom edge — measure it rather than hardcode the row height.
+  const { scrollRef, canScrollUp, canScrollDown, onScroll } =
+    useScrollVisibility();
+  const theadRef = useRef<HTMLTableSectionElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  useLayoutEffect(() => {
+    const el = theadRef.current;
+    if (!el) return;
+    const measure = () => setHeaderHeight(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Inset the fades by the scrollbar gutter so they don't tint it. The observer
+  // re-fires when the gutter toggles (the content box width changes with it).
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const measure = () => setScrollbarWidth(el.offsetWidth - el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [scrollRef]);
+
   return (
-    <div className="rounded-lg border border-border overflow-hidden">
-      <table className="w-full text-sm table-fixed relative">
+    <div className="relative rounded-lg border border-border overflow-hidden md:flex-1 md:min-h-0 md:flex md:flex-col">
+      <ScrollGradient
+        side="top"
+        visible={canScrollUp}
+        style={{ top: headerHeight, right: scrollbarWidth }}
+      />
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        className="md:flex-1 md:min-h-0 md:overflow-y-auto md:[scrollbar-width:thin]"
+      >
+        <table className="w-full text-sm table-fixed relative">
         <colgroup>
           <col className="w-10" />
           <col className="min-w-40" />
@@ -65,7 +106,7 @@ const GuestsTable: FC<GuestsTableProps> = ({
           <col className="min-w-20 w-[10%]" />
         </colgroup>
 
-        <thead className="sticky top-0 bg-background z-10">
+        <thead ref={theadRef} className="sticky top-0 bg-background z-10">
           <tr className="border-b border-border bg-muted/40">
             <th className="px-5 py-3 align-middle">
               <Checkbox
@@ -124,7 +165,13 @@ const GuestsTable: FC<GuestsTableProps> = ({
             </>
           )}
         </tbody>
-      </table>
+        </table>
+      </div>
+      <ScrollGradient
+        side="bottom"
+        visible={canScrollDown}
+        style={{ right: scrollbarWidth }}
+      />
     </div>
   );
 };

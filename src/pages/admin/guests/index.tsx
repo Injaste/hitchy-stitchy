@@ -9,7 +9,7 @@ const Guests = () => {
   useGuestsRealtime();
 
   return (
-    <>
+    <div className="flex flex-col md:h-full md:min-h-0">
       <GuestsHeader
         isLoading={isLoading}
         isError={isError}
@@ -17,7 +17,10 @@ const Guests = () => {
         refetch={refetch}
         data={data}
       />
-      <Container pageSpacing>
+      <Container
+        pageSpacing
+        className="md:flex md:flex-col md:flex-1 md:min-h-0"
+      >
         <GuestsView
           data={data}
           isLoading={isLoading}
@@ -27,7 +30,7 @@ const Guests = () => {
         />
         <GuestModals />
       </Container>
-    </>
+    </div>
   );
 };
 

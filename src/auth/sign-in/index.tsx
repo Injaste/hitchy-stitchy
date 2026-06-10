@@ -107,7 +107,7 @@ const SignIn = () => {
   return (
     <div className="min-h-screen bg-gradient-surface">
       <AnimatePresence mode="wait">
-        <ComponentFade key="signin">
+        <ComponentFade key="signin" useBlur>
           <motion.div
             variants={container}
             initial="hidden"

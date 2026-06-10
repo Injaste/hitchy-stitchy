@@ -27,11 +27,24 @@ const fade: Variants = {
 // content without `position: fixed` descendants.
 const fadeBlur: Variants = {
   hidden: { opacity: 0, filter: "blur(8px)" },
-  show: { opacity: 1, filter: "blur(0px)", transition: { duration: 0.35, ease: "easeOut" } },
-  exit: { opacity: 0, filter: "blur(8px)", transition: { duration: 0.25, ease: "easeIn" } },
+  show: {
+    opacity: 1,
+    filter: "blur(0px)",
+    transition: { duration: 0.25, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    filter: "blur(8px)",
+    transition: { duration: 0.15, ease: "easeIn" },
+  },
 };
 
-const ComponentFade: FC<ComponentFadeProps> = ({ children, className, initialVisible, useBlur }) => {
+const ComponentFade: FC<ComponentFadeProps> = ({
+  children,
+  className,
+  initialVisible,
+  useBlur,
+}) => {
   return (
     <motion.div
       initial={initialVisible ? "show" : "hidden"}

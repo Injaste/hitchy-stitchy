@@ -89,7 +89,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   const renderBody = () => {
     if (isLoading) {
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <GuestsSkeleton />
         </ComponentFade>
       );
@@ -97,7 +97,7 @@ const GuestsView: FC<GuestsViewProps> = ({
 
     if (isError) {
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <ErrorState
             message="We couldn't load your guest list. Please try again."
             onRetry={refetch}
@@ -109,7 +109,7 @@ const GuestsView: FC<GuestsViewProps> = ({
 
     if (!data?.length) {
       return (
-        <ComponentFade key="empty">
+        <ComponentFade key="empty" useBlur>
           <GuestsEmpty
             onAdd={openCreate}
             onImport={openImport}
@@ -120,7 +120,11 @@ const GuestsView: FC<GuestsViewProps> = ({
     }
 
     return (
-      <ComponentFade key="content">
+      <ComponentFade
+        key="content"
+        useBlur
+        className="md:flex md:flex-col md:flex-1 md:min-h-0"
+      >
         <DeadlineAlert />
         <GuestsStats guests={data} />
         <GuestsFilters

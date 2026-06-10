@@ -38,14 +38,14 @@ const DashboardView = () => {
   const renderBody = () => {
     if (isLoading)
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <DashboardSkeleton />
         </ComponentFade>
       );
 
     if (isError)
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <ErrorState
             message="We couldn't load your events. Please try again."
             onRetry={refetch}
@@ -56,13 +56,13 @@ const DashboardView = () => {
 
     if (!events?.length)
       return (
-        <ComponentFade key="empty">
+        <ComponentFade key="empty" useBlur>
           <EventEmpty onCreateEvent={() => setIsCreateOpen(true)} />
         </ComponentFade>
       );
 
     return (
-      <ComponentFade key="content">
+      <ComponentFade key="content" useBlur>
         <DashboardStats eventsCount={eventsCount} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4">
           <AnimatePresence>

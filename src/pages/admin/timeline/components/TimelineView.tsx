@@ -54,14 +54,14 @@ const TimelineView: FC<TimelineViewProps> = ({
   const renderBody = () => {
     if (isLoading)
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <TimelineSkeleton />
         </ComponentFade>
       );
 
     if (isError)
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <ErrorState
             message="We couldn't load your timeline. Please try again."
             onRetry={refetch}
@@ -72,7 +72,7 @@ const TimelineView: FC<TimelineViewProps> = ({
 
     if (!hasItems)
       return (
-        <ComponentFade key="empty">
+        <ComponentFade key="empty" useBlur>
           <TimelineEmpty
             onAdd={() => openCreate(defaultSegmentId(data?.days[0]))}
             canCreate={canCreate("timeline")}
@@ -81,7 +81,7 @@ const TimelineView: FC<TimelineViewProps> = ({
       );
 
     return (
-      <ComponentFade key="content">
+      <ComponentFade key="content" useBlur>
         <DayTabs
           dates={dates}
           activeDate={activeDate ?? ""}
@@ -90,12 +90,12 @@ const TimelineView: FC<TimelineViewProps> = ({
         <div className="mt-8">
           <AnimatePresence mode="wait">
             {activeDay && dayHasItems(activeDay) ? (
-              <ComponentFade key={activeDay.date}>
+              <ComponentFade key={activeDay.date} useBlur>
                 <TimelineDay day={activeDay} />
               </ComponentFade>
             ) : (
               activeDate && (
-                <ComponentFade key={`empty-${activeDate}`}>
+                <ComponentFade key={`empty-${activeDate}`} useBlur>
                   <TimelineDayEmpty
                     day={activeDate}
                     canCreate={canCreate("timeline")}

@@ -6,6 +6,8 @@ import { Feedback } from "@dnd-kit/dom";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import Container from "@/components/custom/container";
 import ErrorState from "@/components/custom/states/error-state";
+import ScrollGradient from "@/components/custom/scroll-gradient";
+import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
@@ -50,7 +52,8 @@ const TasksView: FC<TasksViewProps> = ({
       data
         ? [...data].sort(
             (a, b) =>
-              a.position - b.position || a.created_at.localeCompare(b.created_at),
+              a.position - b.position ||
+              a.created_at.localeCompare(b.created_at),
           )
         : [],
     [data],
@@ -78,14 +81,14 @@ const TasksView: FC<TasksViewProps> = ({
   const renderBody = () => {
     if (isLoading)
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <TasksSkeleton />
         </ComponentFade>
       );
 
     if (isError)
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <ErrorState
             message="We couldn't load your tasks. Please try again."
             onRetry={refetch}
@@ -96,7 +99,7 @@ const TasksView: FC<TasksViewProps> = ({
 
     if (!data?.length)
       return (
-        <ComponentFade key="empty">
+        <ComponentFade key="empty" useBlur>
           <TasksEmpty onAdd={openCreate} canCreate={canCreate("tasks")} />
         </ComponentFade>
       );
@@ -106,7 +109,7 @@ const TasksView: FC<TasksViewProps> = ({
     );
 
     return (
-      <ComponentFade key="content">
+      <ComponentFade key="content" useBlur>
         <div className="md:h-full md:grid md:grid-rows-[minmax(0,1fr)]">
           {canDrag ? (
             <TasksDndErrorBoundary fallback={staticBoard}>
@@ -132,7 +135,10 @@ const TasksView: FC<TasksViewProps> = ({
   };
 
   return (
-    <Container pageSpacing className="flex flex-col md:mt-6 md:flex-1 md:min-h-0 md:grid md:grid-rows-[minmax(0,1fr)]">
+    <Container
+      pageSpacing
+      className="flex flex-col md:mt-6 md:flex-1 md:min-h-0 md:grid md:grid-rows-[minmax(0,1fr)]"
+    >
       <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
     </Container>
   );
@@ -150,20 +156,37 @@ const Board: FC<{
   items: ItemsByStatus;
   tasksById: Map<string, Task>;
   canDrag: boolean;
-}> = ({ items, tasksById, canDrag }) => (
-  <div className="flex flex-col gap-5 md:h-full md:grid md:grid-cols-[repeat(3,minmax(300px,1fr))] md:gap-5 md:overflow-x-auto md:overflow-y-hidden md:px-1 md:-mx-1 md:pt-1 md:pb-2">
-    {(STATUS_ORDER_DESKTOP as TaskStatus[]).map((status, columnIndex) => (
-      <TasksSection
-        key={status}
-        status={status}
-        index={columnIndex}
-        label={STATUS_LABELS[status]}
-        taskIds={items[status]}
-        tasksById={tasksById}
-        canDrag={canDrag}
-      />
-    ))}
-  </div>
-);
+}> = ({ items, tasksById, canDrag }) => {
+  const {
+    scrollRef,
+    canScrollLeft,
+    canScrollRight,
+    onScroll,
+  } = useScrollVisibility();
+
+  return (
+    <div className="relative md:h-full md:min-h-0 md:-mx-1">
+      <ScrollGradient side="left" visible={canScrollLeft} />
+      <ScrollGradient side="right" visible={canScrollRight} />
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        className="flex flex-col gap-5 md:h-full md:grid md:grid-cols-[repeat(3,minmax(300px,1fr))] md:gap-5 md:overflow-x-auto md:overflow-y-hidden md:px-1 md:pt-1 md:pb-2"
+      >
+        {(STATUS_ORDER_DESKTOP as TaskStatus[]).map((status, columnIndex) => (
+          <TasksSection
+            key={status}
+            status={status}
+            index={columnIndex}
+            label={STATUS_LABELS[status]}
+            taskIds={items[status]}
+            tasksById={tasksById}
+            canDrag={canDrag}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default TasksView;

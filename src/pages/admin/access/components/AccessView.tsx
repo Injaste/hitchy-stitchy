@@ -14,25 +14,33 @@ interface AccessViewProps {
   isError: boolean;
 }
 
-const AccessView: FC<AccessViewProps> = ({ data, availableResources, isLoading, isError }) => {
+const AccessView: FC<AccessViewProps> = ({
+  data,
+  availableResources,
+  isLoading,
+  isError,
+}) => {
   const renderBody = () => {
     if (isLoading)
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <AccessSkeleton />
         </ComponentFade>
       );
 
     if (isError || !data)
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <AccessError />
         </ComponentFade>
       );
 
     return (
-      <ComponentFade key="content">
-        <AccessTable accessGroups={data} availableResources={availableResources} />
+      <ComponentFade key="content" useBlur>
+        <AccessTable
+          accessGroups={data}
+          availableResources={availableResources}
+        />
       </ComponentFade>
     );
   };

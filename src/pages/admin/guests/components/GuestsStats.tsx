@@ -9,6 +9,7 @@ import {
 
 import type { Guest } from "../types";
 import Odometer from "@/components/animations/animate-odometer";
+import { Card } from "@/components/ui/card";
 
 interface GuestsStatsProps {
   guests: Guest[];
@@ -72,10 +73,7 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
       {cards.map((card) => {
         const Icon = card.icon;
         return (
-          <div
-            key={card.label}
-            className="rounded-xl border border-border bg-card px-5 py-4 shadow-sm"
-          >
+          <Card key={card.label} className="gap-0 px-5">
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
                 {card.label}
@@ -94,7 +92,7 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
                 <span className="text-xs text-muted-foreground">attending</span>
               </div>
             )}
-          </div>
+          </Card>
         );
       })}
     </div>

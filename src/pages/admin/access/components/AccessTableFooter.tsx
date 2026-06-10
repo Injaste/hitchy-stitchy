@@ -6,7 +6,7 @@ interface AccessTableFooterProps {
 }
 
 const AccessTableFooter: FC<AccessTableFooterProps> = ({ colCount }) => (
-  <tfoot className="sticky bottom-0 z-10 bg-card">
+  <tfoot className="bg-card">
     <tr className="border-t border-border/40 bg-muted/20">
       <td colSpan={colCount} className="px-5 py-3.5">
         <AccessLegend />

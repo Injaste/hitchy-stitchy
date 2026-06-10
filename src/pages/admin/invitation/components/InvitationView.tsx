@@ -21,14 +21,14 @@ const InvitationView: FC<InvitationViewProps> = ({
   const renderBody = () => {
     if (isLoading)
       return (
-        <ComponentFade key="skeleton">
+        <ComponentFade key="skeleton" useBlur>
           <InvitationSkeleton />
         </ComponentFade>
       );
 
     if (isError)
       return (
-        <ComponentFade key="error">
+        <ComponentFade key="error" useBlur>
           <ErrorState
             message="We couldn't load your invitation. Please try again."
             onRetry={refetch}
@@ -38,7 +38,7 @@ const InvitationView: FC<InvitationViewProps> = ({
       );
 
     return (
-      <ComponentFade key="content">
+      <ComponentFade key="content" useBlur>
         <InvitationTabs />
       </ComponentFade>
     );

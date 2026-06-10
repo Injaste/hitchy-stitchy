@@ -65,6 +65,7 @@ const ResetPassword = () => {
       return (
         <ComponentFade
           key="success"
+          useBlur
           className="flex min-h-screen items-center justify-center px-4"
         >
           <div className="w-full max-w-sm">
@@ -99,7 +100,7 @@ const ResetPassword = () => {
       );
 
     return (
-      <ComponentFade key="reset">
+      <ComponentFade key="reset" useBlur>
         <motion.div
           variants={container}
           initial="hidden"

@@ -437,7 +437,7 @@ function SidebarContent({
           side="top"
           visible={isExpanded && canScrollUp}
           fromClass="from-sidebar"
-          heightClass="h-8"
+          sizeClass="h-8"
         />
         <div
           ref={scrollRef}
@@ -480,7 +480,7 @@ function SidebarContent({
           side="bottom"
           visible={isExpanded && canScrollDown}
           fromClass="from-sidebar"
-          heightClass="h-8"
+          sizeClass="h-8"
         />
       </div>
     </SidebarHoverContext.Provider>
