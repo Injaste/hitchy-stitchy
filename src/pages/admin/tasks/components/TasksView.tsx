@@ -157,15 +157,11 @@ const Board: FC<{
   tasksById: Map<string, Task>;
   canDrag: boolean;
 }> = ({ items, tasksById, canDrag }) => {
-  const {
-    scrollRef,
-    canScrollLeft,
-    canScrollRight,
-    onScroll,
-  } = useScrollVisibility();
+  const { scrollRef, canScrollLeft, canScrollRight, onScroll } =
+    useScrollVisibility();
 
   return (
-    <div className="relative md:h-full md:min-h-0 md:-mx-1">
+    <div className="relative min-w-0 md:h-full md:min-h-0 md:-mx-1">
       <ScrollGradient side="left" visible={canScrollLeft} />
       <ScrollGradient side="right" visible={canScrollRight} />
       <div
