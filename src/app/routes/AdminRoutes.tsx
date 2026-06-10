@@ -8,6 +8,7 @@ import Tasks from "@/pages/admin/tasks";
 import Members from "@/pages/admin/members";
 import Access from "@/pages/admin/access";
 import Guests from "@/pages/admin/guests";
+import Budget from "@/pages/admin/budget";
 import Invitation from "@/pages/admin/invitation";
 import Settings from "@/pages/admin/settings";
 
@@ -28,6 +29,7 @@ const AdminRoutes = () => (
     <Route path="members" element={<Members />} />
     <Route path="access" element={<RequireRead resource="access"><Access /></RequireRead>} />
     <Route path="guests" element={<RequireRead resource="guests"><Guests /></RequireRead>} />
+    <Route path="budget-tracker" element={<RequireRead resource="budget"><Budget /></RequireRead>} />
     <Route path="invitation" element={<RequireRead resource={["invitation", "themes"]}><Invitation /></RequireRead>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />

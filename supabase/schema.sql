@@ -204,12 +204,12 @@ CREATE TABLE public.event_invitation (
 );
 
 -- -----------------------------------------------------------------------------
--- event_settings  [confirmed]
+-- event_settings  [confirmed] — all-member config (task_order dropped in
+--   20260608000011). Stays uniformly all-member; gated config lives elsewhere.
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_settings (
   id         uuid        NOT NULL DEFAULT gen_random_uuid(),
   event_id   uuid        NOT NULL,
-  task_order jsonb       NOT NULL DEFAULT '{"done": [], "todo": [], "in_progress": []}',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
 
@@ -219,6 +219,50 @@ CREATE TABLE public.event_settings (
   CONSTRAINT event_settings_event_id_fk
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
 );
+
+-- -----------------------------------------------------------------------------
+-- event_budget  [20260610000001 — Budget Tracker] — 1:1 per event, gated on the
+--   `budget` resource (own table, not event_settings: one table = one tier).
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.event_budget (
+  id           uuid          NOT NULL DEFAULT gen_random_uuid(),
+  event_id     uuid          NOT NULL,
+  budget_total numeric(12,2),
+  created_at   timestamptz   NOT NULL DEFAULT now(),
+  updated_at   timestamptz   NOT NULL DEFAULT now(),
+
+  CONSTRAINT event_budget_pkey         PRIMARY KEY (id),
+  CONSTRAINT event_budget_event_id_key UNIQUE (event_id),
+  CONSTRAINT event_budget_event_id_fk
+    FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
+);
+
+-- -----------------------------------------------------------------------------
+-- event_expenses  [20260610000001 — Budget Tracker]
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.event_expenses (
+  id          uuid          NOT NULL DEFAULT gen_random_uuid(),
+  event_id    uuid          NOT NULL,
+  item        text          NOT NULL,
+  vendor_name text,
+  payer       text,
+  amount      numeric(12,2) NOT NULL DEFAULT 0,
+  paid        numeric(12,2) NOT NULL DEFAULT 0,
+  due_at      date,
+  notes       text,
+  created_by  uuid,
+  created_at  timestamptz   NOT NULL DEFAULT now(),
+  updated_at  timestamptz   NOT NULL DEFAULT now(),
+
+  CONSTRAINT event_expenses_pkey PRIMARY KEY (id),
+  CONSTRAINT event_expenses_event_id_fk
+    FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE,
+  CONSTRAINT event_expenses_created_by_fk
+    FOREIGN KEY (created_by) REFERENCES public.event_members (id) ON DELETE SET NULL,
+  CONSTRAINT event_expenses_amount_chk CHECK (amount >= 0),
+  CONSTRAINT event_expenses_paid_chk   CHECK (paid >= 0)
+);
+CREATE INDEX event_expenses_event_id_idx ON public.event_expenses (event_id);
 
 -- -----------------------------------------------------------------------------
 -- event_rsvps  [confirmed]
@@ -591,6 +635,8 @@ ALTER TABLE public.event_announcement_reads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_announcements      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_days               ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_segments           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_budget             ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_expenses           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_invitation         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_live_logs          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_members            ENABLE ROW LEVEL SECURITY;
@@ -670,6 +716,22 @@ CREATE POLICY event_rsvps_select ON public.event_rsvps
 CREATE POLICY event_settings_select ON public.event_settings
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
+
+-- Budget tables — the whole row is sensitive; gate on budget:read so Team
+-- (budget=none) can't pull rows via the API. 20260610000001.
+CREATE POLICY event_budget_select ON public.event_budget
+  FOR SELECT TO authenticated
+  USING (
+    is_event_member(event_id)
+    AND has_event_permission(event_id, 'budget', 'read')
+  );
+
+CREATE POLICY event_expenses_select ON public.event_expenses
+  FOR SELECT TO authenticated
+  USING (
+    is_event_member(event_id)
+    AND has_event_permission(event_id, 'budget', 'read')
+  );
 
 CREATE POLICY event_tasks_select ON public.event_tasks
   FOR SELECT TO authenticated
@@ -914,6 +976,189 @@ BEGIN
   RETURNING preferences INTO v_prefs;
 
   RETURN v_prefs;
+END;
+$$;
+
+
+-- =============================================================================
+-- BUDGET TRACKER — RPCs  [added migration 20260610000001]
+-- Gated on the `budget` resource. create_event seeds Admin budget:"full" (Team
+-- has no budget key = none). touch_updated_at auto-attaches on CREATE TABLE.
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.create_expense(
+  p_event_id    uuid,
+  p_item        text,
+  p_vendor_name text    DEFAULT NULL,
+  p_payer       text    DEFAULT NULL,
+  p_amount      numeric DEFAULT 0,
+  p_paid        numeric DEFAULT 0,
+  p_due_at      date    DEFAULT NULL,
+  p_notes       text    DEFAULT NULL
+)
+RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_row    event_expenses;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'budget', 'create') THEN
+    RAISE EXCEPTION 'Insufficient permission to create expenses';
+  END IF;
+
+  IF btrim(COALESCE(p_item, '')) = '' THEN
+    RAISE EXCEPTION 'Item is required';
+  END IF;
+
+  IF COALESCE(p_amount, 0) < 0 OR COALESCE(p_paid, 0) < 0 THEN
+    RAISE EXCEPTION 'Amounts cannot be negative';
+  END IF;
+
+  IF COALESCE(p_paid, 0) > COALESCE(p_amount, 0) THEN
+    RAISE EXCEPTION 'Paid cannot exceed the amount';
+  END IF;
+
+  INSERT INTO event_expenses (
+    event_id, item, vendor_name, payer, amount, paid, due_at, notes, created_by
+  )
+  VALUES (
+    p_event_id, btrim(p_item), p_vendor_name, p_payer,
+    COALESCE(p_amount, 0), COALESCE(p_paid, 0), p_due_at, p_notes, v_caller.id
+  )
+  RETURNING * INTO v_row;
+
+  RETURN v_row;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.update_expense(
+  p_event_id    uuid,
+  p_id          uuid,
+  p_item        text    DEFAULT NULL,
+  p_vendor_name text    DEFAULT NULL,
+  p_payer       text    DEFAULT NULL,
+  p_amount      numeric DEFAULT NULL,
+  p_paid        numeric DEFAULT NULL,
+  p_due_at      date    DEFAULT NULL,
+  p_notes       text    DEFAULT NULL
+)
+RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller  event_members;
+  v_expense event_expenses;
+  v_amount  numeric;
+  v_paid    numeric;
+BEGIN
+  SELECT * INTO v_expense FROM event_expenses WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Expense not found';
+  END IF;
+
+  IF v_expense.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Expense does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'budget', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update expenses';
+  END IF;
+
+  v_amount := COALESCE(p_amount, v_expense.amount);
+  v_paid   := COALESCE(p_paid, v_expense.paid);
+
+  IF v_amount < 0 OR v_paid < 0 THEN
+    RAISE EXCEPTION 'Amounts cannot be negative';
+  END IF;
+
+  IF v_paid > v_amount THEN
+    RAISE EXCEPTION 'Paid cannot exceed the amount';
+  END IF;
+
+  UPDATE event_expenses
+  SET
+    item        = COALESCE(NULLIF(btrim(p_item), ''), item),
+    vendor_name = p_vendor_name,
+    payer       = p_payer,
+    amount      = v_amount,
+    paid        = v_paid,
+    due_at      = p_due_at,
+    notes       = p_notes
+  WHERE id = p_id
+  RETURNING * INTO v_expense;
+
+  RETURN v_expense;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.delete_expense(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller  event_members;
+  v_expense event_expenses;
+BEGIN
+  SELECT * INTO v_expense FROM event_expenses WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Expense not found';
+  END IF;
+
+  IF v_expense.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Expense does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'budget', 'delete') THEN
+    RAISE EXCEPTION 'Insufficient permission to delete expenses';
+  END IF;
+
+  DELETE FROM event_expenses WHERE id = p_id;
+END;
+$$;
+
+-- Update (or clear, when p_amount IS NULL) the event's total budget. The 1:1
+-- event_budget row is seeded in create_event + backfilled, so it's a plain
+-- update (mirrors update_invitation). No read RPC — event_budget is RLS-gated
+-- on budget:read.
+CREATE OR REPLACE FUNCTION public.update_budget(p_event_id uuid, p_amount numeric)
+RETURNS event_budget LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_row    event_budget;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'budget', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update the budget';
+  END IF;
+
+  IF p_amount IS NOT NULL AND p_amount < 0 THEN
+    RAISE EXCEPTION 'Budget cannot be negative';
+  END IF;
+
+  UPDATE event_budget
+  SET budget_total = p_amount
+  WHERE event_id = p_event_id
+  RETURNING * INTO v_row;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Budget not found for this event';
+  END IF;
+
+  RETURN v_row;
 END;
 $$;
 

@@ -24,7 +24,8 @@ export type Resource =
   | "invitation"
   | "themes"
   | "members"
-  | "access";
+  | "access"
+  | "budget";
 
 export interface ResourceGroup {
   label: string;
@@ -39,10 +40,12 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
   themes: "Invitation Themes",
   members: "Members",
   access: "Access",
+  budget: "Budget",
 };
 
 export const RESOURCE_GROUPS: ResourceGroup[] = [
   { label: "Operations", resources: ["timeline", "tasks"] },
+  { label: "Money", resources: ["budget"] },
   { label: "Guests", resources: ["guests", "invitation", "themes"] },
   { label: "Team", resources: ["members", "access"] },
 ];

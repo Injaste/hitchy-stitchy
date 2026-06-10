@@ -48,12 +48,9 @@ export const widthReveal: Variants = {
 
 export const TASK_ITEM_DURATION = 0.2; // seconds — used by TaskQuickAdd scroll-into-view timing
 
-// ── Tasks kanban ────────────────────────────────────────────────────────
-// Used by TasksSection + its cards. Section fades in with an optional
-// delay (for cross-section staggering). Cards fade in below the section,
-// staggered on first mount only — subsequent reorders/adds use baseDelay
-// = 0 and stagger = 0 so movement feels instant.
-
+// Task-section fade-in: each kanban column fades up, with an optional delay so
+// columns can stagger relative to one another. (Cards reorder via dnd-kit, not
+// framer — see TasksSection.)
 export const taskSectionEnter: Variants = {
   hidden: { opacity: 0, y: 8 },
   show: (delay: number = 0) => ({
@@ -63,23 +60,20 @@ export const taskSectionEnter: Variants = {
   }),
 };
 
-export type TaskCardEnterCustom = {
-  baseDelay: number;
-  stagger: number;
-  index: number;
+// Animated list items that re-sort under the user — e.g. the budget sheet, whose
+// rows reorder by urgency as items are added, paid off, or removed. Pair the
+// variant (enter/exit height reveal) with layout="position" on the row: the
+// layout slide handles reorder while the height tween owns grow/collapse, so the
+// two don't fight over size. No per-row entrance on first paint — the list wraps
+// these in <AnimatePresence initial={false}>, so only later add/remove/reorder
+// animate (a table should just *be there* on load, not cascade in).
+export const listItemReveal: Variants = {
+  hidden: { opacity: 0, height: 0 },
+  show: { opacity: 1, height: "auto" },
+  exit: { opacity: 0, height: 0 },
 };
 
-export const taskCardEnter: Variants = {
-  hidden: { opacity: 0, y: 6 },
-  show: (c: TaskCardEnterCustom) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.2, delay: c.baseDelay + c.index * c.stagger },
-  }),
-  exit: { opacity: 0, y: -4, transition: { duration: 0.15 } },
-};
-
-export const taskCardLayoutTransition = {
+export const listLayoutTransition = {
   duration: 0.22,
   ease: [0.2, 0, 0, 1],
 } as const;

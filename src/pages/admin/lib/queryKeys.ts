@@ -9,6 +9,7 @@ export const adminKeys = {
   availableResources: () => ['available-resources'] as const,
   invitation: (slug: string) => [slug, 'invitation'] as const,
   guests: (slug: string) => [slug, 'guests'] as const,
+  budget: (slug: string) => [slug, 'budget'] as const,
   pages: (slug: string) => [slug, 'pages'] as const,
   templates: (slug: string) => [slug, 'templates'] as const,
   themes: (slug: string) => [slug, 'themes'] as const,

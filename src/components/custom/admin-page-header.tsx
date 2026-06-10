@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from "react";
+import type { ComponentProps, FC, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
@@ -19,6 +19,8 @@ interface AdminPageHeaderProps extends BaseHeaderProps {
   action?: ReactNode;
   collapseMeta?: boolean;
   lockOpen?: boolean;
+  /** Constrain the header content width to match a narrower page body. */
+  containerSize?: ComponentProps<typeof Container>["size"];
 }
 
 const SidebarTriggerSection: FC<{ isMobile: boolean }> = ({ isMobile }) => {
@@ -65,6 +67,7 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
   refetch,
   collapseMeta = false,
   lockOpen = false,
+  containerSize,
 }) => {
   const { eventName } = useAdminStore();
   const isMobile = useIsMobile();
@@ -76,7 +79,7 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
   return (
     <>
       <div className="-mx-3 md:-mx-6 px-4 md:px-6 sticky top-0 z-30 pt-4 pb-3 bg-background">
-        <Container>
+        <Container size={containerSize}>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">
               <SidebarTriggerSection isMobile={isMobile} />
@@ -124,7 +127,7 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
         // hidden overflow slices focus rings on controls living in the meta row.
         style={{ overflow: collapseMeta ? "hidden" : undefined }}
       >
-        <Container>
+        <Container size={containerSize}>
           {description && (
             <p className="text-sm text-muted-foreground/80">{description}</p>
           )}
