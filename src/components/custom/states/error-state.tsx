@@ -15,7 +15,7 @@ const ErrorState: FC<ErrorStateProps> = ({
   isRetrying = false,
 }) => {
   return (
-    <Card className="border-dashed border-destructive/40">
+    <Card className="border-dashed border-destructive/40 shadow-none">
       <CardContent className="flex flex-col items-center justify-center text-center py-24 px-6">
         <div className="w-20 h-20 rounded-full bg-destructive/10 border border-destructive/20 flex items-center justify-center mb-6">
           <AlertCircle className="w-9 h-9 text-destructive" />
