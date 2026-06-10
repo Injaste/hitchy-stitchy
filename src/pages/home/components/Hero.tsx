@@ -125,7 +125,7 @@ export function Hero() {
         </a>
         <Link to="/login">
           <Button variant="outline" size="lg" className="min-w-44 text-base">
-            Sign in
+            Login
           </Button>
         </Link>
       </motion.div>

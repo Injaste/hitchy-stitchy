@@ -74,7 +74,7 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
         return (
           <div
             key={card.label}
-            className="rounded-xl border border-border bg-card px-5 py-4"
+            className="rounded-xl border border-border bg-card px-5 py-4 shadow-sm"
           >
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
@@ -88,7 +88,9 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
             {card.sub && (
               <div className="mt-1.5 flex items-center gap-1">
                 <Users size={11} className="text-muted-foreground" />
-                <span className="text-sm font-semibold text-foreground"><Odometer value={card.sub} /></span>
+                <span className="text-sm font-semibold text-foreground">
+                  <Odometer value={card.sub} />
+                </span>
                 <span className="text-xs text-muted-foreground">attending</span>
               </div>
             )}

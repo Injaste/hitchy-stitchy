@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "@tanstack/react-form";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { NotebookPen } from "lucide-react";
 import Logo from "@/components/custom/logo";
 
@@ -17,6 +17,7 @@ import {
 } from "@/components/custom/form";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
+import ComponentFade from "@/components/animations/animate-component-fade";
 
 import { useLoginMutation } from "./queries";
 import { useIsAuthenticatedQuery } from "../queries";
@@ -104,73 +105,93 @@ const SignIn = () => {
   }
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="min-h-screen flex justify-center items-center px-4"
-    >
-      <div className="w-full max-w-sm">
-        <motion.div
-          variants={itemScaleIn}
-          className="flex items-center flex-col mb-6"
-        >
-          <Logo className="mb-4" imageClassName="w-24 h-24 -mb-6" />
-          <h1 className="text-2xl font-bold text-primary">Hitchy Stitchy</h1>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
-            A Wedding Planning Suite
-          </p>
-        </motion.div>
-
-        <motion.div variants={itemFadeUp}>
-          <FormCard
-            form={form}
-            isPending={isPending}
-            isError={Boolean(mutationError)}
+    <div className="min-h-screen bg-gradient-surface">
+      <AnimatePresence mode="wait">
+        <ComponentFade key="signin">
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="flex min-h-screen justify-center items-center px-4"
           >
-            <FormHeader
-              icon={<NotebookPen className="size-4" />}
-              title="Lets get into planning!"
-            />
+            <div className="w-full max-w-sm">
+              <motion.div
+                variants={itemScaleIn}
+                className="flex items-center flex-col mb-6"
+              >
+                <Logo className="mb-4" imageClassName="w-24 h-24 -mb-6" />
+                <h1 className="text-2xl font-bold text-primary">
+                  Hitchy Stitchy
+                </h1>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
+                  A Wedding Planning Suite
+                </p>
+              </motion.div>
 
-            <FormBody>
-              <FieldGroup>
-                <TextField
-                  name="email"
-                  label="Email"
-                  type="email"
-                  placeholder="Email"
-                  autoComplete="email"
-                />
+              <motion.div variants={itemFadeUp}>
+                <FormCard
+                  form={form}
+                  isPending={isPending}
+                  isError={Boolean(mutationError)}
+                >
+                  <FormHeader
+                    icon={<NotebookPen className="size-4" />}
+                    title="Lets get into planning!"
+                  />
 
-                <PasswordField
-                  name="password"
-                  label="Password"
-                  placeholder="Password"
-                />
+                  <FormBody>
+                    <FieldGroup>
+                      <TextField
+                        name="email"
+                        label="Email"
+                        type="email"
+                        placeholder="Email"
+                        autoComplete="email"
+                      />
 
-                <div className="-mt-1 text-right">
+                      <PasswordField
+                        name="password"
+                        label="Password"
+                        placeholder="Password"
+                      />
+
+                      <div className="-mt-1 text-right">
+                        <Link
+                          to="/reset-password"
+                          className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
+                      </div>
+
+                      <FormError error={mutationError} />
+                    </FieldGroup>
+                  </FormBody>
+
+                  <FormFooter submitLabel="Sign in" fullWidth />
+                </FormCard>
+              </motion.div>
+
+              <motion.div
+                variants={itemFadeUp}
+                className="text-center mt-6 space-y-2"
+              >
+                <p className="text-xs text-muted-foreground">
+                  Don't have an account?{" "}
                   <Link
-                    to="/reset-password"
-                    className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                    to="/signup"
+                    className="text-primary hover:underline font-medium"
                   >
-                    Forgot password?
+                    Sign up here!
                   </Link>
-                </div>
-
-                <FormError error={mutationError} />
-              </FieldGroup>
-            </FormBody>
-
-            <FormFooter submitLabel="Sign in" fullWidth />
-          </FormCard>
-        </motion.div>
-
-        <motion.div variants={itemFadeUp} className="text-center mt-6">
-          <BackLink to="/" label="Back to Home" />
-        </motion.div>
-      </div>
-    </motion.div>
+                </p>
+                <BackLink to="/" label="Back to Home" />
+              </motion.div>
+            </div>
+          </motion.div>
+        </ComponentFade>
+      </AnimatePresence>
+    </div>
   );
 };
 

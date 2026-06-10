@@ -38,7 +38,7 @@ export function Navbar() {
               size="sm"
               className="text-muted-foreground hover:text-foreground"
             >
-              Sign in
+              Login
             </Button>
           </Link>
         </div>

@@ -21,7 +21,7 @@ const LoadingState = () => {
   return createPortal(
     <ComponentFade
       key="loading-state"
-      className="fixed inset-0 flex flex-col justify-center items-center gap-10 bg-background z-99999"
+      className="fixed inset-0 flex flex-col justify-center items-center gap-10 bg-gradient-surface z-99999"
     >
       <Logo
         imageClassName="w-28 h-28 -mb-7"

@@ -32,21 +32,21 @@ const AdminView = () => {
   const isReady = !!data && storeSlug === slug;
 
   return (
-    <AnimatePresence mode="wait">
-      {error ? (
-        <ComponentFade key="error">
-          <AdminErrorLayout
-            errorMessage={(error as Error).message}
-            isOffline={!navigator.onLine}
-          />
-        </ComponentFade>
-      ) : !isReady ? (
-        <ComponentFade key="loading">
-          <LoadingState />
-        </ComponentFade>
-      ) : (
-        <ComponentFade key="app">
-          <SidebarProvider>
+    <SidebarProvider>
+      <AnimatePresence mode="wait">
+        {error ? (
+          <ComponentFade key="error" className="w-full">
+            <AdminErrorLayout
+              errorMessage={(error as Error).message}
+              isOffline={!navigator.onLine}
+            />
+          </ComponentFade>
+        ) : !isReady ? (
+          <ComponentFade key="loading">
+            <LoadingState />
+          </ComponentFade>
+        ) : (
+          <ComponentFade key="app" className="flex w-full min-h-0 flex-1">
             <AdminSidebar />
             <SidebarInset topbar={<AdminTopbar />} className="flex flex-col flex-1">
               <AnimatePresence mode="wait">
@@ -68,10 +68,10 @@ const AdminView = () => {
             <MemberModals />
             <TimelineModals />
             <NotificationPermissionModal />
-          </SidebarProvider>
-        </ComponentFade>
-      )}
-    </AnimatePresence>
+          </ComponentFade>
+        )}
+      </AnimatePresence>
+    </SidebarProvider>
   );
 };
 

@@ -40,7 +40,7 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
   themes: "Invitation Themes",
   members: "Members",
   access: "Access",
-  budget: "Budget",
+  budget: "Budget Tracker",
 };
 
 export const RESOURCE_GROUPS: ResourceGroup[] = [
