@@ -12,9 +12,9 @@ export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) =
     // a frame late (a visible sharp edge). scrollProgress reads offsetLocation
     // directly, updating every scroll frame for an immediate, smooth fade.
     const progress = api.scrollProgress();
-    // When nothing overflows, progress is 0 — gate on actual scrollability so we
-    // don't show the end fade on a carousel that can't scroll.
-    const canScroll = api.canScrollPrev() || api.canScrollNext();
+    // Gate on real DOM overflow rather than Embla's snap-based canScrollNext/Prev:
+    // with containScroll:"keepSnaps", those return true even when all slides fit.
+    const canScroll = api.containerNode().scrollWidth > api.rootNode().clientWidth;
     setShowLeftFade(canScroll && progress > 0.01);
     setShowRightFade(canScroll && progress < 0.99);
   }, [])
