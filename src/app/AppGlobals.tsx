@@ -4,7 +4,7 @@ import PwaReloadPrompt from "@/components/pwa-reload-prompt";
 const AppGlobals = () => {
   return (
     <>
-      <Toaster position="bottom-right" richColors closeButton />
+      <Toaster position="bottom-right" richColors />
       <PwaReloadPrompt />
       {/* custom portals go here */}
     </>

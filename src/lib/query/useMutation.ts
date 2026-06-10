@@ -45,7 +45,7 @@ export function useMutation<TArgs, TResult, TContext = unknown>(
           typeof options.errorMessage === "function"
             ? options.errorMessage(error, args)
             : options.errorMessage;
-        toast.error(msg, { duration: ERROR_TOAST_DURATION });
+        toast.error(msg, { duration: ERROR_TOAST_DURATION, closeButton: true });
       }
     },
   });
@@ -60,14 +60,20 @@ export function useMutation<TArgs, TResult, TContext = unknown>(
       toast.promise(promise, {
         loading: options.toast.loading,
         success: options.toast.success as string,
-        // Only the error state gets the longer duration; success stays default.
+        // Only the error state gets the longer duration and a close button;
+        // success stays default.
         error:
           typeof errorMsg === "function"
             ? (e: Error) => ({
                 message: errorMsg(e),
                 duration: ERROR_TOAST_DURATION,
+                closeButton: true,
               })
-            : { message: errorMsg, duration: ERROR_TOAST_DURATION },
+            : {
+                message: errorMsg,
+                duration: ERROR_TOAST_DURATION,
+                closeButton: true,
+              },
       });
       await promise
         .then(() => callbacks?.onSuccess?.())
