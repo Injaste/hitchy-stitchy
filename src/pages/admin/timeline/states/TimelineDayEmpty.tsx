@@ -1,10 +1,9 @@
 import type { FC } from "react";
 import { CalendarPlus, Plus } from "lucide-react";
-import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import EmptyState from "@/components/custom/states/empty-state";
-import { parseLocalDate } from "@/lib/utils/utils-time";
+import DateTile from "../components/DateTile";
 
 interface TimelineDayEmptyProps {
   canCreate: boolean;
@@ -18,22 +17,8 @@ const TimelineDayEmpty: FC<TimelineDayEmptyProps> = ({
   onAdd,
   day,
 }) => {
-  const date = day ? parseLocalDate(day) : null;
-
-  const icon = date ? (
-    <div className="w-16 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <div className="bg-primary/90 py-1 text-center text-2xs font-semibold uppercase tracking-widest text-primary-foreground">
-        {format(date, "MMM")}
-      </div>
-      <div className="py-2">
-        <div className="font-display text-2xl font-bold leading-none text-foreground">
-          {format(date, "d")}
-        </div>
-        <div className="mt-1 text-2xs uppercase tracking-wide text-muted-foreground">
-          {format(date, "EEE")}
-        </div>
-      </div>
-    </div>
+  const icon = day ? (
+    <DateTile date={day} />
   ) : (
     <div className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-primary/30 bg-primary/10">
       <CalendarPlus className="h-6 w-6 text-primary/70" />

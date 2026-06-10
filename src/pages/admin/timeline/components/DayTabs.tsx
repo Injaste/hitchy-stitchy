@@ -1,6 +1,5 @@
 import { type FC, useEffect } from "react";
 import { format } from "date-fns";
-import { parseLocalDate } from "@/lib/utils/utils-time";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { itemFadeIn, itemFadeUp } from "@/lib/animations";
@@ -9,7 +8,8 @@ import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { useActiveTimelineQuery } from "../queries";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+
+import DateTile from "./DateTile";
 
 interface DayTabsProps {
   dates: string[];
@@ -46,7 +46,6 @@ const DayTabs: FC<DayTabsProps> = ({ dates, activeDate, onSelect }) => {
           <div className="flex gap-2">
             <AnimatePresence>
               {dates.map((date, idx) => {
-                const parsed = parseLocalDate(date);
                 const active = date === activeDate;
                 const isToday = date === todayStr;
                 return (
@@ -60,44 +59,29 @@ const DayTabs: FC<DayTabsProps> = ({ dates, activeDate, onSelect }) => {
                     layout
                     className="flex flex-col items-center gap-1.5"
                   >
-                  <button
-                    type="button"
-                    onClick={() => onSelect(date)}
-                    aria-pressed={active}
-                    className={cn(
-                      "group/timeline-day-tab w-16 overflow-hidden rounded-xl border border-border bg-card shadow-sm cursor-pointer transition-transform active:scale-[0.95]",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "py-1 text-2xs font-semibold uppercase tracking-widest transition-colors group-hover/timeline-day-tab:bg-primary/30",
-                        active
-                          ? "bg-primary/90! text-primary-foreground"
-                          : "bg-muted text-muted-foreground",
-                      )}
+                    <button
+                      type="button"
+                      onClick={() => onSelect(date)}
+                      aria-pressed={active}
+                      className="group/timeline-day-tab cursor-pointer rounded-xl transition-transform active:scale-[0.95]"
                     >
-                      {format(parsed, "MMM")}
-                    </div>
-                    <div className="py-2">
-                      <div className="font-display text-2xl font-bold leading-none text-foreground">
-                        {format(parsed, "d")}
-                      </div>
-                      <div className="mt-1 text-2xs uppercase tracking-wide text-muted-foreground">
-                        {format(parsed, "EEE")}
-                      </div>
-                    </div>
-                  </button>
+                      <DateTile
+                        date={date}
+                        active={active}
+                        headerClassName="group-hover/timeline-day-tab:bg-primary/30"
+                      />
+                    </button>
 
-                  {isToday ? (
-                    <span className="flex items-center gap-1 text-sm font-medium text-primary">
-                      <span className="size-1.5 rounded-full bg-primary" />
-                      Today
-                    </span>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">
-                      Day {idx + 1}
-                    </span>
-                  )}
+                    {isToday ? (
+                      <span className="flex items-center gap-1 text-sm font-medium text-primary">
+                        <span className="size-1.5 rounded-full bg-primary" />
+                        Today
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        Day {idx + 1}
+                      </span>
+                    )}
                   </motion.div>
                 );
               })}
