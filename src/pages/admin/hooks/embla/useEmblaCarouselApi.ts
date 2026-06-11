@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import useEmblaCarousel from "embla-carousel-react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 
 /**
@@ -12,24 +12,48 @@ export const useEmblaCarouselApi = (
   align: "start" | "center" = "start",
   startIndex?: number,
 ) => {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    {
-      containScroll: "keepSnaps",
-      align,
-      startIndex,
-      watchDrag: (api) => api.canScrollNext() || api.canScrollPrev(),
-    },
-    [WheelGesturesPlugin()],
-  );
+  const viewportRef = useRef<HTMLElement | null>(null);
+  const [emblaApi, setEmblaApi] = useState<EmblaCarouselType | undefined>();
 
-  // embla-carousel-react v8 uses useState's setter as the ref callback.
-  // React 18 batches setViewport(null)+setViewport(el) from Strict Mode's
-  // double-invoke into a net no-op, so the init effect never re-fires and
-  // Embla is left in a destroyed state. scrollProgress() === null is the
-  // reliable signal — at position 0 it returns 0, never null unless destroyed.
+  // Capture options in refs so the effect closure doesn't need them as deps.
+  const alignRef = useRef(align);
+  const startIndexRef = useRef(startIndex);
+
+  const emblaRef = useCallback((node: HTMLElement | null) => {
+    viewportRef.current = node;
+  }, []);
+
+  // Init once per mount against the live node. Empty deps + a ref (rather than
+  // embla-carousel-react's useState-setter-as-ref) sidesteps the React 18
+  // batching quirk that left Embla destroyed under Strict Mode. Embla runs its
+  // own ResizeObserver on the root and slides, so it re-measures itself when a
+  // hidden wrapper (hidden md:block) reveals or a parent animates in from 0 —
+  // no manual reInit needed here.
   useEffect(() => {
-    if (emblaApi && emblaApi.scrollProgress() === null) emblaApi.reInit();
-  }, [emblaApi]);
+    const node = viewportRef.current;
+    if (!node) return;
+
+    const api = EmblaCarousel(
+      node,
+      {
+        containScroll: "keepSnaps",
+        align: alignRef.current,
+        // Default to 0 rather than passing `startIndex: undefined`, which would
+        // override Embla's own default of 0 (objectsMergeDeep copies the
+        // undefined over it) → Counter resolves to NaN → scrollSnaps[NaN] is
+        // undefined → the engine's location/target/offsetLocation all become
+        // NaN, and scrollProgress() returns NaN, breaking drag and fades on any
+        // carousel that overflows.
+        startIndex: startIndexRef.current ?? 0,
+        watchDrag: (a) => a.canScrollNext() || a.canScrollPrev(),
+      },
+      [WheelGesturesPlugin()],
+    );
+    setEmblaApi(api);
+
+    return () => api.destroy();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { emblaRef, emblaApi };
 };
