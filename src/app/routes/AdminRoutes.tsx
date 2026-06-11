@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { Route, Navigate } from "react-router-dom";
+import { Route, Navigate, useParams } from "react-router-dom";
 import RequireRead from "@/components/custom/require-read";
 import ComponentFade from "@/components/animations/animate-component-fade";
 
@@ -14,6 +14,14 @@ import Settings from "@/pages/admin/settings";
 
 const Admin = lazy(() => import("@/pages/admin"));
 
+// Absolute redirect built from the slug. A relative `<Navigate to="timeline">`
+// resolves by appending to the current URL inside a splat (`*`) route, which
+// turns an unknown sub-path into an infinite /timeline/timeline/… loop.
+const RedirectToTimeline = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/${slug}/admin/timeline`} replace />;
+};
+
 const AdminRoutes = () => (
   <Route
     path="/:slug/admin"
@@ -23,7 +31,7 @@ const AdminRoutes = () => (
       </ComponentFade>
     }
   >
-    <Route index element={<Navigate to="timeline" replace />} />
+    <Route index element={<RedirectToTimeline />} />
     <Route path="timeline" element={<RequireRead resource="timeline"><Timeline /></RequireRead>} />
     <Route path="tasks" element={<RequireRead resource="tasks"><Tasks /></RequireRead>} />
     <Route path="members" element={<Members />} />
@@ -34,7 +42,7 @@ const AdminRoutes = () => (
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />
     <Route path="settings" element={<Settings />} />
-    <Route path="*" element={<Navigate to="timeline" replace />} />
+    <Route path="*" element={<RedirectToTimeline />} />
   </Route>
 );
 
