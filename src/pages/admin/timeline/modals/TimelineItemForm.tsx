@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMembersQuery } from "@/pages/admin/members/queries";
-import { groupMembersByRole } from "@/pages/admin/utils/memberUtils";
+import { getMemberAssigneeOptions } from "@/pages/admin/utils/memberUtils";
 
 import { FieldGroup } from "@/components/ui/field";
 import {
@@ -106,15 +106,8 @@ const TimelineItemForm = () => {
     (s: unknown) => (s as { values: TimelineItemFormValues }).values.segment_id,
   );
 
-  const assignableMembers = members.filter(
-    (m) => !m.frozen_at && !m.rejected_at,
-  );
-  const memberItems = assignableMembers.map((m) => ({
-    id: m.id,
-    label: m.display_name,
-  }));
-
-  const memberGroups = groupMembersByRole(assignableMembers);
+  const { items: memberItems, groups: memberGroups } =
+    getMemberAssigneeOptions(members);
 
   // Every segment across the event, labelled "Day N · <segment>".
   const segmentOptions: SelectFieldOption[] = useMemo(

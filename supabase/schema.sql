@@ -103,11 +103,11 @@ CREATE TABLE public.event_members (
   event_id        uuid        NOT NULL,
   user_id         uuid,                -- auth.users.id; nullable until invite claimed
   access_group_id uuid        NOT NULL,
-  email           text        NOT NULL,
+  invite_token    text                 DEFAULT encode(gen_random_bytes(32), 'hex'),  -- shareable invite link; NULLed once claimed (spent credential — 20260610000102)
+  invite_expires_at timestamptz         DEFAULT now() + interval '7 days',           -- link deadline; reset on regenerate, NULLed once claimed (invited_at stays immutable)
   display_name    text        NOT NULL,
   invited_at      timestamptz NOT NULL DEFAULT now(),
   joined_at       timestamptz,
-  rejected_at     timestamptz,
   frozen_at       timestamptz,
   invited_by      uuid,                -- FK → event_members.id (self-ref)
   is_root         boolean     NOT NULL DEFAULT false,
@@ -580,6 +580,8 @@ CREATE INDEX event_members_user_id_idx
   ON public.event_members (user_id);
 CREATE INDEX event_members_event_id_user_id_idx
   ON public.event_members (event_id, user_id);
+CREATE UNIQUE INDEX event_members_invite_token_key
+  ON public.event_members (invite_token);
 
 CREATE INDEX event_rsvps_event_id_idx
   ON public.event_rsvps (event_id);
@@ -700,9 +702,16 @@ CREATE POLICY event_live_logs_select ON public.event_live_logs
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
+-- Own row ONLY (not is_event_member): the roster list is read solely via the
+-- get_members RPC, which tiers fields by role and never leaks pending invite
+-- tokens. A broad is_event_member(event_id) here would let any member directly
+-- SELECT every row — including invite_token — bypassing that masking. Own-row
+-- keeps realtime self-resync working without exposing anyone else. Set by
+-- 20260605000004_member_email_protection; this dump previously mis-recorded the
+-- old broad policy.
 CREATE POLICY event_members_select ON public.event_members
   FOR SELECT TO authenticated
-  USING (is_event_member(event_id));
+  USING (user_id = auth.uid());
 
 -- event_resources — open to all authenticated (resource list is non-sensitive)
 CREATE POLICY event_role_permissions_select ON public.event_resources
@@ -859,6 +868,31 @@ BEGIN
 END;
 $$;
 
+-- Assignee rule predicate + guard (used by create/update task & timeline RPCs).
+CREATE OR REPLACE FUNCTION public.is_assignable_member(p_event_id uuid, p_member_id uuid)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM event_members m
+    WHERE m.id = p_member_id AND m.event_id = p_event_id
+      AND m.frozen_at IS NULL
+      AND (m.joined_at IS NOT NULL OR m.invite_expires_at > now())
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.assert_added_assignees_assignable(
+  p_event_id uuid, p_new uuid[], p_existing uuid[]
+) RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+  IF p_new IS NULL THEN RETURN; END IF;
+  IF EXISTS (
+    SELECT 1 FROM unnest(p_new) AS a(id)
+    WHERE a.id <> ALL (p_existing) AND NOT is_assignable_member(p_event_id, a.id)
+  ) THEN
+    RAISE EXCEPTION 'New assignees must be active or pending members of this event';
+  END IF;
+END;
+$$;
+
 
 -- =============================================================================
 -- BOOTSTRAP / AUTH FUNCTION
@@ -885,10 +919,6 @@ BEGIN
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'You are not an active member of this event';
-  END IF;
-
-  IF v_member.rejected_at IS NOT NULL THEN
-    RAISE EXCEPTION 'MEMBER_REMOVED: Your access to this event has been removed';
   END IF;
 
   IF v_member.frozen_at IS NOT NULL THEN
@@ -939,7 +969,7 @@ $$;
 -- Functions to add (copy from the dump):
 --   create_event, create_access_group, update_access_group, delete_access_group
 --   invite_member, update_member, update_member_couple, update_member_access_group,
---   freeze_member, delete_member, claim_member_invite
+--   freeze_member, delete_member, claim_member_invite, regenerate_member_invite
 --   create_guests, update_guests, delete_guest, import_guests_csv (if exists), cancel_rsvp,
 --   submit_rsvp (if exists), update_rsvp (if exists)
 --   create_task, update_task, delete_task, archive_tasks, save_task_order, mark_task_done

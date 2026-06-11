@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarCheck, CalendarDays, Mail } from "lucide-react";
+import { CalendarCheck, CalendarDays } from "lucide-react";
 
 import Odometer from "@/components/animations/animate-odometer";
 import { itemRevealInUp } from "@/lib/animations";
@@ -10,16 +10,11 @@ interface DashboardStatsProps {
   eventsCount: EventsCount;
 }
 
-type StatItem = { icon: typeof Mail; value: number; label: string };
+type StatItem = { icon: typeof CalendarCheck; value: number; label: string };
 
 const DashboardStats: FC<DashboardStatsProps> = ({ eventsCount }) => {
   const statItems = (
     [
-      eventsCount.pending > 0 && {
-        icon: Mail,
-        value: eventsCount.pending,
-        label: "invited",
-      },
       eventsCount.active > 0 && {
         icon: CalendarCheck,
         value: eventsCount.active,

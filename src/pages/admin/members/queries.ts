@@ -6,6 +6,7 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys";
 import {
   fetchMembers,
   inviteMember,
+  regenerateMemberInvite,
   updateMember,
   updateMemberAccessGroup,
   updateMemberCouple,
@@ -15,6 +16,7 @@ import {
 import type {
   Member,
   InviteMemberPayload,
+  RegenerateMemberInvitePayload,
   UpdateMemberPayload,
   UpdateMemberAccessGroupPayload,
   UpdateMemberCouplePayload,
@@ -54,6 +56,22 @@ export function useMemberMutations() {
         } else {
           setMembers((old) => [...(old ?? []), { ...result, accessGroup }]);
         }
+      },
+    },
+  );
+
+  const regenerate = useMutation(
+    (payload: RegenerateMemberInvitePayload) => regenerateMemberInvite(payload),
+    {
+      successMessage: () => "Invite link regenerated",
+      errorMessage: (err) => err.message,
+      onSuccess: (result: Member) => {
+        setMembers(
+          (old) =>
+            old?.map((m) =>
+              m.id === result.id ? { ...result, accessGroup: m.accessGroup } : m,
+            ) ?? [],
+        );
       },
     },
   );
@@ -187,5 +205,5 @@ export function useMemberMutations() {
     },
   );
 
-  return { invite, update, updateAccessGroup, updateCouple, freeze, remove };
+  return { invite, regenerate, update, updateAccessGroup, updateCouple, freeze, remove };
 }

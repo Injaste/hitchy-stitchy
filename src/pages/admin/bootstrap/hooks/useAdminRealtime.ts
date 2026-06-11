@@ -22,7 +22,6 @@ const BOOTSTRAP_MEMBER_FIELDS: (keyof Member)[] = [
   "is_groom",
   "is_root",
   "frozen_at",
-  "rejected_at",
 ]
 
 /**

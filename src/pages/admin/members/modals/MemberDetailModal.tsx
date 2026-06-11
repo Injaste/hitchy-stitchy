@@ -9,13 +9,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Copy, History, Mail, Shield } from "lucide-react";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, History, RefreshCw, Shield } from "lucide-react";
 import NotesMarkdown from "@/components/custom/notes-markdown";
+import ShareLink from "@/components/custom/share-link";
 
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { getMemberStatus } from "../utils";
+import { useMembersQuery, useMemberMutations } from "../queries";
+import { getMemberStatus, getInviteExpiry, INVITE_MESSAGE } from "../utils";
 import { isSuperAdminMember } from "../../utils/memberUtils";
 import MemberAvatar from "../components/MemberAvatar";
 import MemberRole from "../components/MemberRole";
@@ -28,21 +31,28 @@ const MemberDetailModal = () => {
   const openEdit = useMemberModalStore((s) => s.openEdit);
   const openDelete = useMemberModalStore((s) => s.openDelete);
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
+  const { slug, eventId } = useAdminStore();
+  const { data: members } = useMembersQuery();
+  const { regenerate } = useMemberMutations();
 
   const {
     canManageMembers,
     canView,
-    canSeeMemberEmail,
     guardEditMember,
     guardDeleteMember,
     guardFreezeMember,
   } = useAccess();
 
   if (!selectedItem) return null;
-  const member = selectedItem;
+  // Prefer the live roster row so a regenerated token/expiry shows immediately.
+  const member = members?.find((m) => m.id === selectedItem.id) ?? selectedItem;
 
   const isFrozen = !!member.frozen_at;
   const status = getMemberStatus(member);
+  const inviteExpiry =
+    (status === "pending" || status === "expired") && member.invite_expires_at
+      ? getInviteExpiry(member.invite_expires_at)
+      : null;
 
   const formatDate = "d MMM yyyy";
   const formatTime = "HH:mm";
@@ -57,11 +67,6 @@ const MemberDetailModal = () => {
       label: "Accepted",
       date: format(parseISO(member.joined_at), formatDate),
       time: format(parseISO(member.joined_at), formatTime),
-    },
-    member.rejected_at && {
-      label: "Declined",
-      date: format(parseISO(member.rejected_at), formatDate),
-      time: format(parseISO(member.rejected_at), formatTime),
     },
     member.frozen_at && {
       label: "Frozen",
@@ -107,27 +112,60 @@ const MemberDetailModal = () => {
             {/* Notes — what this person handles */}
             <NotesMarkdown content={member.notes} />
 
-            {/* Pending hint — shown to superadmins for members who haven't joined yet */}
-            {status === "pending" && canSeeMemberEmail && (
-              <div className="rounded-md bg-muted px-3 py-2.5 space-y-1.5">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  They'll appear active once they sign up with this email and
-                  accept the invite.
-                </p>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(member.email ?? "");
-                    toast.success("Email copied");
-                  }}
-                  className="flex items-center gap-1.5 text-xs text-foreground hover:text-primary transition-colors cursor-pointer"
-                >
-                  <Copy className="w-3 h-3 shrink-0" />
-                  {member.email}
-                </button>
-              </div>
-            )}
+            {/* Pending/expired — managers can re-share or regenerate the join link */}
+            {(status === "pending" || status === "expired") &&
+              canManageMembers &&
+              member.invite_token && (
+                <div className="rounded-md bg-muted px-3 py-2.5 space-y-2">
+                  {inviteExpiry?.expired ? (
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      This invite link has expired. Regenerate to share a fresh one
+                      with{" "}
+                      <span className="font-semibold text-foreground">
+                        {member.display_name}
+                      </span>
+                      .
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Share this single-use link so{" "}
+                        <span className="font-semibold text-foreground">
+                          {member.display_name}
+                        </span>{" "}
+                        can join
+                        {inviteExpiry ? ` — expires in ${inviteExpiry.remaining}` : ""}
+                        .
+                      </p>
+                      <ShareLink
+                        url={`${window.location.origin}/${slug}/join?token=${member.invite_token}`}
+                        message={INVITE_MESSAGE}
+                      />
+                    </>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      regenerate.mutate({
+                        event_id: eventId!,
+                        id: member.id,
+                        invite_expires_at: member.invite_expires_at,
+                      })
+                    }
+                    disabled={regenerate.isPending}
+                    className="h-auto gap-1.5 px-2 py-1 text-xs text-muted-foreground hover:text-primary"
+                  >
+                    <RefreshCw
+                      className={`size-3 shrink-0 ${regenerate.isPending ? "animate-spin" : ""}`}
+                    />
+                    Regenerate link
+                  </Button>
+                </div>
+              )}
 
-            {/* Access group + email + permissions */}
+            {/* Access group + permissions */}
             {canView("access") && (
               <div className="space-y-2">
                 <Badge variant="outline" className="text-2xs tracking-wide">
@@ -136,13 +174,6 @@ const MemberDetailModal = () => {
                     ? "Full access"
                     : (member.accessGroup?.name ?? "Unknown access group")}
                 </Badge>
-
-                {canSeeMemberEmail && status !== "pending" && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Mail className="w-3.5 h-3.5 shrink-0" />
-                    <span>{member.email}</span>
-                  </div>
-                )}
               </div>
             )}
 

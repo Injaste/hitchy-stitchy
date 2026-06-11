@@ -22,7 +22,7 @@ const MemberStats: FC<MemberStatsProps> = ({ data, isLoading, isError }) => {
   // Derive counts from a single canonical status per member — no double-counting.
   const counts = data.reduce(
     (acc, m) => { acc[getMemberStatus(m)]++; return acc; },
-    { active: 0, pending: 0, frozen: 0, rejected: 0 } as Record<MemberStatusLabel, number>,
+    { active: 0, pending: 0, expired: 0, frozen: 0 } as Record<MemberStatusLabel, number>,
   );
 
   type StatItem = { icon: typeof Users; value: number; label: string };
@@ -40,9 +40,9 @@ const MemberStats: FC<MemberStatsProps> = ({ data, isLoading, isError }) => {
 
   const statItems: StatItem[] = [
     memberStat,
-    // Pending is visible to everyone; frozen/rejected only to superadmins.
-    ...toStatItems(["pending"]),
-    ...(isSuperAdmin ? toStatItems(["frozen", "rejected"]) : []),
+    // Pending/expired visible to everyone; frozen only to superadmins.
+    ...toStatItems(["pending", "expired"]),
+    ...(isSuperAdmin ? toStatItems(["frozen"]) : []),
   ];
 
   return (

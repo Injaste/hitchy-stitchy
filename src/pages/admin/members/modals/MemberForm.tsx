@@ -1,4 +1,3 @@
-import { Info } from "lucide-react";
 import { useForm, useStore } from "@tanstack/react-form";
 
 import { FieldGroup } from "@/components/ui/field";
@@ -10,11 +9,6 @@ import {
   FormBody,
   SelectComboField,
 } from "@/components/custom/form";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import {
   inviteMemberSchema,
@@ -38,7 +32,6 @@ export const useMemberInviteForm = ({
   useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
-      email: defaultValues?.email ?? "",
       access_group_id: defaultValues?.access_group_id ?? "",
       role: defaultValues?.role ?? "",
       notes: defaultValues?.notes ?? "",
@@ -64,7 +57,6 @@ export const useMemberEditForm = ({
   useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
-      email: defaultValues?.email ?? "",
       access_group_id: defaultValues?.access_group_id ?? "",
       role: defaultValues?.role ?? "",
       notes: defaultValues?.notes ?? "",
@@ -85,8 +77,6 @@ interface MemberFormProps {
   lockAccessGroup?: boolean;
   /** Show the access group selector. Always true in invite mode; gated by isSuperAdmin in edit mode. */
   showAccessGroup?: boolean;
-  /** When set in edit mode, renders a disabled email field. Omit to hide. */
-  email?: string;
   /** Pre-resolved access group name — shown immediately while the access groups query loads to avoid a flash. */
   accessGroupInitialName?: string;
   /** Show the couple role switches (super admin only). */
@@ -103,14 +93,12 @@ const MemberForm = ({
   mode,
   lockAccessGroup = false,
   showAccessGroup = true,
-  email,
   accessGroupInitialName,
   showCoupleRole = false,
   brideTakenBy = null,
   groomTakenBy = null,
   isRoot = false,
 }: MemberFormProps) => {
-  const showEmailField = mode === "invite" || !!email;
   const { form } = useFormShell();
   const { data: members = [] } = useMembersQuery();
   const roleOptions = Array.from(
@@ -137,46 +125,11 @@ const MemberForm = ({
     <FormBody>
       <FieldGroup>
         {/* ── Identity ──────────────────────────────────────────────── */}
-        {showEmailField ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TextField
-              name="display_name"
-              label="Display name"
-              placeholder="e.g. Sarah Tan"
-            />
-
-            <TextField
-              name="email"
-              label={
-                <span className="flex items-center gap-1">
-                  Email
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span
-                        tabIndex={0}
-                        className="inline-flex text-muted-foreground cursor-default"
-                      >
-                        <Info className="size-3" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      Cannot be changed once invite is sent.
-                    </TooltipContent>
-                  </Tooltip>
-                </span>
-              }
-              type="email"
-              placeholder="sarah@example.com"
-              disabled={mode === "edit"}
-            />
-          </div>
-        ) : (
-          <TextField
-            name="display_name"
-            label="Display name"
-            placeholder="e.g. Sarah Tan"
-          />
-        )}
+        <TextField
+          name="display_name"
+          label="Display name"
+          placeholder="e.g. Sarah Tan"
+        />
 
         {/* ── Access + Role ──────────────────────────────────────────── */}
         {showAccessGroup ? (

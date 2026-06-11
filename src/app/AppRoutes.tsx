@@ -10,6 +10,7 @@ const Login = lazy(() => import("@/auth/sign-in"));
 const Signup = lazy(() => import("@/auth/sign-up"));
 const ResetPassword = lazy(() => import("@/auth/reset-password"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
+const Join = lazy(() => import("@/pages/join"));
 const Templates = lazy(() => import("@/pages/wedding"));
 const Privacy = lazy(() => import("@/pages/privacy"));
 
@@ -48,6 +49,15 @@ const AppRoutes = () => {
               }
             />
           ))}
+
+          <Route
+            path="/:slug/join"
+            element={
+              <ComponentFade>
+                <Join />
+              </ComponentFade>
+            }
+          />
 
           <Route
             path="/:slug"

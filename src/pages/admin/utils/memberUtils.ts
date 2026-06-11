@@ -1,4 +1,5 @@
 import type { Member } from "@/pages/admin/members/types";
+import { getMemberStatus } from "@/pages/admin/members/utils";
 
 export function isActiveMember(
   m: Pick<Member, "joined_at" | "frozen_at">,
@@ -8,6 +9,17 @@ export function isActiveMember(
 
 export function getMemberName(id: string, members: Member[]): string {
   return members.find((m) => m.id === id)?.display_name ?? "Unknown";
+}
+
+/** Members eligible to be newly assigned to tasks/timeline — active or pending
+ *  (excludes expired + frozen). Pending is allowed so a planner can pre-assign an
+ *  invitee before they sign up. Mirrors the server's add-time assignee check.
+ *  Shared by TaskForm + TimelineItemForm so the rule lives in one place. */
+export function getAssignableMembers(members: Member[]): Member[] {
+  return members.filter((m) => {
+    const status = getMemberStatus(m);
+    return status === "active" || status === "pending";
+  });
 }
 
 /**
@@ -39,4 +51,18 @@ export function groupMembersByRole(
   return Array.from(byRole, ([name, memberIds]) => ({ name, memberIds })).sort(
     (a, b) => a.name.localeCompare(b.name),
   );
+}
+
+/** Field-ready assignee options for <AssigneeField> — the assignable members
+ *  mapped to {id,label} plus their role groups. One place so TaskForm +
+ *  TimelineItemForm can't drift apart. */
+export function getMemberAssigneeOptions(members: Member[]): {
+  items: { id: string; label: string }[];
+  groups: { name: string; memberIds: string[] }[];
+} {
+  const assignable = getAssignableMembers(members);
+  return {
+    items: assignable.map((m) => ({ id: m.id, label: m.display_name })),
+    groups: groupMembersByRole(assignable),
+  };
 }

@@ -22,30 +22,7 @@ import ComponentFade from "@/components/animations/animate-component-fade";
 import { useLoginMutation } from "./queries";
 import { useIsAuthenticatedQuery } from "../queries";
 import { signInSchema, type SignInFormValues } from "./types";
-
-// A post-login destination is only honored if it's a clean same-origin path.
-// `redirect` comes from a user-controllable query param, so without this an
-// attacker could craft /login?redirect=https://evil.com and bounce a freshly
-// authenticated user off-site (open redirect → phishing). Reject anything that
-// isn't a relative path on our own origin — absolute URLs, //protocol-relative,
-// and backslash tricks that the URL parser resolves to another host.
-function isSafeRedirect(raw: string | null): raw is string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return false;
-  try {
-    return (
-      new URL(raw, window.location.origin).origin === window.location.origin
-    );
-  } catch {
-    return false;
-  }
-}
-
-// The vetted destination: the param when it's safe, otherwise the dashboard.
-function safeRedirect(raw: string | null): string {
-  if (!isSafeRedirect(raw)) return "/dashboard";
-  const url = new URL(raw, window.location.origin);
-  return url.pathname + url.search + url.hash;
-}
+import { isSafeRedirect, safeRedirect } from "../redirect";
 
 // ─── Form hook ────────────────────────────────────────────────────────────────
 
@@ -179,7 +156,11 @@ const SignIn = () => {
                 <p className="text-xs text-muted-foreground">
                   Don't have an account?{" "}
                   <Link
-                    to="/signup"
+                    to={
+                      isSafeRedirect(rawRedirect)
+                        ? `/signup?redirect=${encodeURIComponent(rawRedirect)}`
+                        : "/signup"
+                    }
                     className="text-primary hover:underline font-medium"
                   >
                     Sign up here!

@@ -31,7 +31,6 @@ export function useAccess() {
   // Intent-named capabilities.
   const canManageMembers = canEdit("members"); // invite/edit/delete/freeze the team
   const canManageCouple = isSuperAdmin;
-  const canSeeMemberEmail = isSuperAdmin || canManageMembers;
 
   const caller: CallerPolicy = {
     isSuperAdmin,
@@ -50,7 +49,6 @@ export function useAccess() {
     // Identity-named capabilities
     canManageMembers,
     canManageCouple,
-    canSeeMemberEmail,
     // Guards — target-specific shields (from lib/access/policy.ts)
     guardEditMember: (target: Parameters<typeof guardEditMember>[1]) =>
       guardEditMember(caller, target),

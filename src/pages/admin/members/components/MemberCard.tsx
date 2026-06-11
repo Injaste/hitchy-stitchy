@@ -22,7 +22,6 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
   const openDetail = useMemberModalStore((s) => s.openDetail);
 
   const status = getMemberStatus(member);
-  const isRejected = status === "rejected";
   const isFrozen = status === "frozen";
   const isCouple = member.is_bride || member.is_groom;
   const isSuperAdmin = isSuperAdminMember(member);
@@ -41,7 +40,6 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
             ? "border-l-success"
             : "border-l-accent",
         isFrozen && "opacity-60",
-        isRejected && "opacity-40",
       )}
     >
       <button
@@ -64,12 +62,7 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
             <div className="space-y-1 flex-1 min-w-0">
               {/* Name row */}
               <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                <p
-                  className={cn(
-                    "font-display text-sm font-medium text-foreground truncate",
-                    isRejected && "line-through text-muted-foreground",
-                  )}
-                >
+                <p className="font-display text-sm font-medium text-foreground truncate">
                   {member.display_name}
                 </p>
 

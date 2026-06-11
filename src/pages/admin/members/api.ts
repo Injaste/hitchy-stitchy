@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import { isRegenerateOnCooldown } from "./utils"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import type {
   Member,
@@ -8,6 +9,7 @@ import type {
   UpdateMemberCouplePayload,
   FreezeMemberPayload,
   DeleteMemberPayload,
+  RegenerateMemberInvitePayload,
 } from "./types"
 
 export async function fetchMembers(eventId: string): Promise<Member[]> {
@@ -22,11 +24,26 @@ export async function fetchMembers(eventId: string): Promise<Member[]> {
 export async function inviteMember(payload: InviteMemberPayload): Promise<Member> {
   const { data, error } = await supabase.rpc("invite_member", {
     p_event_id: payload.event_id,
-    p_email: payload.email,
     p_display_name: payload.display_name,
     p_access_group_id: payload.access_group_id,
     p_role: payload.role,
     p_notes: payload.notes,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as Member
+}
+
+export async function regenerateMemberInvite(payload: RegenerateMemberInvitePayload): Promise<Member> {
+  // Mirror the RPC's 1-minute cooldown so a too-soon click fails instantly with
+  // no round-trip. The server still enforces it — this is UX only.
+  if (payload.invite_expires_at && isRegenerateOnCooldown(payload.invite_expires_at)) {
+    throw new Error("Please wait a minute before regenerating this link")
+  }
+
+  const { data, error } = await supabase.rpc("regenerate_member_invite", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
   })
 
   if (error) throw new Error(error.message)

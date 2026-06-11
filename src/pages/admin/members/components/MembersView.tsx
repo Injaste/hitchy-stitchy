@@ -7,13 +7,6 @@ import { itemFadeUp } from "@/lib/animations";
 import ErrorState from "@/components/custom/states/error-state";
 import NoResults from "@/components/custom/states/no-results";
 import { Input } from "@/components/ui/input";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
 import { useAdminStore } from "../../store/useAdminStore";
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
@@ -49,11 +42,11 @@ const MembersView: FC<MembersViewProps> = ({
     if (!data?.length) return { couple: [], active: [], inactive: [] };
     const q = search.trim().toLowerCase();
     let source = data;
-    // Inactive (frozen/declined) members are visible to superadmins only.
+    // Inactive (expired/frozen) members are visible to superadmins only.
     if (!isSuperAdmin) {
       source = source.filter((m) => {
         const s = getMemberStatus(m);
-        return s !== "frozen" && s !== "rejected";
+        return s !== "frozen" && s !== "expired";
       });
     }
     const filtered = q
@@ -123,19 +116,14 @@ const MembersView: FC<MembersViewProps> = ({
             </div>
           )}
 
-          {/* Inactive — collapsed by default */}
+          {/* Inactive — expired + frozen, always shown, dimmed like a muted section */}
           {inactive.length > 0 && (
-            <Accordion type="single" collapsible>
-              <AccordionItem value="inactive" className="border-none">
-                <AccordionTrigger className="w-fit flex-none gap-1.5 py-1 text-xs font-normal text-muted-foreground hover:text-foreground hover:no-underline">
-                  {inactive.length} inactive
-                </AccordionTrigger>
-                {/* px-1 / py give the cards' 1px ring room inside the overflow-hidden content */}
-                <AccordionContent className="px-1 pt-3 pb-1">
-                  {renderList(inactive)}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            <div className="opacity-60">
+              <p className="text-2xs font-semibold tracking-widest uppercase text-muted-foreground/60 mb-3">
+                Inactive
+              </p>
+              {renderList(inactive)}
+            </div>
           )}
         </div>
       </ComponentFade>
