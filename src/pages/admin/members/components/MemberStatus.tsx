@@ -3,7 +3,7 @@ import type { Member } from "../types";
 import { getMemberStatus, MEMBER_STATUS_CONFIG } from "../utils";
 
 interface MemberStatusProps {
-  member: Pick<Member, "joined_at" | "rejected_at" | "frozen_at">;
+  member: Pick<Member, "joined_at" | "frozen_at" | "invite_expires_at">;
   className?: string;
 }
 

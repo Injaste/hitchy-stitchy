@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FC } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { AlertTriangle, Pencil, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Odometer from "@/components/animations/animate-odometer";
+import IconSwap from "@/components/animations/animate-icon-swap";
 import { cn } from "@/lib/utils";
 
 import { useBudgetMutations } from "../queries";
@@ -211,31 +212,11 @@ const BudgetSummary: FC<BudgetSummaryProps> = ({ summary }) => {
                 onMouseDown={editing ? (e) => e.preventDefault() : undefined}
                 onClick={editing ? cancel : startEdit}
               >
-                <AnimatePresence mode="wait" initial={false}>
-                  {editing ? (
-                    <motion.span
-                      key="x"
-                      initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
-                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                      exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
-                      transition={{ duration: 0.15 }}
-                      className="inline-flex"
-                    >
-                      <X className="size-4" />
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="pencil"
-                      initial={{ opacity: 0, rotate: 90, scale: 0.5 }}
-                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                      exit={{ opacity: 0, rotate: -90, scale: 0.5 }}
-                      transition={{ duration: 0.15 }}
-                      className="inline-flex"
-                    >
-                      <Pencil className="size-3.5" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                <IconSwap
+                  active={editing}
+                  defaultIcon={<Pencil className="size-3.5" />}
+                  activeIcon={<X className="size-4" />}
+                />
               </Button>
             )}
           </div>

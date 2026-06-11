@@ -18,7 +18,7 @@ const MemberEditModal = () => {
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
-  const { canManageMembers, canManageCouple, canSeeMemberEmail, guardChangeAccessGroup } = useAccess();
+  const { canManageMembers, canManageCouple, guardChangeAccessGroup } = useAccess();
   const { update, updateAccessGroup, updateCouple } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
 
@@ -47,7 +47,6 @@ const MemberEditModal = () => {
     defaultValues: selectedItem
       ? {
           display_name: selectedItem.display_name,
-          email: selectedItem.email ?? "",
           access_group_id: selectedItem.access_group_id ?? "",
           role: selectedItem.role ?? "",
           notes: selectedItem.notes ?? "",
@@ -116,7 +115,6 @@ const MemberEditModal = () => {
         mode="edit"
         showAccessGroup={canManageMembers}
         lockAccessGroup={lockAccessGroup}
-        email={canSeeMemberEmail ? (selectedItem.email ?? undefined) : undefined}
         accessGroupInitialName={selectedItem.accessGroup?.name ?? undefined}
         showCoupleRole={showCoupleRole}
         brideTakenBy={existingBride?.display_name ?? null}

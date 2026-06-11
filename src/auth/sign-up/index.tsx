@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "@tanstack/react-form";
 import { UserPlus, CheckCircle2 } from "lucide-react";
@@ -22,6 +22,7 @@ import BackLink from "@/components/custom/back-link";
 
 import { useSignupMutation } from "./queries";
 import { signUpSchema, type SignUpFormValues } from "./types";
+import { isSafeRedirect } from "../redirect";
 import ComponentFade from "@/components/animations/animate-component-fade";
 
 // ─── Form hook ────────────────────────────────────────────────────────────────
@@ -52,6 +53,13 @@ const useSignUpForm = ({ onSubmit }: UseSignUpFormOpts) =>
 
 const Signup = () => {
   const [succeeded, setSucceeded] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Preserve the invite redirect so the token survives login ⇄ signup hops.
+  const rawRedirect = searchParams.get("redirect");
+  const loginHref = isSafeRedirect(rawRedirect)
+    ? `/login?redirect=${encodeURIComponent(rawRedirect)}`
+    : "/login";
 
   const {
     mutateAsync: signup,
@@ -99,8 +107,8 @@ const Signup = () => {
                 . Please Check your inbox to activate your account.
               </p>
               <div className="flex flex-col gap-3">
-                <Link to="/dashboard">
-                  <Button className="w-full">Go to Dashboard</Button>
+                <Link to={loginHref}>
+                  <Button className="w-full">Continue to login</Button>
                 </Link>
                 <BackLink to="/" label="Back to Home" />
               </div>
@@ -213,7 +221,7 @@ const Signup = () => {
               <p className="text-xs text-muted-foreground">
                 Already have an account?{" "}
                 <Link
-                  to="/login"
+                  to={loginHref}
                   className="text-primary hover:underline font-medium"
                 >
                   Login here!

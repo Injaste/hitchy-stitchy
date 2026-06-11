@@ -19,5 +19,6 @@ So on a single day, feature 1 is `…000001`+ and feature 2 is `…000101`+ — 
 
 ## Conventions
 - One logical change per file.
+- **Every `CREATE OR REPLACE FUNCTION` carries a short comment directly above it:** for an *edit*, what changed and why; for a *new* function, its purpose; for a `DROP`, why it's being removed. So a function's diff is self-explaining without cross-referencing the live dump.
 - For policy/function changes, include the prior definition in the rollback comment so it can be restored quickly.
 - Functions are `SECURITY DEFINER` and enforce membership via `get_current_member()` / permissions via `has_event_permission()` — keep that pattern.

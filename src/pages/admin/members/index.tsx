@@ -15,7 +15,7 @@ const Members = () => {
         isRefetching={isRefetching}
         refetch={refetch}
       />
-      <Container pageSpacing>
+      <Container pageSpacing size="md">
         <MembersView
           data={data}
           isLoading={isLoading}

@@ -20,7 +20,7 @@ import DashboardSkeleton from "../states/DashboardSkeleton";
 import EventCard from "./EventCard";
 import EventCreate from "./EventCreate";
 
-const EMPTY_COUNT: EventsCount = { active: 0, upcoming: 0, pending: 0 };
+const EMPTY_COUNT: EventsCount = { active: 0, upcoming: 0 };
 
 const DashboardView = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);

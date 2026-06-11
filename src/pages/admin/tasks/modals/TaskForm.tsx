@@ -12,7 +12,7 @@ import {
   type SelectFieldOption,
 } from "@/components/custom/form";
 import { useMembersQuery } from "@/pages/admin/members/queries";
-import { groupMembersByRole } from "@/pages/admin/utils/memberUtils";
+import { getMemberAssigneeOptions } from "@/pages/admin/utils/memberUtils";
 
 import { taskFormSchema, type TaskFormValues } from "../types";
 import { useTasksQuery } from "../queries";
@@ -58,14 +58,8 @@ const TaskForm = () => {
   const { data: members = [] } = useMembersQuery();
   const { data: tasks = [] } = useTasksQuery();
 
-  const assignableMembers = members.filter(
-    (m) => !m.frozen_at && !m.rejected_at,
-  );
-  const memberItems = assignableMembers.map((m) => ({
-    id: m.id,
-    label: m.display_name,
-  }));
-  const memberGroups = groupMembersByRole(assignableMembers);
+  const { items: memberItems, groups: memberGroups } =
+    getMemberAssigneeOptions(members);
 
   const labelOptions = Array.from(
     new Set(

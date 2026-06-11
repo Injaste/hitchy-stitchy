@@ -19,6 +19,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
 
   return (
     <AdminPageHeader
+      containerSize="md"
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}

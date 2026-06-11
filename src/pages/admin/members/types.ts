@@ -1,15 +1,12 @@
 import { z } from "zod";
 import type { AccessGroup } from "../access/types";
 
-export type MemberStatusLabel = "active" | "pending" | "frozen" | "rejected";
+export type MemberStatusLabel = "active" | "pending" | "expired" | "frozen";
 
 export interface Member {
   id: string;
   event_id: string;
-  user_id: string | null;
   access_group_id: string;
-  /** null when the viewer isn't a manager/superadmin (gated by get_members RPC) */
-  email: string | null;
   display_name: string;
   /** Bypasses all permission checks — set directly on event_members, not derived from access group */
   is_root: boolean;
@@ -25,7 +22,10 @@ export interface Member {
   /** null for non-managers (audit field, gated by get_members) */
   invited_at: string | null;
   joined_at: string | null;
-  rejected_at: string | null;
+  /** Pending share-link token — managers only, and only while the member hasn't joined. */
+  invite_token: string | null;
+  /** Invite-link deadline (ISO) — managers only, pending members only. */
+  invite_expires_at: string | null;
   created_at: string;
   updated_at: string;
   preferences: Record<string, unknown>;
@@ -37,7 +37,6 @@ export const inviteMemberSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(80, "Name is too long"),
-  email: z.email("Enter a valid email"),
   access_group_id: z.string().min(1, "Select an access group"),
   role: z
     .string()
@@ -55,8 +54,6 @@ export const editMemberSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(80, "Name is too long"),
-  // Read-only in edit mode — present so the form can render the disabled field.
-  email: z.string(),
   access_group_id: z.string().min(1, "Select an access group"),
   role: z
     .string()
@@ -76,10 +73,17 @@ export type EditMemberValues = z.infer<typeof editMemberSchema>;
 export interface InviteMemberPayload {
   event_id: string;
   display_name: string;
-  email: string;
   access_group_id: string;
   role: string | null;
   notes: string | null;
+}
+
+/** Payload for regenerate_member_invite RPC (fresh token + reset 7-day clock). */
+export interface RegenerateMemberInvitePayload {
+  event_id: string;
+  id: string;
+  /** Current link expiry — lets the UI enforce the regenerate cooldown locally. */
+  invite_expires_at: string | null;
 }
 
 /** Payload for update_member RPC (display_name / role / notes only). */

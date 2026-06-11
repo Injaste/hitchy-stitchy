@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Users } from "lucide-react";
 
 import {
@@ -19,6 +19,7 @@ const MemberInviteModal = () => {
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const isCreateMore = useMemberModalStore((s) => s.isCreateMore);
   const setIsCreateMore = useMemberModalStore((s) => s.setIsCreateMore);
+  const openDetailForInvited = useMemberModalStore((s) => s.openDetailForInvited);
   const { eventId } = useAdminStore();
   const { invite } = useMemberMutations();
 
@@ -35,7 +36,6 @@ const MemberInviteModal = () => {
       invite.mutate({
         event_id: eventId!,
         display_name: values.display_name,
-        email: values.email,
         access_group_id: values.access_group_id,
         role: values.role ?? null,
         notes: values.notes ?? null,
@@ -50,6 +50,30 @@ const MemberInviteModal = () => {
     }
   }, [isInviteOpen, teamId, form]);
 
+  // Reset the mutation when the modal closes so a stale success never re-triggers
+  // the hand-off on the next open. Depend on the stable `reset` fn.
+  const resetInvite = invite.reset;
+  useEffect(() => {
+    if (!isInviteOpen) resetInvite();
+  }, [isInviteOpen, resetInvite]);
+
+  // After a single invite, hand off to the new member's detail panel (which has
+  // the share link) instead of an inline success state.
+  const handedOff = useRef(false);
+  useEffect(() => {
+    if (!invite.isSuccess) {
+      handedOff.current = false;
+      return;
+    }
+    // When "Invite more" is ON we deliberately do NOT open the detail modal —
+    // the modal stays open + resets (resetOnSuccess) for rapid entry, and the
+    // links stay retrievable from the roster. Hand off only for a single invite.
+    if (!isCreateMore && invite.data && !handedOff.current) {
+      handedOff.current = true;
+      openDetailForInvited(invite.data);
+    }
+  }, [invite.isSuccess, invite.data, isCreateMore, openDetailForInvited]);
+
   return (
     <FormDialog
       form={form}
@@ -58,7 +82,7 @@ const MemberInviteModal = () => {
       isPending={invite.isPending}
       isSuccess={invite.isSuccess}
       isError={invite.isError}
-      closeDelay={isCreateMore ? false : 300}
+      closeDelay={false}
       resetOnSuccess={isCreateMore}
     >
       <FormHeader icon={<Users className="size-4" />} title="Invite member" />

@@ -117,6 +117,7 @@ const fmt = (
 export function formatRemainingTime(
   totalSeconds: number,
   units: 1 | 2 = 2,
+  format: "short" | "long" = "short",
 ): string {
   const d = Math.floor(totalSeconds / 86400);
   const h = Math.floor((totalSeconds % 86400) / 3600);
@@ -124,11 +125,12 @@ export function formatRemainingTime(
   const s = totalSeconds % 60;
   const ss = m > 0 ? String(s).padStart(2, "0") : s;
 
+  // Single largest unit, e.g. "5d" / "5 days". (short stays identical to before.)
   if (units === 1) {
-    if (d > 0) return `${d}d`;
-    if (h > 0) return `${h}h`;
-    if (m > 0) return `${m}m`;
-    return `${ss}s`;
+    if (d > 0) return fmt(d, "day", format);
+    if (h > 0) return fmt(h, "hour", format);
+    if (m > 0) return fmt(m, "minute", format);
+    return fmt(s, "second", format);
   }
 
   if (d > 0) return `${d}d ${h}h`;

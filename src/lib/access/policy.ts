@@ -35,20 +35,13 @@ function canManage(caller: CallerPolicy, target: Pick<Member, "id"> & RankTarget
   return callerRank(caller) < targetRank(target);
 }
 
-/** Guard: caller may see a member's email address. */
-export function canSeeMemberEmail(
-  caller: Pick<CallerPolicy, "isSuperAdmin" | "canManageTeam">,
-): boolean {
-  return caller.isSuperAdmin || caller.canManageTeam;
-}
-
 /** Guard: caller may edit this member's name/role/notes. Self always allowed;
  * otherwise needs manage-team. Not peer-gated. */
 export function guardEditMember(
   caller: CallerPolicy,
-  target: Pick<Member, "id" | "frozen_at" | "rejected_at">,
+  target: Pick<Member, "id" | "frozen_at">,
 ): boolean {
-  if (target.rejected_at || target.frozen_at) return false;
+  if (target.frozen_at) return false;
   if (caller.memberId === target.id) return true;
   return caller.isSuperAdmin || caller.canManageTeam;
 }
@@ -66,10 +59,9 @@ export function guardFreezeMember(
   caller: CallerPolicy,
   target: Pick<
     Member,
-    "id" | "is_root" | "is_bride" | "is_groom" | "accessGroup" | "rejected_at"
+    "id" | "is_root" | "is_bride" | "is_groom" | "accessGroup"
   >,
 ): boolean {
-  if (target.rejected_at) return false;
   return canManage(caller, target);
 }
 

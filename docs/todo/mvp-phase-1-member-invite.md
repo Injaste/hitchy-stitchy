@@ -1,70 +1,55 @@
 # MVP Phase 1 — Member invite link
 
-**Goal:** an invited team member can actually join the event from a link the
-inviter shares (WhatsApp/SMS). Correctness fix, not a new feature surface.
+**Status:** ✅ Done & tested (2026-06-11) — team members join via a single-use
+token link (login → claim). Full claim/security matrix verified end-to-end.
 
-**Why now:** today `invite_member` only inserts an `event_members` row keyed by
-email. The invitee finds it **only** if they independently sign up with the exact
-same email, then accept from the dashboard's pending-invites list — no link or
-email is sent ([launch.md](launch.md) "Outbound member invites"). That quietly
-breaks team-building, which everything downstream (tasks/timeline assignees,
-vendors, ang bao helper roles) depends on. This is the "shareable invite link"
-option from launch.md — no email infra needed.
+## Pending
+- **Supabase Auth → "Enable signups" OFF** — the real signup boundary; the
+  client-side waitlist throw only mirrors it. Confirm it's off in the dashboard.
 
-## Scope
-1. **Shareable invite link + claim** for team members.
-2. **WhatsApp / copy-link share** buttons for: the invite link, the public
-   **invitation** link, and the **RSVP** link (the cross-cutting SG glue — cheap,
-   do it here).
+## Follow-ups / deferred
+### Destroy expired tokens too (added 2026-06-11)
+Migration `20260610000102` destroys a token on **use** (NULLs it on claim). An
+**expired-but-unclaimed** token is deliberately left in the row — it's already
+neutralised by the `invite_expires_at` time-check, the manager UI needs it present
+to offer "Regenerate", and a claim can't self-clean it (the `RAISE` rolls the
+cleansing `UPDATE` back). To make "the token never persists" total:
+1. A `clear_expired_invite_tokens()` sweep (SECURITY DEFINER) nulling
+   `invite_token` + `invite_expires_at` where `joined_at IS NULL AND
+   invite_expires_at < now()`, scheduled via **pg_cron** (needs the extension on).
+2. FE: decouple the "Regenerate" affordance from `member.invite_token` (currently
+   gated on it) so an expired member can still regenerate after its token is swept.
+Low value — expired tokens are time-gated + 256-bit unguessable; do only for
+belt-and-braces.
 
-Out of scope: outbound *email* invites (needs a provider — defer per launch.md).
+### Re-enable signup for invited new users
+Today a brand-new invitee (no account yet) can't get in — signup is closed
+(`signupUser` throws a waitlist error; the join route sends logged-out visitors to
+`/login`, token preserved across login ⇄ signup). To open it up, the gate must
+check the token is **valid**, not just present (else
+`/signup?redirect=/x/join?token=anything` bypasses the waitlist):
+1. Turn **"Enable signups" ON** in Supabase Auth (the real boundary).
+2. Add a public RPC `is_valid_invite_token(p_token text) → boolean` (SECURITY
+   DEFINER; true iff an unclaimed, unexpired invite exists). Anon-callable, leaks
+   nothing (256-bit token, boolean only).
+3. Signup page: extract the token from the `?redirect=` join URL, call the RPC, and
+   only allow the real `auth.signUp` (with `emailRedirectTo` back to the join link)
+   when valid — otherwise waitlist / "invalid invite".
+4. Re-point the join route's logged-out branch to offer signup again.
 
-## Backend
-- **Verify first:** a `claim_member_invite` RPC may already exist (it's on the
-  schema's "to add from dump" list, marked *if exists*). Grep migrations +
-  `schema.sql`. Extend it rather than duplicate.
-- Add `invite_token uuid NOT NULL DEFAULT gen_random_uuid()` (unique) to
-  `event_members` — the link carries the token, not the email.
-- `claim_member_invite(p_token uuid)` `SECURITY DEFINER`: find the unclaimed row
-  (`invite_token = p_token AND user_id IS NULL AND joined_at IS NULL AND
-  rejected_at IS NULL`), set `user_id = auth.uid()`, `joined_at = now()`. Reject
-  if already claimed / rejected / event soft-deleted. Returns the event slug to
-  redirect to.
-- Timestamped migration + `schema.sql` sync.
+### Customizable invite message (template)
+The share text is one constant, `INVITE_MESSAGE` in
+`src/pages/admin/members/utils.ts` (prepended to the link in `<ShareLink>`). Make
+it a **template with placeholders** the inviter can personalize:
+> `Hi {{member}}! You've been invited to help plan {{event}}. Join here: {{link}}`
+- `{{member}}` → invitee name · `{{event}}` → event name · `{{link}}` → join URL.
 
-## Frontend
-- A join route — `/:slug/join?token=…` (or `/join/:token`) — that: if not logged
-  in, routes through signup/login preserving the token; once authed, calls
-  `claim_member_invite`, then redirects to `/:slug/admin`. Reuse the
-  redirect-sanitize pattern in [`auth.md`](../architecture/auth.md).
-- In the members invite modal (`src/pages/admin/members/modals/`), after invite,
-  surface the share link with **copy** + **WhatsApp** (`https://wa.me/?text=…`)
-  buttons. Keep the existing copy-email hint as fallback.
-- Reusable share control — check `src/components/custom/` first; build a small
-  `ShareLink` only if none exists.
+Two tiers — ship the cheap one first:
+1. **Code default (cheap):** one shared template constant + a tiny
+   `renderTemplate(tpl, vars)` helper. No DB, no UI.
+2. **Per-event editable (later):** store on **`event_settings`** (all-member
+   per-event config; add an `invite_message text` column), edited from event
+   settings. No gating needed. NB there is no `event_settings_manager` — it's
+   `event_settings`.
 
-## Dependency — signup must be on
-Invite-link onboarding assumes a new user can sign up. Today signup is in
-**waitlist mode** (`signupUser` early-returns; home signup links commented out —
-[launch.md](launch.md) "Auth / Signup"). Either enable signup for invited users,
-or scope the link to already-registered accounts for beta. **Decide before build.**
-
-## Tier
-Free (core collaboration).
-
-## Complexity
-Low–medium. One column + one RPC + a claim route + share buttons.
-
-## Open decisions
-1. **Email match** — require the claimer's auth email to match the invited email
-   (tighter, but the inviter must know their exact login email), or open-link
-   (anyone with the link claims that slot — simpler, WhatsApp-friendly, standard).
-   Leaning open-link with a single-use token.
-2. **Token lifecycle** — expiry? revoke-on-reinvite? regenerate on demand?
-3. **Signup gating** (see Dependency) — enable general signup, or invited-only for beta.
-
-## Grounding
-- `invite_member` + members modals: `src/pages/admin/members/`.
-- Pending-invites accept flow: `src/pages/dashboard/` (JoinedCard / InvitedCard).
-- Auth/redirect: `src/auth/`, [`auth.md`](../architecture/auth.md).
-- Recipe + guardrails: [mvp-overview.md](mvp-overview.md).
+**Watch:** escape placeholder output, cap length, fall back to the default when blank.

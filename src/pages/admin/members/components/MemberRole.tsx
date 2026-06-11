@@ -16,16 +16,11 @@ const MemberRole: FC<MemberRoleProps> = ({ member, className }) => {
   if (!member.role) return null;
 
   const isSuperAdmin = isSuperAdminMember(member);
-  const isRejected = !!member.rejected_at;
 
   return (
     <Badge
       variant={isSuperAdmin ? "default" : "secondary"}
-      className={cn(
-        "text-2xs tracking-wide shrink-0",
-        isRejected && "opacity-50",
-        className,
-      )}
+      className={cn("text-2xs tracking-wide shrink-0", className)}
     >
       {member.role}
     </Badge>
