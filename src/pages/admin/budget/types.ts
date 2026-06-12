@@ -14,6 +14,8 @@ export type ExpenseFilter = (typeof FILTER_PILLS)[number]["value"]
 export interface Expense {
   id: string
   event_id: string
+  /** The (event, day) bucket this expense is filed under — maps to a day via the buckets list. */
+  budget_id: string
   item: string
   vendor_name: string | null
   payer: string | null
@@ -56,6 +58,14 @@ export const expenseFormSchema = z
   })
 
 export type ExpenseFormValues = z.infer<typeof expenseFormSchema>
+
+/** A per-day budget bucket (event_budget row): one per (event, day). `budget_total`
+ *  is null until a cap is set. Expenses point here via `Expense.budget_id`. */
+export interface BudgetBucket {
+  id: string
+  day_id: string
+  budget_total: number | null
+}
 
 export interface CreateExpensePayload extends ExpenseFormValues {}
 

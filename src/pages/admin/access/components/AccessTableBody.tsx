@@ -49,6 +49,10 @@ const AccessTableBody: FC<AccessTableBodyProps> = ({
               <td className="px-5 py-3.5 font-medium text-foreground/90 whitespace-nowrap">
                 {RESOURCE_LABELS[resource]}
               </td>
+              {/* Superadmin (the couple) — always full, every feature. */}
+              <td className="text-center">
+                <LevelBadge level="full" className="justify-center py-3.5" />
+              </td>
               {accessGroups.map((accessGroup) => (
                 <td key={accessGroup.id} className="text-center">
                   <LevelBadge

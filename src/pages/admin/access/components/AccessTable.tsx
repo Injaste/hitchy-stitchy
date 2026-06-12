@@ -52,11 +52,13 @@ const AccessTable: FC<Props> = ({ accessGroups, availableResources }) => {
     return () => ro.disconnect();
   }, []);
 
-  const colCount = 1 + accessGroups.length;
+  // Feature + the leading static "Superadmin" column + one per access group.
+  const colCount = 2 + accessGroups.length;
 
-  // Group columns split the remaining width evenly (with a min so they don't
-  // collapse) — the wrapper scrolls X when the mins exceed the viewport.
-  const groupColWidth = `${Math.floor(100 / Math.max(accessGroups.length, 1))}%`;
+  // Group columns (incl. the Superadmin one) split the remaining width evenly
+  // (with a min so they don't collapse) — the wrapper scrolls X when the mins
+  // exceed the viewport.
+  const groupColWidth = `${Math.floor(100 / (accessGroups.length + 1))}%`;
 
   return (
     <div

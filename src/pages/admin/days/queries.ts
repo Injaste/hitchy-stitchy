@@ -6,7 +6,8 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys";
 
 import {
   fetchEventDays,
-  fetchDayItems,
+  fetchDayTimeline,
+  fetchDayExpenses,
   createDay,
   updateDay,
   deleteDay,
@@ -27,14 +28,32 @@ export function useEventDaysQuery() {
   });
 }
 
-// The day's schedule items — fetched only while the delete modal is open, to
+// The day's timeline entries — fetched only while the delete modal is open, to
 // list what's blocking deletion. The delete_day RPC enforces the same guard.
-export function useDayItemsQuery(date: string, enabled: boolean) {
+// staleTime 0 (overriding the 5-min global default): no mutation invalidates
+// this key, so it must refetch on each open to reflect items deleted meanwhile.
+export function useDayTimelineQuery(date: string, enabled: boolean) {
   const { slug, eventId } = useAdminStore();
   return useQuery({
-    queryKey: adminKeys.dayItems(slug!, date),
-    queryFn: () => fetchDayItems(eventId!, date),
+    queryKey: adminKeys.dayTimeline(slug!, date),
+    queryFn: () => fetchDayTimeline(eventId!, date),
     enabled: enabled && !!eventId && !!slug,
+    staleTime: 0,
+  });
+}
+
+// The day's expenses — fetched only while the delete modal is open, alongside
+// items. They attach via the day's budget bucket (a RESTRICT FK), so delete_day
+// blocks on them too. RLS keeps this super-admin-only, matching who can delete.
+// staleTime 0 (see useDayTimelineQuery): refetch on each open, nothing else
+// invalidates this key.
+export function useDayExpensesQuery(dayId: string, enabled: boolean) {
+  const { slug, eventId } = useAdminStore();
+  return useQuery({
+    queryKey: adminKeys.dayExpenses(slug!, dayId),
+    queryFn: () => fetchDayExpenses(eventId!, dayId),
+    enabled: enabled && !!eventId && !!slug,
+    staleTime: 0,
   });
 }
 

@@ -1,25 +1,27 @@
-// Budget API — real Supabase backend (migration 20260610000001).
-// Reads are RLS-gated selects (event_expenses + event_budget, both gated on
-// budget:read); writes go through the create_expense / update_expense /
-// delete_expense / update_budget RPCs.
+// Budget API — per-day buckets (migration 20260612000101). event_budget is now
+// one row per (event, day); event_expenses.budget_id points at its bucket. Reads
+// are RLS-gated selects (super-admin only); writes go through the create_expense
+// / update_expense / delete_expense / update_budget RPCs, each carrying the day.
 
 import { supabase } from "@/lib/supabase";
 import type {
+  BudgetBucket,
   CreateExpensePayload,
   Expense,
   UpdateExpensePayload,
 } from "./types";
 
 export interface BudgetData {
-  budgetTotal: number | null;
+  /** Per-day budget buckets — caps live here; expenses map to a day via these. */
+  buckets: BudgetBucket[];
   expenses: Expense[];
 }
 
 const EXPENSE_FIELDS =
-  "id, event_id, item, vendor_name, payer, amount, paid, due_at, notes, created_at, updated_at";
+  "id, event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes, created_at, updated_at";
 
 export async function fetchBudget(eventId: string): Promise<BudgetData> {
-  const [expensesRes, budgetRes] = await Promise.all([
+  const [expensesRes, bucketsRes] = await Promise.all([
     supabase
       .from("event_expenses")
       .select(EXPENSE_FIELDS)
@@ -27,16 +29,15 @@ export async function fetchBudget(eventId: string): Promise<BudgetData> {
       .order("created_at", { ascending: false }),
     supabase
       .from("event_budget")
-      .select("budget_total")
-      .eq("event_id", eventId)
-      .maybeSingle(),
+      .select("id, day_id, budget_total")
+      .eq("event_id", eventId),
   ]);
 
   if (expensesRes.error) throw new Error(expensesRes.error.message);
-  if (budgetRes.error) throw new Error(budgetRes.error.message);
+  if (bucketsRes.error) throw new Error(bucketsRes.error.message);
 
   return {
-    budgetTotal: budgetRes.data?.budget_total ?? null,
+    buckets: (bucketsRes.data ?? []) as BudgetBucket[],
     expenses: (expensesRes.data ?? []) as Expense[],
   };
 }
@@ -44,6 +45,7 @@ export async function fetchBudget(eventId: string): Promise<BudgetData> {
 export async function createExpense(
   eventId: string,
   payload: CreateExpensePayload,
+  dayId: string | null,
 ): Promise<Expense> {
   const { data, error } = await supabase.rpc("create_expense", {
     p_event_id: eventId,
@@ -54,6 +56,7 @@ export async function createExpense(
     p_paid: payload.paid,
     p_due_at: payload.due_at,
     p_notes: payload.notes,
+    p_day_id: dayId,
   });
 
   if (error) throw new Error(error.message);
@@ -62,6 +65,7 @@ export async function createExpense(
 
 export async function updateExpense(
   payload: UpdateExpensePayload,
+  dayId: string | null,
 ): Promise<Expense> {
   const { data, error } = await supabase.rpc("update_expense", {
     p_event_id: payload.event_id,
@@ -73,6 +77,7 @@ export async function updateExpense(
     p_paid: payload.paid,
     p_due_at: payload.due_at,
     p_notes: payload.notes,
+    p_day_id: dayId,
   });
 
   if (error) throw new Error(error.message);
@@ -94,12 +99,14 @@ export async function deleteExpense(
 export async function updateBudget(
   eventId: string,
   amount: number | null,
-): Promise<number | null> {
+  dayId: string | null,
+): Promise<BudgetBucket> {
   const { data, error } = await supabase.rpc("update_budget", {
     p_event_id: eventId,
     p_amount: amount,
+    p_day_id: dayId,
   });
 
   if (error) throw new Error(error.message);
-  return (data as { budget_total: number | null } | null)?.budget_total ?? null;
+  return data as BudgetBucket;
 }

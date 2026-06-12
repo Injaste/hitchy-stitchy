@@ -1,6 +1,6 @@
 import { differenceInCalendarDays, format, parseISO } from "date-fns"
 
-import type { Expense, ExpenseStatus } from "./types"
+import type { BudgetBucket, Expense, ExpenseStatus } from "./types"
 
 const numFmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 })
 
@@ -83,6 +83,46 @@ export interface BudgetSummary {
   /** 0..1 of budget; 0 when no budget. */
   spentPct: number
   paidPct: number
+}
+
+// ── Per-day bucket accessors ────────────────────────────────────────────────
+// Pure derivations over the budget buckets so the view/queries stay thin and
+// don't re-implement the same day lookups (mirrors timeline's utils.ts).
+
+/** Whole-wedding cap: the sum of each day's set cap, or null when none are set. */
+export function grandBudget(buckets: BudgetBucket[]): number | null {
+  const caps = buckets
+    .map((b) => b.budget_total)
+    .filter((t): t is number => t !== null)
+  return caps.length ? caps.reduce((a, b) => a + b, 0) : null
+}
+
+/** A day's cap — null when the day has no bucket yet, or its cap is unset. */
+export function dayBudgetTotal(
+  buckets: BudgetBucket[],
+  dayId: string | null,
+): number | null {
+  return buckets.find((b) => b.day_id === dayId)?.budget_total ?? null
+}
+
+/** Expenses filed under a given day (resolved through their bucket). */
+export function expensesForDay(
+  expenses: Expense[],
+  buckets: BudgetBucket[],
+  dayId: string | null,
+): Expense[] {
+  const dayOf = new Map(buckets.map((b) => [b.id, b.day_id]))
+  return expenses.filter((e) => dayOf.get(e.budget_id) === dayId)
+}
+
+/** Replace the bucket for a day (one per day) or append it — optimistic cache shape. */
+export function upsertBucket(
+  buckets: BudgetBucket[],
+  bucket: BudgetBucket,
+): BudgetBucket[] {
+  return buckets.some((b) => b.day_id === bucket.day_id)
+    ? buckets.map((b) => (b.day_id === bucket.day_id ? bucket : b))
+    : [...buckets, bucket]
 }
 
 export function computeSummary(

@@ -12,7 +12,8 @@ import {
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineDays } from "../hooks/useTimelineDays";
-import { dayItems, dayLabel, defaultSegmentId, getLatestTime } from "../utils";
+import { dayItems, defaultSegmentId, getLatestTime } from "../utils";
+import { dayLabel } from "../../days/utils";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange, parseLocalDate } from "@/lib/utils/utils-time";
 import type { TimelineGrouped } from "../types";

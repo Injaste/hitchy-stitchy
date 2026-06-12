@@ -9,8 +9,8 @@ import { itemFadeIn, itemFadeUp } from "@/lib/animations";
 
 import { useEmblaCarouselApi } from "../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../hooks/embla/useEmblaEdgeDetection";
-import { useEventDaysQuery } from "../days/queries";
-import { useActiveDay } from "../store/useActiveDay";
+import { useActiveEventDay } from "../hooks/useActiveEventDay";
+import { dayLabel } from "../days/utils";
 
 /**
  * Global day selector, shared across day-scoped admin pages (timeline, budget).
@@ -19,20 +19,15 @@ import { useActiveDay } from "../store/useActiveDay";
  * choose, so the page stays flat (mirrors the timeline before a 2nd day exists).
  */
 const DayTabs = () => {
-  const { data: days = [] } = useEventDaysQuery();
-  const { activeDayId, setActiveDay } = useActiveDay();
+  const { days, activeDayId, activeIndex, setActiveDay } = useActiveEventDay();
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
-  const targetIndex = Math.max(
-    0,
-    days.findIndex((d) => d.id === activeDayId),
-  );
-  const { emblaRef, emblaApi } = useEmblaCarouselApi("start", targetIndex);
+  const { emblaRef, emblaApi } = useEmblaCarouselApi("start", activeIndex);
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   useEffect(() => {
-    if (emblaApi) emblaApi.scrollTo(targetIndex);
-  }, [emblaApi, targetIndex]);
+    if (emblaApi) emblaApi.scrollTo(activeIndex);
+  }, [emblaApi, activeIndex]);
 
   if (days.length <= 1) return null;
 
@@ -70,7 +65,7 @@ const DayTabs = () => {
                           {isToday && (
                             <span className="size-1.5 rounded-full bg-primary" />
                           )}
-                          {day.label}
+                          {dayLabel(day.label, idx)}
                         </span>
                       }
                     />

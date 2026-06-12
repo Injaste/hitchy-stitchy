@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import ConfirmAlertModal from "@/components/custom/confirm-alert-modal";
@@ -8,7 +8,44 @@ import { listLayoutTransition } from "@/lib/animations";
 
 import { useAdminStore } from "../../store/useAdminStore";
 import { useDayModalStore } from "../hooks/useDayModalStore";
-import { useDayMutations, useDayItemsQuery } from "../queries";
+import {
+  useDayMutations,
+  useDayTimelineQuery,
+  useDayExpensesQuery,
+} from "../queries";
+
+/** A labelled box of blocking entries (first 5 + "+N more"). Shared by the
+ *  Timeline and Budget blockers so they render identically. */
+const BlockerBox: FC<{
+  label: string;
+  entries: { id: string; name: string }[];
+  animateGrow: boolean;
+}> = ({ label, entries, animateGrow }) => (
+  <motion.div
+    initial={animateGrow ? { height: 0 } : false}
+    animate={{ height: "auto" }}
+    transition={listLayoutTransition}
+    className="overflow-hidden mt-2"
+  >
+    <div className="rounded-md border border-border/60 bg-muted/30 p-2 text-left">
+      <p className="mb-1 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <ul className="list-disc space-y-0.5 pl-5 text-sm text-foreground marker:text-muted-foreground">
+        {entries.slice(0, 5).map((entry) => (
+          <li key={entry.id}>
+            <span className="block truncate">{entry.name}</span>
+          </li>
+        ))}
+        {entries.length > 5 && (
+          <li className="list-none text-muted-foreground">
+            +{entries.length - 5} more
+          </li>
+        )}
+      </ul>
+    </div>
+  </motion.div>
+);
 
 const DayDeleteModal = () => {
   const isDeleteOpen = useDayModalStore((s) => s.isDeleteOpen);
@@ -18,22 +55,31 @@ const DayDeleteModal = () => {
   const { eventId } = useAdminStore();
   const { remove } = useDayMutations();
 
-  // The day's schedule items — only while the modal is open. The delete_day RPC
-  // enforces the same guard; this list just explains it.
-  // isPending (not isLoading): true from the first render the query is enabled,
-  // so the skeleton mounts immediately on open. isLoading would be false on that
-  // first render (RQ starts fetching in an effect), flashing content first.
-  const { data: items, isPending: itemsLoading } = useDayItemsQuery(
-    selectedItem?.date ?? "",
-    isDeleteOpen && !!selectedItem,
-  );
-  const hasItems = (items?.length ?? 0) > 0;
+  const enabled = isDeleteOpen && !!selectedItem;
 
-  // Grow the items box height only when content follows a loading state. If the
-  // items were cached (modal opens straight to content), render it at full
-  // height with no animation — nothing loaded, so nothing should grow.
+  // What's tied to the day — only while the modal is open. The delete_day RPC
+  // enforces the same guards (a RESTRICT FK behind each); these lists just
+  // explain them. isPending (not isLoading): true from the first render the
+  // query is enabled, so the skeleton mounts immediately on open.
+  const { data: timeline, isPending: timelineLoading } = useDayTimelineQuery(
+    selectedItem?.date ?? "",
+    enabled,
+  );
+  const { data: expenses, isPending: expensesLoading } = useDayExpensesQuery(
+    selectedItem?.id ?? "",
+    enabled,
+  );
+
+  const loading = timelineLoading || expensesLoading;
+  const hasTimeline = (timeline?.length ?? 0) > 0;
+  const hasExpenses = (expenses?.length ?? 0) > 0;
+  const hasBlockers = hasTimeline || hasExpenses;
+
+  // Grow the boxes' height only when content follows a loading state. If the
+  // data was cached (modal opens straight to content), render at full height
+  // with no animation — nothing loaded, so nothing should grow.
   const grewFromLoadingRef = useRef(false);
-  if (isDeleteOpen && itemsLoading) grewFromLoadingRef.current = true;
+  if (isDeleteOpen && loading) grewFromLoadingRef.current = true;
   useEffect(() => {
     if (!isDeleteOpen) grewFromLoadingRef.current = false;
   }, [isDeleteOpen]);
@@ -43,14 +89,22 @@ const DayDeleteModal = () => {
   if (!selectedItem) return null;
   const day = selectedItem;
 
+  // "schedule items", "expenses", or "schedule items and expenses".
+  const noun = [
+    hasTimeline && "schedule items",
+    hasExpenses && "expenses",
+  ]
+    .filter(Boolean)
+    .join(" and ");
+
   // Skeleton and the message share a min-height, so the crossfade holds the
-  // modal at one height; only the items box animates the height (from 0).
+  // modal at one height; only the boxes animate the height (from 0).
   const renderBody = () => {
-    if (itemsLoading) {
+    if (loading) {
       return (
         <ComponentFade key="checking" useBlur initialVisible>
           <p className="min-h-12 text-muted-foreground">
-            Checking for items associated with{" "}
+            Checking what's linked to{" "}
             <span className="font-medium text-foreground">{day.label}</span>…
           </p>
         </ComponentFade>
@@ -60,10 +114,10 @@ const DayDeleteModal = () => {
     return (
       <ComponentFade key="content" useBlur>
         <p className="min-h-12">
-          {hasItems ? (
+          {hasBlockers ? (
             <>
               <span className="font-medium text-foreground">{day.label}</span>{" "}
-              still has schedule items. Remove them first, then you can delete
+              still has {noun} tied to it. Remove them first, then you can delete
               the day.
             </>
           ) : (
@@ -74,31 +128,19 @@ const DayDeleteModal = () => {
             </>
           )}
         </p>
-        {hasItems && (
-          <motion.div
-            initial={grewFromLoadingRef.current ? { height: 0 } : false}
-            animate={{ height: "auto" }}
-            transition={listLayoutTransition}
-            className="overflow-hidden mt-2"
-          >
-            <div className="rounded-md border border-border/60 bg-muted/30 p-2 text-left">
-              <p className="mb-1 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Timeline
-              </p>
-              <ul className="list-disc space-y-0.5 pl-5 text-sm text-foreground marker:text-muted-foreground">
-                {items!.slice(0, 5).map((item) => (
-                  <li key={item.id}>
-                    <span className="block truncate">{item.title}</span>
-                  </li>
-                ))}
-                {items!.length > 5 && (
-                  <li className="list-none text-muted-foreground">
-                    +{items!.length - 5} more
-                  </li>
-                )}
-              </ul>
-            </div>
-          </motion.div>
+        {hasTimeline && (
+          <BlockerBox
+            label="Timeline"
+            entries={timeline!.map((i) => ({ id: i.id, name: i.title }))}
+            animateGrow={grewFromLoadingRef.current}
+          />
+        )}
+        {hasExpenses && (
+          <BlockerBox
+            label="Budget"
+            entries={expenses!.map((e) => ({ id: e.id, name: e.item }))}
+            animateGrow={grewFromLoadingRef.current}
+          />
         )}
       </ComponentFade>
     );
@@ -111,7 +153,7 @@ const DayDeleteModal = () => {
       variant="destructive"
       title="Remove day"
       confirmLabel="Remove"
-      confirmDisabled={itemsLoading || hasItems}
+      confirmDisabled={loading || hasBlockers}
       onConfirm={() => remove.mutate({ event_id: eventId!, id: day.id })}
       isPending={remove.isPending}
       isSuccess={remove.isSuccess}
