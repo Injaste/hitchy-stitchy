@@ -231,7 +231,7 @@ function ComboboxChips({
       className={cn(
         fieldSurface,
         // focus-within ring opacity (/70) mirrors fieldRing in field-styles.ts — keep in sync.
-        "flex min-h-9 flex-wrap items-center gap-1.5 bg-clip-padding px-2.5 py-1.5 text-sm focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/70 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1.5",
+        "flex min-h-9 flex-wrap items-center gap-1.5 bg-clip-padding px-2.5 py-1.5 text-sm focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/70 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/70 has-data-[slot=combobox-chip]:px-1.5",
         className,
       )}
       {...props}
