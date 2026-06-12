@@ -1,7 +1,6 @@
 # Event Dates — parked follow-ups
 
-Deferred from the multi-day events / Event Dates work. Both are agreed in
-principle; parked so we don't lose them.
+Deferred from the multi-day events / Event Dates work.
 
 ## #7 — Stepper "flow travelled" animation (create wizard)
 
@@ -20,30 +19,20 @@ Touches: `src/pages/dashboard/create-event/CreateEventStepper.tsx`,
 `src/pages/dashboard/animations.ts` (stepper variants), and the slide duration in
 `src/components/animations/animate-component-slide.tsx`.
 
-## #12 — Day delete: destructive modal + item handling
+## #12 — Day delete: destructive modal + item handling — ✅ shipped (block-on-items)
 
-Today deleting a day in Event Dates is an inline confirm popover that
-**cascade-deletes** the day's timeline items (guarded only against the last day).
-Upgrade it:
+Shipped, but as **block-on-items** rather than the cascade/type-to-confirm/transfer
+plan originally sketched:
 
-- Replace the popover with a **destructive modal** (reuse
-  `components/custom/confirm-alert-modal`).
-- The modal must **list what will be removed** — e.g. "**N timeline items**" — so
-  the user knows exactly what they're destroying. Extend the list as more features
-  become day-bound (today only timeline items are tied to a day, via segments).
-- Require the user to **type the day's label** to confirm.
-- **Conditional friction (agreed):** an *empty* day → a light one-click delete; a
-  day *with items* → the full modal (list + type-to-confirm).
-- Needs a small count query/RPC, e.g. `get_day_item_counts(day_id)`.
+- Inline popover → `DayDeleteModal` (reuses `confirm-alert-modal`), store-driven
+  via `useDayModalStore`.
+- A day **with** timeline items **can't** be deleted — the modal lists them
+  (grouped under "Timeline") and tells the user to clear them first. An **empty**
+  day → a plain confirm. Enforced server-side in `delete_day` (counts items via
+  segments, raises if any).
+- Day management is now **super-admin only** (client gate + the three day RPCs).
+- Deliberately **no** type-to-confirm, **no** cascade, **no** transfer — blocking
+  keeps items safe without a "move to another day" path existing yet.
 
-### Open design — transfer vs cascade
-Instead of cascade-deleting items, offer to **transfer them to another day** via a
-picker in the modal. Complication: items hang off **segments**, segments off
-**days**, with a *one-default-segment-per-day* rule — so you can't cleanly
-re-parent a day's segments onto another day (the defaults collide). The clean
-transfer = move the items into the **target day's default segment**, then delete
-the source day (preserves items, flattens their segment grouping).
-
-**Recommendation:** ship cascade-with-type-to-confirm first; add transfer as v2.
-Avoid "disallow if items" — it traps the user (no easy "move item to another day"
-path yet).
+Possible future v2 (only if the block proves annoying): offer to **transfer** a
+day's items into another day's default segment, then delete the source day.
