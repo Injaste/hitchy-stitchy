@@ -1,6 +1,5 @@
 import { useEffect, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
-import { format } from "date-fns";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
@@ -15,7 +14,7 @@ import TimelineDayEmpty from "../states/TimelineDayEmpty";
 
 import type { TimelineGrouped } from "../types";
 
-import DayTabs from "./DayTabs";
+import DayTabs from "../../components/DayTabs";
 import TimelineDay from "./TimelineDay";
 
 interface TimelineViewProps {
@@ -34,22 +33,16 @@ const TimelineView: FC<TimelineViewProps> = ({
   isRefetching,
 }) => {
   const openCreate = useTimelineModalStore((s) => s.openCreate);
-  const selectedDate = useTimelineModalStore((s) => s.createPrefill.date);
   const setActiveDate = useTimelineModalStore((s) => s.setActiveDate);
   const { canCreate } = useAccess();
 
-  const { dates, activeDate, activeDay, hasItems } = useTimelineDays(data);
+  const { activeDate, activeDay, hasItems } = useTimelineDays(data);
 
+  // The active day is owned globally by useActiveDay now; keep the create-item
+  // prefill pointed at the day in view so a new item lands on it.
   useEffect(() => {
-    // Wait for the query so the day list is final before locking a selection.
-    if (!data || !dates.length) return;
-    // Seed the active tab when nothing is selected, or the selected day is gone.
-    // Prefer today (land on the live day during the event), else the first day.
-    if (!selectedDate || !dates.includes(selectedDate)) {
-      const today = format(new Date(), "yyyy-MM-dd");
-      setActiveDate(dates.includes(today) ? today : (dates[0] ?? null));
-    }
-  }, [dates, selectedDate, setActiveDate, data]);
+    setActiveDate(activeDate);
+  }, [activeDate, setActiveDate]);
 
   const renderBody = () => {
     if (isLoading)
@@ -82,11 +75,7 @@ const TimelineView: FC<TimelineViewProps> = ({
 
     return (
       <ComponentFade key="content" useBlur>
-        <DayTabs
-          days={data?.days ?? []}
-          activeDate={activeDate ?? ""}
-          onSelect={setActiveDate}
-        />
+        <DayTabs />
         <div className="mt-8">
           <AnimatePresence mode="wait">
             {activeDay && dayHasItems(activeDay) ? (

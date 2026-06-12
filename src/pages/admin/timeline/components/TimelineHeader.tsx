@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { Plus } from "lucide-react";
-import { differenceInDays, format } from "date-fns";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { AdminPageHeader } from "@/components/custom/admin-page-header";
@@ -32,12 +32,13 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   const { canCreate } = useAccess();
   const openCreate = useTimelineModalStore((s) => s.openCreate);
   const { dateStart, dateEnd } = useAdminStore();
-  const { activeIndex, activeDate, activeDay, hasItems } = useTimelineDays(data);
+  const { dates, activeIndex, activeDate, activeDay, hasItems } =
+    useTimelineDays(data);
 
-  const dayCount =
-    dateStart && dateEnd
-      ? differenceInDays(new Date(dateEnd), new Date(dateStart)) + 1
-      : null;
+  // Count the actual event_days, not the dateStart→dateEnd span — days can be
+  // non-consecutive, so the span would over-count (e.g. Jun 28 + Jun 30 = 2 days,
+  // not 3).
+  const dayCount = dates.length || null;
 
   const activeDayLabel = hasItems
     ? dayLabel(activeDay?.label, activeIndex)

@@ -23,6 +23,7 @@ interface DateTileProps {
  * Calendar tile showing month, day-of-month, and weekday. Optionally renders a
  * centered label beneath it (clamped to two lines within the tile's w-16) and
  * becomes a button when `onClick` is given — otherwise it's a static visual.
+ * Shared across day-scoped admin features (timeline, budget).
  */
 const DateTile: FC<DateTileProps> = ({
   date,
@@ -76,7 +77,7 @@ const DateTile: FC<DateTileProps> = ({
         tile
       )}
       {label != null && (
-        <div className="line-clamp-2 w-16 text-center text-sm wrap-break-word">
+        <div className="line-clamp-2 w-16 text-center text-xs wrap-break-word">
           {label}
         </div>
       )}

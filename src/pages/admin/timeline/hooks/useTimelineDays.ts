@@ -1,26 +1,30 @@
 import { useMemo } from "react";
 
-import { useTimelineModalStore } from "./useTimelineModalStore";
+import { useActiveDay } from "../../store/useActiveDay";
 import { dayHasItems } from "../utils";
 import type { TimelineGrouped } from "../types";
 
 /**
- * Resolves the day tabs (from event_days) and the active selection. Returns both
- * the active date string (`activeDate`) and the active day object (`activeDay`)
- * so callers never re-derive `days.find(d => d.date === …)`. `hasItems` reports
- * whether any timeline item exists at all — used to pick the empty state.
+ * Resolves the timeline's active day from the global day selection
+ * (`useActiveDay`). Returns the active date and the grouped day object so
+ * callers never re-derive `days.find(d => d.day_id === …)`, plus `hasItems` —
+ * whether any timeline item exists at all — for the empty-state choice.
  */
 export function useTimelineDays(data: TimelineGrouped | undefined) {
-  const selectedDate = useTimelineModalStore((s) => s.createPrefill.date);
+  const { activeDayId } = useActiveDay();
 
   const days = useMemo(() => data?.days ?? [], [data]);
   const dates = useMemo(() => days.map((d) => d.date), [days]);
   const hasItems = useMemo(() => days.some(dayHasItems), [days]);
 
-  const idx = selectedDate ? dates.indexOf(selectedDate) : -1;
-  const activeIndex = idx >= 0 ? idx : 0;
-  const activeDate = dates[activeIndex] ?? null;
+  // Fall back to the first day while the global selection seeds / if the stored
+  // day isn't in this event's list yet.
+  const activeIndex = Math.max(
+    0,
+    days.findIndex((d) => d.day_id === activeDayId),
+  );
   const activeDay = days[activeIndex] ?? null;
+  const activeDate = activeDay?.date ?? null;
 
   return { dates, activeDate, activeDay, activeIndex, hasItems };
 }

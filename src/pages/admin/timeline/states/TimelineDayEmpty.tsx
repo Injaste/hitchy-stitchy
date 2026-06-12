@@ -3,7 +3,7 @@ import { CalendarPlus, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import EmptyState from "@/components/custom/states/empty-state";
-import DateTile from "../components/DateTile";
+import DateTile from "@/components/custom/date-tile";
 
 interface TimelineDayEmptyProps {
   canCreate: boolean;
