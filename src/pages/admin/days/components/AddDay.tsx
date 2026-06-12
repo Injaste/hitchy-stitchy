@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
+import SubmitButton from "@/components/custom/form/SubmitButton";
 import {
   Popover,
   PopoverContent,
@@ -27,7 +28,7 @@ const AddDay: FC = () => {
     setLabel("");
   };
 
-  const canSubmit = !!date && !!label.trim() && !create.isPending;
+  const canSubmit = !!date && !!label.trim();
 
   const submit = () => {
     if (!canSubmit || !date) return;
@@ -83,15 +84,18 @@ const AddDay: FC = () => {
           placeholder="Label (e.g. Walimah)"
           maxLength={60}
         />
-        <Button
+        <SubmitButton
           type="button"
           size="sm"
           className="w-full"
           disabled={!canSubmit}
+          isPending={create.isPending}
+          isSuccess={create.isSuccess}
+          isError={create.isError}
           onClick={submit}
         >
           Add day
-        </Button>
+        </SubmitButton>
       </PopoverContent>
     </Popover>
   );
