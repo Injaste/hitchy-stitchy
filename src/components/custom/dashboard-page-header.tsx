@@ -29,7 +29,7 @@ export const DashboardPageHeader: FC<DashboardPageHeaderProps> = ({
 
   return (
     <>
-      <div className="sticky top-0 z-30 px-4 md:px-6 pt-4 pb-3 bg-background">
+      <div className="sticky top-0 z-30 px-4 md:px-6 pt-4 pb-3">
         <Container>
           <div className="flex items-center justify-between gap-4">
             <h1 className="text-xl font-semibold">{title}</h1>

@@ -152,11 +152,12 @@ function SidebarProvider({
           } as React.CSSProperties
         }
         className={cn(
-          "group/sidebar-wrapper flex h-svh w-full overflow-hidden bg-sidebar-accent",
+          "relative group/sidebar-wrapper flex h-svh w-full overflow-hidden",
           className,
         )}
         {...props}
       >
+        <div className="fixed inset-0 h-full w-full bg-gradient-ai opacity-20" />
         {children}
       </div>
     </SidebarContext.Provider>

@@ -25,7 +25,7 @@ const DashboardTopbar = () => {
     });
 
   return (
-    <header className="bg-background/80 backdrop-blur-md border-b border-border/60">
+    <header className="border-b border-border/60">
       <Container>
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <Link to="/" className="flex items-center gap-2.5 group">

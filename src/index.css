@@ -125,7 +125,7 @@
   /* Tier 1 — subtle surface wash: card white → faintest rose tint. */
   --gradient-surface: linear-gradient(
     180deg,
-    var(--color-card) 0%,
+    var(--color-background) 0%,
     oklch(from var(--color-primary) 0.97 0.018 h) 100%
   );
 
