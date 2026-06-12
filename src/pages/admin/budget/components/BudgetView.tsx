@@ -4,13 +4,25 @@ import { AnimatePresence } from "framer-motion"
 
 import ComponentFade from "@/components/animations/animate-component-fade"
 import ErrorState from "@/components/custom/states/error-state"
+import DayTabs from "@/pages/admin/components/DayTabs"
+import { dayLabel } from "@/pages/admin/days/utils"
 
 import { useAccess } from "../../hooks/useAccess"
+import { useActiveEventDay } from "../../hooks/useActiveEventDay"
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore"
-import { computeSummary, dueInfo, sortExpenses, statusOf } from "../utils"
+import {
+  computeSummary,
+  dayBudgetTotal,
+  dueInfo,
+  expensesForDay,
+  grandBudget,
+  sortExpenses,
+  statusOf,
+} from "../utils"
 import type { BudgetData } from "../api"
 import type { ExpenseFilter } from "../types"
 
+import BudgetOverview from "./BudgetOverview"
 import BudgetSummary from "./BudgetSummary"
 import ExpenseFilters from "./ExpenseFilters"
 import ExpensesSheet from "./ExpensesSheet"
@@ -36,12 +48,35 @@ const BudgetView: FC<BudgetViewProps> = ({
   const openEditItem = useExpenseModalStore((s) => s.openEditItem)
   const { canCreate } = useAccess()
 
+  const { days, activeDayId, activeDay, activeIndex, multiDay } =
+    useActiveEventDay()
+
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<ExpenseFilter>("all")
 
+  const buckets = data?.buckets ?? []
+  const expenses = data?.expenses ?? []
+
+  // Whole wedding: every expense against the summed per-day caps.
+  const globalSummary = useMemo(
+    () => computeSummary(expenses, grandBudget(buckets)),
+    [expenses, buckets],
+  )
+
+  // The selected day: its own cap + only its expenses.
+  const dayExpenses = useMemo(
+    () => expensesForDay(expenses, buckets, activeDayId),
+    [expenses, buckets, activeDayId],
+  )
+  const daySummary = useMemo(
+    () => computeSummary(dayExpenses, dayBudgetTotal(buckets, activeDayId)),
+    [dayExpenses, buckets, activeDayId],
+  )
+  const scopeLabel = multiDay ? dayLabel(activeDay?.label, activeIndex) : undefined
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    const matched = (data?.expenses ?? []).filter((e) => {
+    const matched = dayExpenses.filter((e) => {
       const matchesSearch =
         !q ||
         e.item.toLowerCase().includes(q) ||
@@ -55,12 +90,7 @@ const BudgetView: FC<BudgetViewProps> = ({
       return true
     })
     return sortExpenses(matched)
-  }, [data, search, filter])
-
-  const summary = useMemo(
-    () => computeSummary(data?.expenses ?? [], data?.budgetTotal ?? null),
-    [data],
-  )
+  }, [dayExpenses, search, filter])
 
   const renderBody = () => {
     if (isLoading) {
@@ -83,38 +113,63 @@ const BudgetView: FC<BudgetViewProps> = ({
       )
     }
 
-    // The hero stays mounted in every loaded state so the budget total is
-    // editable inline even before any expense exists.
-    if (data.expenses.length === 0) {
-      return (
-        <ComponentFade key="empty" useBlur>
-          <div className="space-y-4">
-            <BudgetSummary summary={summary} />
-            <BudgetEmpty onAdd={openCreate} canCreate={canCreate("budget")} />
-          </div>
-        </ComponentFade>
-      )
-    }
-
     const visibleSpent = filtered.reduce((s, e) => s + e.amount, 0)
     const visiblePaid = filtered.reduce((s, e) => s + e.paid, 0)
 
+    // The hero stays mounted in every loaded state so the day's budget is
+    // editable inline even before any expense exists for it.
     return (
       <ComponentFade key="content" useBlur>
         <div className="space-y-4">
-          <BudgetSummary summary={summary} />
-          <ExpenseFilters
-            search={search}
-            onSearchChange={setSearch}
-            filter={filter}
-            onFilterChange={setFilter}
-          />
-          <ExpensesSheet
-            expenses={filtered}
-            totalSpent={visibleSpent}
-            totalPaid={visiblePaid}
-            onRowClick={openEditItem}
-          />
+          {/* Whole-wedding roll-up — only meaningful once there's >1 day; on a
+              single-day event the day hero below already is the whole picture. */}
+          {multiDay && (
+            <BudgetOverview summary={globalSummary} dayCount={days.length} />
+          )}
+
+          <DayTabs />
+
+          {/* Switching days blur-swaps the day's hero + sheet (mirrors the
+              timeline); the overview + day rail above stay put. */}
+          <AnimatePresence mode="wait">
+            <ComponentFade key={activeDayId ?? "none"} useBlur>
+              <div className="space-y-4">
+                <BudgetSummary summary={daySummary} scopeLabel={scopeLabel} />
+
+                {/* The empty state ↔ filters+sheet also blur-swap within a day
+                    (the hero above stays put). initial={false} so this doesn't
+                    re-fire on a day switch — the outer fade already covers that. */}
+                <AnimatePresence mode="wait" initial={false}>
+                  {dayExpenses.length === 0 ? (
+                    <ComponentFade key="empty" useBlur>
+                      <BudgetEmpty
+                        onAdd={openCreate}
+                        canCreate={canCreate("budget")}
+                        scoped={multiDay}
+                      />
+                    </ComponentFade>
+                  ) : (
+                    <ComponentFade key="rows" useBlur>
+                      <div className="space-y-4">
+                        <ExpenseFilters
+                          search={search}
+                          onSearchChange={setSearch}
+                          filter={filter}
+                          onFilterChange={setFilter}
+                        />
+                        <ExpensesSheet
+                          expenses={filtered}
+                          totalSpent={visibleSpent}
+                          totalPaid={visiblePaid}
+                          onRowClick={openEditItem}
+                        />
+                      </div>
+                    </ComponentFade>
+                  )}
+                </AnimatePresence>
+              </div>
+            </ComponentFade>
+          </AnimatePresence>
         </div>
       </ComponentFade>
     )

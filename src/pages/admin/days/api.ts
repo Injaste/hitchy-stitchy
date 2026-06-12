@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import type {
   EventDay,
-  DayItem,
+  DayTimelineItem,
+  DayExpense,
   CreateDayPayload,
   UpdateDayPayload,
   DeleteDayPayload,
@@ -40,12 +41,12 @@ export async function updateDay(payload: UpdateDayPayload): Promise<EventDay> {
   return data as EventDay;
 }
 
-/** Schedule items on a single day, for the delete-day modal. Items carry a
+/** Timeline entries on a single day, for the delete-day modal. They carry a
  *  denormalised `day` (yyyy-MM-dd) matching event_days.date. */
-export async function fetchDayItems(
+export async function fetchDayTimeline(
   eventId: string,
   date: string,
-): Promise<DayItem[]> {
+): Promise<DayTimelineItem[]> {
   const { data, error } = await supabase
     .from("event_timelines")
     .select("id, title")
@@ -54,7 +55,25 @@ export async function fetchDayItems(
     .order("time_start", { ascending: true });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as DayItem[];
+  return (data ?? []) as DayTimelineItem[];
+}
+
+/** Expenses tied to a single day, for the delete-day modal. They attach through
+ *  the day's budget bucket (event_expenses.budget_id -> event_budget.day_id);
+ *  that FK is RESTRICT, so they block removal like schedule items do. */
+export async function fetchDayExpenses(
+  eventId: string,
+  dayId: string,
+): Promise<DayExpense[]> {
+  const { data, error } = await supabase
+    .from("event_expenses")
+    .select("id, item, event_budget!inner(day_id)")
+    .eq("event_id", eventId)
+    .eq("event_budget.day_id", dayId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(({ id, item }) => ({ id, item }));
 }
 
 export async function deleteDay(payload: DeleteDayPayload): Promise<void> {

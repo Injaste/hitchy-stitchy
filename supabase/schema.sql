@@ -221,20 +221,24 @@ CREATE TABLE public.event_settings (
 );
 
 -- -----------------------------------------------------------------------------
--- event_budget  [20260610000001 — Budget Tracker] — 1:1 per event, gated on the
---   `budget` resource (own table, not event_settings: one table = one tier).
+-- event_budget  [20260610000001; per-day buckets + super-admin 20260612000101]
+--   One bucket per (event, day_id NOT NULL — like event_segments); holds that
+--   day's budget_total. Super-admin only (the couple), not the `budget` resource.
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_budget (
   id           uuid          NOT NULL DEFAULT gen_random_uuid(),
   event_id     uuid          NOT NULL,
+  day_id       uuid          NOT NULL,
   budget_total numeric(12,2),
   created_at   timestamptz   NOT NULL DEFAULT now(),
   updated_at   timestamptz   NOT NULL DEFAULT now(),
 
-  CONSTRAINT event_budget_pkey         PRIMARY KEY (id),
-  CONSTRAINT event_budget_event_id_key UNIQUE (event_id),
+  CONSTRAINT event_budget_pkey          PRIMARY KEY (id),
+  CONSTRAINT event_budget_event_day_key UNIQUE (event_id, day_id),
   CONSTRAINT event_budget_event_id_fk
-    FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
+    FOREIGN KEY (event_id) REFERENCES public.events (id)     ON DELETE CASCADE,
+  CONSTRAINT event_budget_day_id_fk
+    FOREIGN KEY (day_id)   REFERENCES public.event_days (id) ON DELETE CASCADE
 );
 
 -- -----------------------------------------------------------------------------
@@ -243,6 +247,7 @@ CREATE TABLE public.event_budget (
 CREATE TABLE public.event_expenses (
   id          uuid          NOT NULL DEFAULT gen_random_uuid(),
   event_id    uuid          NOT NULL,
+  budget_id   uuid          NOT NULL,                 -- the (event,day) bucket [20260612000101]
   item        text          NOT NULL,
   vendor_name text,
   payer       text,
@@ -257,12 +262,15 @@ CREATE TABLE public.event_expenses (
   CONSTRAINT event_expenses_pkey PRIMARY KEY (id),
   CONSTRAINT event_expenses_event_id_fk
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE,
+  CONSTRAINT event_expenses_budget_id_fk
+    FOREIGN KEY (budget_id) REFERENCES public.event_budget (id) ON DELETE RESTRICT,
   CONSTRAINT event_expenses_created_by_fk
     FOREIGN KEY (created_by) REFERENCES public.event_members (id) ON DELETE SET NULL,
   CONSTRAINT event_expenses_amount_chk CHECK (amount >= 0),
   CONSTRAINT event_expenses_paid_chk   CHECK (paid >= 0)
 );
-CREATE INDEX event_expenses_event_id_idx ON public.event_expenses (event_id);
+CREATE INDEX event_expenses_event_id_idx  ON public.event_expenses (event_id);
+CREATE INDEX event_expenses_budget_id_idx ON public.event_expenses (budget_id);
 
 -- -----------------------------------------------------------------------------
 -- event_rsvps  [confirmed]
@@ -395,9 +403,11 @@ CREATE UNIQUE INDEX event_segments_one_default_per_day
   ON public.event_segments (day_id) WHERE name IS NULL;
 
 -- event_timelines.segment_id FK — added after event_segments exists (forward ref).
+-- RESTRICT (not CASCADE): a segment holding items blocks a day-delete on every
+-- path — the FK tripwire behind delete_day's item guard. [20260613000001]
 ALTER TABLE public.event_timelines
   ADD CONSTRAINT event_timelines_segment_id_fk
-    FOREIGN KEY (segment_id) REFERENCES public.event_segments (id) ON DELETE CASCADE;
+    FOREIGN KEY (segment_id) REFERENCES public.event_segments (id) ON DELETE RESTRICT;
 
 -- -----------------------------------------------------------------------------
 -- event_resources  [confirmed]
@@ -765,21 +775,15 @@ CREATE POLICY event_settings_select ON public.event_settings
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
--- Budget tables — the whole row is sensitive; gate on budget:read so Team
--- (budget=none) can't pull rows via the API. 20260610000001.
+-- Budget tables — the couple's eyes only. Reads (here) + writes (RPCs) are
+-- super-admin only; the `budget` resource is no longer checked. 20260612000101.
 CREATE POLICY event_budget_select ON public.event_budget
   FOR SELECT TO authenticated
-  USING (
-    is_event_member(event_id)
-    AND has_event_permission(event_id, 'budget', 'read')
-  );
+  USING (is_super_admin_member(event_id));
 
 CREATE POLICY event_expenses_select ON public.event_expenses
   FOR SELECT TO authenticated
-  USING (
-    is_event_member(event_id)
-    AND has_event_permission(event_id, 'budget', 'read')
-  );
+  USING (is_super_admin_member(event_id));
 
 CREATE POLICY event_tasks_select ON public.event_tasks
   FOR SELECT TO authenticated
@@ -842,6 +846,7 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+REVOKE EXECUTE ON FUNCTION public.touch_updated_at() FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.is_event_active(p_event_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
@@ -850,6 +855,7 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
     WHERE id = p_event_id AND deleted_at IS NULL
   );
 $$;
+REVOKE EXECUTE ON FUNCTION public.is_event_active(uuid) FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.get_current_member(p_event_id uuid)
 RETURNS event_members LANGUAGE sql STABLE SECURITY DEFINER AS $$
@@ -860,6 +866,7 @@ RETURNS event_members LANGUAGE sql STABLE SECURITY DEFINER AS $$
     AND frozen_at IS NULL
     AND is_event_active(p_event_id);
 $$;
+REVOKE EXECUTE ON FUNCTION public.get_current_member(uuid) FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.is_event_member(p_event_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
@@ -874,11 +881,13 @@ RETURNS integer LANGUAGE sql STABLE AS $$
     ELSE 2
   END;
 $$;
+REVOKE EXECUTE ON FUNCTION public.get_member_rank(event_members) FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.is_super_admin(p_member event_members)
 RETURNS boolean LANGUAGE sql STABLE AS $$
   SELECT p_member.is_root OR p_member.is_bride OR p_member.is_groom;
 $$;
+REVOKE EXECUTE ON FUNCTION public.is_super_admin(event_members) FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.is_super_admin_member(p_event_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
@@ -906,6 +915,7 @@ BEGIN
   RETURN COALESCE((v_permissions -> p_resource ->> p_action)::boolean, false);
 END;
 $$;
+REVOKE EXECUTE ON FUNCTION public.has_event_permission(uuid, text, text) FROM PUBLIC, anon, authenticated;
 
 -- Assignee rule predicate + guard (used by create/update task & timeline RPCs).
 CREATE OR REPLACE FUNCTION public.is_assignable_member(p_event_id uuid, p_member_id uuid)
@@ -917,6 +927,7 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER AS $$
       AND (m.joined_at IS NOT NULL OR m.invite_expires_at > now())
   );
 $$;
+REVOKE EXECUTE ON FUNCTION public.is_assignable_member(uuid, uuid) FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.assert_added_assignees_assignable(
   p_event_id uuid, p_new uuid[], p_existing uuid[]
@@ -931,6 +942,7 @@ BEGIN
   END IF;
 END;
 $$;
+REVOKE EXECUTE ON FUNCTION public.assert_added_assignees_assignable(uuid, uuid[], uuid[]) FROM PUBLIC, anon, authenticated;
 
 
 -- =============================================================================
@@ -1056,10 +1068,48 @@ $$;
 
 
 -- =============================================================================
--- BUDGET TRACKER — RPCs  [added migration 20260610000001]
--- Gated on the `budget` resource. create_event seeds Admin budget:"full" (Team
--- has no budget key = none). touch_updated_at auto-attaches on CREATE TABLE.
+-- BUDGET — RPCs  [20260610000001; per-day + super-admin 20260612000101]
+-- Super-admin only (the couple). Expenses live in event_expenses.budget_id ->
+-- event_budget(day_id) -> event_days. Buckets are lazy (per day).
 -- =============================================================================
+
+-- Find-or-create the (event, day) bucket; NULL day -> the event's earliest day.
+-- Internal to the budget RPCs (they've already checked super-admin).
+CREATE OR REPLACE FUNCTION public.get_or_create_budget_bucket(p_event_id uuid, p_day_id uuid)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_day uuid;
+  v_id  uuid;
+BEGIN
+  v_day := COALESCE(
+    p_day_id,
+    (SELECT id FROM event_days WHERE event_id = p_event_id ORDER BY date, id LIMIT 1)
+  );
+
+  IF v_day IS NULL THEN
+    RAISE EXCEPTION 'Event has no days';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM event_days WHERE id = v_day AND event_id = p_event_id) THEN
+    RAISE EXCEPTION 'Day does not belong to this event';
+  END IF;
+
+  SELECT id INTO v_id FROM event_budget
+  WHERE event_id = p_event_id AND day_id = v_day;
+
+  IF v_id IS NULL THEN
+    INSERT INTO event_budget (event_id, day_id) VALUES (p_event_id, v_day)
+    RETURNING id INTO v_id;
+  END IF;
+
+  RETURN v_id;
+END;
+$$;
+
+-- Internal only — the budget RPCs call it as definer; not exposed to the FE
+-- (it writes rows with no super-admin check of its own).
+REVOKE EXECUTE ON FUNCTION public.get_or_create_budget_bucket(uuid, uuid)
+  FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.create_expense(
   p_event_id    uuid,
@@ -1069,19 +1119,21 @@ CREATE OR REPLACE FUNCTION public.create_expense(
   p_amount      numeric DEFAULT 0,
   p_paid        numeric DEFAULT 0,
   p_due_at      date    DEFAULT NULL,
-  p_notes       text    DEFAULT NULL
+  p_notes       text    DEFAULT NULL,
+  p_day_id      uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_caller event_members;
-  v_row    event_expenses;
+  v_caller    event_members;
+  v_budget_id uuid;
+  v_row       event_expenses;
 BEGIN
   v_caller := get_current_member(p_event_id);
   IF v_caller.id IS NULL THEN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT has_event_permission(p_event_id, 'budget', 'create') THEN
+  IF NOT is_super_admin(v_caller) THEN
     RAISE EXCEPTION 'Insufficient permission to create expenses';
   END IF;
 
@@ -1090,18 +1142,20 @@ BEGIN
   END IF;
 
   IF COALESCE(p_amount, 0) < 0 OR COALESCE(p_paid, 0) < 0 THEN
-    RAISE EXCEPTION 'Amounts cannot be negative';
+    RAISE EXCEPTION 'Amounts or paid cannot be negative';
   END IF;
 
   IF COALESCE(p_paid, 0) > COALESCE(p_amount, 0) THEN
     RAISE EXCEPTION 'Paid cannot exceed the amount';
   END IF;
 
+  v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
+
   INSERT INTO event_expenses (
-    event_id, item, vendor_name, payer, amount, paid, due_at, notes, created_by
+    event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes, created_by
   )
   VALUES (
-    p_event_id, btrim(p_item), p_vendor_name, p_payer,
+    p_event_id, v_budget_id, btrim(p_item), p_vendor_name, p_payer,
     COALESCE(p_amount, 0), COALESCE(p_paid, 0), p_due_at, p_notes, v_caller.id
   )
   RETURNING * INTO v_row;
@@ -1119,14 +1173,16 @@ CREATE OR REPLACE FUNCTION public.update_expense(
   p_amount      numeric DEFAULT NULL,
   p_paid        numeric DEFAULT NULL,
   p_due_at      date    DEFAULT NULL,
-  p_notes       text    DEFAULT NULL
+  p_notes       text    DEFAULT NULL,
+  p_day_id      uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_caller  event_members;
-  v_expense event_expenses;
-  v_amount  numeric;
-  v_paid    numeric;
+  v_caller    event_members;
+  v_expense   event_expenses;
+  v_budget_id uuid;
+  v_amount    numeric;
+  v_paid      numeric;
 BEGIN
   SELECT * INTO v_expense FROM event_expenses WHERE id = p_id;
   IF NOT FOUND THEN
@@ -1142,7 +1198,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT has_event_permission(p_event_id, 'budget', 'update') THEN
+  IF NOT is_super_admin(v_caller) THEN
     RAISE EXCEPTION 'Insufficient permission to update expenses';
   END IF;
 
@@ -1150,15 +1206,18 @@ BEGIN
   v_paid   := COALESCE(p_paid, v_expense.paid);
 
   IF v_amount < 0 OR v_paid < 0 THEN
-    RAISE EXCEPTION 'Amounts cannot be negative';
+    RAISE EXCEPTION 'Amounts or paid cannot be negative';
   END IF;
 
   IF v_paid > v_amount THEN
     RAISE EXCEPTION 'Paid cannot exceed the amount';
   END IF;
 
+  v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
+
   UPDATE event_expenses
   SET
+    budget_id   = v_budget_id,
     item        = COALESCE(NULLIF(btrim(p_item), ''), item),
     vendor_name = p_vendor_name,
     payer       = p_payer,
@@ -1193,7 +1252,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT has_event_permission(p_event_id, 'budget', 'delete') THEN
+  IF NOT is_super_admin(v_caller) THEN
     RAISE EXCEPTION 'Insufficient permission to delete expenses';
   END IF;
 
@@ -1201,22 +1260,21 @@ BEGIN
 END;
 $$;
 
--- Update (or clear, when p_amount IS NULL) the event's total budget. The 1:1
--- event_budget row is seeded in create_event + backfilled, so it's a plain
--- update (mirrors update_invitation). No read RPC — event_budget is RLS-gated
--- on budget:read.
-CREATE OR REPLACE FUNCTION public.update_budget(p_event_id uuid, p_amount numeric)
+-- Set (or clear, when p_amount IS NULL) the cap on the (event, day) bucket.
+-- NULL p_day_id resolves to the event's earliest day. Super-admin only.
+CREATE OR REPLACE FUNCTION public.update_budget(p_event_id uuid, p_amount numeric, p_day_id uuid DEFAULT NULL)
 RETURNS event_budget LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_caller event_members;
-  v_row    event_budget;
+  v_caller    event_members;
+  v_budget_id uuid;
+  v_row       event_budget;
 BEGIN
   v_caller := get_current_member(p_event_id);
   IF v_caller.id IS NULL THEN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT has_event_permission(p_event_id, 'budget', 'update') THEN
+  IF NOT is_super_admin(v_caller) THEN
     RAISE EXCEPTION 'Insufficient permission to update the budget';
   END IF;
 
@@ -1224,14 +1282,12 @@ BEGIN
     RAISE EXCEPTION 'Budget cannot be negative';
   END IF;
 
+  v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
+
   UPDATE event_budget
   SET budget_total = p_amount
-  WHERE event_id = p_event_id
+  WHERE id = v_budget_id
   RETURNING * INTO v_row;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Budget not found for this event';
-  END IF;
 
   RETURN v_row;
 END;
@@ -1441,8 +1497,9 @@ $$;
 CREATE OR REPLACE FUNCTION public.delete_day(p_event_id uuid, p_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_count integer;
-  v_items integer;
+  v_count    integer;
+  v_items    integer;
+  v_expenses integer;
 BEGIN
   IF NOT is_super_admin_member(p_event_id) THEN
     RAISE EXCEPTION 'Insufficient permission to delete days';
@@ -1461,6 +1518,17 @@ BEGIN
   WHERE s.day_id = p_id AND t.event_id = p_event_id;
   IF v_items > 0 THEN
     RAISE EXCEPTION 'Remove this day''s % schedule item(s) before deleting it', v_items;
+  END IF;
+
+  -- Expenses attach via the day's budget bucket (event_expenses.budget_id ->
+  -- event_budget.day_id). The bucket -> expense FK is RESTRICT; count here so
+  -- it reads as a message rather than a raw FK violation.
+  SELECT count(*) INTO v_expenses
+  FROM event_expenses e
+  JOIN event_budget b ON b.id = e.budget_id
+  WHERE b.day_id = p_id AND e.event_id = p_event_id;
+  IF v_expenses > 0 THEN
+    RAISE EXCEPTION 'Remove this day''s % expense(s) before deleting it', v_expenses;
   END IF;
 
   DELETE FROM event_days WHERE id = p_id AND event_id = p_event_id;
@@ -1548,6 +1616,7 @@ RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   DELETE FROM public.slug_reservations
   WHERE expires_at IS NOT NULL AND expires_at < now();
 $$;
+REVOKE EXECUTE ON FUNCTION public.cleanup_expired_slug_reservations() FROM PUBLIC, anon, authenticated;
 
 
 -- =============================================================================
@@ -1672,6 +1741,8 @@ BEGIN
   END IF;
 END;
 $$;
+
+REVOKE EXECUTE ON FUNCTION public.auto_attach_table_triggers() FROM PUBLIC, anon, authenticated;
 
 CREATE EVENT TRIGGER auto_attach_triggers_on_create
   ON ddl_command_end

@@ -104,15 +104,6 @@ export function dayHasItems(day: TimelineGroupedDay): boolean {
   return day.segments.some((s) => s.labelGroups.length > 0);
 }
 
-/**
- * Display name for a day: its label, else a positional "Day N" (1-based). The
- * canonical day name across every day-bounded feature — reuse rather than
- * re-deriving the fallback.
- */
-export function dayLabel(label: string | null | undefined, index: number): string {
-  return label?.trim() || `Day ${index + 1}`;
-}
-
 /** The default (unnamed) segment of a day — the fallback target for "add item". */
 export function defaultSegmentId(
   day: TimelineGroupedDay | null | undefined,

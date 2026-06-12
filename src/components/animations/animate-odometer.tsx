@@ -29,7 +29,7 @@ const OdometerDigit: FC<OdometerDigitProps> = ({ value }) => {
       <motion.div
         initial={false}
         animate={{ y: `-${valueCorrected}em` }}
-        transition={{ type: "spring", stiffness: 100, damping: 15 }}
+        transition={{ type: "spring", stiffness: 180, damping: 30 }}
         style={{ display: "flex", flexDirection: "column" }}
       >
         {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
@@ -42,7 +42,7 @@ const OdometerDigit: FC<OdometerDigitProps> = ({ value }) => {
                   ? { opacity: 1, filter: "blur(0px)" }
                   : { opacity: 0.4, filter: "blur(6px)" }
               }
-              transition={{ type: "spring", stiffness: 100, damping: 15 }}
+              transition={{ type: "spring", stiffness: 180, damping: 30 }}
               style={{
                 display: "inline-flex",
                 justifyContent: "center",

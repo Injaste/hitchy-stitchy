@@ -1,37 +1,45 @@
-import type { FC } from "react"
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
+import type { FC } from "react";
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
 
-import { FieldGroup } from "@/components/ui/field"
+import { FieldGroup } from "@/components/ui/field";
 import {
   TextField,
   TextareaField,
   DateField,
   FormBody,
-} from "@/components/custom/form"
+} from "@/components/custom/form";
 
-import { expenseFormSchema, type ExpenseFormValues } from "../types"
+import { expenseFormSchema, type ExpenseFormValues } from "../types";
+
+// Money is cents at most — drop any digits past 2 decimals as they're typed
+// (1000.12111 → 1000.12). Only trims the overflow; partial entries like "1000."
+// or "1000.1" are left untouched so typing stays natural.
+const trimToCents = (v: string) => v.replace(/(\.\d{2})\d+/, "$1");
 
 // Schema errors mapped to per-field messages for FieldShell. The .refine
 // (paid ≤ amount) surfaces under the `paid` field.
 function validateExpenseForm(value: unknown) {
-  const parsed = expenseFormSchema.safeParse(value)
-  if (parsed.success) return undefined
+  const parsed = expenseFormSchema.safeParse(value);
+  if (parsed.success) return undefined;
 
-  const fields: Record<string, { message: string }> = {}
-  const properties = z.treeifyError(parsed.error).properties ?? {}
+  const fields: Record<string, { message: string }> = {};
+  const properties = z.treeifyError(parsed.error).properties ?? {};
   for (const [key, tree] of Object.entries(properties)) {
-    if (tree?.errors?.length) fields[key] = { message: tree.errors[0] }
+    if (tree?.errors?.length) fields[key] = { message: tree.errors[0] };
   }
-  return Object.keys(fields).length ? { fields } : undefined
+  return Object.keys(fields).length ? { fields } : undefined;
 }
 
 interface UseExpenseFormOpts {
-  defaultValues?: Partial<ExpenseFormValues>
-  onSubmit: (values: ExpenseFormValues) => void
+  defaultValues?: Partial<ExpenseFormValues>;
+  onSubmit: (values: ExpenseFormValues) => void;
 }
 
-export const useExpenseForm = ({ defaultValues, onSubmit }: UseExpenseFormOpts) =>
+export const useExpenseForm = ({
+  defaultValues,
+  onSubmit,
+}: UseExpenseFormOpts) =>
   useForm({
     defaultValues: {
       item: defaultValues?.item ?? "",
@@ -47,13 +55,13 @@ export const useExpenseForm = ({ defaultValues, onSubmit }: UseExpenseFormOpts) 
       onChange: ({ value }) => validateExpenseForm(value),
     },
     onSubmit: ({ value }) => {
-      onSubmit(expenseFormSchema.parse(value))
+      onSubmit(expenseFormSchema.parse(value));
     },
-  })
+  });
 
 interface ExpenseFormProps {
   /** Focus the Paid field on open (edit flow — usually updating a payment). */
-  autoFocusPaid?: boolean
+  autoFocusPaid?: boolean;
 }
 
 const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => (
@@ -82,15 +90,19 @@ const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => (
           label="Amount (S$)"
           type="number"
           inputMode="decimal"
+          step="0.01"
           placeholder="0"
+          transform={trimToCents}
         />
         <TextField
           name="paid"
           label="Paid (S$)"
           type="number"
           inputMode="decimal"
+          step="0.01"
           placeholder="0"
           autoFocus={autoFocusPaid}
+          transform={trimToCents}
         />
       </div>
       <DateField name="due_at" label="Due date" optional />
@@ -103,6 +115,6 @@ const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => (
       />
     </FieldGroup>
   </FormBody>
-)
+);
 
-export default ExpenseForm
+export default ExpenseForm;
