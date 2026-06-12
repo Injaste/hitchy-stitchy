@@ -83,7 +83,7 @@ const TimelineView: FC<TimelineViewProps> = ({
     return (
       <ComponentFade key="content" useBlur>
         <DayTabs
-          dates={dates}
+          days={data?.days ?? []}
           activeDate={activeDate ?? ""}
           onSelect={setActiveDate}
         />

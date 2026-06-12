@@ -18,14 +18,17 @@ export function getFriendlyErrorMessage(error: PostgrestError | null): string {
   return "Something went wrong. Please try again."
 }
 
-export async function checkSlugAvailable(slug: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("event_slugs")
-    .select("slug")
-    .eq("slug", slug)
+/** Hold the slug for this user while they finish the wizard. Returns the hold's
+ *  expiry (ISO timestamp) so the wizard can warn near expiry. */
+export async function reserveSlug(slug: string): Promise<string> {
+  const { data, error } = await supabase.rpc("reserve_slug", { p_slug: slug })
+  if (error) throw new Error(error.message)
+  return data as string
+}
 
-  if (error) throw new Error(getFriendlyErrorMessage(error))
-  return data.length > 0
+/** Release any slug this user is holding (on leaving the wizard). */
+export async function releaseSlug(): Promise<void> {
+  await supabase.rpc("release_slug")
 }
 
 export async function createEvent(
@@ -34,8 +37,7 @@ export async function createEvent(
   const { data, error } = await supabase.rpc("create_event", {
     p_slug: payload.slug,
     p_name: payload.event_name,
-    p_date_start: payload.date_start,
-    p_date_end: payload.date_end,
+    p_days: payload.days.map((d) => ({ date: d.date, label: d.label.trim() })),
     p_display_name: payload.display_name,
     p_role: payload.role_name,
   })

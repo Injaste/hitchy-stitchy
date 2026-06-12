@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { TIME_REGEX } from "../types";
 
+// Days are owned by the shared days module; the timeline only consumes them.
+import type { EventDay } from "../days/types";
+
 export interface Timeline {
   id: string
   event_id: string
@@ -15,12 +18,6 @@ export interface Timeline {
   created_at: string
   started_at: string | null   // ISO timestamp — set when item is started
   ended_at: string | null     // ISO timestamp — set when item is ended
-}
-
-/** A calendar date of the event (event_days row). `date` is the single source of truth. */
-export interface EventDay {
-  id: string
-  date: string        // "yyyy-MM-dd"
 }
 
 /** A grouping within a day (event_segments row). name === null is the default segment. */
@@ -58,6 +55,7 @@ export interface TimelineGroupedSegment {
 export interface TimelineGroupedDay {
   date: string;       // "yyyy-MM-dd"
   day_id: string;
+  label: string;
   segments: TimelineGroupedSegment[];
 }
 
@@ -167,3 +165,4 @@ export interface ReorderSegmentsPayload {
   day_id: string;
   ids: string[];
 }
+

@@ -73,6 +73,23 @@ export const listItemReveal: Variants = {
   exit: { opacity: 0, height: 0 },
 };
 
+// Like listItemReveal but bakes the inter-row gap into the animated height
+// (marginBottom collapses with the row) so exits don't leave a residual margin
+// to snap away. Use on a plain column with NO space-y/gap of its own, and put
+// padding on an INNER element so the height can collapse fully to 0 (no stub).
+// overflow clips during grow/collapse, then frees once resting so a child
+// error-shake isn't clipped.
+export const gappedListItemReveal: Variants = {
+  hidden: { opacity: 0, height: 0, marginBottom: 0, overflow: "hidden" },
+  show: {
+    opacity: 1,
+    height: "auto",
+    marginBottom: 8,
+    transitionEnd: { overflow: "visible" },
+  },
+  exit: { opacity: 0, height: 0, marginBottom: 0, overflow: "hidden" },
+};
+
 export const listLayoutTransition = {
   duration: 0.22,
   ease: [0.2, 0, 0, 1],
@@ -100,4 +117,3 @@ export const fieldVariant: Variants = {
     transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] },
   }),
 };
-

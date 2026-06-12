@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, History, RefreshCw, Shield } from "lucide-react";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ShareLink from "@/components/custom/share-link";
+import { BASE_URL } from "@/lib/config";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useAccess } from "../../hooks/useAccess";
@@ -138,7 +139,7 @@ const MemberDetailModal = () => {
                         .
                       </p>
                       <ShareLink
-                        url={`${window.location.origin}/${slug}/join?token=${member.invite_token}`}
+                        url={`${BASE_URL}/${slug}/join?token=${member.invite_token}`}
                         message={INVITE_MESSAGE}
                       />
                     </>

@@ -13,25 +13,15 @@ interface CreateEventViewProps {
 
 const CreateEventView = ({ onClose }: CreateEventViewProps) => {
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="relative min-h-screen bg-background flex items-center justify-center px-4 py-12"
-    >
-      <motion.div variants={itemFadeIn} className="absolute top-4 right-4">
+    <>
+      <div className="absolute top-4 right-4">
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="size-4" />
         </Button>
-      </motion.div>
+      </div>
 
       <div className="w-full max-w-md">
-        <motion.div
-          initial="hidden"
-          animate="show"
-          variants={itemFadeIn}
-          className="text-center mb-10"
-        >
+        <div className="text-center mb-10">
           <Logo
             imageClassName="w-24 h-24 -mb-6"
             className="mb-4"
@@ -39,7 +29,7 @@ const CreateEventView = ({ onClose }: CreateEventViewProps) => {
             showTagline
             brandClassName="text-2xl font-bold text-primary"
           />
-        </motion.div>
+        </div>
 
         <motion.div initial="hidden" animate="show" variants={itemFadeUp}>
           <CreateEventForm />
@@ -57,7 +47,7 @@ const CreateEventView = ({ onClose }: CreateEventViewProps) => {
           </Button>
         </motion.div>
       </div>
-    </motion.div>
+    </>
   );
 };
 

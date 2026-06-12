@@ -117,12 +117,15 @@ const DashboardView = () => {
 
       <AnimatePresence>
         {isCreateOpen && (
-          <ComponentFade
-            key="create-overlay"
-            className="fixed inset-0 z-50 bg-background overflow-y-auto"
-          >
-            <CreateEventView onClose={() => setIsCreateOpen(false)} />
-          </ComponentFade>
+          <div className="fixed inset-0 z-50">
+            <ComponentFade
+              key="create-overlay"
+              useBlur
+              className="relative bg-gradient-surface flex items-center justify-center px-4 py-12 h-full w-full overflow-y-auto"
+            >
+              <CreateEventView onClose={() => setIsCreateOpen(false)} />
+            </ComponentFade>
+          </div>
         )}
       </AnimatePresence>
     </div>

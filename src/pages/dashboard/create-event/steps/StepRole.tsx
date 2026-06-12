@@ -105,7 +105,7 @@ const StepRole: FC<StepRoleProps> = ({
     const currentRole =
       values.role === "Other" ? values.customRole?.trim() : values.role;
     onBack({ role_name: currentRole || undefined });
-    goTo("Event");
+    goTo("Dates");
   };
 
   return (

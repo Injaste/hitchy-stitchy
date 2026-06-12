@@ -17,16 +17,26 @@ export interface EventsCount {
 
 // ─── Create Event ─────────────────────────────────────────────────────────────
 
-export const STEPS = ["Event", "Role"] as const
+export const STEPS = ["Details", "Dates", "Role"] as const
 export type StepType = (typeof STEPS)[number]
 
-export interface CreateEventData {
+/** One picked event day. `date` is "yyyy-MM-dd"; `label` is required. */
+export interface EventDayInput {
+  date: string
+  label: string
+}
+
+export interface CreateDetailsData {
   display_name: string
   event_name: string
-  date_start: string
-  date_end: string
   slug: string
 }
+
+export interface CreateDatesData {
+  days: EventDayInput[]
+}
+
+export interface CreateEventData extends CreateDetailsData, CreateDatesData { }
 
 export interface CreateRoleData {
   role_name: string
@@ -36,7 +46,16 @@ export interface CreateEventPayload extends CreateEventData, CreateRoleData { }
 
 export const SLUG_REGEX = /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/
 
-export const stepEventSchema = z.object({
+export const eventDaySchema = z.object({
+  date: z.string().min(1),
+  label: z
+    .string()
+    .trim()
+    .min(1, "Add a label for this day.")
+    .max(60, "Keep the label under 60 characters."),
+})
+
+export const stepDetailsSchema = z.object({
   display_name: z
     .string()
     .min(2, "Name must be at least 2 characters.")
@@ -48,14 +67,17 @@ export const stepEventSchema = z.object({
   slug: z
     .string()
     .regex(SLUG_REGEX, "Slug must be 3–50 chars, lowercase letters, numbers and hyphens only."),
-  date_start: z.string(),
-  date_end: z.string(),
-}).refine((data) => Boolean(data.date_start && data.date_end), {
-  message: "Please select your event dates.",
-  path: ["date_start"],
 })
 
-export type StepEventFormValues = z.infer<typeof stepEventSchema>
+export type StepDetailsFormValues = z.infer<typeof stepDetailsSchema>
+
+export const stepDatesSchema = z.object({
+  days: z
+    .array(eventDaySchema)
+    .min(1, "Please select at least one event day."),
+})
+
+export type StepDatesFormValues = z.infer<typeof stepDatesSchema>
 
 export const stepRoleSchema = z
   .object({

@@ -57,7 +57,8 @@ const ProfileForm = ({ member }: { member: Member }) => {
 
       <FormBody>
         <FieldGroup>
-          {/* Avatar — UI stub only, no upload wiring yet. */}
+          {/* Avatar — UI stub only, no upload wiring yet. Photo is global (one
+              avatar across every event); display name is per-event. */}
           <div className="flex items-center gap-4">
             <Avatar size="lg" className="size-16">
               <AvatarFallback>{getInitials(member.display_name)}</AvatarFallback>
@@ -67,7 +68,7 @@ const ProfileForm = ({ member }: { member: Member }) => {
                 Change photo
               </Button>
               <p className="text-xs text-muted-foreground">
-                Photo uploads coming soon.
+                Your photo is shared across all your events. Uploads coming soon.
               </p>
             </div>
           </div>

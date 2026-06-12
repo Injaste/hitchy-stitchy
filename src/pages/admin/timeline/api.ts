@@ -1,8 +1,8 @@
 import { supabase } from "@/lib/supabase"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
+import type { EventDay } from "../days/types"
 import type {
   Timeline,
-  EventDay,
   EventSegment,
   TimelineGrouped,
   CreateTimelineItemPayload,
@@ -24,7 +24,7 @@ export async function fetchTimeline(eventId: string): Promise<TimelineGrouped> {
   const [daysRes, segmentsRes, itemsRes] = await Promise.all([
     supabase
       .from("event_days")
-      .select("id, date")
+      .select("id, date, label")
       .eq("event_id", eventId)
       .order("date", { ascending: true }),
     supabase

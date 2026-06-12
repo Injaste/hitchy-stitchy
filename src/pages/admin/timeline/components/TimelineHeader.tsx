@@ -55,7 +55,10 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
       titleSuffix={
         activeDayLabel && (
           <ArraySeparator
-            items={[activeDayLabel, activeDayDate].filter(Boolean)}
+            items={[
+              <span className="block max-w-40 truncate">{activeDayLabel}</span>,
+              activeDayDate,
+            ].filter(Boolean)}
             separator={<span className="text-muted-foreground/50">·</span>}
             className="text-sm sm:text-base font-medium text-muted-foreground"
           />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { checkSlugAvailable } from "@/pages/dashboard/api";
+import { reserveSlug } from "@/pages/dashboard/api";
 import { SLUG_REGEX } from "@/pages/dashboard/types";
 
 const DEBOUNCE_MS = 600;
@@ -35,15 +35,47 @@ interface UseSlugCheckReturn {
   reset: () => void;
 }
 
-export function useSlugCheck(): UseSlugCheckReturn {
+interface UseSlugCheckOptions {
+  /** Fired with the hold's expiry (ISO) + the slug whenever it's reserved. */
+  onReserved?: (expiry: string, slug: string) => void;
+}
+
+/**
+ * Availability is established by RESERVING: the moment a slug comes back available
+ * it's also held for this user (sliding 30-min hold), closing the window where it
+ * could be taken between "shows available" and "Continue". `is_slug_taken` lives on
+ * only as create_event's server-side guard; the client uses reserve_slug for both.
+ */
+export function useSlugCheck({
+  onReserved,
+}: UseSlugCheckOptions = {}): UseSlugCheckReturn {
   const [status, setStatus] = useState<SlugStatus>("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestIdRef = useRef(0);
+  const onReservedRef = useRef(onReserved);
+  onReservedRef.current = onReserved;
 
   const clearTimer = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
+    }
+  };
+
+  // Reserve = check + hold in one. Returns true if taken. Stale responses (a
+  // newer request superseded this one) are ignored.
+  const reserve = async (slug: string, id: number): Promise<boolean> => {
+    try {
+      const expiry = await reserveSlug(slug);
+      if (requestIdRef.current !== id) return false;
+      setStatus("available");
+      onReservedRef.current?.(expiry, slug);
+      return false;
+    } catch (e) {
+      if (requestIdRef.current !== id) return false;
+      const taken = e instanceof Error && /already taken/i.test(e.message);
+      setStatus(taken ? "taken" : "error");
+      return taken;
     }
   };
 
@@ -55,34 +87,20 @@ export function useSlugCheck(): UseSlugCheckReturn {
     }
     setStatus("checking");
     const id = ++requestIdRef.current;
-    timerRef.current = setTimeout(async () => {
-      try {
-        const exists = await checkSlugAvailable(slug);
-        if (requestIdRef.current !== id) return;
-        setStatus(exists ? "taken" : "available");
-      } catch {
-        if (requestIdRef.current !== id) return;
-        setStatus("error");
-      }
+    timerRef.current = setTimeout(() => {
+      void reserve(slug, id);
     }, DEBOUNCE_MS);
   }, []);
 
   const checkNow = useCallback(async (slug: string): Promise<boolean> => {
     clearTimer();
-    requestIdRef.current++;
+    const id = ++requestIdRef.current;
     if (!slug || !SLUG_REGEX.test(slug)) {
       setStatus("idle");
       return true;
     }
     setStatus("checking");
-    try {
-      const exists = await checkSlugAvailable(slug);
-      setStatus(exists ? "taken" : "available");
-      return exists;
-    } catch {
-      setStatus("error");
-      return false;
-    }
+    return reserve(slug, id);
   }, []);
 
   const reset = useCallback(() => {

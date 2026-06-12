@@ -2,6 +2,8 @@ import { FieldError } from "@/components/ui/field";
 import { motion, useAnimate, AnimatePresence } from "framer-motion";
 import { useEffect, useRef } from "react";
 
+import { cn } from "@/lib/utils";
+
 type FieldErrors = Array<{ message?: string } | undefined>;
 type AllErrors = Error | string | null;
 
@@ -20,12 +22,15 @@ const AnimateItem = ({
   hasError,
   error,
   attemptCount,
+  className,
   children,
 }: {
   error?: AllErrors;
   errors?: FieldErrors;
   hasError: boolean;
   attemptCount: number;
+  /** Extra classes for the shaking container — lets it double as a row card. */
+  className?: string;
   children?: React.ReactNode;
 }) => {
   const [scope, animate] = useAnimate();
@@ -37,7 +42,7 @@ const AnimateItem = ({
   }, [attemptCount, hasError]);
 
   return (
-    <div ref={scope} className="empty:hidden">
+    <div ref={scope} className={cn("empty:hidden", className)}>
       {children}
       <AnimateError hasError={hasError} errors={errors} error={error} />
     </div>
