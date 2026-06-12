@@ -7,6 +7,7 @@ import ComponentFade from "@/components/animations/animate-component-fade";
 import useRefetch from "@/hooks/use-refetch";
 import { useHasScrolled } from "@/hooks/use-has-scrolled";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { cn } from "@/lib/utils";
 
 export interface BaseHeaderProps {
   isLoading?: boolean;
@@ -69,7 +70,7 @@ export const HeaderActions: FC<HeaderActionsProps> = ({
                     disabled={!canRefresh}
                   >
                     <RefreshCw
-                      className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
+                      className={cn("w-4 h-4", isRefetching && "animate-spin")}
                     />
                   </Button>
                 </TooltipTrigger>

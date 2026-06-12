@@ -2,6 +2,7 @@ import { useRef, useState, type FC } from "react"
 import { Upload, FileText, Download } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 import { parseGuestCSV, downloadGuestTemplate } from "../../utils"
 import type { ParsedGuestRow } from "../../types"
@@ -49,11 +50,12 @@ const ImportUploadStep: FC<ImportUploadStepProps> = ({ onParsed, onCancel }) => 
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={`
-          cursor-pointer rounded-xl border border-dashed
-          ${isDragging ? "border-primary bg-primary/5" : "border-border bg-muted/20"}
-          px-6 py-12 text-center transition-colors
-        `}
+        className={cn(
+          "cursor-pointer rounded-xl border border-dashed px-6 py-12 text-center transition-colors",
+          isDragging
+            ? "border-primary bg-primary/5"
+            : "border-border bg-muted/20",
+        )}
         role="button"
         tabIndex={0}
       >

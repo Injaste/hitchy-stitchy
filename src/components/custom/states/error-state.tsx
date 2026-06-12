@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface ErrorStateProps {
   message?: string;
@@ -34,7 +35,7 @@ const ErrorState: FC<ErrorStateProps> = ({
             className="gap-1"
           >
             <RefreshCw
-              className={`w-4 h-4 ${isRetrying ? "animate-spin" : ""}`}
+              className={cn("w-4 h-4", isRetrying && "animate-spin")}
             />
             {isRetrying ? "Retrying…" : "Try again"}
           </Button>

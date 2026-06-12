@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const MEMBERS = [
   {
@@ -82,7 +83,10 @@ export function TeamMock() {
               <p className="text-sm font-medium text-foreground">{m.name}</p>
             </div>
             <span
-              className={`text-2xs font-semibold px-2 py-0.5 rounded-full border ${m.color}`}
+              className={cn(
+                "text-2xs font-semibold px-2 py-0.5 rounded-full border",
+                m.color,
+              )}
             >
               {m.role}
             </span>
@@ -115,7 +119,10 @@ export function TeamMock() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.75 }}
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                      className={`text-2xs font-semibold px-2 py-0.5 rounded-full border ${NEW_MEMBER.color}`}
+                      className={cn(
+                        "text-2xs font-semibold px-2 py-0.5 rounded-full border",
+                        NEW_MEMBER.color,
+                      )}
                     >
                       {NEW_MEMBER.role}
                     </motion.span>

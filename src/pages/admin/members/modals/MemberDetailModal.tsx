@@ -14,6 +14,7 @@ import { Calendar, Clock, History, RefreshCw, Shield } from "lucide-react";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ShareLink from "@/components/custom/share-link";
 import { BASE_URL } from "@/lib/config";
+import { cn } from "@/lib/utils";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useAccess } from "../../hooks/useAccess";
@@ -159,7 +160,10 @@ const MemberDetailModal = () => {
                     className="h-auto gap-1.5 px-2 py-1 text-xs text-muted-foreground hover:text-primary"
                   >
                     <RefreshCw
-                      className={`size-3 shrink-0 ${regenerate.isPending ? "animate-spin" : ""}`}
+                      className={cn(
+                        "size-3 shrink-0",
+                        regenerate.isPending && "animate-spin",
+                      )}
                     />
                     Regenerate link
                   </Button>

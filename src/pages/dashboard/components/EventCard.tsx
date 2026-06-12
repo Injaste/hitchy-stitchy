@@ -12,6 +12,7 @@ import {
   getEventStatus,
 } from "@/lib/utils/utils-time";
 import { itemFadeUp } from "@/lib/animations";
+import { cn } from "@/lib/utils";
 import type { Event } from "../types";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -21,7 +22,14 @@ const EventCard: FC<{ event: Event }> = ({ event }) => {
 
   return (
     <motion.div variants={itemFadeUp}>
-      <Card variant="interactive" className={`group/event-card cursor-default${status === "past" ? " opacity-50 hover:opacity-100 transition-opacity" : ""}`}>
+      <Card
+        variant="interactive"
+        className={cn(
+          "group/event-card cursor-default",
+          status === "past" &&
+            "opacity-50 hover:opacity-100 transition-opacity",
+        )}
+      >
         <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover/event-card:bg-primary/15 transition-colors">
             <CalendarDays className="w-5 h-5 text-primary" />

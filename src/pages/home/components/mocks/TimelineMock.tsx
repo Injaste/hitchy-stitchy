@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Plus, MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const INITIAL_CUES = [
   {
@@ -71,21 +72,23 @@ export function TimelineMock() {
         {INITIAL_CUES.map((cue) => (
           <div
             key={cue.id}
-            className={`flex items-center gap-3 rounded-xl p-3 transition-colors ${
+            className={cn(
+              "flex items-center gap-3 rounded-xl p-3 transition-colors",
               cue.active
                 ? "bg-primary/8 border border-primary/15"
-                : "bg-transparent"
-            }`}
+                : "bg-transparent",
+            )}
           >
             {/* Status dot */}
             <div
-              className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center border ${
+              className={cn(
+                "shrink-0 w-6 h-6 rounded-full flex items-center justify-center border",
                 cue.done
                   ? "bg-secondary/20 border-secondary/40"
                   : cue.active
                     ? "bg-primary/15 border-primary/30"
-                    : "bg-muted border-border"
-              }`}
+                    : "bg-muted border-border",
+              )}
             >
               {cue.done ? (
                 <Check className="w-3 h-3 text-secondary" strokeWidth={2.5} />
@@ -111,7 +114,12 @@ export function TimelineMock() {
                   {cue.time}
                 </span>
                 <span
-                  className={`text-sm font-medium truncate ${cue.done ? "text-muted-foreground line-through" : "text-foreground"}`}
+                  className={cn(
+                    "text-sm font-medium truncate",
+                    cue.done
+                      ? "text-muted-foreground line-through"
+                      : "text-foreground",
+                  )}
                 >
                   {cue.label}
                 </span>

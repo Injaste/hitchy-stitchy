@@ -4,6 +4,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 import { useGuestsQuery, useGuestMutations } from "../../queries"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
@@ -242,7 +243,10 @@ const ImportPreviewStep: FC<ImportPreviewStepProps> = ({
               return (
                 <tr
                   key={row.rowIndex}
-                  className={`border-b border-border last:border-0 ${invalid ? "bg-destructive/5" : ""}`}
+                  className={cn(
+                    "border-b border-border last:border-0",
+                    invalid && "bg-destructive/5",
+                  )}
                 >
                   <td className="px-3 py-2 text-xs text-muted-foreground">
                     {row.rowIndex}
@@ -326,11 +330,12 @@ const ActionPicker: FC<ActionPickerProps> = ({ value, options, onChange }) => (
         key={opt.value}
         type="button"
         onClick={() => onChange(opt.value)}
-        className={`text-xs px-2.5 py-1 transition-colors ${
+        className={cn(
+          "text-xs px-2.5 py-1 transition-colors",
           value === opt.value
             ? "bg-primary text-primary-foreground"
-            : "bg-transparent text-muted-foreground hover:bg-muted"
-        }`}
+            : "bg-transparent text-muted-foreground hover:bg-muted",
+        )}
       >
         {opt.label}
       </button>

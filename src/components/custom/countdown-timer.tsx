@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
 import Odometer from "../animations/animate-odometer";
+import { cn } from "@/lib/utils";
 
 interface TimeLeft {
   days: number;
@@ -56,7 +57,12 @@ const CountdownTimer = ({
       {timeKeys.map((unit) => (
         <Card key={unit} className="bg-card/50 backdrop-blur-md" size="sm">
           <CardContent className="flex flex-col items-center">
-            <span className={`text-2xl sm:text-3xl font-bold text-foreground tabular-nums${numberClassName ? ` ${numberClassName}` : ""}`}>
+            <span
+              className={cn(
+                "text-2xl sm:text-3xl font-bold text-foreground tabular-nums",
+                numberClassName,
+              )}
+            >
               <Odometer value={timeLeft[unit]} pad={2} />
             </span>
             <span className="text-3xs sm:text-2xs uppercase tracking-widest text-muted-foreground font-bold mt-1">

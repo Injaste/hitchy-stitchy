@@ -3,6 +3,7 @@ import { CheckCircle2, AlertTriangle, MinusCircle, RefreshCw } from "lucide-reac
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
 import type { ImportResult } from "../../types"
 
@@ -19,9 +20,10 @@ const ImportResultStep: FC<ImportResultStepProps> = ({ result, onClose }) => {
     <div className="space-y-6 mt-4">
       <div className="flex flex-col items-center text-center gap-3 pt-4">
         <div
-          className={`flex h-14 w-14 items-center justify-center rounded-full ${
-            allFailed ? "bg-destructive/10" : "bg-primary/10"
-          }`}
+          className={cn(
+            "flex h-14 w-14 items-center justify-center rounded-full",
+            allFailed ? "bg-destructive/10" : "bg-primary/10",
+          )}
         >
           {allFailed ? (
             <AlertTriangle className="h-6 w-6 text-destructive" />
@@ -101,9 +103,10 @@ interface SummaryTileProps {
 const SummaryTile: FC<SummaryTileProps> = ({ icon, label, value, tone }) => (
   <Card className="gap-0 px-4 py-3 text-center">
     <div
-      className={`flex items-center justify-center gap-1.5 mb-1 ${
-        tone === "primary" ? "text-primary" : "text-muted-foreground"
-      }`}
+      className={cn(
+        "flex items-center justify-center gap-1.5 mb-1",
+        tone === "primary" ? "text-primary" : "text-muted-foreground",
+      )}
     >
       {icon}
       <span className="text-[11px] uppercase tracking-wide font-medium">{label}</span>

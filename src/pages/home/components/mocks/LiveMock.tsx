@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const ALL_CUES = [
   { id: 1, label: "Bridal Preparation", time: "09:00" },
@@ -72,21 +73,23 @@ export function LiveMock() {
               <motion.div
                 key={cue.id}
                 layout
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors",
                   isActive
                     ? "bg-primary/8 border border-primary/15"
-                    : "bg-transparent"
-                }`}
+                    : "bg-transparent",
+                )}
               >
                 {/* Status */}
                 <div
-                  className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center border ${
+                  className={cn(
+                    "shrink-0 w-6 h-6 rounded-full flex items-center justify-center border",
                     isDone
                       ? "bg-secondary/20 border-secondary/30"
                       : isActive
                         ? "border-primary/30 bg-primary/10"
-                        : "border-border bg-muted"
-                  }`}
+                        : "border-border bg-muted",
+                  )}
                 >
                   {isDone ? (
                     <Check
@@ -111,11 +114,12 @@ export function LiveMock() {
                 {/* Label */}
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm font-medium truncate ${
+                    className={cn(
+                      "text-sm font-medium truncate",
                       isDone
                         ? "text-muted-foreground line-through"
-                        : "text-foreground"
-                    }`}
+                        : "text-foreground",
+                    )}
                   >
                     {cue.label}
                   </p>
