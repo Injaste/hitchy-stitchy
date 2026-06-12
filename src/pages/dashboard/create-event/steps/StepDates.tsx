@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { type FC, useRef } from "react";
 import { format, addDays } from "date-fns";
 import { CalendarIcon, X } from "lucide-react";
 import { useForm, useStore, type AnyFieldApi } from "@tanstack/react-form";
@@ -32,15 +32,18 @@ import {
   type StepType,
 } from "../../types";
 
-// One picked day — date + the shared label field + remove. Reads attemptCount
-// from the form shell so the per-day error shows once touched or after a submit
-// attempt (mirrors the rest of the form). Animates in/out by height.
+// One picked day — date + the shared label field + remove. The per-day error
+// shows once touched, or after a submit attempt that happened *after* this row
+// was added — so a freshly-picked date doesn't appear pre-errored just because
+// an earlier submit bumped the form's attemptCount. Animates in/out by height.
 const CreateDayRow: FC<{
   index: number;
   date: string;
   onRemove: () => void;
 }> = ({ index, date, onRemove }) => {
   const { form, attemptCount } = useFormShell();
+  // attemptCount at mount — only a later attempt should reveal this row's error.
+  const mountAttempt = useRef(attemptCount).current;
   const dateText = format(parseLocalDate(date), "EEE, d MMM");
 
   return (
@@ -53,7 +56,8 @@ const CreateDayRow: FC<{
     >
       <form.Field name={`days[${index}].label`}>
         {(f: AnyFieldApi) => {
-          const showError = f.state.meta.isTouched || attemptCount > 0;
+          const showError =
+            f.state.meta.isTouched || attemptCount > mountAttempt;
           const errorMsg = showError
             ? (f.state.meta.errors[0]?.message ?? null)
             : null;
@@ -126,7 +130,6 @@ const StepDates: FC<StepDatesProps> = ({ defaultValues, onNext, onBack }) => {
   });
 
   const days = useStore(form.store, (s) => s.values.days);
-  const isSubmitting = useStore(form.store, (s) => s.isSubmitting);
 
   const selectedDates = days.map((d) => parseLocalDate(d.date));
 
@@ -203,7 +206,8 @@ const StepDates: FC<StepDatesProps> = ({ defaultValues, onNext, onBack }) => {
       </FieldGroup>
 
       <div className="flex flex-col gap-3">
-        <SubmitButton size="lg" isPending={isSubmitting} className="w-full">
+        {/* Sync advance — no async submit, so no pending state (see StepDetails). */}
+        <SubmitButton size="lg" isPending={false} className="w-full">
           Continue
         </SubmitButton>
         <Button

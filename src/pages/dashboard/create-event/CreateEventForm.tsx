@@ -98,7 +98,6 @@ const CreateEventForm = () => {
 
             <StepsDirection
               value={activeStep}
-              order={STEPS}
               onChange={(v) => setActiveStep(v as StepType)}
             >
               {activeStep === "Details" && (
