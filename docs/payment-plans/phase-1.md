@@ -80,7 +80,7 @@ If billing shipped now, "Pro" could only be carved from existing features (remov
 6. **MVP wedge** — is the headline the invitation/RSVP product, or the planning tool? Determines what "enough for MVP" means.
 
 ## Codebase grounding (key files)
-- Schema & RPCs: `supabase/schema.sql`; `create_event` in `supabase/migrations/20260605000001_collapse_access_three_level.sql`; `get_bootstrap_context`.
+- Schema & RPCs: `supabase/schema.sql`; `create_event` in `supabase/migrations/2026/06/05/20260605000001_collapse_access_three_level.sql`; `get_bootstrap_context`.
 - Access pattern to mirror: `src/pages/admin/hooks/useAccess.ts`; config-as-data: `src/pages/admin/access/components/access-config.ts`.
 - Bootstrap payload (entitlements ride here): `src/pages/admin/bootstrap/api.ts`.
 - Day model to extend: `src/pages/admin/timeline/hooks/useTimelineDays.ts`; `event_timelines.day` (`schema.sql:282`).

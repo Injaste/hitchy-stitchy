@@ -40,7 +40,7 @@ Move the intent into `docs/todo/` (or delete if stale), then remove the comment:
   passes it. Delete both ends.
 
 ## 5. Inaccurate migration comment: "mirrors event_rsvps_select"
-- `supabase/migrations/20260610000001_budget_tracker.sql` (§2 header comment)
+- `supabase/migrations/2026/06/10/20260610000001_budget_tracker.sql` (§2 header comment)
   and the copy in `supabase/schema.sql` claim the budget SELECT policies mirror
   `event_rsvps_select` — but that policy (`schema.sql:712-714`) checks
   `is_event_member` only, **no** permission gate. The budget policies are

@@ -2,8 +2,11 @@
 
 The database (tables, RLS policies, RPC functions) lives in the Supabase project — there is no Supabase CLI wired up. We still **version every backend change here** so the schema has a history.
 
+## Layout
+Migration files are grouped into nested folders by date: `<YYYY>/<MM>/<DD>/`. So `20260612000001_delete_day_guard_items.sql` lives at `2026/06/12/20260612000001_delete_day_guard_items.sql`. The full date prefix stays in the filename — the folders mirror it so a year/month/day is easy to scan. This `README.md` stays at the migrations root. Paste-run order is still the lexical order of the filenames (which equals chronological order across folders).
+
 ## Workflow
-1. Each change is a sequenced SQL file: `YYYYMMDD` + a 6-digit number + `_short_description.sql` (see **Numbering**).
+1. Each change is a sequenced SQL file: `YYYYMMDD` + a 6-digit number + `_short_description.sql` (see **Numbering**), filed under `<YYYY>/<MM>/<DD>/`.
 2. Open the [Supabase SQL editor](https://supabase.com/dashboard) for this project and **paste-run the file's contents**.
 3. Files are written to be idempotent where practical (`CREATE OR REPLACE FUNCTION`, `DROP POLICY IF EXISTS` before `CREATE POLICY`).
 4. Each file ends with a `-- Rollback:` comment showing how to revert.
