@@ -81,6 +81,9 @@ interface ConfirmAlertModalProps {
    * until the typed text matches (normalized). Reserved for high-stakes deletes.
    */
   confirmPhrase?: string;
+  /** Force the confirm button disabled regardless of the phrase (e.g. the
+   *  action is currently unavailable — show the dialog as informational). */
+  confirmDisabled?: boolean;
   onConfirm: () => void;
   isPending?: boolean;
   isSuccess?: boolean;
@@ -98,6 +101,7 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
   confirmLabel,
   cancelLabel = "Cancel",
   confirmPhrase,
+  confirmDisabled,
   onConfirm,
   isPending,
   isSuccess,
@@ -137,7 +141,9 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
               text-foreground stays reserved for key items. */}
           {children && (
             <AlertDialogDescription asChild>
-              <div className="space-y-1.5 leading-relaxed">{children}</div>
+              <div className="space-y-1.5 leading-relaxed w-full">
+                {children}
+              </div>
             </AlertDialogDescription>
           )}
         </AlertDialogHeader>
@@ -184,7 +190,7 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
             variant={variant}
             size="sm"
             onClick={onConfirm}
-            disabled={!phraseSatisfied}
+            disabled={confirmDisabled || !phraseSatisfied}
             isPending={isPending}
             isSuccess={isSuccess}
             isError={isError}

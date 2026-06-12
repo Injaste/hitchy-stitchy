@@ -3,7 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { stepperCheckIn, stepperNumberIn } from "../animations";
+import {
+  stepperCheckIn,
+  stepperNumberIn,
+  stepperConnectorFill,
+  STEPPER_NODE_FILL_DELAY,
+} from "../animations";
 import { STEPS, type StepType } from "../types";
 
 interface CreateEventStepperProps {
@@ -12,6 +17,12 @@ interface CreateEventStepperProps {
 
 const CreateEventStepper: FC<CreateEventStepperProps> = ({ activeStep }) => {
   const activeIndex = STEPS.indexOf(activeStep);
+
+  // The active step's circle + label hold their fill until the dash arrives —
+  // beat 3 of the chain. Works both ways: the step being entered always fills
+  // last, whether we advanced into it or came back to it.
+  const arriveDelay = (isActive: boolean) =>
+    isActive ? STEPPER_NODE_FILL_DELAY : "0s";
 
   return (
     <div className="flex items-center justify-center mb-8">
@@ -30,6 +41,7 @@ const CreateEventStepper: FC<CreateEventStepperProps> = ({ activeStep }) => {
                   isDone && "bg-primary/20 text-primary",
                   !isActive && !isDone && "bg-muted text-muted-foreground",
                 )}
+                style={{ transitionDelay: arriveDelay(isActive) }}
               >
                 <AnimatePresence mode="popLayout" initial={false}>
                   {isDone ? (
@@ -58,21 +70,24 @@ const CreateEventStepper: FC<CreateEventStepperProps> = ({ activeStep }) => {
 
               <span
                 className={cn(
-                  "text-xs uppercase tracking-widest transition-colors",
+                  "text-xs uppercase tracking-widest transition-all",
                   isActive ? "text-primary font-bold" : "text-muted-foreground",
                 )}
+                style={{ transitionDelay: arriveDelay(isActive) }}
               >
                 {label}
               </span>
             </div>
 
             {!isLast && (
-              <div
-                className={cn(
-                  "w-14 h-px mx-3 mb-5 transition-colors",
-                  isDone ? "bg-primary/40" : "bg-border",
-                )}
-              />
+              <div className="w-14 h-0.5 mx-3 mb-5 rounded-full bg-border overflow-hidden">
+                <motion.div
+                  className="h-full bg-primary origin-left"
+                  initial={false}
+                  animate={{ scaleX: isDone ? 1 : 0 }}
+                  transition={stepperConnectorFill}
+                />
+              </div>
             )}
           </div>
         );

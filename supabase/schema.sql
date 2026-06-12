@@ -1382,7 +1382,7 @@ RETURNS event_days LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_day event_days;
 BEGIN
-  IF NOT has_event_permission(p_event_id, 'timeline', 'create') THEN
+  IF NOT is_super_admin_member(p_event_id) THEN
     RAISE EXCEPTION 'Insufficient permission to add days';
   END IF;
 
@@ -1415,7 +1415,7 @@ RETURNS event_days LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_day event_days;
 BEGIN
-  IF NOT has_event_permission(p_event_id, 'timeline', 'update') THEN
+  IF NOT is_super_admin_member(p_event_id) THEN
     RAISE EXCEPTION 'Insufficient permission to update days';
   END IF;
 
@@ -1436,19 +1436,31 @@ BEGIN
 END;
 $$;
 
--- delete_day — remove a day (cascades segments + items). Keeps ≥1 day.
+-- delete_day — remove an empty day. Keeps ≥1 day, and refuses a day that still
+-- has schedule items (the caller must clear them from the timeline first).
 CREATE OR REPLACE FUNCTION public.delete_day(p_event_id uuid, p_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
   v_count integer;
+  v_items integer;
 BEGIN
-  IF NOT has_event_permission(p_event_id, 'timeline', 'delete') THEN
+  IF NOT is_super_admin_member(p_event_id) THEN
     RAISE EXCEPTION 'Insufficient permission to delete days';
   END IF;
 
   SELECT count(*) INTO v_count FROM event_days WHERE event_id = p_event_id;
   IF v_count <= 1 THEN
     RAISE EXCEPTION 'An event must keep at least one day';
+  END IF;
+
+  -- Items attach via segments (event_timelines.segment_id -> event_segments
+  -- .day_id). Count items, not segments — every day has a default segment.
+  SELECT count(*) INTO v_items
+  FROM event_timelines t
+  JOIN event_segments s ON s.id = t.segment_id
+  WHERE s.day_id = p_id AND t.event_id = p_event_id;
+  IF v_items > 0 THEN
+    RAISE EXCEPTION 'Remove this day''s % schedule item(s) before deleting it', v_items;
   END IF;
 
   DELETE FROM event_days WHERE id = p_id AND event_id = p_event_id;

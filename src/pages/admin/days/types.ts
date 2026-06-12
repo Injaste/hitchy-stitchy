@@ -26,6 +26,13 @@ export interface DeleteDayPayload {
   id: string;
 }
 
+/** Minimal schedule-item shape — listed in the delete-day modal to explain why
+ *  a non-empty day can't be removed. */
+export interface DayItem {
+  id: string;
+  title: string;
+}
+
 export const dayFormSchema = z.object({
   date: z.string().min(1, "Pick a date."),
   label: z

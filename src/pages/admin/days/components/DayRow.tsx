@@ -4,11 +4,6 @@ import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
 import { DayLabelField } from "@/components/custom/form";
 import { parseLocalDate } from "@/lib/utils/utils-time";
@@ -16,6 +11,7 @@ import { gappedListItemReveal, listLayoutTransition } from "@/lib/animations";
 
 import { useAdminStore } from "../../store/useAdminStore";
 import { useDayMutations } from "../queries";
+import { useDayModalStore } from "../hooks/useDayModalStore";
 import type { EventDay } from "../types";
 
 interface DayRowProps {
@@ -34,11 +30,11 @@ const rowMotion = {
 
 const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
   const { eventId } = useAdminStore();
-  const { update, remove } = useDayMutations();
+  const { update } = useDayMutations();
+  const openDeleteDay = useDayModalStore((s) => s.openDeleteDay);
   const [label, setLabel] = useState(day.label);
   const [error, setError] = useState<string | null>(null);
   const [shakeTick, setShakeTick] = useState(0);
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const dateText = format(parseLocalDate(day.date), "EEE, d MMM yyyy");
 
@@ -90,50 +86,17 @@ const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
           error={error}
           aria-label={`Label for ${dateText}`}
         />
-        <Popover open={confirmOpen} onOpenChange={setConfirmOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              size="icon-sm"
-              variant="ghost"
-              disabled={!canRemove}
-              aria-label="Remove day"
-              className="text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-64 space-y-3">
-            <p className="text-sm">
-              Remove <span className="font-medium">{day.label}</span>? This also
-              deletes that day's schedule items.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => setConfirmOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="destructive"
-                disabled={remove.isPending}
-                onClick={() =>
-                  remove.mutate(
-                    { event_id: eventId!, id: day.id },
-                    { onSuccess: () => setConfirmOpen(false) },
-                  )
-                }
-              >
-                Remove
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          disabled={!canRemove}
+          aria-label="Remove day"
+          className="text-muted-foreground hover:text-destructive"
+          onClick={() => openDeleteDay(day)}
+        >
+          <Trash2 className="size-4" />
+        </Button>
       </AnimateItem>
     </motion.li>
   );

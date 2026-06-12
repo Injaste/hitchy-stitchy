@@ -65,7 +65,6 @@ const StepDetails: FC<StepDetailsProps> = ({
   });
 
   const slugValue = useStore(form.store, (s) => s.values.slug);
-  const isSubmitting = useStore(form.store, (s) => s.isSubmitting);
 
   useEffect(() => {
     if (slugTouched) return;
@@ -148,7 +147,9 @@ const StepDetails: FC<StepDetailsProps> = ({
         </div>
       </FieldGroup>
 
-      <SubmitButton size="lg" isPending={isSubmitting} className="w-full">
+      {/* Sync validate-and-advance — no async submit, so no pending state
+          (SubmitButton's spinner only stops on success/error or unmount). */}
+      <SubmitButton size="lg" isPending={false} className="w-full">
         Continue
       </SubmitButton>
     </FormShell>

@@ -4,7 +4,13 @@ import { truncate } from "@/lib/utils";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { adminKeys } from "@/pages/admin/lib/queryKeys";
 
-import { fetchEventDays, createDay, updateDay, deleteDay } from "./api";
+import {
+  fetchEventDays,
+  fetchDayItems,
+  createDay,
+  updateDay,
+  deleteDay,
+} from "./api";
 import type {
   EventDay,
   CreateDayPayload,
@@ -18,6 +24,17 @@ export function useEventDaysQuery() {
     queryKey: adminKeys.days(slug!),
     queryFn: () => fetchEventDays(eventId!),
     enabled: !!eventId && !!slug,
+  });
+}
+
+// The day's schedule items — fetched only while the delete modal is open, to
+// list what's blocking deletion. The delete_day RPC enforces the same guard.
+export function useDayItemsQuery(date: string, enabled: boolean) {
+  const { slug, eventId } = useAdminStore();
+  return useQuery({
+    queryKey: adminKeys.dayItems(slug!, date),
+    queryFn: () => fetchDayItems(eventId!, date),
+    enabled: enabled && !!eventId && !!slug,
   });
 }
 

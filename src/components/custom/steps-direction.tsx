@@ -1,8 +1,6 @@
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext } from "react";
 import { AnimatePresence } from "framer-motion";
-import ComponentSlide from "../animations/animate-component-slide";
-
-type Direction = 1 | -1 | 0;
+import ComponentFade from "../animations/animate-component-fade";
 
 interface StepsContextValue<T extends string> {
   activeStep: T;
@@ -19,36 +17,25 @@ export function useSteps<T extends string = never>() {
 
 interface StepsProps<T extends string> {
   value: T;
-  order: readonly T[];
   onChange: (step: T) => void;
   children: React.ReactNode;
 }
 
+// Steps crossfade (with a soft blur) on change — no directional slide, so `goTo`
+// is just `onChange`.
 export function StepsDirection<T extends string>({
   value,
-  order,
   onChange,
   children,
 }: StepsProps<T>) {
-  const prevRef = useRef(value);
-  const [direction, setDirection] = useState<Direction>(0);
-
-  const goTo = (next: T) => {
-    const prevIdx = order.indexOf(prevRef.current);
-    const nextIdx = order.indexOf(next);
-    setDirection(nextIdx > prevIdx ? 1 : -1);
-    prevRef.current = next;
-    onChange(next);
-  };
-
   return (
     <StepsContext.Provider
-      value={{ activeStep: value, goTo: goTo as (step: string) => void }}
+      value={{ activeStep: value, goTo: onChange as (step: string) => void }}
     >
       <AnimatePresence mode="wait">
-        <ComponentSlide key={value} direction={direction}>
+        <ComponentFade key={value} useBlur>
           {children}
-        </ComponentSlide>
+        </ComponentFade>
       </AnimatePresence>
     </StepsContext.Provider>
   );
