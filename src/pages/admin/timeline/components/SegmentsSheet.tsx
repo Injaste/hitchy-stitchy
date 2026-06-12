@@ -100,18 +100,16 @@ const SortableSegmentRow: FC<SortableRowProps> = ({
           failed && "ring-2 ring-destructive",
         )}
       >
-        {canReorder ? (
-          <button
-            ref={handleRef}
-            type="button"
-            className="cursor-grab touch-none p-1 text-muted-foreground"
-            aria-label="Drag to reorder"
-          >
-            <GripVertical className="size-4" />
-          </button>
-        ) : (
-          <span className="w-6 shrink-0" />
-        )}
+        <Button
+          ref={handleRef}
+          variant="ghost"
+          size="icon-sm"
+          className="cursor-grab touch-none text-muted-foreground"
+          disabled={!canReorder}
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="size-4" />
+        </Button>
 
         <Input
           value={name}
@@ -122,7 +120,7 @@ const SortableSegmentRow: FC<SortableRowProps> = ({
             if (e.key === "Enter") (e.target as HTMLInputElement).blur();
           }}
           placeholder="Schedule"
-          className="h-8 border-0 bg-transparent shadow-none focus-visible:ring-0"
+          className="h-8 border-0 bg-transparent shadow-none focus-visible:ring-0 pl-0"
         />
 
         {count > 0 && (

@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { container, itemFadeUp } from "@/lib/animations";
@@ -19,6 +19,12 @@ interface DaySegmentProps {
   dayItems: Timeline[];
   /** False only for a day's single unnamed segment (renders flat, like before). */
   showHeading: boolean;
+  /**
+   * Whether the segment can be collapsed. False when the day has a single
+   * segment — collapsing it would hide everything, so the chevron is dropped
+   * and the body stays open regardless of stored collapse state.
+   */
+  collapsible: boolean;
 }
 
 /** One segment in the day flow: a light chapter heading + its label rail. */
@@ -26,11 +32,13 @@ const DaySegment: FC<DaySegmentProps> = ({
   segment,
   dayItems,
   showHeading,
+  collapsible,
 }) => {
   const { canCreate } = useAccess();
   const openCreate = useTimelineModalStore((s) => s.openCreate);
-  const collapsed = useSegmentCollapse((s) => !!s.collapsed[segment.id]);
+  const storedCollapsed = useSegmentCollapse((s) => !!s.collapsed[segment.id]);
   const toggleCollapse = useSegmentCollapse((s) => s.toggle);
+  const collapsed = collapsible && storedCollapsed;
 
   const items = segmentItems(segment);
   const earliest = items.length ? getEarliestTime(items) : "";
@@ -43,29 +51,36 @@ const DaySegment: FC<DaySegmentProps> = ({
     <div className="group/day-segment">
       {showHeading && (
         <div className="flex items-center gap-2">
-          {/* Icon + name are one toggle so the label is clickable too. */}
-          <button
-            type="button"
-            onClick={() => toggleCollapse(segment.id)}
-            aria-expanded={!collapsed}
-            aria-label={
-              collapsed
-                ? `Expand ${segment.name ?? "schedule"}`
-                : `Collapse ${segment.name ?? "schedule"}`
-            }
-            className="group/segment-toggle flex min-w-0 cursor-pointer items-center gap-2 rounded p-0.5 text-left"
-          >
-            <span className="shrink-0 text-muted-foreground/70 transition-colors group-hover/segment-toggle:text-foreground">
-              {collapsed ? (
-                <ChevronRight className="size-3.5" />
-              ) : (
-                <ChevronDown className="size-3.5" />
-              )}
-            </span>
-            <span className="min-w-0 truncate font-display text-sm font-semibold text-foreground">
+          {/* Icon + name are one toggle so the label is clickable too. The lone
+              visible segment drops the chevron and renders a plain heading. */}
+          {collapsible ? (
+            <button
+              type="button"
+              onClick={() => toggleCollapse(segment.id)}
+              aria-expanded={!collapsed}
+              aria-label={
+                collapsed
+                  ? `Expand ${segment.name ?? "schedule"}`
+                  : `Collapse ${segment.name ?? "schedule"}`
+              }
+              className="group/segment-toggle flex min-w-0 cursor-pointer items-center gap-2 rounded p-0.5 text-left"
+            >
+              <span className="shrink-0 text-muted-foreground/70 transition-colors group-hover/segment-toggle:text-foreground">
+                <ChevronDown
+                  className={`size-3.5 transition-transform duration-200 ${
+                    collapsed ? "-rotate-90" : "rotate-0"
+                  }`}
+                />
+              </span>
+              <span className="min-w-0 truncate font-display text-sm font-semibold text-foreground">
+                {segment.name ?? "Schedule"}
+              </span>
+            </button>
+          ) : (
+            <span className="min-w-0 truncate p-0.5 font-display text-sm font-semibold text-foreground">
               {segment.name ?? "Schedule"}
             </span>
-          </button>
+          )}
           {earliest && latest && (
             <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-2xs text-muted-foreground">
               <ArraySeparator

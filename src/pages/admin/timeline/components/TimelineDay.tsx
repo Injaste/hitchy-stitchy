@@ -1,9 +1,5 @@
 import { useState, type FC } from "react";
-import {
-  ChevronsDownUp,
-  ChevronsUpDown,
-  GalleryVerticalEnd,
-} from "lucide-react";
+import { ChevronDown, GalleryVerticalEnd } from "lucide-react";
 
 import { calculateTimeDuration, formatTime } from "@/lib/utils/utils-time";
 import { Button } from "@/components/ui/button";
@@ -60,31 +56,48 @@ const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
     <div className="space-y-5">
       <div className="flex justify-between gap-2">
         <div className="flex items-start gap-2 text-sm font-medium text-muted-foreground sm:items-center">
-          {showCollapseToggle && (
-            <button
-              type="button"
-              onClick={() =>
-                allCollapsed ? expandAll(headedIds) : collapseAll(headedIds)
-              }
-              aria-label={
-                allCollapsed ? "Expand all segments" : "Collapse all segments"
-              }
-              className="shrink-0 cursor-pointer rounded p-0.5 text-muted-foreground/70 transition-colors hover:text-foreground"
-            >
-              {allCollapsed ? (
-                <ChevronsUpDown className="size-3.5" />
-              ) : (
-                <ChevronsDownUp className="size-3.5" />
-              )}
-            </button>
-          )}
-          {/* Count + times share a column so the times wrap under the label
-              (not the chevron) on mobile, and sit inline on desktop. */}
+          {/* Count + times share a column so the times wrap under the heading
+              on mobile, and sit inline on desktop. When collapsing is possible
+              the chevron + count are one toggle (like a segment heading), so the
+              "N Segments" label is clickable too. */}
           <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
-            <span className="text-foreground">
-              {day.segments.length}{" "}
-              {day.segments.length === 1 ? "Segment" : "Segments"}
-            </span>
+            {showCollapseToggle ? (
+              <button
+                type="button"
+                onClick={() =>
+                  allCollapsed ? expandAll(headedIds) : collapseAll(headedIds)
+                }
+                aria-expanded={!allCollapsed}
+                aria-label={
+                  allCollapsed ? "Expand all segments" : "Collapse all segments"
+                }
+                className="group/day-toggle flex cursor-pointer items-center gap-2 rounded p-0.5 text-left"
+              >
+                {/* Two stacked chevrons that rotate to mimic ChevronsDownUp
+                    (expanded) ↔ ChevronsUpDown (collapsed) with an animation. */}
+                <span className="relative flex size-3.5 shrink-0 items-center justify-center text-muted-foreground/70 transition-colors group-hover/day-toggle:text-foreground">
+                  <ChevronDown
+                    className={`absolute size-3.5 -translate-y-1 transition-transform duration-200 ${
+                      allCollapsed ? "rotate-180" : ""
+                    }`}
+                  />
+                  <ChevronDown
+                    className={`absolute size-3.5 translate-y-1 transition-transform duration-200 ${
+                      allCollapsed ? "" : "rotate-180"
+                    }`}
+                  />
+                </span>
+                <span className="text-foreground">
+                  {day.segments.length}{" "}
+                  {day.segments.length === 1 ? "Segment" : "Segments"}
+                </span>
+              </button>
+            ) : (
+              <span className="text-foreground">
+                {day.segments.length}{" "}
+                {day.segments.length === 1 ? "Segment" : "Segments"}
+              </span>
+            )}
             {earliest && latest && (
               <div className="flex items-center gap-1.5">
                 {/* Separator hierarchy, matching the rest of the timeline:
@@ -127,6 +140,7 @@ const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
           segment={day.segments[0]}
           dayItems={items}
           showHeading={false}
+          collapsible={false}
         />
       ) : (
         <div className="space-y-5">
@@ -136,6 +150,7 @@ const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
               segment={segment}
               dayItems={items}
               showHeading
+              collapsible={day.segments.length > 1}
             />
           ))}
         </div>
