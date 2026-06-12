@@ -9,12 +9,20 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { AnimateItem } from "@/components/animations/forms/field-animate";
 import {
   useSlugCheck,
   toSafeSlug,
   toSlug,
   type SlugStatus,
 } from "@/hooks/useSlugCheck";
+
+// Live (non-schema) rejections surfaced by the reserve check. Format errors are
+// left to the form's own validation, which shakes the field on Continue.
+const STATUS_MESSAGE: Partial<Record<SlugStatus, string>> = {
+  taken: "That URL's already taken — try another.",
+  error: "Couldn't check that URL — try again.",
+};
 
 // ─── Exported handle ──────────────────────────────────────────────────────────
 
@@ -52,6 +60,8 @@ interface SlugInputProps {
   onBlur?: (currentValue: string) => void;
   /** Fired whenever the slug's taken status changes. Drive error display in the parent. */
   onTakenChange?: (taken: boolean) => void;
+  /** Fired with the hold's expiry (ISO) + slug when reserved (on availability). */
+  onReserved?: (expiry: string, slug: string) => void;
   invalid?: boolean;
   placeholder?: string;
   id?: string;
@@ -66,13 +76,15 @@ const SlugInput = forwardRef<SlugInputHandle, SlugInputProps>(
       onChange,
       onBlur,
       onTakenChange,
+      onReserved,
       invalid,
       placeholder = "e.g. my-wedding",
       id,
     },
     ref,
   ) => {
-    const { status, scheduleCheck, checkNow } = useSlugCheck();
+    const { status, scheduleCheck, checkNow } = useSlugCheck({ onReserved });
+    const isError = status === "taken" || status === "error";
 
     useEffect(() => {
       onTakenChange?.(status === "taken");
@@ -83,31 +95,39 @@ const SlugInput = forwardRef<SlugInputHandle, SlugInputProps>(
       checkNow,
     ]);
 
+    // Each check sets "checking" before its result, so hasError dips between
+    // consecutive failures — the shake re-fires per check off that toggle alone.
     return (
-      <InputGroup>
-        <InputGroupInput
-          id={id}
-          placeholder={placeholder}
-          value={value}
-          aria-invalid={invalid || undefined}
-          onChange={(e) => {
-            const safe = toSafeSlug(e.target.value);
-            onChange(safe);
-            scheduleCheck(safe);
-          }}
-          onBlur={(e) => {
-            const normalized = toSlug(e.target.value);
-            if (normalized !== value) {
-              onChange(normalized);
-              scheduleCheck(normalized);
-            }
-            onBlur?.(normalized);
-          }}
-        />
-        <InputGroupAddon align="inline-end">
-          <SlugStatusIcon status={status} />
-        </InputGroupAddon>
-      </InputGroup>
+      <AnimateItem
+        hasError={isError}
+        attemptCount={0}
+        error={STATUS_MESSAGE[status] ?? null}
+      >
+        <InputGroup>
+          <InputGroupInput
+            id={id}
+            placeholder={placeholder}
+            value={value}
+            aria-invalid={invalid || undefined}
+            onChange={(e) => {
+              const safe = toSafeSlug(e.target.value);
+              onChange(safe);
+              scheduleCheck(safe);
+            }}
+            onBlur={(e) => {
+              const normalized = toSlug(e.target.value);
+              if (normalized !== value) {
+                onChange(normalized);
+                scheduleCheck(normalized);
+              }
+              onBlur?.(normalized);
+            }}
+          />
+          <InputGroupAddon align="inline-end">
+            <SlugStatusIcon status={status} />
+          </InputGroupAddon>
+        </InputGroup>
+      </AnimateItem>
     );
   },
 );

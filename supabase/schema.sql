@@ -62,13 +62,13 @@ CREATE TYPE public.event_task_status   AS ENUM ('todo', 'in_progress', 'done');
 -- -----------------------------------------------------------------------------
 -- events  [inferred from create_event, get_bootstrap_context, delete_event RPCs]
 -- Note: created_by FK added after event_members to break the circular dep.
+-- The date span (date_start/date_end) is NOT stored — it is derived from
+-- event_days on read via the events_with_dates view (migration 20260611000005).
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.events (
   id           uuid        NOT NULL DEFAULT gen_random_uuid(),
   slug         text        NOT NULL,
   name         text        NOT NULL,
-  date_start   date        NOT NULL,
-  date_end     date        NOT NULL,
   created_by   uuid,                  -- FK → event_members.id added below
   deleted_at   timestamptz,
   created_at   timestamptz NOT NULL DEFAULT now(),
@@ -348,14 +348,17 @@ CREATE UNIQUE INDEX one_active_timeline_per_event
   WHERE started_at IS NOT NULL AND ended_at IS NULL;
 
 -- -----------------------------------------------------------------------------
--- event_days  [added migration 20260608000001]
--- One row per calendar date of an event, seeded by create_event for each date in
--- the range. `date` is the single source of truth for a day.
+-- event_days  [added migration 20260608000001; label added 20260611000001]
+-- One row per event date — NOT necessarily contiguous (a wedding week may skip
+-- days). create_event seeds the dates picked in the wizard; create_day/delete_day
+-- maintain the set afterward. `date` is the day's identity; `label` is a
+-- required human name ("Mehndi Night") — every day must be named.
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_days (
   id         uuid        NOT NULL DEFAULT gen_random_uuid(),
   event_id   uuid        NOT NULL,
   date       date        NOT NULL,
+  label      text        NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
 
@@ -535,16 +538,51 @@ CREATE TABLE public.waitlist_signups (
   CONSTRAINT waitlist_signups_pkey PRIMARY KEY (id)
 );
 
+-- -----------------------------------------------------------------------------
+-- slug_reservations  [added migration 20260611000002]
+-- Holds a slug for a user while they fill the create-event wizard so two people
+-- can't race for the same URL. Sliding 30-min TTL — re-reserving your own slug
+-- refreshes the hold ("Keep it"); expiry is lazy (ignored by checks, overwritten
+-- on next reserve). expires_at IS NULL = a permanent reservation that never expires —
+-- reserved for future system blocklist slugs. Reachable only via the SECURITY
+-- DEFINER reserve/release/is_slug_taken RPCs.
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.slug_reservations (
+  slug       text        NOT NULL,
+  user_id    uuid        NOT NULL,
+  expires_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+
+  CONSTRAINT slug_reservations_pkey PRIMARY KEY (slug)
+);
+
 
 -- =============================================================================
 -- VIEWS
 -- =============================================================================
 
--- event_slugs — read-only projection of active events  [inferred from query shape]
-CREATE OR REPLACE VIEW public.event_slugs AS
-  SELECT id, slug, name, date_start, date_end
-  FROM public.events
-  WHERE deleted_at IS NULL;
+-- events_with_dates — read-only projection: each event + its date span derived
+-- from event_days (min/max). The single place the span is computed; replaces the
+-- stored date_start/date_end columns (migration 20260611000005). Explicit column
+-- list (not e.*) so it doesn't depend on dropped columns. LEFT JOIN so an event
+-- is never lost — the ≥1-day invariant means the span is never actually null.
+-- (Superseded event_slugs, which is now dropped — is_slug_taken is the slug gate.)
+-- SECURITY DEFINER (security_invoker = false, explicit per policy) → bypasses RLS,
+-- so it is INTERNAL ONLY: only the SECURITY DEFINER readers (get_user_events,
+-- get_bootstrap_context) use it. Access is revoked from client roles so the
+-- definer view can't leak rows directly.
+CREATE OR REPLACE VIEW public.events_with_dates
+WITH (security_invoker = false) AS
+  SELECT e.id, e.slug, e.name, e.deleted_at,
+         d.date_start, d.date_end
+  FROM public.events e
+  LEFT JOIN (
+    SELECT event_id, min(date) AS date_start, max(date) AS date_end
+    FROM public.event_days
+    GROUP BY event_id
+  ) d ON d.event_id = e.id;
+
+REVOKE ALL ON public.events_with_dates FROM anon, authenticated;
 
 
 -- =============================================================================
@@ -652,6 +690,7 @@ ALTER TABLE public.event_timelines          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_vendors            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events                   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.push_subscriptions       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.slug_reservations        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.waitlist_signups         ENABLE ROW LEVEL SECURITY;
 
 
@@ -905,6 +944,8 @@ DECLARE
   v_event        events;
   v_member       event_members;
   v_access_group event_access_groups;
+  v_start        date;
+  v_end          date;
 BEGIN
   SELECT * INTO v_event
   FROM events WHERE slug = p_slug AND deleted_at IS NULL;
@@ -932,12 +973,16 @@ BEGIN
   SELECT * INTO v_access_group
   FROM event_access_groups WHERE id = v_member.access_group_id;
 
+  -- Span derived from event_days (single source of truth).
+  SELECT date_start, date_end INTO v_start, v_end
+  FROM events_with_dates WHERE id = v_event.id;
+
   RETURN json_build_object(
     'event_id',   v_event.id,
     'slug',       v_event.slug,
     'event_name', v_event.name,
-    'date_start', v_event.date_start,
-    'date_end',   v_event.date_end,
+    'date_start', v_start,
+    'date_end',   v_end,
     'member', json_build_object(
       'id',           v_member.id,
       'display_name', v_member.display_name,
@@ -1319,6 +1364,177 @@ BEGIN
     AND es.event_id = p_event_id
     AND es.day_id   = p_day_id;
 END;
+$$;
+
+
+-- =============================================================================
+-- DAY CRUD — RPCs  [added migration 20260611000003]
+-- create / update / delete event_days after creation, gated on the `timeline`
+-- resource (named like the segment RPCs). create seeds a default segment;
+-- delete cascades segments + items (FK) and is blocked on the last day. The date
+-- span is derived from event_days on read (events_with_dates), so nothing here
+-- writes it back.
+-- =============================================================================
+
+-- create_day — append a labeled day + its default segment; expand envelope.
+CREATE OR REPLACE FUNCTION public.create_day(p_event_id uuid, p_date date, p_label text)
+RETURNS event_days LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_day event_days;
+BEGIN
+  IF NOT has_event_permission(p_event_id, 'timeline', 'create') THEN
+    RAISE EXCEPTION 'Insufficient permission to add days';
+  END IF;
+
+  IF p_date IS NULL THEN
+    RAISE EXCEPTION 'A date is required';
+  END IF;
+
+  IF btrim(COALESCE(p_label, '')) = '' THEN
+    RAISE EXCEPTION 'A label is required';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM event_days WHERE event_id = p_event_id AND date = p_date) THEN
+    RAISE EXCEPTION 'That day is already on the schedule';
+  END IF;
+
+  INSERT INTO event_days (event_id, date, label)
+  VALUES (p_event_id, p_date, btrim(p_label))
+  RETURNING * INTO v_day;
+
+  INSERT INTO event_segments (event_id, day_id, name, sort_order)
+  VALUES (p_event_id, v_day.id, NULL, 0);
+
+  RETURN v_day;
+END;
+$$;
+
+-- update_day — rename a day. Label is required (NOT NULL); a blank is rejected.
+CREATE OR REPLACE FUNCTION public.update_day(p_event_id uuid, p_id uuid, p_label text)
+RETURNS event_days LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_day event_days;
+BEGIN
+  IF NOT has_event_permission(p_event_id, 'timeline', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update days';
+  END IF;
+
+  IF btrim(COALESCE(p_label, '')) = '' THEN
+    RAISE EXCEPTION 'A label is required';
+  END IF;
+
+  UPDATE event_days
+  SET label = btrim(p_label)
+  WHERE id = p_id AND event_id = p_event_id
+  RETURNING * INTO v_day;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Day not found';
+  END IF;
+
+  RETURN v_day;
+END;
+$$;
+
+-- delete_day — remove a day (cascades segments + items). Keeps ≥1 day.
+CREATE OR REPLACE FUNCTION public.delete_day(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_count integer;
+BEGIN
+  IF NOT has_event_permission(p_event_id, 'timeline', 'delete') THEN
+    RAISE EXCEPTION 'Insufficient permission to delete days';
+  END IF;
+
+  SELECT count(*) INTO v_count FROM event_days WHERE event_id = p_event_id;
+  IF v_count <= 1 THEN
+    RAISE EXCEPTION 'An event must keep at least one day';
+  END IF;
+
+  DELETE FROM event_days WHERE id = p_id AND event_id = p_event_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Day not found';
+  END IF;
+END;
+$$;
+
+
+-- =============================================================================
+-- SLUG RESERVATION — RPCs  [added migration 20260611000002]
+-- Hold a slug for a user mid-wizard. is_slug_taken drives the availability
+-- check; reserve/release manage the hold. 30-min sliding TTL, lazy expiry.
+-- =============================================================================
+
+-- is_slug_taken — true if ANY event (incl. soft-deleted, which keep their slug
+-- and may be reinstated) OR another user's active reservation holds the slug.
+-- The caller's own reservation never blocks them. NULL expiry = permanent.
+CREATE OR REPLACE FUNCTION public.is_slug_taken(p_slug text)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.events WHERE slug = p_slug
+  ) OR EXISTS (
+    SELECT 1 FROM public.slug_reservations
+    WHERE slug = p_slug
+      AND (expires_at IS NULL OR expires_at > now())
+      AND user_id IS DISTINCT FROM auth.uid()
+  );
+$$;
+
+-- reserve_slug — claim (or refresh) a slug for the caller. Sliding: re-reserving
+-- your own active slug bumps the TTL ("Keep it"); a different slug releases the
+-- prior hold. Single "already taken" message either way, so the holder stays anon.
+CREATE OR REPLACE FUNCTION public.reserve_slug(p_slug text)
+RETURNS timestamptz LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_user uuid        := auth.uid();
+  v_exp  timestamptz := now() + interval '30 minutes';
+BEGIN
+  IF v_user IS NULL THEN
+    RAISE EXCEPTION 'You must be logged in to reserve a URL';
+  END IF;
+
+  IF p_slug !~ '^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$' THEN
+    RAISE EXCEPTION 'Invalid URL slug';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM public.events WHERE slug = p_slug
+  ) OR EXISTS (
+    SELECT 1 FROM public.slug_reservations
+    WHERE slug = p_slug AND user_id <> v_user
+      AND (expires_at IS NULL OR expires_at > now())
+  ) THEN
+    RAISE EXCEPTION 'This URL is already taken';
+  END IF;
+
+  DELETE FROM public.slug_reservations
+  WHERE user_id = v_user AND slug <> p_slug AND expires_at IS NOT NULL;
+
+  INSERT INTO public.slug_reservations (slug, user_id, expires_at)
+  VALUES (p_slug, v_user, v_exp)
+  ON CONFLICT (slug) DO UPDATE
+    SET user_id = excluded.user_id, expires_at = excluded.expires_at
+    WHERE slug_reservations.user_id = v_user
+       OR (slug_reservations.expires_at IS NOT NULL
+           AND slug_reservations.expires_at <= now());
+
+  RETURN v_exp;
+END;
+$$;
+
+-- release_slug — drop the caller's reservation(s) on leaving the wizard.
+CREATE OR REPLACE FUNCTION public.release_slug()
+RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
+  DELETE FROM public.slug_reservations WHERE user_id = auth.uid();
+$$;
+
+-- cleanup_expired_slug_reservations — housekeeping purge, run every 30 min by
+-- pg_cron (migration 20260611000004). Lazy expiry already keeps checks correct;
+-- this only reclaims dead rows. Permanent (NULL-expiry) rows are never deleted.
+CREATE OR REPLACE FUNCTION public.cleanup_expired_slug_reservations()
+RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
+  DELETE FROM public.slug_reservations
+  WHERE expires_at IS NOT NULL AND expires_at < now();
 $$;
 
 
