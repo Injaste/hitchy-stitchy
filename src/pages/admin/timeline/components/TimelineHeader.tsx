@@ -12,7 +12,7 @@ import {
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
 import { useTimelineDays } from "../hooks/useTimelineDays";
-import { dayItems, defaultSegmentId, getLatestTime } from "../utils";
+import { dayItems, dayLabel, defaultSegmentId, getLatestTime } from "../utils";
 import { useAdminStore } from "../../store/useAdminStore";
 import { formatDateRange, parseLocalDate } from "@/lib/utils/utils-time";
 import type { TimelineGrouped } from "../types";
@@ -39,7 +39,9 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
       ? differenceInDays(new Date(dateEnd), new Date(dateStart)) + 1
       : null;
 
-  const activeDayLabel = hasItems ? `Day ${activeIndex + 1}` : null;
+  const activeDayLabel = hasItems
+    ? dayLabel(activeDay?.label, activeIndex)
+    : null;
   const activeDayDate =
     hasItems && activeDate ? format(parseLocalDate(activeDate), "MMM d") : null;
 
@@ -54,14 +56,19 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
       title="Timeline"
       titleSuffix={
         activeDayLabel && (
-          <ArraySeparator
-            items={[
-              <span className="block max-w-40 truncate">{activeDayLabel}</span>,
-              activeDayDate,
-            ].filter(Boolean)}
-            separator={<span className="text-muted-foreground/50">·</span>}
-            className="text-sm sm:text-base font-medium text-muted-foreground"
-          />
+          <div className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-muted-foreground sm:text-base">
+            {/* Label is the only item allowed to shrink — it truncates so a long
+                day name can't push the date or wrap it across lines. */}
+            <span className="min-w-0 truncate">{activeDayLabel}</span>
+            {activeDayDate && (
+              <>
+                <span className="shrink-0 text-muted-foreground/50">·</span>
+                <span className="shrink-0 whitespace-nowrap">
+                  {activeDayDate}
+                </span>
+              </>
+            )}
+          </div>
         )
       }
       description="Track and manage scheduled events across your selected date range."

@@ -42,7 +42,7 @@ const SidebarTriggerSection: FC<{ isMobile: boolean }> = ({ isMobile }) => {
             opacity: 0,
             transition: { duration: 0.2, ease: "easeInOut" },
           }}
-          className="flex items-center overflow-hidden"
+          className="flex shrink-0 items-center overflow-hidden"
         >
           <SidebarTrigger className="-ml-2 hover:bg-transparent!" />
           <Separator
@@ -83,11 +83,11 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">
               <SidebarTriggerSection isMobile={isMobile} />
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-xl font-semibold">{title}</h1>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <h1 className="shrink-0 text-xl font-semibold">{title}</h1>
                 {titleSuffix && (
                   <>
-                    <span className="text-base font-normal text-muted-foreground/50">
+                    <span className="shrink-0 text-base font-normal text-muted-foreground/50">
                       •
                     </span>
                     {titleSuffix}
