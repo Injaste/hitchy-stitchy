@@ -309,7 +309,6 @@ CREATE TABLE public.event_expenses (
   paid        numeric(12,2) NOT NULL DEFAULT 0,
   due_at      date,
   notes       text,
-  created_by  uuid,
   created_at  timestamptz   NOT NULL DEFAULT now(),
   updated_at  timestamptz   NOT NULL DEFAULT now(),
 
@@ -318,8 +317,6 @@ CREATE TABLE public.event_expenses (
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE,
   CONSTRAINT event_expenses_budget_id_fk
     FOREIGN KEY (budget_id) REFERENCES public.event_budget (id) ON DELETE RESTRICT,
-  CONSTRAINT event_expenses_created_by_fk
-    FOREIGN KEY (created_by) REFERENCES public.event_members (id) ON DELETE SET NULL,
   CONSTRAINT event_expenses_amount_chk CHECK (amount >= 0),
   CONSTRAINT event_expenses_paid_chk   CHECK (paid >= 0)
 );
@@ -1343,11 +1340,11 @@ BEGIN
   v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
 
   INSERT INTO event_expenses (
-    event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes, created_by
+    event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes
   )
   VALUES (
     p_event_id, v_budget_id, btrim(p_item), p_vendor_name, p_payer,
-    COALESCE(p_amount, 0), COALESCE(p_paid, 0), p_due_at, p_notes, v_caller.id
+    COALESCE(p_amount, 0), COALESCE(p_paid, 0), p_due_at, p_notes
   )
   RETURNING * INTO v_row;
 
