@@ -340,7 +340,6 @@ CREATE TABLE public.event_gifts (
   method     text          NOT NULL DEFAULT 'envelope',
   notes      text,
   day_id     uuid          NOT NULL,
-  created_by uuid,
   created_at timestamptz   NOT NULL DEFAULT now(),
   updated_at timestamptz   NOT NULL DEFAULT now(),
 
@@ -349,8 +348,6 @@ CREATE TABLE public.event_gifts (
     FOREIGN KEY (event_id)   REFERENCES public.events (id)        ON DELETE CASCADE,
   CONSTRAINT event_gifts_day_id_fk
     FOREIGN KEY (day_id)     REFERENCES public.event_days (id)    ON DELETE RESTRICT,
-  CONSTRAINT event_gifts_created_by_fk
-    FOREIGN KEY (created_by) REFERENCES public.event_members (id) ON DELETE SET NULL,
   CONSTRAINT event_gifts_amount_chk CHECK (amount >= 0),
   CONSTRAINT event_gifts_method_chk
     CHECK (method IN ('envelope', 'cash', 'transfer', 'others'))
@@ -1536,10 +1533,10 @@ BEGIN
     RAISE EXCEPTION 'Day does not belong to this event';
   END IF;
 
-  INSERT INTO event_gifts (event_id, given_by, amount, method, notes, day_id, created_by)
+  INSERT INTO event_gifts (event_id, given_by, amount, method, notes, day_id)
   VALUES (
     p_event_id, btrim(p_given_by), COALESCE(p_amount, 0),
-    COALESCE(p_method, 'envelope'), p_notes, v_day, v_caller.id
+    COALESCE(p_method, 'envelope'), p_notes, v_day
   )
   RETURNING * INTO v_row;
 
