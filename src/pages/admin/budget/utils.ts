@@ -2,18 +2,6 @@ import { differenceInCalendarDays, format, parseISO } from "date-fns"
 
 import type { BudgetBucket, Expense, ExpenseStatus } from "./types"
 
-const numFmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 })
-
-/** "S$12,000" — SGD with no cents (wedding amounts are whole). */
-export function formatSGD(n: number): string {
-  return `S$${numFmt.format(Math.round(n))}`
-}
-
-/** "12,000" — bare grouped number, for tight sheet cells. */
-export function formatNum(n: number): string {
-  return numFmt.format(Math.round(n))
-}
-
 export function statusOf(e: Expense): ExpenseStatus {
   if (e.paid <= 0) return "unpaid"
   if (e.paid >= e.amount) return "paid"

@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { Route, Navigate, useParams } from "react-router-dom";
 import RequireRead from "@/components/custom/require-read";
+import RequireSuperAdmin from "@/components/custom/require-super-admin";
 import ComponentFade from "@/components/animations/animate-component-fade";
 
 import Timeline from "@/pages/admin/timeline";
@@ -9,6 +10,7 @@ import Members from "@/pages/admin/members";
 import Access from "@/pages/admin/access";
 import Guests from "@/pages/admin/guests";
 import Budget from "@/pages/admin/budget";
+import Gifts from "@/pages/admin/gifts";
 import Invitation from "@/pages/admin/invitation";
 import Settings from "@/pages/admin/settings";
 
@@ -37,7 +39,8 @@ const AdminRoutes = () => (
     <Route path="members" element={<Members />} />
     <Route path="access" element={<RequireRead resource="access"><Access /></RequireRead>} />
     <Route path="guests" element={<RequireRead resource="guests"><Guests /></RequireRead>} />
-    <Route path="budget-tracker" element={<RequireRead resource="budget"><Budget /></RequireRead>} />
+    <Route path="budget-tracker" element={<RequireSuperAdmin><Budget /></RequireSuperAdmin>} />
+    <Route path="gift-envelopes" element={<RequireSuperAdmin><Gifts /></RequireSuperAdmin>} />
     <Route path="invitation" element={<RequireRead resource={["invitation", "themes"]}><Invitation /></RequireRead>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />

@@ -6,6 +6,7 @@ import {
   Mail,
   ClipboardList,
   Wallet,
+  HandCoins,
   Settings,
 } from "lucide-react";
 import {
@@ -30,6 +31,7 @@ const AdminSidebarContent = () => {
   const showTimeline = canRead("timeline");
   const showTasks = canRead("tasks");
   const showBudget = canRead("budget");
+  const showGifts = canRead("gifts");
   // The member roster is viewable by every active member; managing it needs members:full.
   const showMembers = true;
   const showAccess = canRead("access");
@@ -37,7 +39,7 @@ const AdminSidebarContent = () => {
   const showInvitation = canRead("invitation") || canRead("themes");
 
   const hasOperations = showTimeline || showTasks;
-  const hasMoney = showBudget;
+  const hasMoney = showBudget || showGifts;
   const hasTeam = showMembers || showAccess;
   const hasRSVP = showGuests || showInvitation;
 
@@ -82,6 +84,14 @@ const AdminSidebarContent = () => {
                     label="Budget Tracker"
                     to={`${base}/budget-tracker`}
                     isActive={activePage === "budget-tracker"}
+                  />
+                )}
+                {showGifts && (
+                  <NavItem
+                    icon={HandCoins}
+                    label="Gift Envelopes"
+                    to={`${base}/gift-envelopes`}
+                    isActive={activePage === "gift-envelopes"}
                   />
                 )}
               </SidebarMenu>

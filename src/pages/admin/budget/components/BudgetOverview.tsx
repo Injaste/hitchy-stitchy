@@ -3,7 +3,8 @@ import { Sparkles } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 
-import { formatNum, type BudgetSummary as SummaryData } from "../utils";
+import { formatNum } from "@/lib/money";
+import { type BudgetSummary as SummaryData } from "../utils";
 import BudgetStats from "./BudgetStats";
 
 interface BudgetOverviewProps {

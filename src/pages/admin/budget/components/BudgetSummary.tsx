@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import IconSwap from "@/components/animations/animate-icon-swap";
 
 import { useBudgetMutations } from "../queries";
-import { formatNum, type BudgetSummary as SummaryData } from "../utils";
+import { formatNum } from "@/lib/money";
+import { type BudgetSummary as SummaryData } from "../utils";
 import BudgetStats from "./BudgetStats";
 
 interface BudgetSummaryProps {

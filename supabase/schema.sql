@@ -327,6 +327,37 @@ CREATE INDEX event_expenses_event_id_idx  ON public.event_expenses (event_id);
 CREATE INDEX event_expenses_budget_id_idx ON public.event_expenses (budget_id);
 
 -- -----------------------------------------------------------------------------
+-- event_gifts  [20260613000002 — Gift Envelopes]
+-- Per-day cash-gift ledger (ang bao / sampul duit / shagun). Super-admin only.
+-- `day_id` (NOT NULL) tags the gift's event_day; create_gift defaults a NULL pick
+-- to the event's earliest day. ON DELETE RESTRICT — delete_day blocks on gifts.
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.event_gifts (
+  id         uuid          NOT NULL DEFAULT gen_random_uuid(),
+  event_id   uuid          NOT NULL,
+  given_by   text          NOT NULL,
+  amount     numeric(12,2) NOT NULL DEFAULT 0,
+  method     text          NOT NULL DEFAULT 'envelope',
+  notes      text,
+  day_id     uuid          NOT NULL,
+  created_by uuid,
+  created_at timestamptz   NOT NULL DEFAULT now(),
+  updated_at timestamptz   NOT NULL DEFAULT now(),
+
+  CONSTRAINT event_gifts_pkey PRIMARY KEY (id),
+  CONSTRAINT event_gifts_event_id_fk
+    FOREIGN KEY (event_id)   REFERENCES public.events (id)        ON DELETE CASCADE,
+  CONSTRAINT event_gifts_day_id_fk
+    FOREIGN KEY (day_id)     REFERENCES public.event_days (id)    ON DELETE RESTRICT,
+  CONSTRAINT event_gifts_created_by_fk
+    FOREIGN KEY (created_by) REFERENCES public.event_members (id) ON DELETE SET NULL,
+  CONSTRAINT event_gifts_amount_chk CHECK (amount >= 0),
+  CONSTRAINT event_gifts_method_chk
+    CHECK (method IN ('envelope', 'cash', 'transfer', 'others'))
+);
+CREATE INDEX event_gifts_event_id_idx ON public.event_gifts (event_id);
+
+-- -----------------------------------------------------------------------------
 -- event_rsvps  [confirmed]
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_rsvps (
@@ -741,6 +772,7 @@ ALTER TABLE public.event_days               ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_segments           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_budget             ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_expenses           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_gifts              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_invitation         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_live_logs          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_members            ENABLE ROW LEVEL SECURITY;
@@ -836,6 +868,11 @@ CREATE POLICY event_budget_select ON public.event_budget
   USING (is_super_admin_member(event_id));
 
 CREATE POLICY event_expenses_select ON public.event_expenses
+  FOR SELECT TO authenticated
+  USING (is_super_admin_member(event_id));
+
+-- event_gifts — super-admin only (the couple); no write policies (RPCs only).
+CREATE POLICY event_gifts_select ON public.event_gifts
   FOR SELECT TO authenticated
   USING (is_super_admin_member(event_id));
 
@@ -1452,6 +1489,159 @@ $$;
 
 
 -- =============================================================================
+-- GIFT ENVELOPES — RPCs  [added migration 20260613000002]
+-- Cash-gift ledger writes; super-admin only (gated on is_super_admin).
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.create_gift(
+  p_event_id uuid,
+  p_given_by text,
+  p_amount   numeric DEFAULT 0,
+  p_method   text    DEFAULT 'envelope',
+  p_notes    text    DEFAULT NULL,
+  p_day_id   uuid    DEFAULT NULL
+)
+RETURNS event_gifts LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_day    uuid;
+  v_row    event_gifts;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT is_super_admin(v_caller) THEN
+    RAISE EXCEPTION 'Insufficient permission to record gifts';
+  END IF;
+
+  IF btrim(COALESCE(p_given_by, '')) = '' THEN
+    RAISE EXCEPTION 'A giver name is required';
+  END IF;
+
+  IF COALESCE(p_amount, 0) < 0 THEN
+    RAISE EXCEPTION 'Amount cannot be negative';
+  END IF;
+
+  -- Resolve the day: explicit pick, else the event's earliest day.
+  v_day := COALESCE(
+    p_day_id,
+    (SELECT id FROM event_days WHERE event_id = p_event_id ORDER BY date, id LIMIT 1)
+  );
+  IF v_day IS NULL THEN
+    RAISE EXCEPTION 'Event has no days';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM event_days WHERE id = v_day AND event_id = p_event_id) THEN
+    RAISE EXCEPTION 'Day does not belong to this event';
+  END IF;
+
+  INSERT INTO event_gifts (event_id, given_by, amount, method, notes, day_id, created_by)
+  VALUES (
+    p_event_id, btrim(p_given_by), COALESCE(p_amount, 0),
+    COALESCE(p_method, 'envelope'), p_notes, v_day, v_caller.id
+  )
+  RETURNING * INTO v_row;
+
+  RETURN v_row;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.update_gift(
+  p_event_id uuid,
+  p_id       uuid,
+  p_given_by text    DEFAULT NULL,
+  p_amount   numeric DEFAULT NULL,
+  p_method   text    DEFAULT NULL,
+  p_notes    text    DEFAULT NULL,
+  p_day_id   uuid    DEFAULT NULL
+)
+RETURNS event_gifts LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_gift   event_gifts;
+  v_day    uuid;
+BEGIN
+  SELECT * INTO v_gift FROM event_gifts WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Gift not found';
+  END IF;
+
+  IF v_gift.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Gift does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT is_super_admin(v_caller) THEN
+    RAISE EXCEPTION 'Insufficient permission to update gifts';
+  END IF;
+
+  IF p_given_by IS NOT NULL AND btrim(p_given_by) = '' THEN
+    RAISE EXCEPTION 'A giver name is required';
+  END IF;
+
+  IF p_amount IS NOT NULL AND p_amount < 0 THEN
+    RAISE EXCEPTION 'Amount cannot be negative';
+  END IF;
+
+  -- Re-file the gift onto the chosen day (validated); NULL keeps its current day.
+  IF p_day_id IS NOT NULL THEN
+    IF NOT EXISTS (SELECT 1 FROM event_days WHERE id = p_day_id AND event_id = p_event_id) THEN
+      RAISE EXCEPTION 'Day does not belong to this event';
+    END IF;
+    v_day := p_day_id;
+  ELSE
+    v_day := v_gift.day_id;
+  END IF;
+
+  UPDATE event_gifts
+  SET
+    given_by = COALESCE(NULLIF(btrim(p_given_by), ''), given_by),
+    amount   = COALESCE(p_amount, amount),
+    method   = COALESCE(p_method, method),
+    notes    = p_notes,
+    day_id   = v_day
+  WHERE id = p_id
+  RETURNING * INTO v_gift;
+
+  RETURN v_gift;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.delete_gift(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_gift   event_gifts;
+BEGIN
+  SELECT * INTO v_gift FROM event_gifts WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Gift not found';
+  END IF;
+
+  IF v_gift.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Gift does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT is_super_admin(v_caller) THEN
+    RAISE EXCEPTION 'Insufficient permission to delete gifts';
+  END IF;
+
+  DELETE FROM event_gifts WHERE id = p_id;
+END;
+$$;
+
+
+-- =============================================================================
 -- DAY / SEGMENT SPINE — RPCs  [added migration 20260608000003]
 -- Day + default-segment seeding is explicit in create_event (no trigger).
 -- Segment CRUD RPCs below are gated on the `timeline` resource.
@@ -1657,6 +1847,7 @@ DECLARE
   v_count    integer;
   v_items    integer;
   v_expenses integer;
+  v_gifts    integer;
 BEGIN
   IF NOT is_super_admin_member(p_event_id) THEN
     RAISE EXCEPTION 'Insufficient permission to delete days';
@@ -1686,6 +1877,13 @@ BEGIN
   WHERE b.day_id = p_id AND e.event_id = p_event_id;
   IF v_expenses > 0 THEN
     RAISE EXCEPTION 'Remove this day''s % expense(s) before deleting it', v_expenses;
+  END IF;
+
+  -- Gifts attach directly via event_gifts.day_id (RESTRICT FK).
+  SELECT count(*) INTO v_gifts
+  FROM event_gifts WHERE day_id = p_id AND event_id = p_event_id;
+  IF v_gifts > 0 THEN
+    RAISE EXCEPTION 'Remove this day''s % gift(s) before deleting it', v_gifts;
   END IF;
 
   DELETE FROM event_days WHERE id = p_id AND event_id = p_event_id;

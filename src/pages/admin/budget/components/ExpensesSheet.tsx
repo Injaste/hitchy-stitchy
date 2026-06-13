@@ -4,9 +4,9 @@ import { AnimatePresence, motion } from "framer-motion"
 import ComponentFade from "@/components/animations/animate-component-fade"
 import { cn } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
+import { formatSGD } from "@/lib/money"
 
 import ExpenseRow, { ROW_COLS } from "./ExpenseRow"
-import { formatSGD } from "../utils"
 import type { Expense } from "../types"
 
 const GRID = `grid ${ROW_COLS} gap-x-2`

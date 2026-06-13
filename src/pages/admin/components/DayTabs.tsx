@@ -11,15 +11,41 @@ import { useEmblaCarouselApi } from "../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../hooks/embla/useEmblaEdgeDetection";
 import { useActiveEventDay } from "../hooks/useActiveEventDay";
 import { dayLabel } from "../days/utils";
+import type { EventDay } from "../days/types";
+
+interface DayTabsProps {
+  /** Controlled mode: render this day list instead of the global event days
+   *  (e.g. gifts renders only days that have gifts). Omit for the default global
+   *  behaviour (budget / timeline). */
+  days?: EventDay[];
+  activeDayId?: string | null;
+  onSelect?: (id: string) => void;
+}
 
 /**
- * Global day selector, shared across day-scoped admin pages (timeline, budget).
- * Renders the event's days as a scrollable rail and drives the global
- * `useActiveDay` selection. Hidden on single-day events — there's no day to
- * choose, so the page stays flat (mirrors the timeline before a 2nd day exists).
+ * Day selector rail, shared across day-scoped admin pages (timeline, budget).
+ * Uncontrolled (default) it renders all event days and drives the global
+ * `useActiveDay` selection. Controlled (pass `days`) it renders a given subset
+ * and calls `onSelect`. Hidden when there's ≤1 day — the page stays flat.
  */
-const DayTabs = () => {
-  const { days, activeDayId, activeIndex, setActiveDay } = useActiveEventDay();
+const DayTabs = ({
+  days: daysProp,
+  activeDayId: activeProp,
+  onSelect,
+}: DayTabsProps = {}) => {
+  const global = useActiveEventDay();
+  const controlled = daysProp !== undefined;
+  const days = daysProp ?? global.days;
+  const activeDayId = controlled ? activeProp ?? null : global.activeDayId;
+  const setActiveDay = controlled
+    ? onSelect ?? (() => {})
+    : global.setActiveDay;
+  const activeIndex = controlled
+    ? Math.max(
+        0,
+        days.findIndex((d) => d.id === activeDayId),
+      )
+    : global.activeIndex;
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
   const { emblaRef, emblaApi } = useEmblaCarouselApi("start", activeIndex);

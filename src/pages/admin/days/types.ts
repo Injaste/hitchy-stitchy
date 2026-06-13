@@ -40,6 +40,13 @@ export interface DayExpense {
   item: string;
 }
 
+/** Minimal gift shape — listed in the delete-day modal. Gifts attach via
+ *  event_gifts.day_id (RESTRICT FK), so they block removal too. */
+export interface DayGift {
+  id: string;
+  given_by: string;
+}
+
 export const dayFormSchema = z.object({
   date: z.string().min(1, "Pick a date."),
   label: z
