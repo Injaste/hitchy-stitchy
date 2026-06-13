@@ -22,7 +22,7 @@ money + banquet features below are things a US tool structurally can't match her
 |---|---|---|---|
 | 1 | [Member invite link](mvp-phase-1-member-invite.md) | Correctness — invite loop is broken today. Unblocks team + viral loop. | low–med |
 | 2 | [Budget tracker](mvp-phase-2-budget-tracker.md) | Biggest gap vs competitors; establishes the "money resource" pattern. | med |
-| 3 | [Ang bao ledger](mvp-phase-3-ang-bao-ledger.md) | The SG wedge no US tool has. Reuses phase-2 pattern. | med |
+| 3 | Gift Envelopes ledger — shipped | The SG wedge no US tool has. Reuses phase-2 pattern. | med |
 | 4 | [Dietary / halal](mvp-phase-4-dietary-halal.md) | Small; multicultural necessity; prerequisite for good seating. | low |
 | 5 | [Seating / table planner](mvp-phase-5-seating-planner.md) | Banquet round tables; heaviest build, wants guests+dietary solid first. | high |
 | 6 | [Vendor management](mvp-phase-6-vendor-management.md) | Rebuild day-scoped; ties to budget + timeline. | med–high |
