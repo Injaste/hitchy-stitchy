@@ -5,10 +5,11 @@ import { AlertTriangle, Check, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { listItemReveal, listLayoutTransition } from "@/lib/animations";
+import NotesTooltip from "@/components/custom/notes-tooltip";
+import { formatSGD } from "@/lib/money";
 
 import {
   dueInfo,
-  formatSGD,
   statusOf,
   stripeColor,
   type DueUrgency,
@@ -72,8 +73,11 @@ const ExpenseRow: FC<ExpenseRowProps> = ({ expense, onClick }) => {
       <div className={cn("grid items-center gap-x-2 py-2.5 pr-3 pl-4", ROW_COLS)}>
         {/* Item + vendor. Payer rides the subline only on mobile (no column there). */}
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold leading-tight">
-            {expense.item}
+          <div className="flex items-center gap-1.5">
+            <span className="truncate text-sm font-semibold leading-tight">
+              {expense.item}
+            </span>
+            <NotesTooltip notes={expense.notes} />
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="min-w-0 truncate">

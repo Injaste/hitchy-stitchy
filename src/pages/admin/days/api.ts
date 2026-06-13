@@ -3,6 +3,7 @@ import type {
   EventDay,
   DayTimelineItem,
   DayExpense,
+  DayGift,
   CreateDayPayload,
   UpdateDayPayload,
   DeleteDayPayload,
@@ -74,6 +75,23 @@ export async function fetchDayExpenses(
 
   if (error) throw new Error(error.message);
   return (data ?? []).map(({ id, item }) => ({ id, item }));
+}
+
+/** Gifts tied to a single day, for the delete-day modal. They attach directly
+ *  via event_gifts.day_id (a RESTRICT FK), so they block removal like expenses. */
+export async function fetchDayGifts(
+  eventId: string,
+  dayId: string,
+): Promise<DayGift[]> {
+  const { data, error } = await supabase
+    .from("event_gifts")
+    .select("id, given_by")
+    .eq("event_id", eventId)
+    .eq("day_id", dayId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as DayGift[];
 }
 
 export async function deleteDay(payload: DeleteDayPayload): Promise<void> {

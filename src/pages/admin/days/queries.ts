@@ -8,6 +8,7 @@ import {
   fetchEventDays,
   fetchDayTimeline,
   fetchDayExpenses,
+  fetchDayGifts,
   createDay,
   updateDay,
   deleteDay,
@@ -52,6 +53,20 @@ export function useDayExpensesQuery(dayId: string, enabled: boolean) {
   return useQuery({
     queryKey: adminKeys.dayExpenses(slug!, dayId),
     queryFn: () => fetchDayExpenses(eventId!, dayId),
+    enabled: enabled && !!eventId && !!slug,
+    staleTime: 0,
+  });
+}
+
+// The day's gifts — fetched only while the delete modal is open. They attach via
+// event_gifts.day_id (a RESTRICT FK), so delete_day blocks on them too; this
+// lists them. Super-admin-only RLS, matching who can delete days. staleTime 0
+// (see useDayTimelineQuery): refetch on each open, nothing else invalidates it.
+export function useDayGiftsQuery(dayId: string, enabled: boolean) {
+  const { slug, eventId } = useAdminStore();
+  return useQuery({
+    queryKey: adminKeys.dayGifts(slug!, dayId),
+    queryFn: () => fetchDayGifts(eventId!, dayId),
     enabled: enabled && !!eventId && !!slug,
     staleTime: 0,
   });

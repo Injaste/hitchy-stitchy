@@ -12,6 +12,7 @@ import {
   useDayMutations,
   useDayTimelineQuery,
   useDayExpensesQuery,
+  useDayGiftsQuery,
 } from "../queries";
 
 /** A labelled box of blocking entries (first 5 + "+N more"). Shared by the
@@ -69,11 +70,16 @@ const DayDeleteModal = () => {
     selectedItem?.id ?? "",
     enabled,
   );
+  const { data: gifts, isPending: giftsLoading } = useDayGiftsQuery(
+    selectedItem?.id ?? "",
+    enabled,
+  );
 
-  const loading = timelineLoading || expensesLoading;
+  const loading = timelineLoading || expensesLoading || giftsLoading;
   const hasTimeline = (timeline?.length ?? 0) > 0;
   const hasExpenses = (expenses?.length ?? 0) > 0;
-  const hasBlockers = hasTimeline || hasExpenses;
+  const hasGifts = (gifts?.length ?? 0) > 0;
+  const hasBlockers = hasTimeline || hasExpenses || hasGifts;
 
   // Grow the boxes' height only when content follows a loading state. If the
   // data was cached (modal opens straight to content), render at full height
@@ -93,6 +99,7 @@ const DayDeleteModal = () => {
   const noun = [
     hasTimeline && "schedule items",
     hasExpenses && "expenses",
+    hasGifts && "gifts",
   ]
     .filter(Boolean)
     .join(" and ");
@@ -139,6 +146,13 @@ const DayDeleteModal = () => {
           <BlockerBox
             label="Budget"
             entries={expenses!.map((e) => ({ id: e.id, name: e.item }))}
+            animateGrow={grewFromLoadingRef.current}
+          />
+        )}
+        {hasGifts && (
+          <BlockerBox
+            label="Gift Envelopes"
+            entries={gifts!.map((g) => ({ id: g.id, name: g.given_by }))}
             animateGrow={grewFromLoadingRef.current}
           />
         )}

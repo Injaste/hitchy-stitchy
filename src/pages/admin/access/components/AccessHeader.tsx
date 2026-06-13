@@ -2,10 +2,15 @@ import type { FC } from "react";
 import { AdminPageHeader } from "@/components/custom/admin-page-header";
 import type { BaseHeaderProps } from "@/components/custom/page-header-base";
 
-const AccessHeader: FC<BaseHeaderProps> = ({ isLoading, isError, isRefetching, refetch }) => (
+const AccessHeader: FC<BaseHeaderProps> = ({
+  isLoading,
+  isError,
+  isRefetching,
+  refetch,
+}) => (
   <AdminPageHeader
     title="Access"
-    description="What each access group can see and edit. Assign members to a group from the Members page."
+    description="What each access group can see and edit."
     isLoading={isLoading}
     isError={isError}
     isRefetching={isRefetching}

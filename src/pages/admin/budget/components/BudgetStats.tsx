@@ -5,7 +5,8 @@ import { Separator } from "@/components/ui/separator";
 import Odometer from "@/components/animations/animate-odometer";
 import { cn } from "@/lib/utils";
 
-import { formatSGD, type BudgetSummary as SummaryData } from "../utils";
+import { formatSGD } from "@/lib/money";
+import { type BudgetSummary as SummaryData } from "../utils";
 
 type Tone = "good" | "warn" | "bad";
 
