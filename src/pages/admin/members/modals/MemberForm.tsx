@@ -11,50 +11,29 @@ import {
 } from "@/components/custom/form";
 
 import {
-  inviteMemberSchema,
-  editMemberSchema,
-  type InviteMemberValues,
+  makeCreateMemberSchema,
+  makeEditMemberSchema,
+  type CreateMemberValues,
   type EditMemberValues,
 } from "../types";
 import AccessGroupCombobox from "../components/AccessGroupCombobox";
 import { useMembersQuery } from "../queries";
 import { useFormShell } from "@/components/custom/form/form-context";
 
-interface UseMemberInviteFormOpts {
-  defaultValues?: Partial<InviteMemberValues>;
-  onSubmit: (values: InviteMemberValues) => void;
+interface UseMemberCreateFormOpts {
+  defaultValues?: Partial<CreateMemberValues>;
+  /** Couple members' roles — blocked (alongside the literal Bride/Groom) for others. */
+  reservedRoles?: string[];
+  onSubmit: (values: CreateMemberValues) => void;
 }
 
-export const useMemberInviteForm = ({
+export const useMemberCreateForm = ({
   defaultValues,
+  reservedRoles = [],
   onSubmit,
-}: UseMemberInviteFormOpts) =>
-  useForm({
-    defaultValues: {
-      display_name: defaultValues?.display_name ?? "",
-      access_group_id: defaultValues?.access_group_id ?? "",
-      role: defaultValues?.role ?? "",
-      notes: defaultValues?.notes ?? "",
-    },
-    validators: {
-      onSubmit: inviteMemberSchema,
-      onChange: inviteMemberSchema,
-    },
-    onSubmit: ({ value }) => {
-      onSubmit(inviteMemberSchema.parse(value));
-    },
-  });
-
-interface UseMemberEditFormOpts {
-  defaultValues?: Partial<EditMemberValues>;
-  onSubmit: (values: EditMemberValues) => void;
-}
-
-export const useMemberEditForm = ({
-  defaultValues,
-  onSubmit,
-}: UseMemberEditFormOpts) =>
-  useForm({
+}: UseMemberCreateFormOpts) => {
+  const schema = makeCreateMemberSchema(reservedRoles);
+  return useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
       access_group_id: defaultValues?.access_group_id ?? "",
@@ -63,19 +42,50 @@ export const useMemberEditForm = ({
       couple_role: defaultValues?.couple_role ?? null,
     },
     validators: {
-      onSubmit: editMemberSchema,
-      onChange: editMemberSchema,
+      onSubmit: schema,
+      onChange: schema,
     },
     onSubmit: ({ value }) => {
-      onSubmit(editMemberSchema.parse(value));
+      onSubmit(schema.parse(value));
     },
   });
+};
+
+interface UseMemberEditFormOpts {
+  defaultValues?: Partial<EditMemberValues>;
+  /** Couple members' roles — blocked (alongside the literal Bride/Groom) for others. */
+  reservedRoles?: string[];
+  onSubmit: (values: EditMemberValues) => void;
+}
+
+export const useMemberEditForm = ({
+  defaultValues,
+  reservedRoles = [],
+  onSubmit,
+}: UseMemberEditFormOpts) => {
+  const schema = makeEditMemberSchema(reservedRoles);
+  return useForm({
+    defaultValues: {
+      display_name: defaultValues?.display_name ?? "",
+      access_group_id: defaultValues?.access_group_id ?? "",
+      role: defaultValues?.role ?? "",
+      notes: defaultValues?.notes ?? "",
+      couple_role: defaultValues?.couple_role ?? null,
+    },
+    validators: {
+      onSubmit: schema,
+      onChange: schema,
+    },
+    onSubmit: ({ value }) => {
+      onSubmit(schema.parse(value));
+    },
+  });
+};
 
 interface MemberFormProps {
-  mode: "invite" | "edit";
   /** Lock the access group selector (e.g. target is root, or caller doesn't outrank target). */
   lockAccessGroup?: boolean;
-  /** Show the access group selector. Always true in invite mode; gated by isSuperAdmin in edit mode. */
+  /** Show the access group selector. Always true on create; gated by isSuperAdmin on edit. */
   showAccessGroup?: boolean;
   /** Pre-resolved access group name — shown immediately while the access groups query loads to avoid a flash. */
   accessGroupInitialName?: string;
@@ -90,7 +100,6 @@ interface MemberFormProps {
 }
 
 const MemberForm = ({
-  mode,
   lockAccessGroup = false,
   showAccessGroup = true,
   accessGroupInitialName,
@@ -104,21 +113,21 @@ const MemberForm = ({
   const roleOptions = Array.from(
     new Set(
       members
+        // Bride/Groom are reserved couple identities (is_bride/is_groom) — don't
+        // suggest them as hand-assignable roles for everyone else.
+        .filter((m) => !m.is_bride && !m.is_groom)
         .map((m) => m.role)
         .filter((r): r is string => !!r && r.trim().length > 0),
     ),
   ).sort((a, b) => a.localeCompare(b));
-  const coupleRole =
-    mode === "edit"
-      ? (useStore(form.store, (s: any) => s.values.couple_role) as
-          | "bride"
-          | "groom"
-          | null)
-      : null;
-  const memberDisplayName =
-    mode === "edit"
-      ? (useStore(form.store, (s: any) => s.values.display_name) as string)
-      : null;
+  const coupleRole = useStore(
+    form.store,
+    (s: any) => s.values.couple_role,
+  ) as "bride" | "groom" | null;
+  const memberDisplayName = useStore(
+    form.store,
+    (s: any) => s.values.display_name,
+  ) as string;
   const forceAccessSuperAdmin = isRoot || !!coupleRole;
 
   return (
@@ -173,7 +182,7 @@ const MemberForm = ({
         )}
 
         {/* ── Couple role ────────────────────────────────────────────── */}
-        {mode === "edit" && showCoupleRole && (
+        {showCoupleRole && (
           <FieldShell name="couple_role" label="Couple role" optional>
             {(field) => (
               <div className="space-y-2">

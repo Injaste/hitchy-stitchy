@@ -5,9 +5,9 @@ interface MemberModalAddons {
   isFreezeOpen: boolean
   openFreeze: () => void
   extendedCloseAll: () => void
-  /** Hand off from the invite form to the new member's detail panel (which shows
+  /** Hand off from the create form to the new member's detail panel (which shows
    *  the share link). Closes the create modal and opens detail in one set. */
-  openDetailForInvited: (member: Member) => void
+  openDetailForCreated: (member: Member) => void
 }
 
 export const useMemberModalStore = createModalStore<Member, MemberModalAddons>((set) => ({
@@ -17,6 +17,6 @@ export const useMemberModalStore = createModalStore<Member, MemberModalAddons>((
 
   extendedCloseAll: () => set({ isFreezeOpen: false }),
 
-  openDetailForInvited: (member) =>
+  openDetailForCreated: (member) =>
     set({ isCreateOpen: false, isDetailOpen: true, selectedItem: member }),
 }))

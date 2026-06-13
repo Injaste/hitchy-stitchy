@@ -1213,7 +1213,7 @@ $$;
 
 -- Functions still to add (copy from the dump):
 --   create_access_group, update_access_group, delete_access_group
---   invite_member, update_member, update_member_couple, update_member_access_group,
+--   create_member, update_member, update_member_couple, update_member_access_group,
 --   freeze_member, delete_member, claim_member_invite, regenerate_member_invite
 --   create_guests, update_guests, delete_guest, import_guests_csv (if exists), cancel_rsvp,
 --   submit_rsvp (if exists), update_rsvp (if exists)

@@ -9,85 +9,106 @@ import {
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { useMemberMutations } from "../queries";
+import { useMemberMutations, useMembersQuery } from "../queries";
 import { useAccessGroupsQuery } from "../../access/queries";
+import { useAccess } from "../../hooks/useAccess";
 
-import MemberForm, { useMemberInviteForm } from "./MemberForm";
+import MemberForm, { useMemberCreateForm } from "./MemberForm";
 
-const MemberInviteModal = () => {
-  const isInviteOpen = useMemberModalStore((s) => s.isCreateOpen);
+const MemberCreateModal = () => {
+  const isCreateOpen = useMemberModalStore((s) => s.isCreateOpen);
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const isCreateMore = useMemberModalStore((s) => s.isCreateMore);
   const setIsCreateMore = useMemberModalStore((s) => s.setIsCreateMore);
-  const openDetailForInvited = useMemberModalStore((s) => s.openDetailForInvited);
+  const openDetailForCreated = useMemberModalStore((s) => s.openDetailForCreated);
   const { eventId } = useAdminStore();
-  const { invite } = useMemberMutations();
+  const { canManageCouple } = useAccess();
+  const { create } = useMemberMutations();
+  const { data: members = [] } = useMembersQuery();
 
-  // New invites default to the Team group.
+  // Roles held by the couple — reserved from everyone else.
+  const reservedRoles = members
+    .filter((m) => m.is_bride || m.is_groom)
+    .map((m) => m.role)
+    .filter((r): r is string => !!r);
+
+  // Couple slots already filled (no self to exclude — this member doesn't exist yet).
+  const existingBride = members.find((m) => m.is_bride);
+  const existingGroom = members.find((m) => m.is_groom);
+  // Same gate as edit: couple permission, and hide once both slots are taken.
+  const showCoupleRole = canManageCouple && !(existingBride && existingGroom);
+
+  // New members default to the Team group.
   const { data: accessGroups = [] } = useAccessGroupsQuery();
   const teamId = useMemo(
     () => accessGroups.find((g) => g.name === "Team")?.id ?? "",
     [accessGroups],
   );
 
-  const form = useMemberInviteForm({
+  const form = useMemberCreateForm({
+    reservedRoles,
     defaultValues: { access_group_id: teamId },
     onSubmit: (values) => {
-      invite.mutate({
+      create.mutate({
         event_id: eventId!,
         display_name: values.display_name,
         access_group_id: values.access_group_id,
         role: values.role ?? null,
         notes: values.notes ?? null,
+        couple: values.couple_role,
       });
     },
   });
 
   // Seed the Team default once groups load / whenever the modal reopens empty.
   useEffect(() => {
-    if (isInviteOpen && teamId && !form.getFieldValue("access_group_id")) {
+    if (isCreateOpen && teamId && !form.getFieldValue("access_group_id")) {
       form.setFieldValue("access_group_id", teamId);
     }
-  }, [isInviteOpen, teamId, form]);
+  }, [isCreateOpen, teamId, form]);
 
   // Reset the mutation when the modal closes so a stale success never re-triggers
   // the hand-off on the next open. Depend on the stable `reset` fn.
-  const resetInvite = invite.reset;
+  const resetCreate = create.reset;
   useEffect(() => {
-    if (!isInviteOpen) resetInvite();
-  }, [isInviteOpen, resetInvite]);
+    if (!isCreateOpen) resetCreate();
+  }, [isCreateOpen, resetCreate]);
 
-  // After a single invite, hand off to the new member's detail panel (which has
+  // After a single create, hand off to the new member's detail panel (which has
   // the share link) instead of an inline success state.
   const handedOff = useRef(false);
   useEffect(() => {
-    if (!invite.isSuccess) {
+    if (!create.isSuccess) {
       handedOff.current = false;
       return;
     }
     // When "Invite more" is ON we deliberately do NOT open the detail modal —
     // the modal stays open + resets (resetOnSuccess) for rapid entry, and the
-    // links stay retrievable from the roster. Hand off only for a single invite.
-    if (!isCreateMore && invite.data && !handedOff.current) {
+    // links stay retrievable from the roster. Hand off only for a single create.
+    if (!isCreateMore && create.data && !handedOff.current) {
       handedOff.current = true;
-      openDetailForInvited(invite.data);
+      openDetailForCreated(create.data);
     }
-  }, [invite.isSuccess, invite.data, isCreateMore, openDetailForInvited]);
+  }, [create.isSuccess, create.data, isCreateMore, openDetailForCreated]);
 
   return (
     <FormDialog
       form={form}
-      open={isInviteOpen}
+      open={isCreateOpen}
       onOpenChange={closeAll}
-      isPending={invite.isPending}
-      isSuccess={invite.isSuccess}
-      isError={invite.isError}
+      isPending={create.isPending}
+      isSuccess={create.isSuccess}
+      isError={create.isError}
       closeDelay={false}
       resetOnSuccess={isCreateMore}
     >
       <FormHeader icon={<Users className="size-4" />} title="Invite member" />
 
-      <MemberForm mode="invite" />
+      <MemberForm
+        showCoupleRole={showCoupleRole}
+        brideTakenBy={existingBride?.display_name ?? null}
+        groomTakenBy={existingGroom?.display_name ?? null}
+      />
 
       <FormFooter
         onCancel={closeAll}
@@ -102,4 +123,4 @@ const MemberInviteModal = () => {
   );
 };
 
-export default MemberInviteModal;
+export default MemberCreateModal;

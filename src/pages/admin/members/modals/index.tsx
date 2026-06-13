@@ -1,6 +1,6 @@
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 
-import MemberInviteModal from "./MemberInviteModal";
+import MemberCreateModal from "./MemberCreateModal";
 import MemberDetailModal from "./MemberDetailModal";
 import MemberEditModal from "./MemberEditModal";
 import MemberDeleteModal from "./MemberDeleteModal";
@@ -13,7 +13,7 @@ const MemberModals = () => {
 
   return (
     <>
-      <MemberInviteModal />
+      <MemberCreateModal />
       <MemberDetailModal />
       <MemberEditModal key={selectedId ?? "none"} />
       <MemberDeleteModal />

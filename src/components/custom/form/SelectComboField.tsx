@@ -1,4 +1,5 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
 import {
@@ -60,26 +61,7 @@ const SelectComboField = ({
   const [inputValue, setInputValue] = useState("");
 
   const trimmed = inputValue.trim();
-  const matchSource = matchAgainst ?? groups.flatMap((g) => g.items);
-  const exactMatch = matchSource.some(
-    (l) => l.toLowerCase() === trimmed.toLowerCase(),
-  );
-  const showCreate = trimmed.length > 0 && !exactMatch;
-
-  const items = useMemo<RenderGroup[]>(() => {
-    const base: RenderGroup[] = groups
-      .filter((g) => g.items.length > 0)
-      .map((g, i) => ({
-        value: g.label ?? `__group_${i}`,
-        heading: g.label,
-        items: g.items,
-      }));
-    if (!showCreate) return base;
-    return [
-      ...base,
-      { value: CREATE_PREFIX, items: [`${CREATE_PREFIX}${trimmed}`] },
-    ];
-  }, [groups, showCreate, trimmed]);
+  const lower = trimmed.toLowerCase();
 
   return (
     <FieldShell
@@ -89,73 +71,148 @@ const SelectComboField = ({
       description={description}
       hint={hint}
     >
-      {(field) => (
-        <Combobox
-          value={field.state.value || null}
-          onValueChange={(v) => {
-            if (!v) return field.handleChange("");
-            field.handleChange(
-              v.startsWith(CREATE_PREFIX) ? v.slice(CREATE_PREFIX.length) : v,
-            );
-            field.handleBlur();
-          }}
-          onInputValueChange={setInputValue}
-          items={items}
-          autoHighlight
-        >
-          <ComboboxInput
-            placeholder={placeholder}
-            showClear={!!field.state.value}
-            onBlur={field.handleBlur}
-          />
+      {(field) => {
+        const current = (field.state.value ?? "").trim();
+        const flat = groups.flatMap((g) => g.items);
 
-          <ComboboxContent>
-            <ComboboxEmpty>{emptyText}</ComboboxEmpty>
+        // Surface the committed value as a real, selectable row so it shows a
+        // checkmark on reopen and stops being re-offered as "create". Skip when
+        // it's empty or already one of the listed (persisted) options.
+        const currentListed =
+          !current || flat.some((o) => o.toLowerCase() === current.toLowerCase());
+        const renderGroups: RenderGroup[] = [
+          ...(currentListed ? [] : [{ value: "__current__", items: [current] }]),
+          ...groups
+            .filter((g) => g.items.length > 0)
+            .map((g, i) => ({
+              value: g.label ?? `__group_${i}`,
+              heading: g.label,
+              items: g.items,
+            })),
+        ];
+        const listed = renderGroups.flatMap((g) => g.items);
 
-            <ComboboxList>
-              {(group: RenderGroup, index: number) => {
-                const separator = index > 0 ? <ComboboxSeparator /> : null;
+        // "Already exists" spans the dedupe source (matchAgainst) plus the current
+        // value, so typing either one suppresses the create-row.
+        const matchSource = matchAgainst ?? flat;
+        const exactMatch = [...(current ? [current] : []), ...matchSource].find(
+          (l) => l.toLowerCase() === lower,
+        );
+        const showCreate = trimmed.length > 0 && !exactMatch;
 
-                if (group.value === CREATE_PREFIX) {
+        // Hint shown while source options match (collapses once only the
+        // create-row remains). Measured against `flat`, not `listed`, so
+        // committing a value — which adds it to `listed` — can't flip the hint
+        // on and replay its entrance animation as the popup is closing.
+        const hasMatches = flat.some((o) => o.toLowerCase().includes(lower));
+
+        // Blur/Tab mirror Enter: autoHighlight selects the first matching rendered
+        // item (create-row is appended last, so real matches win); with nothing
+        // typed there's no highlight, so the value is left untouched.
+        const enterSelection = (): string | null => {
+          if (!trimmed) return null;
+          const match = listed.find((o) => o.toLowerCase().includes(lower));
+          if (match) return match;
+          return showCreate ? trimmed : null;
+        };
+
+        const items: RenderGroup[] = showCreate
+          ? [
+              ...renderGroups,
+              { value: CREATE_PREFIX, items: [`${CREATE_PREFIX}${trimmed}`] },
+            ]
+          : renderGroups;
+
+        return (
+          <Combobox
+            value={field.state.value || null}
+            onValueChange={(v) => {
+              if (!v) return field.handleChange("");
+              field.handleChange(
+                v.startsWith(CREATE_PREFIX) ? v.slice(CREATE_PREFIX.length) : v,
+              );
+              field.handleBlur();
+            }}
+            onInputValueChange={setInputValue}
+            items={items}
+            autoHighlight
+          >
+            <ComboboxInput
+              placeholder={placeholder}
+              showClear={!!field.state.value}
+              onBlur={() => {
+                // Commit on blur/tab the same way Enter would select the highlight.
+                const sel = enterSelection();
+                if (sel !== null) field.handleChange(sel);
+                field.handleBlur();
+              }}
+            />
+
+            <ComboboxContent>
+              <ComboboxEmpty>{emptyText}</ComboboxEmpty>
+
+              <AnimatePresence initial={false}>
+                {hasMatches && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <div className="flex items-center gap-1.5 px-2 pt-2 pb-1 text-xs text-muted-foreground">
+                      <Plus className="size-3.5 shrink-0" />
+                      Type to create a new item
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <ComboboxList>
+                {(group: RenderGroup, index: number) => {
+                  const separator = index > 0 ? <ComboboxSeparator /> : null;
+
+                  if (group.value === CREATE_PREFIX) {
+                    return (
+                      <ComboboxGroup key={CREATE_PREFIX} items={group.items}>
+                        {separator}
+                        <ComboboxCollection>
+                          {(item: string) => (
+                            <ComboboxItem
+                              key={item}
+                              value={item}
+                              className="text-muted-foreground"
+                            >
+                              <Plus className="size-4 shrink-0" />
+                              {createOption(trimmed)}
+                            </ComboboxItem>
+                          )}
+                        </ComboboxCollection>
+                      </ComboboxGroup>
+                    );
+                  }
+
                   return (
-                    <ComboboxGroup key={CREATE_PREFIX} items={group.items}>
+                    <ComboboxGroup key={group.value} items={group.items}>
                       {separator}
+                      {group.heading && (
+                        <ComboboxLabel>{group.heading}</ComboboxLabel>
+                      )}
                       <ComboboxCollection>
                         {(item: string) => (
-                          <ComboboxItem
-                            key={item}
-                            value={item}
-                            className="text-muted-foreground"
-                          >
-                            <Plus className="size-4 shrink-0" />
-                            {createOption(trimmed)}
+                          <ComboboxItem key={item} value={item}>
+                            {item}
                           </ComboboxItem>
                         )}
                       </ComboboxCollection>
                     </ComboboxGroup>
                   );
-                }
-
-                return (
-                  <ComboboxGroup key={group.value} items={group.items}>
-                    {separator}
-                    {group.heading && (
-                      <ComboboxLabel>{group.heading}</ComboboxLabel>
-                    )}
-                    <ComboboxCollection>
-                      {(item: string) => (
-                        <ComboboxItem key={item} value={item}>
-                          {item}
-                        </ComboboxItem>
-                      )}
-                    </ComboboxCollection>
-                  </ComboboxGroup>
-                );
-              }}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-      )}
+                }}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+        );
+      }}
     </FieldShell>
   );
 };

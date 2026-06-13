@@ -3,7 +3,7 @@ import { isRegenerateOnCooldown } from "./utils"
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import type {
   Member,
-  InviteMemberPayload,
+  CreateMemberPayload,
   UpdateMemberPayload,
   UpdateMemberAccessGroupPayload,
   UpdateMemberCouplePayload,
@@ -21,13 +21,14 @@ export async function fetchMembers(eventId: string): Promise<Member[]> {
   return (data ?? []) as unknown as Member[]
 }
 
-export async function inviteMember(payload: InviteMemberPayload): Promise<Member> {
-  const { data, error } = await supabase.rpc("invite_member", {
+export async function createMember(payload: CreateMemberPayload): Promise<Member> {
+  const { data, error } = await supabase.rpc("create_member", {
     p_event_id: payload.event_id,
     p_display_name: payload.display_name,
     p_access_group_id: payload.access_group_id,
     p_role: payload.role,
     p_notes: payload.notes,
+    p_couple: payload.couple,
   })
 
   if (error) throw new Error(error.message)
@@ -67,8 +68,7 @@ export async function updateMemberCouple(payload: UpdateMemberCouplePayload): Pr
   const { data, error } = await supabase.rpc("update_member_couple", {
     p_event_id: payload.event_id,
     p_id: payload.id,
-    p_is_bride: payload.is_bride,
-    p_is_groom: payload.is_groom,
+    p_couple: payload.couple,
   })
 
   if (error) throw new Error(error.message)

@@ -1,3 +1,4 @@
+import { useStore } from "@tanstack/react-form";
 import { Users } from "lucide-react";
 
 import {
@@ -32,8 +33,23 @@ const MemberEditModal = () => {
 
   // Hide if both slots are already held by other members — both switches would be disabled.
   const showCoupleRole = canManageCouple && !(existingBride && existingGroom);
-  // Computed before the form so the onSubmit closure captures the current value.
-  const lockAccessGroup = selectedItem ? !guardChangeAccessGroup(selectedItem) : true;
+
+  // Roles held by the couple (other than this target) — reserved from everyone else.
+  const reservedRoles = members
+    .filter((m) => (m.is_bride || m.is_groom) && m.id !== selectedItem?.id)
+    .map((m) => m.role)
+    .filter((r): r is string => !!r);
+  // Lock the access group against the member AS the couple toggle will leave them:
+  // demoting a couple member lifts the super-admin protection, so their group
+  // becomes editable. Defined before the form so onSubmit can reuse it.
+  const accessLockFor = (couple: "bride" | "groom" | null) =>
+    selectedItem
+      ? !guardChangeAccessGroup({
+          ...selectedItem,
+          is_bride: couple === "bride",
+          is_groom: couple === "groom",
+        })
+      : true;
 
   const currentCoupleRole = selectedItem
     ? selectedItem.is_bride
@@ -44,6 +60,7 @@ const MemberEditModal = () => {
     : null;
 
   const form = useMemberEditForm({
+    reservedRoles,
     defaultValues: selectedItem
       ? {
           display_name: selectedItem.display_name,
@@ -62,7 +79,8 @@ const MemberEditModal = () => {
         (values.role ?? null) !== (selectedItem.role ?? null) ||
         (values.notes ?? null) !== (selectedItem.notes ?? null);
       const accessChanged =
-        !lockAccessGroup && values.access_group_id !== selectedItem.access_group_id;
+        !accessLockFor(values.couple_role) &&
+        values.access_group_id !== selectedItem.access_group_id;
       const coupleChanged =
         showCoupleRole && values.couple_role !== currentCoupleRole;
 
@@ -86,8 +104,7 @@ const MemberEditModal = () => {
         updateCouple.mutate({
           event_id: eventId!,
           id: selectedItem.id,
-          is_bride: values.couple_role === "bride",
-          is_groom: values.couple_role === "groom",
+          couple: values.couple_role,
         });
       }
 
@@ -95,6 +112,14 @@ const MemberEditModal = () => {
       if (!memberChanged && !accessChanged && !coupleChanged) closeAll();
     },
   });
+
+  // Reactive lock for the field — follows the live couple toggle, so demoting
+  // enables the access selector immediately (not just on submit).
+  const liveCoupleRole = useStore(
+    form.store,
+    (s: any) => s.values.couple_role,
+  ) as "bride" | "groom" | null;
+  const lockAccessGroup = accessLockFor(liveCoupleRole);
 
   if (!selectedItem) return null;
 
@@ -112,7 +137,6 @@ const MemberEditModal = () => {
       <FormHeader icon={<Users className="size-4" />} title="Edit member" />
 
       <MemberForm
-        mode="edit"
         showAccessGroup={canManageMembers}
         lockAccessGroup={lockAccessGroup}
         accessGroupInitialName={selectedItem.accessGroup?.name ?? undefined}

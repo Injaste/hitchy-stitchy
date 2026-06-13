@@ -5,7 +5,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { adminKeys } from "@/pages/admin/lib/queryKeys";
 import {
   fetchMembers,
-  inviteMember,
+  createMember,
   regenerateMemberInvite,
   updateMember,
   updateMemberAccessGroup,
@@ -15,7 +15,7 @@ import {
 } from "./api";
 import type {
   Member,
-  InviteMemberPayload,
+  CreateMemberPayload,
   RegenerateMemberInvitePayload,
   UpdateMemberPayload,
   UpdateMemberAccessGroupPayload,
@@ -42,8 +42,8 @@ export function useMemberMutations() {
   const setMembers = (fn: (old: Member[] | undefined) => Member[]) =>
     queryClient.setQueryData<Member[]>(adminKeys.members(slug!), fn);
 
-  const invite = useMutation(
-    (payload: InviteMemberPayload) => inviteMember(payload),
+  const create = useMutation(
+    (payload: CreateMemberPayload) => createMember(payload),
     {
       successMessage: (result: Member) =>
         `Invite sent to "${truncate(result.display_name)}"`,
@@ -205,5 +205,5 @@ export function useMemberMutations() {
     },
   );
 
-  return { invite, regenerate, update, updateAccessGroup, updateCouple, freeze, remove };
+  return { create, regenerate, update, updateAccessGroup, updateCouple, freeze, remove };
 }

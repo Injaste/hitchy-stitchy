@@ -32,7 +32,7 @@ export interface Member {
   accessGroup: AccessGroup | null;
 }
 
-export const inviteMemberSchema = z.object({
+export const createMemberSchema = z.object({
   display_name: z
     .string()
     .min(1, "Name is required")
@@ -47,6 +47,7 @@ export const inviteMemberSchema = z.object({
     .string()
     .max(500, "Notes is too long")
     .transform((v) => v.trim() || null),
+  couple_role: z.enum(["bride", "groom"]).nullable(),
 });
 
 export const editMemberSchema = z.object({
@@ -67,15 +68,46 @@ export const editMemberSchema = z.object({
   couple_role: z.enum(["bride", "groom"]).nullable(),
 });
 
-export type InviteMemberValues = z.infer<typeof inviteMemberSchema>;
+export type CreateMemberValues = z.infer<typeof createMemberSchema>;
 export type EditMemberValues = z.infer<typeof editMemberSchema>;
 
-export interface InviteMemberPayload {
+/** Bride/Groom are always reserved; `reserved` adds the couple members' actual
+ *  roles. Compared trimmed + lower-cased, empties dropped. */
+const reservedRoleSet = (reserved: string[]) =>
+  new Set(
+    ["bride", "groom", ...reserved]
+      .map((r) => r.trim().toLowerCase())
+      .filter(Boolean),
+  );
+
+const RESERVED_ROLE_MESSAGE = "Reserved for the couple";
+
+/** Couple members (couple_role set) keep their reserved role; everyone else is blocked. */
+export const makeCreateMemberSchema = (reservedRoles: string[]) => {
+  const reserved = reservedRoleSet(reservedRoles);
+  return createMemberSchema.refine(
+    (d) => d.couple_role != null || !reserved.has(d.role.trim().toLowerCase()),
+    { path: ["role"], message: RESERVED_ROLE_MESSAGE },
+  );
+};
+
+/** Couple members (couple_role set) keep their reserved role; everyone else is blocked. */
+export const makeEditMemberSchema = (reservedRoles: string[]) => {
+  const reserved = reservedRoleSet(reservedRoles);
+  return editMemberSchema.refine(
+    (d) => d.couple_role != null || !reserved.has(d.role.trim().toLowerCase()),
+    { path: ["role"], message: RESERVED_ROLE_MESSAGE },
+  );
+};
+
+export interface CreateMemberPayload {
   event_id: string;
   display_name: string;
   access_group_id: string;
   role: string | null;
   notes: string | null;
+  /** Optional couple assignment at creation — delegated to update_member_couple. */
+  couple: "bride" | "groom" | null;
 }
 
 /** Payload for regenerate_member_invite RPC (fresh token + reset 7-day clock). */
@@ -99,8 +131,7 @@ export interface UpdateMemberPayload {
 export interface UpdateMemberCouplePayload {
   event_id: string;
   id: string;
-  is_bride: boolean;
-  is_groom: boolean;
+  couple: "bride" | "groom" | null;
 }
 
 /** Payload for update_member_access_group RPC. */
