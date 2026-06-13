@@ -115,7 +115,7 @@ const TimelineItemForm = () => {
       days.flatMap((d, i) =>
         d.segments.map((s) => ({
           value: s.id,
-          label: s.name ? `Day ${i + 1} · ${s.name}` : `Day ${i + 1}`,
+          label: s.name || d.label,
           icon: (
             <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
           ),
