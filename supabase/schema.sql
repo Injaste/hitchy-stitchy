@@ -30,6 +30,60 @@
 --   20260605000004_member_email_protection          — roster read only via the
 --       get_members RPC (fields tiered by role); event_members SELECT → own row
 --       only (user_id = auth.uid()), keeping self-realtime without exposing others.
+--   20260606000000_rename_subscribers_waitlist       — rename subscribers → waitlist.
+--   20260606000001_push_per_event_and_prefs          — push notification tokens +
+--       per-member notification preferences (event_members.preferences jsonb).
+--   20260608000001_event_days_segments_tables        — event_days + event_segments
+--       tables; timeline items gain segment_id FK replacing the day_id direct link.
+--   20260608000002_event_days_segments_backfill      — backfill existing timeline
+--       rows into the new segment spine.
+--   20260608000003_event_days_segments_rpcs          — create/update/delete segment
+--       RPCs; create_event seeds one default segment per day.
+--   20260608000004_timeline_segment_writes           — create_timeline / update_timeline
+--       rewritten to address segment_id instead of day.
+--   20260608000005_segment_update_rpc               — update_segment RPC.
+--   20260608000006_timeline_drop_day_rpcs            — drop legacy day-scoped timeline
+--       RPCs superseded by the segment spine.
+--   20260608000010_tasks_position_engine             — per-row fractional `position`
+--       on event_tasks (replaces task_order jsonb); move_task (drag) gated on
+--       tasks:update only; update_task / delete_task keep creator/assignee carve-outs.
+--   20260608000011_drop_task_order                   — drop the dormant task_order column.
+--   20260610000001_budget_tracker                    — event_budget + event_expenses
+--       tables; budget CRUD RPCs; budget resource added to access catalog.
+--   20260610000101_member_invite_link                — token-based invite links
+--       (invite_token + invite_expires_at on event_members); event_members.email
+--       dropped; get_user_events drops passive email-match discovery.
+--   20260610000102_invalidate_invite_token_on_use    — rotate invite token on claim
+--       so the link can't be reused.
+--   20260610000201_assignee_rule                     — is_assignable_member +
+--       assert_added_assignees_assignable helpers; task + timeline write RPCs
+--       guard newly-added assignees against frozen/expired members.
+--   20260611000001_event_days_label                  — event_days.label (NOT NULL);
+--       create_day requires a label; existing rows backfilled.
+--   20260611000002_slug_reservations                 — slug_reservations table +
+--       reserve_slug / release_slug RPCs; is_slug_taken helper.
+--   20260611000003_event_day_crud_rpcs               — create_day / delete_day RPCs
+--       (delete guards ≥1-day invariant and cascades segments/timeline items).
+--   20260611000004_slug_reservations_cron            — cron job to expire stale
+--       slug reservations after 30 minutes.
+--   20260611000005_event_dates_from_days             — drop events.date_start /
+--       date_end (derived from event_days); events_with_dates view; create_event
+--       signature changes to p_days jsonb (labeled day set).
+--   20260612000001_delete_day_guard_items            — delete_day raises if the day
+--       has timeline items (RESTRICT); tasks are event-scoped so no guard needed.
+--   20260612000002_days_super_admin_only             — event_days + event_segments
+--       writes restricted to super-admin (create/delete/update day RPCs gated on
+--       is_super_admin_member).
+--   20260612000101_budget_per_day_super_admin        — event_budget becomes per-day
+--       buckets (day_id NOT NULL); budget reads/writes restricted to super-admin
+--       (is_super_admin_member); budget resource stripped from all access groups;
+--       Team gains access:read; create_event drops eager budget seed (lazy per day).
+--   20260612000201_revoke_helper_functions           — REVOKE EXECUTE on internal
+--       helper functions (get_or_create_budget_bucket etc.) from public/anon/authenticated.
+--   20260613000001_day_delete_restrict_timeline      — delete_day raises if the day
+--       has timeline items (RESTRICT guard added server-side).
+--   20260613000002_team_tasks_read                   — Team tasks permission
+--       full → read; existing Team groups backfilled; create_event updated.
 -- =============================================================================
 
 
@@ -1025,13 +1079,114 @@ $$;
 --  They are omitted here to avoid duplication — the dump you provided on
 --  2026-06-04 is the authoritative source and should be appended below.]
 
--- Functions to add (copy from the dump):
---   create_event, create_access_group, update_access_group, delete_access_group
+-- create_event  [last updated: 20260613000002_team_tasks_read]
+CREATE OR REPLACE FUNCTION public.create_event(
+  p_slug         text,
+  p_name         text,
+  p_days         jsonb,
+  p_display_name text,
+  p_role         text
+)
+RETURNS TABLE(id uuid, slug text, name text, date_start date, date_end date, is_pending boolean)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_user_id   uuid := auth.uid();
+  v_event_id  uuid;
+  v_slug      text;
+  v_admin_id  uuid;
+  v_team_id   uuid;
+  v_member_id uuid;
+  v_day_id    uuid;
+  v_start     date;
+  v_end       date;
+  rec         record;
+BEGIN
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'You must be logged in to create an event';
+  END IF;
+
+  IF p_days IS NULL OR jsonb_array_length(p_days) = 0 THEN
+    RAISE EXCEPTION 'Select at least one event day';
+  END IF;
+
+  IF is_slug_taken(p_slug) THEN
+    RAISE EXCEPTION 'This URL is already taken' USING ERRCODE = 'unique_violation';
+  END IF;
+
+  SELECT min((d->>'date')::date), max((d->>'date')::date)
+  INTO v_start, v_end
+  FROM jsonb_array_elements(p_days) AS d;
+
+  INSERT INTO events (slug, name)
+  VALUES (p_slug, p_name)
+  RETURNING events.id, events.slug INTO v_event_id, v_slug;
+
+  -- No budget grant — budget is super-admin only (the couple), enforced by the
+  -- RPCs/RLS. The `budget` resource stays in the catalog for discovery.
+  INSERT INTO event_access_groups (event_id, name, permissions)
+  VALUES (v_event_id, 'Admin', '{
+    "timeline":"full","tasks":"full","guests":"full","invitation":"full",
+    "themes":"full","members":"full","access":"read"
+  }'::jsonb)
+  RETURNING event_access_groups.id INTO v_admin_id;
+
+  INSERT INTO event_access_groups (event_id, name, permissions)
+  VALUES (v_event_id, 'Team', '{
+    "timeline":"full","tasks":"read","members":"read","access":"read"
+  }'::jsonb)
+  RETURNING event_access_groups.id INTO v_team_id;
+
+  INSERT INTO event_members (
+    event_id, user_id, display_name, access_group_id,
+    role, is_root, is_bride, is_groom, invited_at, joined_at
+  )
+  VALUES (
+    v_event_id, v_user_id, p_display_name, v_admin_id,
+    p_role, true, (p_role = 'Bride'), (p_role = 'Groom'), now(), now()
+  )
+  RETURNING event_members.id INTO v_member_id;
+
+  UPDATE events SET created_by = v_member_id WHERE events.id = v_event_id;
+
+  INSERT INTO event_invitation (event_id) VALUES (v_event_id);
+  INSERT INTO event_settings (event_id) VALUES (v_event_id);
+  -- (no event_budget seed — buckets are lazy, per day)
+
+  FOR rec IN
+    SELECT DISTINCT ON (dt) dt AS date, lbl AS label
+    FROM (
+      SELECT (d->>'date')::date              AS dt,
+             btrim(COALESCE(d->>'label', '')) AS lbl
+      FROM jsonb_array_elements(p_days) AS d
+    ) s
+    ORDER BY dt
+  LOOP
+    IF rec.label = '' THEN
+      RAISE EXCEPTION 'Each event day needs a label';
+    END IF;
+
+    INSERT INTO event_days (event_id, date, label)
+    VALUES (v_event_id, rec.date, rec.label)
+    RETURNING event_days.id INTO v_day_id;
+
+    INSERT INTO event_segments (event_id, day_id, name, sort_order)
+    VALUES (v_event_id, v_day_id, NULL, 0);
+  END LOOP;
+
+  DELETE FROM slug_reservations WHERE user_id = v_user_id;
+
+  RETURN QUERY
+  SELECT v_event_id, v_slug, p_name, v_start, v_end, false;
+END;
+$$;
+
+-- Functions still to add (copy from the dump):
+--   create_access_group, update_access_group, delete_access_group
 --   invite_member, update_member, update_member_couple, update_member_access_group,
 --   freeze_member, delete_member, claim_member_invite, regenerate_member_invite
 --   create_guests, update_guests, delete_guest, import_guests_csv (if exists), cancel_rsvp,
 --   submit_rsvp (if exists), update_rsvp (if exists)
---   create_task, update_task, delete_task, archive_tasks, save_task_order, mark_task_done
+--   create_task, update_task, delete_task, archive_tasks, move_task
 --   create_timeline, update_timeline, delete_timeline, start_timeline, end_timeline
 --   create_theme, update_theme, delete_theme, publish_theme
 --   update_invitation, update_event, update_profile, change_password, delete_event
