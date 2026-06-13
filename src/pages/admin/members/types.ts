@@ -32,7 +32,9 @@ export interface Member {
   accessGroup: AccessGroup | null;
 }
 
-export const createMemberSchema = z.object({
+/** Create and edit share one shape — couple_role is set via the switches in
+ *  both flows. The reserved-role guard is layered on by makeMemberSchema. */
+export const memberSchema = z.object({
   display_name: z
     .string()
     .min(1, "Name is required")
@@ -50,26 +52,7 @@ export const createMemberSchema = z.object({
   couple_role: z.enum(["bride", "groom"]).nullable(),
 });
 
-export const editMemberSchema = z.object({
-  display_name: z
-    .string()
-    .min(1, "Name is required")
-    .max(80, "Name is too long"),
-  access_group_id: z.string().min(1, "Select an access group"),
-  role: z
-    .string()
-    .trim()
-    .min(1, "Role is required")
-    .max(80, "Role is too long"),
-  notes: z
-    .string()
-    .max(500, "Notes is too long")
-    .transform((v) => v.trim() || null),
-  couple_role: z.enum(["bride", "groom"]).nullable(),
-});
-
-export type CreateMemberValues = z.infer<typeof createMemberSchema>;
-export type EditMemberValues = z.infer<typeof editMemberSchema>;
+export type MemberValues = z.infer<typeof memberSchema>;
 
 /** Bride/Groom are always reserved; `reserved` adds the couple members' actual
  *  roles. Compared trimmed + lower-cased, empties dropped. */
@@ -83,18 +66,9 @@ const reservedRoleSet = (reserved: string[]) =>
 const RESERVED_ROLE_MESSAGE = "Reserved for the couple";
 
 /** Couple members (couple_role set) keep their reserved role; everyone else is blocked. */
-export const makeCreateMemberSchema = (reservedRoles: string[]) => {
+export const makeMemberSchema = (reservedRoles: string[]) => {
   const reserved = reservedRoleSet(reservedRoles);
-  return createMemberSchema.refine(
-    (d) => d.couple_role != null || !reserved.has(d.role.trim().toLowerCase()),
-    { path: ["role"], message: RESERVED_ROLE_MESSAGE },
-  );
-};
-
-/** Couple members (couple_role set) keep their reserved role; everyone else is blocked. */
-export const makeEditMemberSchema = (reservedRoles: string[]) => {
-  const reserved = reservedRoleSet(reservedRoles);
-  return editMemberSchema.refine(
+  return memberSchema.refine(
     (d) => d.couple_role != null || !reserved.has(d.role.trim().toLowerCase()),
     { path: ["role"], message: RESERVED_ROLE_MESSAGE },
   );

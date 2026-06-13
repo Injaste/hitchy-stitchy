@@ -12,7 +12,7 @@ import { useMemberMutations, useMembersQuery } from "../queries";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useAccess } from "../../hooks/useAccess";
 
-import MemberForm, { useMemberEditForm } from "./MemberForm";
+import MemberForm, { useMemberForm } from "./MemberForm";
 
 const MemberEditModal = () => {
   const isEditOpen = useMemberModalStore((s) => s.isEditOpen);
@@ -22,17 +22,6 @@ const MemberEditModal = () => {
   const { canManageMembers, canManageCouple, guardChangeAccessGroup } = useAccess();
   const { update, updateAccessGroup, updateCouple } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
-
-  // Detect which couple slots are already held by someone other than the current target.
-  const existingBride = members.find(
-    (m) => m.is_bride && m.id !== selectedItem?.id,
-  );
-  const existingGroom = members.find(
-    (m) => m.is_groom && m.id !== selectedItem?.id,
-  );
-
-  // Hide if both slots are already held by other members — both switches would be disabled.
-  const showCoupleRole = canManageCouple && !(existingBride && existingGroom);
 
   // Roles held by the couple (other than this target) — reserved from everyone else.
   const reservedRoles = members
@@ -59,7 +48,7 @@ const MemberEditModal = () => {
         : null
     : null;
 
-  const form = useMemberEditForm({
+  const form = useMemberForm({
     reservedRoles,
     defaultValues: selectedItem
       ? {
@@ -82,7 +71,7 @@ const MemberEditModal = () => {
         !accessLockFor(values.couple_role) &&
         values.access_group_id !== selectedItem.access_group_id;
       const coupleChanged =
-        showCoupleRole && values.couple_role !== currentCoupleRole;
+        canManageCouple && values.couple_role !== currentCoupleRole;
 
       if (memberChanged) {
         update.mutate({
@@ -140,9 +129,7 @@ const MemberEditModal = () => {
         showAccessGroup={canManageMembers}
         lockAccessGroup={lockAccessGroup}
         accessGroupInitialName={selectedItem.accessGroup?.name ?? undefined}
-        showCoupleRole={showCoupleRole}
-        brideTakenBy={existingBride?.display_name ?? null}
-        groomTakenBy={existingGroom?.display_name ?? null}
+        currentMemberId={selectedItem.id}
         isRoot={selectedItem.is_root}
       />
 

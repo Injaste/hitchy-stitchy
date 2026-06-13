@@ -10,60 +10,26 @@ import {
   SelectComboField,
 } from "@/components/custom/form";
 
-import {
-  makeCreateMemberSchema,
-  makeEditMemberSchema,
-  type CreateMemberValues,
-  type EditMemberValues,
-} from "../types";
+import { makeMemberSchema, type MemberValues } from "../types";
 import AccessGroupCombobox from "../components/AccessGroupCombobox";
 import { useMembersQuery } from "../queries";
+import { useAccess } from "../../hooks/useAccess";
 import { useFormShell } from "@/components/custom/form/form-context";
 
-interface UseMemberCreateFormOpts {
-  defaultValues?: Partial<CreateMemberValues>;
+interface UseMemberFormOpts {
+  defaultValues?: Partial<MemberValues>;
   /** Couple members' roles — blocked (alongside the literal Bride/Groom) for others. */
   reservedRoles?: string[];
-  onSubmit: (values: CreateMemberValues) => void;
+  onSubmit: (values: MemberValues) => void;
 }
 
-export const useMemberCreateForm = ({
+/** Shared by create and edit — identical shape; the caller supplies defaults. */
+export const useMemberForm = ({
   defaultValues,
   reservedRoles = [],
   onSubmit,
-}: UseMemberCreateFormOpts) => {
-  const schema = makeCreateMemberSchema(reservedRoles);
-  return useForm({
-    defaultValues: {
-      display_name: defaultValues?.display_name ?? "",
-      access_group_id: defaultValues?.access_group_id ?? "",
-      role: defaultValues?.role ?? "",
-      notes: defaultValues?.notes ?? "",
-      couple_role: defaultValues?.couple_role ?? null,
-    },
-    validators: {
-      onSubmit: schema,
-      onChange: schema,
-    },
-    onSubmit: ({ value }) => {
-      onSubmit(schema.parse(value));
-    },
-  });
-};
-
-interface UseMemberEditFormOpts {
-  defaultValues?: Partial<EditMemberValues>;
-  /** Couple members' roles — blocked (alongside the literal Bride/Groom) for others. */
-  reservedRoles?: string[];
-  onSubmit: (values: EditMemberValues) => void;
-}
-
-export const useMemberEditForm = ({
-  defaultValues,
-  reservedRoles = [],
-  onSubmit,
-}: UseMemberEditFormOpts) => {
-  const schema = makeEditMemberSchema(reservedRoles);
+}: UseMemberFormOpts) => {
+  const schema = makeMemberSchema(reservedRoles);
   return useForm({
     defaultValues: {
       display_name: defaultValues?.display_name ?? "",
@@ -89,12 +55,8 @@ interface MemberFormProps {
   showAccessGroup?: boolean;
   /** Pre-resolved access group name — shown immediately while the access groups query loads to avoid a flash. */
   accessGroupInitialName?: string;
-  /** Show the couple role switches (super admin only). */
-  showCoupleRole?: boolean;
-  /** Display name of another member who already holds the bride slot. */
-  brideTakenBy?: string | null;
-  /** Display name of another member who already holds the groom slot. */
-  groomTakenBy?: string | null;
+  /** The member being edited — excluded from the couple-slot "taken" check (so editing the bride doesn't read as her own slot being taken). Omit on create. */
+  currentMemberId?: string;
   /** Target member is root — access group is forced to show "SuperAdmin" and locked. */
   isRoot?: boolean;
 }
@@ -103,12 +65,11 @@ const MemberForm = ({
   lockAccessGroup = false,
   showAccessGroup = true,
   accessGroupInitialName,
-  showCoupleRole = false,
-  brideTakenBy = null,
-  groomTakenBy = null,
+  currentMemberId,
   isRoot = false,
 }: MemberFormProps) => {
   const { form } = useFormShell();
+  const { canManageCouple } = useAccess();
   const { data: members = [] } = useMembersQuery();
   const roleOptions = Array.from(
     new Set(
@@ -120,6 +81,18 @@ const MemberForm = ({
         .filter((r): r is string => !!r && r.trim().length > 0),
     ),
   ).sort((a, b) => a.localeCompare(b));
+
+  // Couple slots held by someone other than this member; hide the switches
+  // without the couple permission or once both slots are taken elsewhere.
+  const existingBride = members.find(
+    (m) => m.is_bride && m.id !== currentMemberId,
+  );
+  const existingGroom = members.find(
+    (m) => m.is_groom && m.id !== currentMemberId,
+  );
+  const showCoupleRole = canManageCouple && !(existingBride && existingGroom);
+  const brideTakenBy = existingBride?.display_name ?? null;
+  const groomTakenBy = existingGroom?.display_name ?? null;
   const coupleRole = useStore(
     form.store,
     (s: any) => s.values.couple_role,

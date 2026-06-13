@@ -11,9 +11,8 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations, useMembersQuery } from "../queries";
 import { useAccessGroupsQuery } from "../../access/queries";
-import { useAccess } from "../../hooks/useAccess";
 
-import MemberForm, { useMemberCreateForm } from "./MemberForm";
+import MemberForm, { useMemberForm } from "./MemberForm";
 
 const MemberCreateModal = () => {
   const isCreateOpen = useMemberModalStore((s) => s.isCreateOpen);
@@ -22,7 +21,6 @@ const MemberCreateModal = () => {
   const setIsCreateMore = useMemberModalStore((s) => s.setIsCreateMore);
   const openDetailForCreated = useMemberModalStore((s) => s.openDetailForCreated);
   const { eventId } = useAdminStore();
-  const { canManageCouple } = useAccess();
   const { create } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
 
@@ -32,12 +30,6 @@ const MemberCreateModal = () => {
     .map((m) => m.role)
     .filter((r): r is string => !!r);
 
-  // Couple slots already filled (no self to exclude — this member doesn't exist yet).
-  const existingBride = members.find((m) => m.is_bride);
-  const existingGroom = members.find((m) => m.is_groom);
-  // Same gate as edit: couple permission, and hide once both slots are taken.
-  const showCoupleRole = canManageCouple && !(existingBride && existingGroom);
-
   // New members default to the Team group.
   const { data: accessGroups = [] } = useAccessGroupsQuery();
   const teamId = useMemo(
@@ -45,7 +37,7 @@ const MemberCreateModal = () => {
     [accessGroups],
   );
 
-  const form = useMemberCreateForm({
+  const form = useMemberForm({
     reservedRoles,
     defaultValues: { access_group_id: teamId },
     onSubmit: (values) => {
@@ -104,11 +96,7 @@ const MemberCreateModal = () => {
     >
       <FormHeader icon={<Users className="size-4" />} title="Invite member" />
 
-      <MemberForm
-        showCoupleRole={showCoupleRole}
-        brideTakenBy={existingBride?.display_name ?? null}
-        groomTakenBy={existingGroom?.display_name ?? null}
-      />
+      <MemberForm />
 
       <FormFooter
         onCancel={closeAll}
