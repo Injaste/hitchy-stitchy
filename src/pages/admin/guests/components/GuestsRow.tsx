@@ -2,6 +2,7 @@ import { memo, type FC } from "react";
 import { format } from "date-fns";
 import {
   CheckCircle,
+  Clock,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -9,12 +10,13 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
+import { cn } from "@/lib/utils";
 import { itemFadeIn } from "@/lib/animations";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import NotesTooltip from "@/components/custom/notes-tooltip";
+import DataTableRow from "@/components/custom/tables/data-table-row";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +25,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import type { Guest, GuestStatus } from "../types";
+import { STATUS_LABELS, type Guest, type GuestStatus } from "../types";
+
+/** Shared sheet column template — header and rows stay in sync.
+ *  Mobile: select · guest · party · status · actions.
+ *  Desktop (sm+): inserts the registered-on column before actions. */
+export const ROW_COLS =
+  "grid-cols-[1.5rem_minmax(0,1fr)_3rem_3rem_3rem] sm:grid-cols-[1.5rem_minmax(0,1fr)_4rem_3.5rem_6rem_4.5rem]";
 
 interface GuestsRowProps {
   guest: Guest;
@@ -39,13 +47,13 @@ interface GuestsRowProps {
   isUpdating: boolean;
 }
 
-const statusBadge = {
-  confirmed: { label: "Confirmed", variant: "success" },
-  pending: { label: "Pending", variant: "warning" },
-  cancelled: { label: "Cancelled", variant: "destructive" },
+const STATUS_ICON = {
+  confirmed: { icon: CheckCircle, className: "text-success" },
+  pending: { icon: Clock, className: "text-warning" },
+  cancelled: { icon: XCircle, className: "text-destructive" },
 } satisfies Record<
   GuestStatus,
-  { label: string; variant: "success" | "warning" | "destructive" }
+  { icon: typeof CheckCircle; className: string }
 >;
 
 const GuestsRow: FC<GuestsRowProps> = memo(
@@ -62,54 +70,50 @@ const GuestsRow: FC<GuestsRowProps> = memo(
     onUpdateStatus,
     isUpdating,
   }) => {
-    const badge = statusBadge[guest.status];
+    const statusMeta = STATUS_ICON[guest.status];
+    const StatusIcon = statusMeta.icon;
 
     return (
-      <tr
-        key={guest.id}
-        data-state={isSelected ? "selected" : undefined}
-        className="border-b border-border last:border-0 hover:bg-muted/20 cursor-pointer transition-colors data-[state=selected]:bg-muted/50"
+      <DataTableRow
+        element="div"
+        selected={isSelected}
         onClick={() => openDetail(guest)}
       >
-        <td
-          className="px-5 py-3.5 align-middle"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
           <Checkbox
             checked={isSelected}
             onCheckedChange={() => onToggle(guest.id)}
             aria-label={`Select ${guest.name}`}
           />
-        </td>
+        </div>
 
-        <td className="px-5 py-3.5">
+        <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <p className="font-medium text-foreground leading-tight truncate">
+            <p className="truncate font-medium leading-tight text-foreground">
               {guest.name}
             </p>
             <NotesTooltip notes={guest.message} />
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
             {guest.phone}
           </p>
-        </td>
+        </div>
 
-        <td className="px-5 py-3.5 text-muted-foreground">
-          {guest.guest_count}
-        </td>
+        <div className="text-muted-foreground">{guest.guest_count}</div>
 
-        <td className="px-5 py-3.5">
-          <Badge variant={badge.variant}>{badge.label}</Badge>
-        </td>
+        <div title={STATUS_LABELS[guest.status]}>
+          <StatusIcon
+            role="img"
+            aria-label={STATUS_LABELS[guest.status]}
+            className={cn("size-4", statusMeta.className)}
+          />
+        </div>
 
-        <td className="px-5 py-3.5 text-muted-foreground text-xs hidden sm:table-cell">
+        <div className="hidden text-xs text-muted-foreground sm:block">
           {format(new Date(guest.created_at), "d MMM yyyy")}
-        </td>
+        </div>
 
-        <td
-          className="px-5 py-3.5 text-right"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="text-right" onClick={(e) => e.stopPropagation()}>
           <AnimatePresence>
             {guest.status === "pending" && (
               <motion.div variants={itemFadeIn} className="inline">
@@ -179,8 +183,8 @@ const GuestsRow: FC<GuestsRowProps> = memo(
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-        </td>
-      </tr>
+        </div>
+      </DataTableRow>
     );
   },
 );

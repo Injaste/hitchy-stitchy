@@ -120,11 +120,7 @@ const GuestsView: FC<GuestsViewProps> = ({
     }
 
     return (
-      <ComponentFade
-        key="content"
-        useBlur
-        className="md:flex md:flex-col md:flex-1 md:min-h-0"
-      >
+      <ComponentFade key="content" useBlur>
         <DeadlineAlert />
         <GuestsStats guests={data} />
         <GuestsFilters
@@ -132,8 +128,6 @@ const GuestsView: FC<GuestsViewProps> = ({
           onSearchChange={setSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
-          filteredCount={filtered.length}
-          totalCount={data.length}
           trailing={<GuestsExport guests={filtered} allGuests={selectedRows} />}
         />
         <AnimatePresence initial={false}>

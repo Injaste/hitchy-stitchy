@@ -38,9 +38,12 @@ export const useGuestModalStore = createModalStore<Guest, GuestModalAddons>((set
   clearSelection: () => set({ selectedIds: new Set() }),
 
   extendedCloseAll: () => set({ isImportOpen: false, isBulkUpdateOpen: false }),
+  // Runs on *every* closeAll, so it must only reset the transient bulk-modal
+  // inputs — never the row selection, which has to survive opening/closing a
+  // guest's detail, edit, or create modal. Selection is cleared explicitly at
+  // the call sites that consume it (bulk update success, delete).
   extendedReset: () =>
     set({
-      selectedIds: new Set(),
       bulkUpdateIds: [],
       bulkUpdateStatus: null,
     }),

@@ -54,9 +54,15 @@ const GuestBulkStatusModal = () => {
   const ids = useGuestModalStore((s) => s.bulkUpdateIds);
   const status = useGuestModalStore((s) => s.bulkUpdateStatus);
   const closeAll = useGuestModalStore((s) => s.closeAll);
+  const clearSelection = useGuestModalStore((s) => s.clearSelection);
   const { bulkUpdateGuests } = useGuestMutations();
 
-  useCloseOnSuccess(bulkUpdateGuests.isSuccess, closeAll);
+  // The bulk action consumed the current selection — clear it on success only
+  // (a cancel leaves the picks intact so the user can retry).
+  useCloseOnSuccess(bulkUpdateGuests.isSuccess, () => {
+    clearSelection();
+    closeAll();
+  });
 
   if (!status) return null;
 

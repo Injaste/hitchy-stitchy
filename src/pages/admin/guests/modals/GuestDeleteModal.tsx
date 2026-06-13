@@ -8,9 +8,20 @@ const GuestDeleteModal = () => {
   const isDeleteOpen = useGuestModalStore((s) => s.isDeleteOpen)
   const selectedItem = useGuestModalStore((s) => s.selectedItem)
   const closeAll = useGuestModalStore((s) => s.closeAll)
+  const selectedIds = useGuestModalStore((s) => s.selectedIds)
+  const setSelectedIds = useGuestModalStore((s) => s.setSelectedIds)
   const { remove } = useGuestMutations()
 
-  useCloseOnSuccess(remove.isSuccess, closeAll)
+  // Drop the removed guest from any active selection so it doesn't linger as a
+  // phantom in the bulk-bar count once its row is gone.
+  useCloseOnSuccess(remove.isSuccess, () => {
+    if (selectedItem && selectedIds.has(selectedItem.id)) {
+      const next = new Set(selectedIds)
+      next.delete(selectedItem.id)
+      setSelectedIds(next)
+    }
+    closeAll()
+  })
 
   if (!selectedItem) return null
   const guest = selectedItem
