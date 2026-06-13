@@ -915,7 +915,9 @@ BEGIN
   RETURN COALESCE((v_permissions -> p_resource ->> p_action)::boolean, false);
 END;
 $$;
-REVOKE EXECUTE ON FUNCTION public.has_event_permission(uuid, text, text) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.has_event_permission(uuid, text, text) FROM PUBLIC, anon;
+-- authenticated must retain EXECUTE: event_rsvps_select calls this in its USING clause.
+GRANT EXECUTE ON FUNCTION public.has_event_permission(uuid, text, text) TO authenticated;
 
 -- Assignee rule predicate + guard (used by create/update task & timeline RPCs).
 CREATE OR REPLACE FUNCTION public.is_assignable_member(p_event_id uuid, p_member_id uuid)
