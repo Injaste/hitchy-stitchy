@@ -27,7 +27,7 @@ the template system is already complete (per the payments handoff MVP assessment
 ## Known engine gap to close (from misc.md)
 - **Image field upload**: the `unique-muslim` field schema supports image *URLs*
   only; native upload isn't wired (`src/pages/wedding/templates/unique-muslim/types.ts`,
-  [misc.md](misc.md)). New templates lean heavily on photos — wire `type: "image"`
+  [misc.md](../misc.md)). New templates lean heavily on photos — wire `type: "image"`
   upload in the field renderer so authors/couples can upload, not paste URLs.
 
 ## Tier
@@ -49,5 +49,5 @@ closed. No data-model change.
 - Engine + reference template: `src/pages/wedding/templates/` (`unique-muslim/`, `index.ts`, `types.ts`).
 - Public invite page: `src/pages/wedding/`.
 - Admin theme editor/galleries: `src/pages/admin/invitation/themes/`.
-- Image-upload gap: [misc.md](misc.md).
-- Recipe + guardrails: [mvp-overview.md](mvp-overview.md).
+- Image-upload gap: [misc.md](../misc.md).
+- Recipe + guardrails: [mvp-overview.md](../mvp-overview.md).

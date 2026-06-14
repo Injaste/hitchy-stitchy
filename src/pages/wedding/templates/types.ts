@@ -9,7 +9,7 @@ import type {
 import type { AnchorThemeConfig } from "@/pages/wedding/anchors"
 import type { PublicEventConfig } from "../types"
 
-export type FieldType = "text" | "textarea" | "select" | "switch" | "image"
+export type FieldType = "text" | "textarea" | "select" | "switch" | "image" | "font"
 
 export interface FieldOption {
   label: string

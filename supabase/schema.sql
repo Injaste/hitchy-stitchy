@@ -2100,6 +2100,38 @@ CREATE EVENT TRIGGER auto_attach_triggers_on_create
 
 
 -- =============================================================================
+-- STORAGE — buckets + storage.objects policies  [20260613000101]
+-- =============================================================================
+-- `invitation-images`: public bucket for couple-uploaded theme images
+-- (backgrounds, hero photos, OG share image). Objects are pathed
+-- <event_id>/<theme_id>/<uuid>.<ext> by the client uploader; the write policies
+-- read storage.foldername(name)[1] as the event_id and gate on the same
+-- permission as update_theme: has_event_permission(event_id, 'themes', 'update').
+-- Public image RENDERING needs no policy (CDN/getPublicUrl), but the client
+-- uploads with upsert, whose existence-check SELECT does need one — so there is
+-- a SELECT policy scoped to authenticated event members (not public/anon), which
+-- avoids bucket enumeration. (History: broad public read 20260613000101 →
+-- dropped 20260614000001 for enumeration → restored scoped 20260614000003
+-- because upsert needs it.)
+--
+--   INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+--   VALUES ('invitation-images', 'invitation-images', true, 5242880,
+--           ARRAY['image/jpeg','image/png','image/webp','image/gif','image/avif']);
+--
+--   CREATE POLICY "invitation_images_select" ON storage.objects FOR SELECT TO authenticated
+--     USING (bucket_id = 'invitation-images'
+--       AND public.has_event_permission(((storage.foldername(name))[1])::uuid, 'themes', 'update'));
+--   CREATE POLICY "invitation_images_create" ON storage.objects FOR INSERT TO authenticated
+--     WITH CHECK (bucket_id = 'invitation-images'
+--       AND public.has_event_permission(((storage.foldername(name))[1])::uuid, 'themes', 'update'));
+--   CREATE POLICY "invitation_images_update" ON storage.objects FOR UPDATE TO authenticated
+--     USING (...) WITH CHECK (... same predicate ...);
+--   CREATE POLICY "invitation_images_delete" ON storage.objects FOR DELETE TO authenticated
+--     USING (... same predicate ...);
+--   (public.-qualified per 20260614000002 — storage policies lack public in search_path)
+
+
+-- =============================================================================
 -- KNOWN GAPS — fill these in after running the missing queries
 -- =============================================================================
 -- 1. event_vendors column definitions (only FK + index confirmed)

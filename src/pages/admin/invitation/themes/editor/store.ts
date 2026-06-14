@@ -10,9 +10,13 @@ interface ThemeSheetState {
   name: string
   initialName: string
   isDirty: boolean
+  // Transient preview-only override merged OVER the draft by the live preview.
+  // Used for hover-to-preview (e.g. fonts) — never persisted, never marks dirty.
+  previewPatch: ThemeDraftPatch | null
 
   init: (themeId: string, config: ThemeConfig, name: string) => void
   setFields: (patch: ThemeDraftPatch) => void
+  setPreviewPatch: (patch: ThemeDraftPatch | null) => void
   setName: (name: string) => void
   reset: () => void
   clear: () => void
@@ -25,6 +29,7 @@ export const useThemeSheetStore = create<ThemeSheetState>((set, get) => ({
   name: "",
   initialName: "",
   isDirty: false,
+  previewPatch: null,
 
   init: (themeId, config, name) => {
     const safe = (config ?? { slug: null }) as ThemeConfig
@@ -35,8 +40,11 @@ export const useThemeSheetStore = create<ThemeSheetState>((set, get) => ({
       name,
       initialName: name,
       isDirty: false,
+      previewPatch: null,
     })
   },
+
+  setPreviewPatch: (patch) => set({ previewPatch: patch }),
 
   setFields: (patch) => {
     const { draft, initial, name, initialName } = get()
@@ -69,6 +77,7 @@ export const useThemeSheetStore = create<ThemeSheetState>((set, get) => ({
       name: "",
       initialName: "",
       isDirty: false,
+      previewPatch: null,
     }),
 }))
 

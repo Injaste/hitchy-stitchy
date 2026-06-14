@@ -10,12 +10,6 @@ On autofill complete, the browser overlay sits on top of the field group instead
 of within the group's boundary container. Fix the stacking/containment so it
 stays inside the group.
 
-## Unique-muslim template — image field upload
-`src/pages/wedding/templates/unique-muslim/types.ts`
-
-Support `type: "image"` with native upload once the field renderer handles it.
-Currently only a pasted URL is accepted.
-
 ## schema.sql — fill in inferred columns
 `supabase/schema.sql`
 

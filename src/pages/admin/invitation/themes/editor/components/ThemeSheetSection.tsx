@@ -10,7 +10,10 @@ import {
 } from "@/components/custom/form";
 import { FormShellContext } from "@/components/custom/form/form-context";
 import type { ThemeFieldGroup } from "@/pages/wedding/templates/types";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useThemeSheetStore, type ThemeDraftPatch } from "../store";
+import ImageUploadField from "./ImageUploadField";
+import FontSelectField from "./FontSelectField";
 
 interface ThemeSheetSectionProps {
   group: ThemeFieldGroup;
@@ -19,6 +22,8 @@ interface ThemeSheetSectionProps {
 const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
   const draft = useThemeSheetStore((s) => s.draft);
   const setFields = useThemeSheetStore((s) => s.setFields);
+  const themeId = useThemeSheetStore((s) => s.themeId);
+  const eventId = useAdminStore((s) => s.eventId);
 
   const setFieldsRef = useRef(setFields);
   setFieldsRef.current = setFields;
@@ -131,8 +136,28 @@ const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
                       label={field.label}
                     />
                   );
-                case "text":
                 case "image":
+                  return (
+                    <ImageUploadField
+                      key={field.key}
+                      name={field.key}
+                      label={field.label}
+                      eventId={eventId}
+                      themeId={themeId ?? ""}
+                      hint={field.hint ? <span>{field.hint}</span> : undefined}
+                    />
+                  );
+                case "font":
+                  return (
+                    <FontSelectField
+                      key={field.key}
+                      name={field.key}
+                      label={field.label}
+                      placeholder={field.placeholder}
+                      hint={field.hint ? <span>{field.hint}</span> : undefined}
+                    />
+                  );
+                case "text":
                 default:
                   return (
                     <TextField

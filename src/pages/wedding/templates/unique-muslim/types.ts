@@ -10,14 +10,11 @@ export const uniqueMuslimSchema = [
   },
   {
     title: "Typography",
-    description: "Paste a Google Fonts embed URL for each role",
-    descriptionUrl: "https://fonts.google.com",
-    descriptionUrlLabel: "Google Fonts ↗",
+    description: "Pick a font for each role. Leave blank to use the theme's default.",
     fields: [
-      { key: "font_couple_url", label: "Couple Names Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Italianno&display=swap" },
-      { key: "font_number_url", label: "Countdown Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap" },
-      { key: "font_heading_url", label: "Headings Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@700&display=swap" },
-      { key: "font_body_url", label: "Body Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400&display=swap" },
+      { key: "font_couple", label: "Couple Names Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_heading", label: "Headings Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_body", label: "Body Font", type: "font", placeholder: "Select a font…" },
     ],
   },
   {
@@ -99,8 +96,7 @@ export const uniqueMuslimSchema = [
     fields: [
       { key: "page_title", label: "Page Title", type: "text", placeholder: "e.g. The Wedding of Ahmad & Sarah", hint: "Shown in the browser tab and link previews. Leave blank to use the default." },
       { key: "page_description", label: "Page Description", type: "textarea", placeholder: "A short message shown when this page is shared…", hint: "Shown in link previews on WhatsApp, Facebook, iMessage, etc." },
-      // TODO: support type: "image" with native upload once the field renderer handles it. For now, accept a pasted URL.
-      { key: "og_image", label: "Social Share Image URL", type: "text", placeholder: "https://…/share-image.jpg", hint: "Paste a link to an image (1200×630 works best). Falls back to the background image if blank." },
+      { key: "og_image", label: "Social Share Image", type: "image", placeholder: "/image.png or https://...", hint: "1200×630 works best. Falls back to the background image if blank." },
     ],
   },
 ] as const satisfies ThemeFieldGroup[]

@@ -19,6 +19,9 @@ export interface FieldShellProps {
   hint?: ReactNode;
   fieldClassName?: string;
   labelClassName?: string;
+  /** An imperative/async error (e.g. an upload failure) shown via the same
+   *  animated FieldError as validation errors. */
+  error?: string | null;
   children: (field: AnyFieldApi, hasError: boolean) => ReactNode;
 }
 
@@ -30,6 +33,7 @@ const FieldShell = ({
   hint,
   fieldClassName,
   labelClassName,
+  error,
   children,
 }: FieldShellProps) => {
   const { attemptCount, form } = useFormShell();
@@ -38,10 +42,12 @@ const FieldShell = ({
   return (
     <FormField name={name}>
       {(field: AnyFieldApi) => {
-        const hasError = !!field.state.meta.errors.length && attemptCount > 0;
+        const hasError =
+          (!!field.state.meta.errors.length && attemptCount > 0) || !!error;
         return (
           <AnimateItem
             errors={field.state.meta.errors}
+            error={error}
             hasError={hasError}
             attemptCount={attemptCount}
           >

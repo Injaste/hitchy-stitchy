@@ -28,7 +28,17 @@ const ThemeSheetPreview = ({
   entered = false,
 }: ThemeSheetPreviewProps) => {
   const draft = useThemeSheetStore((s) => s.draft);
-  const deferredDraft = useDeferredValue(draft);
+  const previewPatch = useThemeSheetStore((s) => s.previewPatch);
+  // Merge the transient preview override (e.g. hover-to-preview a font) OVER the
+  // draft for rendering only — the draft itself is untouched.
+  const effectiveDraft = useMemo(
+    () =>
+      previewPatch && draft
+        ? ({ ...draft, ...previewPatch } as typeof draft)
+        : draft,
+    [draft, previewPatch],
+  );
+  const deferredDraft = useDeferredValue(effectiveDraft);
   const { data: invitation } = useInvitationQuery();
   const [frameKey, setFrameKey] = useState(0);
 
