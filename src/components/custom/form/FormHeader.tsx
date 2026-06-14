@@ -21,7 +21,11 @@ const FormHeader = ({ title, icon }: FormHeaderProps) => {
   return (
     <DialogHeader>
       {inDialog ? (
-        <DialogTitle className={icon ? "flex items-center gap-2" : undefined}>
+        <DialogTitle
+          className={
+            icon ? "flex items-center gap-2 text-muted-foreground" : undefined
+          }
+        >
           {icon}
           {title}
         </DialogTitle>

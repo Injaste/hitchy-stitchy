@@ -21,6 +21,7 @@ const ScrollContext = createContext<ScrollContextValue | null>(null);
 export const useScrollContext = () => useContext(ScrollContext);
 
 type ScrollViewProps = React.ComponentProps<"div"> & {
+  mainClass?: string;
   gradientTop?: boolean;
   gradientBottom?: boolean;
   gradientClass?: string;
@@ -29,6 +30,7 @@ type ScrollViewProps = React.ComponentProps<"div"> & {
 export const ScrollView = forwardRef<HTMLDivElement, ScrollViewProps>(
   (
     {
+      mainClass,
       children,
       className,
       gradientTop = false,
@@ -80,7 +82,7 @@ export const ScrollView = forwardRef<HTMLDivElement, ScrollViewProps>(
 
     return (
       <ScrollContext.Provider value={ctx}>
-        <div className="relative flex flex-col flex-1 h-full">
+        <div className={cn("relative flex flex-col flex-1 h-full", mainClass)}>
           {gradientTop && (
             <ScrollGradient
               side="top"

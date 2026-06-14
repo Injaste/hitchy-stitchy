@@ -21,10 +21,10 @@ interface ScrollGradientProps {
 }
 
 const SIDE_CLASS: Record<ScrollGradientProps["side"], string> = {
-  top: "inset-x-0 -top-px bg-linear-to-b",
-  bottom: "inset-x-0 -bottom-px bg-linear-to-t",
-  left: "inset-y-0 -left-px bg-linear-to-r",
-  right: "inset-y-0 -right-px bg-linear-to-l",
+  top: "inset-x-0 top-0 bg-linear-to-b",
+  bottom: "inset-x-0 bottom-0 bg-linear-to-t",
+  left: "inset-y-0 left-0 bg-linear-to-r",
+  right: "inset-y-0 right-0 bg-linear-to-l",
 };
 
 /**

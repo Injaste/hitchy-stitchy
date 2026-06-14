@@ -124,6 +124,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 function DialogBody({ className, children, ...props }: ScrollViewProps) {
   return (
     <ScrollView
+      mainClass="py-px"
       gradientTop
       gradientBottom
       gradientClass="from-popover"
