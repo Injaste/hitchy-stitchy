@@ -7,7 +7,7 @@ export interface Guest {
   id: string
   event_id: string
   name: string
-  phone: string
+  phone: string | null
   guest_count: number
   message: string | null
   status: GuestStatus
@@ -24,10 +24,13 @@ export const guestFormSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(200, "Name is too long"),
+  // Optional for admin-entered guests (e.g. elderly relatives with no phone).
+  // Empty → null so no-phone guests don't collide on UNIQUE(event_id, phone).
+  // The PUBLIC RSVP form requires phone via its own schema (wedding/types.ts).
   phone: z
     .string()
-    .min(1, "Phone is required")
-    .max(40, "Phone is too long"),
+    .max(40, "Phone is too long")
+    .transform((v) => (v.trim() ? v.trim() : null)),
   guest_count: z.coerce
     .number()
     .min(1, "At least 1 guest")
@@ -47,7 +50,7 @@ export interface UpdateGuestPayload {
   event_id: string
   id: string
   name: string
-  phone: string
+  phone: string | null
   guest_count: number
   message: string | null
   status: GuestStatus

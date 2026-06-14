@@ -58,7 +58,7 @@ const GuestsView: FC<GuestsViewProps> = ({
           statusFilter === "all" || g.status === statusFilter;
         const q = search.toLowerCase();
         const matchesSearch =
-          !q || g.name.toLowerCase().includes(q) || g.phone.includes(q);
+          !q || g.name.toLowerCase().includes(q) || (g.phone?.includes(q) ?? false);
         return matchesStatus && matchesSearch;
       }),
     [data, search, statusFilter],

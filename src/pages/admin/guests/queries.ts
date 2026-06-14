@@ -76,7 +76,7 @@ export function useGuestMutations() {
     async (payload: CreateGuestPayload) => {
       const [row] = await createGuests(eventId!, [{
         name: payload.name.trim(),
-        phone: payload.phone.trim(),
+        phone: payload.phone?.trim() || null,
         guest_count: payload.guest_count,
         message: payload.message,
         status: payload.status,

@@ -117,6 +117,7 @@ const GuestForm: FC<GuestFormProps> = ({ minGuest, maxGuest, showMessage }) => {
           name="phone"
           label="Phone"
           type="tel"
+          optional
           placeholder="e.g. +60123456789"
         />
         <div className="grid grid-cols-2 gap-3">

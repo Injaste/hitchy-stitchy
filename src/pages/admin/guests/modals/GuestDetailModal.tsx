@@ -45,6 +45,7 @@ const GuestDetailModal = () => {
   const guest = selectedItem;
 
   const copyPhone = () => {
+    if (!guest.phone) return;
     navigator.clipboard.writeText(guest.phone);
     toast.success("Phone copied");
   };
@@ -109,27 +110,29 @@ const GuestDetailModal = () => {
             </div>
 
             <div className="space-y-3">
-              <Row icon={<Phone className="w-3 h-3" />} label="Phone">
-                <span className="inline-flex items-center gap-1">
-                  <span>{guest.phone}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    aria-label="Copy phone number"
-                    onClick={copyPhone}
-                  >
-                    <Copy className="size-3.5" />
-                  </Button>
-                  <Button variant="ghost" size="icon-xs" asChild>
-                    <a
-                      href={`tel:${guest.phone.replace(/\s+/g, "")}`}
-                      aria-label={`Call ${guest.name}`}
+              {guest.phone && (
+                <Row icon={<Phone className="w-3 h-3" />} label="Phone">
+                  <span className="inline-flex items-center gap-1">
+                    <span>{guest.phone}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="Copy phone number"
+                      onClick={copyPhone}
                     >
-                      <PhoneCall className="size-3.5" />
-                    </a>
-                  </Button>
-                </span>
-              </Row>
+                      <Copy className="size-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon-xs" asChild>
+                      <a
+                        href={`tel:${guest.phone.replace(/\s+/g, "")}`}
+                        aria-label={`Call ${guest.name}`}
+                      >
+                        <PhoneCall className="size-3.5" />
+                      </a>
+                    </Button>
+                  </span>
+                </Row>
+              )}
               <Row icon={<Users className="w-3 h-3" />} label="Party size">
                 {guest.guest_count}
               </Row>

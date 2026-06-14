@@ -358,7 +358,7 @@ CREATE TABLE public.event_rsvps (
   id           uuid              NOT NULL DEFAULT gen_random_uuid(),
   event_id     uuid              NOT NULL,
   name         text              NOT NULL,
-  phone        text              NOT NULL,
+  phone        text,  -- nullable: admin-added guests may have none (20260614000101); public RSVP still requires it
   guest_count  integer           NOT NULL DEFAULT 1,
   message      text,
   status       event_rsvp_status NOT NULL DEFAULT 'confirmed',

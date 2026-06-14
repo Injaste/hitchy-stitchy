@@ -32,13 +32,17 @@ function resolveRows(
   existing: Guest[] | undefined,
 ): ResolvedGuestRow[] {
   const byPhone = new Map<string, Guest>()
-  existing?.forEach((g) => byPhone.set(g.phone.trim(), g))
+  existing?.forEach((g) => {
+    if (g.phone) byPhone.set(g.phone.trim(), g)
+  })
 
   return parsed.map((row) => {
     if (row.errors.length > 0) {
       return { ...row, conflictWith: null, action: "skip" as ImportAction }
     }
-    const match = byPhone.get(row.values.phone.trim()) ?? null
+    // No-phone rows can't match an existing guest by phone → always insert.
+    const phone = row.values.phone?.trim()
+    const match = phone ? (byPhone.get(phone) ?? null) : null
     return {
       ...row,
       conflictWith: match,

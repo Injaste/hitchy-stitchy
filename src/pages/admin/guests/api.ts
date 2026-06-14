@@ -42,7 +42,7 @@ export async function updateGuest(payload: UpdateGuestPayload): Promise<Guest> {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_name: payload.name.trim(),
-    p_phone: payload.phone.trim(),
+    p_phone: payload.phone?.trim() || null,
     p_guest_count: payload.guest_count,
     p_message: payload.message,
     p_status: payload.status,
@@ -104,7 +104,7 @@ export async function bulkImportGuests({
   if (insertRows.length > 0) {
     const guests: CreateGuestPayload[] = insertRows.map((r) => ({
       name: r.name.trim(),
-      phone: r.phone.trim(),
+      phone: r.phone?.trim() || null,
       guest_count: r.guest_count,
       message: r.message,
       status: r.status,
