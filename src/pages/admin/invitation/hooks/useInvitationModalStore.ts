@@ -2,6 +2,16 @@ import { create } from "zustand";
 
 export type InvitationSheetMode = "browse" | "edit";
 
+// The editor's confirm dialogs (rendered by <InvitationModals>). Open-state lives
+// here like every other feature's modal store; the form-coupled actions are
+// passed to the modals by EditPanel.
+export type InvitationConfirm =
+  | "publish"
+  | "unpublish"
+  | "delete"
+  | "reset"
+  | "discard";
+
 interface InvitationModalState {
   isOpen: boolean;
   mode: InvitationSheetMode;
@@ -9,14 +19,18 @@ interface InvitationModalState {
   // slides it in/out. Hiding never unmounts, so the preview iframe persists.
   previewMounted: boolean;
   previewVisible: boolean;
+  // Which confirm dialog is open (null = none).
+  confirm: InvitationConfirm | null;
   openBrowse: () => void;
   openEdit: () => void;
   openPreview: () => void;
   hidePreview: () => void;
+  openConfirm: (confirm: InvitationConfirm) => void;
+  closeConfirm: () => void;
   close: () => void;
 }
 
-const FRESH = { previewMounted: false, previewVisible: false };
+const FRESH = { previewMounted: false, previewVisible: false, confirm: null };
 
 // One invitation sheet, two modes (browse templates / edit). Mirrors the
 // per-feature modal-store convention (useXxxModalStore).
@@ -25,11 +39,14 @@ export const useInvitationModalStore = create<InvitationModalState>((set) => ({
   mode: "browse",
   previewMounted: false,
   previewVisible: false,
+  confirm: null,
   openBrowse: () => set({ isOpen: true, mode: "browse", ...FRESH }),
   openEdit: () => set({ isOpen: true, mode: "edit", ...FRESH }),
   // First open mounts it (iframe loads once); thereafter just toggles visibility.
   openPreview: () => set({ previewMounted: true, previewVisible: true }),
   hidePreview: () => set({ previewVisible: false }),
-  // Closing the main sheet tears the preview down with it.
+  openConfirm: (confirm) => set({ confirm }),
+  closeConfirm: () => set({ confirm: null }),
+  // Closing the main sheet tears the preview/confirm down with it.
   close: () => set({ isOpen: false, ...FRESH }),
 }));

@@ -1,62 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useStore } from "@tanstack/react-store";
 import { z } from "zod";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { themeRegistry } from "@/pages/wedding/templates";
-import type {
-  ThemeConfig,
-  ThemeFieldGroup,
-} from "@/pages/wedding/templates/types";
+import type { ThemeConfig } from "@/pages/wedding/templates/types";
 
 import { useThemeSheetStore } from "../themes/editor/store";
 import { useSheetLeaveGuard } from "../themes/editor/hooks/useThemeSheetLeaveGuard";
 import { schema, rsvpDefaults } from "../config/components/ConfigsForm";
 import { useEventInvitationMutations, useTemplatesQuery } from "../queries";
-import { combineDeadline, deepEqual } from "../utils";
+import {
+  combineDeadline,
+  deepEqual,
+  designKeysOf,
+  buildDesignDefaults,
+  coerceDesign,
+} from "../utils";
 import type { EventInvitation, SaveInvitationPayload } from "../types";
 
-// Flatten the template schema into the design field keys.
-const designKeysOf = (groups: ThemeFieldGroup[]) =>
-  groups.flatMap((g) => g.fields.map((f) => f.key));
-
-// Seed the form's design half from the saved field_config, falling back to each
-// field's schema default (section-list → empty array). Baking defaults in here
-// means untouched fields still persist on save.
-const buildDesignDefaults = (
-  groups: ThemeFieldGroup[],
-  config: ThemeConfig | null,
-) => {
-  const fc = (config ?? {}) as Record<string, unknown>;
-  const out: Record<string, unknown> = {};
-  for (const g of groups)
-    for (const f of g.fields) {
-      const raw = fc[f.key];
-      out[f.key] =
-        f.type === "section-list"
-          ? Array.isArray(raw)
-            ? raw
-            : []
-          : typeof raw === "string"
-            ? raw
-            : (f.default ?? "");
-    }
-  return out;
-};
-
-// Coerce design values for storage: strings trim→null, arrays as-is.
-const coerceDesign = (values: Record<string, unknown>, keys: string[]) => {
-  const out: Record<string, unknown> = {};
-  for (const k of keys) {
-    const v = values[k];
-    out[k] = Array.isArray(v)
-      ? v
-      : typeof v === "string"
-        ? v.trim() || null
-        : (v ?? null);
-  }
-  return out;
-};
+// The controller object EditPanel passes to the footer/menu/modals.
+export type InvitationEditController = ReturnType<typeof useInvitationEditForm>;
 
 // Edit controller for one invitation: a single form (name + design + RSVP), with
 // design values mirrored to the preview store; whole-invitation save (decision A);
@@ -130,16 +94,16 @@ export function useInvitationEditForm(
 
   // Validate the whole form. On failure, surface the inline errors and return
   // the first invalid field key (so the caller can jump to its tab); null = OK.
-  const validate = (): string | null => {
+  const validate = useCallback((): string | null => {
     setAttemptCount((c) => c + 1);
     const parsed = schema.safeParse(form.state.values);
     if (parsed.success) return null;
     form.handleSubmit();
     return (parsed.error.issues[0]?.path[0] as string) ?? "name";
-  };
+  }, [form]);
 
   // Build the whole-invitation payload from the (already-valid) form values.
-  const buildPayload = (): SaveInvitationPayload => {
+  const buildPayload = useCallback((): SaveInvitationPayload => {
     const values = form.state.values as Record<string, unknown>;
     const v = schema.parse(values);
     return {
@@ -165,33 +129,33 @@ export function useInvitationEditForm(
         },
       },
     };
-  };
+  }, [form, eventId, invitation.id, invitation.template_key, designKeys]);
 
   // Persist the draft (+ live settings). Reset the baseline so the sheet reads
   // clean afterwards.
-  const commitSave = async () => {
+  const commitSave = useCallback(async () => {
     await save.mutateAsync(buildPayload());
     form.reset(form.state.values);
-  };
+  }, [save, buildPayload, form]);
 
   // Atomic publish: one RPC persists the draft AND promotes it.
-  const commitPublish = async () => {
+  const commitPublish = useCallback(async () => {
     await publish.mutateAsync(buildPayload());
     form.reset(form.state.values);
-  };
+  }, [publish, buildPayload, form]);
 
   // Leave-guard save = validate + commit (throws to keep the guard open on error).
-  const saveFromGuard = async () => {
+  const saveFromGuard = useCallback(async () => {
     if (validate()) throw new Error("Please fix the highlighted fields");
     await commitSave();
-  };
+  }, [validate, commitSave]);
 
   // Drop unsaved edits — revert the form + preview to the saved draft.
-  const discardChanges = () => {
+  const discardChanges = useCallback(() => {
     form.reset();
     initStore(invitation.id, invitation.draft_config);
     setPreviewPatch(null);
-  };
+  }, [form, initStore, setPreviewPatch, invitation.id, invitation.draft_config]);
 
   const { attemptClose, modal, isSaving } = useSheetLeaveGuard({
     isDirty,
@@ -202,26 +166,42 @@ export function useInvitationEditForm(
 
   // Publish state. "Unpublished changes" = the saved draft design differs from
   // the published snapshot (RSVP settings are live, so they don't count).
-  const isPublished = !!invitation.published_at;
-  const hasUnpublishedChanges =
-    isPublished &&
-    !deepEqual(invitation.draft_config, invitation.published_config);
-  // Enable publish whenever the working design differs from what's live (or it
-  // has never been published) — independent of the Save button's dirty state.
-  const canPublish = isDirty || !isPublished || hasUnpublishedChanges;
+  // Memoised so the deepEqual doesn't run on every render.
+  const { isPublished, hasUnpublishedChanges, canPublish } = useMemo(() => {
+    const published = !!invitation.published_at;
+    const unpublishedChanges =
+      published &&
+      !deepEqual(invitation.draft_config, invitation.published_config);
+    return {
+      isPublished: published,
+      hasUnpublishedChanges: unpublishedChanges,
+      // Enable publish whenever the working design differs from what's live (or
+      // it was never published) — independent of the Save button's dirty state.
+      canPublish: isDirty || !published || unpublishedChanges,
+    };
+  }, [
+    invitation.published_at,
+    invitation.draft_config,
+    invitation.published_config,
+    isDirty,
+  ]);
 
   // Fire-and-forget mutations; the confirm dialog drives the SubmitButton state
   // and closes itself on success (useCloseOnSuccess in EditPanel).
-  const handleUnpublish = () =>
-    unpublish.mutate({ event_id: eventId!, id: invitation.id });
+  const handleUnpublish = useCallback(
+    () => unpublish.mutate({ event_id: eventId!, id: invitation.id }),
+    [unpublish, eventId, invitation.id],
+  );
 
-  const handleDelete = () =>
-    remove.mutate({ event_id: eventId!, id: invitation.id });
+  const handleDelete = useCallback(
+    () => remove.mutate({ event_id: eventId!, id: invitation.id }),
+    [remove, eventId, invitation.id],
+  );
 
   // Reset the design draft to the template's base config — the DB seed that
   // create_invitation copies from (not the minimal registry scaffold). RSVP
   // settings are untouched; the user still Saves to persist.
-  const resetToTemplate = () => {
+  const resetToTemplate = useCallback(() => {
     const base =
       (templates?.find((t) => t.slug === invitation.template_key)
         ?.field_config as ThemeConfig | undefined) ??
@@ -234,7 +214,7 @@ export function useInvitationEditForm(
       form.setFieldValue(k, defaults[k]);
       form.setFieldMeta(k, (m) => ({ ...m, isDirty: true, isTouched: true }));
     }
-  };
+  }, [templates, invitation.template_key, entry, groups, designKeys, form]);
 
   return {
     entry,

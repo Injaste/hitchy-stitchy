@@ -1,5 +1,5 @@
 import type { EventInvitation } from "./types"
-import type { ThemeConfig } from "@/pages/wedding/templates/types"
+import type { ThemeConfig, ThemeFieldGroup } from "@/pages/wedding/templates/types"
 import type { PublicEventConfig } from "@/pages/wedding/types"
 
 // Combine a local date + time into the "YYYY-MM-DD HH:MM" UTC string the RSVP
@@ -73,6 +73,52 @@ export function composeTemplatePreviewConfig(
     published_page: { id: "preview", theme_slug: templateKey, config },
   }
 }
+
+// ── Design-config mapping (used by the edit form) ────────────────────────────
+
+// Flatten a template's schema into its design field keys.
+export const designKeysOf = (groups: ThemeFieldGroup[]): string[] =>
+  groups.flatMap((g) => g.fields.map((f) => f.key));
+
+// Seed the form's design half from a saved config, falling back to each field's
+// schema default (section-list → empty array) — so untouched fields persist.
+export const buildDesignDefaults = (
+  groups: ThemeFieldGroup[],
+  config: ThemeConfig | null,
+): Record<string, unknown> => {
+  const fc = (config ?? {}) as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const g of groups)
+    for (const f of g.fields) {
+      const raw = fc[f.key];
+      out[f.key] =
+        f.type === "section-list"
+          ? Array.isArray(raw)
+            ? raw
+            : []
+          : typeof raw === "string"
+            ? raw
+            : (f.default ?? "");
+    }
+  return out;
+};
+
+// Coerce design values for storage: strings trim→null, arrays as-is.
+export const coerceDesign = (
+  values: Record<string, unknown>,
+  keys: string[],
+): Record<string, unknown> => {
+  const out: Record<string, unknown> = {};
+  for (const k of keys) {
+    const v = values[k];
+    out[k] = Array.isArray(v)
+      ? v
+      : typeof v === "string"
+        ? v.trim() || null
+        : (v ?? null);
+  }
+  return out;
+};
 
 // Key-order-independent deep equality for plain JSON config objects/arrays — used
 // to tell whether the saved draft differs from the published snapshot.
