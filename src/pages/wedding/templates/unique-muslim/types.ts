@@ -1,6 +1,15 @@
-import type { ThemeFieldGroup } from "../types"
+import type { ThemeFieldGroup, SectionListValue } from "../types"
 
 export const uniqueMuslimSchema = [
+  {
+    title: "Typography",
+    description: "Pick a font for each role. Leave blank to use the theme's default.",
+    fields: [
+      { key: "font_couple", label: "Couple Names Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_heading", label: "Headings Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_body", label: "Body Font", type: "font", placeholder: "Select a font…" },
+    ],
+  },
   {
     title: "Couple",
     fields: [
@@ -9,12 +18,11 @@ export const uniqueMuslimSchema = [
     ]
   },
   {
-    title: "Typography",
-    description: "Pick a font for each role. Leave blank to use the theme's default.",
+    title: "Countdown",
+    description: "The date and time the hero countdown counts down to.",
     fields: [
-      { key: "font_couple", label: "Couple Names Font", type: "font", placeholder: "Select a font…" },
-      { key: "font_heading", label: "Headings Font", type: "font", placeholder: "Select a font…" },
-      { key: "font_body", label: "Body Font", type: "font", placeholder: "Select a font…" },
+      { key: "event_date", label: "Date", type: "date", placeholder: "" },
+      { key: "event_time_start", label: "Time", type: "time", placeholder: "" },
     ],
   },
   {
@@ -60,9 +68,12 @@ export const uniqueMuslimSchema = [
       {
         key: "itinerary",
         label: "Programme",
-        type: "textarea",
-        placeholder: "Nikah Ceremony\n10:00 AM | Akad Nikah\n10:30 AM | Solemnization\n\nReception\n12:00 PM",
-        hint: "Separate sections with a blank line. First line of each block is the section title. Each entry: time | label (label is optional).",
+        type: "section-list",
+        placeholder: "",
+        itemFields: [
+          { key: "time", label: "Time", placeholder: "e.g. 10:00 AM" },
+          { key: "label", label: "Label", placeholder: "e.g. Solemnization" },
+        ],
       },
       { key: "footnote", label: "Footnote", type: "text", default: "Meals are all Halal", placeholder: "e.g. Meals are all Halal" },
     ],
@@ -106,6 +117,10 @@ type ExtractKeys<T extends readonly ThemeFieldGroup[]> =
 
 export type UniqueMuslimPageConfig = {
   slug: "unique-muslim"
+  // itinerary is structured (section-list), not a string.
+  itinerary?: SectionListValue
 } & {
-  [K in ExtractKeys<typeof uniqueMuslimSchema>]?: string | null
+  [K in Exclude<ExtractKeys<typeof uniqueMuslimSchema>, "itinerary">]?:
+    | string
+    | null
 }

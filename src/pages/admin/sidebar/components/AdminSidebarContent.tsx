@@ -36,7 +36,7 @@ const AdminSidebarContent = () => {
   const showMembers = true;
   const showAccess = canRead("access");
   const showGuests = canRead("guests");
-  const showInvitation = canRead("invitation") || canRead("themes");
+  const showInvitation = canRead("invitation");
 
   const hasOperations = showTimeline || showTasks;
   const hasMoney = showBudget || showGifts;

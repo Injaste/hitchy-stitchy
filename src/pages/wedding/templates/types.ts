@@ -9,11 +9,36 @@ import type {
 import type { AnchorThemeConfig } from "@/pages/wedding/anchors"
 import type { PublicEventConfig } from "../types"
 
-export type FieldType = "text" | "textarea" | "select" | "switch" | "image" | "font"
+export type FieldType =
+  | "text"
+  | "textarea"
+  | "select"
+  | "switch"
+  | "image"
+  | "font"
+  | "date"
+  | "time"
+  | "section-list"
 
 export interface FieldOption {
   label: string
   value: string
+}
+
+// A "section-list" value: titled sections, each holding rows keyed by the
+// field's itemFields (e.g. { time, label }). Stored as real jsonb (typed,
+// queryable) — not a JSON-encoded string.
+export type SectionListItem = Record<string, string>
+export interface SectionListSection {
+  title: string
+  items: SectionListItem[]
+}
+export type SectionListValue = SectionListSection[]
+
+export interface SectionItemFieldSchema {
+  key: string
+  label: string
+  placeholder?: string
 }
 
 export interface ThemeFieldSchema {
@@ -26,6 +51,8 @@ export interface ThemeFieldSchema {
   hint?: string
   hintUrl?: string
   hintUrlLabel?: string
+  /** For type "section-list": the per-row sub-fields (e.g. time, label). */
+  itemFields?: SectionItemFieldSchema[]
 }
 
 export interface ThemeFieldGroup {

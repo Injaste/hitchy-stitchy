@@ -198,11 +198,12 @@ ALTER TABLE public.events
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_templates (
   id          uuid        NOT NULL DEFAULT gen_random_uuid(),
-  name        text        NOT NULL,
-  slug        text        NOT NULL,
-  description text,
-  config      jsonb       NOT NULL DEFAULT '{}',
-  is_active   boolean     NOT NULL DEFAULT true,
+  name         text        NOT NULL,
+  slug         text        NOT NULL,
+  template_key text,        -- [20260615000002] registry key; seeded from slug, replaces it at cleanup
+  description  text,
+  field_config jsonb       NOT NULL DEFAULT '{}',
+  is_active    boolean     NOT NULL DEFAULT true,
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now(),
 
@@ -255,6 +256,48 @@ CREATE TABLE public.event_invitation (
 
   CONSTRAINT event_invitation_event_id_fk
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
+);
+
+-- -----------------------------------------------------------------------------
+-- event_invitations  [20260615000001] — invitation redesign Step 1: the merged,
+--   PARALLEL invitation (template + design + its own RSVP config), one row per
+--   event for now. Additive; old event_invitation/event_themes/_rsvp RPCs stay
+--   live + untouched until the go-live cleanup. day_id/segment_id added now
+--   (nullable, unused) so per-day in Step 3 needs no ALTER.
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.event_invitations (
+  id            uuid          NOT NULL DEFAULT gen_random_uuid(),
+  event_id      uuid          NOT NULL,
+  day_id        uuid,                                       -- unused in Step 1; per-day in Step 3
+  segment_id    uuid,                                       -- unused in Step 1; segment split later
+  template_key  text          NOT NULL,                     -- code-registry key (not the event slug)
+  name          text          NOT NULL DEFAULT 'My Invitation',
+  field_config  jsonb         NOT NULL DEFAULT '{}',
+  published_at  timestamptz,
+  event_date           date,
+  event_time_start     text,
+  event_time_end       text,
+  rsvp_mode            event_rsvp_mode NOT NULL DEFAULT 'public',
+  rsvp_deadline        timestamptz,
+  max_guests           integer,
+  guest_count_min      integer         NOT NULL DEFAULT 1,
+  guest_count_max      integer         NOT NULL DEFAULT 10,
+  confirmation_message text            NOT NULL DEFAULT 'We look forward to celebrating with you!',
+  rsvp_config          jsonb           NOT NULL DEFAULT '{"rsvp": {"fields": {"message": {"visible": false, "required": false}}}}',
+  created_at    timestamptz   NOT NULL DEFAULT now(),
+  updated_at    timestamptz   NOT NULL DEFAULT now(),
+
+  CONSTRAINT event_invitations_pkey PRIMARY KEY (id),
+  -- NULLS NOT DISTINCT: all-NULL day/segment collide -> one per event now,
+  -- one per (event, day[, segment]) once day_id is populated in Step 3.
+  CONSTRAINT event_invitations_event_day_segment_key
+    UNIQUE NULLS NOT DISTINCT (event_id, day_id, segment_id),
+  CONSTRAINT event_invitations_event_id_fk
+    FOREIGN KEY (event_id)   REFERENCES public.events (id)         ON DELETE CASCADE,
+  CONSTRAINT event_invitations_day_id_fk
+    FOREIGN KEY (day_id)     REFERENCES public.event_days (id)     ON DELETE CASCADE,
+  CONSTRAINT event_invitations_segment_id_fk
+    FOREIGN KEY (segment_id) REFERENCES public.event_segments (id) ON DELETE CASCADE
 );
 
 -- -----------------------------------------------------------------------------
@@ -827,6 +870,10 @@ CREATE POLICY event_invitation_select ON public.event_invitation
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
+CREATE POLICY event_invitations_select ON public.event_invitations
+  FOR SELECT TO authenticated
+  USING (is_event_member(event_id));
+
 CREATE POLICY event_live_logs_select ON public.event_live_logs
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
@@ -1210,6 +1257,80 @@ BEGIN
   SELECT v_event_id, v_slug, p_name, v_start, v_end, false;
 END;
 $$;
+
+-- ── Invitation CRUD [20260615000003] ────────────────────────────────────────
+-- event_invitations writes (no write RLS policy). Gated on the `invitation`
+-- resource. update_invitation = whole-invitation save (design + RSVP config);
+-- 15-arg overload of the live update_invitation (11-arg on event_invitation),
+-- resolved by the p_id/p_template_key args. Old one dropped at cleanup.
+CREATE OR REPLACE FUNCTION public.create_invitation(
+  p_event_id uuid, p_template_key text, p_name text DEFAULT 'My Invitation'
+)
+RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_config jsonb; v_inv event_invitations;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'create') THEN
+    RAISE EXCEPTION 'Insufficient permission to create an invitation'; END IF;
+  IF EXISTS (SELECT 1 FROM event_invitations WHERE event_id = p_event_id AND day_id IS NULL AND segment_id IS NULL) THEN
+    RAISE EXCEPTION 'An invitation already exists for this event'; END IF;
+  SELECT field_config INTO v_config FROM event_templates WHERE template_key = p_template_key AND is_active = true;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Template not found or inactive'; END IF;
+  INSERT INTO event_invitations (event_id, template_key, name, field_config)
+  VALUES (p_event_id, p_template_key, COALESCE(NULLIF(btrim(p_name), ''), 'My Invitation'), COALESCE(v_config, '{}'::jsonb))
+  RETURNING * INTO v_inv;
+  RETURN v_inv;
+END; $$;
+
+CREATE OR REPLACE FUNCTION public.update_invitation(
+  p_event_id uuid, p_id uuid, p_template_key text, p_name text, p_field_config jsonb,
+  p_event_date date, p_event_time_start text, p_event_time_end text,
+  p_rsvp_mode event_rsvp_mode, p_rsvp_deadline timestamptz, p_max_guests integer,
+  p_guest_count_min integer, p_guest_count_max integer, p_confirmation_message text, p_rsvp_config jsonb
+)
+RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_inv event_invitations;
+BEGIN
+  SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_inv.event_id != p_event_id THEN RAISE EXCEPTION 'Invitation does not belong to this event'; END IF;
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update the invitation'; END IF;
+  IF COALESCE(p_guest_count_max, v_inv.guest_count_max) < COALESCE(p_guest_count_min, v_inv.guest_count_min) THEN
+    RAISE EXCEPTION 'Maximum guests cannot be less than the minimum'; END IF;
+  UPDATE event_invitations SET
+    template_key = COALESCE(p_template_key, template_key), event_date = p_event_date,
+    event_time_start = p_event_time_start, event_time_end = p_event_time_end,
+    rsvp_deadline = p_rsvp_deadline, max_guests = p_max_guests,
+    name = COALESCE(NULLIF(btrim(p_name), ''), name),
+    field_config = COALESCE(p_field_config, field_config),
+    rsvp_mode = COALESCE(p_rsvp_mode, rsvp_mode),
+    guest_count_min = COALESCE(p_guest_count_min, guest_count_min),
+    guest_count_max = COALESCE(p_guest_count_max, guest_count_max),
+    confirmation_message = COALESCE(NULLIF(btrim(p_confirmation_message), ''), confirmation_message),
+    rsvp_config = COALESCE(p_rsvp_config, rsvp_config)
+  WHERE id = p_id RETURNING * INTO v_inv;
+  RETURN v_inv;
+END; $$;
+
+CREATE OR REPLACE FUNCTION public.delete_invitation(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_inv event_invitations;
+BEGIN
+  SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_inv.event_id != p_event_id THEN RAISE EXCEPTION 'Invitation does not belong to this event'; END IF;
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'delete') THEN
+    RAISE EXCEPTION 'Insufficient permission to delete the invitation'; END IF;
+  IF v_inv.published_at IS NOT NULL THEN
+    RAISE EXCEPTION 'Published invitation cannot be deleted'; END IF;
+  DELETE FROM event_invitations WHERE id = p_id;
+END; $$;
 
 -- Functions still to add (copy from the dump):
 --   create_access_group, update_access_group, delete_access_group

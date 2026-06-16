@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import SubmitButton from "@/components/custom/form/SubmitButton";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "../ui/label";
 
@@ -76,6 +77,12 @@ interface ConfirmAlertModalProps {
   children?: ReactNode;
   confirmLabel: string;
   cancelLabel?: string;
+  /** Optional middle button (e.g. "Discard") for a 3-action dialog. */
+  secondaryAction?: {
+    label: string;
+    onClick: () => void;
+    variant?: "outline" | "ghost" | "destructive";
+  };
   /**
    * When set, renders a type-to-confirm input; the confirm button stays disabled
    * until the typed text matches (normalized). Reserved for high-stakes deletes.
@@ -100,6 +107,7 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
   children,
   confirmLabel,
   cancelLabel = "Cancel",
+  secondaryAction,
   confirmPhrase,
   confirmDisabled,
   onConfirm,
@@ -185,6 +193,17 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
           >
             {cancelLabel}
           </AlertDialogCancel>
+          {secondaryAction && (
+            <Button
+              type="button"
+              variant={secondaryAction.variant ?? "outline"}
+              size="sm"
+              onClick={secondaryAction.onClick}
+              disabled={isPending}
+            >
+              {secondaryAction.label}
+            </Button>
+          )}
           <SubmitButton
             type="button"
             variant={variant}

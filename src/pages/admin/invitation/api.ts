@@ -1,16 +1,95 @@
 import { supabase } from "@/lib/supabase"
 import type {
   Invitation,
-  UpdateInvitationPayload,
   Template,
-  Theme,
-  CreateThemePayload,
-  UpdateThemePayload,
-  DeleteThemePayload,
-  PublishThemePayload,
+  EventInvitation,
+  CreateInvitationPayload,
+  SaveInvitationPayload,
+  DeleteInvitationPayload,
+  UnpublishInvitationPayload,
 } from "./types"
 
-// Invitation
+// ── New parallel model (event_invitations) ───────────────────────────────────
+// One invitation per event in Step 1 (day_id/segment_id NULL). Reads via RLS;
+// writes via the invitation CRUD RPCs. Returns null when none exists yet.
+export async function fetchEventInvitation(
+  eventId: string,
+): Promise<EventInvitation | null> {
+  const { data, error } = await supabase
+    .from("event_invitations")
+    .select("*")
+    .eq("event_id", eventId)
+    .is("day_id", null)
+    .is("segment_id", null)
+    .maybeSingle()
+
+  if (error) throw new Error(error.message)
+  return data as EventInvitation | null
+}
+
+export async function createInvitation(
+  payload: CreateInvitationPayload,
+): Promise<EventInvitation> {
+  const { data, error } = await supabase.rpc("create_invitation", {
+    p_event_id: payload.event_id,
+    p_template_key: payload.template_key,
+    p_name: payload.name ?? "My Invitation",
+  })
+
+  if (error) throw new Error(error.message)
+  return data as EventInvitation
+}
+
+// One RPC saves the draft (+ live settings); toPublish also promotes it to the
+// live page in the same transaction (atomic publish).
+export async function saveInvitation(
+  payload: SaveInvitationPayload,
+  toPublish = false,
+): Promise<EventInvitation> {
+  const { data, error } = await supabase.rpc("update_invitation", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+    p_template_key: payload.template_key,
+    p_name: payload.name,
+    p_draft_config: payload.draft_config,
+    p_rsvp_mode: payload.rsvp_mode,
+    p_rsvp_deadline: payload.rsvp_deadline,
+    p_max_guests: payload.max_guests,
+    p_guest_count_min: payload.guest_count_min,
+    p_guest_count_max: payload.guest_count_max,
+    p_confirmation_message: payload.confirmation_message,
+    p_rsvp_config: payload.rsvp_config,
+    p_to_publish: toPublish,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as EventInvitation
+}
+
+export async function deleteInvitation(
+  payload: DeleteInvitationPayload,
+): Promise<void> {
+  const { error } = await supabase.rpc("delete_invitation", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+  })
+
+  if (error) throw new Error(error.message)
+}
+
+export async function unpublishInvitation(
+  payload: UnpublishInvitationPayload,
+): Promise<EventInvitation> {
+  const { data, error } = await supabase.rpc("unpublish_invitation", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as EventInvitation
+}
+
+// ── Old per-event invitation (event_invitation singular) — still read by guests.
 export async function fetchInvitation(eventId: string): Promise<Invitation> {
   const { data, error } = await supabase
     .from("event_invitation")
@@ -22,85 +101,13 @@ export async function fetchInvitation(eventId: string): Promise<Invitation> {
   return data as Invitation
 }
 
-export async function updateInvitation(payload: UpdateInvitationPayload): Promise<Invitation> {
-  const { data, error } = await supabase.rpc("update_invitation", {
-    p_event_id: payload.event_id,
-    p_event_date: payload.event_date,
-    p_event_time_start: payload.event_time_start,
-    p_event_time_end: payload.event_time_end,
-    p_rsvp_mode: payload.rsvp_mode,
-    p_rsvp_deadline: payload.rsvp_deadline,
-    p_config: payload.config,
-    p_max_guests: payload.max_guests,
-    p_guest_count_min: payload.guest_count_min,
-    p_guest_count_max: payload.guest_count_max,
-    p_confirmation_message: payload.confirmation_message,
-  })
-
-  if (error) throw new Error(error.message)
-  return data as Invitation
-}
-
-// Templates
+// Template catalogue (readonly).
 export async function fetchTemplates(): Promise<Template[]> {
   const { data, error } = await supabase
     .from("event_templates")
-    .select("id, name, slug, description, config, is_active, created_at, updated_at")
+    .select("id, name, slug, description, field_config, is_active, created_at, updated_at")
     .order("name", { ascending: true })
 
   if (error) throw new Error(error.message)
   return (data ?? []) as Template[]
-}
-
-// Themes
-export async function fetchThemes(eventId: string): Promise<Theme[]> {
-  const { data, error } = await supabase
-    .from("event_themes")
-    .select("id, event_id, template_id, name, published_at, config, created_at, updated_at")
-    .eq("event_id", eventId)
-    .order("created_at", { ascending: true })
-
-  if (error) throw new Error(error.message)
-  return (data ?? []) as Theme[]
-}
-
-export async function createTheme(payload: CreateThemePayload): Promise<Theme> {
-  const { data, error } = await supabase.rpc("create_theme", {
-    p_event_id: payload.event_id,
-    p_template_id: payload.template_id,
-    p_name: payload.name,
-  })
-
-  if (error) throw new Error(error.message)
-  return data as Theme
-}
-
-export async function updateTheme(payload: UpdateThemePayload): Promise<Theme> {
-  const { data, error } = await supabase.rpc("update_theme", {
-    p_event_id: payload.event_id,
-    p_theme_id: payload.id,
-    p_name: payload.name ?? null,
-    p_config: payload.config ?? null,
-  })
-
-  if (error) throw new Error(error.message)
-  return data as Theme
-}
-
-export async function deleteTheme(payload: DeleteThemePayload): Promise<void> {
-  const { error } = await supabase.rpc("delete_theme", {
-    p_event_id: payload.event_id,
-    p_theme_id: payload.id,
-  })
-
-  if (error) throw new Error(error.message)
-}
-
-export async function publishTheme(payload: PublishThemePayload): Promise<void> {
-  const { error } = await supabase.rpc("publish_theme", {
-    p_event_id: payload.event_id,
-    p_theme_id: payload.id,
-  })
-
-  if (error) throw new Error(error.message)
 }

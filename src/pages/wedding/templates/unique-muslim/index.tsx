@@ -26,7 +26,7 @@ import { RSVPForm, RSVPDelete } from "@/pages/wedding/form"
 import { AnchorBar } from "@/pages/wedding/anchors"
 import successCheck from "@/assets/lottie/success-check.json"
 
-import type { ThemeProps } from "@/pages/wedding/templates/types"
+import type { ThemeProps, SectionListValue } from "@/pages/wedding/templates/types"
 import type { RSVPFormData } from "@/pages/wedding/types"
 import { resolveFont } from "@/pages/wedding/templates/engine/fonts"
 import { useThemeAssets } from "@/pages/wedding/templates/engine/useThemeAssets"
@@ -48,10 +48,10 @@ const Lottie = (LottieRaw as any).default ?? LottieRaw
 // override couple/heading/body via the editor; absent that, these ship out of
 // the box. The countdown ("number") slot is a fixed template detail.
 const DEFAULT_FONTS = {
-  couple: resolveFont("Italianno")!,
+  couple: resolveFont("Tangerine")!,
   number: resolveFont("Cinzel")!,
   heading: resolveFont("EB Garamond")!,
-  body: resolveFont("Noto Sans")!,
+  body: resolveFont("EB Garamond")!,
 }
 
 const CONFETTI_COLORS = ["#ff4d8f", "#e8003a", "#ffb3c6", "#d4af37", "#ffd700"]
@@ -157,7 +157,27 @@ interface ItinerarySection {
   items: { time: string; label?: string }[]
 }
 
-function parseItinerary(raw: string | null | undefined): ItinerarySection[] {
+function parseItinerary(
+  raw: string | SectionListValue | null | undefined,
+): ItinerarySection[] {
+  // Structured (section-list): titled sections with { time, label } rows.
+  if (Array.isArray(raw)) {
+    return raw
+      .filter((s) => s && Array.isArray(s.items))
+      .map((s) => ({
+        title: (s.title ?? "").trim(),
+        items: s.items
+          .map((it) => {
+            const time = (it.time ?? "").trim()
+            const label = (it.label ?? "").trim()
+            return { time, ...(label ? { label } : {}) }
+          })
+          .filter((it) => it.time || it.label),
+      }))
+      .filter((s) => s.title || s.items.length)
+  }
+
+  // Legacy string format (blank-line sections, "time | label" rows).
   if (!raw?.trim()) return []
   return raw
     .split(/\n[ \t]*\n/)
