@@ -18,30 +18,12 @@ export interface InvitationConfig {
   rsvp: RSVPSectionConfig
 }
 
-// Old per-event invitation (event_invitation singular). Still read by the guests
-// feature for RSVP settings until the go-live cleanup repoints it.
-export interface Invitation {
-  id: string
-  event_id: string
-  event_date: string | null
-  event_time_start: string | null
-  event_time_end: string | null
-  rsvp_mode: RSVPMode
-  rsvp_deadline: string | null
-  max_guests: number | null
-  guest_count_min: number
-  guest_count_max: number
-  confirmation_message: string | null
-  config: InvitationConfig
-  created_at: string
-  updated_at: string
-}
-
-// Readonly template catalogue (event_templates).
+// Readonly template catalogue (event_templates). `template_key` is the code
+// registry key (matches a key in the template registry + Invitation.template_key).
 export interface Template {
   id: string
   name: string
-  slug: string
+  template_key: string
   description: string | null
   field_config: Record<string, unknown>
   is_active: boolean
@@ -53,7 +35,7 @@ export interface Template {
 // Merges design (was event_themes) + RSVP config into one row. One page per
 // (event, day, segment): day_id required, segment_id nullable (NULL = day-level).
 // link_slug = the URL path under /:slug; NULL = the event root.
-export interface EventInvitation {
+export interface Invitation {
   id: string
   event_id: string
   day_id: string

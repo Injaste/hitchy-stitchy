@@ -1,8 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import type {
-  Invitation,
   Template,
-  EventInvitation,
+  Invitation,
   EventDaySegment,
   CreateInvitationPayload,
   SaveInvitationPayload,
@@ -28,9 +27,9 @@ export async function fetchEventSegments(
 // ── New parallel model (event_invitations) ───────────────────────────────────
 // One page per (event, day, segment). Reads via RLS; writes via the invitation
 // CRUD RPCs. Returns every page for the event (the hub renders them all).
-export async function fetchEventInvitations(
+export async function fetchInvitations(
   eventId: string,
-): Promise<EventInvitation[]> {
+): Promise<Invitation[]> {
   const { data, error } = await supabase
     .from("event_invitations")
     .select("*")
@@ -38,12 +37,12 @@ export async function fetchEventInvitations(
     .order("created_at", { ascending: true })
 
   if (error) throw new Error(error.message)
-  return (data ?? []) as EventInvitation[]
+  return (data ?? []) as Invitation[]
 }
 
 export async function createInvitation(
   payload: CreateInvitationPayload,
-): Promise<EventInvitation> {
+): Promise<Invitation> {
   const { data, error } = await supabase.rpc("create_invitation", {
     p_event_id: payload.event_id,
     p_template_key: payload.template_key,
@@ -53,7 +52,7 @@ export async function createInvitation(
   })
 
   if (error) throw new Error(error.message)
-  return data as EventInvitation
+  return data as Invitation
 }
 
 // One RPC saves the draft (+ live settings); toPublish also promotes it to the
@@ -61,7 +60,7 @@ export async function createInvitation(
 export async function saveInvitation(
   payload: SaveInvitationPayload,
   toPublish = false,
-): Promise<EventInvitation> {
+): Promise<Invitation> {
   const { data, error } = await supabase.rpc("update_invitation", {
     p_event_id: payload.event_id,
     p_id: payload.id,
@@ -78,7 +77,7 @@ export async function saveInvitation(
   })
 
   if (error) throw new Error(error.message)
-  return data as EventInvitation
+  return data as Invitation
 }
 
 export async function deleteInvitation(
@@ -94,23 +93,11 @@ export async function deleteInvitation(
 
 export async function unpublishInvitation(
   payload: UnpublishInvitationPayload,
-): Promise<EventInvitation> {
+): Promise<Invitation> {
   const { data, error } = await supabase.rpc("unpublish_invitation", {
     p_event_id: payload.event_id,
     p_id: payload.id,
   })
-
-  if (error) throw new Error(error.message)
-  return data as EventInvitation
-}
-
-// ── Old per-event invitation (event_invitation singular) — still read by guests.
-export async function fetchInvitation(eventId: string): Promise<Invitation> {
-  const { data, error } = await supabase
-    .from("event_invitation")
-    .select("id, event_id, event_date, event_time_start, event_time_end, rsvp_mode, rsvp_deadline, max_guests, guest_count_min, guest_count_max, confirmation_message, config, created_at, updated_at")
-    .eq("event_id", eventId)
-    .single()
 
   if (error) throw new Error(error.message)
   return data as Invitation
@@ -120,7 +107,7 @@ export async function fetchInvitation(eventId: string): Promise<Invitation> {
 export async function fetchTemplates(): Promise<Template[]> {
   const { data, error } = await supabase
     .from("event_templates")
-    .select("id, name, slug, description, field_config, is_active, created_at, updated_at")
+    .select("id, name, template_key, description, field_config, is_active, created_at, updated_at")
     .order("name", { ascending: true })
 
   if (error) throw new Error(error.message)

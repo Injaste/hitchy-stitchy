@@ -6,10 +6,10 @@ import { useThemeSheetStore } from "../themes/editor/store";
 import { usePreviewScale, PHONE_W, PHONE_H } from "../hooks/usePreviewScale";
 import { composeInvitationConfig } from "../utils";
 import InvitationPreviewFrame from "./InvitationPreviewFrame";
-import type { EventInvitation } from "../types";
+import type { Invitation } from "../types";
 
 interface EditSheetPreviewProps {
-  invitation: EventInvitation;
+  invitation: Invitation;
   entered?: boolean;
 }
 

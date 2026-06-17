@@ -10,7 +10,7 @@ import EmptyState from "@/components/custom/states/empty-state";
 import { useAccess } from "../../hooks/useAccess";
 import { useActiveEventDay } from "../../hooks/useActiveEventDay";
 import {
-  useEventInvitationsQuery,
+  useInvitationsQuery,
   useEventSegmentsQuery,
 } from "../../invitation/queries";
 import DayTabs from "../../components/DayTabs";
@@ -61,7 +61,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   const { bulkUpdateGuests } = useGuestMutations();
 
   const { days, activeDayId, setActiveDay } = useActiveEventDay();
-  const { data: invitations } = useEventInvitationsQuery();
+  const { data: invitations } = useInvitationsQuery();
   const { data: segments } = useEventSegmentsQuery();
 
   const [search, setSearch] = useState("");

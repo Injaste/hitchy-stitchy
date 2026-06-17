@@ -9,7 +9,7 @@ import EmptyState from "@/components/custom/states/empty-state";
 import { Button } from "@/components/ui/button";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import InvitationSkeleton from "../states/InvitationSkeleton";
-import { useEventInvitationsQuery, useEventSegmentsQuery } from "../queries";
+import { useInvitationsQuery, useEventSegmentsQuery } from "../queries";
 import { useEventDaysQuery } from "../../days/queries";
 import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 import { pageLabel } from "../utils";
@@ -22,7 +22,7 @@ import InvitationCard from "./InvitationCard";
 const Hub = () => {
   const { slug } = useAdminStore();
   const { data: invitations, isLoading, isError, isRefetching, refetch } =
-    useEventInvitationsQuery();
+    useInvitationsQuery();
   const { data: days } = useEventDaysQuery();
   const { data: segments } = useEventSegmentsQuery();
   const { openBrowse, openEdit } = useInvitationModalStore();

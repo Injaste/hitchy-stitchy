@@ -22,7 +22,6 @@ export type Resource =
   | "tasks"
   | "guests"
   | "invitation"
-  | "themes"
   | "members"
   | "access"
   | "budget"
@@ -38,7 +37,6 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
   tasks: "Tasks",
   guests: "Guest RSVPs",
   invitation: "Invitation",
-  themes: "Invitation Themes",
   members: "Members",
   access: "Access",
   budget: "Budget Tracker",
@@ -48,7 +46,7 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
 export const RESOURCE_GROUPS: ResourceGroup[] = [
   { label: "Operations", resources: ["timeline", "tasks"] },
   { label: "Money", resources: ["budget", "gifts"] },
-  { label: "Guests", resources: ["guests", "invitation", "themes"] },
+  { label: "Guests", resources: ["guests", "invitation"] },
   { label: "Team", resources: ["members", "access"] },
 ];
 

@@ -17,14 +17,14 @@ import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 import EditFooter from "./EditFooter";
 import EditOverflowMenu from "./EditOverflowMenu";
 import InvitationModals from "../modals";
-import type { EventInvitation } from "../types";
+import type { Invitation } from "../types";
 
 export interface EditPanelHandle {
   attemptClose: () => void;
 }
 
 interface EditPanelProps {
-  invitation: EventInvitation;
+  invitation: Invitation;
   onClose: () => void;
 }
 

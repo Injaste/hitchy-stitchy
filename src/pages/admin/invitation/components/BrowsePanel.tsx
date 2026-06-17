@@ -19,16 +19,16 @@ import { dayLabel } from "../../days/utils";
 import { useEventDaysQuery } from "../../days/queries";
 import {
   useTemplatesQuery,
-  useEventInvitationMutations,
+  useInvitationMutations,
   useEventSegmentsQuery,
-  useEventInvitationsQuery,
+  useInvitationsQuery,
 } from "../queries";
-import type { EventInvitation, Template } from "../types";
+import type { Invitation, Template } from "../types";
 
 interface BrowsePanelProps {
   selectedSlug: string | null;
   onSelect: (slug: string) => void;
-  onUsed: (invitation: EventInvitation) => void;
+  onUsed: (invitation: Invitation) => void;
 }
 
 const slugify = (s: string) =>
@@ -46,15 +46,15 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
   const { data: templates } = useTemplatesQuery();
   const { data: days } = useEventDaysQuery();
   const { data: segments } = useEventSegmentsQuery();
-  const { data: invitations } = useEventInvitationsQuery();
-  const { create, eventId } = useEventInvitationMutations();
+  const { data: invitations } = useInvitationsQuery();
+  const { create, eventId } = useInvitationMutations();
 
   const usable = useMemo(
-    () => (templates ?? []).filter((t) => themeRegistry[t.slug]),
+    () => (templates ?? []).filter((t) => themeRegistry[t.template_key]),
     [templates],
   );
   const selected: Template | null =
-    usable.find((t) => t.slug === selectedSlug) ?? usable[0] ?? null;
+    usable.find((t) => t.template_key === selectedSlug) ?? usable[0] ?? null;
 
   const dayList = days ?? [];
   const segList = segments ?? [];
@@ -66,7 +66,7 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
 
   // Seed the shell's template selection so the preview has something to show.
   useEffect(() => {
-    if (!selectedSlug && selected) onSelect(selected.slug);
+    if (!selectedSlug && selected) onSelect(selected.template_key);
   }, [selectedSlug, selected, onSelect]);
 
   // Default to the first day.
@@ -110,7 +110,7 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
     create
       .mutateAsync({
         event_id: eventId,
-        template_key: selected.slug,
+        template_key: selected.template_key,
         day_id: dayId,
         segment_id: segmentId || null,
         link_slug: trimmedSlug || null,
@@ -130,12 +130,12 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
           </p>
         )}
         {usable.map((t) => {
-          const isSel = selected?.slug === t.slug;
+          const isSel = selected?.template_key === t.template_key;
           return (
             <button
               key={t.id}
               type="button"
-              onClick={() => onSelect(t.slug)}
+              onClick={() => onSelect(t.template_key)}
               className={cn(
                 "w-full text-left flex items-center gap-3 rounded-lg border p-2.5 cursor-pointer transition-colors",
                 isSel
