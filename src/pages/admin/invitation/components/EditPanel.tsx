@@ -155,6 +155,7 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
               statusText={statusText}
               canPublish={edit.canPublish}
               isDirty={edit.isDirty}
+              hasUnpublishedChanges={edit.hasUnpublishedChanges}
               busy={edit.isPending || edit.publishPending}
               isPending={edit.isPending}
               isSuccess={edit.isSuccess}

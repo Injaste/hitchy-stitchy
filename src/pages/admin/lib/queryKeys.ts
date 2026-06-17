@@ -1,6 +1,7 @@
 export const adminKeys = {
   bootstrap: (slug: string) => [slug, 'bootstrap'] as const,
   days: (slug: string) => [slug, 'days'] as const,
+  segments: (slug: string) => [slug, 'segments'] as const,
   dayTimeline: (slug: string, date: string) => [slug, 'days', date, 'timeline'] as const,
   dayExpenses: (slug: string, dayId: string) => [slug, 'days', dayId, 'expenses'] as const,
   dayGifts: (slug: string, dayId: string) => [slug, 'days', dayId, 'gifts'] as const,

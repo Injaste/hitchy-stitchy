@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useMediaBreakpointUp } from "@/hooks/use-media-query";
 import { themeRegistry } from "@/pages/wedding/templates";
-import { composeTemplatePreviewConfig } from "../utils";
+import { composeTemplatePreviewConfig, pageLabel } from "../utils";
 import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
-import { useEventInvitationQuery } from "../queries";
+import { useEventInvitationsQuery, useEventSegmentsQuery } from "../queries";
+import { useEventDaysQuery } from "../../days/queries";
 import BrowsePanel from "./BrowsePanel";
 import EditPanel, { type EditPanelHandle } from "./EditPanel";
 import InvitationPreviewPane from "./InvitationPreviewPane";
@@ -24,6 +25,7 @@ const InvitationSheet = () => {
   const {
     isOpen,
     mode,
+    editingId,
     close,
     openEdit,
     previewMounted,
@@ -31,7 +33,9 @@ const InvitationSheet = () => {
     openPreview,
     hidePreview,
   } = useInvitationModalStore();
-  const { data: invitation } = useEventInvitationQuery();
+  const { data: invitations } = useEventInvitationsQuery();
+  const { data: days } = useEventDaysQuery();
+  const { data: segments } = useEventSegmentsQuery();
   const isMd = useMediaBreakpointUp("md");
 
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
@@ -51,7 +55,15 @@ const InvitationSheet = () => {
   // Reset the store when the page unmounts (singleton would otherwise re-open).
   useEffect(() => () => close(), [close]);
 
-  const editInvitation = invitation ?? created;
+  // The page being edited: the live row from the list, or the just-created one
+  // (bridges the gap before the list query refetches).
+  const editInvitation =
+    invitations?.find((i) => i.id === editingId) ?? created;
+
+  const editTitle =
+    editInvitation && days && segments
+      ? pageLabel(editInvitation, days, segments)
+      : "Invitation";
 
   const requestClose = () => {
     if (mode === "edit" && editRef.current) editRef.current.attemptClose();
@@ -91,7 +103,7 @@ const InvitationSheet = () => {
           <h2 className="text-base font-medium truncate font-display">
             {mode === "browse"
               ? "Browse templates"
-              : (editInvitation?.name ?? "Invitation")}
+              : editTitle}
           </h2>
           {/* Small screens can't show the inline preview — pop it in a sheet. */}
           <Button
@@ -118,7 +130,7 @@ const InvitationSheet = () => {
                     onSelect={setSelectedSlug}
                     onUsed={(inv) => {
                       setCreated(inv);
-                      openEdit();
+                      openEdit(inv.id);
                     }}
                   />
                 </ComponentFade>

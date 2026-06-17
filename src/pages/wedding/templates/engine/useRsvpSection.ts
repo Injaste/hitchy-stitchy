@@ -19,8 +19,9 @@ export function useRsvpSection(
   eventConfig: PublicEventConfig,
   options: UseRsvpSectionOptions = {},
 ) {
-  const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.event_id)
-  const { submit, update, remove } = useRSVPMutations(eventConfig.event_id)
+  // eventConfig.id is the invitation/page id (per-page RSVP + session).
+  const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.event_id, eventConfig.id)
+  const { submit, update, remove } = useRSVPMutations(eventConfig.event_id, eventConfig.id)
   const [isEditing, setIsEditing] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [submitted, setSubmitted] = useState(false)

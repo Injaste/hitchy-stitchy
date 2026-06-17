@@ -3,28 +3,42 @@ import type {
   Invitation,
   Template,
   EventInvitation,
+  EventDaySegment,
   CreateInvitationPayload,
   SaveInvitationPayload,
   DeleteInvitationPayload,
   UnpublishInvitationPayload,
 } from "./types"
 
-// ── New parallel model (event_invitations) ───────────────────────────────────
-// One invitation per event in Step 1 (day_id/segment_id NULL). Reads via RLS;
-// writes via the invitation CRUD RPCs. Returns null when none exists yet.
-export async function fetchEventInvitation(
+// Day segments for this event — labels the hub tiles + powers the create flow's
+// segment picker. Minimal projection; the timeline owns the full segment shape.
+export async function fetchEventSegments(
   eventId: string,
-): Promise<EventInvitation | null> {
+): Promise<EventDaySegment[]> {
+  const { data, error } = await supabase
+    .from("event_segments")
+    .select("id, day_id, name")
+    .eq("event_id", eventId)
+    .order("sort_order", { ascending: true })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as EventDaySegment[]
+}
+
+// ── New parallel model (event_invitations) ───────────────────────────────────
+// One page per (event, day, segment). Reads via RLS; writes via the invitation
+// CRUD RPCs. Returns every page for the event (the hub renders them all).
+export async function fetchEventInvitations(
+  eventId: string,
+): Promise<EventInvitation[]> {
   const { data, error } = await supabase
     .from("event_invitations")
     .select("*")
     .eq("event_id", eventId)
-    .is("day_id", null)
-    .is("segment_id", null)
-    .maybeSingle()
+    .order("created_at", { ascending: true })
 
   if (error) throw new Error(error.message)
-  return data as EventInvitation | null
+  return (data ?? []) as EventInvitation[]
 }
 
 export async function createInvitation(
@@ -33,7 +47,9 @@ export async function createInvitation(
   const { data, error } = await supabase.rpc("create_invitation", {
     p_event_id: payload.event_id,
     p_template_key: payload.template_key,
-    p_name: payload.name ?? "My Invitation",
+    p_day_id: payload.day_id,
+    p_segment_id: payload.segment_id ?? null,
+    p_link_slug: payload.link_slug ?? null,
   })
 
   if (error) throw new Error(error.message)
@@ -50,7 +66,6 @@ export async function saveInvitation(
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_template_key: payload.template_key,
-    p_name: payload.name,
     p_draft_config: payload.draft_config,
     p_rsvp_mode: payload.rsvp_mode,
     p_rsvp_deadline: payload.rsvp_deadline,

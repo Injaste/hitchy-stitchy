@@ -49,15 +49,17 @@ export interface Template {
   updated_at: string
 }
 
-// ── New parallel model (event_invitations) — Step 1 of the redesign.
-// Merges design (was event_themes) + RSVP config into one row.
+// ── New parallel model (event_invitations) — the redesign.
+// Merges design (was event_themes) + RSVP config into one row. One page per
+// (event, day, segment): day_id required, segment_id nullable (NULL = day-level).
+// link_slug = the URL path under /:slug; NULL = the event root.
 export interface EventInvitation {
   id: string
   event_id: string
-  day_id: string | null
+  day_id: string
   segment_id: string | null
+  link_slug: string | null
   template_key: string
-  name: string
   // Design content: the working draft, and the published snapshot (null = never
   // published). RSVP settings below stay live (no publish step).
   draft_config: ThemeConfig
@@ -74,18 +76,27 @@ export interface EventInvitation {
   updated_at: string
 }
 
+// Minimal day-segment shape for the hub labels + the create flow's segment picker.
+export interface EventDaySegment {
+  id: string
+  day_id: string
+  name: string | null
+}
+
 export interface CreateInvitationPayload {
   event_id: string
   template_key: string
-  name?: string
+  day_id: string
+  segment_id?: string | null
+  link_slug?: string | null
 }
 
 // Whole-invitation save (decision A): design + RSVP config in one call.
+// link_slug is set at create, not edited here.
 export interface SaveInvitationPayload {
   event_id: string
   id: string
   template_key: string
-  name: string
   draft_config: ThemeConfig
   rsvp_mode: RSVPMode
   rsvp_deadline: string | null

@@ -2,13 +2,12 @@ import { z } from "zod";
 import { TIME_REGEX } from "@/pages/admin/types";
 import { RSVP_MODES, type EventInvitation } from "../../types";
 
-// Unified invitation schema: the invitation name + the RSVP settings, with the
-// cross-field rules (deadline-needs-time, min ≤ max). Design fields are free-form
-// content and aren't validated here — the validator simply ignores those extra
-// keys on the form's value object.
+// Unified invitation schema: the RSVP settings, with the cross-field rules
+// (deadline-needs-time, min ≤ max). Design fields are free-form content and aren't
+// validated here — the validator simply ignores those extra keys on the form's
+// value object. (The page name/title derives from segment/day, not the form.)
 export const schema = z
   .object({
-    name: z.string().trim().min(1, "Invitation name is required"),
     rsvp_mode: z.enum(RSVP_MODES),
     rsvp_deadline_date: z
       .string()

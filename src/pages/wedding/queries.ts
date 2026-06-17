@@ -7,8 +7,10 @@ import { fetchPublicEvent, fetchRSVP, submitRSVP, updateRSVP, deleteRSVP } from 
 import type { RSVPFormData } from "./types"
 
 // ─── Session helpers ─────────────────────────────────────────────────────────
+// Keyed PER invitation page: a guest can RSVP to several pages of one event, so
+// each page's session is stored separately (visiting page B mustn't surface page A).
 
-const RSVP_KEY = "rsvp_session"
+const RSVP_KEY_PREFIX = "rsvp_session:"
 
 interface RSVPSession {
   id: string
@@ -16,35 +18,36 @@ interface RSVPSession {
   token: string
 }
 
-function getRSVPSession(): RSVPSession | null {
+function getRSVPSession(pageId: string): RSVPSession | null {
   try {
-    const raw = localStorage.getItem(RSVP_KEY)
+    const raw = localStorage.getItem(RSVP_KEY_PREFIX + pageId)
     return raw ? (JSON.parse(raw) as RSVPSession) : null
   } catch {
     return null
   }
 }
 
-function setRSVPSession(session: RSVPSession): void {
-  localStorage.setItem(RSVP_KEY, JSON.stringify(session))
+function setRSVPSession(pageId: string, session: RSVPSession): void {
+  localStorage.setItem(RSVP_KEY_PREFIX + pageId, JSON.stringify(session))
 }
 
-function clearRSVPSession(): void {
-  localStorage.removeItem(RSVP_KEY)
+function clearRSVPSession(pageId: string): void {
+  localStorage.removeItem(RSVP_KEY_PREFIX + pageId)
 }
 
 // ─── Query keys ───────────────────────────────────────────────────────────────
 
-export const publicEventQueryKey = (slug: string) => ["public", slug, "event"] as const
+export const publicEventQueryKey = (slug: string, linkSlug?: string | null) =>
+  ["public", slug, "event", linkSlug ?? null] as const
 export const guestRSVPQueryKey = (event_id: string, id: string) => ["public", event_id, "rsvp", id] as const
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
 export function usePublicEvent({ enabled = true }: { enabled?: boolean } = {}) {
-  const { slug } = useParams<{ slug: string }>()
+  const { slug, link_slug } = useParams<{ slug: string; link_slug?: string }>()
   return useQuery({
-    queryKey: publicEventQueryKey(slug!),
-    queryFn: () => fetchPublicEvent(slug!),
+    queryKey: publicEventQueryKey(slug!, link_slug ?? null),
+    queryFn: () => fetchPublicEvent(slug!, link_slug ?? null),
     enabled: enabled && !!slug,
   })
 }
@@ -56,19 +59,15 @@ export function usePublicEventRealtime(event_id: string | null) {
   useEffect(() => {
     if (!event_id || !slug) return
 
+    // Refresh on any change to this event's invitations (publish/unpublish/edit).
+    // Invalidate the whole slug prefix so every page under it re-reads.
     const channel = supabase
       .channel(`public-event-${event_id}`)
       .on("postgres_changes", {
-        event: "UPDATE", schema: "public", table: "event_invitation",
+        event: "*", schema: "public", table: "event_invitations",
         filter: `event_id=eq.${event_id}`,
       }, () => {
-        queryClient.invalidateQueries({ queryKey: publicEventQueryKey(slug) })
-      })
-      .on("postgres_changes", {
-        event: "*", schema: "public", table: "event_themes",
-        filter: `event_id=eq.${event_id}`,
-      }, () => {
-        queryClient.invalidateQueries({ queryKey: publicEventQueryKey(slug) })
+        queryClient.invalidateQueries({ queryKey: ["public", slug] })
       })
       .subscribe()
 
@@ -76,8 +75,8 @@ export function usePublicEventRealtime(event_id: string | null) {
   }, [event_id, slug, queryClient])
 }
 
-export function useGuestRSVP(event_id: string | null) {
-  const session = getRSVPSession()
+export function useGuestRSVP(event_id: string | null, invitation_id: string | null) {
+  const session = invitation_id ? getRSVPSession(invitation_id) : null
   return useQuery({
     queryKey: guestRSVPQueryKey(event_id!, session?.id ?? ""),
     queryFn: () => fetchRSVP({ event_id: event_id!, id: session!.id, token: session!.token }),
@@ -86,15 +85,18 @@ export function useGuestRSVP(event_id: string | null) {
 }
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
+// Submit targets the page (invitation_id) via submit_rsvp_v2; get/update/cancel
+// stay keyed by the guest's token (the session is per page). The new-model _v2
+// RPCs run only on this (undeployed) branch — production stays on the originals.
 
-export function useRSVPMutations(event_id: string | null) {
+export function useRSVPMutations(event_id: string | null, invitation_id: string | null) {
   const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
 
   const submit = useMutation(
     (formData: RSVPFormData) =>
       submitRSVP({
-        event_id: event_id!,
+        invitation_id: invitation_id!,
         name: formData.name,
         phone: formData.phone,
         guest_count: formData.guestCount,
@@ -104,7 +106,7 @@ export function useRSVPMutations(event_id: string | null) {
     {
       silent: true,
       onSuccess: (result) => {
-        setRSVPSession({ id: result.id, phone: result.phone, token: result.token })
+        setRSVPSession(invitation_id!, { id: result.id, phone: result.phone, token: result.token })
         queryClient.invalidateQueries({ queryKey: ["public", event_id] })
       },
     }
@@ -112,7 +114,7 @@ export function useRSVPMutations(event_id: string | null) {
 
   const update = useMutation(
     (formData: Partial<RSVPFormData>) => {
-      const session = getRSVPSession()
+      const session = invitation_id ? getRSVPSession(invitation_id) : null
       return updateRSVP({
         event_id: event_id!,
         phone: session?.phone ?? "",
@@ -132,7 +134,7 @@ export function useRSVPMutations(event_id: string | null) {
 
   const remove = useMutation(
     () => {
-      const session = getRSVPSession()
+      const session = invitation_id ? getRSVPSession(invitation_id) : null
       return deleteRSVP({
         event_id: event_id!,
         phone: session?.phone ?? "",
@@ -142,7 +144,7 @@ export function useRSVPMutations(event_id: string | null) {
     {
       silent: true,
       onSuccess: () => {
-        clearRSVPSession()
+        if (invitation_id) clearRSVPSession(invitation_id)
         queryClient.removeQueries({ queryKey: ["public", event_id] })
       },
     }

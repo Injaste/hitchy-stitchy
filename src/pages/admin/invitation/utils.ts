@@ -1,6 +1,23 @@
-import type { EventInvitation } from "./types"
+import type { EventInvitation, EventDaySegment } from "./types"
+import type { EventDay } from "../days/types"
+import { dayLabel } from "../days/utils"
 import type { ThemeConfig, ThemeFieldGroup } from "@/pages/wedding/templates/types"
 import type { PublicEventConfig } from "@/pages/wedding/types"
+
+// Display label for an invitation page: its segment name, else the day's label
+// (with the positional "Day N" fallback). `days` must be the date-sorted list.
+export function pageLabel(
+  inv: Pick<EventInvitation, "day_id" | "segment_id">,
+  days: EventDay[],
+  segments: EventDaySegment[],
+): string {
+  if (inv.segment_id) {
+    const seg = segments.find((s) => s.id === inv.segment_id)
+    if (seg?.name?.trim()) return seg.name.trim()
+  }
+  const idx = days.findIndex((d) => d.id === inv.day_id)
+  return dayLabel(days[idx]?.label, idx)
+}
 
 // Combine a local date + time into the "YYYY-MM-DD HH:MM" UTC string the RSVP
 // deadline column expects. Null date -> null (no deadline).

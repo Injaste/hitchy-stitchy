@@ -56,7 +56,6 @@ export function useInvitationEditForm(
 
   const form = useForm({
     defaultValues: {
-      name: invitation.name,
       ...designDefaults,
       ...rsvpDefaults(invitation),
     } as Record<string, unknown>,
@@ -99,7 +98,7 @@ export function useInvitationEditForm(
     const parsed = schema.safeParse(form.state.values);
     if (parsed.success) return null;
     form.handleSubmit();
-    return (parsed.error.issues[0]?.path[0] as string) ?? "name";
+    return (parsed.error.issues[0]?.path[0] as string) ?? "rsvp_mode";
   }, [form]);
 
   // Build the whole-invitation payload from the (already-valid) form values.
@@ -110,7 +109,6 @@ export function useInvitationEditForm(
       event_id: eventId!,
       id: invitation.id,
       template_key: invitation.template_key,
-      name: v.name,
       draft_config: coerceDesign(values, designKeys) as ThemeConfig,
       rsvp_mode: v.rsvp_mode,
       rsvp_deadline: combineDeadline(v.rsvp_deadline_date, v.rsvp_deadline_time),

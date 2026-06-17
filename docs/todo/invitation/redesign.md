@@ -123,9 +123,11 @@ draft/publish yet.
 the merged invitation; editor gets draft/publish (+ reset-to-template); the public
 page renders `published_config`. Editing the draft never touches live.
 
-**Step 3 — Per invitation link (per-day).** Add `day_id` (+ nullable `segment_id`),
-one page per day, `/:slug/:day` routing + default-day, `event_rsvps` per-page
-(`UNIQUE(page_id, phone)`), guests admin grouped per day.
+**Step 3 — Per invitation link (per-(day, segment)).** Each page = one
+`(event_id, day_id, segment_id)`; `link_slug`-based `/:slug/:link_slug` routing +
+root fallback; `event_rsvps` per-page; day-scoped guests admin. Segment-split is
+**in** from the start (`segment_id` nullable). Full detail in **Step 3 — detailed
+build plan (LOCKED)** below.
 
 **Step 4 — Private mode (phone-match), LAST.** Pre-loaded pending guest list per
 page; public RSVP matches a pending guest by phone to unlock.
@@ -136,6 +138,121 @@ existing `event_access_groups.permissions`. (Backfill already happened early in
 Step 1 — only the drops remain.)
 
 > Then (later): author the 5 culture templates; meta/OG edge function.
+
+## Step 3 — detailed build plan (LOCKED)
+All forks below are resolved (see the design discussion). Build as four shippable
+slices (+ a housekeeping slice 0), each its own migration(s) + `schema.sql` sync +
+verify-by-view, mirroring Steps 1/2.
+
+> **Prerequisite found:** `schema.sql` is **stale** — it still shows
+> `event_invitations.field_config` + the `event_date` / `event_time_start` /
+> `event_time_end` columns and **no** `draft_config` / `published_config`. Steps 1/2
+> migrations ran in the DB but were never synced back. Slice 0 fixes this.
+>
+> **Public render is unbuilt:** `get_public_invitation` still reads the **old**
+> `event_invitation` + `event_themes` model (`published_page.theme_slug`), so
+> publishing in admin changes nothing a guest sees. Slice 3A switches it — and it
+> belongs in Step 3 because the new public RPC needs the routing + default-page
+> resolution anyway.
+
+### Model
+- **Page** = one `event_invitations` row, identified by
+  `(event_id, day_id NOT NULL, segment_id NULL-able)`.
+  - `segment_id IS NULL` → a **day-level** page; `segment_id` set → that named
+    segment's page. Segment-split is supported from the start.
+- **Drop `event_invitations.name`** — the tile/title derives from
+  `segment.name ?? day.label`. Removes the editor name field + its zod rule; the
+  sheet/header title derives the same way.
+- **New column `link_slug text`** — the URL path under the event slug. **Nullable.**
+- **Two constraints, both plain (no triggers):**
+  - `UNIQUE NULLS NOT DISTINCT (event_id, day_id, segment_id)` — one page per
+    day/segment **slot** (already exists from Step 1).
+  - `UNIQUE NULLS NOT DISTINCT (event_id, link_slug)` — unique URLs **and** at most
+    one **null (root)** per event, in one index.
+- **`link_slug` rule:** the **first** link may be null → served at clean `/:slug`;
+  **every subsequent** link requires a non-null `link_slug`. The constraint is the
+  hard backstop (a 2nd null collides); `create_invitation` adds the friendly guard
+  ("a root link already exists — choose a path"). The combobox **prefills** from
+  `segment.name ?? day.label`, is **editable**, and validates uniqueness +
+  reserved words.
+
+### Routing
+- `/:slug` → the root page (`link_slug IS NULL`); **fallback** to the first-by-date
+  **published** page when no root exists.
+- `/:slug/:link_slug` → that page by `link_slug`.
+- Reserved `link_slug`s: `join`, `admin` (+ future `/:slug/*` siblings) — validated
+  on create/update. Reuse the slug-reservation pattern.
+
+### Slices
+- **Slice 0 — `schema.sql` sync** (no DB change). Bring `schema.sql` in line with
+  what already ran (drop `field_config`/`event_date*`, add
+  `draft_config`/`published_config`) so later slices diff cleanly.
+- **Slice 3A — Public render switch** (still one-per-event). Rewrite
+  `get_public_invitation(p_slug, p_link_slug DEFAULT null)` → read
+  `event_invitations ⋈ events.slug`, gate on `published_at IS NOT NULL`, project
+  `published_config` (pulling `event_date`/`event_time_start` out of the JSON) into
+  `PublicEventConfig`, map `published_page = { theme_slug: template_key, config:
+  published_config }`; omitted `link_slug` → root/fallback. Repoint
+  `src/pages/wedding/api.ts` + `utils`. **Verify:** publish → `/:slug` renders;
+  unpublish → not-found.
+- **Slice 3B — Per-(day, segment) pages + `link_slug` + hub redesign.**
+  - *Migration:* add `link_slug` + its `NULLS NOT DISTINCT` constraint; **drop
+    `name`**; `event_invitations.day_id` FK `CASCADE → RESTRICT` + extend
+    `delete_day` with an invitation guard; `create_invitation` loses `p_name`,
+    gains `p_day_id` (NOT NULL), `p_segment_id` (nullable), `p_link_slug` (+ root
+    guard + reserved-word check); `update_invitation` loses `p_name`, gains
+    `p_link_slug`. Backfill the existing row to the default day's default
+    segment, `link_slug = NULL` (root).
+  - *Admin:* see **Hub UI** below; routing `/:slug/:link_slug`.
+- **Slice 3C — Per-page RSVP + day-scoped Guests.**
+  - *Migration:* `event_rsvps` gains `page_id` FK → `event_invitations`;
+    `UNIQUE(event_id, phone) → UNIQUE(page_id, phone)`; backfill to root page.
+    Page-scope **all** RSVP RPCs — admin `create_guests`/`update_guest`/
+    `update_guests`/`delete_guest` **and** public `submit_rsvp`/`get_rsvp`/
+    `update_rsvp`/`cancel_rsvp`. `delete_invitation` also blocks pages with RSVPs.
+  - *Guests admin:* see **Guests UI** below.
+- **Slice 3D — Consolidation.** Collapse the `eventInvitation` query-key into
+  `invitation`, keyed by `day_id`/`segment_id` (safe now — guests read the per-page
+  model, not old singular `event_invitation`). Final `schema.sql` sync.
+
+### Hub UI (the invitation management surface)
+- **No `DayTabs`** — invitations are light + bounded, so render **one responsive
+  grid of all invitation cards** (same reasoning as the days hard-cap:
+  render-all-is-cheap). `DayTabs` is for *heavy* per-day surfaces; the hub isn't one.
+- **Card = one merged piece** (overlay on the artwork, **no footer slab** — see the
+  no-SaaS-y-chrome rule): title `segment.name ?? day.label`; meta = formatted
+  `day.date` + template + RSVP mode + the link path (`/:slug` for root, else
+  `/:slug/:link_slug`) + Live/Draft status; per-card **edit** + **external live
+  link** (live link shown only when `published_at` is set).
+- **Top-right action:** `Open live page` → **`Add invitation`** — opens the create
+  flow with a **required day picker**, optional segment, template, and the
+  `link_slug` combobox (null allowed only if no root exists yet). The day choice
+  lives in the add flow, not as ambient tab context.
+- **Remove `AddInvitationCard`** (redundant with the single top-right add).
+- `useEventDaysQuery` is still used (day picker + per-card date), just not as a rail.
+
+### Guests UI
+- **Day-scoped** (`DayTabs` + `useActiveEventDay`, like budget) — RSVPs *are* heavy,
+  so this surface keeps the per-day split. Within a multi-page day, a **page
+  sub-filter** on the single table (not nested tabs), to keep `GuestsView` intact.
+
+### Resolved forks
+- **`link_slug` nullability:** first link nullable (root), subsequent required —
+  via `NULLS NOT DISTINCT(event_id, link_slug)` + create guard.
+- **Handle source:** editable combobox, prefilled `segment.name ?? day.label`.
+- **Segment-split:** **in now** (`segment_id` nullable).
+- **Guests layout:** day-scoped (`DayTabs`), single table + page sub-filter.
+- **Default page:** root (`link_slug IS NULL`), else first-by-date published.
+- **Backfill default day:** first-by-date.
+
+### Deferred to go-live / later
+- Drop `event_invitation` + `event_themes` + the `themes` resource +
+  `create_event`'s legacy INSERT.
+- **Link-count health cap** (per-event invitations / per-day segments) —
+  abuse/cost-driven, **not** monetization; number TBD; mirrors the days hard-cap.
+  Days are hard-capped but segments are currently **uncapped**, so link count scales
+  with segments (small in practice). Not this phase.
+- Step 4 (private/phone-match) stays last.
 
 ## Deferred guards & cleanup (tracked from the RPC review)
 - **`create_event`** still runs `INSERT INTO event_invitation (event_id)` — the OLD
@@ -167,11 +284,12 @@ Step 1 — only the drops remain.)
 - **"Add invitation" card:** keep as-is in Step 1 (forward affordance); fix the
   one-per-event dead-end in Step 3 (becomes pick-a-day + template).
 
-## ⚠ Open sub-decisions
-- Backfill: default day = first-by-date (recommended) vs an explicit flag.
-- Handle source: derived from `event_days.label` (recommended) vs a couple-editable field.
-- One page per day now (`UNIQUE(day_id)`); same-day multi-page (segment split) deferred — confirm not needed this phase.
-- Guests admin: grouped-by-day view vs per-page tabs.
+## Sub-decisions
+**Resolved (Step 3)** — see "Step 3 — detailed build plan (LOCKED) → Resolved forks".
+Backfill default day, handle/`link_slug` source + nullability, segment-split,
+guests layout, default-page resolution are all locked there.
+
+**Still open (Step 4):**
 - Private mode: a matched guest **updates** their pending row (recommended) vs creates a linked row.
 
 ## Deferred / out of scope

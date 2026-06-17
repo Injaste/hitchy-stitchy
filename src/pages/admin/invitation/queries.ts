@@ -5,14 +5,14 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys";
 import {
   fetchInvitation,
   fetchTemplates,
-  fetchEventInvitation,
+  fetchEventInvitations,
+  fetchEventSegments,
   createInvitation,
   saveInvitation,
   deleteInvitation,
   unpublishInvitation,
 } from "./api";
 import type {
-  EventInvitation,
   CreateInvitationPayload,
   SaveInvitationPayload,
   DeleteInvitationPayload,
@@ -42,11 +42,21 @@ export function useTemplatesQuery() {
   });
 }
 
-export function useEventInvitationQuery() {
+export function useEventInvitationsQuery() {
   const { slug, eventId } = useAdminStore();
   return useQuery({
     queryKey: adminKeys.eventInvitation(slug!),
-    queryFn: () => fetchEventInvitation(eventId!),
+    queryFn: () => fetchEventInvitations(eventId!),
+    enabled: !!eventId && !!slug,
+  });
+}
+
+// Day segments — for hub tile labels + the create flow's segment picker.
+export function useEventSegmentsQuery() {
+  const { slug, eventId } = useAdminStore();
+  return useQuery({
+    queryKey: adminKeys.segments(slug!),
+    queryFn: () => fetchEventSegments(eventId!),
     enabled: !!eventId && !!slug,
   });
 }
@@ -55,18 +65,18 @@ export function useEventInvitationMutations() {
   const { slug, eventId } = useAdminStore();
   const queryClient = useQueryClient();
 
-  const setData = (result: EventInvitation) =>
-    queryClient.setQueryData<EventInvitation>(
-      adminKeys.eventInvitation(slug!),
-      result,
-    );
+  // Per-page now: refetch the list rather than swapping a single object.
+  const invalidate = () =>
+    queryClient.invalidateQueries({
+      queryKey: adminKeys.eventInvitation(slug!),
+    });
 
   const create = useMutation(
     (payload: CreateInvitationPayload) => createInvitation(payload),
     {
       successMessage: "Invitation created",
       errorMessage: (err) => err.message,
-      onSuccess: setData,
+      onSuccess: invalidate,
     },
   );
 
@@ -77,7 +87,7 @@ export function useEventInvitationMutations() {
       // through mutateAsync — the SubmitButton already covers the pending state.
       successMessage: "Saved",
       errorMessage: (err) => err.message,
-      onSuccess: setData,
+      onSuccess: invalidate,
     },
   );
 
@@ -86,8 +96,7 @@ export function useEventInvitationMutations() {
     {
       successMessage: "Invitation deleted",
       errorMessage: (err) => err.message,
-      onSuccess: () =>
-        queryClient.setQueryData(adminKeys.eventInvitation(slug!), null),
+      onSuccess: invalidate,
     },
   );
 
@@ -97,7 +106,7 @@ export function useEventInvitationMutations() {
     {
       successMessage: "Invitation published",
       errorMessage: (err) => err.message,
-      onSuccess: setData,
+      onSuccess: invalidate,
     },
   );
 
@@ -106,7 +115,7 @@ export function useEventInvitationMutations() {
     {
       successMessage: "Invitation unpublished",
       errorMessage: (err) => err.message,
-      onSuccess: setData,
+      onSuccess: invalidate,
     },
   );
 
