@@ -7,8 +7,8 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys"
 
 import {
   fetchGuests,
-  createGuests,
-  updateGuest,
+  createGuestsV2,
+  updateGuestV2,
   updateGuests,
   deleteGuest,
   bulkImportGuests,
@@ -73,8 +73,8 @@ export function useGuestMutations() {
     queryClient.setQueryData<Guest[]>(adminKeys.guests(slug!), fn)
 
   const create = useMutation(
-    async (payload: CreateGuestPayload) => {
-      const [row] = await createGuests(eventId!, [{
+    async (payload: CreateGuestPayload & { invitationId: string }) => {
+      const [row] = await createGuestsV2(eventId!, payload.invitationId, [{
         name: payload.name.trim(),
         phone: payload.phone?.trim() || null,
         guest_count: payload.guest_count,
@@ -93,7 +93,7 @@ export function useGuestMutations() {
   )
 
   const update = useMutation(
-    (payload: UpdateGuestPayload) => updateGuest(payload),
+    (payload: UpdateGuestPayload) => updateGuestV2(payload),
     {
       successMessage: (result: Guest) => `"${truncate(result.name)}" updated`,
       errorMessage: (err) => err.message,
@@ -105,7 +105,7 @@ export function useGuestMutations() {
 
   const updateStatus = useMutation(
     ({ guest, status }: { guest: Guest; status: GuestStatus }) =>
-      updateGuest({
+      updateGuestV2({
         event_id: guest.event_id,
         id: guest.id,
         name: guest.name,

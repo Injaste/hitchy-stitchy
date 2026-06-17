@@ -11,7 +11,7 @@ import type {
 } from "./types"
 
 const GUEST_FIELDS =
-  "id, event_id, name, phone, guest_count, message, status, source, invite_code, created_at, updated_at, confirmed_at, cancelled_at"
+  "id, event_id, invitation_id, name, phone, guest_count, message, status, source, invite_code, created_at, updated_at, confirmed_at, cancelled_at"
 
 export async function fetchGuests(eventId: string): Promise<Guest[]> {
   const { data, error } = await supabase
@@ -37,8 +37,44 @@ export async function createGuests(
   return (data ?? []) as Guest[]
 }
 
+// Per-(day, segment) model: guests attach to a specific invitation page, which
+// owns the party-size limits the RPC enforces. The old create_guests stays for
+// the (currently disabled) CSV import until that flow is migrated.
+export async function createGuestsV2(
+  eventId: string,
+  invitationId: string,
+  guests: CreateGuestPayload[],
+): Promise<Guest[]> {
+  const { data, error } = await supabase.rpc("create_guests_v2", {
+    p_event_id: eventId,
+    p_invitation_id: invitationId,
+    p_guests: guests,
+  })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as Guest[]
+}
+
 export async function updateGuest(payload: UpdateGuestPayload): Promise<Guest> {
   const { data, error } = await supabase.rpc("update_guest", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+    p_name: payload.name.trim(),
+    p_phone: payload.phone?.trim() || null,
+    p_guest_count: payload.guest_count,
+    p_message: payload.message,
+    p_status: payload.status,
+    p_invite_code: payload.invite_code,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as Guest
+}
+
+// Per-(day, segment) model: limits come from the guest's own invitation page.
+// Same arguments as update_guest — only the function name differs.
+export async function updateGuestV2(payload: UpdateGuestPayload): Promise<Guest> {
+  const { data, error } = await supabase.rpc("update_guest_v2", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_name: payload.name.trim(),

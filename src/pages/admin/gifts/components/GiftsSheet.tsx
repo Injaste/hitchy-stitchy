@@ -32,7 +32,7 @@ const GiftsSheet: FC<GiftsSheetProps> = ({ gifts, total, onRowClick }) => (
         <span className="text-xs">
           Total{" "}
           <span className="font-medium text-muted-foreground">
-            · {gifts.length} {gifts.length === 1 ? "packet" : "packets"}
+            · {gifts.length} {gifts.length === 1 ? "result" : "results"}
           </span>
         </span>
         <span />

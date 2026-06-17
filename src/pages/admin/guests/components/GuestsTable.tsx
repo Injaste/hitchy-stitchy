@@ -94,7 +94,7 @@ const GuestsTable: FC<GuestsTableProps> = ({
             <span className="text-xs">
               Total{" "}
               <span className="font-medium text-muted-foreground">
-                · {guests.length} {guests.length === 1 ? "guest" : "guests"}
+                · {guests.length} {guests.length === 1 ? "result" : "results"}
               </span>
             </span>
             <span className="flex items-baseline gap-1">

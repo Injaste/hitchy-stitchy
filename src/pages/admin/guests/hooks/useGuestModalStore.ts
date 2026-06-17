@@ -7,7 +7,12 @@ interface GuestModalAddons {
   selectedIds: Set<string>
   bulkUpdateIds: string[]
   bulkUpdateStatus: GuestStatus | null
+  // Segment (invitation page) the list is focused on, within the active day.
+  // null = "All" pages of the day. Drives both the list filter and the page the
+  // create modal pre-targets. Reset to null whenever the active day changes.
+  activeInvitationId: string | null
 
+  setActiveInvitationId: (id: string | null) => void
   openImport: () => void
   openBulkUpdate: (ids: string[], status: GuestStatus) => void
   toggleRow: (id: string) => void
@@ -23,7 +28,9 @@ export const useGuestModalStore = createModalStore<Guest, GuestModalAddons>((set
   selectedIds: new Set(),
   bulkUpdateIds: [],
   bulkUpdateStatus: null,
+  activeInvitationId: null,
 
+  setActiveInvitationId: (id) => set({ activeInvitationId: id }),
   openImport: () => set({ isImportOpen: true }),
   openBulkUpdate: (ids, status) =>
     set({ isBulkUpdateOpen: true, bulkUpdateIds: ids, bulkUpdateStatus: status }),

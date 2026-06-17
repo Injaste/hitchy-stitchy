@@ -42,7 +42,7 @@ const ExpensesSheet: FC<ExpensesSheetProps> = ({
           <span className="text-xs">
             Total{" "}
             <span className="font-medium text-muted-foreground">
-              · {expenses.length} {expenses.length === 1 ? "item" : "items"}
+              · {expenses.length} {expenses.length === 1 ? "result" : "results"}
             </span>
           </span>
           <span className="hidden sm:block" />

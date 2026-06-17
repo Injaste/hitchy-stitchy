@@ -8,9 +8,9 @@ import {
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
+import { useEventInvitationsQuery } from "../../invitation/queries";
 
-import GuestForm, { useGuestForm } from "./GuestForm";
-import { useInvitationQuery } from "../../invitation/queries";
+import GuestForm, { useGuestForm, type GuestPageOption } from "./GuestForm";
 
 const GuestEditModal = () => {
   const isEditOpen = useGuestModalStore((s) => s.isEditOpen);
@@ -18,11 +18,27 @@ const GuestEditModal = () => {
   const closeAll = useGuestModalStore((s) => s.closeAll);
   const { update } = useGuestMutations();
 
-  const { data: invitation } = useInvitationQuery();
+  // Party-size bounds + the message field come from the guest's own page; a
+  // guest can't change pages here, so the page picker stays implicit.
+  const { data: invitations } = useEventInvitationsQuery();
+  const invitation = (invitations ?? []).find(
+    (i) => i.id === selectedItem?.invitation_id,
+  );
+  const pages: GuestPageOption[] = invitation
+    ? [
+        {
+          id: invitation.id,
+          label: "",
+          minGuest: invitation.guest_count_min,
+          maxGuest: invitation.guest_count_max,
+          showMessage: invitation.rsvp_config.rsvp.fields.message.visible,
+        },
+      ]
+    : [];
 
   const form = useGuestForm({
-    minGuest: invitation?.guest_count_min ?? 1,
-    maxGuest: invitation?.guest_count_max ?? 1,
+    pages: pages.length ? pages : [{ id: "", label: "", minGuest: 1, maxGuest: 1, showMessage: false }],
+    pageId: invitation?.id ?? "",
     defaultValues: selectedItem
       ? {
           name: selectedItem.name,
@@ -59,13 +75,7 @@ const GuestEditModal = () => {
       isError={update.isError}
     >
       <FormHeader icon={<User className="size-4" />} title="Edit guest" />
-
-      <GuestForm
-        minGuest={invitation.guest_count_min}
-        maxGuest={invitation.guest_count_max}
-        showMessage={invitation.config.rsvp.fields.message.visible}
-      />
-
+      <GuestForm pages={pages} />
       <FormFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );

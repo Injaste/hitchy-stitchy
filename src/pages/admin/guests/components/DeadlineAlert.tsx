@@ -1,16 +1,40 @@
+import type { FC } from "react";
+import { motion, type Variants } from "framer-motion";
 import { differenceInDays, differenceInSeconds, format } from "date-fns";
 import { CalendarClock, CalendarX } from "lucide-react";
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useNow } from "@/hooks/use-now";
 import { formatRemainingTime } from "@/lib/utils/utils-time";
-import { useInvitationQuery } from "../../invitation/queries";
 
-const DeadlineAlert = () => {
-  const { data: invitation } = useInvitationQuery();
+// Height + bottom-margin reveal, so the mb-6 gap collapses with the alert on
+// exit instead of snapping away once height hits 0. (24 = mb-6 = 1.5rem.)
+const deadlineReveal: Variants = {
+  initial: { opacity: 0, y: -4, height: 0, marginBottom: 0 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    height: "auto",
+    marginBottom: 24,
+    transition: { duration: 0.2 },
+  },
+  exit: {
+    opacity: 0,
+    y: -4,
+    height: 0,
+    marginBottom: 0,
+    transition: { duration: 0.15 },
+  },
+};
 
-  const deadline = invitation?.rsvp_deadline
-    ? new Date(invitation.rsvp_deadline.trim().replace(" ", "T"))
+interface DeadlineAlertProps {
+  /** RSVP deadline of the focused invitation page ("YYYY-MM-DD HH:MM" or null). */
+  deadline: string | null;
+}
+
+const DeadlineAlert: FC<DeadlineAlertProps> = ({ deadline: deadlineStr }) => {
+  const deadline = deadlineStr
+    ? new Date(deadlineStr.trim().replace(" ", "T"))
     : null;
 
   // Only tick every second in the final hour, where the countdown shows
@@ -21,7 +45,7 @@ const DeadlineAlert = () => {
     isParseable && differenceInSeconds(deadline!, new Date()) < 3_600;
   const now = useNow(underAnHour ? 1_000 : 60_000);
 
-  if (!invitation?.rsvp_deadline || !deadline || !isParseable) return null;
+  if (!deadlineStr || !deadline || !isParseable) return null;
   const secondsLeft = differenceInSeconds(deadline, now);
   const daysLeft = differenceInDays(deadline, now);
   const isPast = deadline < now;
@@ -51,13 +75,21 @@ const DeadlineAlert = () => {
     description = `${timeLabel} — check for any guests who haven't responded.`;
 
   return (
-    <Alert variant={variant} className="mb-6 sm:flex sm:flex-row">
-      <Icon />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription className="sm:ml-auto sm:text-right">
-        {description}
-      </AlertDescription>
-    </Alert>
+    <motion.div
+      variants={deadlineReveal}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="overflow-hidden"
+    >
+      <Alert variant={variant} className="sm:flex sm:flex-row">
+        <Icon />
+        <AlertTitle>{title}</AlertTitle>
+        <AlertDescription className="sm:ml-auto sm:text-right">
+          {description}
+        </AlertDescription>
+      </Alert>
+    </motion.div>
   );
 };
 

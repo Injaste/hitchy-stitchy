@@ -4,12 +4,10 @@ import {
   XCircle,
   CheckCircle,
   ClipboardList,
-  Users,
 } from "lucide-react";
 
 import type { Guest } from "../types";
 import Odometer from "@/components/animations/animate-odometer";
-import { Card } from "@/components/ui/card";
 
 interface GuestsStatsProps {
   guests: Guest[];
@@ -29,25 +27,19 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
       }
       return acc;
     },
-    {
-      total: 0,
-      confirmed: 0,
-      confirmedPax: 0,
-      pending: 0,
-      cancelled: 0,
-    },
+    { total: 0, confirmed: 0, confirmedPax: 0, pending: 0, cancelled: 0 },
   );
 
-  const cards = [
+  const cells = [
     {
       label: "Confirmed",
       value: stats.confirmed,
-      sub: stats.confirmedPax,
+      sub: `${stats.confirmedPax} attending`,
       icon: CheckCircle,
       iconClass: "text-success",
     },
     {
-      label: "Total RSVPs",
+      label: "Total",
       value: stats.total,
       icon: ClipboardList,
       iconClass: "text-muted-foreground",
@@ -55,44 +47,38 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
     {
       label: "Pending",
       value: stats.pending,
-      sub: null,
       icon: Clock,
       iconClass: "text-warning",
     },
     {
       label: "Cancelled",
       value: stats.cancelled,
-      sub: null,
       icon: XCircle,
       iconClass: "text-destructive",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-      {cards.map((card) => {
-        const Icon = card.icon;
+    <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border text-card-foreground shadow-xs ring-1 ring-foreground/10 sm:grid-cols-4">
+      {cells.map((cell) => {
+        const Icon = cell.icon;
         return (
-          <Card key={card.label} className="gap-0 px-5">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
-                {card.label}
+          <div key={cell.label} className="bg-card px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <Icon className={cell.iconClass} size={18} />
+              <span className="font-display text-xl font-semibold leading-none text-foreground">
+                <Odometer value={cell.value} />
+              </span>
+              <span className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {cell.label}
+              </span>
+            </div>
+            {cell.sub && (
+              <p className="mt-0.5 truncate pl-7 text-2xs text-muted-foreground">
+                {cell.sub}
               </p>
-              <Icon size={20} className={card.iconClass} />
-            </div>
-            <div className="font-display text-3xl font-semibold text-foreground leading-none">
-              <Odometer value={card.value} />
-            </div>
-            {card.sub && (
-              <div className="mt-1.5 flex items-center gap-1">
-                <Users size={11} className="text-muted-foreground" />
-                <span className="text-sm font-semibold text-foreground">
-                  <Odometer value={card.sub} />
-                </span>
-                <span className="text-xs text-muted-foreground">attending</span>
-              </div>
             )}
-          </Card>
+          </div>
         );
       })}
     </div>
