@@ -123,7 +123,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
         <div className="flex items-start gap-2.5 pr-6">
           <Button
             onClick={handleToggle}
-            className="group/task-button-hover relative shrink-0 items-start -mx-2.5 h-fit"
+            className="group/task-button-hover relative shrink-0 items-start -ml-3 -mr-3.5 h-fit"
             variant="empty"
           >
             <TaskStatusIcon
