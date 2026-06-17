@@ -24,6 +24,9 @@ export async function fetchGuests(eventId: string): Promise<Guest[]> {
   return (data ?? []) as Guest[]
 }
 
+// Legacy event-keyed insert — only the (disabled) CSV import calls this. After
+// go-live, create_guests takes an invitation_id, so this signature no longer
+// resolves; the import flow must thread a target page before it's re-enabled.
 export async function createGuests(
   eventId: string,
   guests: CreateGuestPayload[],
@@ -38,14 +41,14 @@ export async function createGuests(
 }
 
 // Per-(day, segment) model: guests attach to a specific invitation page, which
-// owns the party-size limits the RPC enforces. The old create_guests stays for
-// the (currently disabled) CSV import until that flow is migrated.
+// owns the party-size limits the RPC enforces. Canonical name post go-live
+// (consolidated from create_guests_v2 — migration 20260617000007).
 export async function createGuestsV2(
   eventId: string,
   invitationId: string,
   guests: CreateGuestPayload[],
 ): Promise<Guest[]> {
-  const { data, error } = await supabase.rpc("create_guests_v2", {
+  const { data, error } = await supabase.rpc("create_guests", {
     p_event_id: eventId,
     p_invitation_id: invitationId,
     p_guests: guests,
@@ -72,9 +75,9 @@ export async function updateGuest(payload: UpdateGuestPayload): Promise<Guest> {
 }
 
 // Per-(day, segment) model: limits come from the guest's own invitation page.
-// Same arguments as update_guest — only the function name differs.
+// Canonical name post go-live (consolidated from update_guest_v2 — same args).
 export async function updateGuestV2(payload: UpdateGuestPayload): Promise<Guest> {
-  const { data, error } = await supabase.rpc("update_guest_v2", {
+  const { data, error } = await supabase.rpc("update_guest", {
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_name: payload.name.trim(),

@@ -27,21 +27,17 @@ const RESOURCE_HINTS: Partial<Record<Resource, React.ReactNode>> = {
     </ul>
   ),
   gifts: (
-    <div className="space-y-1">
-      <p>The cash-gift ledger — one custom, many names:</p>
-      <ul className="space-y-0.5">
-        <li>
-          <span className="font-medium">Ang Bao</span> (红包) — Chinese red
-          packet
-        </li>
-        <li>
-          <span className="font-medium">Sampul Duit / Duit</span> — Malay
-        </li>
-        <li>
-          <span className="font-medium">Shagun</span> — Indian
-        </li>
-      </ul>
-    </div>
+    <ul className="space-y-0.5">
+      <li>
+        <span className="font-medium">Ang Bao (红包) —</span> Chinese red packet
+      </li>
+      <li>
+        <span className="font-medium">Sampul Duit —</span> Malay
+      </li>
+      <li>
+        <span className="font-medium">Shagun —</span> Indian
+      </li>
+    </ul>
   ),
 };
 

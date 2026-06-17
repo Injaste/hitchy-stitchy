@@ -14,9 +14,9 @@ export async function fetchPublicEvent(
   slug: string,
   linkSlug?: string | null,
 ): Promise<PublicEventConfig> {
-  // _v2 = new per-(day,segment) model. This branch is undeployed; production's main
-  // keeps calling the frozen old get_public_invitation. (migrations/README rule.)
-  const { data, error } = await supabase.rpc("get_public_invitation_v2", {
+  // Per-(day, segment) model render. Consolidated from get_public_invitation_v2
+  // onto the canonical name at go-live (migration 20260617000007).
+  const { data, error } = await supabase.rpc("get_public_invitation", {
     p_slug: slug,
     p_link_slug: linkSlug ?? null,
   })
@@ -57,7 +57,7 @@ export async function fetchRSVP(payload: GetRSVPPayload): Promise<RSVPSubmission
 }
 
 export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmission> {
-  const { data, error } = await supabase.rpc("submit_rsvp_v2", {
+  const { data, error } = await supabase.rpc("submit_rsvp", {
     p_invitation_id: payload.invitation_id,
     p_fields: {
       name: payload.name,
@@ -72,7 +72,7 @@ export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmis
 }
 
 export async function updateRSVP(payload: UpdateRSVPPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_rsvp_v2", {
+  const { error } = await supabase.rpc("update_rsvp", {
     p_event_id: payload.event_id,
     p_phone: payload.phone,
     p_token: payload.token,

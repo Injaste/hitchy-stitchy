@@ -3,9 +3,24 @@ import type { AccessLevel } from "../types";
 
 export const ACCESS_CONFIG: Record<
   AccessLevel,
-  { icon: typeof CheckCircle2; label: string; className: string }
+  { icon: typeof CheckCircle2; label: string; hint: string; className: string }
 > = {
-  full: { icon: CheckCircle2, label: "Full", className: "text-primary" },
-  read: { icon: Eye, label: "View", className: "text-muted-foreground/70" },
-  none: { icon: Minus, label: "—", className: "text-muted-foreground/50" },
+  full: {
+    icon: CheckCircle2,
+    label: "Full",
+    hint: "Create/Edit/Delete/Read",
+    className: "text-primary",
+  },
+  read: {
+    icon: Eye,
+    label: "View",
+    hint: "Read",
+    className: "text-muted-foreground/70",
+  },
+  none: {
+    icon: Minus,
+    label: "—",
+    hint: "None",
+    className: "text-muted-foreground/50",
+  },
 };

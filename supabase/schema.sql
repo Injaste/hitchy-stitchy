@@ -1384,38 +1384,12 @@ BEGIN
   RETURN v_inv;
 END; $$;
 
--- get_public_invitation [OLD model — restored 20260617000004] — the LIVE public
--- render. Reads the old event_invitation + latest published event_themes. This is a
--- SHARED production function: FROZEN, never mutate in place (see migrations/README).
--- The new model is served by get_public_invitation_v2 below; production stays on this
--- until go-live. p_link_slug is accepted (signature compat) but ignored.
+-- get_public_invitation — public render for the per-(day, segment) model.
+-- Consolidated from get_public_invitation_v2 onto the canonical name at go-live
+-- (migration 20260617000007; the old event_invitation/event_themes body was dropped).
+-- link_slug routing: p_link_slug -> that page; NULL -> root (link_slug NULL) else
+-- first-by-date published page. Guards: event exists + active, page published.
 CREATE OR REPLACE FUNCTION public.get_public_invitation(p_slug text, p_link_slug text DEFAULT null)
-RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
-DECLARE v_event events; v_invitation event_invitation; v_theme event_themes;
-BEGIN
-  SELECT * INTO v_event FROM events WHERE slug = p_slug AND deleted_at IS NULL;
-  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
-  IF NOT is_event_active(v_event.id) THEN RAISE EXCEPTION 'Invitation not found'; END IF;
-  SELECT * INTO v_invitation FROM event_invitation WHERE event_id = v_event.id;
-  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
-  SELECT * INTO v_theme FROM event_themes WHERE event_id = v_event.id AND published_at IS NOT NULL LIMIT 1;
-  RETURN jsonb_build_object(
-    'id', v_invitation.id, 'event_id', v_invitation.event_id,
-    'event_date', v_invitation.event_date, 'event_time_start', v_invitation.event_time_start, 'event_time_end', v_invitation.event_time_end,
-    'rsvp_mode', v_invitation.rsvp_mode, 'rsvp_deadline', v_invitation.rsvp_deadline, 'max_guests', v_invitation.max_guests,
-    'guest_count_min', v_invitation.guest_count_min, 'guest_count_max', v_invitation.guest_count_max,
-    'confirmation_message', v_invitation.confirmation_message, 'config', v_invitation.config,
-    'published_page', CASE WHEN v_theme.id IS NOT NULL
-      THEN jsonb_build_object('id', v_theme.id, 'theme_slug', v_theme.config->>'slug', 'config', v_theme.config) ELSE NULL END
-  );
-END; $$;
-GRANT EXECUTE ON FUNCTION public.get_public_invitation(text, text) TO anon, authenticated;
-
--- get_public_invitation_v2 [NEW model — 20260617000006] — new per-(day,segment)
--- render. link_slug routing: p_link_slug -> that page; NULL -> root (link_slug NULL)
--- else first-by-date published page. Only this branch's (undeployed) frontend calls
--- it; production uses the old fn above. See the *_v2 RSVP/guest fns in 20260617000006.
-CREATE OR REPLACE FUNCTION public.get_public_invitation_v2(p_slug text, p_link_slug text DEFAULT null)
 RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
 DECLARE v_event events; v_inv event_invitations; v_slug text := NULLIF(btrim(lower(p_link_slug)), '');
 BEGIN
@@ -1443,7 +1417,7 @@ BEGIN
     'published_page', jsonb_build_object('id', v_inv.id, 'theme_slug', v_inv.template_key, 'config', v_inv.published_config)
   );
 END; $$;
-GRANT EXECUTE ON FUNCTION public.get_public_invitation_v2(text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_public_invitation(text, text) TO anon, authenticated;
 
 -- Functions still to add (copy from the dump):
 --   create_access_group, update_access_group, delete_access_group
