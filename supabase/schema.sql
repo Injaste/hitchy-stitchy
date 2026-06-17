@@ -272,11 +272,11 @@ CREATE TABLE public.event_invitations (
   segment_id    uuid,                                       -- unused in Step 1; segment split later
   template_key  text          NOT NULL,                     -- code-registry key (not the event slug)
   name          text          NOT NULL DEFAULT 'My Invitation',
-  field_config  jsonb         NOT NULL DEFAULT '{}',
-  published_at  timestamptz,
-  event_date           date,
-  event_time_start     text,
-  event_time_end       text,
+  draft_config     jsonb      NOT NULL DEFAULT '{}',  -- editor draft [20260616000001, ex field_config]
+  published_config jsonb,                             -- promoted snapshot; null = never published [20260616000001]
+  published_at  timestamptz,                          -- set on publish; cleared on unpublish
+  -- Countdown date/time moved INTO *_config (content); the standalone
+  -- event_date/event_time_start/event_time_end columns were dropped [20260615000009].
   rsvp_mode            event_rsvp_mode NOT NULL DEFAULT 'public',
   rsvp_deadline        timestamptz,
   max_guests           integer,
@@ -1258,11 +1258,14 @@ BEGIN
 END;
 $$;
 
--- ── Invitation CRUD [20260615000003] ────────────────────────────────────────
+-- ── Invitation CRUD [20260615000003; draft/publish 20260616000001-2] ─────────
 -- event_invitations writes (no write RLS policy). Gated on the `invitation`
--- resource. update_invitation = whole-invitation save (design + RSVP config);
--- 15-arg overload of the live update_invitation (11-arg on event_invitation),
--- resolved by the p_id/p_template_key args. Old one dropped at cleanup.
+-- resource. update_invitation = whole-invitation save (design draft + RSVP
+-- config); p_to_publish promotes the just-written draft to published_config in
+-- the same UPDATE (atomic one-RPC publish). 13-arg overload of the live
+-- update_invitation (11-arg on event_invitation), resolved by p_id/p_template_key.
+-- Old one dropped at cleanup. create_invitation seeds draft_config from the
+-- template base config; unpublish clears published_at (public render gates on it).
 CREATE OR REPLACE FUNCTION public.create_invitation(
   p_event_id uuid, p_template_key text, p_name text DEFAULT 'My Invitation'
 )
@@ -1277,17 +1280,17 @@ BEGIN
     RAISE EXCEPTION 'An invitation already exists for this event'; END IF;
   SELECT field_config INTO v_config FROM event_templates WHERE template_key = p_template_key AND is_active = true;
   IF NOT FOUND THEN RAISE EXCEPTION 'Template not found or inactive'; END IF;
-  INSERT INTO event_invitations (event_id, template_key, name, field_config)
+  INSERT INTO event_invitations (event_id, template_key, name, draft_config)
   VALUES (p_event_id, p_template_key, COALESCE(NULLIF(btrim(p_name), ''), 'My Invitation'), COALESCE(v_config, '{}'::jsonb))
   RETURNING * INTO v_inv;
   RETURN v_inv;
 END; $$;
 
 CREATE OR REPLACE FUNCTION public.update_invitation(
-  p_event_id uuid, p_id uuid, p_template_key text, p_name text, p_field_config jsonb,
-  p_event_date date, p_event_time_start text, p_event_time_end text,
+  p_event_id uuid, p_id uuid, p_template_key text, p_name text, p_draft_config jsonb,
   p_rsvp_mode event_rsvp_mode, p_rsvp_deadline timestamptz, p_max_guests integer,
-  p_guest_count_min integer, p_guest_count_max integer, p_confirmation_message text, p_rsvp_config jsonb
+  p_guest_count_min integer, p_guest_count_max integer, p_confirmation_message text,
+  p_rsvp_config jsonb, p_to_publish boolean DEFAULT false
 )
 RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE v_caller event_members; v_inv event_invitations;
@@ -1302,16 +1305,18 @@ BEGIN
   IF COALESCE(p_guest_count_max, v_inv.guest_count_max) < COALESCE(p_guest_count_min, v_inv.guest_count_min) THEN
     RAISE EXCEPTION 'Maximum guests cannot be less than the minimum'; END IF;
   UPDATE event_invitations SET
-    template_key = COALESCE(p_template_key, template_key), event_date = p_event_date,
-    event_time_start = p_event_time_start, event_time_end = p_event_time_end,
+    template_key = COALESCE(p_template_key, template_key),
     rsvp_deadline = p_rsvp_deadline, max_guests = p_max_guests,
     name = COALESCE(NULLIF(btrim(p_name), ''), name),
-    field_config = COALESCE(p_field_config, field_config),
+    draft_config = COALESCE(p_draft_config, draft_config),
     rsvp_mode = COALESCE(p_rsvp_mode, rsvp_mode),
     guest_count_min = COALESCE(p_guest_count_min, guest_count_min),
     guest_count_max = COALESCE(p_guest_count_max, guest_count_max),
     confirmation_message = COALESCE(NULLIF(btrim(p_confirmation_message), ''), confirmation_message),
-    rsvp_config = COALESCE(p_rsvp_config, rsvp_config)
+    rsvp_config = COALESCE(p_rsvp_config, rsvp_config),
+    -- Atomic publish: promote the just-written draft in the same statement.
+    published_config = CASE WHEN p_to_publish THEN COALESCE(p_draft_config, draft_config) ELSE published_config END,
+    published_at     = CASE WHEN p_to_publish THEN now() ELSE published_at END
   WHERE id = p_id RETURNING * INTO v_inv;
   RETURN v_inv;
 END; $$;
@@ -1330,6 +1335,23 @@ BEGIN
   IF v_inv.published_at IS NOT NULL THEN
     RAISE EXCEPTION 'Published invitation cannot be deleted'; END IF;
   DELETE FROM event_invitations WHERE id = p_id;
+END; $$;
+
+-- unpublish_invitation [20260616000001] — take the live page down (clears
+-- published_at; the public render gates on it). Takedown flow = unpublish -> delete.
+CREATE OR REPLACE FUNCTION public.unpublish_invitation(p_event_id uuid, p_id uuid)
+RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_inv event_invitations;
+BEGIN
+  SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_inv.event_id != p_event_id THEN RAISE EXCEPTION 'Invitation does not belong to this event'; END IF;
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to unpublish the invitation'; END IF;
+  UPDATE event_invitations SET published_at = null WHERE id = p_id RETURNING * INTO v_inv;
+  RETURN v_inv;
 END; $$;
 
 -- Functions still to add (copy from the dump):
