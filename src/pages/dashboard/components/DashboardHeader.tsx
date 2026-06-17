@@ -28,7 +28,7 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
   return (
     <DashboardPageHeader
       title="Planning Dashboard"
-      description="Manage and track all your upcoming events."
+      description="All your celebrations in one place."
       action={action}
       isLoading={isLoading}
       isRefetching={isFetching}

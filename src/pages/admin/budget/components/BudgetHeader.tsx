@@ -34,8 +34,8 @@ const BudgetHeader: FC<BudgetHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
-      title="Budget Tracker"
-      description="Track every wedding expense — what it costs, what's paid, and what's still owed."
+      title="Budget"
+      description="Keep an eye on what things cost, what's paid, and what's left to pay."
       action={
         canAdd && (
           <Button

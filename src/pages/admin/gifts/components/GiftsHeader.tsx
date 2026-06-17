@@ -32,7 +32,7 @@ const GiftsHeader: FC<GiftsHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
-      title="Gift Envelopes"
+      title="Gifts"
       description="Record every ang bao, green packet and shagun — who gave and how much — with a live running tally."
       action={
         canCreate("gifts") && (

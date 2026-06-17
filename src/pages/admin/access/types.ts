@@ -39,8 +39,8 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
   invitation: "Invitation",
   members: "Members",
   access: "Access",
-  budget: "Budget Tracker",
-  gifts: "Gift Envelopes",
+  budget: "Budget",
+  gifts: "Gifts",
 };
 
 export const RESOURCE_GROUPS: ResourceGroup[] = [

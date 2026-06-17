@@ -151,7 +151,7 @@ const DayDeleteModal = () => {
         )}
         {hasGifts && (
           <BlockerBox
-            label="Gift Envelopes"
+            label="Gifts"
             entries={gifts!.map((g) => ({ id: g.id, name: g.given_by }))}
             animateGrow={grewFromLoadingRef.current}
           />

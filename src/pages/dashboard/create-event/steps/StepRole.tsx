@@ -151,7 +151,7 @@ const StepRole: FC<StepRoleProps> = ({
                           }
                         : undefined
                     }
-                    className="flex h-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-input px-3 py-4 text-sm text-muted-foreground transition-all active:scale-[0.95] has-[[data-state=unchecked]]:hover:bg-accent has-[[data-state=unchecked]]:hover:text-accent-foreground has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:text-primary"
+                    className="flex h-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-input px-3 py-4 text-sm text-muted-foreground transition-all active:scale-[0.95] has-data-[state=unchecked]:hover:bg-accent has-data-[state=unchecked]:hover:text-accent-foreground has-data-[state=checked]:border-primary has-data-[state=checked]:bg-primary/10 has-data-[state=checked]:text-primary"
                   >
                     <Icon className="size-5 shrink-0" />
                     <span className="font-medium">{option.role}</span>
@@ -188,7 +188,7 @@ const StepRole: FC<StepRoleProps> = ({
               <TextField
                 name="customRole"
                 label="Your Role"
-                placeholder="e.g. Floor Manager"
+                placeholder="e.g. Maid of Honour"
                 autoFocus
               />
             </motion.div>

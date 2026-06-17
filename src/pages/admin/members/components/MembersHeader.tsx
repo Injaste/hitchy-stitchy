@@ -25,7 +25,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
       isRefetching={isRefetching}
       refetch={refetch}
       title="Members"
-      description="Everyone with access to this event. Manage who's on your team and control their active status."
+      description="Everyone helping bring your day together. Add people and manage who's active."
       action={
         canManageMembers && (
           <Button

@@ -212,7 +212,7 @@ const TimelineItemForm = () => {
           name="assignees"
           label="Assignees"
           optional
-          description="Which team members are responsible for this item?"
+          description="Who's looking after this?"
           items={memberItems}
           groups={memberGroups}
         />

@@ -39,8 +39,8 @@ const AdminRoutes = () => (
     <Route path="members" element={<Members />} />
     <Route path="access" element={<RequireRead resource="access"><Access /></RequireRead>} />
     <Route path="guests" element={<RequireRead resource="guests"><Guests /></RequireRead>} />
-    <Route path="budget-tracker" element={<RequireSuperAdmin><Budget /></RequireSuperAdmin>} />
-    <Route path="gift-envelopes" element={<RequireSuperAdmin><Gifts /></RequireSuperAdmin>} />
+    <Route path="budget" element={<RequireSuperAdmin><Budget /></RequireSuperAdmin>} />
+    <Route path="gifts" element={<RequireSuperAdmin><Gifts /></RequireSuperAdmin>} />
     <Route path="invitation" element={<RequireRead resource="invitation"><Invitation /></RequireRead>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />

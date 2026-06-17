@@ -21,7 +21,7 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
   return (
     <AdminPageHeader
       title="Invitation"
-      description="Design and configure your wedding RSVP pages. Add a page per day or segment, customise the look, and control how guests respond."
+      description="Design the pages your guests will open. Make one per day, style it your way, and choose how they RSVP."
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}

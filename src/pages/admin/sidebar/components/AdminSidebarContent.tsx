@@ -81,17 +81,17 @@ const AdminSidebarContent = () => {
                 {showBudget && (
                   <NavItem
                     icon={Wallet}
-                    label="Budget Tracker"
-                    to={`${base}/budget-tracker`}
-                    isActive={activePage === "budget-tracker"}
+                    label="Budget"
+                    to={`${base}/budget`}
+                    isActive={activePage === "budget"}
                   />
                 )}
                 {showGifts && (
                   <NavItem
                     icon={HandCoins}
-                    label="Gift Envelopes"
-                    to={`${base}/gift-envelopes`}
-                    isActive={activePage === "gift-envelopes"}
+                    label="Gifts"
+                    to={`${base}/gifts`}
+                    isActive={activePage === "gifts"}
                   />
                 )}
               </SidebarMenu>

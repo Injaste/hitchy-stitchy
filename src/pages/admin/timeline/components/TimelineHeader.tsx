@@ -73,7 +73,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
           </div>
         )
       }
-      description="Track and manage scheduled events across your selected date range."
+      description="Plan out each day, moment by moment."
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}

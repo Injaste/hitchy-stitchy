@@ -8,19 +8,19 @@ export const ACCESS_CONFIG: Record<
   full: {
     icon: CheckCircle2,
     label: "Full",
-    hint: "Create/Edit/Delete/Read",
+    hint: "Can view, add, edit and remove",
     className: "text-primary",
   },
   read: {
     icon: Eye,
     label: "View",
-    hint: "Read",
+    hint: "Can view, but not change",
     className: "text-muted-foreground/70",
   },
   none: {
     icon: Minus,
     label: "—",
-    hint: "None",
+    hint: "Hidden — no access",
     className: "text-muted-foreground/50",
   },
 };

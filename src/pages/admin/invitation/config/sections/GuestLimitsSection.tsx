@@ -14,7 +14,7 @@ const GuestLimitsSection = () => (
         <div className="grid grid-cols-3 gap-3">
           <TextField
             name="max_guests"
-            label="Cap total"
+            label="Total guests"
             placeholder="No limit"
             type="number"
             optional
@@ -23,14 +23,14 @@ const GuestLimitsSection = () => (
           />
           <TextField
             name="guest_count_min"
-            label="Min per RSVP"
+            label="Min party size"
             type="number"
             min={1}
             max={99}
           />
           <TextField
             name="guest_count_max"
-            label="Max per RSVP"
+            label="Max party size"
             type="number"
             min={1}
             max={99}

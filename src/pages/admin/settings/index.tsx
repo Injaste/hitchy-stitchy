@@ -18,7 +18,7 @@ const Settings = () => {
     <>
       <AdminPageHeader
         title="Settings"
-        description="Manage this event and your account."
+        description="Tweak your event and account details."
       />
       <Container pageSpacing>
         <Tabs defaultValue="days" className="gap-6">

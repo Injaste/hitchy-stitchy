@@ -13,7 +13,7 @@ const ConfirmationSection = () => (
       <FieldGroup>
         <TextareaField
           name="confirmation_message"
-          label="Shown after a successful RSVP"
+          label="Shown after a guest RSVPs"
           placeholder="We look forward to celebrating with you!"
           rows={3}
         />

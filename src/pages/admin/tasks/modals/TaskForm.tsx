@@ -108,7 +108,7 @@ const TaskForm = () => {
 
         <TextareaField
           name="details"
-          label="Additional Items"
+          label="Notes"
           optional
           rows={3}
           placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
@@ -119,7 +119,7 @@ const TaskForm = () => {
           name="assignees"
           label="Assigned members"
           optional
-          description="Which team members are accountable for this task?"
+          description="Who's helping with this task?"
           items={memberItems}
           groups={memberGroups}
         />
