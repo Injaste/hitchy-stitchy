@@ -9,13 +9,13 @@ import { useMediaBreakpointUp } from "@/hooks/use-media-query";
 import { themeRegistry } from "@/pages/wedding/templates";
 import { composeTemplatePreviewConfig, pageLabel } from "../utils";
 import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
-import { useEventInvitationsQuery, useEventSegmentsQuery } from "../queries";
+import { useInvitationsQuery, useEventSegmentsQuery } from "../queries";
 import { useEventDaysQuery } from "../../days/queries";
 import BrowsePanel from "./BrowsePanel";
 import EditPanel, { type EditPanelHandle } from "./EditPanel";
 import InvitationPreviewPane from "./InvitationPreviewPane";
 import PreviewSlideOver from "./PreviewSlideOver";
-import type { EventInvitation } from "../types";
+import type { Invitation } from "../types";
 
 // One sheet, two columns. The LEFT morphs (ComponentFade) between the template
 // browser and the Design/RSVP editor; the RIGHT preview persists. On <md the
@@ -33,13 +33,13 @@ const InvitationSheet = () => {
     openPreview,
     hidePreview,
   } = useInvitationModalStore();
-  const { data: invitations } = useEventInvitationsQuery();
+  const { data: invitations } = useInvitationsQuery();
   const { data: days } = useEventDaysQuery();
   const { data: segments } = useEventSegmentsQuery();
   const isMd = useMediaBreakpointUp("md");
 
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
-  const [created, setCreated] = useState<EventInvitation | null>(null);
+  const [created, setCreated] = useState<Invitation | null>(null);
   const [sheetEntered, setSheetEntered] = useState(false);
   const editRef = useRef<EditPanelHandle>(null);
 

@@ -3,9 +3,8 @@ import { useMutation } from "@/lib/query/useMutation";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { adminKeys } from "@/pages/admin/lib/queryKeys";
 import {
-  fetchInvitation,
   fetchTemplates,
-  fetchEventInvitations,
+  fetchInvitations,
   fetchEventSegments,
   createInvitation,
   saveInvitation,
@@ -19,19 +18,6 @@ import type {
   UnpublishInvitationPayload,
 } from "./types";
 
-// Old per-event invitation (event_invitation singular). Still the source for the
-// guests feature's RSVP settings (deadline / count limits) until the go-live
-// cleanup repoints it onto event_invitations.
-export function useInvitationQuery() {
-  const { slug, eventId } = useAdminStore();
-  return useQuery({
-    queryKey: adminKeys.invitation(slug!),
-    queryFn: () => fetchInvitation(eventId!),
-    enabled: !!eventId && !!slug,
-  });
-}
-
-// ── New parallel model (event_invitations) ───────────────────────────────────
 export function useTemplatesQuery() {
   const { slug } = useAdminStore();
   return useQuery({
@@ -42,11 +28,11 @@ export function useTemplatesQuery() {
   });
 }
 
-export function useEventInvitationsQuery() {
+export function useInvitationsQuery() {
   const { slug, eventId } = useAdminStore();
   return useQuery({
-    queryKey: adminKeys.eventInvitation(slug!),
-    queryFn: () => fetchEventInvitations(eventId!),
+    queryKey: adminKeys.invitation(slug!),
+    queryFn: () => fetchInvitations(eventId!),
     enabled: !!eventId && !!slug,
   });
 }
@@ -61,14 +47,14 @@ export function useEventSegmentsQuery() {
   });
 }
 
-export function useEventInvitationMutations() {
+export function useInvitationMutations() {
   const { slug, eventId } = useAdminStore();
   const queryClient = useQueryClient();
 
   // Per-page now: refetch the list rather than swapping a single object.
   const invalidate = () =>
     queryClient.invalidateQueries({
-      queryKey: adminKeys.eventInvitation(slug!),
+      queryKey: adminKeys.invitation(slug!),
     });
 
   const create = useMutation(

@@ -199,64 +199,19 @@ ALTER TABLE public.events
 CREATE TABLE public.event_templates (
   id          uuid        NOT NULL DEFAULT gen_random_uuid(),
   name         text        NOT NULL,
-  slug         text        NOT NULL,
-  template_key text,        -- [20260615000002] registry key; seeded from slug, replaces it at cleanup
+  template_key text        NOT NULL,  -- registry key (was seeded from the dropped `slug`, 20260617000008)
   description  text,
   field_config jsonb       NOT NULL DEFAULT '{}',
   is_active    boolean     NOT NULL DEFAULT true,
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now(),
 
-  CONSTRAINT event_themes_pkey      PRIMARY KEY (id),
-  CONSTRAINT event_themes_slug_key  UNIQUE (slug)
+  CONSTRAINT event_themes_pkey      PRIMARY KEY (id)
 );
 
--- -----------------------------------------------------------------------------
--- event_themes  [inferred from create_theme, update_theme, publish_theme RPCs + FK dump]
--- -----------------------------------------------------------------------------
-CREATE TABLE public.event_themes (
-  id           uuid        NOT NULL DEFAULT gen_random_uuid(),
-  event_id     uuid        NOT NULL,
-  template_id  uuid,
-  name         text        NOT NULL DEFAULT 'My Invitation',
-  config       jsonb       NOT NULL DEFAULT '{}',
-  published_at timestamptz,
-  created_at   timestamptz NOT NULL DEFAULT now(),
-  updated_at   timestamptz NOT NULL DEFAULT now(),
-
-  CONSTRAINT event_themes_id_pkey PRIMARY KEY (id),
-
-  CONSTRAINT event_themes_event_id_fk
-    FOREIGN KEY (event_id)    REFERENCES public.events (id)          ON DELETE CASCADE,
-  CONSTRAINT event_themes_template_id_fk
-    FOREIGN KEY (template_id) REFERENCES public.event_templates (id) ON DELETE SET NULL
-);
-
--- -----------------------------------------------------------------------------
--- event_invitation  [confirmed]
--- -----------------------------------------------------------------------------
-CREATE TABLE public.event_invitation (
-  id                   uuid               NOT NULL DEFAULT gen_random_uuid(),
-  event_id             uuid               NOT NULL,
-  event_date           date,
-  event_time_start     text,
-  event_time_end       text,
-  rsvp_mode            event_rsvp_mode    NOT NULL DEFAULT 'public',
-  rsvp_deadline        timestamptz,
-  max_guests           integer,
-  guest_count_min      integer            NOT NULL DEFAULT 1,
-  guest_count_max      integer            NOT NULL DEFAULT 10,
-  confirmation_message text               NOT NULL DEFAULT 'We look forward to celebrating with you!',
-  config               jsonb              NOT NULL DEFAULT '{"rsvp": {"fields": {"message": {"visible": false, "required": false}}}}',
-  created_at           timestamptz        NOT NULL DEFAULT now(),
-  updated_at           timestamptz        NOT NULL DEFAULT now(),
-
-  CONSTRAINT event_invitation_pkey         PRIMARY KEY (id),
-  CONSTRAINT event_invitation_event_id_key UNIQUE (event_id),
-
-  CONSTRAINT event_invitation_event_id_fk
-    FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
-);
+-- event_themes + event_invitation (singular) were dropped at the go-live cleanup
+-- (20260617000008) — superseded by event_invitations. Their RLS policies,
+-- triggers, and indexes were dropped with them.
 
 -- -----------------------------------------------------------------------------
 -- event_invitations  [20260615000001; per-day/segment 20260617000002] — the merged,
@@ -747,8 +702,6 @@ CREATE INDEX event_announcements_event_id_idx
 CREATE INDEX event_announcements_expires_at_idx
   ON public.event_announcements (expires_at);
 
--- event_invitation has a unique index backing its UNIQUE constraint (already covered above)
-
 CREATE INDEX event_live_logs_event_id_idx
   ON public.event_live_logs (event_id);
 CREATE INDEX event_live_logs_expires_at_idx
@@ -778,11 +731,6 @@ CREATE UNIQUE INDEX event_templates_slug_idx
 CREATE INDEX event_templates_is_active_idx
   ON public.event_templates (is_active);
 
-CREATE INDEX event_themes_event_id_idx
-  ON public.event_themes (event_id);
-CREATE INDEX event_themes_template_id_idx
-  ON public.event_themes (template_id);
-
 CREATE INDEX event_timelines_event_id_idx
   ON public.event_timelines (event_id);
 CREATE INDEX event_timelines_event_id_day_time_start_idx
@@ -803,10 +751,6 @@ CREATE INDEX event_segments_day_id_idx
 CREATE INDEX event_vendors_event_id_idx
   ON public.event_vendors (event_id);
 
--- Unique index backing event_invitation UNIQUE (event_id)
-CREATE UNIQUE INDEX event_invitation_event_id_idx
-  ON public.event_invitation (event_id);
-
 
 -- =============================================================================
 -- RLS — ENABLE ROW LEVEL SECURITY
@@ -820,7 +764,6 @@ ALTER TABLE public.event_segments           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_budget             ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_expenses           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_gifts              ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.event_invitation         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_live_logs          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_members            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_resources          ENABLE ROW LEVEL SECURITY;
@@ -828,7 +771,6 @@ ALTER TABLE public.event_rsvps              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_settings           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_tasks              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_templates          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.event_themes             ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_timelines          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_vendors            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events                   ENABLE ROW LEVEL SECURITY;
@@ -873,10 +815,6 @@ CREATE POLICY event_days_select ON public.event_days
   USING (is_event_member(event_id));
 
 CREATE POLICY event_segments_select ON public.event_segments
-  FOR SELECT TO authenticated
-  USING (is_event_member(event_id));
-
-CREATE POLICY event_invitation_select ON public.event_invitation
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
@@ -935,10 +873,6 @@ CREATE POLICY event_tasks_select ON public.event_tasks
 CREATE POLICY event_templates_select ON public.event_templates
   FOR SELECT TO authenticated
   USING (is_active = true);
-
-CREATE POLICY event_themes_select ON public.event_themes
-  FOR SELECT TO authenticated
-  USING (is_event_member(event_id));
 
 CREATE POLICY event_timelines_select ON public.event_timelines
   FOR SELECT TO authenticated
@@ -1214,7 +1148,7 @@ BEGIN
   INSERT INTO event_access_groups (event_id, name, permissions)
   VALUES (v_event_id, 'Admin', '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
-    "themes":"full","members":"full","access":"read"
+    "members":"full","access":"read"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_admin_id;
 
@@ -1236,7 +1170,6 @@ BEGIN
 
   UPDATE events SET created_by = v_member_id WHERE events.id = v_event_id;
 
-  INSERT INTO event_invitation (event_id) VALUES (v_event_id);
   INSERT INTO event_settings (event_id) VALUES (v_event_id);
   -- (no event_budget seed — buckets are lazy, per day)
 
@@ -2214,10 +2147,6 @@ CREATE TRIGGER touch_updated_at_event_segments
   BEFORE UPDATE ON public.event_segments
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 
-CREATE TRIGGER touch_updated_at_event_invitation
-  BEFORE UPDATE ON public.event_invitation
-  FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
-
 CREATE TRIGGER touch_updated_at_event_live_logs
   BEFORE UPDATE ON public.event_live_logs
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
@@ -2244,10 +2173,6 @@ CREATE TRIGGER touch_updated_at_event_tasks
 
 CREATE TRIGGER touch_updated_at_event_templates
   BEFORE UPDATE ON public.event_templates
-  FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
-
-CREATE TRIGGER touch_updated_at_event_themes
-  BEFORE UPDATE ON public.event_themes
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 
 CREATE TRIGGER touch_updated_at_event_timelines

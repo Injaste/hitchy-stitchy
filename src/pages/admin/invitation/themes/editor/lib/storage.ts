@@ -2,7 +2,8 @@ import { supabase } from "@/lib/supabase"
 
 // Storage helpers for couple-uploaded theme images. The bucket + RLS live in
 // migration 20260613000101_invitation_image_uploads.sql; writes are gated on
-// has_event_permission(event_id, 'themes', 'update') via the object path.
+// has_event_permission(event_id, 'invitation', 'update') via the object path
+// (repointed off the retired 'themes' resource in 20260617000008).
 const BUCKET = "invitation-images"
 const MAX_EDGE = 1600
 const WEBP_QUALITY = 0.85

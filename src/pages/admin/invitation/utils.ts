@@ -1,4 +1,4 @@
-import type { EventInvitation, EventDaySegment } from "./types"
+import type { Invitation, EventDaySegment } from "./types"
 import type { EventDay } from "../days/types"
 import { dayLabel } from "../days/utils"
 import type { ThemeConfig, ThemeFieldGroup } from "@/pages/wedding/templates/types"
@@ -7,7 +7,7 @@ import type { PublicEventConfig } from "@/pages/wedding/types"
 // Display label for an invitation page: its segment name, else the day's label
 // (with the positional "Day N" fallback). `days` must be the date-sorted list.
 export function pageLabel(
-  inv: Pick<EventInvitation, "day_id" | "segment_id">,
+  inv: Pick<Invitation, "day_id" | "segment_id">,
   days: EventDay[],
   segments: EventDaySegment[],
 ): string {
@@ -35,10 +35,10 @@ export function combineDeadline(
 }
 
 // ── New parallel model (event_invitations) ───────────────────────────────────
-// One EventInvitation row carries both design + RSVP config. `draft` overrides
+// One Invitation row carries both design + RSVP config. `draft` overrides
 // the saved design for the live editor preview.
 export function composeInvitationConfig(
-  inv: EventInvitation,
+  inv: Invitation,
   draft?: ThemeConfig | null,
 ): PublicEventConfig {
   // The countdown date/time live in the design config (content). Project them onto

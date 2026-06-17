@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { useAccess } from "../../hooks/useAccess";
-import { useEventInvitationsQuery } from "../../invitation/queries";
+import { useInvitationsQuery } from "../../invitation/queries";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { STATUS_LABELS } from "../types";
 
@@ -39,7 +39,7 @@ const GuestDetailModal = () => {
 
   const { canUpdate, canDelete } = useAccess();
   // Message-field visibility follows the guest's own invitation page.
-  const { data: invitations } = useEventInvitationsQuery();
+  const { data: invitations } = useInvitationsQuery();
   const rsvpFields = (invitations ?? []).find(
     (i) => i.id === selectedItem?.invitation_id,
   )?.rsvp_config.rsvp.fields;

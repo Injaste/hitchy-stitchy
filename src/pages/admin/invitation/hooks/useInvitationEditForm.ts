@@ -9,7 +9,7 @@ import type { ThemeConfig } from "@/pages/wedding/templates/types";
 import { useThemeSheetStore } from "../themes/editor/store";
 import { useSheetLeaveGuard } from "../themes/editor/hooks/useThemeSheetLeaveGuard";
 import { schema, rsvpDefaults } from "../config/components/ConfigsForm";
-import { useEventInvitationMutations, useTemplatesQuery } from "../queries";
+import { useInvitationMutations, useTemplatesQuery } from "../queries";
 import {
   combineDeadline,
   deepEqual,
@@ -17,7 +17,7 @@ import {
   buildDesignDefaults,
   coerceDesign,
 } from "../utils";
-import type { EventInvitation, SaveInvitationPayload } from "../types";
+import type { Invitation, SaveInvitationPayload } from "../types";
 
 // The controller object EditPanel passes to the footer/menu/modals.
 export type InvitationEditController = ReturnType<typeof useInvitationEditForm>;
@@ -26,11 +26,11 @@ export type InvitationEditController = ReturnType<typeof useInvitationEditForm>;
 // design values mirrored to the preview store; whole-invitation save (decision A);
 // leave guard. Keeps EditPanel presentational.
 export function useInvitationEditForm(
-  invitation: EventInvitation,
+  invitation: Invitation,
   onClose: () => void,
 ) {
   const { eventId } = useAdminStore();
-  const { save, publish, unpublish, remove } = useEventInvitationMutations();
+  const { save, publish, unpublish, remove } = useInvitationMutations();
   const { data: templates } = useTemplatesQuery();
 
   const initStore = useThemeSheetStore((s) => s.init);
@@ -201,7 +201,7 @@ export function useInvitationEditForm(
   // settings are untouched; the user still Saves to persist.
   const resetToTemplate = useCallback(() => {
     const base =
-      (templates?.find((t) => t.slug === invitation.template_key)
+      (templates?.find((t) => t.template_key === invitation.template_key)
         ?.field_config as ThemeConfig | undefined) ??
       entry?.defaultConfig ??
       null;

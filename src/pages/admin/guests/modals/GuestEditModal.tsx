@@ -8,7 +8,7 @@ import {
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations } from "../queries";
-import { useEventInvitationsQuery } from "../../invitation/queries";
+import { useInvitationsQuery } from "../../invitation/queries";
 
 import GuestForm, { useGuestForm, type GuestPageOption } from "./GuestForm";
 
@@ -20,7 +20,7 @@ const GuestEditModal = () => {
 
   // Party-size bounds + the message field come from the guest's own page; a
   // guest can't change pages here, so the page picker stays implicit.
-  const { data: invitations } = useEventInvitationsQuery();
+  const { data: invitations } = useInvitationsQuery();
   const invitation = (invitations ?? []).find(
     (i) => i.id === selectedItem?.invitation_id,
   );

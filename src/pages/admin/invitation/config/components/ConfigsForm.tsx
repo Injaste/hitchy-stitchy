@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TIME_REGEX } from "@/pages/admin/types";
-import { RSVP_MODES, type EventInvitation } from "../../types";
+import { RSVP_MODES, type Invitation } from "../../types";
 
 // Unified invitation schema: the RSVP settings, with the cross-field rules
 // (deadline-needs-time, min ≤ max). Design fields are free-form content and aren't
@@ -83,7 +83,7 @@ const parseDeadline = (
 
 // The RSVP-settings half of the form's defaultValues (the name + design halves
 // are assembled in useInvitationEditForm).
-export const rsvpDefaults = (invitation: EventInvitation) => {
+export const rsvpDefaults = (invitation: Invitation) => {
   const { date, time } = parseDeadline(invitation.rsvp_deadline);
   return {
     rsvp_mode: invitation.rsvp_mode,

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { PublicEventConfig } from "@/pages/wedding/types";
-import type { EventInvitation } from "../types";
+import type { Invitation } from "../types";
 import type { InvitationSheetMode } from "../hooks/useInvitationModalStore";
 import InvitationPreviewFrame from "./InvitationPreviewFrame";
 import EditSheetPreview from "./EditSheetPreview";
@@ -18,7 +18,7 @@ const DOT_BG: React.CSSProperties = {
 interface InvitationPreviewPaneProps {
   mode: InvitationSheetMode;
   templatePreview: PublicEventConfig | null;
-  editInvitation: EventInvitation | null;
+  editInvitation: Invitation | null;
   // Defers the edit preview's iframe load until the host has settled (sheet
   // enter animation on desktop, slide-over enter on small screens).
   entered: boolean;

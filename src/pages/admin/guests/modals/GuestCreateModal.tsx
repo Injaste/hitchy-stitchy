@@ -8,7 +8,7 @@ import { useGuestMutations } from "../queries";
 import { pageLabel } from "../../invitation/utils";
 import { useActiveEventDay } from "../../hooks/useActiveEventDay";
 import {
-  useEventInvitationsQuery,
+  useInvitationsQuery,
   useEventSegmentsQuery,
 } from "../../invitation/queries";
 
@@ -71,7 +71,7 @@ const GuestCreateModal = () => {
   const activeInvitationId = useGuestModalStore((s) => s.activeInvitationId);
 
   const { activeDay, days } = useActiveEventDay();
-  const { data: invitations } = useEventInvitationsQuery();
+  const { data: invitations } = useInvitationsQuery();
   const { data: segments } = useEventSegmentsQuery();
 
   // The active day's pages, day-level first — mirrors the list's ordering.

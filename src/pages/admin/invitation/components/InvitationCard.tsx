@@ -7,10 +7,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import RelativeTime from "@/components/custom/relative-time";
 import { cn } from "@/lib/utils";
 import { deepEqual } from "../utils";
-import type { EventInvitation } from "../types";
+import type { Invitation } from "../types";
 
 interface InvitationCardProps {
-  invitation: EventInvitation;
+  invitation: Invitation;
   label: string;
   dateLabel: string | null;
   slug: string;
