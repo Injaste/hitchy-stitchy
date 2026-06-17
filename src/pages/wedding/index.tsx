@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Lenis } from "lenis/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useIsMobile } from "@/hooks/use-media-query";
@@ -21,6 +21,7 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   const isMobile = useIsMobile();
   const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
+  const { slug, link_slug } = useParams<{ slug?: string; link_slug?: string }>();
 
   const isPreview = !!previewConfig;
 
@@ -38,9 +39,14 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   const hasError = !isPreview && !!error;
   const isNotFound = !isPreview && !isLoading && !eventConfig && !error;
 
+  // A bad /:slug/:link_slug reverts to the event root (/:slug); a bad root then
+  // falls through to home — so a stale/mistyped link lands on the main page, not a
+  // dead end.
   useEffect(() => {
-    if (hasError || isNotFound) navigate("/", { replace: true });
-  }, [hasError, isNotFound, navigate]);
+    if (hasError || isNotFound) {
+      navigate(link_slug && slug ? `/${slug}` : "/", { replace: true });
+    }
+  }, [hasError, isNotFound, navigate, link_slug, slug]);
 
   const showStateOverlay =
     !isReady || (!isPreview && (isLoading || !eventConfig || hasError));

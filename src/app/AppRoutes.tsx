@@ -68,6 +68,17 @@ const AppRoutes = () => {
             }
           />
 
+          {/* Per-page invitation link. Static siblings (/:slug/join, /:slug/admin)
+              outrank this dynamic segment, so they're never shadowed. */}
+          <Route
+            path="/:slug/:link_slug"
+            element={
+              <Suspense fallback={null}>
+                <Templates />
+              </Suspense>
+            }
+          />
+
           {AdminRoutes()}
 
           <Route path="*" element={<Navigate to="/" replace />} />

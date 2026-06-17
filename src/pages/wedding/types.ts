@@ -51,7 +51,7 @@ export interface GetRSVPPayload {
 }
 
 export interface SubmitRSVPPayload {
-  event_id: string
+  invitation_id: string
   name: string
   phone: string
   guest_count: number

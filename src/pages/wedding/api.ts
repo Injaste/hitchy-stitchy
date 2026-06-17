@@ -10,9 +10,15 @@ import type {
 import type { ThemePageConfig } from "./templates"
 import type { InvitationConfig } from "../admin/invitation/types"
 
-export async function fetchPublicEvent(slug: string): Promise<PublicEventConfig> {
-  const { data, error } = await supabase.rpc("get_public_invitation", {
+export async function fetchPublicEvent(
+  slug: string,
+  linkSlug?: string | null,
+): Promise<PublicEventConfig> {
+  // _v2 = new per-(day,segment) model. This branch is undeployed; production's main
+  // keeps calling the frozen old get_public_invitation. (migrations/README rule.)
+  const { data, error } = await supabase.rpc("get_public_invitation_v2", {
     p_slug: slug,
+    p_link_slug: linkSlug ?? null,
   })
 
   if (error || !data) throw new Error("Event not found")
@@ -51,8 +57,8 @@ export async function fetchRSVP(payload: GetRSVPPayload): Promise<RSVPSubmission
 }
 
 export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmission> {
-  const { data, error } = await supabase.rpc("submit_rsvp", {
-    p_event_id: payload.event_id,
+  const { data, error } = await supabase.rpc("submit_rsvp_v2", {
+    p_invitation_id: payload.invitation_id,
     p_fields: {
       name: payload.name,
       phone: payload.phone,
@@ -66,7 +72,7 @@ export async function submitRSVP(payload: SubmitRSVPPayload): Promise<RSVPSubmis
 }
 
 export async function updateRSVP(payload: UpdateRSVPPayload): Promise<void> {
-  const { error } = await supabase.rpc("update_rsvp", {
+  const { error } = await supabase.rpc("update_rsvp_v2", {
     p_event_id: payload.event_id,
     p_phone: payload.phone,
     p_token: payload.token,

@@ -1,6 +1,15 @@
-import type { ThemeFieldGroup } from "../types"
+import type { ThemeFieldGroup, SectionListValue } from "../types"
 
 export const uniqueMuslimSchema = [
+  {
+    title: "Typography",
+    description: "Pick a font for each role. Leave blank to use the theme's default.",
+    fields: [
+      { key: "font_couple", label: "Couple Names Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_heading", label: "Headings Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_body", label: "Body Font", type: "font", placeholder: "Select a font…" },
+    ],
+  },
   {
     title: "Couple",
     fields: [
@@ -9,15 +18,11 @@ export const uniqueMuslimSchema = [
     ]
   },
   {
-    title: "Typography",
-    description: "Paste a Google Fonts embed URL for each role",
-    descriptionUrl: "https://fonts.google.com",
-    descriptionUrlLabel: "Google Fonts ↗",
+    title: "Countdown",
+    description: "The date and time the hero countdown counts down to.",
     fields: [
-      { key: "font_couple_url", label: "Couple Names Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Italianno&display=swap" },
-      { key: "font_number_url", label: "Countdown Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Cinzel:wght@600&display=swap" },
-      { key: "font_heading_url", label: "Headings Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@700&display=swap" },
-      { key: "font_body_url", label: "Body Font", type: "text", placeholder: "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400&display=swap" },
+      { key: "event_date", label: "Date", type: "date", placeholder: "" },
+      { key: "event_time_start", label: "Time", type: "time", placeholder: "" },
     ],
   },
   {
@@ -63,9 +68,12 @@ export const uniqueMuslimSchema = [
       {
         key: "itinerary",
         label: "Programme",
-        type: "textarea",
-        placeholder: "Nikah Ceremony\n10:00 AM | Akad Nikah\n10:30 AM | Solemnization\n\nReception\n12:00 PM",
-        hint: "Separate sections with a blank line. First line of each block is the section title. Each entry: time | label (label is optional).",
+        type: "section-list",
+        placeholder: "",
+        itemFields: [
+          { key: "time", label: "Time", placeholder: "e.g. 10:00 AM" },
+          { key: "label", label: "Label", placeholder: "e.g. Solemnization" },
+        ],
       },
       { key: "footnote", label: "Footnote", type: "text", default: "Meals are all Halal", placeholder: "e.g. Meals are all Halal" },
     ],
@@ -99,8 +107,7 @@ export const uniqueMuslimSchema = [
     fields: [
       { key: "page_title", label: "Page Title", type: "text", placeholder: "e.g. The Wedding of Ahmad & Sarah", hint: "Shown in the browser tab and link previews. Leave blank to use the default." },
       { key: "page_description", label: "Page Description", type: "textarea", placeholder: "A short message shown when this page is shared…", hint: "Shown in link previews on WhatsApp, Facebook, iMessage, etc." },
-      // TODO: support type: "image" with native upload once the field renderer handles it. For now, accept a pasted URL.
-      { key: "og_image", label: "Social Share Image URL", type: "text", placeholder: "https://…/share-image.jpg", hint: "Paste a link to an image (1200×630 works best). Falls back to the background image if blank." },
+      { key: "og_image", label: "Social Share Image", type: "image", placeholder: "/image.png or https://...", hint: "1200×630 works best. Falls back to the background image if blank." },
     ],
   },
 ] as const satisfies ThemeFieldGroup[]
@@ -110,6 +117,10 @@ type ExtractKeys<T extends readonly ThemeFieldGroup[]> =
 
 export type UniqueMuslimPageConfig = {
   slug: "unique-muslim"
+  // itinerary is structured (section-list), not a string.
+  itinerary?: SectionListValue
 } & {
-  [K in ExtractKeys<typeof uniqueMuslimSchema>]?: string | null
+  [K in Exclude<ExtractKeys<typeof uniqueMuslimSchema>, "itinerary">]?:
+    | string
+    | null
 }

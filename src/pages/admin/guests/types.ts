@@ -6,6 +6,7 @@ export type GuestSource = "private" | "public"
 export interface Guest {
   id: string
   event_id: string
+  invitation_id: string | null
   name: string
   phone: string | null
   guest_count: number

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import UnsavedChangesModal from "../../../components/modals/UnsavedChangesModal";
+import ConfirmAlertModal from "@/components/custom/confirm-alert-modal";
+import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 
 interface UseSheetLeaveGuardArgs {
   isDirty: boolean;
@@ -16,6 +17,14 @@ export function useSheetLeaveGuard({
 }: UseSheetLeaveGuardArgs) {
   const [modalOpen, setModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Let the Save button's success tick play, then close the sheet.
+  useCloseOnSuccess(saveSuccess, () => {
+    setSaveSuccess(false);
+    setModalOpen(false);
+    onClose();
+  });
 
   // Browser-level guard: warn the user before they navigate away with
   // unsaved changes (refresh, tab close, address bar).
@@ -36,8 +45,7 @@ export function useSheetLeaveGuard({
     setIsSaving(true);
     try {
       await onSave();
-      setModalOpen(false);
-      onClose();
+      setSaveSuccess(true); // success tick → useCloseOnSuccess closes the sheet
     } catch {
       // toast handled upstream
     } finally {
@@ -52,12 +60,18 @@ export function useSheetLeaveGuard({
   };
 
   const modal = (
-    <UnsavedChangesModal
+    <ConfirmAlertModal
       open={modalOpen}
-      isSaving={isSaving}
-      onContinue={() => setModalOpen(false)}
-      onDiscard={discard}
-      onSave={save}
+      onOpenChange={(o) => !o && setModalOpen(false)}
+      variant="warning"
+      title="You have unsaved changes"
+      description="Save your edits, discard them, or keep editing."
+      cancelLabel="Continue editing"
+      secondaryAction={{ label: "Discard", onClick: discard }}
+      confirmLabel="Save"
+      isPending={isSaving}
+      isSuccess={saveSuccess}
+      onConfirm={save}
     />
   );
 

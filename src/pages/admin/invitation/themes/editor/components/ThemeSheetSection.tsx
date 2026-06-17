@@ -1,5 +1,3 @@
-import { useEffect, useRef } from "react";
-import { useForm } from "@tanstack/react-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import {
@@ -7,167 +5,160 @@ import {
   TextareaField,
   SelectField,
   SwitchField,
+  DateField,
+  TimeField,
 } from "@/components/custom/form";
-import { FormShellContext } from "@/components/custom/form/form-context";
 import type { ThemeFieldGroup } from "@/pages/wedding/templates/types";
-import { useThemeSheetStore, type ThemeDraftPatch } from "../store";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useThemeSheetStore } from "../store";
+import ImageUploadField from "./ImageUploadField";
+import FontSelectField from "./FontSelectField";
+import SectionListField from "./SectionListField";
 
 interface ThemeSheetSectionProps {
   group: ThemeFieldGroup;
 }
 
+// One design section = one Card of fields, bound to the unified edit form (via
+// FormShellContext provided by EditPanel). No own form — values live on the one
+// invitation form; defaults are seeded there.
 const ThemeSheetSection = ({ group }: ThemeSheetSectionProps) => {
-  const draft = useThemeSheetStore((s) => s.draft);
-  const setFields = useThemeSheetStore((s) => s.setFields);
-
-  const setFieldsRef = useRef(setFields);
-  setFieldsRef.current = setFields;
-
-  // Write schema defaults into the draft on mount for any field whose value
-  // is absent from the saved config. This ensures defaults are persisted even
-  // if the user never touches those fields before saving.
-  useEffect(() => {
-    const patch: ThemeDraftPatch = {};
-    const saved = draft as Record<string, unknown> | null;
-    for (const f of group.fields) {
-      if (f.default == null) continue;
-      const raw = saved?.[f.key];
-      if (raw === undefined || raw === null) patch[f.key] = f.default;
-    }
-    if (Object.keys(patch).length > 0) setFieldsRef.current(patch);
-  }, []);
-
-  const initialValues = Object.fromEntries(
-    group.fields.map((f) => {
-      const raw = draft ? (draft as Record<string, unknown>)[f.key] : undefined;
-      if (f.type === "switch") return [f.key, raw === "true"];
-      return [f.key, typeof raw === "string" ? raw : (f.default ?? "")];
-    }),
-  );
-
-  const form = useForm({
-    defaultValues: initialValues,
-    listeners: {
-      onChangeDebounceMs: 150,
-      onChange: ({ formApi }) => {
-        const values = formApi.state.values as Record<
-          string,
-          string | boolean | null
-        >;
-        const patch: ThemeDraftPatch = {};
-        for (const f of group.fields) {
-          const v = values[f.key];
-          patch[f.key] =
-            f.type === "switch"
-              ? v
-                ? "true"
-                : null
-              : typeof v === "string"
-                ? v.trim() || null
-                : null;
-        }
-        setFieldsRef.current(patch);
-      },
-    },
-  });
+  const themeId = useThemeSheetStore((s) => s.themeId);
+  const eventId = useAdminStore((s) => s.eventId);
 
   return (
-    <FormShellContext.Provider value={{ attemptCount: 1, form }}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm tracking-wide uppercase text-muted-foreground">
-            {group.title}
-          </CardTitle>
-          {group.description && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {group.description}
-              {group.descriptionUrl && group.descriptionUrlLabel && (
-                <>
-                  {" — "}
-                  <a
-                    href={group.descriptionUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline underline-offset-2 hover:text-foreground transition-colors"
-                  >
-                    {group.descriptionUrlLabel}
-                  </a>
-                </>
-              )}
-            </p>
-          )}
-        </CardHeader>
-        <CardContent>
-          <FieldGroup>
-            {group.fields.map((field) => {
-              switch (field.type) {
-                case "textarea":
-                  return (
-                    <TextareaField
-                      key={field.key}
-                      name={field.key}
-                      label={field.label}
-                      placeholder={field.placeholder}
-                      rows={3}
-                      hint={field.hint ? <span>{field.hint}</span> : undefined}
-                    />
-                  );
-                case "select":
-                  return (
-                    <SelectField
-                      key={field.key}
-                      name={field.key}
-                      label={field.label}
-                      placeholder={field.placeholder}
-                      options={field.options ?? []}
-                      nullable
-                    />
-                  );
-                case "switch":
-                  return (
-                    <SwitchField
-                      key={field.key}
-                      name={field.key}
-                      label={field.label}
-                    />
-                  );
-                case "text":
-                case "image":
-                default:
-                  return (
-                    <TextField
-                      key={field.key}
-                      name={field.key}
-                      label={field.label}
-                      placeholder={field.placeholder}
-                      hint={
-                        field.hint ? (
-                          <span>
-                            {field.hint}
-                            {field.hintUrl && field.hintUrlLabel && (
-                              <>
-                                {" — "}
-                                <a
-                                  href={field.hintUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="underline underline-offset-2 hover:text-foreground transition-colors"
-                                >
-                                  {field.hintUrlLabel}
-                                </a>
-                              </>
-                            )}
-                          </span>
-                        ) : undefined
-                      }
-                    />
-                  );
-              }
-            })}
-          </FieldGroup>
-        </CardContent>
-      </Card>
-    </FormShellContext.Provider>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm tracking-wide uppercase text-muted-foreground">
+          {group.title}
+        </CardTitle>
+        {group.description && (
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {group.description}
+            {group.descriptionUrl && group.descriptionUrlLabel && (
+              <>
+                {" — "}
+                <a
+                  href={group.descriptionUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-foreground transition-colors"
+                >
+                  {group.descriptionUrlLabel}
+                </a>
+              </>
+            )}
+          </p>
+        )}
+      </CardHeader>
+      <CardContent>
+        <FieldGroup>
+          {group.fields.map((field) => {
+            switch (field.type) {
+              case "textarea":
+                return (
+                  <TextareaField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                    placeholder={field.placeholder}
+                    rows={3}
+                    hint={field.hint ? <span>{field.hint}</span> : undefined}
+                  />
+                );
+              case "select":
+                return (
+                  <SelectField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                    placeholder={field.placeholder}
+                    options={field.options ?? []}
+                    nullable
+                  />
+                );
+              case "switch":
+                return (
+                  <SwitchField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                  />
+                );
+              case "image":
+                return (
+                  <ImageUploadField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                    eventId={eventId}
+                    themeId={themeId ?? ""}
+                    hint={field.hint ? <span>{field.hint}</span> : undefined}
+                  />
+                );
+              case "font":
+                return (
+                  <FontSelectField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                    placeholder={field.placeholder}
+                    hint={field.hint ? <span>{field.hint}</span> : undefined}
+                  />
+                );
+              case "date":
+                return (
+                  <DateField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                  />
+                );
+              case "time":
+                return (
+                  <TimeField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                  />
+                );
+              case "section-list":
+                return <SectionListField key={field.key} field={field} />;
+              case "text":
+              default:
+                return (
+                  <TextField
+                    key={field.key}
+                    name={field.key}
+                    label={field.label}
+                    placeholder={field.placeholder}
+                    hint={
+                      field.hint ? (
+                        <span>
+                          {field.hint}
+                          {field.hintUrl && field.hintUrlLabel && (
+                            <>
+                              {" — "}
+                              <a
+                                href={field.hintUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline underline-offset-2 hover:text-foreground transition-colors"
+                              >
+                                {field.hintUrlLabel}
+                              </a>
+                            </>
+                          )}
+                        </span>
+                      ) : undefined
+                    }
+                  />
+                );
+            }
+          })}
+        </FieldGroup>
+      </CardContent>
+    </Card>
   );
 };
 

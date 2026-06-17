@@ -1,12 +1,11 @@
 import type { FC } from "react";
-import { ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
-
-import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AdminPageHeader } from "@/components/custom/admin-page-header";
 import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-header-base";
+import { useAccess } from "@/pages/admin/hooks/useAccess";
+import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 
 interface InvitationHeaderProps extends BaseHeaderProps {}
 
@@ -16,23 +15,22 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
   isRefetching,
   refetch,
 }) => {
-  const { slug } = useAdminStore();
+  const openBrowse = useInvitationModalStore((s) => s.openBrowse);
+  const { canCreate } = useAccess();
 
   return (
     <AdminPageHeader
       title="Invitation"
-      description="Design and configure your wedding RSVP page. Choose a theme, customise the look, and control how guests respond."
+      description="Design and configure your wedding RSVP pages. Add a page per day or segment, customise the look, and control how guests respond."
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
       action={
-        slug && (
-          <Button variant="outline" size="sm" asChild>
-            <Link to={`/${slug}`} target="_blank" className="gap-0">
-              <ActionLabel side="right">Open live page</ActionLabel>
-              <ExternalLink />
-            </Link>
+        canCreate("invitation") && (
+          <Button size="sm" className="gap-0" onClick={openBrowse}>
+            <Plus className="size-3.5" />
+            <ActionLabel>Invitation</ActionLabel>
           </Button>
         )
       }

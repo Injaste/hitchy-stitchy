@@ -1,6 +1,7 @@
 export const adminKeys = {
   bootstrap: (slug: string) => [slug, 'bootstrap'] as const,
   days: (slug: string) => [slug, 'days'] as const,
+  segments: (slug: string) => [slug, 'segments'] as const,
   dayTimeline: (slug: string, date: string) => [slug, 'days', date, 'timeline'] as const,
   dayExpenses: (slug: string, dayId: string) => [slug, 'days', dayId, 'expenses'] as const,
   dayGifts: (slug: string, dayId: string) => [slug, 'days', dayId, 'gifts'] as const,
@@ -12,6 +13,7 @@ export const adminKeys = {
   accessGroups: (slug: string) => [slug, 'access-groups'] as const,
   availableResources: () => ['available-resources'] as const,
   invitation: (slug: string) => [slug, 'invitation'] as const,
+  eventInvitation: (slug: string) => [slug, 'event-invitation'] as const,
   guests: (slug: string) => [slug, 'guests'] as const,
   budget: (slug: string) => [slug, 'budget'] as const,
   gifts: (slug: string) => [slug, 'gifts'] as const,

@@ -198,11 +198,12 @@ ALTER TABLE public.events
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_templates (
   id          uuid        NOT NULL DEFAULT gen_random_uuid(),
-  name        text        NOT NULL,
-  slug        text        NOT NULL,
-  description text,
-  config      jsonb       NOT NULL DEFAULT '{}',
-  is_active   boolean     NOT NULL DEFAULT true,
+  name         text        NOT NULL,
+  slug         text        NOT NULL,
+  template_key text,        -- [20260615000002] registry key; seeded from slug, replaces it at cleanup
+  description  text,
+  field_config jsonb       NOT NULL DEFAULT '{}',
+  is_active    boolean     NOT NULL DEFAULT true,
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now(),
 
@@ -255,6 +256,52 @@ CREATE TABLE public.event_invitation (
 
   CONSTRAINT event_invitation_event_id_fk
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
+);
+
+-- -----------------------------------------------------------------------------
+-- event_invitations  [20260615000001; per-day/segment 20260617000002] — the merged,
+--   PARALLEL invitation (template + design + its own RSVP config). One page per
+--   (event, day, segment): day_id REQUIRED, segment_id nullable (NULL = day-level).
+--   link_slug = the URL path under the event slug (/:slug/:link_slug); NULL = the
+--   event root (/:slug). Additive; old event_invitation/event_themes/_rsvp RPCs stay
+--   live + untouched until the go-live cleanup.
+-- -----------------------------------------------------------------------------
+CREATE TABLE public.event_invitations (
+  id            uuid          NOT NULL DEFAULT gen_random_uuid(),
+  event_id      uuid          NOT NULL,
+  day_id        uuid          NOT NULL,                     -- which day this page is for [20260617000002]
+  segment_id    uuid,                                       -- optional segment; NULL = day-level page
+  link_slug     text,                                       -- URL path under /:slug; NULL = event root [20260617000002]
+  template_key  text          NOT NULL,                     -- code-registry key (not the event slug)
+  draft_config     jsonb      NOT NULL DEFAULT '{}',  -- editor draft [20260616000001, ex field_config]
+  published_config jsonb,                             -- promoted snapshot; null = never published [20260616000001]
+  published_at  timestamptz,                          -- set on publish; cleared on unpublish
+  -- Countdown date/time moved INTO *_config (content); the standalone
+  -- event_date/event_time_start/event_time_end columns were dropped [20260615000009].
+  rsvp_mode            event_rsvp_mode NOT NULL DEFAULT 'public',
+  rsvp_deadline        timestamptz,
+  max_guests           integer,
+  guest_count_min      integer         NOT NULL DEFAULT 1,
+  guest_count_max      integer         NOT NULL DEFAULT 10,
+  confirmation_message text            NOT NULL DEFAULT 'We look forward to celebrating with you!',
+  rsvp_config          jsonb           NOT NULL DEFAULT '{"rsvp": {"fields": {"message": {"visible": false, "required": false}}}}',
+  created_at    timestamptz   NOT NULL DEFAULT now(),
+  updated_at    timestamptz   NOT NULL DEFAULT now(),
+
+  CONSTRAINT event_invitations_pkey PRIMARY KEY (id),
+  -- One page per (event, day, segment) SLOT; NULLS NOT DISTINCT -> one day-level
+  -- (NULL-segment) page per day plus one per named segment.
+  CONSTRAINT event_invitations_event_day_segment_key
+    UNIQUE NULLS NOT DISTINCT (event_id, day_id, segment_id),
+  -- Unique URL per event + at most one root (NULL link_slug) per event [20260617000002].
+  CONSTRAINT event_invitations_event_link_slug_key
+    UNIQUE NULLS NOT DISTINCT (event_id, link_slug),
+  CONSTRAINT event_invitations_event_id_fk
+    FOREIGN KEY (event_id)   REFERENCES public.events (id)         ON DELETE CASCADE,
+  CONSTRAINT event_invitations_day_id_fk
+    FOREIGN KEY (day_id)     REFERENCES public.event_days (id)     ON DELETE RESTRICT,
+  CONSTRAINT event_invitations_segment_id_fk
+    FOREIGN KEY (segment_id) REFERENCES public.event_segments (id) ON DELETE CASCADE
 );
 
 -- -----------------------------------------------------------------------------
@@ -357,6 +404,7 @@ CREATE INDEX event_gifts_event_id_idx ON public.event_gifts (event_id);
 CREATE TABLE public.event_rsvps (
   id           uuid              NOT NULL DEFAULT gen_random_uuid(),
   event_id     uuid              NOT NULL,
+  invitation_id uuid,  -- per-page RSVP [20260617000003]; nullable for legacy rows w/o a new page (NOT NULL at go-live)
   name         text              NOT NULL,
   phone        text,  -- nullable: admin-added guests may have none (20260614000101); public RSVP still requires it
   guest_count  integer           NOT NULL DEFAULT 1,
@@ -370,11 +418,16 @@ CREATE TABLE public.event_rsvps (
   created_at   timestamptz       NOT NULL DEFAULT now(),
   updated_at   timestamptz       NOT NULL DEFAULT now(),
 
-  CONSTRAINT event_rsvps_pkey                PRIMARY KEY (id),
-  CONSTRAINT event_rsvps_event_id_phone_key  UNIQUE (event_id, phone),
+  CONSTRAINT event_rsvps_pkey                    PRIMARY KEY (id),
+  -- One RSVP per (invitation, phone) [20260617000003] — was per (event, phone).
+  -- NULLS distinct: no-phone guests and legacy null-invitation rows don't collide.
+  CONSTRAINT event_rsvps_invitation_id_phone_key UNIQUE (invitation_id, phone),
 
   CONSTRAINT event_rsvps_event_id_fk
-    FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
+    FOREIGN KEY (event_id)      REFERENCES public.events (id) ON DELETE CASCADE,
+  -- RESTRICT: an invitation with RSVPs is protected (delete_invitation surfaces a message).
+  CONSTRAINT event_rsvps_invitation_id_fk
+    FOREIGN KEY (invitation_id) REFERENCES public.event_invitations (id) ON DELETE RESTRICT
 );
 
 -- -----------------------------------------------------------------------------
@@ -827,6 +880,10 @@ CREATE POLICY event_invitation_select ON public.event_invitation
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
+CREATE POLICY event_invitations_select ON public.event_invitations
+  FOR SELECT TO authenticated
+  USING (is_event_member(event_id));
+
 CREATE POLICY event_live_logs_select ON public.event_live_logs
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
@@ -1210,6 +1267,183 @@ BEGIN
   SELECT v_event_id, v_slug, p_name, v_start, v_end, false;
 END;
 $$;
+
+-- ── Invitation CRUD [20260615000003; draft/publish 20260616000001-2] ─────────
+-- event_invitations writes (no write RLS policy). Gated on the `invitation`
+-- resource. create_invitation [per-day 20260617000002] requires a day, takes an
+-- optional segment + link_slug (NULL = event root; one root per event), seeds
+-- draft_config from the template base. Guardrails: member-active -> permission ->
+-- day∈event -> segment∈day∈event -> link_slug (format/reserved/unique, or single
+-- root) -> slot-unique -> template. update_invitation = whole-invitation save
+-- (design draft + RSVP); p_to_publish promotes the draft to published_config in the
+-- same UPDATE (atomic publish). link_slug is NOT edited here (set at create).
+CREATE OR REPLACE FUNCTION public.create_invitation(
+  p_event_id uuid, p_template_key text, p_day_id uuid, p_segment_id uuid DEFAULT null, p_link_slug text DEFAULT null
+)
+RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_config jsonb; v_inv event_invitations; v_slug text := NULLIF(btrim(lower(p_link_slug)), '');
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'create') THEN
+    RAISE EXCEPTION 'Insufficient permission to create an invitation'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM event_days WHERE id = p_day_id AND event_id = p_event_id) THEN
+    RAISE EXCEPTION 'Day not found for this event'; END IF;
+  IF p_segment_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM event_segments WHERE id = p_segment_id AND day_id = p_day_id AND event_id = p_event_id) THEN
+    RAISE EXCEPTION 'Segment not found for this day'; END IF;
+  IF v_slug IS NULL THEN
+    IF EXISTS (SELECT 1 FROM event_invitations WHERE event_id = p_event_id AND link_slug IS NULL) THEN
+      RAISE EXCEPTION 'A root link already exists — choose a link path'; END IF;
+  ELSE
+    IF v_slug !~ '^[a-z0-9]+(-[a-z0-9]+)*$' THEN RAISE EXCEPTION 'Link path may use only lowercase letters, numbers and hyphens'; END IF;
+    IF EXISTS (SELECT 1 FROM slug_reservations WHERE slug = v_slug AND expires_at IS NULL) THEN
+      RAISE EXCEPTION 'That link path is reserved'; END IF;  -- permanent slug_reservations entry
+    IF EXISTS (SELECT 1 FROM event_invitations WHERE event_id = p_event_id AND link_slug = v_slug) THEN
+      RAISE EXCEPTION 'That link path is already in use'; END IF;
+  END IF;
+  IF EXISTS (SELECT 1 FROM event_invitations WHERE event_id = p_event_id AND day_id = p_day_id AND segment_id IS NOT DISTINCT FROM p_segment_id) THEN
+    RAISE EXCEPTION 'An invitation already exists for this day/segment'; END IF;
+  SELECT field_config INTO v_config FROM event_templates WHERE template_key = p_template_key AND is_active = true;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Template not found or inactive'; END IF;
+  INSERT INTO event_invitations (event_id, day_id, segment_id, template_key, link_slug, draft_config)
+  VALUES (p_event_id, p_day_id, p_segment_id, p_template_key, v_slug, COALESCE(v_config, '{}'::jsonb))
+  RETURNING * INTO v_inv;
+  RETURN v_inv;
+END; $$;
+GRANT EXECUTE ON FUNCTION public.create_invitation(uuid, text, uuid, uuid, text) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.update_invitation(
+  p_event_id uuid, p_id uuid, p_template_key text, p_draft_config jsonb,
+  p_rsvp_mode event_rsvp_mode, p_rsvp_deadline timestamptz, p_max_guests integer,
+  p_guest_count_min integer, p_guest_count_max integer, p_confirmation_message text,
+  p_rsvp_config jsonb, p_to_publish boolean DEFAULT false
+)
+RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_inv event_invitations;
+BEGIN
+  SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_inv.event_id != p_event_id THEN RAISE EXCEPTION 'Invitation does not belong to this event'; END IF;
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update the invitation'; END IF;
+  IF COALESCE(p_guest_count_max, v_inv.guest_count_max) < COALESCE(p_guest_count_min, v_inv.guest_count_min) THEN
+    RAISE EXCEPTION 'Maximum guests cannot be less than the minimum'; END IF;
+  UPDATE event_invitations SET
+    template_key = COALESCE(p_template_key, template_key),
+    rsvp_deadline = p_rsvp_deadline, max_guests = p_max_guests,
+    draft_config = COALESCE(p_draft_config, draft_config),
+    rsvp_mode = COALESCE(p_rsvp_mode, rsvp_mode),
+    guest_count_min = COALESCE(p_guest_count_min, guest_count_min),
+    guest_count_max = COALESCE(p_guest_count_max, guest_count_max),
+    confirmation_message = COALESCE(NULLIF(btrim(p_confirmation_message), ''), confirmation_message),
+    rsvp_config = COALESCE(p_rsvp_config, rsvp_config),
+    -- Atomic publish: promote the just-written draft in the same statement.
+    published_config = CASE WHEN p_to_publish THEN COALESCE(p_draft_config, draft_config) ELSE published_config END,
+    published_at     = CASE WHEN p_to_publish THEN now() ELSE published_at END
+  WHERE id = p_id RETURNING * INTO v_inv;
+  RETURN v_inv;
+END; $$;
+GRANT EXECUTE ON FUNCTION public.update_invitation(uuid, uuid, text, jsonb, event_rsvp_mode, timestamptz, integer, integer, integer, text, jsonb, boolean) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.delete_invitation(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_inv event_invitations;
+BEGIN
+  SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_inv.event_id != p_event_id THEN RAISE EXCEPTION 'Invitation does not belong to this event'; END IF;
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'delete') THEN
+    RAISE EXCEPTION 'Insufficient permission to delete the invitation'; END IF;
+  IF v_inv.published_at IS NOT NULL THEN
+    RAISE EXCEPTION 'Published invitation cannot be deleted'; END IF;
+  -- An invitation with RSVPs is protected (invitation_id FK is RESTRICT) [20260617000003].
+  IF EXISTS (SELECT 1 FROM event_rsvps WHERE invitation_id = p_id) THEN
+    RAISE EXCEPTION 'Remove this page''s RSVP(s) before deleting it'; END IF;
+  DELETE FROM event_invitations WHERE id = p_id;
+END; $$;
+
+-- unpublish_invitation [20260616000001] — take the live page down (clears
+-- published_at; the public render gates on it). Takedown flow = unpublish -> delete.
+CREATE OR REPLACE FUNCTION public.unpublish_invitation(p_event_id uuid, p_id uuid)
+RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_caller event_members; v_inv event_invitations;
+BEGIN
+  SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_inv.event_id != p_event_id THEN RAISE EXCEPTION 'Invitation does not belong to this event'; END IF;
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to unpublish the invitation'; END IF;
+  UPDATE event_invitations SET published_at = null WHERE id = p_id RETURNING * INTO v_inv;
+  RETURN v_inv;
+END; $$;
+
+-- get_public_invitation [OLD model — restored 20260617000004] — the LIVE public
+-- render. Reads the old event_invitation + latest published event_themes. This is a
+-- SHARED production function: FROZEN, never mutate in place (see migrations/README).
+-- The new model is served by get_public_invitation_v2 below; production stays on this
+-- until go-live. p_link_slug is accepted (signature compat) but ignored.
+CREATE OR REPLACE FUNCTION public.get_public_invitation(p_slug text, p_link_slug text DEFAULT null)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE v_event events; v_invitation event_invitation; v_theme event_themes;
+BEGIN
+  SELECT * INTO v_event FROM events WHERE slug = p_slug AND deleted_at IS NULL;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF NOT is_event_active(v_event.id) THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  SELECT * INTO v_invitation FROM event_invitation WHERE event_id = v_event.id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  SELECT * INTO v_theme FROM event_themes WHERE event_id = v_event.id AND published_at IS NOT NULL LIMIT 1;
+  RETURN jsonb_build_object(
+    'id', v_invitation.id, 'event_id', v_invitation.event_id,
+    'event_date', v_invitation.event_date, 'event_time_start', v_invitation.event_time_start, 'event_time_end', v_invitation.event_time_end,
+    'rsvp_mode', v_invitation.rsvp_mode, 'rsvp_deadline', v_invitation.rsvp_deadline, 'max_guests', v_invitation.max_guests,
+    'guest_count_min', v_invitation.guest_count_min, 'guest_count_max', v_invitation.guest_count_max,
+    'confirmation_message', v_invitation.confirmation_message, 'config', v_invitation.config,
+    'published_page', CASE WHEN v_theme.id IS NOT NULL
+      THEN jsonb_build_object('id', v_theme.id, 'theme_slug', v_theme.config->>'slug', 'config', v_theme.config) ELSE NULL END
+  );
+END; $$;
+GRANT EXECUTE ON FUNCTION public.get_public_invitation(text, text) TO anon, authenticated;
+
+-- get_public_invitation_v2 [NEW model — 20260617000006] — new per-(day,segment)
+-- render. link_slug routing: p_link_slug -> that page; NULL -> root (link_slug NULL)
+-- else first-by-date published page. Only this branch's (undeployed) frontend calls
+-- it; production uses the old fn above. See the *_v2 RSVP/guest fns in 20260617000006.
+CREATE OR REPLACE FUNCTION public.get_public_invitation_v2(p_slug text, p_link_slug text DEFAULT null)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
+DECLARE v_event events; v_inv event_invitations; v_slug text := NULLIF(btrim(lower(p_link_slug)), '');
+BEGIN
+  SELECT * INTO v_event FROM events WHERE slug = p_slug AND deleted_at IS NULL;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF NOT is_event_active(v_event.id) THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_slug IS NOT NULL THEN
+    SELECT * INTO v_inv FROM event_invitations WHERE event_id = v_event.id AND link_slug = v_slug AND published_at IS NOT NULL;
+  ELSE
+    SELECT * INTO v_inv FROM event_invitations WHERE event_id = v_event.id AND link_slug IS NULL AND published_at IS NOT NULL;
+    IF NOT FOUND THEN
+      SELECT i.* INTO v_inv FROM event_invitations i JOIN event_days d ON d.id = i.day_id
+      WHERE i.event_id = v_event.id AND i.published_at IS NOT NULL ORDER BY d.date ASC, d.created_at ASC LIMIT 1;
+    END IF;
+  END IF;
+  IF v_inv.id IS NULL THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  RETURN jsonb_build_object(
+    'id', v_inv.id, 'event_id', v_inv.event_id,
+    'event_date', v_inv.published_config->>'event_date',
+    'event_time_start', v_inv.published_config->>'event_time_start',
+    'event_time_end', null,
+    'rsvp_mode', v_inv.rsvp_mode, 'rsvp_deadline', v_inv.rsvp_deadline, 'max_guests', v_inv.max_guests,
+    'guest_count_min', v_inv.guest_count_min, 'guest_count_max', v_inv.guest_count_max,
+    'confirmation_message', v_inv.confirmation_message, 'config', v_inv.rsvp_config,
+    'published_page', jsonb_build_object('id', v_inv.id, 'theme_slug', v_inv.template_key, 'config', v_inv.published_config)
+  );
+END; $$;
+GRANT EXECUTE ON FUNCTION public.get_public_invitation_v2(text, text) TO anon, authenticated;
 
 -- Functions still to add (copy from the dump):
 --   create_access_group, update_access_group, delete_access_group
@@ -1838,10 +2072,11 @@ $$;
 CREATE OR REPLACE FUNCTION public.delete_day(p_event_id uuid, p_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_count    integer;
-  v_items    integer;
-  v_expenses integer;
-  v_gifts    integer;
+  v_count       integer;
+  v_items       integer;
+  v_expenses    integer;
+  v_gifts       integer;
+  v_invitations integer;
 BEGIN
   IF NOT is_super_admin_member(p_event_id) THEN
     RAISE EXCEPTION 'Insufficient permission to delete days';
@@ -1878,6 +2113,13 @@ BEGIN
   FROM event_gifts WHERE day_id = p_id AND event_id = p_event_id;
   IF v_gifts > 0 THEN
     RAISE EXCEPTION 'Remove this day''s % gift(s) before deleting it', v_gifts;
+  END IF;
+
+  -- Invitations attach via event_invitations.day_id (RESTRICT FK) [20260617000002].
+  SELECT count(*) INTO v_invitations
+  FROM event_invitations WHERE day_id = p_id AND event_id = p_event_id;
+  IF v_invitations > 0 THEN
+    RAISE EXCEPTION 'Remove this day''s % invitation(s) before deleting it', v_invitations;
   END IF;
 
   DELETE FROM event_days WHERE id = p_id AND event_id = p_event_id;
@@ -2097,6 +2339,38 @@ CREATE EVENT TRIGGER auto_attach_triggers_on_create
   ON ddl_command_end
   WHEN TAG IN ('CREATE TABLE')
   EXECUTE FUNCTION auto_attach_table_triggers();
+
+
+-- =============================================================================
+-- STORAGE — buckets + storage.objects policies  [20260613000101]
+-- =============================================================================
+-- `invitation-images`: public bucket for couple-uploaded theme images
+-- (backgrounds, hero photos, OG share image). Objects are pathed
+-- <event_id>/<theme_id>/<uuid>.<ext> by the client uploader; the write policies
+-- read storage.foldername(name)[1] as the event_id and gate on the same
+-- permission as update_theme: has_event_permission(event_id, 'themes', 'update').
+-- Public image RENDERING needs no policy (CDN/getPublicUrl), but the client
+-- uploads with upsert, whose existence-check SELECT does need one — so there is
+-- a SELECT policy scoped to authenticated event members (not public/anon), which
+-- avoids bucket enumeration. (History: broad public read 20260613000101 →
+-- dropped 20260614000001 for enumeration → restored scoped 20260614000003
+-- because upsert needs it.)
+--
+--   INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+--   VALUES ('invitation-images', 'invitation-images', true, 5242880,
+--           ARRAY['image/jpeg','image/png','image/webp','image/gif','image/avif']);
+--
+--   CREATE POLICY "invitation_images_select" ON storage.objects FOR SELECT TO authenticated
+--     USING (bucket_id = 'invitation-images'
+--       AND public.has_event_permission(((storage.foldername(name))[1])::uuid, 'themes', 'update'));
+--   CREATE POLICY "invitation_images_create" ON storage.objects FOR INSERT TO authenticated
+--     WITH CHECK (bucket_id = 'invitation-images'
+--       AND public.has_event_permission(((storage.foldername(name))[1])::uuid, 'themes', 'update'));
+--   CREATE POLICY "invitation_images_update" ON storage.objects FOR UPDATE TO authenticated
+--     USING (...) WITH CHECK (... same predicate ...);
+--   CREATE POLICY "invitation_images_delete" ON storage.objects FOR DELETE TO authenticated
+--     USING (... same predicate ...);
+--   (public.-qualified per 20260614000002 — storage policies lack public in search_path)
 
 
 -- =============================================================================
