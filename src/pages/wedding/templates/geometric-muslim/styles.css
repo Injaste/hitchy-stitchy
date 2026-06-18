@@ -1,0 +1,36 @@
+/* geometric-muslim — slug-owned stylesheet (midnight blue + gold).
+   Consumes the font CSS variables set on .gm-root by the slug component. */
+
+.gm-root {
+  font-family: var(--theme-font-body);
+
+  --gm-bg:           #0a1733;
+  --gm-bg-2:         #0e1f47;
+  --gm-primary:      #c9a86a;
+  --gm-primary-fg:   #0a1733;
+  --gm-gold-soft:    #e7d09a;
+  --gm-fg:           #ece7d8;
+  --gm-muted-fg:     #9aa3bf;
+  --gm-muted:        #13234c;
+  --gm-card:         #102146;
+  --gm-border:       #2a3a6b;
+  --gm-destructive:  #e07a7a;
+}
+
+.gm-root h1,
+.gm-root h2,
+.gm-root h3,
+.gm-root h4,
+.gm-root h5,
+.gm-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+/* Scoped under .gm-root (0-2-0) to beat .gm-root h1 (0-1-1) */
+.gm-root .gm-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.gm-root .gm-countdown-number {
+  font-family: var(--theme-font-number);
+}

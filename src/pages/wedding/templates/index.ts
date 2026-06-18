@@ -3,6 +3,11 @@ import * as uniqueMuslimForm from "./unique-muslim/form"
 import { uniqueMuslimSchema } from "./unique-muslim/types"
 import { uniqueMuslimAnchors } from "./unique-muslim/anchors"
 
+import GeometricMuslim from "./geometric-muslim"
+import * as geometricMuslimForm from "./geometric-muslim/form"
+import { geometricMuslimSchema } from "./geometric-muslim/types"
+import { geometricMuslimAnchors } from "./geometric-muslim/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -27,6 +32,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(uniqueMuslimForm),
     schema: uniqueMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: uniqueMuslimAnchors,
+  },
+  "geometric-muslim": {
+    component: GeometricMuslim,
+    defaultConfig: { slug: "geometric-muslim" },
+    form: formFor(geometricMuslimForm),
+    schema: geometricMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: geometricMuslimAnchors,
   },
 }
 

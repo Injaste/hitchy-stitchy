@@ -1,5 +1,6 @@
 import type { ComponentType } from "react"
 import type { UniqueMuslimPageConfig } from "./unique-muslim/types"
+import type { GeometricMuslimPageConfig } from "./geometric-muslim/types"
 import type {
   RSVPFormClassNames,
   RSVPFormLabels,
@@ -65,6 +66,7 @@ export interface ThemeFieldGroup {
 
 export type ThemeConfig =
   | UniqueMuslimPageConfig
+  | GeometricMuslimPageConfig
   | { slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: TSlug }>
