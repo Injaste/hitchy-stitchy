@@ -54,6 +54,9 @@ export interface Invitation {
   guest_count_max: number
   confirmation_message: string | null
   rsvp_config: InvitationConfig
+  // Shared per-page gate code for private/both RSVP; null for public pages. The
+  // public render RPC never returns it — admins (members) read it via RLS.
+  private_code: string | null
   created_at: string
   updated_at: string
 }
@@ -87,6 +90,7 @@ export interface SaveInvitationPayload {
   guest_count_max: number
   confirmation_message: string | null
   rsvp_config: InvitationConfig
+  private_code: string | null
 }
 
 // Shared shape for the id-only invitation actions.

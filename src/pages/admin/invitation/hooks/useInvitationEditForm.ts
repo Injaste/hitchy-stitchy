@@ -17,7 +17,7 @@ import {
   buildDesignDefaults,
   coerceDesign,
 } from "../utils";
-import type { Invitation, SaveInvitationPayload } from "../types";
+import type { Invitation, RSVPMode, SaveInvitationPayload } from "../types";
 
 // The controller object EditPanel passes to the footer/menu/modals.
 export type InvitationEditController = ReturnType<typeof useInvitationEditForm>;
@@ -37,6 +37,7 @@ export function useInvitationEditForm(
   const clearStore = useThemeSheetStore((s) => s.clear);
   const setDraft = useThemeSheetStore((s) => s.setDraft);
   const setPreviewPatch = useThemeSheetStore((s) => s.setPreviewPatch);
+  const setRsvp = useThemeSheetStore((s) => s.setRsvp);
 
   const [attemptCount, setAttemptCount] = useState(0);
 
@@ -51,6 +52,8 @@ export function useInvitationEditForm(
 
   const setDraftRef = useRef(setDraft);
   setDraftRef.current = setDraft;
+  const setRsvpRef = useRef(setRsvp);
+  setRsvpRef.current = setRsvp;
   const designKeysRef = useRef(designKeys);
   designKeysRef.current = designKeys;
 
@@ -79,6 +82,33 @@ export function useInvitationEditForm(
         const design: Record<string, unknown> = {};
         for (const k of designKeysRef.current) design[k] = v[k];
         setDraftRef.current(design as ThemeConfig);
+
+        // Mirror the live RSVP settings so the preview reflects mode/limits/
+        // deadline before a save (which is the only place the code field shows).
+        const rawMax = v.max_guests;
+        const messageVisible = !!v.message_visible;
+        setRsvpRef.current({
+          rsvp_mode: v.rsvp_mode as RSVPMode,
+          rsvp_deadline: combineDeadline(
+            (v.rsvp_deadline_date as string) || null,
+            (v.rsvp_deadline_time as string) || null,
+          ),
+          max_guests:
+            rawMax === "" || rawMax == null ? null : Number(rawMax),
+          guest_count_min: Number(v.guest_count_min) || 1,
+          guest_count_max: Number(v.guest_count_max) || 1,
+          confirmation_message: (v.confirmation_message as string) || null,
+          config: {
+            rsvp: {
+              fields: {
+                message: {
+                  visible: messageVisible,
+                  required: messageVisible && !!v.message_required,
+                },
+              },
+            },
+          },
+        });
       },
     },
   });
@@ -126,6 +156,7 @@ export function useInvitationEditForm(
           },
         },
       },
+      private_code: v.private_code,
     };
   }, [form, eventId, invitation.id, invitation.template_key, designKeys]);
 

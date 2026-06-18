@@ -28,6 +28,8 @@ export interface RSVPFormData {
   phone: string
   guestCount: number
   message?: string
+  /** Private-mode gate code (private pages, or a both-mode private link). */
+  code?: string
 }
 
 export interface RSVPSubmission {
@@ -82,7 +84,8 @@ function buildMessageSchema({ visible, required }: RSVPFieldConfig) {
 
 export function buildRsvpSchema(
   config: RSVPSectionConfig,
-  limits: { min: number; max: number }
+  limits: { min: number; max: number },
+  codeRequired = false
 ) {
   return z.object({
     name: z
@@ -100,6 +103,10 @@ export function buildRsvpSchema(
       .max(limits.max, `Maximum ${limits.max} guests`),
 
     message: buildMessageSchema(config.fields.message),
+
+    code: codeRequired
+      ? z.string().min(1, "Please enter your invite code").max(40)
+      : z.string().max(40).optional(),
   })
 }
 

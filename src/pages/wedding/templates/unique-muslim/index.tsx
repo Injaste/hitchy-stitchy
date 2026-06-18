@@ -447,6 +447,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
       label: config.rsvp_label_guest_count ?? rsvpLabels.guestCount.label,
     },
     message: { ...rsvpLabels.message, label: config.rsvp_label_message ?? rsvpLabels.message.label },
+    code: { label: "Invite Code", placeholder: "Enter your code" },
   }
 
   const renderClosed = (key: string, message: string) => (
@@ -537,6 +538,8 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         isEditing={rsvp.isEditing}
         rsvpConfig={rsvp.rsvpConfig}
         limits={rsvp.limits}
+        showCode={rsvp.showCode}
+        codeRequired={rsvp.codeRequired}
         classNames={rsvpClassNames}
         labels={mergedRsvpLabels}
       />
@@ -544,11 +547,6 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   )
 
   const renderRsvpBody = () => {
-    if (rsvp.isPrivate)
-      return renderClosed(
-        "private",
-        "RSVPs are by invitation only. Please contact us directly to confirm your attendance.",
-      )
     if (rsvp.isDeadlinePassed)
       return renderClosed(
         "deadline",

@@ -18,6 +18,7 @@ interface EditSheetPreviewProps {
 const EditSheetPreview = ({ invitation, entered = false }: EditSheetPreviewProps) => {
   const draft = useThemeSheetStore((s) => s.draft);
   const previewPatch = useThemeSheetStore((s) => s.previewPatch);
+  const rsvp = useThemeSheetStore((s) => s.rsvp);
   const effectiveDraft = useMemo(
     () =>
       previewPatch && draft
@@ -30,8 +31,8 @@ const EditSheetPreview = ({ invitation, entered = false }: EditSheetPreviewProps
   const scale = usePreviewScale();
 
   const composed = useMemo(
-    () => composeInvitationConfig(invitation, deferredDraft),
-    [invitation, deferredDraft],
+    () => composeInvitationConfig(invitation, deferredDraft, rsvp),
+    [invitation, deferredDraft, rsvp],
   );
 
   if (!entered) return null;

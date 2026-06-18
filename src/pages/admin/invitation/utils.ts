@@ -3,6 +3,7 @@ import type { EventDay } from "../days/types"
 import { dayLabel } from "../days/utils"
 import type { ThemeConfig, ThemeFieldGroup } from "@/pages/wedding/templates/types"
 import type { PublicEventConfig } from "@/pages/wedding/types"
+import type { RsvpPreview } from "./themes/editor/store"
 
 // Display label for an invitation page: its segment name, else the day's label
 // (with the positional "Day N" fallback). `days` must be the date-sorted list.
@@ -40,6 +41,7 @@ export function combineDeadline(
 export function composeInvitationConfig(
   inv: Invitation,
   draft?: ThemeConfig | null,
+  rsvp?: RsvpPreview | null,
 ): PublicEventConfig {
   // The countdown date/time live in the design config (content). Project them onto
   // the top-level PublicEventConfig the template reads (eventConfig.event_date).
@@ -50,13 +52,15 @@ export function composeInvitationConfig(
     event_date: (fc.event_date as string | null) ?? null,
     event_time_start: (fc.event_time_start as string | null) ?? null,
     event_time_end: null,
-    rsvp_mode: inv.rsvp_mode,
-    rsvp_deadline: inv.rsvp_deadline,
-    max_guests: inv.max_guests,
-    guest_count_min: inv.guest_count_min,
-    guest_count_max: inv.guest_count_max,
-    confirmation_message: inv.confirmation_message,
-    config: inv.rsvp_config,
+    // RSVP settings: the live form override (so mode/limits/deadline changes show
+    // before save) falls back to the saved invitation.
+    rsvp_mode: rsvp?.rsvp_mode ?? inv.rsvp_mode,
+    rsvp_deadline: rsvp ? rsvp.rsvp_deadline : inv.rsvp_deadline,
+    max_guests: rsvp ? rsvp.max_guests : inv.max_guests,
+    guest_count_min: rsvp?.guest_count_min ?? inv.guest_count_min,
+    guest_count_max: rsvp?.guest_count_max ?? inv.guest_count_max,
+    confirmation_message: rsvp ? rsvp.confirmation_message : inv.confirmation_message,
+    config: rsvp?.config ?? inv.rsvp_config,
     published_page: inv.template_key
       ? {
           id: inv.id,

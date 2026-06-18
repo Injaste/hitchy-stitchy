@@ -240,6 +240,7 @@ CREATE TABLE public.event_invitations (
   guest_count_max      integer         NOT NULL DEFAULT 10,
   confirmation_message text            NOT NULL DEFAULT 'We look forward to celebrating with you!',
   rsvp_config          jsonb           NOT NULL DEFAULT '{"rsvp": {"fields": {"message": {"visible": false, "required": false}}}}',
+  private_code         text,                          -- shared per-page gate code for private/both RSVP [20260618000001]; NULL = public
   created_at    timestamptz   NOT NULL DEFAULT now(),
   updated_at    timestamptz   NOT NULL DEFAULT now(),
 
@@ -1246,14 +1247,16 @@ BEGIN
 END; $$;
 GRANT EXECUTE ON FUNCTION public.create_invitation(uuid, text, uuid, uuid, text) TO authenticated;
 
+-- p_private_code [20260618000001]: required when (effective) mode is private/both;
+-- stored NULL for public. Never returned by get_public_invitation (no leak).
 CREATE OR REPLACE FUNCTION public.update_invitation(
   p_event_id uuid, p_id uuid, p_template_key text, p_draft_config jsonb,
   p_rsvp_mode event_rsvp_mode, p_rsvp_deadline timestamptz, p_max_guests integer,
   p_guest_count_min integer, p_guest_count_max integer, p_confirmation_message text,
-  p_rsvp_config jsonb, p_to_publish boolean DEFAULT false
+  p_rsvp_config jsonb, p_private_code text DEFAULT NULL, p_to_publish boolean DEFAULT false
 )
 RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
-DECLARE v_caller event_members; v_inv event_invitations;
+DECLARE v_caller event_members; v_inv event_invitations; v_mode event_rsvp_mode; v_code text;
 BEGIN
   SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
   IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
@@ -1264,6 +1267,10 @@ BEGIN
     RAISE EXCEPTION 'Insufficient permission to update the invitation'; END IF;
   IF COALESCE(p_guest_count_max, v_inv.guest_count_max) < COALESCE(p_guest_count_min, v_inv.guest_count_min) THEN
     RAISE EXCEPTION 'Maximum guests cannot be less than the minimum'; END IF;
+  v_mode := COALESCE(p_rsvp_mode, v_inv.rsvp_mode);
+  v_code := NULLIF(btrim(p_private_code), '');
+  IF v_mode IN ('private', 'both') AND v_code IS NULL THEN
+    RAISE EXCEPTION 'A private code is required for private or both RSVP mode'; END IF;
   UPDATE event_invitations SET
     template_key = COALESCE(p_template_key, template_key),
     rsvp_deadline = p_rsvp_deadline, max_guests = p_max_guests,
@@ -1273,13 +1280,14 @@ BEGIN
     guest_count_max = COALESCE(p_guest_count_max, guest_count_max),
     confirmation_message = COALESCE(NULLIF(btrim(p_confirmation_message), ''), confirmation_message),
     rsvp_config = COALESCE(p_rsvp_config, rsvp_config),
+    private_code = CASE WHEN v_mode IN ('private', 'both') THEN v_code ELSE NULL END,
     -- Atomic publish: promote the just-written draft in the same statement.
     published_config = CASE WHEN p_to_publish THEN COALESCE(p_draft_config, draft_config) ELSE published_config END,
     published_at     = CASE WHEN p_to_publish THEN now() ELSE published_at END
   WHERE id = p_id RETURNING * INTO v_inv;
   RETURN v_inv;
 END; $$;
-GRANT EXECUTE ON FUNCTION public.update_invitation(uuid, uuid, text, jsonb, event_rsvp_mode, timestamptz, integer, integer, integer, text, jsonb, boolean) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_invitation(uuid, uuid, text, jsonb, event_rsvp_mode, timestamptz, integer, integer, integer, text, jsonb, text, boolean) TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.delete_invitation(p_event_id uuid, p_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$

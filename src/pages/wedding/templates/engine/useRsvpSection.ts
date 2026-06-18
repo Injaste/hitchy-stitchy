@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { isAfter, startOfDay } from "date-fns"
 import confetti from "canvas-confetti"
 
@@ -22,12 +23,20 @@ export function useRsvpSection(
   // eventConfig.id is the invitation/page id (per-page RSVP + session).
   const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.event_id, eventConfig.id)
   const { submit, update, remove } = useRSVPMutations(eventConfig.event_id, eventConfig.id)
+  const [searchParams] = useSearchParams()
   const [isEditing, setIsEditing] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
 
   const isPrivate = eventConfig.rsvp_mode === "private"
+  // A `both` page is public by default; the couple sends reserved guests a
+  // ?private=true link so they get the code field to claim their seat.
+  const privateLink = searchParams.get("private") === "true"
+  // Show the code field for private pages, or a both-mode private link. It's only
+  // mandatory in private mode — in `both` the public can RSVP without one.
+  const showCode = isPrivate || (eventConfig.rsvp_mode === "both" && privateLink)
+  const codeRequired = isPrivate
   const isDeadlinePassed =
     eventConfig.rsvp_deadline !== null &&
     isAfter(
@@ -71,6 +80,8 @@ export function useRsvpSection(
     showDeleteDialog,
     setShowDeleteDialog,
     isPrivate,
+    showCode,
+    codeRequired,
     isDeadlinePassed,
     sectionRef,
     rsvpConfig: eventConfig.config.rsvp,
