@@ -4,6 +4,7 @@ import type { GeometricMuslimPageConfig } from "./geometric-muslim/types"
 import type { CrescentMuslimPageConfig } from "./crescent-muslim/types"
 import type { RoyalMuslimPageConfig } from "./royal-muslim/types"
 import type { ZellijMuslimPageConfig } from "./zellij-muslim/types"
+import type { ClassicChinesePageConfig } from "./classic-chinese/types"
 import type {
   RSVPFormClassNames,
   RSVPFormLabels,
@@ -73,6 +74,7 @@ export type ThemeConfig =
   | CrescentMuslimPageConfig
   | RoyalMuslimPageConfig
   | ZellijMuslimPageConfig
+  | ClassicChinesePageConfig
   | { slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: TSlug }>

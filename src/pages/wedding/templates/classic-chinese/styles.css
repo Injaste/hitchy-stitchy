@@ -1,0 +1,42 @@
+/* classic-chinese — slug-owned stylesheet (festive cream + vermilion + gold).
+   Consumes the font CSS variables set on .cc-root by the slug component. */
+
+.cc-root {
+  font-family: var(--theme-font-body);
+
+  --cc-bg:           #fbf3e4;
+  --cc-bg-2:         #f4e7cd;
+  --cc-fg:           #5a1518;
+  --cc-muted-fg:     #9a7458;
+  --cc-primary:      #c8102e;
+  --cc-primary-deep: #a50d26;
+  --cc-gold:         #c0962f;
+  --cc-gold-soft:    #d8b75e;
+  --cc-border:       #e8d6ac;
+  --cc-card:         #fffdf6;
+  --cc-on-primary:   #fff8e8;
+  --cc-destructive:  #b0463f;
+}
+
+.cc-root h1,
+.cc-root h2,
+.cc-root h3,
+.cc-root h4,
+.cc-root h5,
+.cc-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.cc-root .cc-couple-names {
+  font-family: var(--theme-font-couple);
+  letter-spacing: 0.06em;
+}
+
+.cc-root .cc-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+/* Double-happiness glyph leans on a CJK system fallback. */
+.cc-root .cc-hanzi {
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}

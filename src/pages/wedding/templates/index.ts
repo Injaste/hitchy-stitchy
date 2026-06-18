@@ -23,6 +23,11 @@ import * as zellijMuslimForm from "./zellij-muslim/form"
 import { zellijMuslimSchema } from "./zellij-muslim/types"
 import { zellijMuslimAnchors } from "./zellij-muslim/anchors"
 
+import ClassicChinese from "./classic-chinese"
+import * as classicChineseForm from "./classic-chinese/form"
+import { classicChineseSchema } from "./classic-chinese/types"
+import { classicChineseAnchors } from "./classic-chinese/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -75,6 +80,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(zellijMuslimForm),
     schema: zellijMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: zellijMuslimAnchors,
+  },
+  "classic-chinese": {
+    component: ClassicChinese,
+    defaultConfig: { slug: "classic-chinese" },
+    form: formFor(classicChineseForm),
+    schema: classicChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: classicChineseAnchors,
   },
 }
 
