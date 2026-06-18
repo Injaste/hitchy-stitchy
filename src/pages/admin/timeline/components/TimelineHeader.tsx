@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { Plus } from "lucide-react";
-import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { AdminPageHeader } from "@/components/custom/admin-page-header";
@@ -15,7 +14,7 @@ import { useTimelineDays } from "../hooks/useTimelineDays";
 import { dayItems, defaultSegmentId, getLatestTime } from "../utils";
 import { dayLabel } from "../../days/utils";
 import { useAdminStore } from "../../store/useAdminStore";
-import { formatDateRange, parseLocalDate } from "@/lib/utils/utils-time";
+import { formatDateRange } from "@/lib/utils/utils-time";
 import type { TimelineGrouped } from "../types";
 import ArraySeparator from "@/components/custom/array-separator";
 
@@ -33,8 +32,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   const { canCreate } = useAccess();
   const openCreate = useTimelineModalStore((s) => s.openCreate);
   const { dateStart, dateEnd } = useAdminStore();
-  const { dates, activeIndex, activeDate, activeDay, hasItems } =
-    useTimelineDays(data);
+  const { dates, activeIndex, activeDay, hasItems } = useTimelineDays(data);
 
   // Count the actual event_days, not the dateStart→dateEnd span — days can be
   // non-consecutive, so the span would over-count (e.g. Jun 28 + Jun 30 = 2 days,
@@ -44,8 +42,6 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   const activeDayLabel = hasItems
     ? dayLabel(activeDay?.label, activeIndex)
     : null;
-  const activeDayDate =
-    hasItems && activeDate ? format(parseLocalDate(activeDate), "MMM d") : null;
 
   // The header create opens at the end of the day in view: prefill the next
   // item's start with that day's latest time and target its default segment.
@@ -58,18 +54,8 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
       title="Timeline"
       titleSuffix={
         activeDayLabel && (
-          <div className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-muted-foreground sm:text-base">
-            {/* Label is the only item allowed to shrink — it truncates so a long
-                day name can't push the date or wrap it across lines. */}
+          <div className="flex min-w-0 items-center text-sm font-medium text-muted-foreground sm:text-base">
             <span className="min-w-0 truncate">{activeDayLabel}</span>
-            {activeDayDate && (
-              <>
-                <span className="shrink-0 text-muted-foreground/50">·</span>
-                <span className="shrink-0 whitespace-nowrap">
-                  {activeDayDate}
-                </span>
-              </>
-            )}
           </div>
         )
       }

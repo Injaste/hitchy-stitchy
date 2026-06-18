@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 import IconSwap from "@/components/animations/animate-icon-swap";
 
 interface ShareLinkProps {
@@ -29,12 +30,8 @@ const ShareLink = ({ url, message, className }: ShareLinkProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true); // IconSwap reverts to the copy icon after autoReturnMs
-    } catch {
-      // clipboard unavailable — nothing to recover
-    }
+    // IconSwap reverts to the copy icon after autoReturnMs; only flip on success.
+    if (await copyToClipboard(url)) setCopied(true);
   };
 
   const tgHref = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(message ?? "")}`;

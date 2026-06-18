@@ -121,10 +121,15 @@ export default function useIndicatorSlider(
     return () => window.removeEventListener("resize", handleResize);
   }, [activeId, refresh]);
 
+  // Re-measure across a short window after mount, and whenever animatingDep
+  // changes. Catches layout that settles a few frames late — a slide-over/sheet
+  // opening (no animatingDep in that context) or the sidebar collapsing — which
+  // would otherwise leave the slider sized to a transient measurement. Runs on
+  // mount regardless of whether an animatingDep was provided.
   useEffect(() => {
-    if (!activeId || animatingDep === undefined) return;
+    if (!activeId) return;
 
-    const duration = 300;
+    const duration = 350;
     const start = performance.now();
     let raf: number;
 
