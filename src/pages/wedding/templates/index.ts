@@ -3,6 +3,26 @@ import * as uniqueMuslimForm from "./unique-muslim/form"
 import { uniqueMuslimSchema } from "./unique-muslim/types"
 import { uniqueMuslimAnchors } from "./unique-muslim/anchors"
 
+import GeometricMuslim from "./geometric-muslim"
+import * as geometricMuslimForm from "./geometric-muslim/form"
+import { geometricMuslimSchema } from "./geometric-muslim/types"
+import { geometricMuslimAnchors } from "./geometric-muslim/anchors"
+
+import CrescentMuslim from "./crescent-muslim"
+import * as crescentMuslimForm from "./crescent-muslim/form"
+import { crescentMuslimSchema } from "./crescent-muslim/types"
+import { crescentMuslimAnchors } from "./crescent-muslim/anchors"
+
+import RoyalMuslim from "./royal-muslim"
+import * as royalMuslimForm from "./royal-muslim/form"
+import { royalMuslimSchema } from "./royal-muslim/types"
+import { royalMuslimAnchors } from "./royal-muslim/anchors"
+
+import ZellijMuslim from "./zellij-muslim"
+import * as zellijMuslimForm from "./zellij-muslim/form"
+import { zellijMuslimSchema } from "./zellij-muslim/types"
+import { zellijMuslimAnchors } from "./zellij-muslim/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -27,6 +47,34 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(uniqueMuslimForm),
     schema: uniqueMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: uniqueMuslimAnchors,
+  },
+  "geometric-muslim": {
+    component: GeometricMuslim,
+    defaultConfig: { slug: "geometric-muslim" },
+    form: formFor(geometricMuslimForm),
+    schema: geometricMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: geometricMuslimAnchors,
+  },
+  "crescent-muslim": {
+    component: CrescentMuslim,
+    defaultConfig: { slug: "crescent-muslim" },
+    form: formFor(crescentMuslimForm),
+    schema: crescentMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: crescentMuslimAnchors,
+  },
+  "royal-muslim": {
+    component: RoyalMuslim,
+    defaultConfig: { slug: "royal-muslim" },
+    form: formFor(royalMuslimForm),
+    schema: royalMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: royalMuslimAnchors,
+  },
+  "zellij-muslim": {
+    component: ZellijMuslim,
+    defaultConfig: { slug: "zellij-muslim" },
+    form: formFor(zellijMuslimForm),
+    schema: zellijMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: zellijMuslimAnchors,
   },
 }
 

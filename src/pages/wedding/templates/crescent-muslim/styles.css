@@ -1,0 +1,35 @@
+/* crescent-muslim — slug-owned stylesheet (light ivory + sage + soft gold).
+   Consumes the font CSS variables set on .cm-root by the slug component. */
+
+.cm-root {
+  font-family: var(--theme-font-body);
+
+  --cm-bg:           #f7f3ec;
+  --cm-bg-2:         #efe8db;
+  --cm-fg:           #2c2722;
+  --cm-muted-fg:     #8c8273;
+  --cm-accent:       #7c8a6f;
+  --cm-accent-deep:  #5d6b50;
+  --cm-gold:         #b08d4f;
+  --cm-border:       #e3dac9;
+  --cm-card:         #fffdf8;
+  --cm-destructive:  #c0564f;
+}
+
+.cm-root h1,
+.cm-root h2,
+.cm-root h3,
+.cm-root h4,
+.cm-root h5,
+.cm-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+/* Scoped under .cm-root (0-2-0) to beat .cm-root h1 (0-1-1) */
+.cm-root .cm-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.cm-root .cm-countdown-number {
+  font-family: var(--theme-font-number);
+}

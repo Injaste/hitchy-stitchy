@@ -22,12 +22,31 @@ export interface AnchorClassNames {
   active?: string
 }
 
+// Theming for the engine-injected calendar/map drawers. The drawer renders
+// inside the template root, so these may use the template's scoped --xx-* vars.
+export interface AnchorDrawerClassNames {
+  content?: string
+  handle?: string
+  title?: string
+  description?: string
+  /** Primary action (filled). */
+  button?: string
+  /** Secondary action (outline). */
+  buttonOutline?: string
+  iframe?: string
+}
+
 export interface AnchorLabels {
   ariaLabel?: string
+  /** Label for the injected calendar anchor item (default "Calendar"). */
+  calendar?: string
+  /** Label for the injected map anchor item (default "Map"). */
+  map?: string
 }
 
 export interface AnchorThemeConfig {
   items: AnchorItemConfig[]
   classNames: AnchorClassNames
+  drawer: AnchorDrawerClassNames
   labels: AnchorLabels
 }

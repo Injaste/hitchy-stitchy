@@ -1,0 +1,38 @@
+/* zellij-muslim — slug-owned stylesheet (Moroccan tile: cream + terracotta + teal
+   + ochre). Consumes the font CSS variables set on .zj-root by the slug component. */
+
+.zj-root {
+  font-family: var(--theme-font-body);
+
+  --zj-bg:           #f7f0e2;
+  --zj-bg-2:         #efe4cf;
+  --zj-fg:           #3f3026;
+  --zj-muted-fg:     #8a7257;
+  --zj-primary:      #c0532f;
+  --zj-primary-deep: #a3411f;
+  --zj-teal:         #1f7a76;
+  --zj-ochre:        #d79a2c;
+  --zj-border:       #e3d3b2;
+  --zj-card:         #fffdf6;
+  --zj-on-primary:   #fffdf6;
+  --zj-destructive:  #b0463f;
+}
+
+.zj-root h1,
+.zj-root h2,
+.zj-root h3,
+.zj-root h4,
+.zj-root h5,
+.zj-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+/* Scoped under .zj-root (0-2-0) to beat .zj-root h1 (0-1-1) */
+.zj-root .zj-couple-names {
+  font-family: var(--theme-font-couple);
+  letter-spacing: 0.06em;
+}
+
+.zj-root .zj-countdown-number {
+  font-family: var(--theme-font-number);
+}
