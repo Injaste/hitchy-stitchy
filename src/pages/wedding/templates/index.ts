@@ -18,6 +18,11 @@ import * as royalMuslimForm from "./royal-muslim/form"
 import { royalMuslimSchema } from "./royal-muslim/types"
 import { royalMuslimAnchors } from "./royal-muslim/anchors"
 
+import ZellijMuslim from "./zellij-muslim"
+import * as zellijMuslimForm from "./zellij-muslim/form"
+import { zellijMuslimSchema } from "./zellij-muslim/types"
+import { zellijMuslimAnchors } from "./zellij-muslim/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -63,6 +68,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(royalMuslimForm),
     schema: royalMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: royalMuslimAnchors,
+  },
+  "zellij-muslim": {
+    component: ZellijMuslim,
+    defaultConfig: { slug: "zellij-muslim" },
+    form: formFor(zellijMuslimForm),
+    schema: zellijMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: zellijMuslimAnchors,
   },
 }
 
