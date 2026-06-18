@@ -28,6 +28,11 @@ import * as classicChineseForm from "./classic-chinese/form"
 import { classicChineseSchema } from "./classic-chinese/types"
 import { classicChineseAnchors } from "./classic-chinese/anchors"
 
+import InkChinese from "./ink-chinese"
+import * as inkChineseForm from "./ink-chinese/form"
+import { inkChineseSchema } from "./ink-chinese/types"
+import { inkChineseAnchors } from "./ink-chinese/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -87,6 +92,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(classicChineseForm),
     schema: classicChineseSchema as ThemeRegistryEntry["schema"],
     anchors: classicChineseAnchors,
+  },
+  "ink-chinese": {
+    component: InkChinese,
+    defaultConfig: { slug: "ink-chinese" },
+    form: formFor(inkChineseForm),
+    schema: inkChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: inkChineseAnchors,
   },
 }
 
