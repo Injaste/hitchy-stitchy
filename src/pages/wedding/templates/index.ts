@@ -8,6 +8,11 @@ import * as geometricMuslimForm from "./geometric-muslim/form"
 import { geometricMuslimSchema } from "./geometric-muslim/types"
 import { geometricMuslimAnchors } from "./geometric-muslim/anchors"
 
+import CrescentMuslim from "./crescent-muslim"
+import * as crescentMuslimForm from "./crescent-muslim/form"
+import { crescentMuslimSchema } from "./crescent-muslim/types"
+import { crescentMuslimAnchors } from "./crescent-muslim/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -39,6 +44,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(geometricMuslimForm),
     schema: geometricMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: geometricMuslimAnchors,
+  },
+  "crescent-muslim": {
+    component: CrescentMuslim,
+    defaultConfig: { slug: "crescent-muslim" },
+    form: formFor(crescentMuslimForm),
+    schema: crescentMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: crescentMuslimAnchors,
   },
 }
 
