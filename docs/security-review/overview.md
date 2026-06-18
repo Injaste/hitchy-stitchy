@@ -7,19 +7,17 @@ Each phase has its own file (`phase-N-*.md`), sized to pick up cold.
 bottom.** Severity-first, with one dependency: phase 6 (live-DB hardening)
 needs phase 4 (schema dump) done first.
 
-> Status: findings verified, nothing fixed yet. `npm run build` passes today;
-> tasks + timeline domains came back clean; access gating (`useAccess()`) is
-> consistently enforced everywhere.
+> Status: phase 1 fixed (RSVP errors now surface inline) and phase 5 dropped (bulk
+> CSV import removed). Phases 2/3/4/6 remain. `npm run build` passes; tasks +
+> timeline domains came back clean; access gating (`useAccess()`) enforced everywhere.
 
 ## Execution order
 
 | Phase | Title | Effort | Why this slot |
 |---|---|---|---|
-| 1 | [RSVP false success](phase-1-rsvp-false-success.md) | medium (~half day) | **Critical / game-breaking** — guests' RSVPs are silently lost in production today. Nothing else loses user data; fix first. |
 | 2 | [Timezone date parsing](phase-2-timezone-date-parsing.md) | low (~1 h) | High impact (wrong dates/status for any negative-UTC user), nearly free — the correct helper already exists in the same file. |
 | 3 | [Hygiene & naming](phase-3-hygiene-and-naming.md) | trivial (~30 min) | Low impact, zero risk. Clears the rule violations and maintenance traps while the repo is fresh in mind. |
-| 4 | [Schema source of truth](phase-4-schema-source-of-truth.md) | medium (needs live DB access) | High — repo lies about the core permission function; also a hard prerequisite for phase 6 and unblocks verifying phase 5's RPC behavior. |
-| 5 | [CSV import duplicates](phase-5-csv-import-duplicates.md) | medium (~half day) | Medium — bulk import fails after a clean preview. After phase 4 so `create_guests`' real behavior is known. |
+| 4 | [Schema source of truth](phase-4-schema-source-of-truth.md) | medium (needs live DB access) | High — repo lies about the core permission function; also a hard prerequisite for phase 6. |
 | 6 | [Permission hardening](phase-6-permission-hardening.md) | high (live migration + full permission-matrix regression) | Medium likelihood / **high blast radius** — defense-in-depth on the live access system; not exploitable today without a second bug, so it goes last, done carefully. |
 
 ## What was checked and found clean (don't re-litigate)
