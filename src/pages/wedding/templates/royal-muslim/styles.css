@@ -1,0 +1,38 @@
+/* royal-muslim — slug-owned stylesheet (ivory + burgundy + antique gold).
+   Consumes the font CSS variables set on .ry-root by the slug component. */
+
+.ry-root {
+  font-family: var(--theme-font-body);
+
+  --ry-bg:              #faf6ec;
+  --ry-bg-2:            #f3ead7;
+  --ry-fg:              #4a1726;
+  --ry-muted-fg:        #927079;
+  --ry-burgundy:        #8f243d;
+  --ry-burgundy-deep:   #6f1a2f;
+  --ry-gold:            #b3923f;
+  --ry-gold-soft:       #c9ab63;
+  --ry-border:          #e4d6b6;
+  --ry-card:            #fffdf6;
+  --ry-on-burgundy:     #fdf6ec;
+  --ry-destructive:     #b0463f;
+}
+
+.ry-root h1,
+.ry-root h2,
+.ry-root h3,
+.ry-root h4,
+.ry-root h5,
+.ry-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+/* Scoped under .ry-root (0-2-0) to beat .ry-root h1 (0-1-1) */
+.ry-root .ry-couple-names {
+  font-family: var(--theme-font-couple);
+  letter-spacing: 0.08em;
+}
+
+.ry-root .ry-countdown-number {
+  font-family: var(--theme-font-number);
+}

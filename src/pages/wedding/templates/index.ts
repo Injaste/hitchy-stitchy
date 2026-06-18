@@ -13,6 +13,11 @@ import * as crescentMuslimForm from "./crescent-muslim/form"
 import { crescentMuslimSchema } from "./crescent-muslim/types"
 import { crescentMuslimAnchors } from "./crescent-muslim/anchors"
 
+import RoyalMuslim from "./royal-muslim"
+import * as royalMuslimForm from "./royal-muslim/form"
+import { royalMuslimSchema } from "./royal-muslim/types"
+import { royalMuslimAnchors } from "./royal-muslim/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -51,6 +56,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(crescentMuslimForm),
     schema: crescentMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: crescentMuslimAnchors,
+  },
+  "royal-muslim": {
+    component: RoyalMuslim,
+    defaultConfig: { slug: "royal-muslim" },
+    form: formFor(royalMuslimForm),
+    schema: royalMuslimSchema as ThemeRegistryEntry["schema"],
+    anchors: royalMuslimAnchors,
   },
 }
 
