@@ -2,8 +2,9 @@ import { createModalStore } from "../../hooks/useModalStore"
 import type { Guest, GuestStatus } from "../types"
 
 interface GuestModalAddons {
-  isImportOpen: boolean
   isBulkUpdateOpen: boolean
+  // Copy an existing guest onto other invitation pages (selectedItem is the source).
+  isDuplicateOpen: boolean
   selectedIds: Set<string>
   bulkUpdateIds: string[]
   bulkUpdateStatus: GuestStatus | null
@@ -13,7 +14,7 @@ interface GuestModalAddons {
   activeInvitationId: string | null
 
   setActiveInvitationId: (id: string | null) => void
-  openImport: () => void
+  openDuplicate: () => void
   openBulkUpdate: (ids: string[], status: GuestStatus) => void
   toggleRow: (id: string) => void
   setSelectedIds: (ids: Set<string>) => void
@@ -23,15 +24,15 @@ interface GuestModalAddons {
 }
 
 export const useGuestModalStore = createModalStore<Guest, GuestModalAddons>((set, get) => ({
-  isImportOpen: false,
   isBulkUpdateOpen: false,
+  isDuplicateOpen: false,
   selectedIds: new Set(),
   bulkUpdateIds: [],
   bulkUpdateStatus: null,
   activeInvitationId: null,
 
   setActiveInvitationId: (id) => set({ activeInvitationId: id }),
-  openImport: () => set({ isImportOpen: true }),
+  openDuplicate: () => set({ isDetailOpen: false, isDuplicateOpen: true }),
   openBulkUpdate: (ids, status) =>
     set({ isBulkUpdateOpen: true, bulkUpdateIds: ids, bulkUpdateStatus: status }),
 
@@ -44,7 +45,7 @@ export const useGuestModalStore = createModalStore<Guest, GuestModalAddons>((set
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   clearSelection: () => set({ selectedIds: new Set() }),
 
-  extendedCloseAll: () => set({ isImportOpen: false, isBulkUpdateOpen: false }),
+  extendedCloseAll: () => set({ isBulkUpdateOpen: false, isDuplicateOpen: false }),
   // Runs on *every* closeAll, so it must only reset the transient bulk-modal
   // inputs — never the row selection, which has to survive opening/closing a
   // guest's detail, edit, or create modal. Selection is cleared explicitly at

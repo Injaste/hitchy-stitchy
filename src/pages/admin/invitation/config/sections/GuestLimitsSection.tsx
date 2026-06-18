@@ -11,16 +11,16 @@ const GuestLimitsSection = () => (
     </CardHeader>
     <CardContent>
       <FieldGroup>
-        <div className="grid grid-cols-3 gap-3">
-          <TextField
-            name="max_guests"
-            label="Total guests"
-            placeholder="No limit"
-            type="number"
-            optional
-            min={1}
-            max={10000}
-          />
+        <TextField
+          name="max_guests"
+          label="Total guests"
+          placeholder="No limit"
+          type="number"
+          optional
+          min={1}
+          max={10000}
+        />
+        <div className="grid grid-cols-2 gap-3">
           <TextField
             name="guest_count_min"
             label="Min party size"

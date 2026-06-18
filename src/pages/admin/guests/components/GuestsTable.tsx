@@ -11,9 +11,14 @@ import DataTable, {
 import DataTableTotalRow from "@/components/custom/tables/data-table-total-row";
 
 import GuestsRow, { ROW_COLS } from "./GuestsRow";
+import { RSVP_MODE_META } from "../../invitation/rsvpMeta";
+import type { RSVPMode } from "../../invitation/types";
 
 interface GuestsTableProps {
   guests: Guest[];
+  /** Distinct RSVP modes of the page(s) in view — shown as icon(s) on the Guest
+   *  header (so pure public/private pages don't repeat it on every row). */
+  scopeModes: RSVPMode[];
   selectedIds: Set<string>;
   onToggleRow: (id: string) => void;
   onToggleAllFiltered: () => void;
@@ -23,6 +28,7 @@ interface GuestsTableProps {
 
 const GuestsTable: FC<GuestsTableProps> = ({
   guests,
+  scopeModes,
   selectedIds,
   onToggleRow,
   onToggleAllFiltered,
@@ -32,7 +38,8 @@ const GuestsTable: FC<GuestsTableProps> = ({
   const openDetail = useGuestModalStore((s) => s.openDetail);
   const openEdit = useGuestModalStore((s) => s.openEdit);
   const openDelete = useGuestModalStore((s) => s.openDelete);
-  const { canUpdate, canDelete } = useAccess();
+  const openDuplicate = useGuestModalStore((s) => s.openDuplicate);
+  const { canCreate, canUpdate, canDelete } = useAccess();
   const { updateStatus } = useGuestMutations();
 
   // The mutation object is a fresh reference every render; route the row's
@@ -47,7 +54,8 @@ const GuestsTable: FC<GuestsTableProps> = ({
 
   const canEdit = canUpdate("guests");
   const canRemove = canDelete("guests");
-  const hasCrudActions = canEdit || canRemove;
+  const canDuplicate = canCreate("guests");
+  const hasCrudActions = canEdit || canRemove || canDuplicate;
 
   // Attending = confirmed guests' party sizes across the visible set — the
   // guest-domain headline that parallels budget/gifts' money total.
@@ -74,7 +82,28 @@ const GuestsTable: FC<GuestsTableProps> = ({
       ),
       className: "flex items-center",
     },
-    { label: "Guest" },
+    {
+      label: (
+        <span className="flex items-center gap-1.5">
+          {scopeModes.length > 0 && (
+            <span className="flex items-center gap-1">
+              {scopeModes.map((m) => {
+                const Icon = RSVP_MODE_META[m].icon;
+                return (
+                  <Icon
+                    key={m}
+                    role="img"
+                    aria-label={RSVP_MODE_META[m].label}
+                    className="size-3.5 text-muted-foreground/70"
+                  />
+                );
+              })}
+            </span>
+          )}
+          Guest
+        </span>
+      ),
+    },
     { label: "Party" },
     { label: "Status" },
     { label: "Registered", hideBelowSm: true },
@@ -118,8 +147,10 @@ const GuestsTable: FC<GuestsTableProps> = ({
           openDetail={openDetail}
           openEdit={openEdit}
           openDelete={openDelete}
+          openDuplicate={openDuplicate}
           canEdit={canEdit}
           canRemove={canRemove}
+          canDuplicate={canDuplicate}
           hasCrudActions={hasCrudActions}
           onUpdateStatus={handleUpdateStatus}
           isUpdating={updateStatus.isPending}

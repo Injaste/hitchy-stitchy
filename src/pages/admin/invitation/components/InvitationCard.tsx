@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import RelativeTime from "@/components/custom/relative-time";
 import { cn } from "@/lib/utils";
 import { deepEqual } from "../utils";
+import CopyLinksMenu from "./CopyLinksMenu";
 import type { Invitation } from "../types";
 
 interface InvitationCardProps {
@@ -102,16 +103,28 @@ const InvitationCard = ({
             Edit
           </Button>
           {isLive && (
-            <Button
-              size="icon"
-              variant="outline"
-              asChild
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Link to={path} target="_blank" aria-label="Open live page">
-                <ExternalLink />
-              </Link>
-            </Button>
+            <>
+              <span onClick={(e) => e.stopPropagation()}>
+                <CopyLinksMenu
+                  compact
+                  slug={slug}
+                  linkSlug={invitation.link_slug}
+                  mode={invitation.rsvp_mode}
+                  code={invitation.private_code}
+                  inviteMessage={invitation.rsvp_config.rsvp.messages?.invite_message}
+                />
+              </span>
+              <Button
+                size="icon"
+                variant="outline"
+                asChild
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Link to={path} target="_blank" aria-label="Open live page">
+                  <ExternalLink />
+                </Link>
+              </Button>
+            </>
           )}
         </div>
       </CardContent>

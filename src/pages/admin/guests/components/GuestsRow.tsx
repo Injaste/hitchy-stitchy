@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import {
   CheckCircle,
   Clock,
+  Copy,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -40,8 +41,10 @@ interface GuestsRowProps {
   openDetail: (guest: Guest) => void;
   openEdit: () => void;
   openDelete: () => void;
+  openDuplicate: () => void;
   canEdit: boolean;
   canRemove: boolean;
+  canDuplicate: boolean;
   hasCrudActions: boolean;
   onUpdateStatus: (guest: Guest, status: GuestStatus) => void;
   isUpdating: boolean;
@@ -64,8 +67,10 @@ const GuestsRow: FC<GuestsRowProps> = memo(
     openDetail,
     openEdit,
     openDelete,
+    openDuplicate,
     canEdit,
     canRemove,
+    canDuplicate,
     hasCrudActions,
     onUpdateStatus,
     isUpdating,
@@ -167,6 +172,17 @@ const GuestsRow: FC<GuestsRowProps> = memo(
                 >
                   <Pencil className="w-4 h-4 mr-2" />
                   Edit
+                </DropdownMenuItem>
+              )}
+              {canDuplicate && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    openDetail(guest);
+                    openDuplicate();
+                  }}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy to page(s)
                 </DropdownMenuItem>
               )}
               {canRemove && (

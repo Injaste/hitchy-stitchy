@@ -1,7 +1,7 @@
 import type { RSVPSectionConfig } from "@/pages/admin/invitation/types";
 import type { RSVPFormData } from "@/pages/wedding/types";
 
-export type RSVPFieldKey = "name" | "phone" | "guestCount" | "message";
+export type RSVPFieldKey = "name" | "phone" | "code" | "guestCount" | "message";
 
 export interface RSVPFieldClassNames {
   inputGroup?: string;
@@ -27,6 +27,7 @@ export interface RSVPFormClassNames {
   inputAddonTextarea?: string;
   inputIcon?: string;
   fieldError?: string;
+  formError?: string;
   actions?: string;
   submit?: string;
   cancel?: string;
@@ -36,6 +37,7 @@ export interface RSVPFormClassNames {
 export interface RSVPFormLabels {
   name: { label: string; placeholder: string };
   phone: { label: string; placeholder: string };
+  code?: { label: string; placeholder: string };
   guestCount: { label: string; placeholder: (max: number) => string; };
   message: { label: string; placeholder: string };
   required: string;
@@ -88,6 +90,10 @@ export interface RSVPFormProps {
   isEditing: boolean;
   rsvpConfig: RSVPSectionConfig;
   limits: { min: number; max: number };
+  /** Render the invite-code field (private mode). When shown it is always required. */
+  showCode?: boolean;
+  /** Server-side submit/update error, rendered inline above the actions. */
+  error?: string | null;
   classNames: RSVPFormClassNames;
   labels: RSVPFormLabels;
 }

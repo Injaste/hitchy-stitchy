@@ -10,6 +10,7 @@ import { buildRsvpSchema, type RSVPFormData } from "@/pages/wedding/types";
 import type { RSVPFormProps } from "./types";
 import NameField from "./fields/NameField";
 import PhoneField from "./fields/PhoneField";
+import CodeField from "./fields/CodeField";
 import GuestCountField from "./fields/GuestCountField";
 import MessageField from "./fields/MessageField";
 import SubmitButton from "./actions/SubmitButton";
@@ -22,18 +23,28 @@ const RSVPForm = ({
   isEditing,
   rsvpConfig,
   limits,
+  showCode = false,
+  error,
   classNames,
   labels,
 }: RSVPFormProps) => {
   const { message } = rsvpConfig.fields;
 
+  // The code is only relevant for a new (non-edit) gated submission; self-edits
+  // re-authenticate by token, not the code. When shown, it's always required.
+  const codeVisible = showCode && !isEditing;
+
+  // Sequential reveal: code (when shown) sits right after phone and pushes the
+  // remaining fields down by one.
+  const base = codeVisible ? 1 : 0;
   const delays = {
     name: 0,
     phone: 1,
-    guestCount: 2,
-    message: message.visible ? 3 : null,
+    code: codeVisible ? 2 : null,
+    guestCount: 2 + base,
+    message: message.visible ? 3 + base : null,
   };
-  const submitDelay = message.visible ? 4 : 3;
+  const submitDelay = (message.visible ? 4 : 3) + base;
 
   const form = useForm({
     defaultValues: {
@@ -41,9 +52,10 @@ const RSVPForm = ({
       phone: "",
       guestCount: limits.min,
       ...(message.visible && { message: "" }),
+      ...(codeVisible && { code: "" }),
       ...propsDefaults,
     } as RSVPFormData,
-    validators: { onSubmit: buildRsvpSchema(rsvpConfig, limits) },
+    validators: { onSubmit: buildRsvpSchema(rsvpConfig, limits, codeVisible) },
     onSubmit: async ({ value }) => {
       await onSubmit(value as RSVPFormData);
     },
@@ -99,6 +111,27 @@ const RSVPForm = ({
           )}
         </form.Field>
 
+        {codeVisible && (
+          <form.Field name="code">
+            {(f) => (
+              <CodeField
+                field={{
+                  name: f.name,
+                  value: (f.state.value as string | undefined) ?? "",
+                  onChange: (v) => f.handleChange(v),
+                  onBlur: f.handleBlur,
+                  isInvalid: f.state.meta.isTouched && !f.state.meta.isValid,
+                  errors: f.state.meta.errors,
+                }}
+                required
+                classNames={classNames}
+                labels={labels}
+                delay={delays.code! * 0.1}
+              />
+            )}
+          </form.Field>
+        )}
+
         <form.Field name="guestCount">
           {(f) => (
             <GuestCountField
@@ -141,6 +174,12 @@ const RSVPForm = ({
           </form.Field>
         )}
       </FieldGroup>
+
+      {error && (
+        <p role="alert" className={classNames.formError}>
+          {error}
+        </p>
+      )}
 
       <form.Subscribe selector={(s) => [s.isSubmitting, s.canSubmit]}>
         {([isSubmitting, canSubmit]) => (

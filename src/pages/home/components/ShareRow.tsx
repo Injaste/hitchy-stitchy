@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 
 const ShareRow = () => {
   const [copied, setCopied] = useState(false);
@@ -15,12 +16,9 @@ const ShareRow = () => {
   };
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
+    if (await copyToClipboard(window.location.href)) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy link:", err);
     }
   };
 

@@ -9,6 +9,8 @@ import {
 } from "@/components/custom/page-header-base"
 
 import { useAccess } from "../../hooks/useAccess"
+import { useActiveEventDay } from "../../hooks/useActiveEventDay"
+import { dayLabel } from "../../days/utils"
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore"
 import type { BudgetData } from "../api"
 
@@ -27,6 +29,11 @@ const BudgetHeader: FC<BudgetHeaderProps> = ({
   const openCreate = useExpenseModalStore((s) => s.openCreate)
   const canAdd = canCreate("budget")
 
+  // Mirror the active-day scope in the header (label only) when the event spans
+  // multiple days — matches the timeline header treatment.
+  const { activeDay, activeIndex, multiDay } = useActiveEventDay()
+  const daySuffix = multiDay ? dayLabel(activeDay?.label, activeIndex) : null
+
   return (
     <AdminPageHeader
       containerSize="md"
@@ -35,6 +42,13 @@ const BudgetHeader: FC<BudgetHeaderProps> = ({
       isRefetching={isRefetching}
       refetch={refetch}
       title="Budget"
+      titleSuffix={
+        daySuffix && (
+          <div className="flex min-w-0 items-center text-sm font-medium text-muted-foreground sm:text-base">
+            <span className="min-w-0 truncate">{daySuffix}</span>
+          </div>
+        )
+      }
       description="Keep an eye on what things cost, what's paid, and what's left to pay."
       action={
         canAdd && (

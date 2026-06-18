@@ -27,6 +27,8 @@ import GuestsExport from "./GuestsExport";
 import SegmentFilter, { type SegmentFilterOption } from "./SegmentFilter";
 import { useGuestMutations } from "../queries";
 import { pageLabel } from "../../invitation/utils";
+import CopyLinksMenu from "../../invitation/components/CopyLinksMenu";
+import { useAdminStore } from "../../store/useAdminStore";
 import DeadlineAlert from "./DeadlineAlert";
 
 type StatusFilter = GuestStatus | "all";
@@ -47,7 +49,6 @@ const GuestsView: FC<GuestsViewProps> = ({
   refetch,
 }) => {
   const openCreate = useGuestModalStore((s) => s.openCreate);
-  const openImport = useGuestModalStore((s) => s.openImport);
   const openBulkUpdate = useGuestModalStore((s) => s.openBulkUpdate);
   const selectedIds = useGuestModalStore((s) => s.selectedIds);
   const toggleRow = useGuestModalStore((s) => s.toggleRow);
@@ -59,6 +60,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   );
   const { canCreate, canUpdate } = useAccess();
   const { bulkUpdateGuests } = useGuestMutations();
+  const { slug } = useAdminStore();
 
   const { days, activeDayId, setActiveDay } = useActiveEventDay();
   const { data: invitations } = useInvitationsQuery();
@@ -123,6 +125,15 @@ const GuestsView: FC<GuestsViewProps> = ({
     [dayGuests, effectivePageId],
   );
 
+  // Distinct modes of the page(s) in view — the Guest-header icon(s). A focused
+  // page contributes its one mode; "All" contributes every day-page's mode.
+  const scopeModes = useMemo(() => {
+    const pages = effectivePageId
+      ? dayPages.filter((p) => p.id === effectivePageId)
+      : dayPages;
+    return [...new Set(pages.map((p) => p.rsvp_mode))];
+  }, [dayPages, effectivePageId]);
+
   const segmentOptions: SegmentFilterOption[] = useMemo(() => {
     if (dayPages.length <= 1) return [];
     return [
@@ -131,6 +142,7 @@ const GuestsView: FC<GuestsViewProps> = ({
         id: p.id,
         label: pageLabel(p, days, segments ?? []),
         count: dayGuests.filter((g) => g.invitation_id === p.id).length,
+        mode: p.rsvp_mode,
       })),
     ];
   }, [dayPages, dayGuests, days, segments]);
@@ -223,7 +235,6 @@ const GuestsView: FC<GuestsViewProps> = ({
         <ComponentFade key="empty" useBlur>
           <GuestsEmpty
             onAdd={openCreate}
-            onImport={openImport}
             canCreate={canCreate("guests")}
           />
         </ComponentFade>
@@ -258,7 +269,20 @@ const GuestsView: FC<GuestsViewProps> = ({
           onSearchChange={setSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
-          trailing={<GuestsExport guests={filtered} allGuests={selectedRows} />}
+          trailing={
+            <div className="flex items-center gap-2">
+              {slug && focusPage?.published_at && (
+                <CopyLinksMenu
+                  slug={slug}
+                  linkSlug={focusPage.link_slug}
+                  mode={focusPage.rsvp_mode}
+                  code={focusPage.private_code}
+                  inviteMessage={focusPage.rsvp_config.rsvp.messages?.invite_message}
+                />
+              )}
+              <GuestsExport guests={filtered} allGuests={selectedRows} />
+            </div>
+          }
         />
         <AnimatePresence initial={false}>
           {canBulkUpdate && selectedIds.size > 0 && (
@@ -273,6 +297,7 @@ const GuestsView: FC<GuestsViewProps> = ({
         </AnimatePresence>
         <GuestsTable
           guests={filtered}
+          scopeModes={scopeModes}
           selectedIds={selectedIds}
           onToggleRow={toggleRow}
           onToggleAllFiltered={toggleAllFiltered}

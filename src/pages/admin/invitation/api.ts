@@ -73,6 +73,7 @@ export async function saveInvitation(
     p_guest_count_max: payload.guest_count_max,
     p_confirmation_message: payload.confirmation_message,
     p_rsvp_config: payload.rsvp_config,
+    p_private_code: payload.private_code,
     p_to_publish: toPublish,
   })
 

@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { useAccess } from "../../hooks/useAccess";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 import { useInvitationsQuery } from "../../invitation/queries";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { STATUS_LABELS } from "../types";
@@ -40,17 +41,19 @@ const GuestDetailModal = () => {
   const { canUpdate, canDelete } = useAccess();
   // Message-field visibility follows the guest's own invitation page.
   const { data: invitations } = useInvitationsQuery();
-  const rsvpFields = (invitations ?? []).find(
+  const invitation = (invitations ?? []).find(
     (i) => i.id === selectedItem?.invitation_id,
-  )?.rsvp_config.rsvp.fields;
+  );
+  const rsvpFields = invitation?.rsvp_config.rsvp.fields;
 
   if (!selectedItem) return null;
   const guest = selectedItem;
 
-  const copyPhone = () => {
+  const copyPhone = async () => {
     if (!guest.phone) return;
-    navigator.clipboard.writeText(guest.phone);
-    toast.success("Phone copied");
+    const ok = await copyToClipboard(guest.phone);
+    if (ok) toast.success("Phone copied");
+    else toast.error("Couldn't copy — please copy it manually");
   };
 
   const statusVariant =
@@ -65,7 +68,7 @@ const GuestDetailModal = () => {
 
   const historyItems = [
     {
-      label: guest.source === "public" ? "RSVP-ed" : "Invited",
+      label: invitation?.rsvp_mode === "public" ? "RSVP-ed" : "Invited",
       icon: UserPlus,
       date: format(parseISO(guest.created_at), formatDate),
       time: format(parseISO(guest.created_at), formatTime),

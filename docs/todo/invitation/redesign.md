@@ -26,9 +26,6 @@ RPC/view still references a target before dropping it.
 - **Frontend:** remove the now-unused `useInvitationQuery` / `fetchInvitation` (the
   old singular `event_invitation` reader) and collapse the parallel `eventInvitation`
   query key back into `invitation`.
-- **CSV import:** post-cutover the event-keyed `createGuests` no longer resolves;
-  rework the import flow to target a page (`invitation_id`) before re-enabling
-  (see [guest-import.md](../guest-import.md)).
 
 ## 2. Step 4 — Private mode (phone-match)
 Pre-loaded pending guest list per page; the public RSVP asks for a phone number,

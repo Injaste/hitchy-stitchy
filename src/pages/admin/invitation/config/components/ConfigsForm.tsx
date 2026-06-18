@@ -31,8 +31,20 @@ export const schema = z
       .string()
       .max(500, "Keep under 500 characters")
       .transform((v) => v.trim() || null),
+    deadline_message: z
+      .string()
+      .max(300, "Keep under 300 characters")
+      .transform((v) => v.trim() || null),
+    invite_message: z
+      .string()
+      .max(500, "Keep under 500 characters")
+      .transform((v) => v.trim() || null),
     message_visible: z.boolean(),
     message_required: z.boolean(),
+    private_code: z
+      .string()
+      .max(40, "Keep under 40 characters")
+      .transform((v) => v.trim() || null),
   })
   .superRefine((data, ctx) => {
     if (data.rsvp_deadline_date && !data.rsvp_deadline_time) {
@@ -49,6 +61,14 @@ export const schema = z
         message: "Maximum guests cannot be less than the minimum",
       });
     }
+    // A gated page needs a code for guests to unlock with.
+    if (data.rsvp_mode !== "public" && !data.private_code) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["private_code"],
+        message: "Set a code guests will enter to RSVP",
+      });
+    }
   });
 
 export type ConfigFormValues = z.infer<typeof schema>;
@@ -62,8 +82,11 @@ export const RSVP_FIELD_KEYS = new Set<string>([
   "guest_count_min",
   "guest_count_max",
   "confirmation_message",
+  "deadline_message",
+  "invite_message",
   "message_visible",
   "message_required",
+  "private_code",
 ]);
 
 const parseDeadline = (
@@ -93,7 +116,10 @@ export const rsvpDefaults = (invitation: Invitation) => {
     guest_count_min: invitation.guest_count_min,
     guest_count_max: invitation.guest_count_max,
     confirmation_message: invitation.confirmation_message ?? "",
+    deadline_message: invitation.rsvp_config.rsvp.messages?.deadline_closed ?? "",
+    invite_message: invitation.rsvp_config.rsvp.messages?.invite_message ?? "",
     message_visible: invitation.rsvp_config.rsvp.fields.message.visible,
     message_required: invitation.rsvp_config.rsvp.fields.message.required,
+    private_code: invitation.private_code ?? "",
   };
 };

@@ -85,9 +85,8 @@ export function useGuestRSVP(event_id: string | null, invitation_id: string | nu
 }
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
-// Submit targets the page (invitation_id) via submit_rsvp_v2; get/update/cancel
-// stay keyed by the guest's token (the session is per page). The new-model _v2
-// RPCs run only on this (undeployed) branch — production stays on the originals.
+// Submit targets the page (invitation_id) via submit_rsvp; get/update/cancel stay
+// keyed by the guest's token (the session is per page).
 
 export function useRSVPMutations(event_id: string | null, invitation_id: string | null) {
   const [searchParams] = useSearchParams()
@@ -101,7 +100,9 @@ export function useRSVPMutations(event_id: string | null, invitation_id: string 
         phone: formData.phone,
         guest_count: formData.guestCount,
         message: formData.message ?? null,
-        invite_code: searchParams.get("code"),
+        // The code is entered on the form for gated pages; fall back to a ?code=
+        // deep-link param for backwards compatibility.
+        invite_code: formData.code ?? searchParams.get("code"),
       }),
     {
       silent: true,

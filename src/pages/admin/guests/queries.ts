@@ -7,11 +7,10 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys"
 
 import {
   fetchGuests,
-  createGuestsV2,
+  createGuestOnPages,
   updateGuestV2,
   updateGuests,
   deleteGuest,
-  bulkImportGuests,
   subscribeToGuests,
 } from "./api"
 import type {
@@ -19,8 +18,6 @@ import type {
   UpdateGuestPayload,
   GuestStatus,
   Guest,
-  GuestFormValues,
-  ImportResult,
 } from "./types"
 import { STATUS_LABELS } from "./types"
 import { truncate } from "@/lib/utils"
@@ -73,21 +70,16 @@ export function useGuestMutations() {
     queryClient.setQueryData<Guest[]>(adminKeys.guests(slug!), fn)
 
   const create = useMutation(
-    async (payload: CreateGuestPayload & { invitationId: string }) => {
-      const [row] = await createGuestsV2(eventId!, payload.invitationId, [{
-        name: payload.name.trim(),
-        phone: payload.phone?.trim() || null,
-        guest_count: payload.guest_count,
-        message: payload.message,
-        status: payload.status,
-      }])
-      return row
-    },
+    (payload: CreateGuestPayload & { invitationIds: string[] }) =>
+      createGuestOnPages(eventId!, payload.invitationIds, payload),
     {
-      successMessage: (result: Guest) => `"${truncate(result.name)}" added`,
+      successMessage: (rows: Guest[]) =>
+        rows.length === 1
+          ? `"${truncate(rows[0].name)}" added`
+          : `"${truncate(rows[0]?.name ?? "Guest")}" added to ${rows.length} pages`,
       errorMessage: (err) => err.message,
-      onSuccess: (result: Guest) => {
-        setGuests((old) => [result, ...(old ?? [])])
+      onSuccess: (rows: Guest[]) => {
+        setGuests((old) => [...rows, ...(old ?? [])])
       },
     },
   )
@@ -113,7 +105,6 @@ export function useGuestMutations() {
         guest_count: guest.guest_count,
         message: guest.message,
         status,
-        invite_code: guest.invite_code,
       }),
     {
       successMessage: (result: Guest) =>
@@ -154,25 +145,5 @@ export function useGuestMutations() {
     },
   )
 
-  const bulkImport = useMutation(
-    (payload: {
-      eventId: string
-      insertRows: GuestFormValues[]
-      updateRows: Array<{ guest: Guest; values: GuestFormValues }>
-      skippedCount: number
-    }) => bulkImportGuests(payload),
-    {
-      toast: {
-        loading: "Importing guests…",
-        success: (r: ImportResult) =>
-          `${r.inserted} added · ${r.updated} updated · ${r.skipped} skipped`,
-        error: "Import failed",
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: adminKeys.guests(slug!) })
-      },
-    },
-  )
-
-  return { create, update, updateStatus, bulkUpdateGuests, remove, bulkImport }
+  return { create, update, updateStatus, bulkUpdateGuests, remove }
 }

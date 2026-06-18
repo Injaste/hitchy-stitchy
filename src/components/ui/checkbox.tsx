@@ -12,7 +12,7 @@ const Checkbox = React.forwardRef<
     ref={ref}
     className={cn(
       "peer group relative size-4 shrink-0 cursor-pointer rounded-sm border border-input bg-transparent outline-none",
-      "transition-[transform,box-shadow] hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100",
+      "transition-[transform,box-shadow] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50",
       fieldRing,
       className,
     )}
