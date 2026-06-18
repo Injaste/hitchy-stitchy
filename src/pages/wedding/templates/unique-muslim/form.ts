@@ -21,6 +21,8 @@ export const rsvpClassNames: RSVPFormClassNames = {
   inputAddonTextarea: "self-start mt-1.5",
   inputIcon: "text-(--um-primary)/40",
   fieldError: "text-sm font-semibold tracking-wide",
+  formError:
+    "text-(--um-destructive) text-sm font-semibold text-center leading-snug -mb-2",
   actions: "flex flex-col gap-2.5 pt-2",
   submit:
     "h-12 rounded-full bg-(--um-primary) text-(--um-primary-fg) font-bold uppercase tracking-widest text-sm shadow-lg hover:bg-(--um-primary)/90 disabled:opacity-60 transition-all mt-8",

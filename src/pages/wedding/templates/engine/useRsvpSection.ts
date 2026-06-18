@@ -1,5 +1,4 @@
 import { useRef, useState } from "react"
-import { useSearchParams } from "react-router-dom"
 import { isAfter, startOfDay } from "date-fns"
 import confetti from "canvas-confetti"
 
@@ -24,19 +23,14 @@ export function useRsvpSection(
   // eventConfig.id is the invitation/page id (per-page RSVP + session).
   const { data: existingRSVP, isLoading } = useGuestRSVP(eventConfig.event_id, eventConfig.id)
   const { submit, update, remove } = useRSVPMutations(eventConfig.event_id, eventConfig.id)
-  const [searchParams] = useSearchParams()
   const [isEditing, setIsEditing] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
 
   const isPrivate = eventConfig.rsvp_mode === "private"
-  // A `both` page is public by default; the couple sends reserved guests a
-  // ?private=true link so they get the code field to claim their seat.
-  const privateLink = searchParams.get("private") === "true"
-  // Show the code field for private pages, or a both-mode private link. Whenever
-  // it's shown it's required — the bare `both` link (public) never shows it.
-  const showCode = isPrivate || (eventConfig.rsvp_mode === "both" && privateLink)
+  // Private pages always show the code field (required); public pages never do.
+  const showCode = isPrivate
   const isDeadlinePassed =
     eventConfig.rsvp_deadline !== null &&
     isAfter(
@@ -45,12 +39,16 @@ export function useRsvpSection(
     )
 
   const handleSubmit = async (value: RSVPFormData) => {
-    if (isEditing) {
-      await update.mutate(value)
-    } else {
-      await submit.mutate(value)
-      setSubmitted(true)
-    }
+    // mutate() resolves even on failure (silent mutations swallow the rejection),
+    // so gate the celebration on the success callback — otherwise a rejected RPC
+    // (wrong code, capacity, duplicate…) would still fire confetti and flip to the
+    // confirmed view. On failure the error surfaces via `submitError`, form stays.
+    const mutation = isEditing ? update : submit
+    let ok = false
+    await mutation.mutate(value, { onSuccess: () => { ok = true } })
+    if (!ok) return
+
+    if (!isEditing) setSubmitted(true)
     setIsEditing(false)
     confetti({
       particleCount: 200,
@@ -91,6 +89,9 @@ export function useRsvpSection(
       max: eventConfig.guest_count_max,
     },
     removePending: remove.isPending,
+    // Server-side submit/update failure surfaced inline (mutations are silent —
+    // no toast); cleared on the next attempt by react-query.
+    submitError: (isEditing ? update.error : submit.error)?.message ?? null,
     handleSubmit,
     handleDeleteConfirm,
   }

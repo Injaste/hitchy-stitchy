@@ -27,6 +27,7 @@ export interface RSVPFormClassNames {
   inputAddonTextarea?: string;
   inputIcon?: string;
   fieldError?: string;
+  formError?: string;
   actions?: string;
   submit?: string;
   cancel?: string;
@@ -89,9 +90,10 @@ export interface RSVPFormProps {
   isEditing: boolean;
   rsvpConfig: RSVPSectionConfig;
   limits: { min: number; max: number };
-  /** Render the invite-code field (private mode, or a both-mode private link).
-   *  When shown it is always required; the bare both-link (public) hides it. */
+  /** Render the invite-code field (private mode). When shown it is always required. */
   showCode?: boolean;
+  /** Server-side submit/update error, rendered inline above the actions. */
+  error?: string | null;
   classNames: RSVPFormClassNames;
   labels: RSVPFormLabels;
 }

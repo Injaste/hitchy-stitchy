@@ -28,7 +28,7 @@ export interface RSVPFormData {
   phone: string
   guestCount: number
   message?: string
-  /** Private-mode gate code (private pages, or a both-mode private link). */
+  /** Private-mode gate code (private pages). */
   code?: string
 }
 
@@ -40,7 +40,6 @@ export interface RSVPSubmission {
   guest_count: number
   message: string | null
   status: "pending" | "confirmed" | "cancelled"
-  source: "private" | "public"
   token: string
   created_at: string
   updated_at: string

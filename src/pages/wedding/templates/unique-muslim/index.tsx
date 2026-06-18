@@ -539,6 +539,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         rsvpConfig={rsvp.rsvpConfig}
         limits={rsvp.limits}
         showCode={rsvp.showCode}
+        error={rsvp.submitError}
         classNames={rsvpClassNames}
         labels={mergedRsvpLabels}
       />

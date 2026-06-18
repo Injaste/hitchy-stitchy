@@ -24,6 +24,7 @@ const RSVPForm = ({
   rsvpConfig,
   limits,
   showCode = false,
+  error,
   classNames,
   labels,
 }: RSVPFormProps) => {
@@ -173,6 +174,12 @@ const RSVPForm = ({
           </form.Field>
         )}
       </FieldGroup>
+
+      {error && (
+        <p role="alert" className={classNames.formError}>
+          {error}
+        </p>
+      )}
 
       <form.Subscribe selector={(s) => [s.isSubmitting, s.canSubmit]}>
         {([isSubmitting, canSubmit]) => (
