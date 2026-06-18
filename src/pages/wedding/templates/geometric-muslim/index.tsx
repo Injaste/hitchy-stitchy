@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence, type Variants } from "framer-motion"
-import { format } from "date-fns"
 import {
   Calendar,
-  CalendarCheck,
   Clock,
   MapPin,
-  MapPinCheck,
   Star,
-  Heart,
   Edit2,
   Trash2,
 } from "lucide-react"
@@ -16,7 +12,8 @@ import LottieRaw from "lottie-react"
 
 import { Button } from "@/components/ui/button"
 import { RSVPForm, RSVPDelete } from "@/pages/wedding/form"
-import { AnchorBar } from "@/pages/wedding/anchors"
+import { AnchorDock } from "@/pages/wedding/anchors"
+import { getWeddingDateTime } from "@/pages/wedding/anchors/calendar"
 import successCheck from "@/assets/lottie/success-check.json"
 
 import type { ThemeProps, SectionListValue } from "@/pages/wedding/templates/types"
@@ -121,34 +118,6 @@ const heroArch: Variants = {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getWeddingDateTime(dateParts: number[] | undefined, weddingStartTime: string | null) {
-  if (!dateParts || !weddingStartTime) return null
-  const [hours, minutes] = weddingStartTime.split(":").map(Number)
-  return new Date(dateParts[0], dateParts[1] - 1, dateParts[2], hours || 0, minutes || 0)
-}
-
-const deriveMapEmbedUrl = (mapLink: string | null | undefined): string | null => {
-  if (!mapLink) return null
-  try {
-    const url = new URL(mapLink)
-    const q = url.searchParams.get("q")
-    if (q) return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`
-    const atMatch = url.pathname.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)
-    if (atMatch) return `https://maps.google.com/maps?q=${atMatch[1]},${atMatch[2]}&output=embed`
-  } catch {
-    return null
-  }
-  return null
-}
-
-const safeFormat = (date: Date, fmt: string) => {
-  try {
-    return format(date, fmt)
-  } catch {
-    return null
-  }
-}
 
 interface ItinerarySection {
   title: string
@@ -362,26 +331,14 @@ const GeometricMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) =
   const [ready, setReady] = useState(false)
   const rsvp = useRsvpSection(eventConfig, { confettiColors: CONFETTI_COLORS })
 
-  const dateParts = eventConfig.event_date?.split("-").map(Number)
-  const weddingDate = getWeddingDateTime(dateParts, eventConfig.event_time_start)
+  const weddingDate = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_start)
 
-  const mapEmbedUrl = config.venue_map_embed_url || deriveMapEmbedUrl(config.venue_map_link)
-  const eventDate = dateParts ? new Date(dateParts[0], dateParts[1] - 1, dateParts[2]) : ""
   const detailsList = [
     ...(config.date ? [{ icon: Calendar, title: "Date", detail: config.date }] : []),
     ...(config.time ? [{ icon: Clock, title: "Time", detail: config.time }] : []),
     ...(config.venue_name ? [{ icon: MapPin, title: "Location", detail: config.venue_name }] : []),
     ...(config.dress_code ? [{ icon: Star, title: "Dress code", detail: config.dress_code }] : []),
   ]
-  const googleCalendarUrl = eventDate
-    ? "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-      "&text=" +
-      encodeURIComponent(`Wedding of ${config.groom_name ?? ""} & ${config.bride_name ?? ""}`) +
-      "&dates=" +
-      encodeURIComponent(`${safeFormat(eventDate, "yyyyMMdd")}/${safeFormat(eventDate, "yyyyMMdd")}`) +
-      "&location=" +
-      encodeURIComponent(config.venue_address ?? "")
-    : null
 
   const itinerarySections = parseItinerary(config.itinerary)
 
@@ -603,7 +560,6 @@ const GeometricMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) =
 
           {detailsList.length > 0 && (
             <motion.div
-              id="date"
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-40px" }}
@@ -629,58 +585,6 @@ const GeometricMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) =
             </motion.div>
           )}
 
-          {googleCalendarUrl && (
-            <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} className="mt-10">
-              <motion.div variants={fadeUp(0, 12, 0.6)}>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="rounded-none w-full bg-transparent text-(--gm-fg) border-(--gm-primary)/40 hover:bg-(--gm-primary)/10 gap-2 font-semibold tracking-[0.2em] uppercase text-xs h-11"
-                >
-                  <a href={googleCalendarUrl} target="_blank" rel="noopener noreferrer">
-                    <CalendarCheck size={16} className="text-(--gm-primary)" />
-                    Add to Google Calendar
-                  </a>
-                </Button>
-              </motion.div>
-            </motion.div>
-          )}
-
-          {mapEmbedUrl && (
-            <motion.div
-              id="map"
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-40px" }}
-              className="mt-6 border border-(--gm-primary)/20"
-            >
-              <motion.div variants={fadeIn(0, 0.9)} className="relative w-full aspect-video">
-                <iframe
-                  src={mapEmbedUrl}
-                  className="absolute inset-0 w-full h-full border-0"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </motion.div>
-              <motion.div variants={fadeUp(0.15, 10, 0.6)} className="p-4 flex flex-col gap-3">
-                <p className="text-(--gm-fg)/70 italic whitespace-pre-line text-sm">{config.venue_address}</p>
-                {config.venue_map_link && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="rounded-none self-start bg-transparent text-(--gm-fg) border-(--gm-primary)/40 hover:bg-(--gm-primary)/10 gap-2 font-semibold tracking-widest uppercase text-xs"
-                  >
-                    <a href={config.venue_map_link} target="_blank" rel="noopener noreferrer">
-                      <MapPinCheck size={14} className="text-(--gm-primary)" />
-                      Open Maps
-                    </a>
-                  </Button>
-                )}
-              </motion.div>
-            </motion.div>
-          )}
         </div>
       </section>
 
@@ -807,11 +711,22 @@ const GeometricMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) =
         />
       </section>
 
-      <AnchorBar
+      <AnchorDock
         ready={ready}
-        items={anchorItems}
+        eventConfig={eventConfig}
+        scrollItems={anchorItems}
         classNames={geometricMuslimAnchors.classNames}
+        drawerClassNames={geometricMuslimAnchors.drawer}
         labels={geometricMuslimAnchors.labels}
+        calendar={{
+          title: `Wedding of ${config.groom_name ?? ""} & ${config.bride_name ?? ""}`,
+          location: config.venue_address,
+        }}
+        map={{
+          embedUrl: config.venue_map_embed_url,
+          link: config.venue_map_link,
+          address: config.venue_address,
+        }}
       />
     </div>
   )
