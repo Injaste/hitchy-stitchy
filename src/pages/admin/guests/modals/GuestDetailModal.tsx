@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useInvitationsQuery } from "../../invitation/queries";
+import { RSVP_MODE_META } from "../../invitation/rsvpMeta";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { STATUS_LABELS } from "../types";
 
@@ -46,6 +47,7 @@ const GuestDetailModal = () => {
 
   if (!selectedItem) return null;
   const guest = selectedItem;
+  const SourceIcon = RSVP_MODE_META[guest.source].icon;
 
   const copyPhone = () => {
     if (!guest.phone) return;
@@ -109,6 +111,10 @@ const GuestDetailModal = () => {
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <Badge variant={statusVariant}>
                 {STATUS_LABELS[guest.status]}
+              </Badge>
+              <Badge variant="outline" className="gap-1">
+                <SourceIcon className="size-3" />
+                {guest.source === "private" ? "Reserved" : "Public"}
               </Badge>
             </div>
 

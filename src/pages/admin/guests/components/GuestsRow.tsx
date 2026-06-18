@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { STATUS_LABELS, type Guest, type GuestStatus } from "../types";
+import { RSVP_MODE_META } from "../../invitation/rsvpMeta";
 
 /** Shared sheet column template — header and rows stay in sync.
  *  Mobile: select · guest · party · status · actions.
@@ -72,6 +73,7 @@ const GuestsRow: FC<GuestsRowProps> = memo(
   }) => {
     const statusMeta = STATUS_ICON[guest.status];
     const StatusIcon = statusMeta.icon;
+    const SourceIcon = RSVP_MODE_META[guest.source].icon;
 
     return (
       <DataTableRow
@@ -89,6 +91,20 @@ const GuestsRow: FC<GuestsRowProps> = memo(
 
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
+            <span
+              title={
+                guest.source === "private"
+                  ? "Reserved — pre-loaded private guest"
+                  : "Public — RSVP-ed via the link"
+              }
+              className="inline-flex shrink-0 text-muted-foreground"
+            >
+              <SourceIcon
+                role="img"
+                aria-label={guest.source === "private" ? "Reserved" : "Public"}
+                className="size-3.5"
+              />
+            </span>
             <p className="truncate font-medium leading-tight text-foreground">
               {guest.name}
             </p>

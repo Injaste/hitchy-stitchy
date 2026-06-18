@@ -8,12 +8,16 @@ import { Button } from "@/components/ui/button";
 
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
+import { RSVP_MODE_META } from "../../invitation/rsvpMeta";
+import type { RSVPMode } from "../../invitation/types";
 
 export interface SegmentFilterOption {
   /** Invitation page id, or null for the "All pages of the day" pill. */
   id: string | null;
   label: string;
   count: number;
+  /** The page's RSVP mode — shown as a leading icon. Omitted for "All". */
+  mode?: RSVPMode;
 }
 
 interface SegmentFilterProps {
@@ -52,6 +56,7 @@ const SegmentFilter: FC<SegmentFilterProps> = ({
         <div className="flex gap-1.5">
           {options.map((opt) => {
             const isActive = opt.id === activeId;
+            const ModeIcon = opt.mode ? RSVP_MODE_META[opt.mode].icon : null;
             return (
               <Button
                 key={opt.id ?? "all"}
@@ -64,6 +69,16 @@ const SegmentFilter: FC<SegmentFilterProps> = ({
                   !isActive && "bg-transparent text-muted-foreground",
                 )}
               >
+                {ModeIcon && (
+                  <ModeIcon
+                    className={cn(
+                      "size-3.5 shrink-0",
+                      isActive
+                        ? "text-primary-foreground/80"
+                        : "text-muted-foreground/80",
+                    )}
+                  />
+                )}
                 {opt.label}
                 <span
                   className={cn(

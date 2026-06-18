@@ -5,6 +5,7 @@ import confetti from "canvas-confetti"
 
 import { useGuestRSVP, useRSVPMutations } from "@/pages/wedding/queries"
 import type { PublicEventConfig, RSVPFormData } from "@/pages/wedding/types"
+import { DEFAULT_DEADLINE_MESSAGE } from "@/pages/admin/invitation/types"
 
 interface UseRsvpSectionOptions {
   /** Confetti palette fired on a successful submit. A template's own colours. */
@@ -33,10 +34,9 @@ export function useRsvpSection(
   // A `both` page is public by default; the couple sends reserved guests a
   // ?private=true link so they get the code field to claim their seat.
   const privateLink = searchParams.get("private") === "true"
-  // Show the code field for private pages, or a both-mode private link. It's only
-  // mandatory in private mode — in `both` the public can RSVP without one.
+  // Show the code field for private pages, or a both-mode private link. Whenever
+  // it's shown it's required — the bare `both` link (public) never shows it.
   const showCode = isPrivate || (eventConfig.rsvp_mode === "both" && privateLink)
-  const codeRequired = isPrivate
   const isDeadlinePassed =
     eventConfig.rsvp_deadline !== null &&
     isAfter(
@@ -81,8 +81,9 @@ export function useRsvpSection(
     setShowDeleteDialog,
     isPrivate,
     showCode,
-    codeRequired,
     isDeadlinePassed,
+    deadlineMessage:
+      eventConfig.config.rsvp.messages?.deadline_closed || DEFAULT_DEADLINE_MESSAGE,
     sectionRef,
     rsvpConfig: eventConfig.config.rsvp,
     limits: {

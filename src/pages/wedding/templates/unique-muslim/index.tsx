@@ -539,7 +539,6 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         rsvpConfig={rsvp.rsvpConfig}
         limits={rsvp.limits}
         showCode={rsvp.showCode}
-        codeRequired={rsvp.codeRequired}
         classNames={rsvpClassNames}
         labels={mergedRsvpLabels}
       />
@@ -548,10 +547,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
 
   const renderRsvpBody = () => {
     if (rsvp.isDeadlinePassed)
-      return renderClosed(
-        "deadline",
-        "RSVP submissions are now closed. Thank you to everyone who responded.",
-      )
+      return renderClosed("deadline", rsvp.deadlineMessage)
     if (rsvp.existingRSVP && !rsvp.isEditing) return renderSuccess()
     if (rsvp.isLoading) return renderClosed("loading", "Checking RSVP status…")
     return renderForm()

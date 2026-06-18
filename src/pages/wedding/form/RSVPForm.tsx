@@ -24,16 +24,14 @@ const RSVPForm = ({
   rsvpConfig,
   limits,
   showCode = false,
-  codeRequired = false,
   classNames,
   labels,
 }: RSVPFormProps) => {
   const { message } = rsvpConfig.fields;
 
   // The code is only relevant for a new (non-edit) gated submission; self-edits
-  // re-authenticate by token, not the code.
+  // re-authenticate by token, not the code. When shown, it's always required.
   const codeVisible = showCode && !isEditing;
-  const codeReq = codeRequired && !isEditing;
 
   // Sequential reveal: code (when shown) sits right after phone and pushes the
   // remaining fields down by one.
@@ -56,7 +54,7 @@ const RSVPForm = ({
       ...(codeVisible && { code: "" }),
       ...propsDefaults,
     } as RSVPFormData,
-    validators: { onSubmit: buildRsvpSchema(rsvpConfig, limits, codeReq) },
+    validators: { onSubmit: buildRsvpSchema(rsvpConfig, limits, codeVisible) },
     onSubmit: async ({ value }) => {
       await onSubmit(value as RSVPFormData);
     },
@@ -124,8 +122,7 @@ const RSVPForm = ({
                   isInvalid: f.state.meta.isTouched && !f.state.meta.isValid,
                   errors: f.state.meta.errors,
                 }}
-                required={codeReq}
-                optionalLabel={codeReq ? undefined : "if you have one"}
+                required
                 classNames={classNames}
                 labels={labels}
                 delay={delays.code! * 0.1}

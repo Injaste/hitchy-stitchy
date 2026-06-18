@@ -12,7 +12,16 @@ export interface RSVPSectionConfig {
   fields: {
     message: RSVPFieldConfig
   }
+  // RSVP copy that lives with the form settings (not the theme design). Optional
+  // for back-compat with rows saved before this field existed.
+  messages?: {
+    deadline_closed?: string | null
+  }
 }
+
+// Default shown when the RSVP deadline has passed and no custom message is set.
+export const DEFAULT_DEADLINE_MESSAGE =
+  "RSVP submissions are now closed. Thank you to everyone who responded."
 
 export interface InvitationConfig {
   rsvp: RSVPSectionConfig

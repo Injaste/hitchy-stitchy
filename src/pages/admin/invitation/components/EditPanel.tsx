@@ -139,7 +139,10 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <RSVPSection />
+                        <RSVPSection
+                          linkSlug={invitation.link_slug}
+                          published={!!invitation.published_at}
+                        />
                         <GuestLimitsSection />
                         <FormFieldsSection />
                         <ConfirmationSection />

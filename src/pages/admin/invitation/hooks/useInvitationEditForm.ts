@@ -106,6 +106,9 @@ export function useInvitationEditForm(
                   required: messageVisible && !!v.message_required,
                 },
               },
+              messages: {
+                deadline_closed: (v.deadline_message as string) || null,
+              },
             },
           },
         });
@@ -153,6 +156,9 @@ export function useInvitationEditForm(
               visible: v.message_visible,
               required: v.message_visible ? v.message_required : false,
             },
+          },
+          messages: {
+            deadline_closed: v.deadline_message,
           },
         },
       },

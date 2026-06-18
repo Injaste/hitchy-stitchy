@@ -131,6 +131,7 @@ const GuestsView: FC<GuestsViewProps> = ({
         id: p.id,
         label: pageLabel(p, days, segments ?? []),
         count: dayGuests.filter((g) => g.invitation_id === p.id).length,
+        mode: p.rsvp_mode,
       })),
     ];
   }, [dayPages, dayGuests, days, segments]);

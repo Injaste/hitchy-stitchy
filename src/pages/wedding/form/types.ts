@@ -89,11 +89,9 @@ export interface RSVPFormProps {
   isEditing: boolean;
   rsvpConfig: RSVPSectionConfig;
   limits: { min: number; max: number };
-  /** Render the invite-code field (private mode, or a both-mode private link). */
+  /** Render the invite-code field (private mode, or a both-mode private link).
+   *  When shown it is always required; the bare both-link (public) hides it. */
   showCode?: boolean;
-  /** Make the code mandatory (private mode). In `both` it stays optional so the
-   *  public can RSVP without one. */
-  codeRequired?: boolean;
   classNames: RSVPFormClassNames;
   labels: RSVPFormLabels;
 }
