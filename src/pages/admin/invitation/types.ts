@@ -1,6 +1,6 @@
 import type { ThemeConfig } from "@/pages/wedding/templates/types"
 
-export const RSVP_MODES = ["public", "private", "both"] as const;
+export const RSVP_MODES = ["public", "private"] as const;
 export type RSVPMode = typeof RSVP_MODES[number];
 
 export interface RSVPFieldConfig {
@@ -16,12 +16,28 @@ export interface RSVPSectionConfig {
   // for back-compat with rows saved before this field existed.
   messages?: {
     deadline_closed?: string | null
+    /** Lead-in message for reserved guests; the link is appended on copy/share.
+     *  Supports a {code} placeholder, filled with the page's invite code. */
+    invite_message?: string | null
   }
 }
 
 // Default shown when the RSVP deadline has passed and no custom message is set.
 export const DEFAULT_DEADLINE_MESSAGE =
   "RSVP submissions are now closed. Thank you to everyone who responded."
+
+// Default invite-message lead-in. {code} is interpolated; the link is appended.
+export const DEFAULT_INVITE_MESSAGE =
+  "You're invited! RSVP with your phone and invite code {code}:"
+
+// Resolve an invite-message lead-in: fill {code}, then append the link.
+export function buildInviteMessage(
+  template: string,
+  link: string,
+  code: string,
+): string {
+  return `${template.replaceAll("{code}", code).trim()} ${link}`
+}
 
 export interface InvitationConfig {
   rsvp: RSVPSectionConfig
@@ -63,7 +79,7 @@ export interface Invitation {
   guest_count_max: number
   confirmation_message: string | null
   rsvp_config: InvitationConfig
-  // Shared per-page gate code for private/both RSVP; null for public pages. The
+  // Shared per-page gate code for private RSVP; null for public pages. The
   // public render RPC never returns it — admins (members) read it via RLS.
   private_code: string | null
   created_at: string

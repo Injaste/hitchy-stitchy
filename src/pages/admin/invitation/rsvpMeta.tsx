@@ -1,4 +1,4 @@
-import { Globe, Lock, GlobeLock, type LucideIcon } from "lucide-react";
+import { Globe, Lock, type LucideIcon } from "lucide-react";
 import type { RSVPMode } from "./types";
 
 // Single source of truth for how each RSVP mode is presented: its icon, short
@@ -21,10 +21,5 @@ export const RSVP_MODE_META: Record<RSVPMode, RsvpModeMeta> = {
     label: "Private",
     hint: "Only invited guests can RSVP — they enter their phone and the shared code below.",
     icon: Lock,
-  },
-  both: {
-    label: "Both",
-    hint: "Public guests RSVP freely; reserved guests open a ?private=true link to claim a held seat with the code. Tip: switch to Public or Private to preview each form.",
-    icon: GlobeLock,
   },
 };

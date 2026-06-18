@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import {
   CheckCircle,
   Clock,
+  Copy,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -26,7 +27,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { STATUS_LABELS, type Guest, type GuestStatus } from "../types";
-import { RSVP_MODE_META } from "../../invitation/rsvpMeta";
 
 /** Shared sheet column template — header and rows stay in sync.
  *  Mobile: select · guest · party · status · actions.
@@ -41,8 +41,10 @@ interface GuestsRowProps {
   openDetail: (guest: Guest) => void;
   openEdit: () => void;
   openDelete: () => void;
+  openDuplicate: () => void;
   canEdit: boolean;
   canRemove: boolean;
+  canDuplicate: boolean;
   hasCrudActions: boolean;
   onUpdateStatus: (guest: Guest, status: GuestStatus) => void;
   isUpdating: boolean;
@@ -65,15 +67,16 @@ const GuestsRow: FC<GuestsRowProps> = memo(
     openDetail,
     openEdit,
     openDelete,
+    openDuplicate,
     canEdit,
     canRemove,
+    canDuplicate,
     hasCrudActions,
     onUpdateStatus,
     isUpdating,
   }) => {
     const statusMeta = STATUS_ICON[guest.status];
     const StatusIcon = statusMeta.icon;
-    const SourceIcon = RSVP_MODE_META[guest.source].icon;
 
     return (
       <DataTableRow
@@ -91,20 +94,6 @@ const GuestsRow: FC<GuestsRowProps> = memo(
 
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <span
-              title={
-                guest.source === "private"
-                  ? "Reserved — pre-loaded private guest"
-                  : "Public — RSVP-ed via the link"
-              }
-              className="inline-flex shrink-0 text-muted-foreground"
-            >
-              <SourceIcon
-                role="img"
-                aria-label={guest.source === "private" ? "Reserved" : "Public"}
-                className="size-3.5"
-              />
-            </span>
             <p className="truncate font-medium leading-tight text-foreground">
               {guest.name}
             </p>
@@ -183,6 +172,17 @@ const GuestsRow: FC<GuestsRowProps> = memo(
                 >
                   <Pencil className="w-4 h-4 mr-2" />
                   Edit
+                </DropdownMenuItem>
+              )}
+              {canDuplicate && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    openDetail(guest);
+                    openDuplicate();
+                  }}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy to page(s)
                 </DropdownMenuItem>
               )}
               {canRemove && (

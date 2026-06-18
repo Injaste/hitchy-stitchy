@@ -32,9 +32,10 @@ const CreateGuestForm = ({ pages, pageId, open }: CreateGuestFormProps) => {
   const form = useGuestForm({
     pages,
     pageId,
-    onSubmit: (values, invitationId) => {
+    multiPage: true,
+    onSubmit: (values, pageIds) => {
       create.mutate({
-        invitationId,
+        invitationIds: pageIds,
         name: values.name,
         phone: values.phone,
         guest_count: values.guest_count,
@@ -56,7 +57,7 @@ const CreateGuestForm = ({ pages, pageId, open }: CreateGuestFormProps) => {
       resetOnSuccess={isCreateMore}
     >
       <FormHeader icon={<User className="size-4" />} title="Add guest" />
-      <GuestForm pages={pages} />
+      <GuestForm pages={pages} multiPage />
       <FormFooter
         onCancel={closeAll}
         submitLabel="Add guest"
@@ -74,10 +75,23 @@ const GuestCreateModal = () => {
   const { data: invitations } = useInvitationsQuery();
   const { data: segments } = useEventSegmentsQuery();
 
-  // The active day's pages, day-level first — mirrors the list's ordering.
-  const activeDayId = activeDay?.id ?? null;
+  // Guests attach to invitation pages, which may not live on the globally-active
+  // day (e.g. a multi-day event whose first/active day has no page). Target the
+  // active day if it has a page, else the first day that does — mirroring the
+  // list's effective-day pick, so the modal always has a target when any
+  // invitation exists.
+  const invitationDayIds = useMemo(
+    () => new Set((invitations ?? []).map((i) => i.day_id)),
+    [invitations],
+  );
+  const effectiveDayId =
+    (activeDay && invitationDayIds.has(activeDay.id) ? activeDay.id : null) ??
+    days.find((d) => invitationDayIds.has(d.id))?.id ??
+    null;
+
+  // The effective day's pages, day-level first — mirrors the list's ordering.
   const pages: GuestPageOption[] = useMemo(() => {
-    const list = (invitations ?? []).filter((i) => i.day_id === activeDayId);
+    const list = (invitations ?? []).filter((i) => i.day_id === effectiveDayId);
     return [...list]
       .sort((a, b) => {
         const rank = (s: string | null) => (s === null ? 0 : 1);
@@ -90,8 +104,9 @@ const GuestCreateModal = () => {
         minGuest: p.guest_count_min,
         maxGuest: p.guest_count_max,
         showMessage: p.rsvp_config.rsvp.fields.message.visible,
+        mode: p.rsvp_mode,
       }));
-  }, [invitations, activeDayId, days, segments]);
+  }, [invitations, effectiveDayId, days, segments]);
 
   // Pre-target the focused segment, else this day's first page.
   const defaultPageId =

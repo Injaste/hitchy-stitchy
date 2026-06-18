@@ -8,7 +8,7 @@ import { useFormShell } from "@/components/custom/form/form-context";
 import ShareLink from "@/components/custom/share-link";
 import { BASE_URL } from "@/lib/config";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { RSVP_MODES, type RSVPMode } from "../../types";
+import { RSVP_MODES, DEFAULT_INVITE_MESSAGE, type RSVPMode } from "../../types";
 import { RSVP_MODE_META } from "../../rsvpMeta";
 
 const RSVP_MODE_OPTIONS = RSVP_MODES.map((m) => {
@@ -20,8 +20,8 @@ const RSVP_MODE_OPTIONS = RSVP_MODES.map((m) => {
   };
 });
 
-// Mode-specific helper text under the picker — explains behaviour and (for `both`)
-// how to preview each form face. Reads the mode live so it updates on change.
+// Mode-specific helper text under the picker — explains behaviour. Reads the mode
+// live so it updates on change.
 const ModeHint = () => {
   const { form } = useFormShell();
   const mode: RSVPMode = useStore(
@@ -45,8 +45,8 @@ const generateCode = () => {
   return out;
 };
 
-// The shared gate code — only relevant when RSVP is gated (private/both). Reads the
-// mode live so it shows/hides without a remount.
+// The shared gate code — only relevant for private RSVP. Reads the mode live so it
+// shows/hides without a remount.
 const PrivateCodeFields = () => {
   const { form } = useFormShell();
   const mode: RSVPMode = useStore(
@@ -88,9 +88,8 @@ const PrivateCodeFields = () => {
   );
 };
 
-// The forward-ready RSVP link for gated pages. Carries ?private=true so a `both`
-// page opens the code form for reserved guests (harmless on a private page). Only
-// works once the page is published — else the public URL 404s. Reads mode + code
+// The forward-ready RSVP link for private pages — the page URL plus the shared
+// code/message. Only works once published (else the URL 404s). Reads mode + code
 // live so it appears/updates with the form.
 const PrivateShareBlock = ({
   linkSlug,
@@ -109,21 +108,35 @@ const PrivateShareBlock = ({
     form.store,
     (s: any) => s.values.private_code ?? "",
   );
+  const inviteMessage: string = useStore(
+    form.store,
+    (s: any) => s.values.invite_message ?? "",
+  );
   if (mode === "public") return null;
 
   const path = `${slug}${linkSlug ? `/${linkSlug}` : ""}`;
-  const url = `${BASE_URL}/${path}?private=true`;
-  const message = code
-    ? `You're invited! RSVP with your phone and invite code ${code}:`
-    : "You're invited! RSVP here:";
+  const url = `${BASE_URL}/${path}`;
+  // Lead-in only — ShareLink appends the URL. {code} is filled live.
+  const leadIn = (inviteMessage || DEFAULT_INVITE_MESSAGE).replaceAll(
+    "{code}",
+    code || "{code}",
+  );
 
   return (
-    <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+    <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
+      <TextareaField
+        name="invite_message"
+        label="Invite message"
+        optional
+        rows={2}
+        placeholder={DEFAULT_INVITE_MESSAGE}
+        hint="Sent to reserved guests. Use {code} for the invite code — the link is added automatically."
+      />
       <p className="text-xs font-medium text-foreground">Guest RSVP link</p>
       {published ? (
         <>
           <p className="break-all text-xs text-muted-foreground">{url}</p>
-          <ShareLink url={url} message={message} />
+          <ShareLink url={url} message={leadIn} />
           <p className="text-xs text-muted-foreground">
             Share this link with the code above — guests unlock with their phone +
             code.

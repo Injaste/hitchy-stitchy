@@ -108,6 +108,7 @@ export function useInvitationEditForm(
               },
               messages: {
                 deadline_closed: (v.deadline_message as string) || null,
+                invite_message: (v.invite_message as string) || null,
               },
             },
           },
@@ -159,6 +160,7 @@ export function useInvitationEditForm(
           },
           messages: {
             deadline_closed: v.deadline_message,
+            invite_message: v.invite_message,
           },
         },
       },

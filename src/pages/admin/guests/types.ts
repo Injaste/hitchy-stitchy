@@ -1,7 +1,6 @@
 import { z } from "zod"
 
 export type GuestStatus = "pending" | "confirmed" | "cancelled"
-export type GuestSource = "private" | "public"
 
 export interface Guest {
   id: string
@@ -12,8 +11,6 @@ export interface Guest {
   guest_count: number
   message: string | null
   status: GuestStatus
-  source: GuestSource
-  invite_code: string | null
   created_at: string
   confirmed_at: string | null
   cancelled_at: string | null
@@ -25,9 +22,11 @@ export const guestFormSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(200, "Name is too long"),
-  // Optional for admin-entered guests (e.g. elderly relatives with no phone).
-  // Empty → null so no-phone guests don't collide on UNIQUE(event_id, phone).
-  // The PUBLIC RSVP form requires phone via its own schema (wedding/types.ts).
+  // Optional here; the form requires it when the guest will be Reserved on a
+  // selected page (validateGuestForm, which knows the page modes) — phone is the
+  // reserved guest's identity in the claim flow. Empty → null so no-phone guests
+  // don't collide on UNIQUE(event_id, phone). The PUBLIC RSVP form requires phone
+  // via its own schema.
   phone: z
     .string()
     .max(40, "Phone is too long")
@@ -55,29 +54,8 @@ export interface UpdateGuestPayload {
   guest_count: number
   message: string | null
   status: GuestStatus
-  invite_code: string | null
-}
-
-// CSV import
-
-export interface ParsedGuestRow {
-  rowIndex: number // 1-based, excluding header
-  values: GuestFormValues
-  errors: string[] // row-level validation failures; empty = valid
-}
-
-export type ImportAction = "insert" | "update" | "skip"
-
-export interface ResolvedGuestRow extends ParsedGuestRow {
-  conflictWith: Guest | null
-  action: ImportAction
-}
-
-export interface ImportResult {
-  inserted: number
-  updated: number
-  skipped: number
-  failed: Array<{ rowIndex: number; reason: string }>
+  /** Move the guest to a different invitation page. Omit to keep the current one. */
+  invitation_id?: string | null
 }
 
 export const STATUS_LABELS: Record<GuestStatus, string> = {

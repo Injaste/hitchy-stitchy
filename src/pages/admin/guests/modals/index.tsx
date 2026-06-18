@@ -4,7 +4,7 @@ import GuestCreateModal from "./GuestCreateModal";
 import GuestDetailModal from "./GuestDetailModal";
 import GuestEditModal from "./GuestEditModal";
 import GuestDeleteModal from "./GuestDeleteModal";
-import GuestImportModal from "./GuestImportModal";
+import GuestDuplicateModal from "./GuestDuplicateModal";
 import GuestBulkStatusModal from "./GuestBulkStatusModal";
 
 const GuestModals = () => {
@@ -16,7 +16,7 @@ const GuestModals = () => {
       <GuestDetailModal />
       <GuestEditModal key={selectedId ?? "none"} />
       <GuestDeleteModal />
-      <GuestImportModal />
+      <GuestDuplicateModal />
       <GuestBulkStatusModal />
     </>
   );
