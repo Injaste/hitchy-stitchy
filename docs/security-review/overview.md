@@ -7,9 +7,8 @@ Each phase has its own file (`phase-N-*.md`), sized to pick up cold.
 bottom.** Severity-first, with one dependency: phase 6 (live-DB hardening)
 needs phase 4 (schema dump) done first.
 
-> Status: phase 1 fixed (RSVP errors now surface inline) and phase 5 dropped (bulk
-> CSV import removed). Phases 2/3/4/6 remain. `npm run build` passes; tasks +
-> timeline domains came back clean; access gating (`useAccess()`) enforced everywhere.
+> Status: phases 2/3/4/6 remain. `npm run build` passes; tasks + timeline domains
+> came back clean; access gating (`useAccess()`) is enforced everywhere.
 
 ## Execution order
 
