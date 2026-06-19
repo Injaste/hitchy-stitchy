@@ -6,10 +6,10 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useMediaBreakpointUp } from "@/hooks/use-media-query";
-import { themeRegistry } from "@/pages/wedding/templates";
+import { themeRegistry, type ThemePageConfig } from "@/pages/wedding/templates";
 import { composeTemplatePreviewConfig, pageLabel } from "../utils";
 import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
-import { useInvitationsQuery, useEventSegmentsQuery } from "../queries";
+import { useInvitationsQuery, useEventSegmentsQuery, useTemplatesQuery } from "../queries";
 import { useEventDaysQuery } from "../../days/queries";
 import BrowsePanel from "./BrowsePanel";
 import EditPanel, { type EditPanelHandle } from "./EditPanel";
@@ -34,6 +34,7 @@ const InvitationSheet = () => {
     hidePreview,
   } = useInvitationModalStore();
   const { data: invitations } = useInvitationsQuery();
+  const { data: templates } = useTemplatesQuery();
   const { data: days } = useEventDaysQuery();
   const { data: segments } = useEventSegmentsQuery();
   const isMd = useMediaBreakpointUp("md");
@@ -73,10 +74,18 @@ const InvitationSheet = () => {
   const templatePreview = useMemo(() => {
     if (!selectedSlug) return null;
     const entry = themeRegistry[selectedSlug];
-    return entry
-      ? composeTemplatePreviewConfig(selectedSlug, entry.defaultConfig)
-      : null;
-  }, [selectedSlug]);
+    if (!entry) return null;
+    // Preview with the catalog template's seeded content (field_config) so the
+    // fields are populated; the registry defaultConfig is slug-only and renders
+    // blank. Fall back to the default if the catalog row hasn't loaded yet.
+    const fieldConfig = templates?.find(
+      (t) => t.template_key === selectedSlug,
+    )?.field_config;
+    const config = (
+      fieldConfig ? { ...fieldConfig, slug: selectedSlug } : entry.defaultConfig
+    ) as ThemePageConfig;
+    return composeTemplatePreviewConfig(selectedSlug, config);
+  }, [selectedSlug, templates]);
 
   return (
     <Sheet open={isOpen} onOpenChange={(o) => !o && requestClose()}>
