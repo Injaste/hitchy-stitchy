@@ -1,0 +1,38 @@
+/* ink-chinese — slug-owned stylesheet (sumi ink wash: rice-paper cream + charcoal
+   + cinnabar seal). Consumes the font CSS variables set on .ik-root. */
+
+.ik-root {
+  font-family: var(--theme-font-body);
+
+  --ik-bg:          #f4f0e5;
+  --ik-bg-2:        #ece5d5;
+  --ik-fg:          #2a2723;
+  --ik-muted-fg:    #6f6a5e;
+  --ik-ink:         #2a2723;
+  --ik-seal:        #b0392c;
+  --ik-border:      #d8d0bd;
+  --ik-card:        #fbf8ef;
+  --ik-on-ink:      #f4f0e5;
+  --ik-destructive: #b0392c;
+}
+
+.ik-root h1,
+.ik-root h2,
+.ik-root h3,
+.ik-root h4,
+.ik-root h5,
+.ik-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.ik-root .ik-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.ik-root .ik-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.ik-root .ik-hanzi {
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}

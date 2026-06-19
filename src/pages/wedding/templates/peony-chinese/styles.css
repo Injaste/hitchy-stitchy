@@ -1,0 +1,39 @@
+/* peony-chinese — slug-owned stylesheet (blush + rose + rose-gold, peony motif).
+   Consumes the font CSS variables set on .pn-root. */
+
+.pn-root {
+  font-family: var(--theme-font-body);
+
+  --pn-bg:           #fdf3f1;
+  --pn-bg-2:         #f8e6e1;
+  --pn-fg:           #5e3338;
+  --pn-muted-fg:     #a87d80;
+  --pn-primary:      #c25b6b;
+  --pn-primary-deep: #a8475a;
+  --pn-gold:         #c69a5a;
+  --pn-border:       #f0d8d2;
+  --pn-card:         #fffafa;
+  --pn-on-primary:   #fff5f5;
+  --pn-destructive:  #b0463f;
+}
+
+.pn-root h1,
+.pn-root h2,
+.pn-root h3,
+.pn-root h4,
+.pn-root h5,
+.pn-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.pn-root .pn-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.pn-root .pn-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.pn-root .pn-hanzi {
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}

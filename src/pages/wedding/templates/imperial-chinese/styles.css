@@ -1,0 +1,40 @@
+/* imperial-chinese — slug-owned stylesheet (deep oxblood + gold, lantern motif).
+   Consumes the font CSS variables set on .im-root. */
+
+.im-root {
+  font-family: var(--theme-font-body);
+
+  --im-bg:          #3a0f14;
+  --im-bg-2:        #4a151a;
+  --im-fg:          #f3e3c8;
+  --im-muted-fg:    #c4a487;
+  --im-gold:        #c9a14e;
+  --im-gold-soft:   #e2c478;
+  --im-primary:     #c9a14e;
+  --im-border:      #6a2a2e;
+  --im-card:        #461419;
+  --im-on-primary:  #3a0f14;
+  --im-destructive: #e08585;
+}
+
+.im-root h1,
+.im-root h2,
+.im-root h3,
+.im-root h4,
+.im-root h5,
+.im-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.im-root .im-couple-names {
+  font-family: var(--theme-font-couple);
+  letter-spacing: 0.05em;
+}
+
+.im-root .im-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.im-root .im-hanzi {
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}

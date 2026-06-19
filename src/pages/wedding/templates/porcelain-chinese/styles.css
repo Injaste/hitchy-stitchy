@@ -1,0 +1,39 @@
+/* porcelain-chinese — slug-owned stylesheet (blue-and-white 青花 porcelain).
+   Consumes the font CSS variables set on .pc-root. */
+
+.pc-root {
+  font-family: var(--theme-font-body);
+
+  --pc-bg:           #f4f7fa;
+  --pc-bg-2:         #e7eef5;
+  --pc-fg:           #1e3a5f;
+  --pc-muted-fg:     #6b89a6;
+  --pc-primary:      #2f5d8c;
+  --pc-primary-deep: #234a73;
+  --pc-accent:       #3b7fb5;
+  --pc-border:       #cfe0ee;
+  --pc-card:         #ffffff;
+  --pc-on-primary:   #ffffff;
+  --pc-destructive:  #b0463f;
+}
+
+.pc-root h1,
+.pc-root h2,
+.pc-root h3,
+.pc-root h4,
+.pc-root h5,
+.pc-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.pc-root .pc-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.pc-root .pc-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.pc-root .pc-hanzi {
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}

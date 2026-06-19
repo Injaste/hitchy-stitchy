@@ -23,6 +23,31 @@ import * as zellijMuslimForm from "./zellij-muslim/form"
 import { zellijMuslimSchema } from "./zellij-muslim/types"
 import { zellijMuslimAnchors } from "./zellij-muslim/anchors"
 
+import ClassicChinese from "./classic-chinese"
+import * as classicChineseForm from "./classic-chinese/form"
+import { classicChineseSchema } from "./classic-chinese/types"
+import { classicChineseAnchors } from "./classic-chinese/anchors"
+
+import InkChinese from "./ink-chinese"
+import * as inkChineseForm from "./ink-chinese/form"
+import { inkChineseSchema } from "./ink-chinese/types"
+import { inkChineseAnchors } from "./ink-chinese/anchors"
+
+import PeonyChinese from "./peony-chinese"
+import * as peonyChineseForm from "./peony-chinese/form"
+import { peonyChineseSchema } from "./peony-chinese/types"
+import { peonyChineseAnchors } from "./peony-chinese/anchors"
+
+import PorcelainChinese from "./porcelain-chinese"
+import * as porcelainChineseForm from "./porcelain-chinese/form"
+import { porcelainChineseSchema } from "./porcelain-chinese/types"
+import { porcelainChineseAnchors } from "./porcelain-chinese/anchors"
+
+import ImperialChinese from "./imperial-chinese"
+import * as imperialChineseForm from "./imperial-chinese/form"
+import { imperialChineseSchema } from "./imperial-chinese/types"
+import { imperialChineseAnchors } from "./imperial-chinese/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -75,6 +100,41 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(zellijMuslimForm),
     schema: zellijMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: zellijMuslimAnchors,
+  },
+  "classic-chinese": {
+    component: ClassicChinese,
+    defaultConfig: { slug: "classic-chinese" },
+    form: formFor(classicChineseForm),
+    schema: classicChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: classicChineseAnchors,
+  },
+  "ink-chinese": {
+    component: InkChinese,
+    defaultConfig: { slug: "ink-chinese" },
+    form: formFor(inkChineseForm),
+    schema: inkChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: inkChineseAnchors,
+  },
+  "peony-chinese": {
+    component: PeonyChinese,
+    defaultConfig: { slug: "peony-chinese" },
+    form: formFor(peonyChineseForm),
+    schema: peonyChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: peonyChineseAnchors,
+  },
+  "porcelain-chinese": {
+    component: PorcelainChinese,
+    defaultConfig: { slug: "porcelain-chinese" },
+    form: formFor(porcelainChineseForm),
+    schema: porcelainChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: porcelainChineseAnchors,
+  },
+  "imperial-chinese": {
+    component: ImperialChinese,
+    defaultConfig: { slug: "imperial-chinese" },
+    form: formFor(imperialChineseForm),
+    schema: imperialChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: imperialChineseAnchors,
   },
 }
 
