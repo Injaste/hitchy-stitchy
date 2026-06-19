@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { fieldVariant } from "@/lib/animations";
 
 import { FieldGroup } from "@/components/ui/field";
+import Logo from "@/components/custom/logo";
 import { buildRsvpSchema, type RSVPFormData } from "@/pages/wedding/types";
 
 import type { RSVPFormProps } from "./types";
@@ -206,12 +207,29 @@ const RSVPForm = ({
         )}
       </form.Subscribe>
 
-      <p className="text-xs text-muted-foreground text-center mt-3">
-        Your details are only used to manage your RSVP.{" "}
-        <Link to="/privacy" className="underline hover:text-foreground">
-          Privacy Policy
+      {/* Themed via currentColor (inherits the template's --xx-fg) so the legal
+          text + brand attribution stay legible on every palette. */}
+      <div className="mt-4 flex flex-col items-center gap-2 text-center">
+        <p className="text-xs text-current/70">
+          By submitting, you agree to our{" "}
+          <Link to="/privacy" className="underline hover:text-current">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1 rounded-xl border border-current/15 bg-current/5 px-3.5 py-2 text-current/65 transition-colors hover:border-current/30 hover:text-current/90"
+        >
+          <span className="text-2xs font-medium uppercase tracking-widest">
+            Made with
+          </span>
+          <Logo direction="row" imageClassName="h-6 w-6" className="gap-0" />
+          <span className="-ml-0.5 text-xs font-semibold tracking-wide">
+            Hitchy Stitchy
+          </span>
         </Link>
-      </p>
+      </div>
     </motion.form>
   );
 };
