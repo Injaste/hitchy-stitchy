@@ -194,7 +194,7 @@ const InlineCountdown = ({ target }: { target: Date | null }) => {
   return (
     <div className="flex items-stretch justify-center divide-x divide-(--gm-primary)/20">
       {UNITS.map((u) => (
-        <div key={u.key} className="flex flex-col items-center px-5">
+        <div key={u.key} className="flex flex-col items-center w-20">
           <span className="gm-countdown-number text-3xl text-(--gm-gold-soft) tabular-nums leading-none">
             {String(t[u.key]).padStart(2, "0")}
           </span>
