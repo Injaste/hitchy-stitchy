@@ -33,6 +33,11 @@ import * as inkChineseForm from "./ink-chinese/form"
 import { inkChineseSchema } from "./ink-chinese/types"
 import { inkChineseAnchors } from "./ink-chinese/anchors"
 
+import PeonyChinese from "./peony-chinese"
+import * as peonyChineseForm from "./peony-chinese/form"
+import { peonyChineseSchema } from "./peony-chinese/types"
+import { peonyChineseAnchors } from "./peony-chinese/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -99,6 +104,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(inkChineseForm),
     schema: inkChineseSchema as ThemeRegistryEntry["schema"],
     anchors: inkChineseAnchors,
+  },
+  "peony-chinese": {
+    component: PeonyChinese,
+    defaultConfig: { slug: "peony-chinese" },
+    form: formFor(peonyChineseForm),
+    schema: peonyChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: peonyChineseAnchors,
   },
 }
 
