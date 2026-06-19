@@ -31,7 +31,8 @@ const MapDrawer = ({
 }: MapDrawerProps) => {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className={classNames.content}>
+      {/* With a map, occupy half the viewport so the map reads at a useful size. */}
+      <DrawerContent className={cn(embedUrl && "h-[50svh]", classNames.content)}>
         <DrawerHeader>
           <DrawerTitle className={classNames.title}>Getting there</DrawerTitle>
           {address && (
@@ -42,8 +43,8 @@ const MapDrawer = ({
         </DrawerHeader>
 
         {embedUrl && (
-          <div className="px-5">
-            <div className={cn("relative w-full aspect-video overflow-hidden rounded-lg", classNames.iframe)}>
+          <div className="flex-1 min-h-0 px-5">
+            <div className={cn("relative w-full h-full overflow-hidden rounded-lg", classNames.iframe)}>
               <iframe
                 src={embedUrl}
                 title="Venue location"
