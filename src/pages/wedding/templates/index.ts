@@ -48,6 +48,31 @@ import * as imperialChineseForm from "./imperial-chinese/form"
 import { imperialChineseSchema } from "./imperial-chinese/types"
 import { imperialChineseAnchors } from "./imperial-chinese/anchors"
 
+import MarigoldIndian from "./marigold-indian"
+import * as marigoldIndianForm from "./marigold-indian/form"
+import { marigoldIndianSchema } from "./marigold-indian/types"
+import { marigoldIndianAnchors } from "./marigold-indian/anchors"
+
+import MehndiIndian from "./mehndi-indian"
+import * as mehndiIndianForm from "./mehndi-indian/form"
+import { mehndiIndianSchema } from "./mehndi-indian/types"
+import { mehndiIndianAnchors } from "./mehndi-indian/anchors"
+
+import MughalIndian from "./mughal-indian"
+import * as mughalIndianForm from "./mughal-indian/form"
+import { mughalIndianSchema } from "./mughal-indian/types"
+import { mughalIndianAnchors } from "./mughal-indian/anchors"
+
+import TempleIndian from "./temple-indian"
+import * as templeIndianForm from "./temple-indian/form"
+import { templeIndianSchema } from "./temple-indian/types"
+import { templeIndianAnchors } from "./temple-indian/anchors"
+
+import LotusIndian from "./lotus-indian"
+import * as lotusIndianForm from "./lotus-indian/form"
+import { lotusIndianSchema } from "./lotus-indian/types"
+import { lotusIndianAnchors } from "./lotus-indian/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -135,6 +160,41 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(imperialChineseForm),
     schema: imperialChineseSchema as ThemeRegistryEntry["schema"],
     anchors: imperialChineseAnchors,
+  },
+  "marigold-indian": {
+    component: MarigoldIndian,
+    defaultConfig: { slug: "marigold-indian" },
+    form: formFor(marigoldIndianForm),
+    schema: marigoldIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: marigoldIndianAnchors,
+  },
+  "mehndi-indian": {
+    component: MehndiIndian,
+    defaultConfig: { slug: "mehndi-indian" },
+    form: formFor(mehndiIndianForm),
+    schema: mehndiIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: mehndiIndianAnchors,
+  },
+  "mughal-indian": {
+    component: MughalIndian,
+    defaultConfig: { slug: "mughal-indian" },
+    form: formFor(mughalIndianForm),
+    schema: mughalIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: mughalIndianAnchors,
+  },
+  "temple-indian": {
+    component: TempleIndian,
+    defaultConfig: { slug: "temple-indian" },
+    form: formFor(templeIndianForm),
+    schema: templeIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: templeIndianAnchors,
+  },
+  "lotus-indian": {
+    component: LotusIndian,
+    defaultConfig: { slug: "lotus-indian" },
+    form: formFor(lotusIndianForm),
+    schema: lotusIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: lotusIndianAnchors,
   },
 }
 

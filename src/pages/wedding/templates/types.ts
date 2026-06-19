@@ -9,6 +9,11 @@ import type { InkChinesePageConfig } from "./ink-chinese/types"
 import type { PeonyChinesePageConfig } from "./peony-chinese/types"
 import type { PorcelainChinesePageConfig } from "./porcelain-chinese/types"
 import type { ImperialChinesePageConfig } from "./imperial-chinese/types"
+import type { MarigoldIndianPageConfig } from "./marigold-indian/types"
+import type { MehndiIndianPageConfig } from "./mehndi-indian/types"
+import type { MughalIndianPageConfig } from "./mughal-indian/types"
+import type { TempleIndianPageConfig } from "./temple-indian/types"
+import type { LotusIndianPageConfig } from "./lotus-indian/types"
 import type {
   RSVPFormClassNames,
   RSVPFormLabels,
@@ -83,6 +88,11 @@ export type ThemeConfig =
   | PeonyChinesePageConfig
   | PorcelainChinesePageConfig
   | ImperialChinesePageConfig
+  | MarigoldIndianPageConfig
+  | MehndiIndianPageConfig
+  | MughalIndianPageConfig
+  | TempleIndianPageConfig
+  | LotusIndianPageConfig
   | { slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: TSlug }>

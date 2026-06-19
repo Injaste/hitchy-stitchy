@@ -1,0 +1,40 @@
+/* temple-indian — slug-owned stylesheet (gold + maroon Kanjeevaram tones, gopuram
+   temple-border + kolam motif). Consumes the font CSS variables on .tp-root. */
+
+.tp-root {
+  font-family: var(--theme-font-body);
+
+  --tp-bg:           #fdf6ea;
+  --tp-bg-2:         #f6e7c7;
+  --tp-fg:           #571820;
+  --tp-muted-fg:     #976a48;
+  --tp-primary:      #8c1d2b;
+  --tp-primary-deep: #6c1320;
+  --tp-gold:         #b8860b;
+  --tp-gold-soft:    #c69214;
+  --tp-border:       #ecd6ac;
+  --tp-card:         #fffaf0;
+  --tp-on-primary:   #fdf6ea;
+  --tp-destructive:  #a83232;
+}
+
+.tp-root h1,
+.tp-root h2,
+.tp-root h3,
+.tp-root h4,
+.tp-root h5,
+.tp-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.tp-root .tp-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.tp-root .tp-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.tp-root .tp-devanagari {
+  font-family: "Noto Serif Devanagari", "Tiro Devanagari Hindi", serif;
+}

@@ -1,0 +1,40 @@
+/* mughal-indian — slug-owned stylesheet (deep maroon + gold, jharokha arch +
+   peacock motif). Dark & regal. Consumes the font CSS variables on .mu-root. */
+
+.mu-root {
+  font-family: var(--theme-font-body);
+
+  --mu-bg:           #2a0e12;
+  --mu-bg-2:         #381419;
+  --mu-fg:           #f3e2c2;
+  --mu-muted-fg:     #c6a570;
+  --mu-primary:      #d6b24a;
+  --mu-primary-deep: #b8932c;
+  --mu-accent:       #c23142;
+  --mu-gold:         #d6b24a;
+  --mu-border:       #6e4f2a;
+  --mu-card:         #34121a;
+  --mu-on-primary:   #2a0e12;
+  --mu-destructive:  #e0564a;
+}
+
+.mu-root h1,
+.mu-root h2,
+.mu-root h3,
+.mu-root h4,
+.mu-root h5,
+.mu-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.mu-root .mu-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.mu-root .mu-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.mu-root .mu-devanagari {
+  font-family: "Noto Serif Devanagari", "Tiro Devanagari Hindi", serif;
+}

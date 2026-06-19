@@ -1,0 +1,40 @@
+/* mehndi-indian — slug-owned stylesheet (henna green + maroon + gold, paisley /
+   mandala line-art). Consumes the font CSS variables on .mh-root. */
+
+.mh-root {
+  font-family: var(--theme-font-body);
+
+  --mh-bg:           #f3f1e3;
+  --mh-bg-2:         #e8e6d0;
+  --mh-fg:           #2f3a22;
+  --mh-muted-fg:     #6d784f;
+  --mh-primary:      #3f6b2e;
+  --mh-primary-deep: #2c4d1f;
+  --mh-maroon:       #7a2230;
+  --mh-gold:         #ad8a3c;
+  --mh-border:       #d6d2b6;
+  --mh-card:         #faf8ed;
+  --mh-on-primary:   #f3f1e3;
+  --mh-destructive:  #9c2b2b;
+}
+
+.mh-root h1,
+.mh-root h2,
+.mh-root h3,
+.mh-root h4,
+.mh-root h5,
+.mh-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.mh-root .mh-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.mh-root .mh-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.mh-root .mh-devanagari {
+  font-family: "Noto Serif Devanagari", "Tiro Devanagari Hindi", serif;
+}

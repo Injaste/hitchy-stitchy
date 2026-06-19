@@ -1,0 +1,116 @@
+import type { ThemeFieldGroup, SectionListValue } from "../types"
+
+export const marigoldIndianSchema = [
+  {
+    title: "Typography",
+    description: "Pick a font for each role. Leave blank to use the theme's default.",
+    fields: [
+      { key: "font_couple", label: "Couple Names Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_heading", label: "Headings Font", type: "font", placeholder: "Select a font…" },
+      { key: "font_body", label: "Body Font", type: "font", placeholder: "Select a font…" },
+    ],
+  },
+  {
+    title: "Couple",
+    fields: [
+      { key: "groom_name", label: "Groom Name", type: "text", placeholder: "e.g. Arjun" },
+      { key: "bride_name", label: "Bride Name", type: "text", placeholder: "e.g. Priya" },
+    ],
+  },
+  {
+    title: "Countdown",
+    description: "The date and time the hero countdown counts down to.",
+    fields: [
+      { key: "event_date", label: "Date", type: "date", placeholder: "" },
+      { key: "event_time_start", label: "Time", type: "time", placeholder: "" },
+    ],
+  },
+  {
+    title: "Hero",
+    fields: [
+      { key: "greeting", label: "Greeting", type: "textarea", placeholder: "e.g. शुभ विवाह — with joyful hearts we invite you" },
+      { key: "hero_divider_label", label: "Divider Label", type: "text", default: "The Wedding of", placeholder: "e.g. The Wedding of" },
+      { key: "quote", label: "Blessing / Shloka", type: "textarea", placeholder: "e.g. May this union be blessed" },
+      { key: "quote_source", label: "Blessing Source", type: "text", placeholder: "e.g. A blessing for the couple" },
+    ],
+  },
+  {
+    title: "Invitation",
+    fields: [
+      { key: "section_title", label: "Section Title", type: "text", placeholder: "e.g. With the blessings of our families" },
+      { key: "invitation_body", label: "Invitation Body", type: "textarea", placeholder: "Together with our families…" },
+    ],
+  },
+  {
+    title: "Blessings",
+    fields: [
+      { key: "blessings_prefix", label: "Section Prefix", type: "text", default: "Together with their families", placeholder: "e.g. Together with their families" },
+      { key: "blessings_name", label: "Name", type: "textarea", placeholder: "e.g. Mr & Mrs Sharma" },
+      { key: "blessings_label", label: "Label", type: "text", placeholder: "e.g. Parents of the Bride" },
+    ],
+  },
+  {
+    title: "Venue",
+    fields: [
+      { key: "date", label: "Date", type: "text", placeholder: "eg. 4th July 2026", default: "4th July 2026" },
+      { key: "time", label: "Time", type: "text", placeholder: "eg. 11 am", default: "11 AM" },
+      { key: "venue_name", label: "Venue Name", type: "text", placeholder: "e.g. The Grand Mandap" },
+      { key: "venue_address", label: "Venue Address", type: "textarea", placeholder: "Full address…" },
+      { key: "dress_code", label: "Dress Code / Attire", type: "text", placeholder: "e.g. Festive Indian — Bright & Bold" },
+      { key: "venue_map_link", label: "Map Link", type: "text", placeholder: "https://maps.google.com/…" },
+      { key: "venue_map_embed_url", label: "Map Embed URL", type: "textarea", placeholder: "https://www.google.com/maps/embed?…", hint: "Paste the src URL from the Google Maps embed code — not the full <iframe> tag." },
+    ],
+  },
+  {
+    title: "Itinerary",
+    fields: [
+      { key: "itinerary_title", label: "Section Title", type: "text", default: "The Celebrations", placeholder: "e.g. The Celebrations" },
+      {
+        key: "itinerary",
+        label: "Ceremonies",
+        type: "section-list",
+        placeholder: "",
+        itemFields: [
+          { key: "time", label: "Time", placeholder: "e.g. 10:00 AM" },
+          { key: "label", label: "Label", placeholder: "e.g. Haldi Ceremony" },
+        ],
+      },
+      { key: "footnote", label: "Footnote", type: "text", default: "", placeholder: "e.g. Dinner to follow" },
+    ],
+  },
+  {
+    title: "RSVP",
+    fields: [
+      { key: "rsvp_subtitle", label: "Subtitle", type: "text", default: "Your presence would mean the world to us.", placeholder: "e.g. Your presence would mean the world to us." },
+      { key: "rsvp_success_heading", label: "Success Heading", type: "text", default: "Dhanyavaad!", placeholder: "e.g. Dhanyavaad!" },
+      { key: "rsvp_label_name", label: "Full Name Label", type: "text", default: "Full Name", placeholder: "e.g. Full Name" },
+      { key: "rsvp_label_phone", label: "Phone Number Label", type: "text", default: "Phone Number", placeholder: "e.g. Phone Number" },
+      { key: "rsvp_label_guest_count", label: "Number of Guests Label", type: "text", default: "Number of Guests", placeholder: "e.g. Number of Guests" },
+      { key: "rsvp_label_message", label: "Message Label", type: "text", default: "Message", placeholder: "e.g. Message" },
+    ],
+  },
+  {
+    title: "Footer",
+    fields: [
+      { key: "footer_tagline", label: "Tagline", type: "text", default: "With love and blessings", placeholder: "e.g. With love and blessings" },
+    ],
+  },
+  {
+    title: "Meta",
+    description: "Controls how this page appears in browser tabs and link previews when shared.",
+    fields: [
+      { key: "page_title", label: "Page Title", type: "text", placeholder: "e.g. The Wedding of Arjun & Priya", hint: "Shown in the browser tab and link previews. Leave blank to use the default." },
+      { key: "page_description", label: "Page Description", type: "textarea", placeholder: "A short message shown when this page is shared…", hint: "Shown in link previews on WhatsApp, Facebook, iMessage, etc." },
+      { key: "og_image", label: "Social Share Image", type: "image", placeholder: "/image.png or https://...", hint: "1200×630 works best." },
+    ],
+  },
+] as const satisfies ThemeFieldGroup[]
+
+type ExtractKeys<T extends readonly ThemeFieldGroup[]> = T[number]["fields"][number]["key"]
+
+export type MarigoldIndianPageConfig = {
+  slug: "marigold-indian"
+  itinerary?: SectionListValue
+} & {
+  [K in Exclude<ExtractKeys<typeof marigoldIndianSchema>, "itinerary">]?: string | null
+}
