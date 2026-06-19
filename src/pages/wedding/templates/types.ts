@@ -8,6 +8,7 @@ import type { ClassicChinesePageConfig } from "./classic-chinese/types"
 import type { InkChinesePageConfig } from "./ink-chinese/types"
 import type { PeonyChinesePageConfig } from "./peony-chinese/types"
 import type { PorcelainChinesePageConfig } from "./porcelain-chinese/types"
+import type { ImperialChinesePageConfig } from "./imperial-chinese/types"
 import type {
   RSVPFormClassNames,
   RSVPFormLabels,
@@ -81,6 +82,7 @@ export type ThemeConfig =
   | InkChinesePageConfig
   | PeonyChinesePageConfig
   | PorcelainChinesePageConfig
+  | ImperialChinesePageConfig
   | { slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: TSlug }>

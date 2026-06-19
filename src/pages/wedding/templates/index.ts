@@ -43,6 +43,11 @@ import * as porcelainChineseForm from "./porcelain-chinese/form"
 import { porcelainChineseSchema } from "./porcelain-chinese/types"
 import { porcelainChineseAnchors } from "./porcelain-chinese/anchors"
 
+import ImperialChinese from "./imperial-chinese"
+import * as imperialChineseForm from "./imperial-chinese/form"
+import { imperialChineseSchema } from "./imperial-chinese/types"
+import { imperialChineseAnchors } from "./imperial-chinese/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -123,6 +128,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(porcelainChineseForm),
     schema: porcelainChineseSchema as ThemeRegistryEntry["schema"],
     anchors: porcelainChineseAnchors,
+  },
+  "imperial-chinese": {
+    component: ImperialChinese,
+    defaultConfig: { slug: "imperial-chinese" },
+    form: formFor(imperialChineseForm),
+    schema: imperialChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: imperialChineseAnchors,
   },
 }
 
