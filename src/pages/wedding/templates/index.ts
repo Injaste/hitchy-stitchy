@@ -58,6 +58,11 @@ import * as mehndiIndianForm from "./mehndi-indian/form"
 import { mehndiIndianSchema } from "./mehndi-indian/types"
 import { mehndiIndianAnchors } from "./mehndi-indian/anchors"
 
+import MughalIndian from "./mughal-indian"
+import * as mughalIndianForm from "./mughal-indian/form"
+import { mughalIndianSchema } from "./mughal-indian/types"
+import { mughalIndianAnchors } from "./mughal-indian/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -159,6 +164,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(mehndiIndianForm),
     schema: mehndiIndianSchema as ThemeRegistryEntry["schema"],
     anchors: mehndiIndianAnchors,
+  },
+  "mughal-indian": {
+    component: MughalIndian,
+    defaultConfig: { slug: "mughal-indian" },
+    form: formFor(mughalIndianForm),
+    schema: mughalIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: mughalIndianAnchors,
   },
 }
 
