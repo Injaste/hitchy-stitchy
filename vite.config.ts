@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
         background_color: "#fefbf8",
         display: "standalone",
         orientation: "portrait",
-        start_url: "/",
+        start_url: "/dashboard",
         scope: "/",
       },
       injectManifest: {
