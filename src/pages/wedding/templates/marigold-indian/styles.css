@@ -1,0 +1,41 @@
+/* marigold-indian — slug-owned stylesheet (festive marigold orange + magenta +
+   leaf-green, garland/toran motif). Consumes the font CSS variables on .mg-root. */
+
+.mg-root {
+  font-family: var(--theme-font-body);
+
+  --mg-bg:           #fff6e8;
+  --mg-bg-2:         #ffeccb;
+  --mg-fg:           #4a2410;
+  --mg-muted-fg:     #9c6b3f;
+  --mg-primary:      #e8731c;
+  --mg-primary-deep: #c4560f;
+  --mg-magenta:      #c0246a;
+  --mg-green:        #4f7c34;
+  --mg-gold:         #d99a2b;
+  --mg-border:       #f3d3a3;
+  --mg-card:         #fffdf8;
+  --mg-on-primary:   #fff6e8;
+  --mg-destructive:  #b3322a;
+}
+
+.mg-root h1,
+.mg-root h2,
+.mg-root h3,
+.mg-root h4,
+.mg-root h5,
+.mg-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.mg-root .mg-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.mg-root .mg-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.mg-root .mg-devanagari {
+  font-family: "Noto Serif Devanagari", "Tiro Devanagari Hindi", serif;
+}

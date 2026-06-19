@@ -48,6 +48,11 @@ import * as imperialChineseForm from "./imperial-chinese/form"
 import { imperialChineseSchema } from "./imperial-chinese/types"
 import { imperialChineseAnchors } from "./imperial-chinese/anchors"
 
+import MarigoldIndian from "./marigold-indian"
+import * as marigoldIndianForm from "./marigold-indian/form"
+import { marigoldIndianSchema } from "./marigold-indian/types"
+import { marigoldIndianAnchors } from "./marigold-indian/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -135,6 +140,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(imperialChineseForm),
     schema: imperialChineseSchema as ThemeRegistryEntry["schema"],
     anchors: imperialChineseAnchors,
+  },
+  "marigold-indian": {
+    component: MarigoldIndian,
+    defaultConfig: { slug: "marigold-indian" },
+    form: formFor(marigoldIndianForm),
+    schema: marigoldIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: marigoldIndianAnchors,
   },
 }
 
