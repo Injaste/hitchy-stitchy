@@ -38,6 +38,11 @@ import * as peonyChineseForm from "./peony-chinese/form"
 import { peonyChineseSchema } from "./peony-chinese/types"
 import { peonyChineseAnchors } from "./peony-chinese/anchors"
 
+import PorcelainChinese from "./porcelain-chinese"
+import * as porcelainChineseForm from "./porcelain-chinese/form"
+import { porcelainChineseSchema } from "./porcelain-chinese/types"
+import { porcelainChineseAnchors } from "./porcelain-chinese/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -111,6 +116,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(peonyChineseForm),
     schema: peonyChineseSchema as ThemeRegistryEntry["schema"],
     anchors: peonyChineseAnchors,
+  },
+  "porcelain-chinese": {
+    component: PorcelainChinese,
+    defaultConfig: { slug: "porcelain-chinese" },
+    form: formFor(porcelainChineseForm),
+    schema: porcelainChineseSchema as ThemeRegistryEntry["schema"],
+    anchors: porcelainChineseAnchors,
   },
 }
 
