@@ -12,6 +12,7 @@ import type { ImperialChinesePageConfig } from "./imperial-chinese/types"
 import type { MarigoldIndianPageConfig } from "./marigold-indian/types"
 import type { MehndiIndianPageConfig } from "./mehndi-indian/types"
 import type { MughalIndianPageConfig } from "./mughal-indian/types"
+import type { TempleIndianPageConfig } from "./temple-indian/types"
 import type {
   RSVPFormClassNames,
   RSVPFormLabels,
@@ -89,6 +90,7 @@ export type ThemeConfig =
   | MarigoldIndianPageConfig
   | MehndiIndianPageConfig
   | MughalIndianPageConfig
+  | TempleIndianPageConfig
   | { slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: TSlug }>

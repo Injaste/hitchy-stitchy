@@ -63,6 +63,11 @@ import * as mughalIndianForm from "./mughal-indian/form"
 import { mughalIndianSchema } from "./mughal-indian/types"
 import { mughalIndianAnchors } from "./mughal-indian/anchors"
 
+import TempleIndian from "./temple-indian"
+import * as templeIndianForm from "./temple-indian/form"
+import { templeIndianSchema } from "./temple-indian/types"
+import { templeIndianAnchors } from "./temple-indian/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -171,6 +176,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(mughalIndianForm),
     schema: mughalIndianSchema as ThemeRegistryEntry["schema"],
     anchors: mughalIndianAnchors,
+  },
+  "temple-indian": {
+    component: TempleIndian,
+    defaultConfig: { slug: "temple-indian" },
+    form: formFor(templeIndianForm),
+    schema: templeIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: templeIndianAnchors,
   },
 }
 
