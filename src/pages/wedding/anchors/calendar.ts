@@ -70,15 +70,14 @@ export function buildIcs({
   ].join("\r\n")
 }
 
-// Trigger a client-side .ics download (covers Apple Calendar / Outlook).
-export function downloadIcs(filename: string, ics: string): void {
-  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
+// Inline data: URL for the event. Used as a plain link's href so the OS hands
+// it straight to Apple Calendar (Mac/iOS) instead of saving a file — mirroring
+// how the Google link opens Google Calendar directly.
+export function buildIcsDataUrl(opts: {
+  title: string
+  start: Date
+  end: Date | null
+  location?: string | null
+}): string {
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(buildIcs(opts))}`
 }

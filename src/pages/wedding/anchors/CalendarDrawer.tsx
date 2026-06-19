@@ -1,4 +1,4 @@
-import { CalendarPlus, Download } from "lucide-react"
+import { CalendarPlus } from "lucide-react"
 
 import {
   Drawer,
@@ -11,7 +11,13 @@ import {
 import { cn } from "@/lib/utils"
 
 import type { AnchorDrawerClassNames } from "./types"
-import { buildGoogleCalendarUrl, buildIcs, downloadIcs } from "./calendar"
+import { buildGoogleCalendarUrl, buildIcsDataUrl } from "./calendar"
+
+// The Apple Calendar option (a data:text/calendar link) only opens the Calendar
+// app on Apple platforms; elsewhere it just downloads an .ics, so hide it.
+const isAppleDevice =
+  typeof navigator !== "undefined" &&
+  /iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(navigator.userAgent)
 
 interface CalendarDrawerProps {
   open: boolean
@@ -35,6 +41,7 @@ const CalendarDrawer = ({
   classNames,
 }: CalendarDrawerProps) => {
   const googleUrl = buildGoogleCalendarUrl({ title, start, end, location })
+  const appleUrl = buildIcsDataUrl({ title, start, end, location })
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -58,22 +65,18 @@ const CalendarDrawer = ({
             <CalendarPlus size={16} />
             Google Calendar
           </a>
-          <button
-            type="button"
-            onClick={() =>
-              downloadIcs(
-                "wedding.ics",
-                buildIcs({ title, start, end, location }),
-              )
-            }
-            className={cn(
-              "inline-flex h-12 items-center justify-center gap-2 rounded-md text-sm font-semibold uppercase tracking-widest cursor-pointer",
-              classNames.buttonOutline,
-            )}
-          >
-            <Download size={16} />
-            Apple / Outlook
-          </button>
+          {isAppleDevice && (
+            <a
+              href={appleUrl}
+              className={cn(
+                "inline-flex h-12 items-center justify-center gap-2 rounded-md text-sm font-semibold uppercase tracking-widest",
+                classNames.buttonOutline,
+              )}
+            >
+              <CalendarPlus size={16} />
+              Apple Calendar
+            </a>
+          )}
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
