@@ -26,7 +26,6 @@ money + banquet features below are things a US tool structurally can't match her
 | 4 | [Dietary / halal](mvp-phase-4-dietary-halal.md) | Small; multicultural necessity; prerequisite for good seating. | low |
 | 5 | [Seating / table planner](mvp-phase-5-seating-planner.md) | Banquet round tables; heaviest build, wants guests+dietary solid first. | high |
 | 6 | [Vendor management](mvp-phase-6-vendor-management.md) | Rebuild day-scoped; ties to budget + timeline. | med–high |
-| 7 | [Invitation templates](mvp-phase-7-invitation-templates.md) | Engine done; authoring 3–5 designs so the invite side carries weight. | low (per design) |
 
 **Monetization is deliberately last** and already documented — see
 [`phase-1.md`](../payment-plans/phase-1.md). Don't build
@@ -38,7 +37,7 @@ billing inside these phases; just declare each feature's intended tier as you go
 - **SGD everywhere** money appears.
 - **Halal / dietary** as a first-class guest concept (phase 4), not a config flag.
 - **Multi-ceremony** is already native via `event_segments` — reuse it, don't rebuild.
-- **PayNow** — phase-7/monetization only (Stripe Checkout + PayNow per the payments handoff); a PayNow QR on the invite is a possible later add.
+- **PayNow** — monetization only (Stripe Checkout + PayNow per the payments handoff); a PayNow QR on the invite is a possible later add.
 
 ---
 
