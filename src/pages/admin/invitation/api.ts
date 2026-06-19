@@ -104,12 +104,12 @@ export async function unpublishInvitation(
   return data as Invitation
 }
 
-// Template catalogue (readonly).
-export async function fetchTemplates(): Promise<Template[]> {
-  const { data, error } = await supabase
-    .from("event_templates")
-    .select("id, name, template_key, description, field_config, is_active, created_at, updated_at")
-    .order("name", { ascending: true })
+// Template catalogue — scoped to the event via get_templates RPC.
+// Superadmins see draft templates; regular members see live-only.
+export async function fetchTemplates(eventId: string): Promise<Template[]> {
+  const { data, error } = await supabase.rpc("get_templates", {
+    p_event_id: eventId,
+  })
 
   if (error) throw new Error(error.message)
   return (data ?? []) as Template[]

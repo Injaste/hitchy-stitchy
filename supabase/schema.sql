@@ -194,16 +194,18 @@ ALTER TABLE public.events
 
 -- -----------------------------------------------------------------------------
 -- event_templates  [confirmed constraints; columns inferred from create_theme RPC]
+-- [20260619000006] event_id added for private-template scoping
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_templates (
-  id          uuid        NOT NULL DEFAULT gen_random_uuid(),
+  id           uuid        NOT NULL DEFAULT gen_random_uuid(),
   name         text        NOT NULL,
   template_key text        NOT NULL,  -- registry key (was seeded from the dropped `slug`, 20260617000008)
   description  text,
   field_config jsonb       NOT NULL DEFAULT '{}',
   is_active    boolean     NOT NULL DEFAULT true,
-  created_at  timestamptz NOT NULL DEFAULT now(),
-  updated_at  timestamptz NOT NULL DEFAULT now(),
+  event_id     uuid        REFERENCES public.events(id) ON DELETE SET NULL,  -- NULL = global catalog [20260619000006]
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  updated_at   timestamptz NOT NULL DEFAULT now(),
 
   CONSTRAINT event_themes_pkey      PRIMARY KEY (id)
 );
@@ -867,10 +869,8 @@ CREATE POLICY event_tasks_select ON public.event_tasks
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
--- event_templates — global, visible to anyone authenticated if active
-CREATE POLICY event_templates_select ON public.event_templates
-  FOR SELECT TO authenticated
-  USING (is_active = true);
+-- event_templates — no SELECT policy; RLS enabled, direct reads return nothing.
+-- All reads go through get_templates (SECURITY DEFINER). [20260619000006]
 
 CREATE POLICY event_timelines_select ON public.event_timelines
   FOR SELECT TO authenticated
@@ -1356,6 +1356,26 @@ BEGIN
   );
 END; $$;
 GRANT EXECUTE ON FUNCTION public.get_public_invitation(text, text) TO anon, authenticated;
+
+-- get_templates — sole authoritative picker read. [20260619000006]
+-- SECURITY DEFINER bypasses RLS; membership + event scoping enforced here.
+CREATE OR REPLACE FUNCTION public.get_templates(p_event_id uuid)
+RETURNS SETOF public.event_templates
+LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
+DECLARE v_caller event_members;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller IS NULL THEN RETURN; END IF;
+
+  RETURN QUERY
+    SELECT * FROM public.event_templates
+    WHERE is_active = true
+      AND (event_id IS NULL OR event_id = p_event_id)
+    ORDER BY name ASC;
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.get_templates(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.get_templates(uuid) TO authenticated;
 
 -- Functions still to add (copy from the dump):
 --   create_access_group, update_access_group, delete_access_group

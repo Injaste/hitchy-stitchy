@@ -19,11 +19,11 @@ import type {
 } from "./types";
 
 export function useTemplatesQuery() {
-  const { slug } = useAdminStore();
+  const { slug, eventId } = useAdminStore();
   return useQuery({
     queryKey: adminKeys.templates(slug!),
-    queryFn: fetchTemplates,
-    enabled: !!slug,
+    queryFn: () => fetchTemplates(eventId!),
+    enabled: !!slug && !!eventId,
     staleTime: Infinity,
   });
 }

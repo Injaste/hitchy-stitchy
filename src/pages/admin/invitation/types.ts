@@ -52,6 +52,7 @@ export interface Template {
   description: string | null
   field_config: Record<string, unknown>
   is_active: boolean
+  event_id: string | null
   created_at: string
   updated_at: string
 }
