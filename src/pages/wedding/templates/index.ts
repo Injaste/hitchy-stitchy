@@ -68,6 +68,11 @@ import * as templeIndianForm from "./temple-indian/form"
 import { templeIndianSchema } from "./temple-indian/types"
 import { templeIndianAnchors } from "./temple-indian/anchors"
 
+import LotusIndian from "./lotus-indian"
+import * as lotusIndianForm from "./lotus-indian/form"
+import { lotusIndianSchema } from "./lotus-indian/types"
+import { lotusIndianAnchors } from "./lotus-indian/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -183,6 +188,13 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(templeIndianForm),
     schema: templeIndianSchema as ThemeRegistryEntry["schema"],
     anchors: templeIndianAnchors,
+  },
+  "lotus-indian": {
+    component: LotusIndian,
+    defaultConfig: { slug: "lotus-indian" },
+    form: formFor(lotusIndianForm),
+    schema: lotusIndianSchema as ThemeRegistryEntry["schema"],
+    anchors: lotusIndianAnchors,
   },
 }
 

@@ -1,0 +1,39 @@
+/* lotus-indian — slug-owned stylesheet (blush + ivory + rose-gold, single lotus
+   line, modern minimal). Consumes the font CSS variables on .lt-root. */
+
+.lt-root {
+  font-family: var(--theme-font-body);
+
+  --lt-bg:           #faf7f2;
+  --lt-bg-2:         #f1eae0;
+  --lt-fg:           #4a4038;
+  --lt-muted-fg:     #9a8e80;
+  --lt-primary:      #b76e79;
+  --lt-primary-deep: #9c5760;
+  --lt-gold:         #c4a06a;
+  --lt-border:       #e7ddd0;
+  --lt-card:         #fffdfa;
+  --lt-on-primary:   #fffdfa;
+  --lt-destructive:  #b0463f;
+}
+
+.lt-root h1,
+.lt-root h2,
+.lt-root h3,
+.lt-root h4,
+.lt-root h5,
+.lt-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.lt-root .lt-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.lt-root .lt-countdown-number {
+  font-family: var(--theme-font-number);
+}
+
+.lt-root .lt-devanagari {
+  font-family: "Noto Serif Devanagari", "Tiro Devanagari Hindi", serif;
+}
