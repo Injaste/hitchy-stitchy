@@ -10,6 +10,7 @@ interface DashboardHeaderProps {
   isFetching: boolean;
   refetch: () => void;
   onCreateEvent: () => void;
+  name?: string | null;
 }
 
 const DashboardHeader: FC<DashboardHeaderProps> = ({
@@ -17,6 +18,7 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
   isFetching,
   refetch,
   onCreateEvent,
+  name,
 }) => {
   const action: ReactNode = (
     <Button size="sm" className="gap-0" onClick={onCreateEvent}>
@@ -25,10 +27,16 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
     </Button>
   );
 
+  // Greet by first name when the account has one; fall back to the neutral title
+  // for older accounts that predate profiles.name (still NULL until they edit it).
+  const firstName = name?.trim().split(/\s+/)[0];
+
   return (
     <DashboardPageHeader
-      title="Planning Dashboard"
-      description="All your celebrations in one place."
+      title={
+        firstName ? `Welcome back, ${firstName}` : "Your Planning Dashboard"
+      }
+      description="Every celebration you're part of, all in one place."
       action={action}
       isLoading={isLoading}
       isRefetching={isFetching}

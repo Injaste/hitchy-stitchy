@@ -1,5 +1,4 @@
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
 import { KeyRound } from "lucide-react";
 
 import { FieldGroup } from "@/components/ui/field";
@@ -8,21 +7,23 @@ import {
   FormHeader,
   FormBody,
   FormFooter,
-  FormError,
   PasswordField,
+  PasswordChecklist,
 } from "@/components/custom/form";
+import { isPasswordValid } from "@/lib/password";
 
-import { useChangePasswordMutation } from "./queries";
-import { changePasswordSchema } from "./types";
+// Schema + mutation are shared with the account-settings version (the form logic
+// is identical — only the presentation differs: carded here, flush there).
+import { useChangePasswordMutation } from "@/pages/account/components/change-password/queries";
+import { changePasswordSchema } from "@/pages/account/components/change-password/types";
 
+/** Admin-settings change password — carded, sits among the Settings tab cards. */
 const ChangePassword = () => {
   const {
     mutateAsync: changePassword,
     isPending,
     isSuccess,
     isError,
-    error: mutationError,
-    reset: resetMutation,
   } = useChangePasswordMutation();
 
   const form = useForm({
@@ -32,9 +33,8 @@ const ChangePassword = () => {
       onChange: changePasswordSchema,
     },
     onSubmit: async ({ value }) => {
-      resetMutation();
+      if (!isPasswordValid(value.password)) return;
       await changePassword({ password: value.password });
-      toast.success("Password updated.");
     },
   });
 
@@ -47,27 +47,39 @@ const ChangePassword = () => {
       resetOnSuccess
       className="max-w-sm"
     >
-      <FormHeader icon={<KeyRound className="size-4" />} title="Change Password" />
+      <FormHeader
+        icon={<KeyRound className="size-4" />}
+        title="Change Password"
+      />
 
       <FormBody>
         <FieldGroup>
-          <PasswordField
-            name="password"
-            label="New password"
-            placeholder="New password"
-            autoComplete="new-password"
-          />
+          <div className="space-y-2">
+            <PasswordField
+              name="password"
+              label="New password"
+              placeholder="New password"
+              autoComplete="new-password"
+            />
+            <PasswordChecklist name="password" />
+          </div>
           <PasswordField
             name="confirm_password"
             label="Confirm new password"
             placeholder="Confirm new password"
             autoComplete="new-password"
           />
-          <FormError error={mutationError} />
         </FieldGroup>
       </FormBody>
 
-      <FormFooter submitLabel="Update password" />
+      <form.Subscribe selector={(s) => s.values.password}>
+        {(pw) => (
+          <FormFooter
+            submitLabel="Update password"
+            submitDisabled={!isPasswordValid(pw)}
+          />
+        )}
+      </form.Subscribe>
     </FormCard>
   );
 };

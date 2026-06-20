@@ -12,6 +12,7 @@ import {
 import { useSteps } from "@/components/custom/steps-direction";
 import { toSlug } from "@/hooks/useSlugCheck";
 import { BASE_URL } from "@/lib/config";
+import { useProfileQuery } from "@/pages/account/queries";
 
 import {
   stepDetailsSchema,
@@ -34,6 +35,7 @@ const StepDetails: FC<StepDetailsProps> = ({
   onReserved,
 }) => {
   const { goTo } = useSteps<StepType>();
+  const { data: profile } = useProfileQuery();
   const [eventName, setEventName] = useState(defaultValues?.event_name ?? "");
   const [slugTouched, setSlugTouched] = useState(false);
   const [slugIsTaken, setSlugIsTaken] = useState(false);
@@ -41,7 +43,9 @@ const StepDetails: FC<StepDetailsProps> = ({
 
   const form = useForm({
     defaultValues: {
-      display_name: defaultValues?.display_name ?? "",
+      // Prefill from the account name (profiles.name); still editable, since this
+      // is the per-event display name — they may want to appear differently here.
+      display_name: defaultValues?.display_name ?? profile?.name ?? "",
       event_name: defaultValues?.event_name ?? "",
       slug: defaultValues?.slug ?? "",
     } as StepDetailsFormValues,

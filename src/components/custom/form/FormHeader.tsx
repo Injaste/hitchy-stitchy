@@ -22,9 +22,9 @@ const FormHeader = ({ title, icon }: FormHeaderProps) => {
     <DialogHeader>
       {inDialog ? (
         <DialogTitle
-          className={
-            icon ? "flex items-center gap-2 text-muted-foreground" : undefined
-          }
+          className={cn(
+            icon && "flex items-center gap-2 text-muted-foreground",
+          )}
         >
           {icon}
           {title}
@@ -34,7 +34,7 @@ const FormHeader = ({ title, icon }: FormHeaderProps) => {
           data-slot="dialog-title"
           className={cn(
             "cn-font-heading font-display text-base leading-none font-medium",
-            icon && "flex items-center gap-2",
+            icon && "flex items-center gap-2 text-muted-foreground",
           )}
         >
           {icon}
