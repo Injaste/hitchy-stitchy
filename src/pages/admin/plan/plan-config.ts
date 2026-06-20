@@ -9,7 +9,7 @@ export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
   { resource: "guests", label: "Guests" },
   { resource: "days", label: "Event days" },
   { resource: "pages", label: "Invitation pages" },
-  { resource: "members", label: "Team" },
+  { resource: "members", label: "Team members" },
 ];
 
 /** Resources marketed as "Unlimited" on Pro — the real cap is a hidden soft

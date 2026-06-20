@@ -17,6 +17,7 @@ import { useAdminStore } from "../../store/useAdminStore";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import AdminLogout from "../AdminLogout";
+import SidebarPlanBadge from "./SidebarPlanBadge";
 
 const AdminSidebarFooter = () => {
   const { state } = useSidebar();
@@ -27,6 +28,7 @@ const AdminSidebarFooter = () => {
   return (
     <SidebarFooter>
       <SidebarMenu>
+        <SidebarPlanBadge />
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
