@@ -1,9 +1,18 @@
+import { supabase } from "@/lib/supabase"
 import type { SignupCredentials } from "./types"
 
-export async function signupUser(_credentials: SignupCredentials): Promise<void> {
-  // Sign-ups are closed for beta — throw so the form shows a waitlist message
-  // instead of faking success. The real gate is also Supabase Auth → "Enable
-  // signups" OFF. Invites work for existing accounts (login → claim); re-enabling
-  // signup is a documented follow-up.
-  throw new Error("Sign-ups are closed for now — please join the waitlist.")
+export async function signupUser({
+  fullName,
+  email,
+  password,
+}: SignupCredentials): Promise<void> {
+  // full_name rides along as auth metadata; the on_auth_user_created trigger
+  // (20260621000001) copies it into profiles.name. Requires "Enable signups" ON
+  // in the Supabase Auth dashboard — re-opened from the prior beta waitlist gate.
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { full_name: fullName } },
+  })
+  if (error) throw new Error(error.message)
 }

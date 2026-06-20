@@ -14,6 +14,9 @@ export async function fetchBootstrapContext(
 
   const member = data.member;
   const accessGroup = data.access_group;
+  const plan = data.plan;
+  const limits = plan.limits;
+  const usage = plan.usage;
 
   const isBride = member.is_bride ?? false;
   const isGroom = member.is_groom ?? false;
@@ -35,5 +38,28 @@ export async function fetchBootstrapContext(
     permissions: accessGroup.permissions ?? {},
     memberRole: member.role ?? null,
     isSuperAdmin: isSuperAdmin(isRoot, isBride, isGroom),
+    plan: {
+      key: plan.key,
+      tier: plan.tier,
+      name: plan.name,
+      activatedAt: plan.activated_at ?? null,
+      isOverPlanLimits: plan.is_over_plan_limits ?? false,
+      limits: {
+        maxDays: limits.max_days,
+        maxSegmentsPerDay: limits.max_segments_per_day,
+        maxInvitationPages: limits.max_invitation_pages,
+        maxGuests: limits.max_guests,
+        maxMembers: limits.max_members,
+        canUseBudget: limits.can_use_budget,
+        canUseGifts: limits.can_use_gifts,
+        canRemoveBranding: limits.can_remove_branding,
+      },
+      usage: {
+        days: usage.days,
+        guests: usage.guests,
+        members: usage.members,
+        pages: usage.pages,
+      },
+    },
   };
 }

@@ -1,5 +1,7 @@
 export { default as FieldShell } from "./FieldShell";
 export { default as TextField } from "./TextField";
+export { default as NameField } from "./NameField";
+export { default as AvatarField } from "./AvatarField";
 export { default as DayLabelField } from "./DayLabelField";
 export { default as PasswordField } from "./PasswordField";
 export { default as TextareaField } from "./TextareaField";

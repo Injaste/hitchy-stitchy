@@ -14,8 +14,10 @@ import {
   FormError,
   TextField,
   PasswordField,
+  PasswordChecklist,
   CheckboxField,
 } from "@/components/custom/form";
+import { isPasswordValid } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
 import BackLink from "@/components/custom/back-link";
@@ -168,12 +170,15 @@ const Signup = () => {
                       autoComplete="email"
                     />
 
-                    <PasswordField
-                      name="password"
-                      label="Password"
-                      placeholder="Password"
-                      autoComplete="new-password"
-                    />
+                    <div className="space-y-2">
+                      <PasswordField
+                        name="password"
+                        label="Password"
+                        placeholder="Password"
+                        autoComplete="new-password"
+                      />
+                      <PasswordChecklist name="password" />
+                    </div>
 
                     <PasswordField
                       name="confirm_password"
@@ -202,12 +207,17 @@ const Signup = () => {
                   </FieldGroup>
                 </FormBody>
 
-                <form.Subscribe selector={(s) => s.values.agree_terms}>
-                  {(agreed) => (
+                <form.Subscribe
+                  selector={(s) => ({
+                    agreed: s.values.agree_terms,
+                    password: s.values.password,
+                  })}
+                >
+                  {({ agreed, password }) => (
                     <FormFooter
                       submitLabel="Create Account"
                       fullWidth
-                      submitDisabled={!agreed}
+                      submitDisabled={!agreed || !isPasswordValid(password)}
                     />
                   )}
                 </form.Subscribe>

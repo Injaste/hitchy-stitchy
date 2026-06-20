@@ -1,3 +1,35 @@
+/** Plan entitlements for the event, from get_bootstrap_context. UX gating only —
+ *  the server (RLS + RPCs) is the real boundary. */
+export interface PlanContext {
+  /** Pinned plan version id, e.g. "free" | "pro" | "pro_v2". */
+  key: string;
+  /** Logical tier — "free" | "pro". Use this for "is Pro" checks, not `key`. */
+  tier: string;
+  /** Display label, e.g. "Free" | "Pro". */
+  name: string;
+  /** ISO timestamp, or null = the event is pending payment (locked). */
+  activatedAt: string | null;
+  /** true when the event is over its effective countable limits (downgrade lock). */
+  isOverPlanLimits: boolean;
+  limits: {
+    maxDays: number;
+    maxSegmentsPerDay: number;
+    maxInvitationPages: number;
+    maxGuests: number;
+    maxMembers: number;
+    canUseBudget: boolean;
+    canUseGifts: boolean;
+    canRemoveBranding: boolean;
+  };
+  /** Current usage for meters (guests = active, non-cancelled). */
+  usage: {
+    days: number;
+    guests: number;
+    members: number;
+    pages: number;
+  };
+}
+
 export interface AdminBootstrapContext {
   slug: string;
   eventId: string;
@@ -19,6 +51,8 @@ export interface AdminBootstrapContext {
   isGroom: boolean;
   /** Shorthand: isRoot or is a couple member */
   isSuperAdmin: boolean;
+  /** Plan entitlements for this event (UX gating only). */
+  plan: PlanContext;
 }
 
 export const TIME_REGEX = /^\d{2}:\d{2}(:\d{2})?$/;

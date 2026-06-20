@@ -7,6 +7,8 @@ import ErrorState from "@/components/custom/states/error-state";
 
 import { itemFadeUp } from "@/lib/animations";
 
+import { useProfileQuery } from "@/pages/account/queries";
+
 import { useCountEventsQuery, useEventsQuery } from "../queries";
 import type { EventsCount } from "../types";
 
@@ -34,6 +36,7 @@ const DashboardView = () => {
     refetch,
   } = useEventsQuery();
   const { data: eventsCount = EMPTY_COUNT } = useCountEventsQuery();
+  const { data: profile } = useProfileQuery();
 
   const renderBody = () => {
     if (isLoading)
@@ -107,6 +110,7 @@ const DashboardView = () => {
         isFetching={isFetching}
         refetch={refetch}
         onCreateEvent={() => setIsCreateOpen(true)}
+        name={profile?.name}
       />
 
       <div className="px-4 md:px-6 pb-4 md:pb-6">

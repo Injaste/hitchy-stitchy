@@ -4,6 +4,7 @@ import { useAdminStore } from '../../store/useAdminStore'
 import { useBootstrapQuery } from '../queries'
 import { useAdminRealtime } from './useAdminRealtime'
 import { useAutoPushSubscribe } from './useAutoPushSubscribe'
+import { usePlanUsageSync } from './usePlanUsageSync'
 
 export function useBootstrap() {
   const setContext = useAdminStore((s) => s.setContext)
@@ -13,6 +14,7 @@ export function useBootstrap() {
 
   useAdminRealtime()
   useAutoPushSubscribe()
+  usePlanUsageSync()
 
   // Mirror a successful bootstrap into the store so the rest of the admin shell
   // can read event/member context. Loading and error gating is driven directly

@@ -9,7 +9,8 @@ export interface SignupCredentials {
 export const signUpSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.email("Enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  // Strength is enforced by the PasswordChecklist + a disabled submit, not here.
+  password: z.string().min(1, "Please enter a password"),
   confirm_password: z.string().min(1, "Please confirm your password"),
   agree_terms: z.boolean().refine((v) => v === true, {
     message: "Please agree to the Privacy Policy to continue",
