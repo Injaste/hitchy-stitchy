@@ -16,9 +16,8 @@ import type { RSVPMode } from "../../invitation/types";
 
 interface GuestsTableProps {
   guests: Guest[];
-  /** Distinct RSVP modes of the page(s) in view — shown as icon(s) on the Guest
-   *  header (so pure public/private pages don't repeat it on every row). */
-  scopeModes: RSVPMode[];
+  /** Selected status filter — drives the footer headline count + label. */
+  statusFilter: GuestStatus | "all";
   selectedIds: Set<string>;
   onToggleRow: (id: string) => void;
   onToggleAllFiltered: () => void;
@@ -28,7 +27,7 @@ interface GuestsTableProps {
 
 const GuestsTable: FC<GuestsTableProps> = ({
   guests,
-  scopeModes,
+  statusFilter,
   selectedIds,
   onToggleRow,
   onToggleAllFiltered,
@@ -57,12 +56,17 @@ const GuestsTable: FC<GuestsTableProps> = ({
   const canDuplicate = canCreate("guests");
   const hasCrudActions = canEdit || canRemove || canDuplicate;
 
-  // Attending = confirmed guests' party sizes across the visible set — the
-  // guest-domain headline that parallels budget/gifts' money total.
-  const attending = guests.reduce(
-    (sum, g) => (g.status === "confirmed" ? sum + (g.guest_count ?? 1) : sum),
+  // Footer headline = party-size sum for the status in view. "All" headlines
+  // the confirmed/attending total; a specific filter headlines its own status.
+  const headlineStatus: GuestStatus =
+    statusFilter === "all" ? "confirmed" : statusFilter;
+  const headlineCount = guests.reduce(
+    (sum, g) =>
+      g.status === headlineStatus ? sum + (g.guest_count ?? 1) : sum,
     0,
   );
+  const headlineLabel =
+    headlineStatus === "confirmed" ? "attending" : headlineStatus;
 
   const headerChecked: boolean | "indeterminate" = allFilteredSelected
     ? true
@@ -83,26 +87,7 @@ const GuestsTable: FC<GuestsTableProps> = ({
       className: "flex items-center",
     },
     {
-      label: (
-        <span className="flex items-center gap-1.5">
-          {scopeModes.length > 0 && (
-            <span className="flex items-center gap-1">
-              {scopeModes.map((m) => {
-                const Icon = RSVP_MODE_META[m].icon;
-                return (
-                  <Icon
-                    key={m}
-                    role="img"
-                    aria-label={RSVP_MODE_META[m].label}
-                    className="size-3.5 text-muted-foreground/70"
-                  />
-                );
-              })}
-            </span>
-          )}
-          Guest
-        </span>
-      ),
+      label: <span className="flex items-center gap-1.5">Guests</span>,
     },
     { label: "Party" },
     { label: "Status" },
@@ -128,10 +113,10 @@ const GuestsTable: FC<GuestsTableProps> = ({
             </span>
             <span className="flex items-baseline gap-1">
               <span className="font-display text-sm tabular-nums">
-                {attending}
+                {headlineCount}
               </span>
               <span className="text-2xs font-medium text-muted-foreground">
-                attending
+                {headlineLabel}
               </span>
             </span>
           </div>

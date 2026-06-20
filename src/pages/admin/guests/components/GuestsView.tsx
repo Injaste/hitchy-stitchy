@@ -24,10 +24,11 @@ import GuestsTable from "./GuestsTable";
 import GuestsFilters from "./GuestsFilters";
 import GuestsBulkBar from "./GuestsBulkBar";
 import GuestsExport from "./GuestsExport";
-import SegmentFilter, { type SegmentFilterOption } from "./SegmentFilter";
+import SegmentTabs, { type SegmentTabsOption } from "./SegmentTabs";
 import { useGuestMutations } from "../queries";
 import { pageLabel } from "../../invitation/utils";
 import CopyLinksMenu from "../../invitation/components/CopyLinksMenu";
+import FilterToolbar from "@/components/custom/filter-toolbar";
 import { useAdminStore } from "../../store/useAdminStore";
 import DeadlineAlert from "./DeadlineAlert";
 
@@ -125,16 +126,7 @@ const GuestsView: FC<GuestsViewProps> = ({
     [dayGuests, effectivePageId],
   );
 
-  // Distinct modes of the page(s) in view — the Guest-header icon(s). A focused
-  // page contributes its one mode; "All" contributes every day-page's mode.
-  const scopeModes = useMemo(() => {
-    const pages = effectivePageId
-      ? dayPages.filter((p) => p.id === effectivePageId)
-      : dayPages;
-    return [...new Set(pages.map((p) => p.rsvp_mode))];
-  }, [dayPages, effectivePageId]);
-
-  const segmentOptions: SegmentFilterOption[] = useMemo(() => {
+  const segmentOptions: SegmentTabsOption[] = useMemo(() => {
     if (dayPages.length <= 1) return [];
     return [
       { id: null, label: "All", count: dayGuests.length },
@@ -154,6 +146,22 @@ const GuestsView: FC<GuestsViewProps> = ({
     : dayPages.length === 1
       ? dayPages[0]
       : undefined;
+
+  // Copyable links for the page(s) in scope: a focused segment → just that page;
+  // "All" → every page of the day. Only published pages have a live URL.
+  const linkPages = useMemo(() => {
+    const inScope = effectivePageId
+      ? dayPages.filter((p) => p.id === effectivePageId)
+      : dayPages;
+    return inScope
+      .filter((p) => p.published_at)
+      .map((p) => ({
+        label: pageLabel(p, days, segments ?? []),
+        linkSlug: p.link_slug,
+        mode: p.rsvp_mode,
+        code: p.private_code,
+      }));
+  }, [dayPages, effectivePageId, days, segments]);
 
   const filtered = useMemo(
     () =>
@@ -233,10 +241,7 @@ const GuestsView: FC<GuestsViewProps> = ({
     if (!data?.length) {
       return (
         <ComponentFade key="empty" useBlur>
-          <GuestsEmpty
-            onAdd={openCreate}
-            canCreate={canCreate("guests")}
-          />
+          <GuestsEmpty onAdd={openCreate} canCreate={canCreate("guests")} />
         </ComponentFade>
       );
     }
@@ -248,13 +253,25 @@ const GuestsView: FC<GuestsViewProps> = ({
           activeDayId={effectiveDayId}
           onSelect={setActiveDay}
         />
-        {segmentOptions.length > 0 && (
-          <SegmentFilter
-            options={segmentOptions}
-            activeId={effectivePageId}
-            onSelect={setActiveInvitationId}
-          />
-        )}
+        <FilterToolbar
+          filter={
+            segmentOptions.length > 0 ? (
+              <SegmentTabs
+                options={segmentOptions}
+                activeId={effectivePageId}
+                onSelect={setActiveInvitationId}
+              />
+            ) : null
+          }
+          actions={
+            <>
+              <GuestsExport guests={filtered} allGuests={selectedRows} />
+              {slug && linkPages.length > 0 && (
+                <CopyLinksMenu slug={slug} pages={linkPages} />
+              )}
+            </>
+          }
+        />
         <AnimatePresence mode="wait">
           {focusPage?.rsvp_deadline && (
             <DeadlineAlert
@@ -269,20 +286,6 @@ const GuestsView: FC<GuestsViewProps> = ({
           onSearchChange={setSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
-          trailing={
-            <div className="flex items-center gap-2">
-              {slug && focusPage?.published_at && (
-                <CopyLinksMenu
-                  slug={slug}
-                  linkSlug={focusPage.link_slug}
-                  mode={focusPage.rsvp_mode}
-                  code={focusPage.private_code}
-                  inviteMessage={focusPage.rsvp_config.rsvp.messages?.invite_message}
-                />
-              )}
-              <GuestsExport guests={filtered} allGuests={selectedRows} />
-            </div>
-          }
         />
         <AnimatePresence initial={false}>
           {canBulkUpdate && selectedIds.size > 0 && (
@@ -297,7 +300,7 @@ const GuestsView: FC<GuestsViewProps> = ({
         </AnimatePresence>
         <GuestsTable
           guests={filtered}
-          scopeModes={scopeModes}
+          statusFilter={statusFilter}
           selectedIds={selectedIds}
           onToggleRow={toggleRow}
           onToggleAllFiltered={toggleAllFiltered}

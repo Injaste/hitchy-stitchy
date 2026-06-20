@@ -7,11 +7,8 @@ import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-head
 
 import { useAccess } from "../../hooks/useAccess";
 import { useActiveEventDay } from "../../hooks/useActiveEventDay";
-import {
-  useInvitationsQuery,
-  useEventSegmentsQuery,
-} from "../../invitation/queries";
-import { pageLabel } from "../../invitation/utils";
+import { dayLabel } from "../../days/utils";
+import { useInvitationsQuery } from "../../invitation/queries";
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import type { Guest } from "../types";
 
@@ -28,18 +25,24 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
 }) => {
   const { canCreate } = useAccess();
   const openCreate = useGuestModalStore((s) => s.openCreate);
-  const activeInvitationId = useGuestModalStore((s) => s.activeInvitationId);
   const canAdd = canCreate("guests");
 
-  // Guests scope by invitation page, so the header mirrors the focused page's
-  // label (segment ?? day). Nothing when "All pages" is in view.
-  const { days } = useActiveEventDay();
+  // Mirror the guests rail's effective day in the header (label only). Guests only
+  // rail days that have an invitation page, so pick the same effective day as
+  // GuestsView.
+  const { days, activeDayId } = useActiveEventDay();
   const { data: invitations } = useInvitationsQuery();
-  const { data: segments } = useEventSegmentsQuery();
-  const focusedPage = invitations?.find((i) => i.id === activeInvitationId);
-  const pageSuffix = focusedPage
-    ? pageLabel(focusedPage, days, segments ?? [])
-    : null;
+  const invitationDays = days.filter((d) =>
+    (invitations ?? []).some((i) => i.day_id === d.id),
+  );
+  const effectiveDayId = invitationDays.some((d) => d.id === activeDayId)
+    ? activeDayId
+    : (invitationDays[0]?.id ?? null);
+  const effectiveIndex = days.findIndex((d) => d.id === effectiveDayId);
+  const daySuffix =
+    invitationDays.length > 1
+      ? dayLabel(days[effectiveIndex]?.label, effectiveIndex)
+      : null;
 
   return (
     <AdminPageHeader
@@ -49,9 +52,9 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
       refetch={refetch}
       title="Guests"
       titleSuffix={
-        pageSuffix && (
+        daySuffix && (
           <div className="flex min-w-0 items-center text-sm font-medium text-muted-foreground sm:text-base">
-            <span className="min-w-0 truncate">{pageSuffix}</span>
+            <span className="min-w-0 truncate">{daySuffix}</span>
           </div>
         )
       }
