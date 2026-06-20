@@ -1,37 +1,59 @@
+import type { FC, ReactNode } from "react";
 import { motion } from "framer-motion";
+
 import Container from "@/components/custom/container";
-import { useActiveTimelineQuery } from "../timeline/queries";
-import ActiveCueBanner from "./ActiveCueBanner";
 import { useIsMobile } from "@/hooks/use-media-query";
+import { useActiveTimelineQuery } from "../timeline/queries";
+import { usePlan } from "../hooks/usePlan";
+import { useAccess } from "../hooks/useAccess";
+import ActiveCueBanner from "./ActiveCueBanner";
+import LimitReachedBanner from "./LimitReachedBanner";
 
-const AdminTopbar = () => {
+/** The animated header shell that reveals/collapses ONE banner above the admin
+ *  content. Compose one per banner — they stack as flex siblings above the
+ *  ScrollView. In-flow (not fixed); its animated height reserves/releases its own
+ *  space, so SidebarInset needs no banner-based margin. */
+const Topbar: FC<{ show: boolean; children: ReactNode }> = ({ show, children }) => {
   const isMobile = useIsMobile();
-  const { data: active } = useActiveTimelineQuery();
-  const hasCue = !!active;
-
   return (
-    // In-flow (not fixed): the topbar is a flex sibling above the ScrollView, so it
-    // stays put without fixed positioning — it lives outside the scroll container.
-    // Its animated height reserves/releases its own space, so SidebarInset no longer
-    // needs a cue-based marginTop to make room.
     <motion.header
       initial={false}
       animate={{
-        height: hasCue ? 56 : 0,
-        opacity: hasCue ? 1 : 0,
-        marginBottom: hasCue && !isMobile ? 8 : 0,
+        height: show ? 56 : 0,
+        opacity: show ? 1 : 0,
+        marginBottom: show && !isMobile ? 8 : 0,
       }}
       transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
       className="relative z-40 shrink-0 overflow-hidden md:rounded-2xl shadow-sm md:shadow-none ring-1 ring-sidebar-border bg-background"
     >
-      <div className="flex justify-center items-center h-full w-full bg-background/50 backdrop-blur-md">
+      <div className="flex h-full w-full items-center justify-center bg-background/50 backdrop-blur-md">
         <Container>
-          <div className="px-1 md:px-1.5">
-            <ActiveCueBanner active={active} />
-          </div>
+          <div className="px-1 md:px-1.5">{children}</div>
         </Container>
       </div>
     </motion.header>
+  );
+};
+
+/** Stacks the admin banners, each in its own independently-revealing Topbar.
+ *  Order top→bottom: limit-reached, then the live-cue. */
+const AdminTopbar = () => {
+  const { data: active } = useActiveTimelineQuery();
+  const { reachedLimits } = usePlan();
+  // Limits are only actionable by whoever can pay — show the upgrade prompt to
+  // super admins only (a regular member can't act on it).
+  const { isSuperAdmin } = useAccess();
+
+  return (
+    <>
+      <Topbar show={isSuperAdmin && reachedLimits.length > 0}>
+        <LimitReachedBanner />
+      </Topbar>
+
+      <Topbar show={!!active}>
+        <ActiveCueBanner active={active} />
+      </Topbar>
+    </>
   );
 };
 

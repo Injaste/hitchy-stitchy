@@ -26,13 +26,16 @@ export const useAdminStore = create<AdminState>((set) => ({
     tier: "free",
     name: "Free",
     activatedAt: null,
-    isOver: false,
+    isOverPlanLimits: false,
+    // Neutral placeholders until bootstrap fills the real plan — don't duplicate
+    // the DB seed caps here (they'd drift from `plans`). The admin shell only
+    // renders once bootstrap has resolved, so these are never shown.
     limits: {
-      maxDays: 1,
-      maxSegmentsPerDay: 3,
-      maxInvitationPages: 1,
-      maxGuests: 500,
-      maxMembers: 3,
+      maxDays: 0,
+      maxSegmentsPerDay: 0,
+      maxInvitationPages: 0,
+      maxGuests: 0,
+      maxMembers: 0,
       canUseBudget: false,
       canUseGifts: false,
       canRemoveBranding: false,

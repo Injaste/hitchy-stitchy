@@ -43,7 +43,7 @@ export async function fetchBootstrapContext(
       tier: plan.tier,
       name: plan.name,
       activatedAt: plan.activated_at ?? null,
-      isOver: plan.is_over ?? false,
+      isOverPlanLimits: plan.is_over_plan_limits ?? false,
       limits: {
         maxDays: limits.max_days,
         maxSegmentsPerDay: limits.max_segments_per_day,

@@ -10,7 +10,7 @@ export interface PlanContext {
   /** ISO timestamp, or null = the event is pending payment (locked). */
   activatedAt: string | null;
   /** true when the event is over its effective countable limits (downgrade lock). */
-  isOver: boolean;
+  isOverPlanLimits: boolean;
   limits: {
     maxDays: number;
     maxSegmentsPerDay: number;
