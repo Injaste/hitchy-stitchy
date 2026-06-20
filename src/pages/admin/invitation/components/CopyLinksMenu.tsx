@@ -1,49 +1,50 @@
-import type { FC } from "react";
-import { Copy, ChevronDown, Globe, Lock, KeyRound, MessageSquareShare } from "lucide-react";
+import { Fragment, type FC } from "react";
+import { Copy, Globe, Lock, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import AdaptiveButton from "@/components/custom/adaptive-button";
+import { useIsMobile } from "@/hooks/use-media-query";
 import { BASE_URL } from "@/lib/config";
 import { copyToClipboard } from "@/lib/utils/clipboard";
-import {
-  buildInviteMessage,
-  DEFAULT_INVITE_MESSAGE,
-  type RSVPMode,
-} from "../types";
+import type { RSVPMode } from "../types";
 
-interface CopyLinksMenuProps {
-  slug: string;
+// One copyable invitation page: its URL is built from the shared event slug, and
+// a private page also exposes a shared invite code.
+export interface PageLink {
+  /** Display name for the page (heads its section when several are shown). */
+  label: string;
   linkSlug: string | null;
   mode: RSVPMode;
   code: string | null;
-  /** Saved invite-message lead-in (rsvp_config.messages.invite_message). */
-  inviteMessage?: string | null;
+}
+
+interface CopyLinksMenuProps {
+  /** Event slug — shared by every page's URL. */
+  slug: string;
+  /** Page(s) in scope. One public page → a direct copy; a private page or several
+   *  pages → a dropdown. */
+  pages: PageLink[];
   /** Icon-only trigger (e.g. on the invitation card). Defaults to a labelled button. */
   compact?: boolean;
 }
 
-// Copy the shareable links for one invitation page: the page URL, plus the invite
-// code and a ready-to-send message when the page is private. Reused on the
-// invitation card and the guests toolbar. Assumes the page is published (the URL
-// 404s otherwise), so callers gate on that.
+// Copy the shareable links for the invitation page(s) in scope: each page's URL,
+// plus its invite code when the page is private. Reused on the invitation card
+// (one page) and the guests toolbar (one focused page, or every page of the day).
+// Assumes pages are published (the URL 404s otherwise), so callers gate on that.
 const CopyLinksMenu: FC<CopyLinksMenuProps> = ({
   slug,
-  linkSlug,
-  mode,
-  code,
-  inviteMessage,
+  pages,
   compact = false,
 }) => {
-  const url = `${BASE_URL}/${slug}${linkSlug ? `/${linkSlug}` : ""}`;
-  const gated = mode === "private";
+  const isMobile = useIsMobile();
+  const urlOf = (p: PageLink) =>
+    `${BASE_URL}/${slug}${p.linkSlug ? `/${p.linkSlug}` : ""}`;
 
   const copy = async (value: string, label: string) => {
     const ok = await copyToClipboard(value);
@@ -51,59 +52,78 @@ const CopyLinksMenu: FC<CopyLinksMenuProps> = ({
     else toast.error("Couldn't copy — please copy it manually");
   };
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {compact ? (
-          <Button size="icon" variant="outline" aria-label="Copy links">
-            <Copy />
-          </Button>
-        ) : (
-          <Button size="sm" variant="outline" className="gap-1.5">
-            <Copy className="size-3.5" />
-            Copy link
-            <ChevronDown className="size-3.5 opacity-60" />
-          </Button>
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Share links</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => copy(url, gated ? "Invitation link" : "Public link")}
-        >
-          {gated ? <Lock className="size-4" /> : <Globe className="size-4" />}
-          {gated ? "Invitation link" : "Public link"}
-        </DropdownMenuItem>
+  // A lone public page is a one-tap copy; a private page (it has an invite code)
+  // or several pages need the dropdown.
+  const single = pages.length === 1 ? pages[0] : null;
+  const asMenu = !single || single.mode === "private";
 
-        {gated && code && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => copy(code, "Invite code")}>
+  const menu = !asMenu ? null : single ? (
+    // Single private page — already identified by context, so no page header.
+    <>
+      <DropdownMenuLabel>Share links</DropdownMenuLabel>
+      <DropdownMenuItem onClick={() => copy(urlOf(single), "Invitation link")}>
+        <Lock className="size-4" />
+        Invitation link
+      </DropdownMenuItem>
+      {single.code && (
+        <DropdownMenuItem onClick={() => copy(single.code!, "Invite code")}>
+          <KeyRound className="size-4" />
+          Invite code
+          <span className="ml-auto font-mono text-xs text-muted-foreground">
+            {single.code}
+          </span>
+        </DropdownMenuItem>
+      )}
+    </>
+  ) : (
+    // Several pages — one section each, headed by the page label and split by a
+    // separator, listing that page's link (and invite code when private).
+    pages.map((page, i) => {
+      const isPrivate = page.mode === "private";
+      return (
+        <Fragment key={page.linkSlug ?? `page-${i}`}>
+          {i > 0 && <DropdownMenuSeparator />}
+          <DropdownMenuLabel className="truncate">
+            {page.label}
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => copy(urlOf(page), "Invitation link")}>
+            {isPrivate ? (
+              <Lock className="size-4" />
+            ) : (
+              <Globe className="size-4" />
+            )}
+            Invitation link
+          </DropdownMenuItem>
+          {isPrivate && page.code && (
+            <DropdownMenuItem onClick={() => copy(page.code!, "Invite code")}>
               <KeyRound className="size-4" />
               Invite code
               <span className="ml-auto font-mono text-xs text-muted-foreground">
-                {code}
+                {page.code}
               </span>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                copy(
-                  buildInviteMessage(
-                    inviteMessage || DEFAULT_INVITE_MESSAGE,
-                    url,
-                    code,
-                  ),
-                  "Invite message",
-                )
-              }
-            >
-              <MessageSquareShare className="size-4" />
-              Invite message
-            </DropdownMenuItem>
-          </>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          )}
+        </Fragment>
+      );
+    })
+  );
+
+  return (
+    <AdaptiveButton
+      asMenu={asMenu}
+      onClick={single ? () => copy(urlOf(single), "Invitation link") : undefined}
+      menu={menu}
+      hideChevron={compact}
+      size={compact ? "icon" : isMobile ? "sm" : "md"}
+      className={compact ? undefined : "gap-1.5 text-xs"}
+      contentClassName={single ? "w-56" : "w-60"}
+      aria-label="Copy invitation link"
+    >
+      <Copy className={compact ? undefined : "size-3.5"} />
+      {!compact && (
+        <span className="hidden sm:inline">Copy invitation link</span>
+      )}
+    </AdaptiveButton>
   );
 };
 

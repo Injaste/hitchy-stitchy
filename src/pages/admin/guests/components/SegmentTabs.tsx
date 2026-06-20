@@ -5,13 +5,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { itemFadeIn } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-media-query";
 
 import { useEmblaCarouselApi } from "../../hooks/embla/useEmblaCarouselApi";
 import { useEmblaEdgeDetection } from "../../hooks/embla/useEmblaEdgeDetection";
 import { RSVP_MODE_META } from "../../invitation/rsvpMeta";
 import type { RSVPMode } from "../../invitation/types";
 
-export interface SegmentFilterOption {
+export interface SegmentTabsOption {
   /** Invitation page id, or null for the "All pages of the day" pill. */
   id: string | null;
   label: string;
@@ -20,8 +21,8 @@ export interface SegmentFilterOption {
   mode?: RSVPMode;
 }
 
-interface SegmentFilterProps {
-  options: SegmentFilterOption[];
+interface SegmentTabsProps {
+  options: SegmentTabsOption[];
   activeId: string | null;
   onSelect: (id: string | null) => void;
 }
@@ -32,13 +33,14 @@ interface SegmentFilterProps {
  * rail (matching the task LabelTabs / day rail) so many segments scroll rather
  * than wrap; each pill carries its guest count, and "All" aggregates the day.
  */
-const SegmentFilter: FC<SegmentFilterProps> = ({
+const SegmentTabs: FC<SegmentTabsProps> = ({
   options,
   activeId,
   onSelect,
 }) => {
   const { emblaRef, emblaApi } = useEmblaCarouselApi();
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
+  const isMobile = useIsMobile();
 
   // Re-measure when the page set changes (e.g. switching days).
   const optionsKey = options.map((o) => o.id ?? "all").join("|");
@@ -50,7 +52,7 @@ const SegmentFilter: FC<SegmentFilterProps> = ({
     <div
       role="group"
       aria-label="Filter by invitation page"
-      className="relative -mx-1 mb-5"
+      className="relative -mx-1"
     >
       <div ref={emblaRef} className="overflow-hidden p-1">
         <div className="flex gap-1.5">
@@ -61,7 +63,7 @@ const SegmentFilter: FC<SegmentFilterProps> = ({
               <Button
                 key={opt.id ?? "all"}
                 type="button"
-                size="sm"
+                size={isMobile ? "sm" : "md"}
                 variant={isActive ? "default" : "outline"}
                 onClick={() => onSelect(opt.id)}
                 className={cn(
@@ -143,4 +145,4 @@ const SegmentFilter: FC<SegmentFilterProps> = ({
   );
 };
 
-export default SegmentFilter;
+export default SegmentTabs;
