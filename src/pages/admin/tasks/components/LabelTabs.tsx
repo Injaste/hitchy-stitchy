@@ -35,7 +35,7 @@ const LabelTabs: FC<LabelTabsProps> = ({ labels, activeLabel, onSelect }) => {
             return (
               <Button
                 key={label}
-                size={isMobile ? "sm" : "lg"}
+                size={isMobile ? "sm" : "md"}
                 onClick={() => onSelect(label)}
                 variant={active ? "default" : "outline"}
                 className={cn(!active && "bg-background")}
