@@ -40,15 +40,17 @@ const Topbar: FC<{ show: boolean; children: ReactNode }> = ({ show, children }) 
 const AdminTopbar = () => {
   const { data: active } = useActiveTimelineQuery();
   const { reachedLimits } = usePlan();
-  // Limits are only actionable by whoever can pay — show the upgrade prompt to
-  // super admins only (a regular member can't act on it).
+  // Limits are only actionable by whoever can pay, and plan UI is super-admin-
+  // only — so don't even mount the banner for members (no DOM/a11y leak).
   const { isSuperAdmin } = useAccess();
 
   return (
     <>
-      <Topbar show={isSuperAdmin && reachedLimits.length > 0}>
-        <LimitReachedBanner />
-      </Topbar>
+      {isSuperAdmin && (
+        <Topbar show={reachedLimits.length > 0}>
+          <LimitReachedBanner />
+        </Topbar>
+      )}
 
       <Topbar show={!!active}>
         <ActiveCueBanner active={active} />
