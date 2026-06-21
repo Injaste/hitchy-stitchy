@@ -5,15 +5,24 @@ import DaysManager from "@/pages/admin/days/components/DaysManager";
 import Profile from "./profile";
 import ChangePassword from "./change-password";
 import { NotificationsSection } from "./notifications";
-
-const TABS = [
-  { id: "days", label: "Event Dates", element: DaysManager },
-  { id: "profile", label: "Profile", element: Profile },
-  { id: "change-password", label: "Password", element: ChangePassword },
-  { id: "notifications", label: "Notifications", element: NotificationsSection },
-] as const;
+import Billing from "./billing";
+import { useAccess } from "../hooks/useAccess";
 
 const Settings = () => {
+  const { isSuperAdmin } = useAccess();
+
+  // Billing is super-admin-only (plan/payment is their concern); the rest are
+  // personal/event settings every member can see.
+  const tabs = [
+    { id: "days", label: "Event Dates", element: DaysManager },
+    { id: "profile", label: "Profile", element: Profile },
+    { id: "change-password", label: "Password", element: ChangePassword },
+    { id: "notifications", label: "Notifications", element: NotificationsSection },
+    ...(isSuperAdmin
+      ? [{ id: "billing", label: "Billing", element: Billing }]
+      : []),
+  ];
+
   return (
     <>
       <AdminPageHeader
@@ -23,7 +32,7 @@ const Settings = () => {
       <Container pageSpacing>
         <Tabs defaultValue="days" className="gap-6">
           <TabsList className="w-full max-w-xl" aria-label="Settings sections">
-            {TABS.map((tab) => (
+            {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
@@ -35,7 +44,7 @@ const Settings = () => {
             ))}
           </TabsList>
 
-          {TABS.map((tab) => {
+          {tabs.map((tab) => {
             const Element = tab.element;
             if (!Element) return null;
             return (

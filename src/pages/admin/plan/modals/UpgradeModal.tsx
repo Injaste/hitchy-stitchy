@@ -16,10 +16,7 @@ import { usePlan } from "../../hooks/usePlan";
 import { PLAN_METERS } from "../plan-config";
 import { useProPlanQuery } from "../queries";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
-
-/** Singapore display price. Drops the trailing .00 for whole amounts. */
-const formatPrice = (price: number) =>
-  `S$${price % 1 === 0 ? price : price.toFixed(2)}`;
+import { formatPrice } from "../utils";
 
 /** The pay-to-upgrade surface, opened from the limit-reached banner. Lists the
  *  caps that triggered it, pitches Pro, and discloses the price. Payment itself
