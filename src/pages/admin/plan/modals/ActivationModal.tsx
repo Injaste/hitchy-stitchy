@@ -14,19 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import { usePlan } from "../../hooks/usePlan";
-import { useAccess } from "../../hooks/useAccess";
 import { usePublicPlanQuery } from "../queries";
 import { formatPrice } from "../utils";
 
-/** Non-closable gate for an event awaiting payment (activated_at NULL). A 2nd+
+/** Non-closable gate for an event awaiting payment (activated_at IS NULL). A 2nd+
  *  event is created pending and stays locked server-side (assert_event_activated)
- *  until checkout activates it. Super admins get the pay CTA; other members see
- *  an awaiting notice. Payment is wired last (Stripe) — the CTA is honestly
+ *  until checkout activates it. Super-admin-only (gated at PlanModals, so members
+ *  never see any plan UI). Payment is wired last (Stripe) - the CTA is honestly
  *  marked "coming soon". Reuses the plan price surface, but unlike UpgradeModal
  *  it can't be dismissed (a blocked close shakes the card). */
 const ActivationModal = () => {
   const { plan, isPending } = usePlan();
-  const { isSuperAdmin } = useAccess();
   // Activation is priced by the event's OWN plan (a pending free event still
   // carries an activation fee), not always Pro.
   const { data: pub } = usePublicPlanQuery(plan.tier, isPending);
@@ -53,9 +51,8 @@ const ActivationModal = () => {
             Activate this event
           </DialogTitle>
           <DialogDescription>
-            {isSuperAdmin
-              ? "This event is awaiting payment. Complete checkout to activate it and unlock editing."
-              : "This event is awaiting activation by the organisers — you'll have access once it's set up."}
+            This event is awaiting payment. Complete checkout to activate it and
+            unlock editing.
           </DialogDescription>
         </DialogHeader>
 
@@ -68,23 +65,19 @@ const ActivationModal = () => {
               <Badge variant="warning">Awaiting payment</Badge>
             </div>
 
-            {isSuperAdmin && (
-              <p className="text-center text-xs text-muted-foreground">
-                Online payment is being set up — coming soon.
-              </p>
-            )}
+            <p className="text-center text-xs text-muted-foreground">
+              Online payment is being set up - coming soon.
+            </p>
           </div>
         </DialogBody>
 
-        {isSuperAdmin && (
-          <DialogFooter>
-            <Button className="w-full" disabled>
-              {pub?.price != null
-                ? `Pay ${formatPrice(pub.price)}`
-                : "Complete payment"}
-            </Button>
-          </DialogFooter>
-        )}
+        <DialogFooter>
+          <Button className="w-full" disabled>
+            {pub?.price != null
+              ? `Pay ${formatPrice(pub.price)}`
+              : "Complete payment"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
