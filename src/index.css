@@ -158,8 +158,10 @@
 
 /* OverlayScrollbars custom theme — thin, rounded, foreground-tinted so the
    overlay thumb adapts to light/dark automatically. Selected app-wide via the
-   `os-theme-app` scrollbars option in ScrollView. */
-.os-theme-app {
+   `os-theme-app` scrollbars option in ScrollView. Compounded with `.os-scrollbar`
+   so it outweighs the library's own `.os-scrollbar` defaults (equal specificity
+   otherwise, and the library CSS loads after this file). */
+.os-scrollbar.os-theme-app {
   --os-size: 6px; /* thin: ~4px (w-1) visible thumb + 1px padding each side */
   --os-padding-perpendicular: 1px;
   --os-padding-axis: 2px;
@@ -173,8 +175,9 @@
 }
 
 /* Page-level / primary scrolls opt into a thicker bar via size="normal".
-   Compound selector beats the base theme regardless of cascade layer. */
-.os-theme-app.os-scroll-normal {
+   `os-scroll-normal` sits on the ScrollView host; the scrollbar is a descendant,
+   so target it through the host. The extra class outweighs the base thin rule. */
+.os-scroll-normal .os-scrollbar.os-theme-app {
   --os-size: 10px; /* normal: ~8px (w-2) visible thumb */
 }
 
