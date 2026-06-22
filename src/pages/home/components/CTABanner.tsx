@@ -95,8 +95,8 @@ export function CTABanner() {
         </h2>
 
         <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-          Join couples who chose clarity over chaos. Leave your email and we'll
-          let you know when we're ready for you.
+          We're putting the finishing touches on Hitchy Stitchy. Leave your
+          email and you'll be first to know the moment it's ready.
         </p>
 
         {subscribed ? (

@@ -1,17 +1,6 @@
 import { CalendarHeart, ClipboardList, Users, Radio } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export interface StatItem {
-  value: string;
-  label: string;
-}
-
-export interface Testimonial {
-  quote: string;
-  names: string;
-  event: string;
-}
-
 export interface Step {
   number: string;
   title: string;
@@ -26,45 +15,6 @@ export interface Feature {
   description: string;
   tags: string[];
 }
-
-export const stats: StatItem[] = [
-  { value: "120+", label: "Events planned" },
-  { value: "4,800+", label: "Guests managed" },
-  { value: "2,300+", label: "Planners on the platform" },
-];
-
-export const testimonials: Testimonial[] = [
-  {
-    quote:
-      "Hitchy Stitchy turned our 3-day wedding into a seamlessly run production. Our coordinator said it was the most organised event she'd ever worked.",
-    names: "Amara & Kofi",
-    event: "3-day Traditional + White Wedding",
-  },
-  {
-    quote:
-      "The live mode on the day was a game changer. Every team member knew exactly where to be. No frantic calls, no chaos — just pure magic.",
-    names: "Priya & Rajan",
-    event: "Garden Wedding",
-  },
-  {
-    quote:
-      "From RSVP tracking to the final cue, everything lived in one place. I can't imagine planning without it.",
-    names: "Sophie & James",
-    event: "Country Estate Wedding",
-  },
-  {
-    quote:
-      "We had 11 vendors across 2 days. Hitchy Stitchy kept every single one of them in sync. Absolutely indispensable.",
-    names: "Olivia & Tom",
-    event: "Vineyard Weekend Wedding",
-  },
-  {
-    quote:
-      "Our planner recommended it and within an hour we had our entire team set up with roles and tasks. So intuitive.",
-    names: "Zara & Kwame",
-    event: "Intimate Beach Ceremony",
-  },
-];
 
 export const steps: Step[] = [
   {
