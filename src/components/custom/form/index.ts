@@ -7,12 +7,14 @@ export { default as FormBody } from "./FormBody";
 export { default as FormFooter } from "./FormFooter";
 export { default as FormError } from "./FormError";
 export { default as SubmitButton } from "./SubmitButton";
+export { default as PasswordChecklist } from "./PasswordChecklist";
 export {
   default as SelectComboField,
   type SelectComboGroup,
 } from "./SelectComboField";
 export { useFormShell } from "./form-context";
 export { useCloseOnSuccess } from "./useCloseOnSuccess";
+export { useAutosaveField } from "./useAutosaveField";
 
 // Field components
 export * from "./fields";

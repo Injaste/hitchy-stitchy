@@ -12,6 +12,7 @@ export const adminKeys = {
   members: (slug: string) => [slug, 'members'] as const,
   accessGroups: (slug: string) => [slug, 'access-groups'] as const,
   availableResources: () => ['available-resources'] as const,
+  planPublic: (tier: string) => ['plans', 'public', tier] as const,
   invitation: (slug: string) => [slug, 'invitation'] as const,
   guests: (slug: string) => [slug, 'guests'] as const,
   budget: (slug: string) => [slug, 'budget'] as const,

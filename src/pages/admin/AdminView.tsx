@@ -15,6 +15,7 @@ import LoadingState from "@/components/custom/states/loading-state";
 import { PingModal } from "./modals/PingModal";
 import MemberModals from "./members/modals";
 import TimelineModals from "./timeline/modals";
+import PlanModals from "./plan/modals";
 import { NotificationPermissionModal } from "./components/NotificationPermissionModal";
 
 const AdminView = () => {
@@ -67,6 +68,7 @@ const AdminView = () => {
             <PingModal />
             <MemberModals />
             <TimelineModals />
+            <PlanModals />
             <NotificationPermissionModal />
           </ComponentFade>
         )}

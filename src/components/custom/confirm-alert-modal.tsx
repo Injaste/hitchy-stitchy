@@ -163,11 +163,13 @@ const ConfirmAlertModal: FC<ConfirmAlertModalProps> = ({
                 htmlFor="confirm-phrase-input"
                 className="text-sm text-muted-foreground"
               >
-                Type
-                <span className="font-medium text-foreground">
-                  {confirmPhrase}
+                <span>
+                  Type{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmPhrase}
+                  </span>{" "}
+                  to confirm.
                 </span>
-                to confirm.
               </Label>
               {/* Deliberately not auto-focused: focus stays on Cancel so the
                 impact warning is read first and the mobile keyboard only

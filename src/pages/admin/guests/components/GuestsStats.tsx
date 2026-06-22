@@ -32,17 +32,17 @@ const GuestsStats: FC<GuestsStatsProps> = ({ guests }) => {
 
   const cells = [
     {
+      label: "Total",
+      value: stats.total,
+      icon: ClipboardList,
+      iconClass: "text-muted-foreground",
+    },
+    {
       label: "Confirmed",
       value: stats.confirmed,
       sub: `${stats.confirmedPax} attending`,
       icon: CheckCircle,
       iconClass: "text-success",
-    },
-    {
-      label: "Total",
-      value: stats.total,
-      icon: ClipboardList,
-      iconClass: "text-muted-foreground",
     },
     {
       label: "Pending",

@@ -30,15 +30,6 @@ export const DEFAULT_DEADLINE_MESSAGE =
 export const DEFAULT_INVITE_MESSAGE =
   "You're invited! RSVP with your phone and invite code {code}:"
 
-// Resolve an invite-message lead-in: fill {code}, then append the link.
-export function buildInviteMessage(
-  template: string,
-  link: string,
-  code: string,
-): string {
-  return `${template.replaceAll("{code}", code).trim()} ${link}`
-}
-
 export interface InvitationConfig {
   rsvp: RSVPSectionConfig
 }

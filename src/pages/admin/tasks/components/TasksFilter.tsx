@@ -26,6 +26,7 @@ interface AssigneeSelectProps {
   setMemberId: (id: string | null) => void;
   members: { id: string; display_name: string }[] | undefined;
   triggerClassName?: string;
+  size?: "sm" | "default";
 }
 
 const AssigneeSelect: FC<AssigneeSelectProps> = ({
@@ -33,12 +34,13 @@ const AssigneeSelect: FC<AssigneeSelectProps> = ({
   setMemberId,
   members,
   triggerClassName,
+  size,
 }) => (
   <Select
     value={memberId ?? "all"}
     onValueChange={(v) => setMemberId(v === "all" ? null : v)}
   >
-    <SelectTrigger className={triggerClassName}>
+    <SelectTrigger size={size} className={triggerClassName}>
       <SelectValue placeholder="Assignee" />
     </SelectTrigger>
     <SelectContent position="popper" align="end">
@@ -85,6 +87,7 @@ const TasksFilter: FC = () => {
               setMemberId={setMemberId}
               members={members}
               triggerClassName="w-full"
+              size="sm"
             />
           </div>
           <Button

@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
@@ -25,6 +26,8 @@ const DaysManager: FC = () => {
   // else sees the dates read-only, as they already do on the timeline).
   const canManage = isSuperAdmin;
 
+  const dayCount = days?.length ?? 0;
+
   return (
     <>
       <Card className="max-w-xl">
@@ -34,6 +37,11 @@ const DaysManager: FC = () => {
             The days of your celebration — non-consecutive is fine. Each day
             needs a name, and powers the timeline.
           </CardDescription>
+          {dayCount > 0 && (
+            <CardAction className="text-xs text-muted-foreground">
+              {dayCount} {dayCount === 1 ? "day" : "days"}
+            </CardAction>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (

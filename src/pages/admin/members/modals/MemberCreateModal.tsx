@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { Users } from "lucide-react";
 
 import {
@@ -40,15 +40,26 @@ const MemberCreateModal = () => {
   const form = useMemberForm({
     reservedRoles,
     defaultValues: { access_group_id: teamId },
-    onSubmit: (values) => {
-      create.mutate({
-        event_id: eventId!,
-        display_name: values.display_name,
-        access_group_id: values.access_group_id,
-        role: values.role ?? null,
-        notes: values.notes ?? null,
-        couple: values.couple_role,
-      });
+    onSubmit: async (values) => {
+      // Freeze the hand-off intent at submit time: a later "Invite more" toggle
+      // must not change what an already-submitted create does.
+      const handOff = !isCreateMore;
+      try {
+        const member = await create.mutateAsync({
+          event_id: eventId!,
+          display_name: values.display_name,
+          access_group_id: values.access_group_id,
+          role: values.role ?? null,
+          notes: values.notes ?? null,
+          couple: values.couple_role,
+        });
+        // Single create → hand off to the new member's detail panel (share
+        // link). With "Invite more" ON we stay put and the form clears for
+        // rapid entry (resetOnSuccess).
+        if (handOff) openDetailForCreated(member);
+      } catch {
+        // Error toast is surfaced by the mutation hook; nothing to do here.
+      }
     },
   });
 
@@ -59,29 +70,12 @@ const MemberCreateModal = () => {
     }
   }, [isCreateOpen, teamId, form]);
 
-  // Reset the mutation when the modal closes so a stale success never re-triggers
-  // the hand-off on the next open. Depend on the stable `reset` fn.
+  // Reset the mutation when the modal closes so a stale success state never
+  // carries into the next open. Depend on the stable `reset` fn.
   const resetCreate = create.reset;
   useEffect(() => {
     if (!isCreateOpen) resetCreate();
   }, [isCreateOpen, resetCreate]);
-
-  // After a single create, hand off to the new member's detail panel (which has
-  // the share link) instead of an inline success state.
-  const handedOff = useRef(false);
-  useEffect(() => {
-    if (!create.isSuccess) {
-      handedOff.current = false;
-      return;
-    }
-    // When "Invite more" is ON we deliberately do NOT open the detail modal —
-    // the modal stays open + resets (resetOnSuccess) for rapid entry, and the
-    // links stay retrievable from the roster. Hand off only for a single create.
-    if (!isCreateMore && create.data && !handedOff.current) {
-      handedOff.current = true;
-      openDetailForCreated(create.data);
-    }
-  }, [create.isSuccess, create.data, isCreateMore, openDetailForCreated]);
 
   return (
     <FormDialog

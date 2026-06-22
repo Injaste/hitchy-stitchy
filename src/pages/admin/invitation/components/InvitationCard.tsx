@@ -108,10 +108,14 @@ const InvitationCard = ({
                 <CopyLinksMenu
                   compact
                   slug={slug}
-                  linkSlug={invitation.link_slug}
-                  mode={invitation.rsvp_mode}
-                  code={invitation.private_code}
-                  inviteMessage={invitation.rsvp_config.rsvp.messages?.invite_message}
+                  pages={[
+                    {
+                      label,
+                      linkSlug: invitation.link_slug,
+                      mode: invitation.rsvp_mode,
+                      code: invitation.private_code,
+                    },
+                  ]}
                 />
               </span>
               <Button

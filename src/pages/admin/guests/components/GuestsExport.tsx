@@ -1,16 +1,11 @@
-import { useState, type FC } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Download } from "lucide-react";
+import type { FC } from "react";
+import { Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import AdaptiveButton from "@/components/custom/adaptive-button";
+import { useIsMobile } from "@/hooks/use-media-query";
 
-import { widthReveal } from "@/lib/animations";
 import type { Guest } from "../types";
 import { exportGuestsCSV } from "../utils";
 
@@ -27,14 +22,16 @@ interface GuestsExportProps {
  * only when the visible set actually contains cancelled guests.
  */
 const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+  // Match a dropdown trigger: h-9 on desktop, compact h-8 on mobile.
+  const size = isMobile ? "sm" : "md";
 
   // Explicit selection — export exactly what was picked, no menu.
   if (allGuests.length > 0) {
     return (
       <Button
         variant="outline"
-        size="sm"
+        size={size}
         className="text-xs"
         onClick={() => exportGuestsCSV(allGuests)}
       >
@@ -53,47 +50,16 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
     exportConfirmedGuests.length > 0 &&
     exportConfirmedGuests.length < guests.length;
 
-  // A single button that stays mounted across the mixed / not-mixed flip, so the
-  // chevron can reveal and collapse via AnimatePresence. When not mixed the menu
-  // is held closed and a click exports directly — preserving one-click export.
   return (
-    <DropdownMenu
-      open={isMixed && menuOpen}
-      onOpenChange={(open) => {
-        // Only the mixed view has a menu; ignore Radix's open requests
-        // otherwise so a not-mixed click can't leave `menuOpen` stuck true
-        // (which would pop the menu the moment the view turns mixed).
-        if (isMixed) setMenuOpen(open);
-      }}
-    >
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-xs"
-          disabled={guests.length === 0}
-          onClick={isMixed ? undefined : () => exportGuestsCSV(guests)}
-        >
-          <Download className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Export</span>
-          <AnimatePresence initial={false}>
-            {isMixed && (
-              <motion.span
-                key="chevron"
-                variants={widthReveal}
-                initial="hidden"
-                animate="show"
-                exit="hidden"
-                className="inline-flex overflow-hidden"
-              >
-                <ChevronDown className="w-3 h-3" />
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </Button>
-      </DropdownMenuTrigger>
-      {isMixed && (
-        <DropdownMenuContent align="end" className="w-40">
+    <AdaptiveButton
+      asMenu={isMixed}
+      onClick={() => exportGuestsCSV(guests)}
+      disabled={guests.length === 0}
+      size={size}
+      className="text-xs"
+      contentClassName="w-40"
+      menu={
+        <>
           <DropdownMenuItem
             className="flex items-center justify-between"
             onClick={() => exportGuestsCSV(exportConfirmedGuests)}
@@ -108,9 +74,12 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
             <span>All</span>
             <span>— {guests.length}</span>
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      )}
-    </DropdownMenu>
+        </>
+      }
+    >
+      <Download className="w-3.5 h-3.5" />
+      <span className="hidden sm:inline">Export</span>
+    </AdaptiveButton>
   );
 };
 

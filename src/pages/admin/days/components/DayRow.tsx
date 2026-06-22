@@ -1,11 +1,11 @@
-import { useState, type FC } from "react";
+import type { FC } from "react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AnimateItem } from "@/components/animations/forms/field-animate";
-import { DayLabelField } from "@/components/custom/form";
+import { DayLabelField, useAutosaveField } from "@/components/custom/form";
 import { parseLocalDate } from "@/lib/utils/utils-time";
 import { gappedListItemReveal, listLayoutTransition } from "@/lib/animations";
 
@@ -32,27 +32,17 @@ const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
   const { eventId } = useAdminStore();
   const { update } = useDayMutations();
   const openDeleteDay = useDayModalStore((s) => s.openDeleteDay);
-  const [label, setLabel] = useState(day.label);
-  const [error, setError] = useState<string | null>(null);
-  const [shakeTick, setShakeTick] = useState(0);
+
+  // Auto-save the label: debounced on change, flushed on blur/Enter. Empty is
+  // rejected inline (and bumps attemptCount → shake); unchanged is a no-op. A
+  // failed save surfaces via the mutation's error toast.
+  const { value: label, error, attemptCount, onChange, flush } = useAutosaveField({
+    saved: day.label,
+    onSave: (next) => update.mutate({ event_id: eventId!, id: day.id, label: next }),
+    validate: (v) => (v === "" ? "A label is required." : null),
+  });
 
   const dateText = format(parseLocalDate(day.date), "EEE, d MMM yyyy");
-
-  // Save on blur / Enter (Notion-style) — no explicit save button. Empty is
-  // rejected inline; unchanged is a no-op.
-  const commit = () => {
-    const trimmed = label.trim();
-    if (trimmed === "") {
-      setError("A label is required.");
-      setShakeTick((t) => t + 1);
-      return;
-    }
-    setError(null);
-    if (trimmed === day.label) return;
-    // A failed save surfaces via the mutation's error toast; the inline error is
-    // for the empty-label case above.
-    update.mutate({ event_id: eventId!, id: day.id, label: trimmed });
-  };
 
   if (!canManage) {
     return (
@@ -69,7 +59,7 @@ const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
     <motion.li {...rowMotion}>
       <AnimateItem
         hasError={!!error}
-        attemptCount={shakeTick}
+        attemptCount={attemptCount}
         className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/20 p-2"
       >
         <span className="min-w-32 px-1 text-xs text-muted-foreground">
@@ -77,12 +67,9 @@ const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
         </span>
         <DayLabelField
           value={label}
-          onChange={(v) => {
-            setLabel(v);
-            if (error) setError(null);
-          }}
-          onBlur={commit}
-          onEnter={commit}
+          onChange={onChange}
+          onBlur={flush}
+          onEnter={flush}
           error={error}
           aria-label={`Label for ${dateText}`}
         />
