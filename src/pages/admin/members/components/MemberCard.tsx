@@ -34,10 +34,10 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
         isFrozen && "hover:ring-freeze",
         // Couple keeps the primary accent; otherwise the current user's own card
         // gets a green accent in place of a "You" badge.
-        isCouple
-          ? "border-l-primary"
-          : isSelf
-            ? "border-l-success"
+        isSelf
+          ? "border-l-success"
+          : isCouple
+            ? "border-l-primary"
             : "border-l-accent",
         isFrozen && "opacity-60",
       )}
@@ -66,7 +66,7 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
                   {member.display_name}
                 </p>
 
-                <MemberRole member={member} />
+                <MemberRole member={member} isSelf={isSelf} />
 
                 {status !== "active" && (
                   <MemberStatus

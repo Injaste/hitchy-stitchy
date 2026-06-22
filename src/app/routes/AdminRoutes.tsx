@@ -12,7 +12,6 @@ import Guests from "@/pages/admin/guests";
 import Budget from "@/pages/admin/budget";
 import Gifts from "@/pages/admin/gifts";
 import Invitation from "@/pages/admin/invitation";
-import Settings from "@/pages/admin/settings";
 
 const Admin = lazy(() => import("@/pages/admin"));
 
@@ -44,7 +43,6 @@ const AdminRoutes = () => (
     <Route path="invitation" element={<RequireRead resource="invitation"><Invitation /></RequireRead>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />
-    <Route path="settings" element={<Settings />} />
     <Route path="*" element={<RedirectToTimeline />} />
   </Route>
 );

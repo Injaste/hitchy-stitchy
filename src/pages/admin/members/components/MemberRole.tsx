@@ -3,23 +3,21 @@ import type { FC } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-import { isSuperAdminMember } from "../../utils/memberUtils";
 import type { Member } from "../types";
 
 interface MemberRoleProps {
   member: Member;
+  isSelf: boolean;
   className?: string;
 }
 
 /** Role badge shown next to a member's name — superadmins get the solid variant. */
-const MemberRole: FC<MemberRoleProps> = ({ member, className }) => {
+const MemberRole: FC<MemberRoleProps> = ({ member, isSelf, className }) => {
   if (!member.role) return null;
-
-  const isSuperAdmin = isSuperAdminMember(member);
 
   return (
     <Badge
-      variant={isSuperAdmin ? "default" : "secondary"}
+      variant={isSelf ? "secondary" : "default"}
       className={cn("text-2xs tracking-wide shrink-0", className)}
     >
       {member.role}

@@ -15,17 +15,23 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useAdminStore } from "../../store/useAdminStore";
 import { useAccess } from "../../hooks/useAccess";
 import useActivePage from "../../hooks/useActivePage";
+import { useEventSettingsStore } from "../../settings/useEventSettingsStore";
 import NavItem from "../NavItem";
 
 const AdminSidebarContent = () => {
   const { slug } = useAdminStore();
   const { canRead } = useAccess();
   const activePage = useActivePage();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const openEventSettings = useEventSettingsStore((s) => s.open);
   const base = `/${slug}/admin`;
 
   const showTimeline = canRead("timeline");
@@ -161,12 +167,23 @@ const AdminSidebarContent = () => {
       <SidebarGroup className="mt-auto">
         <SidebarGroupContent>
           <SidebarMenu>
-            <NavItem
-              icon={Settings}
-              label="Settings"
-              to={`${base}/settings`}
-              isActive={activePage === "settings"}
-            />
+            {/* A modal trigger, not a route — no isActive (the route-keyed slide
+                indicator never covers it, and data-active alone would flip the
+                text to the light "on-primary" color over no background). */}
+            <SidebarMenuItem id="settings">
+              <SidebarMenuButton
+                variant="ghost"
+                tooltip="Event settings"
+                className="cursor-pointer"
+                onClick={() => {
+                  openEventSettings();
+                  if (isMobile) setOpenMobile(false);
+                }}
+              >
+                <Settings className="h-4 w-4" />
+                <span>Event settings</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

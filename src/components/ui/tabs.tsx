@@ -10,6 +10,12 @@ import { SidebarContext } from "./sidebar";
 
 const TabsValueContext = React.createContext<string | undefined>(undefined);
 
+// Orientation is threaded to TabsList so the indicator slider can pick its axis
+// (the hook direction is JS, not a CSS variant). Defaults horizontal.
+const TabsOrientationContext = React.createContext<"horizontal" | "vertical">(
+  "horizontal",
+);
+
 interface TabsIndicatorContextValue {
   setRef: (id: string) => (el: HTMLElement | null) => void;
   onMouseEnter: (id: string) => void;
@@ -28,9 +34,14 @@ function Tabs({
   value,
   defaultValue,
   onValueChange,
+  contentClassName,
   children,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+}: React.ComponentProps<typeof TabsPrimitive.Root> & {
+  /** Class for the hoisted active-panel wrapper (e.g. flex/scroll/padding). */
+  contentClassName?: string;
+}) {
+  const isVertical = orientation === "vertical";
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const activeValue = isControlled ? value : internalValue;
@@ -62,8 +73,10 @@ function Tabs({
 
   return (
     <TabsValueContext.Provider value={activeValue}>
+    <TabsOrientationContext.Provider value={isVertical ? "vertical" : "horizontal"}>
     <TabsPrimitive.Root
       data-slot="tabs"
+      orientation={orientation}
       data-orientation={orientation}
       value={value}
       defaultValue={defaultValue}
@@ -74,12 +87,13 @@ function Tabs({
       {rest}
       <AnimatePresence mode="wait">
         {activePanel && (
-          <ComponentFade key={activeValue}>
+          <ComponentFade key={activeValue} className={contentClassName}>
             {activePanel.content}
           </ComponentFade>
         )}
       </AnimatePresence>
     </TabsPrimitive.Root>
+    </TabsOrientationContext.Provider>
     </TabsValueContext.Provider>
   );
 }
@@ -108,6 +122,8 @@ function TabsList({
 }: React.ComponentProps<typeof TabsPrimitive.List> &
   VariantProps<typeof tabsListVariants>) {
   const activeValue = React.useContext(TabsValueContext);
+  const orientation = React.useContext(TabsOrientationContext);
+  const isVertical = orientation === "vertical";
   const sidebar = React.useContext(SidebarContext);
   const {
     containerRef,
@@ -116,7 +132,11 @@ function TabsList({
     setRef,
     onMouseEnter,
     onMouseLeave,
-  } = useIndicatorSlider("horizontal", activeValue, sidebar?.state);
+  } = useIndicatorSlider(
+    isVertical ? "vertical" : "horizontal",
+    activeValue,
+    sidebar?.state,
+  );
 
   return (
     <TabsIndicatorContext.Provider value={{ setRef, onMouseEnter }}>
@@ -128,18 +148,24 @@ function TabsList({
         className={cn(tabsListVariants({ variant }), "relative", className)}
         {...props}
       >
-        {/* Active slider */}
+        {/* Active slider — full cross-axis, slides along the main axis. */}
         {activeValue && (
           <motion.div
             ref={activeIndicatorRef}
-            className="absolute top-1 bottom-1 bg-secondary/70 rounded-md z-0 pointer-events-none"
+            className={cn(
+              "absolute bg-secondary/70 rounded-md z-0 pointer-events-none",
+              isVertical ? "left-1 right-1" : "top-1 bottom-1",
+            )}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         )}
         {/* Hover slider */}
         <motion.div
           ref={hoverIndicatorRef}
-          className="absolute top-1 bottom-1 bg-secondary/40 rounded-md z-0 pointer-events-none opacity-0"
+          className={cn(
+            "absolute bg-secondary/40 rounded-md z-0 pointer-events-none opacity-0",
+            isVertical ? "left-1 right-1" : "top-1 bottom-1",
+          )}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
         {props.children}
@@ -164,7 +190,7 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       value={value}
       className={cn(
-        "gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg:not([class*='size-'])]:size-4 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center whitespace-nowrap transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 cursor-pointer active:bg-secondary",
+        "gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg:not([class*='size-'])]:size-4 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground relative inline-flex group-data-horizontal/tabs:h-[calc(100%-1px)] group-data-horizontal/tabs:flex-1 items-center justify-center whitespace-nowrap transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 cursor-pointer active:bg-secondary",
         "group-data-[variant=line]/tabs-list:bg-transparent text-muted-foreground data-active:text-secondary-foreground",
         "z-10",
         className,

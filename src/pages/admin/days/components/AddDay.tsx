@@ -56,7 +56,7 @@ const AddDay: FC = () => {
       }}
     >
       <PopoverTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="gap-1.5">
+        <Button type="button" size="sm" className="gap-1.5">
           <Plus className="size-4" /> a day
         </Button>
       </PopoverTrigger>

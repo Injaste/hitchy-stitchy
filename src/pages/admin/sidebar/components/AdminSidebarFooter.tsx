@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Crown, LayoutDashboard } from "lucide-react";
+import { ChevronsUpDown, Crown, LayoutDashboard, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   SidebarFooter,
@@ -16,6 +16,7 @@ import {
 import { useAdminStore } from "../../store/useAdminStore";
 import { usePlan } from "../../hooks/usePlan";
 import { useAccess } from "../../hooks/useAccess";
+import { useAccountSettingsStore } from "@/pages/account/useAccountSettingsStore";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import AdminLogout from "../AdminLogout";
@@ -27,6 +28,7 @@ const AdminSidebarFooter = () => {
   const { memberDisplayName, memberRole, isBride, isGroom } = useAdminStore();
   const { isPro } = usePlan();
   const { isSuperAdmin } = useAccess();
+  const openAccountSettings = useAccountSettingsStore((s) => s.open);
   const displayLabel = memberRole ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
   // Active Pro reads as a crown on the avatar; only the owner (super admin) sees it.
   const showCrown = isPro && isSuperAdmin;
@@ -80,6 +82,10 @@ const AdminSidebarFooter = () => {
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="start" style={{ width: "var(--radix-popper-anchor-width)" }}>
+              <DropdownMenuItem onSelect={() => openAccountSettings()}>
+                <Settings className="w-4 h-4" />
+                Account settings
+              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/dashboard">
                   <LayoutDashboard className="w-4 h-4" />

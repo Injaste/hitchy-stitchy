@@ -36,9 +36,16 @@ const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
   // Auto-save the label: debounced on change, flushed on blur/Enter. Empty is
   // rejected inline (and bumps attemptCount → shake); unchanged is a no-op. A
   // failed save surfaces via the mutation's error toast.
-  const { value: label, error, attemptCount, onChange, flush } = useAutosaveField({
+  const {
+    value: label,
+    error,
+    attemptCount,
+    onChange,
+    flush,
+  } = useAutosaveField({
     saved: day.label,
-    onSave: (next) => update.mutate({ event_id: eventId!, id: day.id, label: next }),
+    onSave: (next) =>
+      update.mutate({ event_id: eventId!, id: day.id, label: next }),
     validate: (v) => (v === "" ? "A label is required." : null),
   });
 
@@ -47,7 +54,7 @@ const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
   if (!canManage) {
     return (
       <motion.li {...rowMotion}>
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5">
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card px-3 py-2.5">
           <span className="text-sm font-medium">{day.label}</span>
           <span className="text-xs text-muted-foreground">{dateText}</span>
         </div>
@@ -60,7 +67,7 @@ const DayRow: FC<DayRowProps> = ({ day, canManage, canRemove }) => {
       <AnimateItem
         hasError={!!error}
         attemptCount={attemptCount}
-        className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/20 p-2"
+        className="flex items-center gap-2 rounded-lg border border-border/60 bg-card p-2"
       >
         <span className="min-w-32 px-1 text-xs text-muted-foreground">
           {dateText}

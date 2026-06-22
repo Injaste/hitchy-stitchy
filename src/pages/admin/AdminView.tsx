@@ -16,6 +16,8 @@ import { PingModal } from "./modals/PingModal";
 import MemberModals from "./members/modals";
 import TimelineModals from "./timeline/modals";
 import PlanModals from "./plan/modals";
+import EventSettingsModal from "./settings";
+import AccountSettingsModal from "@/pages/account/modals/AccountSettingsModal";
 import { NotificationPermissionModal } from "./components/NotificationPermissionModal";
 
 const AdminView = () => {
@@ -56,6 +58,7 @@ const AdminView = () => {
                   className="flex flex-col flex-1 min-h-0"
                 >
                   <ScrollView
+                    size="normal"
                     className="px-3 pb-3 md:px-5 md:pb-5 overflow-x-hidden"
                     gradientBottom
                     gradientClass="from-background"
@@ -69,6 +72,8 @@ const AdminView = () => {
             <MemberModals />
             <TimelineModals />
             <PlanModals />
+            <EventSettingsModal />
+            <AccountSettingsModal />
             <NotificationPermissionModal />
           </ComponentFade>
         )}
