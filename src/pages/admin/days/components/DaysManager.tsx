@@ -1,14 +1,6 @@
 import type { FC } from "react";
 import { AnimatePresence } from "framer-motion";
 
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useAccess } from "../../hooks/useAccess";
@@ -26,48 +18,39 @@ const DaysManager: FC = () => {
   // else sees the dates read-only, as they already do on the timeline).
   const canManage = isSuperAdmin;
 
-  const dayCount = days?.length ?? 0;
-
+  // Flush (no card) — matches the other Event settings sections. The rail tab
+  // already labels this "Event Dates", so just the description + list here.
   return (
     <>
-      <Card className="max-w-xl">
-        <CardHeader>
-          <CardTitle className="text-base">Event Dates</CardTitle>
-          <CardDescription>
-            The days of your celebration — non-consecutive is fine. Each day
-            needs a name, and powers the timeline.
-          </CardDescription>
-          {dayCount > 0 && (
-            <CardAction className="text-xs text-muted-foreground">
-              {dayCount} {dayCount === 1 ? "day" : "days"}
-            </CardAction>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-12 rounded-lg" />
-              <Skeleton className="h-12 rounded-lg" />
-            </div>
-          ) : (
-            <ul>
-              {/* Short list — rows height-reveal in on mount and on add/remove. */}
-              <AnimatePresence>
-                {(days ?? []).map((day) => (
-                  <DayRow
-                    key={day.id}
-                    day={day}
-                    canManage={canManage}
-                    canRemove={(days?.length ?? 0) > 1}
-                  />
-                ))}
-              </AnimatePresence>
-            </ul>
-          )}
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          The days of your celebration — non-consecutive is fine. Each day needs
+          a name, and powers the timeline.
+        </p>
 
-          {canManage && <AddDay />}
-        </CardContent>
-      </Card>
+        {isLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-12 rounded-lg" />
+            <Skeleton className="h-12 rounded-lg" />
+          </div>
+        ) : (
+          <ul>
+            {/* Short list — rows height-reveal in on mount and on add/remove. */}
+            <AnimatePresence initial={false}>
+              {(days ?? []).map((day) => (
+                <DayRow
+                  key={day.id}
+                  day={day}
+                  canManage={canManage}
+                  canRemove={(days?.length ?? 0) > 1}
+                />
+              ))}
+            </AnimatePresence>
+          </ul>
+        )}
+
+        {canManage && <AddDay />}
+      </div>
       <DayModals />
     </>
   );

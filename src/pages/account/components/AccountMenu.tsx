@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Settings } from "lucide-react";
 
@@ -15,6 +14,7 @@ import { useLogoutMutation } from "@/auth/queries";
 
 import AccountAvatar from "./AccountAvatar";
 import AccountSettingsModal from "../modals/AccountSettingsModal";
+import { useAccountSettingsStore } from "../useAccountSettingsStore";
 import { useProfileQuery } from "../queries";
 
 /** Avatar dropdown for the account: opens account settings or signs out. Self-
@@ -24,7 +24,7 @@ const AccountMenu = () => {
   const navigate = useNavigate();
   const { data: profile } = useProfileQuery();
   const { mutate: logout, isPending: isLoggingOut } = useLogoutMutation();
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const openSettings = useAccountSettingsStore((s) => s.open);
 
   // Navigation stays at the call site (not in useLogoutMutation): the dashboard
   // returns to /login. The mutation owns only the universal half (auth-cache
@@ -60,7 +60,7 @@ const AccountMenu = () => {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
+          <DropdownMenuItem onSelect={() => openSettings()}>
             <Settings />
             Account settings
           </DropdownMenuItem>
@@ -79,10 +79,7 @@ const AccountMenu = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AccountSettingsModal
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-      />
+      <AccountSettingsModal />
     </>
   );
 };

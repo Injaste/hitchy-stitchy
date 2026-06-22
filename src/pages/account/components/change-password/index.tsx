@@ -1,4 +1,4 @@
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 
 import { FieldGroup } from "@/components/ui/field";
 import {
@@ -7,6 +7,7 @@ import {
   PasswordField,
   PasswordChecklist,
 } from "@/components/custom/form";
+import { useSettingsLeaveGuard } from "@/components/custom/settings-dialog";
 import { isPasswordValid } from "@/lib/password";
 
 import { useChangePasswordMutation } from "./queries";
@@ -31,8 +32,13 @@ const ChangePassword = () => {
     onSubmit: async ({ value }) => {
       if (!isPasswordValid(value.password)) return;
       await changePassword({ password: value.password });
+      form.reset(); // clear so the leave-guard doesn't flag an already-saved form
     },
   });
+
+  // Let the settings dialog warn before discarding a half-typed password.
+  const isDirty = useStore(form.store, (s) => s.isDirty);
+  useSettingsLeaveGuard(isDirty);
 
   return (
     <FormShell form={form} className="space-y-4">

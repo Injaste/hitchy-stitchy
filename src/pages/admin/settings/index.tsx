@@ -1,62 +1,46 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AdminPageHeader } from "@/components/custom/admin-page-header";
-import Container from "@/components/custom/container";
+import { CalendarDays, UserRound, Bell, CreditCard } from "lucide-react";
+
+import SettingsDialog, {
+  type SettingsSection,
+} from "@/components/custom/settings-dialog";
 import DaysManager from "@/pages/admin/days/components/DaysManager";
 import Profile from "./profile";
-import ChangePassword from "./change-password";
 import { NotificationsSection } from "./notifications";
 import Billing from "./billing";
 import { useAccess } from "../hooks/useAccess";
+import { useEventSettingsStore } from "./useEventSettingsStore";
 
-const Settings = () => {
+// Event-scoped sections only. Account-global settings (global name, avatar,
+// password, danger) live in the reusable AccountSettingsModal — opened from the
+// sidebar's separate "Account" entry. Billing is super-admin-only (plan/payment
+// is their concern); the rest every member can see.
+const EventSettingsModal = () => {
   const { isSuperAdmin } = useAccess();
+  const { isOpen, section, setSection, close } = useEventSettingsStore();
 
-  // Billing is super-admin-only (plan/payment is their concern); the rest are
-  // personal/event settings every member can see.
-  const tabs = [
-    { id: "days", label: "Event Dates", element: DaysManager },
-    { id: "profile", label: "Profile", element: Profile },
-    { id: "change-password", label: "Password", element: ChangePassword },
-    { id: "notifications", label: "Notifications", element: NotificationsSection },
+  const sections: SettingsSection[] = [
+    { id: "days", label: "Event Dates", icon: CalendarDays, render: () => <DaysManager /> },
+    { id: "profile", label: "Display name", icon: UserRound, render: () => <Profile /> },
+    { id: "notifications", label: "Notifications", icon: Bell, render: () => <NotificationsSection /> },
     ...(isSuperAdmin
-      ? [{ id: "billing", label: "Billing", element: Billing }]
+      ? [{ id: "billing", label: "Billing", icon: CreditCard, render: () => <Billing /> }]
       : []),
   ];
 
-  return (
-    <>
-      <AdminPageHeader
-        title="Settings"
-        description="Tweak your event and account details."
-      />
-      <Container pageSpacing>
-        <Tabs defaultValue="days" className="gap-6">
-          <TabsList className="w-full max-w-xl" aria-label="Settings sections">
-            {tabs.map((tab) => (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                disabled={!tab.element}
-                className="flex-1 text-xs"
-              >
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+  const active = sections.some((s) => s.id === section) ? section : undefined;
 
-          {tabs.map((tab) => {
-            const Element = tab.element;
-            if (!Element) return null;
-            return (
-              <TabsContent key={tab.id} value={tab.id}>
-                <Element />
-              </TabsContent>
-            );
-          })}
-        </Tabs>
-      </Container>
-    </>
+  return (
+    <SettingsDialog
+      open={isOpen}
+      onOpenChange={(o) => {
+        if (!o) close();
+      }}
+      title="Event settings"
+      sections={sections}
+      value={active}
+      onValueChange={setSection}
+    />
   );
 };
 
-export default Settings;
+export default EventSettingsModal;

@@ -156,6 +156,28 @@
   --radius: 0.75rem;
 }
 
+/* OverlayScrollbars custom theme — thin, rounded, foreground-tinted so the
+   overlay thumb adapts to light/dark automatically. Selected app-wide via the
+   `os-theme-app` scrollbars option in ScrollView. */
+.os-theme-app {
+  --os-size: 6px; /* thin: ~4px (w-1) visible thumb + 1px padding each side */
+  --os-padding-perpendicular: 1px;
+  --os-padding-axis: 2px;
+  --os-track-bg: transparent;
+  --os-handle-border-radius: 9999px;
+  --os-handle-perpendicular-size: 100%;
+  --os-handle-perpendicular-size-hover: 100%;
+  --os-handle-bg: color-mix(in oklch, var(--color-foreground) 22%, transparent);
+  --os-handle-bg-hover: color-mix(in oklch, var(--color-foreground) 38%, transparent);
+  --os-handle-bg-active: color-mix(in oklch, var(--color-foreground) 50%, transparent);
+}
+
+/* Page-level / primary scrolls opt into a thicker bar via size="normal".
+   Compound selector beats the base theme regardless of cascade layer. */
+.os-theme-app.os-scroll-normal {
+  --os-size: 10px; /* normal: ~8px (w-2) visible thumb */
+}
+
 @layer base {
   /* ── Dialogs / sheets ──────── */
   [role="dialog"] *,
