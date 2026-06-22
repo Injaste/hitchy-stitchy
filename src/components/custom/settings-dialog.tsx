@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollView } from "@/components/custom/scroll-view";
 import ConfirmAlertModal from "@/components/custom/confirm-alert-modal";
 import { useIsMobile } from "@/hooks/use-media-query";
+import { Separator } from "../ui/separator";
 
 // ─── Unsaved-edit guard ───────────────────────────────────────────────────────
 // A section registers its dirty state here so the dialog can intercept a
@@ -102,12 +103,12 @@ const DesktopSettings: FC<{
           orientation="vertical"
           value={activeId}
           onValueChange={setActive}
-          className="h-112 max-h-[70vh] gap-0 overflow-hidden rounded-xl px-2"
+          className="h-112 max-h-[70vh] gap-0 overflow-hidden rounded-xl"
           contentClassName="grid min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)]"
         >
           <TabsList
             variant="line"
-            className="w-44 shrink-0 justify-start gap-1 rounded-none border-r border-border p-2 group-data-vertical/tabs:h-full"
+            className="w-44 shrink-0 justify-start gap-1 rounded-none mx-3 py-2 group-data-vertical/tabs:h-full"
           >
             <DialogTitle className="w-full pt-1 pb-2 text-left text-xs font-medium text-muted-foreground">
               {title}
@@ -119,6 +120,8 @@ const DesktopSettings: FC<{
               </TabsTrigger>
             ))}
           </TabsList>
+
+          <Separator orientation="vertical" className="h-full" />
 
           {sections.map((s) => (
             <TabsContent key={s.id} value={s.id}>
