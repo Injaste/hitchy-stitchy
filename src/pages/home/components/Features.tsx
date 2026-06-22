@@ -1,18 +1,99 @@
 import { motion } from "framer-motion";
 import { dividerLine } from "../animations";
-import { features } from "../data";
-import { TimelineMock } from "./mocks/TimelineMock";
-import { RsvpMock } from "./mocks/RsvpMock";
-import { TeamMock } from "./mocks/TeamMock";
-import { LiveMock } from "./mocks/LiveMock";
-import { cn } from "@/lib/utils";
+import { pillars, type Feature } from "../data";
+import { TimelineShowcase } from "./showcases/TimelineShowcase";
+import { TasksShowcase } from "./showcases/TasksShowcase";
+import { BudgetShowcase } from "./showcases/BudgetShowcase";
+import { GiftsShowcase } from "./showcases/GiftsShowcase";
+import { MembersShowcase } from "./showcases/MembersShowcase";
+import { AccessShowcase } from "./showcases/AccessShowcase";
+import { RsvpShowcase } from "./showcases/RsvpShowcase";
 
-const MOCKS: Record<string, React.ReactNode> = {
-  timeline: <TimelineMock />,
-  rsvp: <RsvpMock />,
-  team: <TeamMock />,
-  live: <LiveMock />,
+// Each showcase renders the REAL product component fed sample SG data.
+const SHOWCASES: Record<string, React.ReactNode> = {
+  timeline: <TimelineShowcase />,
+  tasks: <TasksShowcase />,
+  budget: <BudgetShowcase />,
+  gifts: <GiftsShowcase />,
+  team: <MembersShowcase />,
+  access: <AccessShowcase />,
+  rsvp: <RsvpShowcase />,
 };
+
+// Every example lives in a box of this exact height — a fixed-height div stays
+// this tall in layout no matter what its animating child does, so the page can
+// never shift (0px), and all features line up.
+const EXAMPLE_HEIGHT = "h-[480px]";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+function FeatureCopy({ feature }: { feature: Feature }) {
+  return (
+    <>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center">
+          <feature.icon
+            className="w-4.5 h-4.5 text-primary-foreground"
+            aria-hidden="true"
+          />
+        </div>
+        <p className="text-xs uppercase tracking-widest text-primary font-semibold">
+          {feature.label}
+        </p>
+      </div>
+      <h3 className="font-bold text-2xl md:text-3xl text-foreground leading-tight mb-4">
+        {feature.title}
+      </h3>
+      <p className="text-muted-foreground leading-relaxed max-w-prose mb-6">
+        {feature.description}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {feature.tags.map((tag) => (
+          <span
+            key={tag}
+            className="text-xs px-3 py-1.5 rounded-full border border-primary/20 text-primary bg-primary/5 font-medium"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/** Title/copy first, then the live example in a shared fixed-height box. */
+function FeatureCard({ feature, delay }: { feature: Feature; delay: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.8, delay, ease: EASE }}
+      className="flex flex-col"
+    >
+      <FeatureCopy feature={feature} />
+      <div className="relative mt-8 w-full max-w-xl mx-auto">
+        <div className="absolute inset-0 -m-6 rounded-3xl bg-primary/4 blur-2xl pointer-events-none" />
+        <div className={`relative w-full ${EXAMPLE_HEIGHT}`}>
+          {SHOWCASES[feature.key]}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function PillarHeader({ label, tagline }: { label: string; tagline: string }) {
+  return (
+    <div className="text-center mb-12">
+      <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-2">
+        {label}
+      </p>
+      <p className="text-xl md:text-2xl font-semibold text-foreground">
+        {tagline}
+      </p>
+    </div>
+  );
+}
 
 export function Features() {
   return (
@@ -24,7 +105,7 @@ export function Features() {
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: EASE }}
             className="text-xs uppercase tracking-widest text-primary font-medium mb-3"
           >
             Everything you need
@@ -33,7 +114,7 @@ export function Features() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
             className="font-bold text-4xl md:text-5xl text-foreground"
           >
             One suite for the whole celebration
@@ -47,81 +128,28 @@ export function Features() {
           />
         </div>
 
-        {/* Feature rows */}
-        <div className="space-y-0">
-          {features.map((feature, i) => {
-            const isEven = i % 2 === 0;
-            const mock = MOCKS[feature.key];
-
-            return (
-              <div
-                key={feature.key}
-                className="py-24 first:pt-0 last:pb-0"
-              >
-                <div
-                  className={cn(
-                    "min-h-[500px] flex flex-col lg:flex-row items-center gap-16 xl:gap-24",
-                    !isEven && "lg:flex-row-reverse",
-                  )}
-                >
-                  {/* Mock showcase */}
-                  <motion.div
-                    initial={{ opacity: 0, x: isEven ? -40 : 40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                    className="w-full lg:w-1/2 relative"
-                  >
-                    <div className="absolute inset-0 -m-8 rounded-3xl bg-primary/4 blur-2xl pointer-events-none" />
-                    <div className="relative max-w-md mx-auto lg:mx-0">
-                      {mock}
-                    </div>
-                  </motion.div>
-
-                  {/* Text content */}
-                  <motion.div
-                    initial={{ opacity: 0, x: isEven ? 40 : -40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{
-                      duration: 0.9,
-                      delay: 0.1,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    className="w-full lg:w-1/2"
-                  >
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center">
-                        <feature.icon className="w-4.5 h-4.5 text-primary-foreground" aria-hidden="true" />
-                      </div>
-                      <p className="text-xs uppercase tracking-widest text-primary font-semibold">
-                        {feature.label}
-                      </p>
-                    </div>
-
-                    <h3 className="font-bold text-3xl md:text-4xl text-foreground leading-tight mb-6">
-                      {feature.title}
-                    </h3>
-
-                    <p className="text-muted-foreground leading-relaxed text-base max-w-prose mb-10">
-                      {feature.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {feature.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-xs px-3 py-1.5 rounded-full border border-primary/20 text-primary bg-primary/5 font-medium"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </motion.div>
+        {/* Pillars */}
+        <div className="space-y-28">
+          {pillars.map((pillar) => (
+            <div key={pillar.key}>
+              <PillarHeader label={pillar.label} tagline={pillar.tagline} />
+              {pillar.features.length === 1 ? (
+                <div className="max-w-xl mx-auto">
+                  <FeatureCard feature={pillar.features[0]} delay={0} />
                 </div>
-              </div>
-            );
-          })}
+              ) : (
+                <div className="grid xl:grid-cols-2 gap-12 lg:gap-16">
+                  {pillar.features.map((feature, i) => (
+                    <FeatureCard
+                      key={feature.key}
+                      feature={feature}
+                      delay={i * 0.1}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>
