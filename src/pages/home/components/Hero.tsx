@@ -4,6 +4,7 @@ import { ArrowRight, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { heroHeadline, heroSub, heroActions, floatIn } from "../animations";
 import { RingsSVG, FloralSVG } from "./Decorations";
+import { HeroWordCycler } from "./HeroWordCycler";
 
 export function Hero() {
   const { scrollY } = useScroll();
@@ -76,17 +77,9 @@ export function Hero() {
         animate="show"
         className="font-bold text-5xl md:text-7xl lg:text-8xl text-foreground leading-[1.05] tracking-tight max-w-4xl"
       >
-        Every moment,{" "}
-        {/* inline-block + padding: background-clip:text bounds the gradient to a
-            box that ignores the italic slant overhang and the 'y' descender, so
-            without breathing room the right edge and tail get clipped. The
-            negative bottom margin cancels the extra height so line spacing in
-            the headline is unchanged. */}
-        <span className="inline-block bg-gradient-brand bg-clip-text pr-[0.28em] pb-[0.18em] -mb-[0.18em] text-transparent italic">
-          beautifully
-        </span>
-        <br />
-        orchestrated.
+        <span className="block">Every moment,</span>
+        <span className="relative z-10 block py-[0.1em]"><HeroWordCycler /></span>
+        <span className="block">orchestrated.</span>
       </motion.h1>
 
       {/* Subtitle */}
