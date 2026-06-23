@@ -25,7 +25,7 @@ const DAYS: Day[] = [
   {
     id: "d1",
     date: "2026-07-31",
-    label: "Solemnisation",
+    label: "Ceremony",
     segments: [
       { name: "Ring Ceremony", start: "14:00", end: "15:00" },
       { name: "Family Photo", start: "15:00", end: "16:00" },
