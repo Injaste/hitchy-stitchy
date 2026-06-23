@@ -55,18 +55,32 @@ export function CTABanner() {
   });
 
   useEffect(() => {
-    const focus = () => {
-      if (window.location.hash === "#get-started") {
-        setTimeout(() => {
-          formRef.current
-            ?.querySelector<HTMLInputElement>("input[type=email]")
-            ?.focus();
-        }, 150);
-      }
+    // preventScroll: let the anchor (smooth-scrolled by Lenis) own the scroll;
+    // focus only sets the cursor so it doesn't fight the animation.
+    const focusInput = () =>
+      setTimeout(() => {
+        formRef.current
+          ?.querySelector<HTMLInputElement>("input[type=email]")
+          ?.focus({ preventScroll: true });
+      }, 200);
+
+    // Deep-link / hash change (e.g. landing on /#get-started).
+    const onHash = () => {
+      if (window.location.hash === "#get-started") focusInput();
     };
-    focus();
-    window.addEventListener("hashchange", focus);
-    return () => window.removeEventListener("hashchange", focus);
+    // Any in-page "get early access" link — fires even when the hash is already
+    // set (so the footer link after the navbar's still focuses the field).
+    const onClick = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('a[href="#get-started"]')) focusInput();
+    };
+
+    onHash();
+    window.addEventListener("hashchange", onHash);
+    document.addEventListener("click", onClick);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      document.removeEventListener("click", onClick);
+    };
   }, []);
 
   return (

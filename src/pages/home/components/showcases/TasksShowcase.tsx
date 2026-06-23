@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { LayoutGroup, motion } from "framer-motion";
 import TaskCardView from "@/pages/admin/tasks/components/TaskCardView";
 import TaskStatusIcon from "@/pages/admin/tasks/components/TaskStatusIcon";
@@ -42,14 +42,17 @@ const COLUMNS: { status: TaskStatus; label: string }[] = [
   { status: "done", label: "Done" },
 ];
 
-// Two resident cards per column so no panel reads empty.
+// Two resident cards per column so no panel reads empty. Culture-specific to-dos
+// go to someone who'd actually know that custom — kompang → Faiz (Malay),
+// mehndi → Priya (Indian), lion dance → Wei Jie (Chinese, the traveling hero);
+// neutral tasks fall to the couple/coordinator.
 const RESIDENTS: { task: Task; who: Member[] }[] = [
-  { task: mk("t1", "Confirm tea ceremony order", "todo", "medium", "2026-07-30"), who: [SERENE, PRIYA] },
-  { task: mk("t2", "Order ang bao boxes", "todo", "low"), who: [] },
+  { task: mk("t1", "Confirm kompang group", "todo", "medium", "2026-07-30"), who: [FAIZ] },
+  { task: mk("t2", "Book mehndi artist", "todo", "low"), who: [PRIYA] },
   { task: mk("t4", "Finalise banquet menu", "in_progress", "high", "2026-07-15"), who: [HUI_LING, SERENE] },
-  { task: mk("t5", "Brief the emcee", "in_progress", null), who: [FAIZ] },
+  { task: mk("t5", "Brief the emcee", "in_progress", null), who: [SERENE] },
   { task: mk("t6", "Send the invites", "done", null), who: [] },
-  { task: mk("t7", "Book the venue", "done", null), who: [SERENE] },
+  { task: mk("t7", "Book the venue", "done", null), who: [WEI_JIE] },
 ];
 
 // The hero rides To do → In progress → Done, then fades out and teleports back
@@ -64,22 +67,24 @@ const PHASES = [
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
+// Phase 2 = hero sitting in Done. Clicking the hero jumps straight here; the
+// scheduler then carries it on through the fade-out/reset like any other phase.
+const DONE_PHASE = 2;
+
 export function TasksShowcase() {
   const [phase, setPhase] = useState(0);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const goTo = useCallback((p: number) => {
+    clearTimeout(timer.current);
+    setPhase(p);
+    timer.current = setTimeout(() => goTo((p + 1) % PHASES.length), PHASES[p].dur);
+  }, []);
 
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-    const advance = (p: number) => {
-      timeout = setTimeout(() => {
-        const next = (p + 1) % PHASES.length;
-        setPhase(next);
-        advance(next);
-      }, PHASES[p].dur);
-    };
-    advance(phase);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    goTo(0);
+    return () => clearTimeout(timer.current);
+  }, [goTo]);
 
   const { col: heroCol, visible } = PHASES[phase];
   const heroTask = mk("hero", "Book lion dance troupe", COLUMNS[heroCol].status, "high");
@@ -93,7 +98,7 @@ export function TasksShowcase() {
         {COLUMNS.map((col, i) => (
           <div
             key={col.status}
-            className="flex h-full min-w-0 flex-col gap-2.5 overflow-hidden rounded-xl bg-task-column p-2.5 ring-1 ring-border/60"
+            className="flex h-full min-w-0 flex-col gap-2.5 rounded-xl bg-task-column p-2.5 ring-1 ring-border/60"
           >
             <div className="flex items-center gap-1.5">
               <TaskStatusIcon status={col.status} />
@@ -122,13 +127,22 @@ export function TasksShowcase() {
                 <motion.div
                   layoutId="hero-card"
                   layout
+                  // Lift above the column panels so it travels over the gap
+                  // (not behind the next column) while moving.
+                  className="relative z-20"
                   animate={{ opacity: visible ? 1 : 0 }}
                   transition={{
                     layout: { duration: 0.55, ease: EASE },
                     opacity: { duration: 0.4, ease: EASE },
                   }}
                 >
-                  <TaskCardView task={heroTask} assigneeMembers={[WEI_JIE]} selfId={SELF_ID} />
+                  <TaskCardView
+                    task={heroTask}
+                    assigneeMembers={[WEI_JIE]}
+                    selfId={SELF_ID}
+                    onToggle={() => goTo(DONE_PHASE)}
+                    onOpen={() => goTo(DONE_PHASE)}
+                  />
                 </motion.div>
               )}
             </div>

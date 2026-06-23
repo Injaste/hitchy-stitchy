@@ -32,8 +32,8 @@ export function Footer() {
               textAlign="left"
             />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              The simplest way to plan your wedding and manage your guests — from
-              the first RSVP to the last dance.
+              The simplest way to plan your celebration and manage your guests —
+              from the first RSVP to the last dance.
             </p>
             <ShareRow />
           </div>

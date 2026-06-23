@@ -5,7 +5,6 @@ import {
   Wallet,
   HandCoins,
   Users,
-  Shield,
   ClipboardList,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -41,19 +40,25 @@ export const steps: Step[] = [
     number: "01",
     title: "Create your event",
     description:
-      "Set up your wedding details — name, dates, and your unique invitation link.",
+      "Set up your celebration — dates, details, and your unique invitation link.",
   },
   {
     number: "02",
     title: "Build your team",
     description:
-      "Invite your coordinator, vendors, and wedding party. Everyone gets a role.",
+      "Invite your coordinator, vendors and helpers — everyone gets a role.",
   },
   {
     number: "03",
-    title: "Live on the day",
+    title: "Share your invitation",
     description:
-      "Activate Live Mode. Real-time cues, arrivals, and coordination at your fingertips.",
+      "Send your themed invitation; RSVPs and guest counts roll in live.",
+  },
+  {
+    number: "04",
+    title: "Run it live",
+    description:
+      "On the day, start each cue and your whole team follows in real time.",
   },
 ];
 
@@ -72,7 +77,7 @@ export const pillars: Pillar[] = [
         label: "Multi-day",
         title: "Built for multi-day celebrations",
         description:
-          "Solemnisation, the 敬茶 tea ceremony, the banquet — give each day its own date, and every timeline, budget and gift stays filed under the right one.",
+          "From the akad or tea ceremony to the sangeet and the banquet — give each day its own date, and every timeline, budget and gift stays filed under the right one.",
         tags: ["Multi-day", "Per-day timeline", "Per-day budget"],
         wide: true,
       },
@@ -82,8 +87,9 @@ export const pillars: Pillar[] = [
         label: "Timeline",
         title: "Every cue, down to the minute",
         description:
-          "Each moment — prep, tea ceremony, first dance — gets a time, venue and owner. On the day, start each cue and the whole team follows in real time.",
+          "Each moment — prep, the ceremony, the celebration — gets a time, venue and owner. On the day, start each cue and the whole team follows in real time.",
         tags: ["Multi-day", "Live on the day", "Real-time cues"],
+        wide: true,
       },
       {
         key: "tasks",
@@ -93,6 +99,7 @@ export const pillars: Pillar[] = [
         description:
           "Track who's doing what across To do, In progress and Done — with labels, priorities and assignees.",
         tags: ["Kanban", "Priorities", "Assignees"],
+        wide: true,
       },
     ],
   },
@@ -116,8 +123,8 @@ export const pillars: Pillar[] = [
         label: "Gift Envelopes",
         title: "An envelope ledger that adds up",
         description:
-          "Record every ang bao, cash or PayNow gift by who gave it — the tally climbs as the day goes on.",
-        tags: ["Ang bao", "PayNow", "Per day"],
+          "Record every ang bao, sampul duit or shagun by who gave it — the tally climbs as the day goes on.",
+        tags: ["Ang bao", "Sampul duit", "Shagun"],
       },
     ],
   },
@@ -132,18 +139,8 @@ export const pillars: Pillar[] = [
         label: "Members",
         title: "Everyone in their role",
         description:
-          "Invite your wedding party, vendors and coordinators — each with a clear role on the day.",
-        tags: ["Roles", "Vendors", "Invites"],
-      },
-      {
-        key: "access",
-        icon: Shield,
-        label: "Access",
-        title: "Control who sees what",
-        description:
-          "Grant each group View or Full access per feature — money stays private, the timeline stays shared.",
-        tags: ["Per-feature", "View / Full", "Private money"],
-        wide: true,
+          "Invite your party, vendors and coordinators — each with a clear role and just the access they need. Money stays private; the timeline stays shared.",
+        tags: ["Roles", "Per-feature access", "Private money"],
       },
     ],
   },

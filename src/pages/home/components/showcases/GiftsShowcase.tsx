@@ -8,9 +8,11 @@ import { formatSGD } from "@/lib/money";
 import GiftRow, { ROW_COLS } from "@/pages/admin/gifts/components/GiftRow";
 import type { Gift } from "@/pages/admin/gifts/types";
 
-// The real Gift Envelopes table (DataTable + GiftRow), fed sample SG ang bao /
-// sampul duit. Recent envelopes stay put (newest first, like the real sort) so
-// no row churn → fixed height; the live element is the "Collected today" tally.
+// The real Gift Envelopes table (DataTable + GiftRow), fed a mix of SG money
+// gifts — ang bao (Chinese), sampul duit (Malay), shagun (Indian). Two more
+// envelopes arrive (newest first), then clear, looping — DataTable's
+// AnimatePresence animates the rows in/out and the "Collected today" total
+// recomputes to the live sum. The fixed-height box absorbs the row churn.
 const mk = (
   id: string,
   given_by: string,
@@ -28,16 +30,20 @@ const mk = (
   updated_at: "2026-06-01T00:00:00Z",
 });
 
-// Newest first — auspicious 8s like real ang bao.
-const RECENT: Gift[] = [
-  mk("g1", "The Tan Family", 688, "envelope"),
-  mk("g2", "Wei Jie & Hui Ling", 388, "transfer"),
-  mk("g3", "Nurul & Faiz", 168, "transfer"),
-  mk("g4", "Uncle Raj", 188, "cash"),
-  mk("g5", "Pak Cik Rahman", 288, "envelope"),
-  mk("g6", "Cousin Mei", 388, "transfer"),
-  mk("g7", "Aunty Lim", 288, "envelope"),
-  mk("g8", "Mr & Mrs Goh", 388, "others"),
+// The settled base — newest first, a mix across communities, auspicious 8s.
+const BASE: Gift[] = [
+  mk("g1", "Priya & Karthik", 388, "transfer"),
+  mk("g2", "Nurul & Faiz", 168, "transfer"),
+  mk("g3", "Uncle Raj", 188, "cash"),
+  mk("g4", "Pak Cik Rahman", 288, "envelope"),
+  mk("g5", "Aunty Lim", 388, "transfer"),
+  mk("g6", "Mr & Mrs Goh", 388, "others"),
+];
+
+// The two that arrive during the loop (prepended — newest at the top).
+const INCOMING: Gift[] = [
+  mk("g7", "The Tan Family", 688, "envelope"),
+  mk("g8", "Deepa & Suresh", 288, "cash"),
 ];
 
 const COLUMNS: DataTableColumn[] = [
@@ -46,13 +52,14 @@ const COLUMNS: DataTableColumn[] = [
   { label: "Amount", align: "right" },
 ];
 
-const TOTALS = [6280, 7168, 8056, 8944, 9888];
+// How many of INCOMING are present at each step: settle → +1 → +2 → clear.
+const STEPS = [0, 1, 2, 0];
 
 function CollectedTotal({ value }: { value: number }) {
   const mv = useMotionValue(value);
   const text = useTransform(mv, (v) => formatSGD(v));
   useEffect(() => {
-    const controls = animate(mv, value, { duration: 0.9, ease: [0.16, 1, 0.3, 1] });
+    const controls = animate(mv, value, { duration: 0.7, ease: [0.16, 1, 0.3, 1] });
     return controls.stop;
   }, [value, mv]);
   return <motion.span>{text}</motion.span>;
@@ -64,20 +71,24 @@ export function GiftsShowcase() {
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
     const advance = (s: number) => {
-      const last = s >= TOTALS.length - 1;
+      const last = s >= STEPS.length - 1;
       timeout = setTimeout(
         () => {
           const next = last ? 0 : s + 1;
           setStep(next);
           advance(next);
         },
-        last ? 2600 : 1500,
+        last ? 2400 : 1700,
       );
     };
     advance(step);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const added = INCOMING.slice(0, STEPS[step]);
+  const gifts = [...added, ...BASE]; // newest first
+  const total = gifts.reduce((sum, g) => sum + g.amount, 0);
 
   return (
     <DataTable
@@ -87,16 +98,18 @@ export function GiftsShowcase() {
         <DataTableTotalRow>
           <span className="text-xs">
             Collected today{" "}
-            <span className="font-medium text-muted-foreground">· Day 1</span>
+            <span className="font-medium text-muted-foreground">
+              · {gifts.length} gifts
+            </span>
           </span>
           <span />
           <div className="text-right font-display text-sm font-bold tabular-nums">
-            <CollectedTotal value={TOTALS[step]} />
+            <CollectedTotal value={total} />
           </div>
         </DataTableTotalRow>
       }
     >
-      {RECENT.map((gift) => (
+      {gifts.map((gift) => (
         <GiftRow key={gift.id} gift={gift} onClick={() => {}} />
       ))}
     </DataTable>

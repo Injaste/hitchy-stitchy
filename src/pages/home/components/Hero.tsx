@@ -96,9 +96,9 @@ export function Hero() {
         animate="show"
         className="mt-6 text-muted-foreground text-lg md:text-xl max-w-2xl leading-relaxed"
       >
-        From the first RSVP to the last dance — Hitchy Stitchy gives your
-        wedding team the tools to plan, coordinate, and celebrate with clarity
-        and grace.
+        From the first RSVP to the last dance — Hitchy Stitchy gives you and
+        your team the tools to plan, coordinate, and celebrate every occasion
+        with clarity and grace.
       </motion.p>
 
       {/* CTAs */}

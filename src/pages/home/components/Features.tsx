@@ -7,7 +7,6 @@ import { TasksShowcase } from "./showcases/TasksShowcase";
 import { BudgetShowcase } from "./showcases/BudgetShowcase";
 import { GiftsShowcase } from "./showcases/GiftsShowcase";
 import { MembersShowcase } from "./showcases/MembersShowcase";
-import { AccessShowcase } from "./showcases/AccessShowcase";
 import { RsvpShowcase } from "./showcases/RsvpShowcase";
 
 // Each showcase renders the REAL product component fed sample SG data.
@@ -18,14 +17,23 @@ const SHOWCASES: Record<string, React.ReactNode> = {
   budget: <BudgetShowcase />,
   gifts: <GiftsShowcase />,
   team: <MembersShowcase />,
-  access: <AccessShowcase />,
   rsvp: <RsvpShowcase />,
 };
 
-// Every example lives in a box of this exact height — a fixed-height div stays
-// this tall in layout no matter what its animating child does, so the page can
-// never shift (0px), and all features line up.
-const EXAMPLE_HEIGHT = "h-[520px]";
+// Each example lives in a fixed-height box (sized per feature to its own content)
+// so the box never changes height no matter what its animating child does — the
+// page can't shift (0px). Heights differ because the examples genuinely differ
+// (a summary vs a board vs a form); content is vertically centred within the box.
+// Features sharing a row (Budget + Gifts) match so their bottoms line up.
+const EXAMPLE_HEIGHT: Record<string, number> = {
+  days: 340,
+  timeline: 260,
+  tasks: 420,
+  budget: 525,
+  gifts: 525,
+  team: 490,
+  rsvp: 555,
+};
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -79,7 +87,10 @@ function FeatureCard({ feature, delay }: { feature: Feature; delay: number }) {
         className={`relative mt-8 w-full mx-auto ${feature.wide ? "max-w-3xl" : "max-w-xl"}`}
       >
         <div className="absolute inset-0 -m-6 rounded-3xl bg-primary/4 blur-2xl pointer-events-none" />
-        <div className={`relative w-full ${EXAMPLE_HEIGHT}`}>
+        <div
+          className="relative flex w-full flex-col justify-center"
+          style={{ height: EXAMPLE_HEIGHT[feature.key] ?? 480 }}
+        >
           {SHOWCASES[feature.key]}
         </div>
       </div>

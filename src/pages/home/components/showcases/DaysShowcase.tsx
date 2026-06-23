@@ -3,64 +3,51 @@ import { motion } from "framer-motion";
 import DateTile from "@/components/custom/date-tile";
 import { Separator } from "@/components/ui/separator";
 import { dayLabel } from "@/pages/admin/days/utils";
-import TimelineCardView from "@/pages/admin/timeline/components/TimelineCardView";
-import type { Timeline } from "@/pages/admin/timeline/types";
-import type { Member } from "@/pages/admin/members/types";
-import { HUI_LING, WEI_JIE, SERENE, FAIZ, SELF_ID } from "./sampleTeam";
+import { formatTime, calculateTimeDuration } from "@/lib/utils/utils-time";
 
-// Multi-day weddings, shown the way the app scopes them: a day rail (the real
-// DateTile, exactly what DayTabs renders) over the cues filed under the active
-// day. Selecting a day re-segments what's below — auto-cycled here so you see
-// each day's own running order.
-const mkCue = (
-  over: Partial<Timeline> & Pick<Timeline, "id" | "title" | "time_start">,
-): Timeline => ({
-  event_id: "demo",
-  day: "2026-08-01",
-  segment_id: "seg",
-  label: null,
-  time_end: null,
-  details: null,
-  assignees: [],
-  created_at: "2026-06-01T00:00:00Z",
-  started_at: null,
-  ended_at: null,
-  ...over,
-});
-
+// Multi-day, shown the way the admin timeline scopes it: a day picker (the real
+// DateTile, exactly what DayTabs renders) over that day's segments — just the
+// segment headings (name + time range), no items inside. Selecting a day swaps
+// the segments below. A Chinese multi-day wedding (solemnisation → banquet).
+interface Segment {
+  name: string;
+  start: string;
+  end: string;
+}
 interface Day {
   id: string;
   date: string;
   label: string;
-  cues: { item: Timeline; who: Member[] }[];
+  segments: Segment[];
 }
 
 const DAYS: Day[] = [
   {
     id: "d1",
-    date: "2026-08-01",
+    date: "2026-07-31",
     label: "Solemnisation",
-    cues: [
-      { item: mkCue({ id: "s1", title: "Sign at the ROM", time_start: "11:00", time_end: "11:30" }), who: [HUI_LING, WEI_JIE] },
-      { item: mkCue({ id: "s2", title: "Solemniser's address & vows", time_start: "11:30", time_end: "12:00" }), who: [SERENE] },
+    segments: [
+      { name: "ROM ceremony", start: "14:00", end: "15:00" },
+      { name: "Tea with witnesses", start: "15:00", end: "16:00" },
     ],
   },
   {
     id: "d2",
-    date: "2026-08-02",
-    label: "Tea Ceremony",
-    cues: [
-      { item: mkCue({ id: "t1", title: "敬茶 to the elders", time_start: "09:00", time_end: "10:00" }), who: [HUI_LING, WEI_JIE] },
-      { item: mkCue({ id: "t2", title: "Family & jie mei photos", time_start: "10:00", time_end: "10:45" }), who: [SERENE] },
+    date: "2026-08-01",
+    label: "Wedding Day",
+    segments: [
+      { name: "Gatecrash & fetch bride", start: "07:00", end: "09:00" },
+      { name: "敬茶 Tea ceremony", start: "10:00", end: "12:00" },
+      { name: "Family lunch", start: "12:30", end: "14:00" },
     ],
   },
   {
     id: "d3",
-    date: "2026-08-03",
+    date: "2026-08-02",
     label: "Banquet",
-    cues: [
-      { item: mkCue({ id: "b1", title: "March-in & first toast", time_start: "19:30", time_end: "20:00" }), who: [SERENE, FAIZ] },
-      { item: mkCue({ id: "b2", title: "Yum seng & live band", time_start: "20:30", time_end: "21:15" }), who: [WEI_JIE, FAIZ] },
+    segments: [
+      { name: "Reception & march-in", start: "19:00", end: "20:00" },
+      { name: "Banquet & yum seng", start: "20:00", end: "22:30" },
     ],
   },
 ];
@@ -69,7 +56,7 @@ export function DaysShowcase() {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setActive((a) => (a + 1) % DAYS.length), 2800);
+    const id = setInterval(() => setActive((a) => (a + 1) % DAYS.length), 3000);
     return () => clearInterval(id);
   }, []);
 
@@ -77,6 +64,7 @@ export function DaysShowcase() {
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-lg select-none">
+      {/* Day picker */}
       <div className="flex justify-center gap-2.5">
         {DAYS.map((d, i) => (
           <DateTile
@@ -95,25 +83,34 @@ export function DaysShowcase() {
 
       <Separator className="mt-4 mb-3" />
 
-      {/* Keyed (no exit) so the cue list swaps in lockstep with the rail —
-          mode="wait" would hold the previous day's cues during the fade-out,
-          leaving the rail and the cues momentarily out of sync. */}
+      {/* That day's segments — headings only (no items). */}
       <motion.div
         key={day.id}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="space-y-2.5"
       >
-        {day.cues.map(({ item, who }) => (
-          <TimelineCardView
-            key={item.id}
-            item={item}
-            lifecycle={null}
-            assigneeMembers={who}
-            selfId={SELF_ID}
-          />
-        ))}
+        {day.segments.map((seg, i) => {
+          const isLast = i === day.segments.length - 1;
+          return (
+            <div key={seg.name} className="flex items-stretch gap-3">
+              {/* Status-node rail, like the timeline's segment list */}
+              <div className="flex flex-col items-center pt-1.5">
+                <span className="size-2.5 shrink-0 rounded-full bg-primary/70 ring-4 ring-primary/10" />
+                {!isLast && <span className="mt-1 w-px grow bg-border" />}
+              </div>
+              <div className={`flex flex-wrap items-center gap-2 ${isLast ? "pb-1" : "pb-5"}`}>
+                <span className="font-display text-sm font-semibold text-foreground">
+                  {seg.name}
+                </span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-2xs text-muted-foreground">
+                  {formatTime(seg.start)} – {formatTime(seg.end)} ·{" "}
+                  {calculateTimeDuration(seg.start, seg.end, "short")}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </motion.div>
     </div>
   );

@@ -34,23 +34,25 @@ const mk = (
 });
 
 // Sorted ONCE by the real rule (urgency → due → amount); rows then settle in
-// place (no live re-sort, so nothing jumps).
+// place (no live re-sort, so nothing jumps). An Indian wedding's vendors.
 const ORDER = sortExpenses([
-  mk("e1", "Hotel banquet · 30 tables", "Marina Bay Ballroom", "Groom's side", 38800, "2026-08-02"),
-  mk("e2", "Actual-day photo & video", "Lumière Weddings", "Shared", 4200, "2026-07-12"),
-  mk("e3", "Bridal MUA & gown", "Atelier Sui", "Bride's side", 2880, "2026-07-20"),
-  mk("e4", "Live band (4-pc)", "The Sundown Trio", "Shared", 2600, "2026-07-28"),
+  mk("e1", "Banquet & catering · 300 pax", "Saffron Banquets", "Groom's side", 32000, "2026-08-02"),
+  mk("e2", "Mandap & floral décor", "Bloom & Mandap", "Shared", 6800, "2026-07-20"),
+  mk("e3", "Bridal mehndi & makeup", "Henna by Anjali", "Bride's side", 3200, "2026-07-15"),
+  mk("e4", "Sangeet night band", "Dhol Beats", "Shared", 2800, "2026-07-28"),
 ]);
 
 const TOTAL_SPENT = ORDER.reduce((s, e) => s + e.amount, 0);
 
-// Paid amount per expense, batch by batch: deposits → progress payments → fully
-// settled. Crosses the stripe ramp (low % red, ~half amber, full green/none).
+// Paid amount per expense, batch by batch: deposits → progress payments. The
+// banquet (e1) is never fully settled in the loop, so there's always a balance
+// owing and the footer always shows how much is left. Crosses the stripe ramp
+// (low % red, ~half amber, near-full green).
 const PHASES: Record<string, number>[] = [
-  { e1: 5000, e2: 0, e3: 1000, e4: 800 },
-  { e1: 5000, e2: 4200, e3: 1000, e4: 800 },
-  { e1: 19400, e2: 4200, e3: 2880, e4: 1300 },
-  { e1: 38800, e2: 4200, e3: 2880, e4: 2600 },
+  { e1: 4000, e2: 1000, e3: 1500, e4: 500 },
+  { e1: 4000, e2: 6800, e3: 1500, e4: 500 },
+  { e1: 16000, e2: 6800, e3: 3200, e4: 1400 },
+  { e1: 24000, e2: 6800, e3: 3200, e4: 2800 },
 ];
 
 export function BudgetShowcase() {
