@@ -29,7 +29,8 @@ const AdminSidebarFooter = () => {
   const { isPro } = usePlan();
   const { isSuperAdmin } = useAccess();
   const openAccountSettings = useAccountSettingsStore((s) => s.open);
-  const displayLabel = memberRole ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
+  const displayLabel =
+    memberRole ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
   // Active Pro reads as a crown on the avatar; only the owner (super admin) sees it.
   const showCrown = isPro && isSuperAdmin;
 
@@ -51,7 +52,9 @@ const AdminSidebarFooter = () => {
                   <div
                     className={cn(
                       "flex aspect-square items-center justify-center bg-muted text-xs font-medium text-muted-foreground capitalize truncate transition-colors group-hover/menu-button:bg-primary group-hover/menu-button:text-primary-foreground group-data-[state=open]/menu-button:bg-primary group-data-[state=open]/menu-button:text-primary-foreground",
-                      state === "expanded" || isMobile ? "size-9 rounded-md" : "size-8 rounded-full",
+                      state === "expanded" || isMobile
+                        ? "size-9 rounded-md"
+                        : "size-8 rounded-full",
                     )}
                   >
                     {memberDisplayName
@@ -66,11 +69,16 @@ const AdminSidebarFooter = () => {
                   {showCrown && (
                     <Crown
                       aria-hidden
-                      className="pointer-events-none absolute -top-2.5 -left-1.5 size-4 -rotate-[28deg] fill-amber-400 text-amber-500 drop-shadow-sm group-data-[collapsible=icon]:hidden"
+                      className="pointer-events-none absolute -top-2.5 -left-1.5 size-4 -rotate-28 fill-amber-400 text-amber-500 drop-shadow-sm group-data-[collapsible=icon]:-rotate-40 group-data-[collapsible=icon]:-top-1.5 group-data-[collapsible=icon]:-left-1 transition-all"
                     />
                   )}
                 </div>
-                <div className={cn("grid flex-1 text-left text-sm leading-tight", !displayLabel && "content-center")}>
+                <div
+                  className={cn(
+                    "grid flex-1 text-left text-sm leading-tight",
+                    !displayLabel && "content-center",
+                  )}
+                >
                   <span className="truncate font-medium">
                     {memberDisplayName}
                   </span>
@@ -78,10 +86,14 @@ const AdminSidebarFooter = () => {
                     <span className="truncate text-xs">{displayLabel}</span>
                   )}
                 </div>
-                <ChevronsUpDown className="ml-auto size-4" />
+                <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" style={{ width: "var(--radix-popper-anchor-width)" }}>
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              style={{ width: "var(--radix-popper-anchor-width)" }}
+            >
               <DropdownMenuItem onSelect={() => openAccountSettings()}>
                 <Settings className="w-4 h-4" />
                 Account settings
