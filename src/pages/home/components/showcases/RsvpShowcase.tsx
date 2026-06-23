@@ -3,10 +3,7 @@ import LottieRaw from "lottie-react";
 import { AnimatePresence, motion } from "framer-motion";
 import successCheck from "@/assets/lottie/success-check.json";
 import { RSVPForm } from "@/pages/wedding/form";
-import type {
-  RSVPFormClassNames,
-  RSVPFormLabels,
-} from "@/pages/wedding/form";
+import type { RSVPFormClassNames, RSVPFormLabels } from "@/pages/wedding/form";
 import type { RSVPFormData } from "@/pages/wedding/types";
 import type { RSVPSectionConfig } from "../../features/types";
 import GuestsTable from "@/pages/home/features/guests/GuestsTable";
@@ -14,7 +11,8 @@ import type { Guest, GuestStatus } from "../../features/types";
 
 // Interop: under the bundler the default export can arrive wrapped — unwrap it
 // the same way the wedding templates do, or rendering the namespace crashes.
-const Lottie = (LottieRaw as unknown as { default?: typeof LottieRaw }).default ?? LottieRaw;
+const Lottie =
+  (LottieRaw as unknown as { default?: typeof LottieRaw }).default ?? LottieRaw;
 
 // The real guest RSVP form AND the real guest list table — the two sides of the
 // feature — rotating every few seconds. Submitting runs a fake API (resolves
@@ -30,7 +28,10 @@ const labels: RSVPFormLabels = {
   name: { label: "Your name", placeholder: "e.g. Wei Jie" },
   phone: { label: "Phone", placeholder: "9123 4567" },
   guestCount: { label: "Number of guests", placeholder: (max) => `1 – ${max}` },
-  message: { label: "Message for the couple", placeholder: "Leave a note (optional)" },
+  message: {
+    label: "Message for the couple",
+    placeholder: "Leave a note (optional)",
+  },
   required: "*",
   submit: {
     idle: "Confirm Attendance",
@@ -110,13 +111,18 @@ function Success({ name, count }: { name: string; count: number }) {
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="flex h-full flex-col items-center justify-center text-center"
     >
-      <Lottie animationData={successCheck} loop={false} style={{ width: 84, height: 84 }} />
+      <Lottie
+        animationData={successCheck}
+        loop={false}
+        style={{ width: 84, height: 84 }}
+      />
       <h3 className="mt-2 font-display text-2xl font-bold text-foreground">
         You're coming, {first}!
       </h3>
       <p className="mt-2 max-w-xs text-sm text-muted-foreground leading-relaxed">
-        Your RSVP for {count} {count === 1 ? "guest" : "guests"} is saved — we
-        can't wait to celebrate with you.
+        Your RSVP for {count} {count === 1 ? "guest" : "guests"} is saved!
+        <br />
+        We can't wait to celebrate with you.
       </p>
     </motion.div>
   );
@@ -127,7 +133,9 @@ const cardClass =
 
 export function RsvpShowcase() {
   const [view, setView] = useState<"form" | "guests" | "success">("form");
-  const [result, setResult] = useState<{ name: string; count: number } | null>(null);
+  const [result, setResult] = useState<{ name: string; count: number } | null>(
+    null,
+  );
   const [formKey, setFormKey] = useState(0);
   const [submittedGuest, setSubmittedGuest] = useState<Guest | null>(null);
   const [showSubmitted, setShowSubmitted] = useState(false);
@@ -196,7 +204,11 @@ export function RsvpShowcase() {
             className="flex h-full flex-col justify-center"
           >
             <GuestsTable
-              guests={showSubmitted && submittedGuest ? [submittedGuest, ...GUESTS] : GUESTS}
+              guests={
+                showSubmitted && submittedGuest
+                  ? [submittedGuest, ...GUESTS]
+                  : GUESTS
+              }
               statusFilter="all"
             />
           </motion.div>

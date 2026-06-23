@@ -14,10 +14,7 @@ import {
 
 import { FloralSVG } from "./Decorations";
 import { useSubscribeMutation } from "@/pages/home/queries";
-import {
-  subscribeSchema,
-  type SubscribeFormValues,
-} from "@/pages/home/types";
+import { subscribeSchema, type SubscribeFormValues } from "@/pages/home/types";
 
 // ─── Form hook ────────────────────────────────────────────────────────────────
 
@@ -71,7 +68,8 @@ export function CTABanner() {
     // Any in-page "get early access" link — fires even when the hash is already
     // set (so the footer link after the navbar's still focuses the field).
     const onClick = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('a[href="#get-started"]')) focusInput();
+      if ((e.target as HTMLElement).closest('a[href="#get-started"]'))
+        focusInput();
     };
 
     onHash();
@@ -86,7 +84,7 @@ export function CTABanner() {
   return (
     <section
       id="get-started"
-      className="bg-gradient-surface py-28 px-6 md:px-12 text-center relative overflow-hidden"
+      className="bg-gradient-surface py-28 px-3 sm:px-6 md:px-12 text-center relative overflow-hidden"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/6 blur-[80px]" />
@@ -105,7 +103,7 @@ export function CTABanner() {
 
         <h2 className="flex items-center justify-center gap-4 font-bold text-4xl md:text-6xl text-foreground mb-6 max-w-2xl mx-auto leading-tight">
           Create Your Event
-          <ArrowBigDown className="size-16 text-primary animate-bounce" />
+          <ArrowBigDown className="size-10 shrink-0 md:size-16 text-primary animate-bounce" />
         </h2>
 
         <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-10 leading-relaxed">

@@ -94,11 +94,11 @@ export function TasksShowcase() {
 
   return (
     <LayoutGroup>
-      <div className="grid h-full grid-cols-3 gap-2.5">
+      <div className="flex flex-col gap-2.5 md:grid md:h-full md:grid-cols-3">
         {COLUMNS.map((col, i) => (
           <div
             key={col.status}
-            className="flex h-full min-w-0 flex-col gap-2.5 rounded-xl bg-task-column p-2.5 ring-1 ring-border/60"
+            className="flex min-w-0 flex-col gap-2.5 rounded-xl bg-task-column p-2.5 ring-1 ring-border/60 md:h-full"
           >
             <div className="flex items-center gap-1.5">
               <TaskStatusIcon status={col.status} />

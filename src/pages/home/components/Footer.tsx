@@ -18,11 +18,11 @@ const NAV = {
 export function Footer() {
   return (
     <footer className="border-t border-border bg-card/30">
-      <div className="max-w-6xl mx-auto px-6 md:px-12 py-16">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 md:px-12 py-16">
         {/* Columns */}
-        <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
+        <div className="grid grid-cols-2 gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
           {/* Brand */}
-          <div className="flex flex-col items-start gap-5 max-w-xs">
+          <div className="col-span-2 md:col-span-1 flex flex-col items-start gap-5 max-w-xs">
             <Logo
               imageClassName="w-14 h-14 -mb-3"
               brandClassName="text-lg"

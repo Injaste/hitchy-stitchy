@@ -3,7 +3,10 @@ import { steps } from "../data";
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-28 px-6 md:px-12 bg-muted/20">
+    <section
+      id="how-it-works"
+      className="py-28 px-3 sm:px-6 md:px-12 bg-muted/20"
+    >
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-20">
           <motion.p
@@ -35,7 +38,11 @@ export function HowItWorks() {
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.7, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                transition={{
+                  duration: 0.7,
+                  delay: i * 0.1,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
                 className="flex gap-8 items-stretch"
               >
                 {/* Number + connector line linking the steps */}

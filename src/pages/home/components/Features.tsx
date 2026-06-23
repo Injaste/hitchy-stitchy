@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { dividerLine } from "../animations";
 import { pillars, type Feature } from "../data";
+import { useMediaBreakpointUp } from "@/hooks/use-media-query";
 import { TimelineShowcase } from "./showcases/TimelineShowcase";
 import { DaysShowcase } from "./showcases/DaysShowcase";
 import { TasksShowcase } from "./showcases/TasksShowcase";
@@ -20,20 +21,32 @@ const SHOWCASES: Record<string, React.ReactNode> = {
   rsvp: <RsvpShowcase />,
 };
 
-// Each example lives in a fixed-height box (sized per feature to its own content)
-// so the box never changes height no matter what its animating child does — the
-// page can't shift (0px). Heights differ because the examples genuinely differ
-// (a summary vs a board vs a form); content is vertically centred within the box.
-// Features sharing a row (Budget + Gifts) match so their bottoms line up.
-const EXAMPLE_HEIGHT: Record<string, number> = {
-  days: 340,
+// Fixed-height showcase boxes prevent CLS: the box never resizes while its
+// animating child cycles. Heights are per-breakpoint because content reflows
+// taller as the box narrows (text wraps). Width-stable showcases use one value.
+// Budget + Gifts match at desktop (xl+) where they share a 2-col row.
+type HeightTier = { mobile: number; tablet: number; desktop: number };
+
+const EXAMPLE_HEIGHT: Record<string, HeightTier | number> = {
+  days: { mobile: 320, tablet: 295, desktop: 295 },
   timeline: 260,
-  tasks: 420,
-  budget: 525,
-  gifts: 525,
+  tasks: { mobile: 775, tablet: 420, desktop: 420 },
+  budget: { mobile: 590, tablet: 525, desktop: 525 },
+  gifts: { mobile: 460, tablet: 450, desktop: 525 },
   team: 490,
   rsvp: 555,
 };
+
+function useShowcaseHeight(key: string): number {
+  const isTabletUp = useMediaBreakpointUp("md");
+  const isDesktop = useMediaBreakpointUp("xl");
+  const h = EXAMPLE_HEIGHT[key];
+  if (h === undefined) return 480;
+  if (typeof h === "number") return h;
+  if (isDesktop) return h.desktop;
+  if (isTabletUp) return h.tablet;
+  return h.mobile;
+}
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -54,7 +67,7 @@ function FeatureCopy({ feature }: { feature: Feature }) {
       <h3 className="font-bold text-2xl md:text-3xl text-foreground leading-tight mb-4">
         {feature.title}
       </h3>
-      <p className="text-muted-foreground leading-relaxed max-w-prose mb-6">
+      <p className="text-muted-foreground leading-relaxed max-w-prose mb-3 md:mb-6">
         {feature.description}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -74,6 +87,7 @@ function FeatureCopy({ feature }: { feature: Feature }) {
 /** Title/copy first, then the live example in a shared fixed-height box. Wide
  *  features get a roomier box (the access matrix / multi-day rail need width). */
 function FeatureCard({ feature, delay }: { feature: Feature; delay: number }) {
+  const height = useShowcaseHeight(feature.key);
   return (
     <motion.div
       initial={{ opacity: 0, y: 32 }}
@@ -84,12 +98,12 @@ function FeatureCard({ feature, delay }: { feature: Feature; delay: number }) {
     >
       <FeatureCopy feature={feature} />
       <div
-        className={`relative mt-8 w-full mx-auto ${feature.wide ? "max-w-3xl" : "max-w-xl"}`}
+        className={`relative mt-8 md:mt-12 w-full mx-auto ${feature.wide ? "max-w-3xl" : "max-w-xl"}`}
       >
         <div className="absolute inset-0 -m-6 rounded-3xl bg-primary/4 blur-2xl pointer-events-none" />
         <div
-          className="relative flex w-full flex-col justify-center"
-          style={{ height: EXAMPLE_HEIGHT[feature.key] ?? 480 }}
+          className="relative flex w-full flex-col justify-start"
+          style={{ height }}
         >
           {SHOWCASES[feature.key]}
         </div>
@@ -135,7 +149,11 @@ function PillarFeatures({ features }: { features: Feature[] }) {
         ) : (
           <div key={ri} className="grid xl:grid-cols-2 gap-12 lg:gap-16">
             {row.items.map((feature, i) => (
-              <FeatureCard key={feature.key} feature={feature} delay={i * 0.1} />
+              <FeatureCard
+                key={feature.key}
+                feature={feature}
+                delay={i * 0.1}
+              />
             ))}
           </div>
         ),
@@ -159,7 +177,10 @@ function PillarHeader({ label, tagline }: { label: string; tagline: string }) {
 
 export function Features() {
   return (
-    <section id="features" className="py-24 px-6 md:px-12 overflow-hidden">
+    <section
+      id="features"
+      className="py-24 px-3 sm:px-6 md:px-12 overflow-hidden bg-muted/20"
+    >
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-24">

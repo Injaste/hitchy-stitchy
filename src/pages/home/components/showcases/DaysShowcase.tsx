@@ -27,8 +27,8 @@ const DAYS: Day[] = [
     date: "2026-07-31",
     label: "Solemnisation",
     segments: [
-      { name: "ROM ceremony", start: "14:00", end: "15:00" },
-      { name: "Tea with witnesses", start: "15:00", end: "16:00" },
+      { name: "Ring Ceremony", start: "14:00", end: "15:00" },
+      { name: "Family Photo", start: "15:00", end: "16:00" },
     ],
   },
   {
@@ -36,9 +36,9 @@ const DAYS: Day[] = [
     date: "2026-08-01",
     label: "Wedding Day",
     segments: [
-      { name: "Gatecrash & fetch bride", start: "07:00", end: "09:00" },
-      { name: "敬茶 Tea ceremony", start: "10:00", end: "12:00" },
-      { name: "Family lunch", start: "12:30", end: "14:00" },
+      { name: "Getting Ready", start: "07:00", end: "09:00" },
+      { name: "Tea Ceremony", start: "10:00", end: "12:00" },
+      { name: "Family Lunch", start: "12:30", end: "14:00" },
     ],
   },
   {
@@ -46,8 +46,8 @@ const DAYS: Day[] = [
     date: "2026-08-02",
     label: "Banquet",
     segments: [
-      { name: "Reception & march-in", start: "19:00", end: "20:00" },
-      { name: "Banquet & yum seng", start: "20:00", end: "22:30" },
+      { name: "Reception", start: "19:00", end: "20:00" },
+      { name: "Banquet", start: "20:00", end: "22:30" },
     ],
   },
 ];
@@ -73,7 +73,13 @@ export function DaysShowcase() {
             active={i === active}
             onClick={() => setActive(i)}
             label={
-              <span className={i === active ? "font-medium text-primary" : "text-muted-foreground"}>
+              <span
+                className={
+                  i === active
+                    ? "font-medium text-primary"
+                    : "text-muted-foreground"
+                }
+              >
                 {dayLabel(d.label, i)}
               </span>
             }
@@ -99,7 +105,9 @@ export function DaysShowcase() {
                 <span className="size-2.5 shrink-0 rounded-full bg-primary/70 ring-4 ring-primary/10" />
                 {!isLast && <span className="mt-1 w-px grow bg-border" />}
               </div>
-              <div className={`flex flex-wrap items-center gap-2 ${isLast ? "pb-1" : "pb-5"}`}>
+              <div
+                className={`flex flex-wrap items-center gap-2 ${isLast ? "pb-1" : "pb-5"}`}
+              >
                 <span className="font-display text-sm font-semibold text-foreground">
                   {seg.name}
                 </span>

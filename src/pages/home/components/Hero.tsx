@@ -12,7 +12,7 @@ export function Hero() {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-3 sm:px-6 md:px-12 pt-20 overflow-hidden">
       {/* Ambient blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[80px]" />
@@ -78,7 +78,9 @@ export function Hero() {
         className="font-bold text-5xl md:text-7xl lg:text-8xl text-foreground leading-[1.05] tracking-tight max-w-4xl"
       >
         <span className="block">Every moment,</span>
-        <span className="relative z-10 block py-[0.1em]"><HeroWordCycler /></span>
+        <span className="relative z-10 block py-[0.1em]">
+          <HeroWordCycler />
+        </span>
         <span className="block">orchestrated.</span>
       </motion.h1>
 
