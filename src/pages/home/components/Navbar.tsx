@@ -12,14 +12,14 @@ export function Navbar() {
       className="fixed top-0 left-0 right-0 z-50"
       aria-label="Main navigation"
     >
-      <div className="relative flex items-center justify-between px-6 md:px-12 py-4 backdrop-blur-md">
+      <div className="relative flex items-center justify-between gap-4 px-3 sm:px-6 md:px-12 py-4 backdrop-blur-md">
         <div className="absolute inset-0 bg-background -z-1" />
         <div className="absolute left-0 right-0 top-full h-4 bg-linear-to-b from-background to-transparent pointer-events-none" />
 
         <Link to="/" className="flex items-center gap-2.5 group">
           <Logo
-            imageClassName="w-12 h-12 -mr-3"
-            brandClassName="text-lg font-bold"
+            imageClassName="w-12 h-12 -mr-2 xs:-mr-3"
+            brandClassName="text-lg font-bold text-left"
             showBrand
             direction="row"
           />
