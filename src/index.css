@@ -170,8 +170,17 @@
   --os-handle-perpendicular-size: 100%;
   --os-handle-perpendicular-size-hover: 100%;
   --os-handle-bg: color-mix(in oklch, var(--color-foreground) 22%, transparent);
-  --os-handle-bg-hover: color-mix(in oklch, var(--color-foreground) 38%, transparent);
-  --os-handle-bg-active: color-mix(in oklch, var(--color-foreground) 50%, transparent);
+  --os-handle-bg-hover: color-mix(
+    in oklch,
+    var(--color-foreground) 38%,
+    transparent
+  );
+  --os-handle-bg-active: color-mix(
+    in oklch,
+    var(--color-foreground) 50%,
+    transparent
+  );
+  z-index: 11;
 }
 
 /* Page-level / primary scrolls opt into a thicker bar via size="normal".

@@ -7,7 +7,7 @@ import {
   ClipboardList,
   Wallet,
   HandCoins,
-  Settings,
+  CalendarCog,
 } from "lucide-react";
 import {
   SidebarContent,
@@ -180,7 +180,7 @@ const AdminSidebarContent = () => {
                   if (isMobile) setOpenMobile(false);
                 }}
               >
-                <Settings className="h-4 w-4" />
+                <CalendarCog className="h-4 w-4" />
                 <span>Event settings</span>
               </SidebarMenuButton>
             </SidebarMenuItem>

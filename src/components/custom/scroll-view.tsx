@@ -22,13 +22,20 @@ const ScrollContext = createContext<ScrollContextValue | null>(null);
 
 export const useScrollContext = () => useContext(ScrollContext);
 
-type ScrollViewProps = React.ComponentProps<"div"> & {
+type ScrollViewProps = Omit<React.ComponentProps<"div">, "onScroll"> & {
   mainClass?: string;
   gradientTop?: boolean;
   gradientBottom?: boolean;
   gradientClass?: string;
   /** Overlay thumb thickness. "normal" for page-level scrolls, "thin" elsewhere. */
   size?: "thin" | "normal";
+  /**
+   * Cap the scroll region at a fixed px height (grow-to-fit, then scroll). Omit
+   * to fill the parent (the default). Used by the data table's fixed-height body.
+   */
+  maxHeight?: number;
+  /** Fires on each viewport scroll (e.g. to keep a parent framed in view). */
+  onScroll?: () => void;
 };
 
 // Every scroll surface uses a macOS/mobile-style OverlayScrollbars overlay
@@ -44,6 +51,8 @@ export const ScrollView = ({
   gradientBottom = false,
   gradientClass = "from-background",
   size = "thin",
+  maxHeight,
+  onScroll,
   ...props
 }: ScrollViewProps) => {
   const [selfScrolled, setSelfScrolled] = useState(false);
@@ -88,7 +97,11 @@ export const ScrollView = ({
   return (
     <ScrollContext.Provider value={ctx}>
       <div
-        className={cn("relative flex flex-col flex-1 h-full", mainClass)}
+        className={cn(
+          "relative flex flex-col",
+          maxHeight === undefined && "flex-1 h-full",
+          mainClass,
+        )}
         {...props}
       >
         {gradientTop && (
@@ -101,10 +114,12 @@ export const ScrollView = ({
         <OverlayScrollbarsComponent
           element="div"
           className={cn(
-            "h-full pb-1",
+            maxHeight === undefined && "h-full",
+            "pb-1",
             size === "normal" && "os-scroll-normal",
             className,
           )}
+          style={maxHeight !== undefined ? { maxHeight } : undefined}
           options={{
             overflow: { x: "hidden", y: "scroll" },
             scrollbars: {
@@ -113,7 +128,14 @@ export const ScrollView = ({
               theme: "os-theme-app",
             },
           }}
-          events={{ initialized: update, updated: update, scroll: update }}
+          events={{
+            initialized: update,
+            updated: update,
+            scroll: (inst) => {
+              update(inst);
+              onScroll?.();
+            },
+          }}
           defer
         >
           {children}

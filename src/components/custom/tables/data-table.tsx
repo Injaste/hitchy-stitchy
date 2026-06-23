@@ -1,18 +1,14 @@
 import {
   createContext,
   useContext,
-  useLayoutEffect,
   useRef,
-  useState,
-  type CSSProperties,
   type FC,
   type ReactNode,
 } from "react";
 import { AnimatePresence } from "framer-motion";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
-import ScrollGradient from "@/components/custom/scroll-gradient";
-import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
+import { ScrollView } from "@/components/custom/scroll-view";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -68,11 +64,10 @@ const HEADER_CLASS =
 interface HeaderBarProps {
   columns: DataTableColumn[];
   colsClass: string;
-  style?: CSSProperties;
 }
 
-const HeaderBar: FC<HeaderBarProps> = ({ columns, colsClass, style }) => (
-  <div className={cn(GRID, colsClass, HEADER_CLASS)} style={style}>
+const HeaderBar: FC<HeaderBarProps> = ({ columns, colsClass }) => (
+  <div className={cn(GRID, colsClass, HEADER_CLASS)}>
     {columns.map((col, i) => (
       <span
         key={i}
@@ -125,33 +120,11 @@ const DataTableFill: FC<DataTableProps> = ({
   maxBodyHeight = 500,
   className,
 }) => {
-  const { scrollRef, canScrollUp, canScrollDown, onScroll } =
-    useScrollVisibility();
-
   // When the body is scrolled while the card is partly past the page fold, pull
   // the whole card (pinned header → footer) into the page viewport so the table
   // is framed in full, then the body keeps scrolling. `block: "nearest"` is a
   // no-op once the card already fits, so it only moves the page when it has to.
   const cardRef = useRef<HTMLDivElement>(null);
-  const handleScroll = () => {
-    onScroll();
-    cardRef.current?.scrollIntoView({ block: "nearest" });
-  };
-
-  // The scrolling body reserves a scrollbar gutter that the static header and
-  // footer above/below it don't. Measure that gutter so we can (a) pad the
-  // header's trailing edge to keep its right-aligned column lined up with the
-  // rows, and (b) inset the edge fades so they don't tint the scrollbar.
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const measure = () => setScrollbarWidth(el.offsetWidth - el.clientWidth);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [scrollRef]);
 
   return (
     <Card
@@ -159,35 +132,20 @@ const DataTableFill: FC<DataTableProps> = ({
       className={cn("relative scroll-mb-5 gap-0 py-0", className)}
     >
       {/* Header sits *above* the scroll box so the scrollbar runs alongside the
-          rows only, never across the header. Pad its right edge by the gutter so
-          its columns stay aligned with the rows (which are inset by it). */}
-      <HeaderBar
-        columns={columns}
-        colsClass={colsClass}
-        style={{ paddingRight: `calc(0.75rem + ${scrollbarWidth}px)` }}
-      />
-      <div className="relative">
-        <ScrollGradient
-          side="top"
-          visible={canScrollUp}
-          style={{ right: scrollbarWidth }}
-        />
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          style={{ maxHeight: maxBodyHeight }}
-          className="overflow-y-auto [scrollbar-width:thin]"
-        >
-          <DataTableBody emptyMessage={emptyMessage} isEmpty={isEmpty}>
-            {children}
-          </DataTableBody>
-        </div>
-        <ScrollGradient
-          side="bottom"
-          visible={canScrollDown}
-          style={{ right: scrollbarWidth }}
-        />
-      </div>
+          rows only, never across the header. Its `pr-3` matches the rows' `pr-3`
+          — the overlay scrollbar reserves no gutter, so no compensation needed. */}
+      <HeaderBar columns={columns} colsClass={colsClass} />
+      <ScrollView
+        maxHeight={maxBodyHeight}
+        gradientTop
+        gradientBottom
+        gradientClass="from-card"
+        onScroll={() => cardRef.current?.scrollIntoView({ block: "nearest" })}
+      >
+        <DataTableBody emptyMessage={emptyMessage} isEmpty={isEmpty}>
+          {children}
+        </DataTableBody>
+      </ScrollView>
       {footer}
     </Card>
   );
