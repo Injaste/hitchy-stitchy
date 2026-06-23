@@ -1,4 +1,4 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 import { Calendar, GripVertical } from "lucide-react";
 import { format, isBefore, startOfToday } from "date-fns";
 
@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/card";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import { Button } from "@/components/ui/button";
-import AssigneeAvatars from "@/pages/admin/components/AssigneeAvatars";
+import AssigneeAvatars from "../components/AssigneeAvatars";
 
-import type { Task, TaskPriority } from "@/pages/admin/tasks/types";
-import type { Member } from "@/pages/admin/members/types";
+import type { Task, TaskPriority } from "../types";
+import type { Member } from "../types";
 import TaskStatusIcon from "./TaskStatusIcon";
 
 interface TaskCardProps {

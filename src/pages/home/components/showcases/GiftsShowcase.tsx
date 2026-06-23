@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 import DataTable, {
   type DataTableColumn,
@@ -6,7 +6,7 @@ import DataTable, {
 import DataTableTotalRow from "@/components/custom/tables/data-table-total-row";
 import { formatSGD } from "@/lib/money";
 import GiftRow, { ROW_COLS } from "@/pages/home/features/gifts/GiftRow";
-import type { Gift } from "@/pages/admin/gifts/types";
+import type { Gift } from "../../features/types";
 
 // The real Gift Envelopes table (DataTable + GiftRow), fed a mix of SG money
 // gifts — ang bao (Chinese), sampul duit (Malay), shagun (Indian). Two more

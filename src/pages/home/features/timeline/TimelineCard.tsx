@@ -1,4 +1,4 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 import { Clock, ClockCheck, Play, Square } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -17,12 +17,12 @@ import {
 import { calculateTimeDuration, formatTimeRange } from "@/lib/utils/utils-time";
 import ArraySeparator from "@/components/custom/array-separator";
 import NotesMarkdown from "@/components/custom/notes-markdown";
-import AssigneeAvatars from "@/pages/admin/components/AssigneeAvatars";
+import AssigneeAvatars from "../components/AssigneeAvatars";
 import { cn } from "@/lib/utils";
 
-import type { CardLifecycle } from "@/pages/admin/timeline/utils";
-import type { Timeline } from "@/pages/admin/timeline/types";
-import type { Member } from "@/pages/admin/members/types";
+import type { CardLifecycle } from "../types";
+import type { Timeline } from "../types";
+import type { Member } from "../types";
 
 interface TimelineCardProps {
   item: Timeline;

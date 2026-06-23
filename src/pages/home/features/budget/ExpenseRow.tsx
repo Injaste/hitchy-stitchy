@@ -1,4 +1,4 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 import { AlertTriangle, Check, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -12,8 +12,8 @@ import {
   statusOf,
   stripeColor,
   type DueUrgency,
-} from "@/pages/admin/budget/utils";
-import type { Expense } from "@/pages/admin/budget/types";
+} from "../utils";
+import type { Expense } from "../types";
 
 export const ROW_COLS =
   "grid-cols-[minmax(0,1fr)_3.5rem_5rem] sm:grid-cols-[minmax(0,1fr)_8rem_3.5rem_5rem]";

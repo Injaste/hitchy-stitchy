@@ -1,16 +1,15 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Card, CardContent } from "@/components/ui/card";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 
-import { isSuperAdminMember } from "@/pages/admin/utils/memberUtils";
-import type { Member } from "@/pages/admin/members/types";
-import MemberAvatar from "@/pages/admin/members/components/MemberAvatar";
-import MemberRole from "@/pages/admin/members/components/MemberRole";
-import MemberStatus from "@/pages/admin/members/components/MemberStatus";
-import { getMemberStatus } from "@/pages/admin/members/utils";
+import { isSuperAdminMember, getMemberStatus } from "../utils";
+import type { Member } from "../types";
+import MemberAvatar from "../components/MemberAvatar";
+import MemberRole from "../components/MemberRole";
+import MemberStatus from "../components/MemberStatus";
 
 interface MemberCardProps {
   member: Member;

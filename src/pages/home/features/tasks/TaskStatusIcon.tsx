@@ -1,7 +1,7 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 import { Circle, CircleDot, CircleCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { TaskStatus } from "@/pages/admin/tasks/types";
+import type { TaskStatus } from "../types";
 
 interface TaskStatusIconProps {
   status: TaskStatus;

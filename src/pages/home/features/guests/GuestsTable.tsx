@@ -1,10 +1,10 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 
 import DataTable, {
   type DataTableColumn,
 } from "@/components/custom/tables/data-table";
 import DataTableTotalRow from "@/components/custom/tables/data-table-total-row";
-import type { Guest, GuestStatus } from "@/pages/admin/guests/types";
+import type { Guest, GuestStatus } from "../types";
 
 import GuestsRow, { ROW_COLS } from "./GuestsRow";
 

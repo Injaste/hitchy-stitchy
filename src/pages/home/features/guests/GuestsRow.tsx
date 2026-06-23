@@ -1,10 +1,10 @@
-import { memo, type FC } from "react";
+﻿import { memo, type FC } from "react";
 import { format } from "date-fns";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import DataTableRow from "@/components/custom/tables/data-table-row";
-import { STATUS_LABELS, type Guest, type GuestStatus } from "@/pages/admin/guests/types";
+import { STATUS_LABELS, type Guest, type GuestStatus } from "../types";
 
 /** Stripped read-only guest row — no checkboxes, no action menus, no mutations. */
 export const ROW_COLS =

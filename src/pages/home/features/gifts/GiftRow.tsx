@@ -1,10 +1,10 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 
 import NotesTooltip from "@/components/custom/notes-tooltip";
 import DataTableRow from "@/components/custom/tables/data-table-row";
 import { formatSGD } from "@/lib/money";
-import { METHOD_META } from "@/pages/admin/gifts/utils";
-import type { Gift } from "@/pages/admin/gifts/types";
+import { METHOD_META } from "../utils";
+import type { Gift } from "../types";
 
 export const ROW_COLS = "grid-cols-[minmax(0,1fr)_5rem_5rem]";
 

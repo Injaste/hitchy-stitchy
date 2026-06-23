@@ -1,5 +1,4 @@
-import type { Member } from "@/pages/admin/members/types";
-import type { AccessGroup } from "@/pages/admin/access/types";
+﻿import type { Member, AccessGroup } from "../../features/types";
 
 // Sample casts for the showcases. The home page balances Singapore's communities
 // across features (see docs/product-context.md): the team roster (Members + Tasks)

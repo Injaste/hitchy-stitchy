@@ -1,9 +1,9 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { formatNum } from "@/lib/money";
-import BudgetStats from "@/pages/admin/budget/components/BudgetStats";
-import type { BudgetSummary as SummaryData } from "@/pages/admin/budget/utils";
+import BudgetStats from "../components/BudgetStats";
+import type { BudgetSummary as SummaryData } from "../types";
 
 interface BudgetSummaryProps {
   summary: SummaryData;

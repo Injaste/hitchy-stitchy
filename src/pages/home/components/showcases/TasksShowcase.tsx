@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { LayoutGroup, motion } from "framer-motion";
 import TaskCardView from "@/pages/home/features/tasks/TaskCard";
 import TaskStatusIcon from "@/pages/home/features/tasks/TaskStatusIcon";
 import { Separator } from "@/components/ui/separator";
-import type { Task, TaskStatus, TaskPriority } from "@/pages/admin/tasks/types";
-import type { Member } from "@/pages/admin/members/types";
+import type { Task, TaskStatus, TaskPriority } from "../../features/types";
+import type { Member } from "../../features/types";
 import { SERENE, PRIYA, HUI_LING, WEI_JIE, FAIZ, SELF_ID } from "./sampleTeam";
 
 // A mini board that mirrors the real TasksSection chrome — each column a

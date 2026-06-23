@@ -1,5 +1,5 @@
-import MemberCard from "@/pages/home/features/members/MemberCard";
-import { groupMembers } from "@/pages/admin/members/utils";
+﻿import MemberCard from "@/pages/home/features/members/MemberCard";
+import { groupMembers } from "../../features/utils";
 import { WEI_JIE, HUI_LING, PRIYA, FAIZ, JOEY, SELF_ID } from "./sampleTeam";
 
 // The real MemberCard, ordered by the real groupMembers rule: couple first

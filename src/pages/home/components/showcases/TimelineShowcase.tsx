@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 import TimelineCardView from "@/pages/home/features/timeline/TimelineCard";
-import type { CardLifecycle } from "@/pages/admin/timeline/utils";
-import type { Timeline } from "@/pages/admin/timeline/types";
-import type { Member } from "@/pages/admin/members/types";
-import { useEmblaCarouselApi } from "@/pages/admin/hooks/embla/useEmblaCarouselApi";
-import { useEmblaEdgeDetection } from "@/pages/admin/hooks/embla/useEmblaEdgeDetection";
+import type { CardLifecycle, Timeline } from "../../features/types";
+import type { Member } from "../../features/types";
+import { useEmblaCarouselApi } from "../../features/hooks";
+import { useEmblaEdgeDetection } from "../../features/hooks";
 import { NURUL, HAFIZ, SITI, TIMELINE_SELF } from "./sampleTeam";
 
 // The real TimelineCardView (incl. its live start/end controls) in a real Embla

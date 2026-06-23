@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import BudgetSummary from "@/pages/home/features/budget/BudgetSummary";
 import ExpensesSheet from "@/pages/home/features/budget/ExpensesSheet";
-import { computeSummary, sortExpenses } from "@/pages/admin/budget/utils";
-import type { Expense } from "@/pages/admin/budget/types";
+import { computeSummary, sortExpenses } from "../../features/utils";
+import type { Expense } from "../../features/types";
 
 // The real budget surface — BudgetSummary (total / remaining / outstanding +
 // progress bar) over the real ExpensesSheet / ExpenseRow, fed sample SG

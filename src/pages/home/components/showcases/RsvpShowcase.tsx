@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import LottieRaw from "lottie-react";
 import { AnimatePresence, motion } from "framer-motion";
 import successCheck from "@/assets/lottie/success-check.json";
@@ -8,9 +8,9 @@ import type {
   RSVPFormLabels,
 } from "@/pages/wedding/form";
 import type { RSVPFormData } from "@/pages/wedding/types";
-import type { RSVPSectionConfig } from "@/pages/admin/invitation/types";
+import type { RSVPSectionConfig } from "../../features/types";
 import GuestsTable from "@/pages/home/features/guests/GuestsTable";
-import type { Guest, GuestStatus } from "@/pages/admin/guests/types";
+import type { Guest, GuestStatus } from "../../features/types";
 
 // Interop: under the bundler the default export can arrive wrapped — unwrap it
 // the same way the wedding templates do, or rendering the namespace crashes.

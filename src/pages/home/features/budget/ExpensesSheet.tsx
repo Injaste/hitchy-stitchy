@@ -1,11 +1,11 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 
 import DataTable, {
   type DataTableColumn,
 } from "@/components/custom/tables/data-table";
 import DataTableTotalRow from "@/components/custom/tables/data-table-total-row";
 import { formatSGD } from "@/lib/money";
-import type { Expense } from "@/pages/admin/budget/types";
+import type { Expense } from "../types";
 
 import ExpenseRow, { ROW_COLS } from "./ExpenseRow";
 
