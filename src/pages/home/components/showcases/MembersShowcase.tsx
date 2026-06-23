@@ -1,4 +1,4 @@
-import MemberCard from "@/pages/admin/members/components/MemberCard";
+import MemberCard from "@/pages/home/features/members/MemberCard";
 import { groupMembers } from "@/pages/admin/members/utils";
 import { WEI_JIE, HUI_LING, PRIYA, FAIZ, JOEY, SELF_ID } from "./sampleTeam";
 

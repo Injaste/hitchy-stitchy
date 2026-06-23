@@ -9,7 +9,7 @@ import type {
 } from "@/pages/wedding/form";
 import type { RSVPFormData } from "@/pages/wedding/types";
 import type { RSVPSectionConfig } from "@/pages/admin/invitation/types";
-import GuestsTable from "@/pages/admin/guests/components/GuestsTable";
+import GuestsTable from "@/pages/home/features/guests/GuestsTable";
 import type { Guest, GuestStatus } from "@/pages/admin/guests/types";
 
 // Interop: under the bundler the default export can arrive wrapped — unwrap it
@@ -198,11 +198,6 @@ export function RsvpShowcase() {
             <GuestsTable
               guests={showSubmitted && submittedGuest ? [submittedGuest, ...GUESTS] : GUESTS}
               statusFilter="all"
-              selectedIds={new Set()}
-              onToggleRow={() => {}}
-              onToggleAllFiltered={() => {}}
-              allFilteredSelected={false}
-              someFilteredSelected={false}
             />
           </motion.div>
         ) : (

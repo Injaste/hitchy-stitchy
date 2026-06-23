@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { LayoutGroup, motion } from "framer-motion";
-import TaskCardView from "@/pages/admin/tasks/components/TaskCardView";
-import TaskStatusIcon from "@/pages/admin/tasks/components/TaskStatusIcon";
+import TaskCardView from "@/pages/home/features/tasks/TaskCard";
+import TaskStatusIcon from "@/pages/home/features/tasks/TaskStatusIcon";
 import { Separator } from "@/components/ui/separator";
 import type { Task, TaskStatus, TaskPriority } from "@/pages/admin/tasks/types";
 import type { Member } from "@/pages/admin/members/types";

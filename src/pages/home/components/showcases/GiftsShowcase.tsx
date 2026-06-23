@@ -5,7 +5,7 @@ import DataTable, {
 } from "@/components/custom/tables/data-table";
 import DataTableTotalRow from "@/components/custom/tables/data-table-total-row";
 import { formatSGD } from "@/lib/money";
-import GiftRow, { ROW_COLS } from "@/pages/admin/gifts/components/GiftRow";
+import GiftRow, { ROW_COLS } from "@/pages/home/features/gifts/GiftRow";
 import type { Gift } from "@/pages/admin/gifts/types";
 
 // The real Gift Envelopes table (DataTable + GiftRow), fed a mix of SG money

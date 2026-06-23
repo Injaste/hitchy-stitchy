@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import BudgetSummary from "@/pages/admin/budget/components/BudgetSummary";
-import ExpensesSheet from "@/pages/admin/budget/components/ExpensesSheet";
+import BudgetSummary from "@/pages/home/features/budget/BudgetSummary";
+import ExpensesSheet from "@/pages/home/features/budget/ExpensesSheet";
 import { computeSummary, sortExpenses } from "@/pages/admin/budget/utils";
 import type { Expense } from "@/pages/admin/budget/types";
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
-import TimelineCardView from "@/pages/admin/timeline/components/TimelineCardView";
+import TimelineCardView from "@/pages/home/features/timeline/TimelineCard";
 import type { CardLifecycle } from "@/pages/admin/timeline/utils";
 import type { Timeline } from "@/pages/admin/timeline/types";
 import type { Member } from "@/pages/admin/members/types";
