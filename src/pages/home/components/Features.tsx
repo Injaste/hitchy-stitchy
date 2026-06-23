@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { dividerLine } from "../animations";
 import { pillars, type Feature } from "../data";
 import { TimelineShowcase } from "./showcases/TimelineShowcase";
+import { DaysShowcase } from "./showcases/DaysShowcase";
 import { TasksShowcase } from "./showcases/TasksShowcase";
 import { BudgetShowcase } from "./showcases/BudgetShowcase";
 import { GiftsShowcase } from "./showcases/GiftsShowcase";
@@ -11,6 +12,7 @@ import { RsvpShowcase } from "./showcases/RsvpShowcase";
 
 // Each showcase renders the REAL product component fed sample SG data.
 const SHOWCASES: Record<string, React.ReactNode> = {
+  days: <DaysShowcase />,
   timeline: <TimelineShowcase />,
   tasks: <TasksShowcase />,
   budget: <BudgetShowcase />,
@@ -23,7 +25,7 @@ const SHOWCASES: Record<string, React.ReactNode> = {
 // Every example lives in a box of this exact height — a fixed-height div stays
 // this tall in layout no matter what its animating child does, so the page can
 // never shift (0px), and all features line up.
-const EXAMPLE_HEIGHT = "h-[480px]";
+const EXAMPLE_HEIGHT = "h-[520px]";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -61,7 +63,8 @@ function FeatureCopy({ feature }: { feature: Feature }) {
   );
 }
 
-/** Title/copy first, then the live example in a shared fixed-height box. */
+/** Title/copy first, then the live example in a shared fixed-height box. Wide
+ *  features get a roomier box (the access matrix / multi-day rail need width). */
 function FeatureCard({ feature, delay }: { feature: Feature; delay: number }) {
   return (
     <motion.div
@@ -72,13 +75,61 @@ function FeatureCard({ feature, delay }: { feature: Feature; delay: number }) {
       className="flex flex-col"
     >
       <FeatureCopy feature={feature} />
-      <div className="relative mt-8 w-full max-w-xl mx-auto">
+      <div
+        className={`relative mt-8 w-full mx-auto ${feature.wide ? "max-w-3xl" : "max-w-xl"}`}
+      >
         <div className="absolute inset-0 -m-6 rounded-3xl bg-primary/4 blur-2xl pointer-events-none" />
         <div className={`relative w-full ${EXAMPLE_HEIGHT}`}>
           {SHOWCASES[feature.key]}
         </div>
       </div>
     </motion.div>
+  );
+}
+
+/** Lay a pillar's features into rows: wide features take a full-width row of
+ *  their own; the rest flow two-up. Preserves authored order. */
+type Row = { kind: "wide" | "pair"; items: Feature[] };
+function toRows(features: Feature[]): Row[] {
+  const rows: Row[] = [];
+  let pair: Feature[] = [];
+  const flush = () => {
+    if (pair.length) rows.push({ kind: "pair", items: pair });
+    pair = [];
+  };
+  for (const f of features) {
+    if (f.wide) {
+      flush();
+      rows.push({ kind: "wide", items: [f] });
+    } else {
+      pair.push(f);
+      if (pair.length === 2) flush();
+    }
+  }
+  flush();
+  return rows;
+}
+
+function PillarFeatures({ features }: { features: Feature[] }) {
+  return (
+    <div className="space-y-16">
+      {toRows(features).map((row, ri) =>
+        row.kind === "wide" || row.items.length === 1 ? (
+          <div
+            key={ri}
+            className={`mx-auto ${row.kind === "wide" ? "max-w-3xl" : "max-w-xl"}`}
+          >
+            <FeatureCard feature={row.items[0]} delay={0} />
+          </div>
+        ) : (
+          <div key={ri} className="grid xl:grid-cols-2 gap-12 lg:gap-16">
+            {row.items.map((feature, i) => (
+              <FeatureCard key={feature.key} feature={feature} delay={i * 0.1} />
+            ))}
+          </div>
+        ),
+      )}
+    </div>
   );
 }
 
@@ -133,21 +184,7 @@ export function Features() {
           {pillars.map((pillar) => (
             <div key={pillar.key}>
               <PillarHeader label={pillar.label} tagline={pillar.tagline} />
-              {pillar.features.length === 1 ? (
-                <div className="max-w-xl mx-auto">
-                  <FeatureCard feature={pillar.features[0]} delay={0} />
-                </div>
-              ) : (
-                <div className="grid xl:grid-cols-2 gap-12 lg:gap-16">
-                  {pillar.features.map((feature, i) => (
-                    <FeatureCard
-                      key={feature.key}
-                      feature={feature}
-                      delay={i * 0.1}
-                    />
-                  ))}
-                </div>
-              )}
+              <PillarFeatures features={pillar.features} />
             </div>
           ))}
         </div>

@@ -41,8 +41,8 @@ export const SELF_ID = "m-serene"; // the coordinator viewing the app = "you"
 
 export const HUI_LING = mk({ id: "m-bride", display_name: "Hui Ling", is_bride: true, role: "Bride" });
 export const WEI_JIE = mk({ id: "m-groom", display_name: "Wei Jie", is_groom: true, role: "Groom" });
-export const SERENE = mk({ id: SELF_ID, display_name: "Serene Koh", role: "Wedding Coordinator", accessGroup: ag("Admin") });
-export const PRIYA = mk({ id: "m-priya", display_name: "Priya Nair", role: "Jie Mei", accessGroup: ag("Team") });
+export const SERENE = mk({ id: SELF_ID, display_name: "Serene Koh", role: "Wedding Coordinator", accessGroup: ag("Admin"), notes: "Main contact on the day — reach me first for any timing changes." });
+export const PRIYA = mk({ id: "m-priya", display_name: "Priya Nair", role: "Jie Mei", accessGroup: ag("Team"), notes: "Leading the jie mei (姐妹) and the gate games." });
 export const FAIZ = mk({ id: "m-faiz", display_name: "Faiz Rahman", role: "Heng Dai", accessGroup: ag("Team") });
 export const JOEY = mk({
   id: "m-joey",

@@ -29,9 +29,9 @@ const CUES: {
   lifecycle: CardLifecycle | "hero";
   who: Member[];
 }[] = [
-  { item: mk({ id: "c1", title: "敬茶 · Tea Ceremony", time_start: "10:00", time_end: "11:00" }), lifecycle: "done", who: [HUI_LING, WEI_JIE] },
+  { item: mk({ id: "c1", title: "敬茶 · Tea Ceremony", time_start: "10:00", time_end: "11:00", details: "Serve tea to elders in seniority — parents first, then grandparents." }), lifecycle: "done", who: [HUI_LING, WEI_JIE] },
   { item: mk({ id: "c2", title: "March-in & Banquet", time_start: "19:30", time_end: "20:30" }), lifecycle: "hero", who: [SERENE, FAIZ] },
-  { item: mk({ id: "c3", title: "Yum Seng & Speeches", time_start: "20:45", time_end: "21:15" }), lifecycle: null, who: [SERENE] },
+  { item: mk({ id: "c3", title: "Yum Seng & Speeches", time_start: "20:45", time_end: "21:15", details: "Three long yum sengs led by the emcee — louder each round." }), lifecycle: null, who: [SERENE] },
 ];
 
 const HERO_PHASES: CardLifecycle[] = ["start", "end"];

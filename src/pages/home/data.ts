@@ -1,5 +1,6 @@
 import {
   CalendarHeart,
+  CalendarDays,
   CheckSquare,
   Wallet,
   HandCoins,
@@ -16,13 +17,16 @@ export interface Step {
 }
 
 export interface Feature {
-  /** Matches the mock key in Features.tsx. */
+  /** Matches the showcase key in Features.tsx. */
   key: string;
   icon: LucideIcon;
   label: string;
   title: string;
   description: string;
   tags: string[];
+  /** Render the example in a wider box on its own row (e.g. the access matrix
+   *  and the multi-day rail want more horizontal room than the 2-up grid gives). */
+  wide?: boolean;
 }
 
 export interface Pillar {
@@ -62,6 +66,16 @@ export const pillars: Pillar[] = [
     label: "Operations",
     tagline: "Plan it, then run it live",
     features: [
+      {
+        key: "days",
+        icon: CalendarDays,
+        label: "Multi-day",
+        title: "Built for multi-day celebrations",
+        description:
+          "Solemnisation, the 敬茶 tea ceremony, the banquet — give each day its own date, and every timeline, budget and gift stays filed under the right one.",
+        tags: ["Multi-day", "Per-day timeline", "Per-day budget"],
+        wide: true,
+      },
       {
         key: "timeline",
         icon: CalendarHeart,
@@ -129,6 +143,7 @@ export const pillars: Pillar[] = [
         description:
           "Grant each group View or Full access per feature — money stays private, the timeline stays shared.",
         tags: ["Per-feature", "View / Full", "Private money"],
+        wide: true,
       },
     ],
   },
