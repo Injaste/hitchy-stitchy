@@ -14,10 +14,7 @@ import {
 
 import { FloralSVG } from "./Decorations";
 import { useSubscribeMutation } from "@/pages/home/queries";
-import {
-  subscribeSchema,
-  type SubscribeFormValues,
-} from "@/pages/home/types";
+import { subscribeSchema, type SubscribeFormValues } from "@/pages/home/types";
 
 // ─── Form hook ────────────────────────────────────────────────────────────────
 
@@ -55,24 +52,39 @@ export function CTABanner() {
   });
 
   useEffect(() => {
-    const focus = () => {
-      if (window.location.hash === "#get-started") {
-        setTimeout(() => {
-          formRef.current
-            ?.querySelector<HTMLInputElement>("input[type=email]")
-            ?.focus();
-        }, 150);
-      }
+    // preventScroll: let the anchor (smooth-scrolled by Lenis) own the scroll;
+    // focus only sets the cursor so it doesn't fight the animation.
+    const focusInput = () =>
+      setTimeout(() => {
+        formRef.current
+          ?.querySelector<HTMLInputElement>("input[type=email]")
+          ?.focus({ preventScroll: true });
+      }, 200);
+
+    // Deep-link / hash change (e.g. landing on /#get-started).
+    const onHash = () => {
+      if (window.location.hash === "#get-started") focusInput();
     };
-    focus();
-    window.addEventListener("hashchange", focus);
-    return () => window.removeEventListener("hashchange", focus);
+    // Any in-page "get early access" link — fires even when the hash is already
+    // set (so the footer link after the navbar's still focuses the field).
+    const onClick = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('a[href="#get-started"]'))
+        focusInput();
+    };
+
+    onHash();
+    window.addEventListener("hashchange", onHash);
+    document.addEventListener("click", onClick);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      document.removeEventListener("click", onClick);
+    };
   }, []);
 
   return (
     <section
       id="get-started"
-      className="bg-gradient-surface py-28 px-6 md:px-12 text-center relative overflow-hidden"
+      className="bg-gradient-surface py-28 px-3 sm:px-6 md:px-12 text-center relative overflow-hidden"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/6 blur-[80px]" />
@@ -91,12 +103,12 @@ export function CTABanner() {
 
         <h2 className="flex items-center justify-center gap-4 font-bold text-4xl md:text-6xl text-foreground mb-6 max-w-2xl mx-auto leading-tight">
           Create Your Event
-          <ArrowBigDown className="size-16 text-primary animate-bounce" />
+          <ArrowBigDown className="size-10 shrink-0 md:size-16 text-primary animate-bounce" />
         </h2>
 
         <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-          Join couples who chose clarity over chaos. Leave your email and we'll
-          let you know when we're ready for you.
+          We're putting the finishing touches on Hitchy Stitchy. Leave your
+          email and you'll be first to know the moment it's ready.
         </p>
 
         {subscribed ? (

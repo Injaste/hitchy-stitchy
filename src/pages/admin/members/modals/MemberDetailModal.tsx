@@ -33,7 +33,7 @@ const MemberDetailModal = () => {
   const openEdit = useMemberModalStore((s) => s.openEdit);
   const openDelete = useMemberModalStore((s) => s.openDelete);
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
-  const { slug, eventId } = useAdminStore();
+  const { slug, eventId, memberId } = useAdminStore();
   const { data: members } = useMembersQuery();
   const { regenerate } = useMemberMutations();
 
@@ -100,7 +100,7 @@ const MemberDetailModal = () => {
             <div className="min-w-0 space-y-1">
               <DialogTitle className="flex items-center gap-2 flex-wrap">
                 {member.display_name}
-                <MemberRole member={member} />
+                <MemberRole member={member} isSelf={member.id === memberId} />
               </DialogTitle>
               {status !== "active" && (
                 <MemberStatus member={member} className="text-xs" />

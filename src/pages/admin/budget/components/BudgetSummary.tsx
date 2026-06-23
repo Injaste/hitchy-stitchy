@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import IconSwap from "@/components/animations/animate-icon-swap";
 
 import { useBudgetMutations } from "../queries";
+import { useAccess } from "../../hooks/useAccess";
 import { formatNum } from "@/lib/money";
 import { type BudgetSummary as SummaryData } from "../utils";
 import BudgetStats from "./BudgetStats";
@@ -21,6 +22,8 @@ interface BudgetSummaryProps {
 
 const BudgetSummary: FC<BudgetSummaryProps> = ({ summary, scopeLabel }) => {
   const { update } = useBudgetMutations();
+  const { canUpdate } = useAccess();
+  const canEdit = canUpdate("budget");
   const { budgetTotal } = summary;
 
   const [editing, setEditing] = useState(false);
@@ -145,20 +148,31 @@ const BudgetSummary: FC<BudgetSummaryProps> = ({ summary, scopeLabel }) => {
                 </span>
               </span>
             ) : budgetTotal !== null ? (
-              <button
-                type="button"
-                onClick={startEdit}
-                aria-label="Edit budget"
-                className="flex cursor-pointer items-baseline gap-1.5"
-              >
-                <span className="text-sm font-semibold text-muted-foreground">
-                  S$
+              canEdit ? (
+                <button
+                  type="button"
+                  onClick={startEdit}
+                  aria-label="Edit budget"
+                  className="flex cursor-pointer items-baseline gap-1.5"
+                >
+                  <span className="text-sm font-semibold text-muted-foreground">
+                    S$
+                  </span>
+                  <span className="font-display text-3xl font-bold tabular-nums">
+                    {formatNum(budgetTotal)}
+                  </span>
+                </button>
+              ) : (
+                <span className="flex items-baseline gap-1.5">
+                  <span className="text-sm font-semibold text-muted-foreground">
+                    S$
+                  </span>
+                  <span className="font-display text-3xl font-bold tabular-nums">
+                    {formatNum(budgetTotal)}
+                  </span>
                 </span>
-                <span className="font-display text-3xl font-bold tabular-nums">
-                  {formatNum(budgetTotal)}
-                </span>
-              </button>
-            ) : (
+              )
+            ) : canEdit ? (
               <button
                 type="button"
                 onClick={startEdit}
@@ -166,9 +180,13 @@ const BudgetSummary: FC<BudgetSummaryProps> = ({ summary, scopeLabel }) => {
               >
                 Set a budget
               </button>
+            ) : (
+              <span className="font-display text-lg font-semibold text-muted-foreground">
+                No budget set
+              </span>
             )}
 
-            {(editing || budgetTotal !== null) && (
+            {canEdit && (editing || budgetTotal !== null) && (
               <Button
                 variant="ghost"
                 size="sm"

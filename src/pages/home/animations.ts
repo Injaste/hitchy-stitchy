@@ -46,16 +46,6 @@ export const slideInLeft: Variants = {
   },
 };
 
-export const staggerContainer: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
-    },
-  },
-};
-
 export const featureCard: Variants = {
   hidden: { opacity: 0, y: 32 },
   show: {
@@ -74,21 +64,3 @@ export const dividerLine: Variants = {
   },
 };
 
-export const statItem: Variants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-  },
-};
-
-export const testimonialCard: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] },
-  },
-};

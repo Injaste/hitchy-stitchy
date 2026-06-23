@@ -4,6 +4,7 @@ import { ArrowRight, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { heroHeadline, heroSub, heroActions, floatIn } from "../animations";
 import { RingsSVG, FloralSVG } from "./Decorations";
+import { HeroWordCycler } from "./HeroWordCycler";
 
 export function Hero() {
   const { scrollY } = useScroll();
@@ -11,7 +12,7 @@ export function Hero() {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-3 sm:px-6 md:px-12 pt-20 overflow-hidden">
       {/* Ambient blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[80px]" />
@@ -76,17 +77,11 @@ export function Hero() {
         animate="show"
         className="font-bold text-5xl md:text-7xl lg:text-8xl text-foreground leading-[1.05] tracking-tight max-w-4xl"
       >
-        Every moment,{" "}
-        {/* inline-block + padding: background-clip:text bounds the gradient to a
-            box that ignores the italic slant overhang and the 'y' descender, so
-            without breathing room the right edge and tail get clipped. The
-            negative bottom margin cancels the extra height so line spacing in
-            the headline is unchanged. */}
-        <span className="inline-block bg-gradient-brand bg-clip-text pr-[0.28em] pb-[0.18em] -mb-[0.18em] text-transparent italic">
-          beautifully
+        <span className="block">Every moment,</span>
+        <span className="relative z-10 block py-[0.1em]">
+          <HeroWordCycler />
         </span>
-        <br />
-        orchestrated.
+        <span className="block">orchestrated.</span>
       </motion.h1>
 
       {/* Subtitle */}
@@ -96,9 +91,9 @@ export function Hero() {
         animate="show"
         className="mt-6 text-muted-foreground text-lg md:text-xl max-w-2xl leading-relaxed"
       >
-        From the first RSVP to the last dance — Hitchy Stitchy gives your
-        wedding team the tools to plan, coordinate, and celebrate with clarity
-        and grace.
+        From the first RSVP to the last dance — Hitchy Stitchy gives you and
+        your team the tools to plan, coordinate, and celebrate every occasion
+        with clarity and grace.
       </motion.p>
 
       {/* CTAs */}

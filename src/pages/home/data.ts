@@ -1,16 +1,13 @@
-import { CalendarHeart, ClipboardList, Users, Radio } from "lucide-react";
+import {
+  CalendarHeart,
+  CalendarDays,
+  CheckSquare,
+  Wallet,
+  HandCoins,
+  Users,
+  ClipboardList,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-
-export interface StatItem {
-  value: string;
-  label: string;
-}
-
-export interface Testimonial {
-  quote: string;
-  names: string;
-  event: string;
-}
 
 export interface Step {
   number: string;
@@ -19,109 +16,148 @@ export interface Step {
 }
 
 export interface Feature {
+  /** Matches the showcase key in Features.tsx. */
   key: string;
   icon: LucideIcon;
   label: string;
   title: string;
   description: string;
   tags: string[];
+  /** Render the example in a wider box on its own row (e.g. the access matrix
+   *  and the multi-day rail want more horizontal room than the 2-up grid gives). */
+  wide?: boolean;
 }
 
-export const stats: StatItem[] = [
-  { value: "120+", label: "Events planned" },
-  { value: "4,800+", label: "Guests managed" },
-  { value: "2,300+", label: "Planners on the platform" },
-];
-
-export const testimonials: Testimonial[] = [
-  {
-    quote:
-      "Hitchy Stitchy turned our 3-day wedding into a seamlessly run production. Our coordinator said it was the most organised event she'd ever worked.",
-    names: "Amara & Kofi",
-    event: "3-day Traditional + White Wedding",
-  },
-  {
-    quote:
-      "The live mode on the day was a game changer. Every team member knew exactly where to be. No frantic calls, no chaos — just pure magic.",
-    names: "Priya & Rajan",
-    event: "Garden Wedding",
-  },
-  {
-    quote:
-      "From RSVP tracking to the final cue, everything lived in one place. I can't imagine planning without it.",
-    names: "Sophie & James",
-    event: "Country Estate Wedding",
-  },
-  {
-    quote:
-      "We had 11 vendors across 2 days. Hitchy Stitchy kept every single one of them in sync. Absolutely indispensable.",
-    names: "Olivia & Tom",
-    event: "Vineyard Weekend Wedding",
-  },
-  {
-    quote:
-      "Our planner recommended it and within an hour we had our entire team set up with roles and tasks. So intuitive.",
-    names: "Zara & Kwame",
-    event: "Intimate Beach Ceremony",
-  },
-];
+export interface Pillar {
+  key: string;
+  label: string;
+  tagline: string;
+  features: Feature[];
+}
 
 export const steps: Step[] = [
   {
     number: "01",
     title: "Create your event",
     description:
-      "Set up your wedding details — name, dates, and your unique invitation link.",
+      "Set up your celebration — dates, details, and your unique invitation link.",
   },
   {
     number: "02",
     title: "Build your team",
     description:
-      "Invite your coordinator, vendors, and wedding party. Everyone gets a role.",
+      "Invite your coordinator, vendors and helpers — everyone gets a role.",
   },
   {
     number: "03",
-    title: "Live on the day",
+    title: "Share your invitation",
     description:
-      "Activate Live Mode. Real-time cues, arrivals, and coordination at your fingertips.",
+      "Send your themed invitation; RSVPs and guest counts roll in live.",
+  },
+  {
+    number: "04",
+    title: "Run it live",
+    description:
+      "On the day, start each cue and your whole team follows in real time.",
   },
 ];
 
-export const features: Feature[] = [
+// Grouped exactly as the app groups them (Operations · Money · Teams · RSVP),
+// so the landing page and the product tell the same story. Live Mode is the
+// day-of climax and lives in its own spotlight below the pillars.
+export const pillars: Pillar[] = [
   {
-    key: "timeline",
-    icon: CalendarHeart,
-    label: "Event Timeline",
-    title: "Orchestrate every cue, down to the minute",
-    description:
-      "Plan each day of your wedding with precision. Every cue — from bridal prep to the first dance — gets a time, venue, and owner. Multi-day events, handled beautifully.",
-    tags: ["Multi-day support", "Venue tagging", "Role assignment"],
+    key: "operations",
+    label: "Operations",
+    tagline: "Plan it, then run it live",
+    features: [
+      {
+        key: "days",
+        icon: CalendarDays,
+        label: "Multi-day",
+        title: "Built for multi-day celebrations",
+        description:
+          "From the akad or tea ceremony to the sangeet and the banquet — give each day its own date, and every timeline, budget and gift stays filed under the right one.",
+        tags: ["Multi-day", "Per-day timeline", "Per-day budget"],
+        wide: true,
+      },
+      {
+        key: "timeline",
+        icon: CalendarHeart,
+        label: "Timeline",
+        title: "Every cue, down to the minute",
+        description:
+          "Each moment — prep, the ceremony, the celebration — gets a time, venue and owner. On the day, start each cue and the whole team follows in real time.",
+        tags: ["Multi-day", "Live on the day", "Real-time cues"],
+        wide: true,
+      },
+      {
+        key: "tasks",
+        icon: CheckSquare,
+        label: "Tasks",
+        title: "A board for every to-do",
+        description:
+          "Track who's doing what across To do, In progress and Done — with labels, priorities and assignees.",
+        tags: ["Kanban", "Priorities", "Assignees"],
+        wide: true,
+      },
+    ],
+  },
+  {
+    key: "money",
+    label: "Money",
+    tagline: "Track every dollar, in and out",
+    features: [
+      {
+        key: "budget",
+        icon: Wallet,
+        label: "Budget",
+        title: "Know what's paid, what's due",
+        description:
+          "Log every expense and vendor, mark deposits and payments, and watch the totals settle.",
+        tags: ["Expenses", "Vendors", "Paid tracking"],
+      },
+      {
+        key: "gifts",
+        icon: HandCoins,
+        label: "Gift Envelopes",
+        title: "An envelope ledger that adds up",
+        description:
+          "Record every ang bao, sampul duit or shagun by who gave it — the tally climbs as the day goes on.",
+        tags: ["Ang bao", "Sampul duit", "Shagun"],
+      },
+    ],
+  },
+  {
+    key: "teams",
+    label: "Teams",
+    tagline: "Bring your people together",
+    features: [
+      {
+        key: "team",
+        icon: Users,
+        label: "Members",
+        title: "Everyone in their role",
+        description:
+          "Invite your party, vendors and coordinators — each with a clear role and just the access they need. Money stays private; the timeline stays shared.",
+        tags: ["Roles", "Per-feature access", "Private money"],
+      },
+    ],
   },
   {
     key: "rsvp",
-    icon: ClipboardList,
-    label: "RSVP Management",
-    title: "Your guest list, beautifully handled",
-    description:
-      "A fully customisable RSVP form tailored to your wedding. Capture names, dietary notes, guest counts, and more — then watch responses flow in live.",
-    tags: ["Custom fields", "Real-time tracking", "Deadline control"],
-  },
-  {
-    key: "team",
-    icon: Users,
-    label: "Team Coordination",
-    title: "Everyone in the right place at the right time",
-    description:
-      "Assign your wedding party, vendors, and coordinators to named roles. Each person understands their responsibilities from day one, no confusion on the day.",
-    tags: ["Role-based access", "Task assignment", "Vendor support"],
-  },
-  {
-    key: "live",
-    icon: Radio,
-    label: "Live Event Mode",
-    title: "Run the day with total confidence",
-    description:
-      "Activate Live Mode on your wedding day. Real-time cue notifications, arrival check-ins, and a shared event log keep your entire team perfectly in sync.",
-    tags: ["Real-time cues", "Arrival check-ins", "Shared event log"],
+    label: "RSVP",
+    tagline: "Hear back from your guests",
+    features: [
+      {
+        key: "rsvp",
+        icon: ClipboardList,
+        label: "RSVP & Guest List",
+        title: "Your guest list, beautifully handled",
+        description:
+          "A custom RSVP form on your invitation captures names, guest counts and notes — then responses flow in live.",
+        tags: ["Custom fields", "Live responses", "Guest list"],
+      },
+    ],
   },
 ];

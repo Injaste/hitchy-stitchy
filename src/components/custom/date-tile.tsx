@@ -77,7 +77,7 @@ const DateTile: FC<DateTileProps> = ({
         tile
       )}
       {label != null && (
-        <div className="line-clamp-2 w-16 text-center text-xs wrap-break-word">
+        <div className="line-clamp-2 w-16 text-center text-xs wrap-break-word hyphens-auto">
           {label}
         </div>
       )}

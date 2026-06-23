@@ -1,26 +1,23 @@
-import type { FC } from "react";
+﻿import type { FC } from "react";
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Card, CardContent } from "@/components/ui/card";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 
-import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { isSuperAdminMember } from "../../utils/memberUtils";
+import { isSuperAdminMember, getMemberStatus } from "../utils";
 import type { Member } from "../types";
-import MemberAvatar from "./MemberAvatar";
-import MemberRole from "./MemberRole";
-import MemberStatus from "./MemberStatus";
-import { getMemberStatus } from "../utils";
+import MemberAvatar from "../components/MemberAvatar";
+import MemberRole from "../components/MemberRole";
+import MemberStatus from "../components/MemberStatus";
 
 interface MemberCardProps {
   member: Member;
   isSelf: boolean;
 }
 
+/** Stripped member card — no modal, no click handler. Pure display. */
 const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
-  const openDetail = useMemberModalStore((s) => s.openDetail);
-
   const status = getMemberStatus(member);
   const isFrozen = status === "frozen";
   const isCouple = member.is_bride || member.is_groom;
@@ -28,13 +25,9 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
 
   return (
     <Card
-      variant="interactive"
       className={cn(
         "relative border-l-4",
         isFrozen && "hover:ring-freeze",
-        // "You" always reads green (even as part of the couple) in place of a
-        // "You" badge; otherwise the couple keeps the primary accent and everyone
-        // else gets the light accent.
         isSelf
           ? "border-l-success"
           : isCouple
@@ -43,11 +36,6 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
         isFrozen && "opacity-60",
       )}
     >
-      <button
-        onClick={() => openDetail(member)}
-        aria-label={member.display_name}
-        className="absolute inset-0 rounded-[inherit] z-0 cursor-pointer"
-      />
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
           <div
@@ -56,18 +44,15 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
               member.notes && "items-center sm:items-start",
             )}
           >
-            {/* Initials bubble */}
             <MemberAvatar member={member} className="sm:h-12 sm:w-12" />
 
-            {/* Content */}
             <div className="space-y-1 flex-1 min-w-0">
-              {/* Name row */}
               <div className="flex items-center gap-2 min-w-0 flex-wrap">
                 <p className="font-display text-sm font-medium text-foreground truncate">
                   {member.display_name}
                 </p>
 
-                <MemberRole member={member} isSelf={isSelf} />
+                <MemberRole member={member} />
 
                 {status !== "active" && (
                   <MemberStatus
@@ -77,7 +62,6 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
                 )}
               </div>
 
-              {/* Access group — superadmins (couple/root) always have full access */}
               {(isSuperAdmin || member.accessGroup?.name) && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground/70">
                   <Shield className="w-3 h-3 shrink-0" />
