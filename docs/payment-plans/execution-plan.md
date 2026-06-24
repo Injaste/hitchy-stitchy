@@ -166,15 +166,26 @@ only bite new free events.
     before sweeping, so a real draft is never yanked away.
 - [ ] **Verify:** `npm run build`; UI reflects plan + pending-payment state correctly.
 
-### Phase D — downgrade behaviour & upgrade nudges ⏳
-- [ ] `get_public_invitation`: for a free event, serve only the **root** page;
-      **non-root pages unpublish** (gate to guests). Branding returns when
-      `can_remove_branding` is false.
-- [ ] Upgrade CTA on every blocked action + in delete-confirm modals (honest
-      stakes: "keep everything → Upgrade" vs "delete → lose your work"). **No
-      dark patterns** — keep existing confirm modals, add truthful cost + CTA.
-- [ ] **Verify:** downgraded event's non-root invite pages are dark to guests;
-      root stays live; branding reappears.
+### Phase D — downgrade behaviour ✅ RESOLVED (mostly deferred — see decision)
+**Decision (2026-06-24):** a downgrade is the ONLY path to an over-limit event,
+and it effectively can't happen at this scale:
+- **No self-serve refunds** — the Free tier IS the trial (evaluate before paying).
+- **Grandfather-pinning** — a sold event's `plan_key` is never lowered; new plan
+  versions only touch new events.
+
+So a routine downgrade is impossible. The only residual trigger is a **refund /
+chargeback** (rare, admin/bank-initiated). For that we do NOT degrade per-resource:
+- ❌ delete by `created_at` — unfair + destructive for a one-time purchase.
+- ❌ read-limit by tier (show 3 of 10 days) — clever but a huge rewrite of every
+  list path, and still hides a legit user's own data.
+- ✅ **suspend the whole event** — flip it back to unpaid and lock it behind the
+  existing **activation gate** (data preserved, restored on payment). One flag,
+  reuses built machinery, handled by the Phase E dispute webhook.
+
+Upgrade nudges already shipped: limit-reached / "Editing paused" banner +
+`UpgradeModal` (per-action CTAs intentionally skipped — banner + server error
+suffice). Public page-cap serving (`get_public_invitation` → only root on Free)
+is **deferred** — only matters under refund abuse; build if/when that appears.
 
 ### Phase E — Stripe (Checkout → webhook → plan) ⏳
 - [ ] Stripe account (Individual / Sole-Prop OK to start) with **PayNow + cards**
@@ -184,9 +195,12 @@ only bite new free events.
 - [ ] Edge function webhook (service role; pattern: `supabase/functions/send-timeline-push`):
       `checkout.session.completed` → insert `event_purchases` (idempotent on
       session id) → `update events set plan_key = <current pro> where id = metadata.event_id`.
-- [ ] Refund/dispute (`charge.refunded`) → append `status='refunded'`. Downgrade
-      policy: **leave Pro, handle manually** at this scale (lock mechanism makes
-      auto-downgrade trivial later).
+- [ ] Refund/dispute (`charge.refunded` / `charge.dispute.created`) → set
+      `event_purchases.status = 'refunded' | 'disputed'` AND re-pend the event
+      (`activated_at = NULL`) so the **activation gate** re-locks it (admin +
+      public). Extend `ActivationModal` to branch copy on the reason (never-paid
+      → "complete payment" vs reversed → "payment reversed, restore") — no
+      separate RepayModal. Nothing deleted; paying restores everything.
 - [ ] Return flow: refetch event (or realtime on `events`) so it unlocks live.
 - [ ] **Verify:** test-mode purchase flips plan; replayed webhook is a no-op.
 
@@ -206,6 +220,11 @@ only bite new free events.
   mislead; a 2,000 cap no real wedding reaches → no consumer is impaired).
 - Refund-dispute evidence packet: ToS acceptance, access/delivery logs,
   `event_purchases` record.
+- **No self-serve refunds.** Policy = "all sales final — evaluate on Free first";
+  the Free tier is the trial. Refunds are a manual goodwill action in the Stripe
+  dashboard; there is **no in-app refund/request UI**. Primary fraud defence is
+  payment-up-front (activation gates value before delivery) + Stripe Radar +
+  winning disputes with the evidence packet above.
 
 ## Codebase grounding
 - Schema & RPCs: `supabase/schema.sql`; `create_event`, `submit_rsvp`,
