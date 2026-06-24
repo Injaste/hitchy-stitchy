@@ -1,5 +1,6 @@
 // Plan display config — data, not scattered conditionals (mirrors access-config).
 // The hook (usePlan) is the gate; this is just how plan limits render.
+import { SUPPORT_EMAIL } from "@/lib/config";
 
 /** Countable resources that get a usage meter. */
 export type PlanResource = "guests" | "days" | "pages" | "members";
@@ -22,3 +23,11 @@ export const PLAN_FEATURES = [
   { key: "budget", label: "Budget tracker", flag: "canUseBudget" },
   { key: "gifts", label: "Gift envelopes", flag: "canUseGifts" },
 ] as const;
+
+/** The single seam for "talk to us about my plan" — used when Pro hits its
+ *  (fair-use) ceiling, where there's no higher tier to sell. Today a no-friction
+ *  mailto built from the app SUPPORT_EMAIL; swap for a dedicated limit-increase
+ *  flow later without touching call sites. */
+export const planSupportHref = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+  "Hitchy Stitchy — I'd like to increase my plan limits",
+)}`;

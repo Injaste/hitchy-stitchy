@@ -13,10 +13,35 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { usePlan } from "../../hooks/usePlan";
-import { PLAN_METERS } from "../plan-config";
+import { PLAN_METERS, planSupportHref } from "../plan-config";
 import { useProPlanQuery } from "../queries";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
 import { formatPrice } from "../utils";
+
+/** Per-state copy for the three upgrade contexts — keeps the JSX free of nested
+ *  ternaries: pick the state, render COPY[state]. `note` is the muted secondary
+ *  line (only the over-limit state has one). */
+type UpgradeState = "pro" | "over" | "free";
+const COPY: Record<
+  UpgradeState,
+  { title: string; description: string; note?: string }
+> = {
+  pro: {
+    title: "Plan limits reached",
+    description:
+      "You've reached your Pro plan's limits — we can raise them for you.",
+  },
+  over: {
+    title: "Unlock your full event",
+    description:
+      "Your event has more than the Free plan allows, so editing is paused. Your content is safe — upgrade to unlock it all instantly.",
+    note: "Staying on Free? You can remove items to fit within its limits.",
+  },
+  free: {
+    title: "Upgrade to Pro",
+    description: "You've reached your Free plan limits. Upgrade to keep going.",
+  },
+};
 
 /** The pay-to-upgrade surface, opened from the limit-reached banner. Lists the
  *  caps that triggered it, pitches Pro, and discloses the price. Payment itself
@@ -24,7 +49,11 @@ import { formatPrice } from "../utils";
  *  Reused later by the pending-activation flow. */
 const UpgradeModal = () => {
   const { isOpen, close } = useUpgradeModalStore();
-  const { isPro, reachedLimits, meter } = usePlan();
+  const { isPro, isOverPlanLimits, reachedLimits, meter } = usePlan();
+  // Over the plan = a downgrade that locks editing (different pitch than just
+  // being at a cap). Only meaningful for Free — Pro over-limit has no higher tier.
+  const over = isOverPlanLimits && !isPro;
+  const copy = COPY[isPro ? "pro" : over ? "over" : "free"];
 
   // Only fetch the Pro catalog row when the modal is open and an upgrade applies.
   const { data: pro } = useProPlanQuery(isOpen && !isPro);
@@ -57,13 +86,9 @@ const UpgradeModal = () => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="size-4 text-primary" />
-            {isPro ? "Plan limits reached" : "Upgrade to Pro"}
+            {copy.title}
           </DialogTitle>
-          <DialogDescription>
-            {isPro
-              ? "You've reached the limits of your Pro plan."
-              : "You've reached your Free plan limits. Upgrade to keep going."}
-          </DialogDescription>
+          <DialogDescription>{copy.description}</DialogDescription>
         </DialogHeader>
 
         <DialogBody>
@@ -109,18 +134,30 @@ const UpgradeModal = () => {
               </div>
             )}
 
-            <p className="text-center text-xs text-muted-foreground">
-              {isPro
-                ? "Need higher limits? Reach out and we'll help."
-                : pro?.price != null
+            {copy.note && (
+              <p className="text-center text-xs text-muted-foreground/70">
+                {copy.note}
+              </p>
+            )}
+
+            {!isPro && (
+              <p className="text-center text-xs text-muted-foreground">
+                {pro?.price != null
                   ? "Online payment is being set up — coming soon."
                   : "Pricing coming soon."}
-            </p>
+              </p>
+            )}
           </div>
         </DialogBody>
 
         {isPro ? (
-          <DialogFooter showCloseButton />
+          <DialogFooter>
+            <Button asChild className="w-full">
+              <a href={planSupportHref} target="_blank" rel="noopener noreferrer">
+                Contact us
+              </a>
+            </Button>
+          </DialogFooter>
         ) : (
           <DialogFooter>
             <Button className="w-full" disabled>

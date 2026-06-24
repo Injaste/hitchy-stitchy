@@ -48,12 +48,17 @@ export function usePlan() {
       return m.atLimit && !m.unlimited;
     },
   );
+  /** Any countable is at/over its cap. Derived here (not by line 14) because it
+   *  depends on the meter; isOver/isPending above are plain plan.* reads. */
+  const isReachedPlanLimits = reachedLimits.length > 0;
 
   return {
-    plan,
+    planName: plan.name,
+    planTier: plan.tier,
     isPro,
     isPending,
     isOverPlanLimits,
+    isReachedPlanLimits,
     canUseBudget,
     canUseGifts,
     canRemoveBranding,
