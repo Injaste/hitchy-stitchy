@@ -24,8 +24,12 @@ export const useScrollContext = () => useContext(ScrollContext);
 
 type ScrollViewProps = Omit<React.ComponentProps<"div">, "onScroll"> & {
   mainClass?: string;
+  /** Scroll axis. "y" (default) scrolls vertically; "x" scrolls horizontally. */
+  axis?: "x" | "y";
   gradientTop?: boolean;
   gradientBottom?: boolean;
+  gradientLeft?: boolean;
+  gradientRight?: boolean;
   gradientClass?: string;
   /** Overlay thumb thickness. "normal" for page-level scrolls, "thin" elsewhere. */
   size?: "thin" | "normal";
@@ -47,8 +51,11 @@ export const ScrollView = ({
   mainClass,
   children,
   className,
+  axis = "y",
   gradientTop = false,
   gradientBottom = false,
+  gradientLeft = false,
+  gradientRight = false,
   gradientClass = "from-background",
   size = "thin",
   maxHeight,
@@ -63,14 +70,25 @@ export const ScrollView = ({
   // viewport on init / scroll / resize.
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
-  const update = useCallback((inst: OverlayScrollbars) => {
-    const vp = inst.elements().viewport;
-    const up = vp.scrollTop > 0;
-    const down = vp.scrollTop + vp.clientHeight < vp.scrollHeight - 1;
-    setCanScrollUp(up);
-    setCanScrollDown(down);
-    setSelfScrolled((cur) => (cur === up ? cur : up));
-  }, []);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const update = useCallback(
+    (inst: OverlayScrollbars) => {
+      const vp = inst.elements().viewport;
+      const up = vp.scrollTop > 0;
+      const down = vp.scrollTop + vp.clientHeight < vp.scrollHeight - 1;
+      const left = vp.scrollLeft > 0;
+      const right = vp.scrollLeft + vp.clientWidth < vp.scrollWidth - 1;
+      setCanScrollUp(up);
+      setCanScrollDown(down);
+      setCanScrollLeft(left);
+      setCanScrollRight(right);
+      // hasScrolled (the dialog header shadow cue) tracks the primary axis only.
+      const started = axis === "x" ? left : up;
+      setSelfScrolled((cur) => (cur === started ? cur : started));
+    },
+    [axis],
+  );
 
   const registerSource = useCallback((id: string, scrolled: boolean) => {
     const map = sourcesRef.current;
@@ -111,6 +129,13 @@ export const ScrollView = ({
             fromClass={gradientClass}
           />
         )}
+        {gradientLeft && (
+          <ScrollGradient
+            side="left"
+            visible={canScrollLeft}
+            fromClass={gradientClass}
+          />
+        )}
         <OverlayScrollbarsComponent
           element="div"
           className={cn(
@@ -121,7 +146,10 @@ export const ScrollView = ({
           )}
           style={maxHeight !== undefined ? { maxHeight } : undefined}
           options={{
-            overflow: { x: "hidden", y: "scroll" },
+            overflow:
+              axis === "x"
+                ? { x: "scroll", y: "hidden" }
+                : { x: "hidden", y: "scroll" },
             scrollbars: {
               autoHide: "leave",
               autoHideDelay: 600,
@@ -144,6 +172,13 @@ export const ScrollView = ({
           <ScrollGradient
             side="bottom"
             visible={canScrollDown}
+            fromClass={gradientClass}
+          />
+        )}
+        {gradientRight && (
+          <ScrollGradient
+            side="right"
+            visible={canScrollRight}
             fromClass={gradientClass}
           />
         )}

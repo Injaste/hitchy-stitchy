@@ -6,8 +6,7 @@ import { Feedback } from "@dnd-kit/dom";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import Container from "@/components/custom/container";
 import ErrorState from "@/components/custom/states/error-state";
-import ScrollGradient from "@/components/custom/scroll-gradient";
-import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
+import { ScrollView } from "@/components/custom/scroll-view";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
@@ -156,33 +155,33 @@ const Board: FC<{
   items: ItemsByStatus;
   tasksById: Map<string, Task>;
   canDrag: boolean;
-}> = ({ items, tasksById, canDrag }) => {
-  const { scrollRef, canScrollLeft, canScrollRight, onScroll } =
-    useScrollVisibility();
-
-  return (
-    <div className="relative min-w-0 md:h-full md:min-h-0 md:-mx-1">
-      <ScrollGradient side="left" visible={canScrollLeft} />
-      <ScrollGradient side="right" visible={canScrollRight} />
-      <div
-        ref={scrollRef}
-        onScroll={onScroll}
-        className="flex flex-col gap-5 md:h-full md:grid md:grid-cols-[repeat(3,minmax(300px,1fr))] md:gap-5 md:overflow-x-auto md:overflow-y-hidden md:px-1 md:pt-1 md:pb-2"
-      >
-        {(STATUS_ORDER_DESKTOP as TaskStatus[]).map((status, columnIndex) => (
-          <TasksSection
-            key={status}
-            status={status}
-            index={columnIndex}
-            label={STATUS_LABELS[status]}
-            taskIds={items[status]}
-            tasksById={tasksById}
-            canDrag={canDrag}
-          />
-        ))}
-      </div>
+}> = ({ items, tasksById, canDrag }) => (
+  <ScrollView
+    axis="x"
+    gradientLeft
+    gradientRight
+    mainClass="min-w-0 md:h-full md:min-h-0 md:-mx-1"
+    className="os-scroll-x-flush md:px-1 md:pt-1 md:pb-2"
+  >
+    {/* As a child of the OverlayScrollbars viewport (rather than the scroll
+        container itself), a block grid would never exceed the viewport width,
+        so it would never overflow to scroll. The md:min-w floor forces it wider
+        than the viewport once the lanes hit their 300px min — 3×300 + 2×gap-5
+        (2.5rem) — while 1fr still lets them share the width on roomier screens. */}
+    <div className="flex flex-col gap-5 md:grid md:h-full md:min-w-[calc(900px+2.5rem)] md:grid-cols-[repeat(3,minmax(300px,1fr))]">
+      {(STATUS_ORDER_DESKTOP as TaskStatus[]).map((status, columnIndex) => (
+        <TasksSection
+          key={status}
+          status={status}
+          index={columnIndex}
+          label={STATUS_LABELS[status]}
+          taskIds={items[status]}
+          tasksById={tasksById}
+          canDrag={canDrag}
+        />
+      ))}
     </div>
-  );
-};
+  </ScrollView>
+);
 
 export default TasksView;

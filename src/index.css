@@ -184,10 +184,37 @@
 }
 
 /* Page-level / primary scrolls opt into a thicker bar via size="normal".
-   `os-scroll-normal` sits on the ScrollView host; the scrollbar is a descendant,
-   so target it through the host. The extra class outweighs the base thin rule. */
-.os-scroll-normal .os-scrollbar.os-theme-app {
+   `os-scroll-normal` sits on the ScrollView host; its scrollbar is a *direct*
+   child, so use `>`. A descendant selector here would leak the thick size into
+   nested ScrollViews — the tasks board and its columns live inside the page's
+   own normal scroll, and must keep their thin default. Still outweighs base thin. */
+.os-scroll-normal > .os-scrollbar.os-theme-app {
   --os-size: 10px; /* normal: ~8px (w-2) visible thumb */
+}
+
+/* The horizontal overlay bar sits at the host's bottom edge by default, which
+   on the tasks board leaves it floating above the page's bottom scroll gutter
+   (AdminView's `md:pb-5`). `os-scroll-x-flush` tucks it down into that gutter so
+   it hugs the panel's bottom edge instead. Scoped to the host so only opted-in
+   horizontal scrolls move; vertical bars are unaffected.
+
+   The host clips its children with `overflow: hidden !important`
+   ([data-overlayscrollbars~=host]), so the offset bar alone would be cut off —
+   we lift that clip on the host (the viewport still clips content on its own, so
+   scrolling is unaffected). The compound selector + !important outweigh the
+   library rule, which loads after this file. */
+.os-scroll-x-flush[data-overlayscrollbars~="host"] {
+  overflow: visible !important;
+}
+.os-scroll-x-flush .os-scrollbar-horizontal {
+  bottom: -12px;
+}
+
+.os-scroll-y-flush[data-overlayscrollbars~="host"] {
+  overflow: visible !important;
+}
+.os-scroll-y-flush .os-scrollbar-vertical {
+  right: -4px;
 }
 
 @layer base {

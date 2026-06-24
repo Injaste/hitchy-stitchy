@@ -10,8 +10,7 @@ import { taskSectionEnter } from "@/lib/animations";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
-import ScrollGradient from "@/components/custom/scroll-gradient";
+import { ScrollView } from "@/components/custom/scroll-view";
 
 import type { Task, TaskStatus } from "../types";
 import { useAccess } from "../../hooks/useAccess";
@@ -45,13 +44,6 @@ const TasksSection: FC<TasksSectionProps> = ({
   tasksById,
   canDrag,
 }) => {
-  const {
-    scrollRef,
-    canScrollUp,
-    canScrollDown,
-    onScroll: onScrollUpdate,
-  } = useScrollVisibility();
-
   const { ref: droppableRef } = useDroppable({
     id: status,
     type: "column",
@@ -65,8 +57,7 @@ const TasksSection: FC<TasksSectionProps> = ({
   const isDone = status === "done";
   const count = taskIds.length;
   const hasTasks = count > 0;
-  // True when the column overflows (its vertical scrollbar is showing).
-  const hasColumnScroll = canScrollUp || canScrollDown;
+  const canAddTasks = canCreate("tasks");
 
   return (
     <motion.section
@@ -111,17 +102,19 @@ const TasksSection: FC<TasksSectionProps> = ({
 
       <Separator />
 
-      {/* Scroll body */}
+      {/* Scroll body — the column's cards scroll inside an overlay ScrollView
+          that absolutely fills the grid track at md (grows in-flow on mobile,
+          where the page scrolls the whole stack). ScrollView owns the edge
+          fades; the bottom fade is only its job when there's no composer below
+          to provide one. */}
       <div className="relative md:min-h-0">
-        <ScrollGradient
-          side="top"
-          visible={canScrollUp}
-          fromClass="from-task-column"
-        />
-        <div
-          ref={scrollRef}
-          onScroll={onScrollUpdate}
-          className="flex flex-col gap-3 md:absolute md:inset-0 md:overflow-y-auto md:[scrollbar-width:thin] md:px-2 md:pt-2"
+        <ScrollView
+          gradientTop
+          gradientBottom={!canAddTasks}
+          gradientClass="from-task-column"
+          mainClass="md:absolute md:inset-0"
+          className="os-scroll-y-flush md:px-2 md:pt-2"
+          size="thin"
         >
           <div
             ref={droppableRef}
@@ -149,29 +142,18 @@ const TasksSection: FC<TasksSectionProps> = ({
               );
             })}
           </div>
-        </div>
+        </ScrollView>
 
-        {/* Composer — in-flow block below the cards on mobile; a pinned
-            overlay (cards scroll under it) once the column scrolls at md. */}
-        {canCreate("tasks") ? (
-          <div
-            className={cn(
-              "pt-3 md:pointer-events-none md:absolute md:left-0 md:bottom-0 md:px-2 md:pb-2 md:pt-3 md:bg-linear-to-t md:from-task-column md:from-80% md:to-transparent",
-              // While scrolling, hold the right edge clear of the 10px scrollbar
-              // gutter so the composer never paints over the column's scrollbar.
-              hasColumnScroll ? "md:right-2.5" : "md:right-0",
-            )}
-          >
+        {/* Composer — in-flow block below the cards on mobile; a pinned overlay
+            (cards scroll under it) once the column scrolls at md. The overlay
+            thumb reserves no gutter and rides on top, so the composer spans the
+            full width — no scrollbar-clearance inset needed. */}
+        {canAddTasks && (
+          <div className="pt-3 md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:px-2 md:pb-2 md:pt-3 md:bg-linear-to-t md:from-task-column md:from-80% md:to-transparent">
             <div className="md:pointer-events-auto">
               <TaskQuickAdd status={status} />
             </div>
           </div>
-        ) : (
-          <ScrollGradient
-            side="bottom"
-            visible={canScrollDown}
-            fromClass="from-task-column"
-          />
         )}
       </div>
     </motion.section>
