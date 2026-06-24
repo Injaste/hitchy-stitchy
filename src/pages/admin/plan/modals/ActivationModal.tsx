@@ -24,10 +24,10 @@ import { formatPrice } from "../utils";
  *  marked "coming soon". Reuses the plan price surface, but unlike UpgradeModal
  *  it can't be dismissed (a blocked close shakes the card). */
 const ActivationModal = () => {
-  const { plan, isPending } = usePlan();
+  const { planName, planTier, isPending } = usePlan();
   // Activation is priced by the event's OWN plan (a pending free event still
   // carries an activation fee), not always Pro.
-  const { data: pub } = usePublicPlanQuery(plan.tier, isPending);
+  const { data: pub } = usePublicPlanQuery(planTier, isPending);
   const [animate, setAnimate] = useState<"idle" | "shake">("idle");
 
   return (
@@ -60,7 +60,7 @@ const ActivationModal = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm">
               <span className="font-medium text-foreground">
-                {plan.name} plan
+                {planName} plan
               </span>
               <Badge variant="warning">Awaiting payment</Badge>
             </div>

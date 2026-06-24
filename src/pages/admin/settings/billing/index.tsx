@@ -42,7 +42,7 @@ const MOCK_RECEIPTS: Receipt[] = [
 /** Settings → Billing. Super-admin-only (gated at the tab). Plan status + usage
  *  + receipts; upgrade routes through the shared UpgradeModal. */
 const Billing: FC = () => {
-  const { plan, isPro, isPending, meter } = usePlan();
+  const { planName, isPro, isPending } = usePlan();
   const openUpgrade = useUpgradeModalStore((s) => s.open);
 
   return (
@@ -51,7 +51,7 @@ const Billing: FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {plan.name} plan
+            {planName} plan
             <Badge variant={isPro ? "default" : "outline"}>
               {isPro ? "Pro" : "Free"}
             </Badge>
@@ -59,7 +59,7 @@ const Billing: FC = () => {
           <CardDescription>
             {isPending
               ? "This event is awaiting payment to activate."
-              : `Your event is on the ${plan.name} plan.`}
+              : `Your event is on the ${planName} plan.`}
           </CardDescription>
           <CardAction>
             <Badge variant={isPending ? "warning" : "success"}>

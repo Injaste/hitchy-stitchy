@@ -39,7 +39,7 @@ const Topbar: FC<{ show: boolean; children: ReactNode }> = ({ show, children }) 
  *  Order top→bottom: limit-reached, then the live-cue. */
 const AdminTopbar = () => {
   const { data: active } = useActiveTimelineQuery();
-  const { reachedLimits } = usePlan();
+  const { isReachedPlanLimits, isOverPlanLimits } = usePlan();
   // Limits are only actionable by whoever can pay, and plan UI is super-admin-
   // only — so don't even mount the banner for members (no DOM/a11y leak).
   const { isSuperAdmin } = useAccess();
@@ -47,7 +47,7 @@ const AdminTopbar = () => {
   return (
     <>
       {isSuperAdmin && (
-        <Topbar show={reachedLimits.length > 0}>
+        <Topbar show={isOverPlanLimits || isReachedPlanLimits}>
           <LimitReachedBanner />
         </Topbar>
       )}
