@@ -3,6 +3,7 @@ import InvitationHeader from "./components/InvitationHeader";
 import InvitationView from "./components/InvitationView";
 import InvitationSheet from "./components/InvitationSheet";
 import BespokeRequestModal from "./modals/BespokeRequestModal";
+import { BESPOKE_ENABLED } from "./components/bespoke";
 import Container from "@/components/custom/container";
 
 const Invitation = () => {
@@ -27,7 +28,7 @@ const Invitation = () => {
         />
       </Container>
       <InvitationSheet />
-      <BespokeRequestModal />
+      {BESPOKE_ENABLED && <BespokeRequestModal />}
     </>
   );
 };

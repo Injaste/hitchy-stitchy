@@ -2,6 +2,12 @@
 // (BespokeInvitationCard) and the browse-sheet strip (BespokeTemplatePrompt) — so
 // the two surfaces can't drift apart. Both open the same BespokeRequestModal.
 
+/** Bespoke is hidden on the FE until the iterative-service flow (couple ↔ designer
+ *  communication + bounded revision rounds) is designed — see execution-plan-E.md.
+ *  Flip to true to re-render the hub card, browse-sheet card, and request modal.
+ *  Typed boolean (not literal) so the gate reads as a real flag, not dead code. */
+export const BESPOKE_ENABLED: boolean = false;
+
 export const BESPOKE_TITLE = "Want something custom?";
 export const BESPOKE_BLURB =
   "A one-of-a-kind invitation, designed from scratch.";
