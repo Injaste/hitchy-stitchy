@@ -91,7 +91,10 @@ const DesktopSettings: FC<{
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined} className="sm:max-w-xl">
+      <DialogContent
+        aria-describedby={undefined}
+        className="sm:max-w-4xl h-full md:max-h-140 lg:max-h-180"
+      >
         {/* Vertical Tabs: Radix gives roving focus + Up/Down arrow nav + tab
             roles; the list carries the vertical slide indicator. The panel owns
             its own close button + scroll, so the X sits clear of the scrollbar.
@@ -103,7 +106,7 @@ const DesktopSettings: FC<{
           orientation="vertical"
           value={activeId}
           onValueChange={setActive}
-          className="h-112 max-h-[70vh] gap-0 overflow-hidden rounded-xl"
+          className="gap-0 overflow-hidden rounded-xl"
           contentClassName="grid min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)]"
         >
           <TabsList
