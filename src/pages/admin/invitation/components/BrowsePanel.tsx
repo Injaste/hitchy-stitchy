@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check } from "lucide-react";
 import { parseISO, format } from "date-fns";
 import SubmitButton from "@/components/custom/form/SubmitButton";
 import { Separator } from "@/components/ui/separator";
@@ -15,6 +14,9 @@ import {
 import { cn } from "@/lib/utils";
 import { themeRegistry } from "@/pages/wedding/templates";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useAccess } from "@/pages/admin/hooks/useAccess";
+import TemplateCard from "./TemplateCard";
+import BespokeTemplateCard from "./BespokeTemplateCard";
 import { dayLabel } from "../../days/utils";
 import { useEventDaysQuery } from "../../days/queries";
 import {
@@ -43,6 +45,7 @@ const slugify = (s: string) =>
 // pane (right) renders it.
 const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
   const { slug } = useAdminStore();
+  const { isSuperAdmin } = useAccess();
   const { data: templates } = useTemplatesQuery();
   const { data: days } = useEventDaysQuery();
   const { data: segments } = useEventSegmentsQuery();
@@ -129,38 +132,24 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
             No templates available yet.
           </p>
         )}
-        {usable.map((t) => {
-          const isSel = selected?.template_key === t.template_key;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => onSelect(t.template_key)}
-              className={cn(
-                "w-full text-left flex items-center gap-3 rounded-lg border p-2.5 cursor-pointer transition-colors",
-                isSel
-                  ? "border-primary ring-3 ring-primary/20"
-                  : "border-border hover:border-primary/50",
-              )}
-            >
-              <div className="size-14 shrink-0 rounded-md bg-linear-to-b from-primary/20 to-secondary/15 grid place-items-center font-display text-sm text-foreground/70">
-                {t.name.slice(0, 2)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-medium font-display truncate">
-                  {t.name}
-                </h4>
-                {t.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-1">
-                    {t.description}
-                  </p>
-                )}
-              </div>
-              {isSel && <Check className="size-4 text-primary shrink-0" />}
-            </button>
-          );
-        })}
+        {usable.map((t) => (
+          <TemplateCard
+            key={t.id}
+            template={t}
+            isSelected={selected?.template_key === t.template_key}
+            onSelect={() => onSelect(t.template_key)}
+          />
+        ))}
       </div>
+
+      {isSuperAdmin && (
+        <>
+          <Separator />
+          <div className="px-4 py-3 bg-background">
+            <BespokeTemplateCard />
+          </div>
+        </>
+      )}
 
       {selected && (
         <>

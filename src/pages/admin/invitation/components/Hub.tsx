@@ -8,6 +8,7 @@ import ErrorState from "@/components/custom/states/error-state";
 import EmptyState from "@/components/custom/states/empty-state";
 import { Button } from "@/components/ui/button";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useAccess } from "@/pages/admin/hooks/useAccess";
 import InvitationSkeleton from "../states/InvitationSkeleton";
 import { useInvitationsQuery, useEventSegmentsQuery } from "../queries";
 import { useEventDaysQuery } from "../../days/queries";
@@ -15,12 +16,15 @@ import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 import { pageLabel } from "../utils";
 import InvitationSheet from "./InvitationSheet";
 import InvitationCard from "./InvitationCard";
+import BespokeInvitationCard from "./BespokeInvitationCard";
+import BespokeRequestModal from "../modals/BespokeRequestModal";
 
 // Invitation hub: a flat grid of every page (one per day/segment). Invitations are
 // light + capped, so they all render at once — no day rail. Each card is
 // self-describing (label + date). "Add invitation" lives in the page header.
 const Hub = () => {
   const { slug } = useAdminStore();
+  const { isSuperAdmin } = useAccess();
   const { data: invitations, isLoading, isError, isRefetching, refetch } =
     useInvitationsQuery();
   const { data: days } = useEventDaysQuery();
@@ -65,21 +69,28 @@ const Hub = () => {
     if (!invitations?.length)
       return (
         <ComponentFade key="empty" useBlur>
-          <EmptyState
-            icon={
-              <div className="size-14 rounded-2xl bg-gradient-surface border grid place-items-center text-primary">
-                <LayoutTemplate className="size-6" />
+          <div className="space-y-6">
+            <EmptyState
+              icon={
+                <div className="size-14 rounded-2xl bg-gradient-surface border grid place-items-center text-primary">
+                  <LayoutTemplate className="size-6" />
+                </div>
+              }
+              title="Design your invitation"
+              description="Pick a template to start the page your guests will open. You can customise everything after."
+              action={
+                <Button onClick={openBrowse} className="gap-1.5">
+                  <Plus className="size-4" />
+                  Browse templates
+                </Button>
+              }
+            />
+            {isSuperAdmin && (
+              <div className="mx-auto max-w-sm">
+                <BespokeInvitationCard />
               </div>
-            }
-            title="Design your invitation"
-            description="Pick a template to start the page your guests will open. You can customise everything after."
-            action={
-              <Button onClick={openBrowse} className="gap-1.5">
-                <Plus className="size-4" />
-                Browse templates
-              </Button>
-            }
-          />
+            )}
+          </div>
         </ComponentFade>
       );
 
@@ -123,6 +134,7 @@ const Hub = () => {
                 );
               })}
             </AnimatePresence>
+            {isSuperAdmin && <BespokeInvitationCard />}
           </div>
         </div>
       </ComponentFade>
@@ -133,6 +145,7 @@ const Hub = () => {
     <>
       <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
       <InvitationSheet />
+      <BespokeRequestModal />
     </>
   );
 };
