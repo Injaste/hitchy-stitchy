@@ -1,3 +1,4 @@
+import { z } from "zod"
 import type { ThemeConfig } from "@/pages/wedding/templates/types"
 
 export const RSVP_MODES = ["public", "private"] as const;
@@ -47,6 +48,18 @@ export interface Template {
   created_at: string
   updated_at: string
 }
+
+// Bespoke (custom-designed) invitation request — the intake brief the couple
+// submits. Maps 1:1 to the event_services brief columns (backend to follow).
+export const bespokeFormSchema = z.object({
+  style: z.string().min(1, "Tell us the style you're after").max(200),
+  colours: z.string().min(1, "Add the colours you'd like").max(200),
+  context: z.string().min(1, "Add the ceremony / cultural context").max(500),
+  vision: z.string().min(1, "Describe your vision").max(2000),
+  reference_template_key: z.string().nullable(),
+  references: z.string().max(1000),
+})
+export type BespokeFormValues = z.infer<typeof bespokeFormSchema>
 
 // ── New parallel model (event_invitations) — the redesign.
 // Merges design (was event_themes) + RSVP config into one row. One page per
