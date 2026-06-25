@@ -1,4 +1,4 @@
-import { createModalStore } from "../../hooks/useModalStore"
+import { createCrudModalStore } from "../../hooks/modalStoreFactories"
 import type { Gift } from "../types"
 
 interface GiftModalAddons {
@@ -8,7 +8,7 @@ interface GiftModalAddons {
   openDeleteItem: (item: Gift) => void
 }
 
-export const useGiftModalStore = createModalStore<Gift, GiftModalAddons>(
+export const useGiftModalStore = createCrudModalStore<Gift, GiftModalAddons>(
   (set) => ({
     openEditItem: (item) =>
       set({

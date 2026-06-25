@@ -1,4 +1,4 @@
-import { createModalStore } from "../../hooks/useModalStore";
+import { createCrudModalStore } from "../../hooks/modalStoreFactories";
 import type { EventDay } from "../types";
 
 interface DayModalAddons {
@@ -6,7 +6,7 @@ interface DayModalAddons {
   openDeleteDay: (day: EventDay) => void;
 }
 
-export const useDayModalStore = createModalStore<EventDay, DayModalAddons>(
+export const useDayModalStore = createCrudModalStore<EventDay, DayModalAddons>(
   (set) => ({
     openDeleteDay: (day) => set({ selectedItem: day, isDeleteOpen: true }),
   }),

@@ -1,4 +1,4 @@
-import { createModalStore } from "../../hooks/useModalStore"
+import { createCrudModalStore } from "../../hooks/modalStoreFactories"
 import type { Task } from "../types"
 
 interface TaskModalAddons {
@@ -14,7 +14,7 @@ interface TaskModalAddons {
   extendedReset: () => void
 }
 
-export const useTaskModalStore = createModalStore<Task, TaskModalAddons>((set) => ({
+export const useTaskModalStore = createCrudModalStore<Task, TaskModalAddons>((set) => ({
   isArchiveOpen: false,
   archiveTargets: [],
 

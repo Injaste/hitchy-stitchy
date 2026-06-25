@@ -12,7 +12,6 @@ import AdminSidebar from "./sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
-import { PingModal } from "./modals/PingModal";
 import MemberModals from "./members/modals";
 import TimelineModals from "./timeline/modals";
 import PlanModals from "./plan/modals";
@@ -68,7 +67,6 @@ const AdminView = () => {
                 </ComponentFade>
               </AnimatePresence>
             </SidebarInset>
-            <PingModal />
             <MemberModals />
             <TimelineModals />
             <PlanModals />

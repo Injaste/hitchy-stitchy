@@ -1,4 +1,4 @@
-import { createModalStore } from "../../hooks/useModalStore";
+import { createCrudModalStore } from "../../hooks/modalStoreFactories";
 import type { Timeline } from "../types";
 
 export interface TimelineCreatePrefill {
@@ -36,7 +36,7 @@ interface TimelineModalAdditional {
   extendedReset: () => void;
 }
 
-export const useTimelineModalStore = createModalStore<
+export const useTimelineModalStore = createCrudModalStore<
   Timeline,
   TimelineModalAdditional
 >((set, get) => ({

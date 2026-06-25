@@ -1,5 +1,19 @@
 import { create } from "zustand";
 
+interface DisclosureState {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+}
+
+export function createDisclosureStore() {
+  return create<DisclosureState>((set) => ({
+    isOpen: false,
+    open: () => set({ isOpen: true }),
+    close: () => set({ isOpen: false }),
+  }));
+}
+
 interface ModalState<T> {
   isCreateOpen: boolean;
   isEditOpen: boolean;
@@ -22,7 +36,7 @@ interface ModalState<T> {
   extendedReset?: () => void;
 }
 
-export function createModalStore<T, U extends object = {}>(
+export function createCrudModalStore<T, U extends object = {}>(
   additionalState?: (set: (partial: any) => void, get: () => any) => U,
 ) {
   return create<ModalState<T> & U>(

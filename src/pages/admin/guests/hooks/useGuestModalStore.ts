@@ -1,4 +1,4 @@
-import { createModalStore } from "../../hooks/useModalStore"
+import { createCrudModalStore } from "../../hooks/modalStoreFactories"
 import type { Guest, GuestStatus } from "../types"
 
 interface GuestModalAddons {
@@ -23,7 +23,7 @@ interface GuestModalAddons {
   extendedReset: () => void
 }
 
-export const useGuestModalStore = createModalStore<Guest, GuestModalAddons>((set, get) => ({
+export const useGuestModalStore = createCrudModalStore<Guest, GuestModalAddons>((set, get) => ({
   isBulkUpdateOpen: false,
   isDuplicateOpen: false,
   selectedIds: new Set(),

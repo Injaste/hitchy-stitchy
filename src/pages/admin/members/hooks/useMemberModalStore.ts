@@ -1,4 +1,4 @@
-import { createModalStore } from "../../hooks/useModalStore"
+import { createCrudModalStore } from "../../hooks/modalStoreFactories"
 import type { Member } from "../types"
 
 interface MemberModalAddons {
@@ -10,7 +10,7 @@ interface MemberModalAddons {
   openDetailForCreated: (member: Member) => void
 }
 
-export const useMemberModalStore = createModalStore<Member, MemberModalAddons>((set) => ({
+export const useMemberModalStore = createCrudModalStore<Member, MemberModalAddons>((set) => ({
   isFreezeOpen: false,
 
   openFreeze: () => set({ isDetailOpen: false, isFreezeOpen: true }),
