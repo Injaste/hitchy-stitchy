@@ -13,8 +13,3 @@ export function usePublicPlanQuery(tier: string, enabled = true) {
     staleTime: 1000 * 60 * 60, // 1h — pricing rarely changes
   });
 }
-
-/** Convenience for the Pro tier (the upgrade modal's target). */
-export function useProPlanQuery(enabled = true) {
-  return usePublicPlanQuery("pro", enabled);
-}

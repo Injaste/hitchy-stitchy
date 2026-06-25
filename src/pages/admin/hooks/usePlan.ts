@@ -1,12 +1,25 @@
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
-import { PLAN_METERS, UNLIMITED_ON_PRO, type PlanResource } from "../plan/plan-config";
+import {
+  PLAN_METERS,
+  UNLIMITED_ON_PAID,
+  nextTier,
+  tierRank,
+  type PlanResource,
+  type PlanFeature,
+} from "../plan/plan-config";
 
 /** Client plan gate — UX only (the server's RLS + RPCs are the real boundary).
  *  Mirrors useAccess: read the store, expose reactive entitlement helpers. */
 export function usePlan() {
   const plan = useAdminStore((s) => s.plan);
 
-  const isPro = plan.tier === "pro";
+  /** On a paid tier (drives the crown / status, not feature access — features
+   *  are flag-driven below). */
+  const isPaid = tierRank(plan.tier) > 0;
+  /** The tier checkout would sell next, or null at the top tier. */
+  const next = nextTier(plan.tier);
+  /** There's a higher tier to upsell (false on the top tier). */
+  const canUpgrade = next !== null;
   // Two SEPARATE concerns — never merge them:
   /** activation/billing: activated_at NULL = a 2nd+ event awaiting payment. */
   const isPending = plan.activatedAt === null;
@@ -15,6 +28,14 @@ export function usePlan() {
 
   // Feature modules.
   const { canUseBudget, canUseGifts, canRemoveBranding } = plan.limits;
+
+  /** Feature-module access, keyed so the mapping stays exhaustive (a new
+   *  PlanFeature is a compile error until it's added here). Drives RequirePlan. */
+  const featureEnabled: Record<PlanFeature, boolean> = {
+    budget: canUseBudget,
+    gifts: canUseGifts,
+  };
+  const hasFeature = (feature: PlanFeature) => featureEnabled[feature];
 
   /** Per-resource cap. Keyed so the mapping stays exhaustive — a new
    *  PlanResource is a compile error until it's added here, with no silent
@@ -34,7 +55,7 @@ export function usePlan() {
     return {
       used,
       max,
-      unlimited: isPro && UNLIMITED_ON_PRO.has(resource),
+      unlimited: isPaid && UNLIMITED_ON_PAID.has(resource),
       atLimit: used >= max,
       remaining: Math.max(0, max - used),
     };
@@ -55,13 +76,16 @@ export function usePlan() {
   return {
     planName: plan.name,
     planTier: plan.tier,
-    isPro,
+    isPaid,
+    canUpgrade,
+    nextTier: next,
     isPending,
     isOverPlanLimits,
     isReachedPlanLimits,
     canUseBudget,
     canUseGifts,
     canRemoveBranding,
+    hasFeature,
     meter,
     reachedLimits,
   };

@@ -15,7 +15,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { usePlan } from "../../hooks/usePlan";
-import { PLAN_METERS, type PlanResource } from "../../plan/plan-config";
+import {
+  PLAN_METERS,
+  tierLabel,
+  type PlanResource,
+} from "../../plan/plan-config";
 import { useUpgradeModalStore } from "../../plan/hooks/useUpgradeModalStore";
 
 interface Receipt {
@@ -42,7 +46,7 @@ const MOCK_RECEIPTS: Receipt[] = [
 /** Settings → Billing. Super-admin-only (gated at the tab). Plan status + usage
  *  + receipts; upgrade routes through the shared UpgradeModal. */
 const Billing: FC = () => {
-  const { planName, isPro, isPending } = usePlan();
+  const { planName, isPaid, isPending, canUpgrade, nextTier } = usePlan();
   const openUpgrade = useUpgradeModalStore((s) => s.open);
 
   return (
@@ -52,9 +56,7 @@ const Billing: FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {planName} plan
-            <Badge variant={isPro ? "default" : "outline"}>
-              {isPro ? "Pro" : "Free"}
-            </Badge>
+            <Badge variant={isPaid ? "default" : "outline"}>{planName}</Badge>
           </CardTitle>
           <CardDescription>
             {isPending
@@ -71,12 +73,14 @@ const Billing: FC = () => {
         <CardFooter>
           {isPending ? (
             <Button onClick={openUpgrade}>Complete payment</Button>
-          ) : isPro ? (
+          ) : canUpgrade ? (
+            <Button onClick={openUpgrade}>
+              {nextTier ? `Upgrade to ${tierLabel(nextTier)}` : "Upgrade"}
+            </Button>
+          ) : (
             <Button variant="outline" disabled>
               Manage billing · coming soon
             </Button>
-          ) : (
-            <Button onClick={openUpgrade}>Upgrade to Pro</Button>
           )}
         </CardFooter>
       </Card>

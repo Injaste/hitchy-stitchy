@@ -13,67 +13,80 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { usePlan } from "../../hooks/usePlan";
-import { PLAN_METERS, planSupportHref } from "../plan-config";
-import { useProPlanQuery } from "../queries";
+import {
+  PLAN_METERS,
+  UNLIMITED_ON_PAID,
+  planSupportHref,
+  tierLabel,
+} from "../plan-config";
+import { usePublicPlanQuery } from "../queries";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
 import { formatPrice } from "../utils";
 
-/** Per-state copy for the three upgrade contexts — keeps the JSX free of nested
- *  ternaries: pick the state, render COPY[state]. `note` is the muted secondary
- *  line (only the over-limit state has one). */
-type UpgradeState = "pro" | "over" | "free";
-const COPY: Record<
-  UpgradeState,
-  { title: string; description: string; note?: string }
-> = {
-  pro: {
-    title: "Plan limits reached",
-    description:
-      "You've reached your Pro plan's limits — we can raise them for you.",
-  },
-  over: {
-    title: "Unlock your full event",
-    description:
-      "Your event has more than the Free plan allows, so editing is paused. Your content is safe — upgrade to unlock it all instantly.",
-    note: "Staying on Free? You can remove items to fit within its limits.",
-  },
-  free: {
-    title: "Upgrade to Pro",
-    description: "You've reached your Free plan limits. Upgrade to keep going.",
-  },
-};
+/** Whether guests are pitched as "Unlimited" rather than a number (every tier we
+ *  upsell to is paid, so this is the paid-tier marketing label). */
+const GUESTS_UNLIMITED = UNLIMITED_ON_PAID.has("guests");
 
 /** The pay-to-upgrade surface, opened from the limit-reached banner. Lists the
- *  caps that triggered it, pitches Pro, and discloses the price. Payment itself
- *  is wired last (Stripe) — for now the CTA is honestly marked "coming soon".
- *  Reused later by the pending-activation flow. */
+ *  caps that triggered it, pitches the NEXT tier up (next-tier CTA), and discloses
+ *  its price. Three contexts:
+ *    top      — already on the highest tier: no upsell, route to support
+ *    over     — content exceeds the current plan (downgrade lock) but a tier up exists
+ *    upgrade  — at a cap, a higher tier exists
+ *  Payment itself is wired last (Stripe) — for now the CTA is honestly marked
+ *  "coming soon". Reused later by the pending-activation flow. */
 const UpgradeModal = () => {
   const { isOpen, close } = useUpgradeModalStore();
-  const { isPro, isOverPlanLimits, reachedLimits, meter } = usePlan();
-  // Over the plan = a downgrade that locks editing (different pitch than just
-  // being at a cap). Only meaningful for Free — Pro over-limit has no higher tier.
-  const over = isOverPlanLimits && !isPro;
-  const copy = COPY[isPro ? "pro" : over ? "over" : "free"];
+  const { isOverPlanLimits, canUpgrade, nextTier, reachedLimits, meter } =
+    usePlan();
 
-  // Only fetch the Pro catalog row when the modal is open and an upgrade applies.
-  const { data: pro } = useProPlanQuery(isOpen && !isPro);
+  // Fetch the target (next-up) tier's catalog row only when an upgrade applies.
+  const { data: target } = usePublicPlanQuery(
+    nextTier ?? "",
+    isOpen && canUpgrade,
+  );
+  // Prefer the catalog's display name; fall back to a title-cased tier string
+  // before the query resolves.
+  const nextName = target?.name ?? (nextTier ? tierLabel(nextTier) : "");
+
+  const state = !canUpgrade ? "top" : isOverPlanLimits ? "over" : "upgrade";
+  const copy = {
+    top: {
+      title: "Plan limits reached",
+      description:
+        "You've reached your plan's limits — we can raise them for you.",
+      note: undefined as string | undefined,
+    },
+    over: {
+      title: "Unlock your full event",
+      description:
+        "Your event has more than your current plan allows, so editing is paused. Your content is safe — upgrade to unlock it all instantly.",
+      note: "Prefer to stay put? Remove items to fit your current plan's limits.",
+    },
+    upgrade: {
+      title: `Upgrade to ${nextName}`,
+      description: `You've reached your plan's limits. Upgrade to ${nextName} to keep going.`,
+      note: undefined as string | undefined,
+    },
+  }[state];
 
   const labelFor = (r: (typeof reachedLimits)[number]) =>
     PLAN_METERS.find((m) => m.resource === r)?.label ?? r;
 
   const perks = useMemo(() => {
-    if (!pro) return [];
+    if (!target) return [];
     const items = [
-      "Unlimited guests",
-      `Up to ${pro.maxDays} event days`,
-      `Up to ${pro.maxInvitationPages} invitation pages`,
-      `Up to ${pro.maxMembers} team members`,
+      GUESTS_UNLIMITED ? "Unlimited guests" : `Up to ${target.maxGuests} guests`,
+      `Up to ${target.maxDays} event days`,
+      `Up to ${target.maxSegmentsPerDay} segments per day`,
+      `Up to ${target.maxInvitationPages} invitation pages`,
+      `Up to ${target.maxMembers} team members`,
     ];
-    if (pro.canUseBudget) items.push("Budget tracker");
-    if (pro.canUseGifts) items.push("Gift envelopes");
-    if (pro.canRemoveBranding) items.push("Remove Hitchy Stitchy branding");
+    if (target.canUseBudget) items.push("Budget tracker");
+    if (target.canUseGifts) items.push("Gift envelopes");
+    if (target.canRemoveBranding) items.push("Remove Hitchy Stitchy branding");
     return items;
-  }, [pro]);
+  }, [target]);
 
   return (
     <Dialog
@@ -114,11 +127,11 @@ const UpgradeModal = () => {
               })}
             </div>
 
-            {/* The Pro pitch (upgrade case only) */}
-            {!isPro && perks.length > 0 && (
+            {/* The next-tier pitch (upgrade case only) */}
+            {canUpgrade && perks.length > 0 && (
               <div className="rounded-xl border border-border p-4">
                 <p className="mb-3 text-sm font-semibold text-foreground">
-                  What you get with Pro
+                  What you get with {nextName}
                 </p>
                 <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {perks.map((p) => (
@@ -140,9 +153,9 @@ const UpgradeModal = () => {
               </p>
             )}
 
-            {!isPro && (
+            {canUpgrade && (
               <p className="text-center text-xs text-muted-foreground">
-                {pro?.price != null
+                {target?.price != null
                   ? "Online payment is being set up — coming soon."
                   : "Pricing coming soon."}
               </p>
@@ -150,20 +163,20 @@ const UpgradeModal = () => {
           </div>
         </DialogBody>
 
-        {isPro ? (
+        {canUpgrade ? (
+          <DialogFooter>
+            <Button className="w-full" disabled>
+              {target?.price != null
+                ? `Upgrade · ${formatPrice(target.price)}`
+                : `Upgrade to ${nextName}`}
+            </Button>
+          </DialogFooter>
+        ) : (
           <DialogFooter>
             <Button asChild className="w-full">
               <a href={planSupportHref} target="_blank" rel="noopener noreferrer">
                 Contact us
               </a>
-            </Button>
-          </DialogFooter>
-        ) : (
-          <DialogFooter>
-            <Button className="w-full" disabled>
-              {pro?.price != null
-                ? `Upgrade · ${formatPrice(pro.price)}`
-                : "Upgrade to Pro"}
             </Button>
           </DialogFooter>
         )}

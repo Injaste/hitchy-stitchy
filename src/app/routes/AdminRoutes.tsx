@@ -1,7 +1,6 @@
 import { lazy } from "react";
 import { Route, Navigate, useParams } from "react-router-dom";
-import RequireRead from "@/components/custom/require-read";
-import RequireSuperAdmin from "@/components/custom/require-super-admin";
+import RequireRoute from "@/components/custom/require-route";
 import ComponentFade from "@/components/animations/animate-component-fade";
 
 import Timeline from "@/pages/admin/timeline";
@@ -33,14 +32,14 @@ const AdminRoutes = () => (
     }
   >
     <Route index element={<RedirectToTimeline />} />
-    <Route path="timeline" element={<RequireRead resource="timeline"><Timeline /></RequireRead>} />
-    <Route path="tasks" element={<RequireRead resource="tasks"><Tasks /></RequireRead>} />
+    <Route path="timeline" element={<RequireRoute resource="timeline"><Timeline /></RequireRoute>} />
+    <Route path="tasks" element={<RequireRoute resource="tasks"><Tasks /></RequireRoute>} />
     <Route path="members" element={<Members />} />
-    <Route path="access" element={<RequireRead resource="access"><Access /></RequireRead>} />
-    <Route path="guests" element={<RequireRead resource="guests"><Guests /></RequireRead>} />
-    <Route path="budget" element={<RequireSuperAdmin><Budget /></RequireSuperAdmin>} />
-    <Route path="gifts" element={<RequireSuperAdmin><Gifts /></RequireSuperAdmin>} />
-    <Route path="invitation" element={<RequireRead resource="invitation"><Invitation /></RequireRead>} />
+    <Route path="access" element={<RequireRoute resource="access"><Access /></RequireRoute>} />
+    <Route path="guests" element={<RequireRoute resource="guests"><Guests /></RequireRoute>} />
+    <Route path="budget" element={<RequireRoute superAdmin feature="budget"><Budget /></RequireRoute>} />
+    <Route path="gifts" element={<RequireRoute superAdmin feature="gifts"><Gifts /></RequireRoute>} />
+    <Route path="invitation" element={<RequireRoute resource="invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />
     <Route path="*" element={<RedirectToTimeline />} />
