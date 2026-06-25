@@ -10,33 +10,44 @@ import { Button } from "@/components/ui/button";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useAccess } from "@/pages/admin/hooks/useAccess";
 import InvitationSkeleton from "../states/InvitationSkeleton";
-import { useInvitationsQuery, useEventSegmentsQuery } from "../queries";
+import { useEventSegmentsQuery } from "../queries";
 import { useEventDaysQuery } from "../../days/queries";
 import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 import { pageLabel } from "../utils";
-import InvitationSheet from "./InvitationSheet";
 import InvitationCard from "./InvitationCard";
 import BespokeInvitationCard from "./BespokeInvitationCard";
-import BespokeRequestModal from "../modals/BespokeRequestModal";
+import type { Invitation } from "../types";
+
+interface InvitationViewProps {
+  data: Invitation[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  isRefetching: boolean;
+  refetch: () => void;
+}
 
 // Invitation hub: a flat grid of every page (one per day/segment). Invitations are
 // light + capped, so they all render at once — no day rail. Each card is
 // self-describing (label + date). "Add invitation" lives in the page header.
-const Hub = () => {
+const InvitationView = ({
+  data,
+  isLoading,
+  isError,
+  isRefetching,
+  refetch,
+}: InvitationViewProps) => {
   const { slug } = useAdminStore();
   const { isSuperAdmin } = useAccess();
-  const { data: invitations, isLoading, isError, isRefetching, refetch } =
-    useInvitationsQuery();
   const { data: days } = useEventDaysQuery();
   const { data: segments } = useEventSegmentsQuery();
   const { openBrowse, openEdit } = useInvitationModalStore();
 
   // Order: Live before Draft, then root (no link_slug) first, then by day date.
   const ordered = useMemo(() => {
-    if (!invitations || !days) return [];
+    if (!data || !days) return [];
     const dateOf = (dayId: string) =>
       days.find((d) => d.id === dayId)?.date ?? "";
-    return [...invitations].sort((a, b) => {
+    return [...data].sort((a, b) => {
       const liveA = a.published_at ? 0 : 1;
       const liveB = b.published_at ? 0 : 1;
       if (liveA !== liveB) return liveA - liveB;
@@ -45,7 +56,7 @@ const Hub = () => {
       if (rootA !== rootB) return rootA - rootB;
       return dateOf(a.day_id).localeCompare(dateOf(b.day_id));
     });
-  }, [invitations, days]);
+  }, [data, days]);
 
   const renderBody = () => {
     if (isError)
@@ -66,7 +77,7 @@ const Hub = () => {
         </ComponentFade>
       );
 
-    if (!invitations?.length)
+    if (!data?.length)
       return (
         <ComponentFade key="empty" useBlur>
           <div className="space-y-6">
@@ -141,13 +152,7 @@ const Hub = () => {
     );
   };
 
-  return (
-    <>
-      <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>
-      <InvitationSheet />
-      <BespokeRequestModal />
-    </>
-  );
+  return <AnimatePresence mode="wait">{renderBody()}</AnimatePresence>;
 };
 
-export default Hub;
+export default InvitationView;
