@@ -18,6 +18,7 @@ import { useAccess } from "@/pages/admin/hooks/useAccess";
 import { ScrollView } from "@/components/custom/scroll-view";
 import TemplateCard from "./TemplateCard";
 import BespokeTemplateCard from "./BespokeTemplateCard";
+import { BESPOKE_ENABLED } from "./bespoke";
 import { dayLabel } from "../../days/utils";
 import { useEventDaysQuery } from "../../days/queries";
 import {
@@ -148,7 +149,7 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
         </ScrollView>
       </div>
 
-      {isSuperAdmin && (
+      {BESPOKE_ENABLED && isSuperAdmin && (
         <>
           <Separator />
           <div className="px-4 py-3 bg-background">

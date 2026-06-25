@@ -16,6 +16,7 @@ import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 import { pageLabel } from "../utils";
 import InvitationCard from "./InvitationCard";
 import BespokeInvitationCard from "./BespokeInvitationCard";
+import { BESPOKE_ENABLED } from "./bespoke";
 import type { Invitation } from "../types";
 
 interface InvitationViewProps {
@@ -96,7 +97,7 @@ const InvitationView = ({
                 </Button>
               }
             />
-            {isSuperAdmin && (
+            {BESPOKE_ENABLED && isSuperAdmin && (
               <div className="mx-auto max-w-sm">
                 <BespokeInvitationCard />
               </div>
@@ -144,7 +145,7 @@ const InvitationView = ({
                   </motion.div>
                 );
               })}
-              {isSuperAdmin && (
+              {BESPOKE_ENABLED && isSuperAdmin && (
                 <motion.div
                   key="bespoke"
                   custom={ordered.length}
