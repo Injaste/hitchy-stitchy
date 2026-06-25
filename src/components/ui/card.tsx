@@ -9,7 +9,8 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: "",
-        interactive: "hover:ring-secondary hover:shadow-sm cursor-pointer",
+        interactive:
+          "hover:ring-secondary hover:shadow-sm cursor-pointer active:not-aria-[haspopup]:scale-[0.975]",
       },
       size: {
         default: "gap-4 py-4 has-data-[slot=card-footer]:pb-0",
