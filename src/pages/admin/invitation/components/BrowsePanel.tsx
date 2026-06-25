@@ -154,8 +154,8 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
       {selected && (
         <>
           <Separator />
-          <div className="p-4 space-y-3 bg-background">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="@container p-4 space-y-3 bg-background">
+            <div className="grid grid-cols-1 @md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Day</Label>
                 <Select value={dayId} onValueChange={setDayId}>
@@ -172,27 +172,26 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
                 </Select>
               </div>
 
-              {daySegments.length > 0 && (
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Segment</Label>
-                  <Select
-                    value={segmentId || "none"}
-                    onValueChange={(v) => setSegmentId(v === "none" ? "" : v)}
-                  >
-                    <SelectTrigger size="sm" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Whole day</SelectItem>
-                      {daySegments.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Segment</Label>
+                <Select
+                  value={segmentId || "none"}
+                  onValueChange={(v) => setSegmentId(v === "none" ? "" : v)}
+                  disabled={daySegments.length === 0}
+                >
+                  <SelectTrigger size="sm" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Whole day</SelectItem>
+                    {daySegments.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-1.5">
