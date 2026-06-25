@@ -144,8 +144,21 @@ const InvitationView = ({
                   </motion.div>
                 );
               })}
+              {isSuperAdmin && (
+                <motion.div
+                  key="bespoke"
+                  custom={ordered.length}
+                  variants={itemFadeUp}
+                  initial="hidden"
+                  animate="show"
+                  exit="hidden"
+                  layout
+                  transition={{ layout: { duration: 0.4, ease: "easeInOut" } }}
+                >
+                  <BespokeInvitationCard />
+                </motion.div>
+              )}
             </AnimatePresence>
-            {isSuperAdmin && <BespokeInvitationCard />}
           </div>
         </div>
       </ComponentFade>
