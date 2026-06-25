@@ -1,22 +1,33 @@
 import { useInvitationsQuery } from "./queries";
 import InvitationHeader from "./components/InvitationHeader";
-import Hub from "./components/Hub";
+import InvitationView from "./components/InvitationView";
+import InvitationSheet from "./components/InvitationSheet";
+import BespokeRequestModal from "./modals/BespokeRequestModal";
 import Container from "@/components/custom/container";
 
 const Invitation = () => {
-  const query = useInvitationsQuery();
+  const { data, isLoading, isError, isRefetching, refetch } =
+    useInvitationsQuery();
 
   return (
     <>
       <InvitationHeader
-        isLoading={query.isLoading}
-        isError={query.isError}
-        isRefetching={query.isRefetching}
-        refetch={query.refetch}
+        isLoading={isLoading}
+        isError={isError}
+        isRefetching={isRefetching}
+        refetch={refetch}
       />
       <Container pageSpacing>
-        <Hub />
+        <InvitationView
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+          isRefetching={isRefetching}
+          refetch={refetch}
+        />
       </Container>
+      <InvitationSheet />
+      <BespokeRequestModal />
     </>
   );
 };

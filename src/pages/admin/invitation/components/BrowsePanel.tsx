@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check } from "lucide-react";
 import { parseISO, format } from "date-fns";
 import SubmitButton from "@/components/custom/form/SubmitButton";
 import { Separator } from "@/components/ui/separator";
@@ -15,6 +14,10 @@ import {
 import { cn } from "@/lib/utils";
 import { themeRegistry } from "@/pages/wedding/templates";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useAccess } from "@/pages/admin/hooks/useAccess";
+import { ScrollView } from "@/components/custom/scroll-view";
+import TemplateCard from "./TemplateCard";
+import BespokeTemplateCard from "./BespokeTemplateCard";
 import { dayLabel } from "../../days/utils";
 import { useEventDaysQuery } from "../../days/queries";
 import {
@@ -43,6 +46,7 @@ const slugify = (s: string) =>
 // pane (right) renders it.
 const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
   const { slug } = useAdminStore();
+  const { isSuperAdmin } = useAccess();
   const { data: templates } = useTemplatesQuery();
   const { data: days } = useEventDaysQuery();
   const { data: segments } = useEventSegmentsQuery();
@@ -82,7 +86,8 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
 
   // Drop a segment selection that doesn't belong to the newly chosen day.
   useEffect(() => {
-    if (segmentId && !daySegments.some((s) => s.id === segmentId)) setSegmentId("");
+    if (segmentId && !daySegments.some((s) => s.id === segmentId))
+      setSegmentId("");
   }, [daySegments, segmentId]);
 
   // The label the link path derives from: the segment name, else the day label.
@@ -123,50 +128,40 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
 
   return (
     <div className="flex flex-col min-h-0 h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {usable.length === 0 && (
-          <p className="text-sm text-muted-foreground px-1 py-6">
-            No templates available yet.
-          </p>
-        )}
-        {usable.map((t) => {
-          const isSel = selected?.template_key === t.template_key;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => onSelect(t.template_key)}
-              className={cn(
-                "w-full text-left flex items-center gap-3 rounded-lg border p-2.5 cursor-pointer transition-colors",
-                isSel
-                  ? "border-primary ring-3 ring-primary/20"
-                  : "border-border hover:border-primary/50",
-              )}
-            >
-              <div className="size-14 shrink-0 rounded-md bg-linear-to-b from-primary/20 to-secondary/15 grid place-items-center font-display text-sm text-foreground/70">
-                {t.name.slice(0, 2)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-medium font-display truncate">
-                  {t.name}
-                </h4>
-                {t.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-1">
-                    {t.description}
-                  </p>
-                )}
-              </div>
-              {isSel && <Check className="size-4 text-primary shrink-0" />}
-            </button>
-          );
-        })}
+      <div className="flex-1 min-h-0">
+        <ScrollView size="thin" gradientTop gradientBottom>
+          <div className="p-4 space-y-2">
+            {usable.length === 0 && (
+              <p className="text-sm text-muted-foreground px-1 py-6">
+                No templates available yet.
+              </p>
+            )}
+            {usable.map((t) => (
+              <TemplateCard
+                key={t.id}
+                template={t}
+                isSelected={selected?.template_key === t.template_key}
+                onSelect={() => onSelect(t.template_key)}
+              />
+            ))}
+          </div>
+        </ScrollView>
       </div>
+
+      {isSuperAdmin && (
+        <>
+          <Separator />
+          <div className="px-4 py-3 bg-background">
+            <BespokeTemplateCard />
+          </div>
+        </>
+      )}
 
       {selected && (
         <>
           <Separator />
-          <div className="p-4 space-y-3 bg-background">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="@container p-4 space-y-3 bg-background">
+            <div className="grid grid-cols-1 @md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Day</Label>
                 <Select value={dayId} onValueChange={setDayId}>
@@ -176,34 +171,34 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
                   <SelectContent>
                     {dayList.map((d, i) => (
                       <SelectItem key={d.id} value={d.id}>
-                        {dayLabel(d.label, i)} · {format(parseISO(d.date), "d MMM")}
+                        {dayLabel(d.label, i)} ·{" "}
+                        {format(parseISO(d.date), "d MMM")}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {daySegments.length > 0 && (
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Segment</Label>
-                  <Select
-                    value={segmentId || "none"}
-                    onValueChange={(v) => setSegmentId(v === "none" ? "" : v)}
-                  >
-                    <SelectTrigger size="sm" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Whole day</SelectItem>
-                      {daySegments.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              <div className="space-y-1.5">
+                <Label className="text-xs">Segment</Label>
+                <Select
+                  value={segmentId || "none"}
+                  onValueChange={(v) => setSegmentId(v === "none" ? "" : v)}
+                  disabled={daySegments.length === 0}
+                >
+                  <SelectTrigger size="sm" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Whole day</SelectItem>
+                    {daySegments.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-1.5">
