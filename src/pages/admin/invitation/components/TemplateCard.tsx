@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Template } from "../types";
 
@@ -33,7 +34,19 @@ const TemplateCard = ({ template, isSelected, onSelect }: TemplateCardProps) => 
         </p>
       )}
     </div>
-    {isSelected && <Check className="size-4 text-primary shrink-0" />}
+    <AnimatePresence>
+      {isSelected && (
+        <motion.div
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: 16, opacity: 1 }}
+          exit={{ width: 0, opacity: 0 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="overflow-hidden shrink-0 flex items-center justify-center"
+        >
+          <Check className="size-4 text-primary" />
+        </motion.div>
+      )}
+    </AnimatePresence>
   </button>
 );
 
