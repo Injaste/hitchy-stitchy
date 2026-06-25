@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { themeRegistry } from "@/pages/wedding/templates";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useAccess } from "@/pages/admin/hooks/useAccess";
+import { ScrollView } from "@/components/custom/scroll-view";
 import TemplateCard from "./TemplateCard";
 import BespokeTemplateCard from "./BespokeTemplateCard";
 import { dayLabel } from "../../days/utils";
@@ -85,7 +86,8 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
 
   // Drop a segment selection that doesn't belong to the newly chosen day.
   useEffect(() => {
-    if (segmentId && !daySegments.some((s) => s.id === segmentId)) setSegmentId("");
+    if (segmentId && !daySegments.some((s) => s.id === segmentId))
+      setSegmentId("");
   }, [daySegments, segmentId]);
 
   // The label the link path derives from: the segment name, else the day label.
@@ -126,20 +128,24 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
 
   return (
     <div className="flex flex-col min-h-0 h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {usable.length === 0 && (
-          <p className="text-sm text-muted-foreground px-1 py-6">
-            No templates available yet.
-          </p>
-        )}
-        {usable.map((t) => (
-          <TemplateCard
-            key={t.id}
-            template={t}
-            isSelected={selected?.template_key === t.template_key}
-            onSelect={() => onSelect(t.template_key)}
-          />
-        ))}
+      <div className="flex-1 min-h-0">
+        <ScrollView size="thin" gradientTop gradientBottom>
+          <div className="p-4 space-y-2">
+            {usable.length === 0 && (
+              <p className="text-sm text-muted-foreground px-1 py-6">
+                No templates available yet.
+              </p>
+            )}
+            {usable.map((t) => (
+              <TemplateCard
+                key={t.id}
+                template={t}
+                isSelected={selected?.template_key === t.template_key}
+                onSelect={() => onSelect(t.template_key)}
+              />
+            ))}
+          </div>
+        </ScrollView>
       </div>
 
       {isSuperAdmin && (
@@ -165,7 +171,8 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
                   <SelectContent>
                     {dayList.map((d, i) => (
                       <SelectItem key={d.id} value={d.id}>
-                        {dayLabel(d.label, i)} · {format(parseISO(d.date), "d MMM")}
+                        {dayLabel(d.label, i)} ·{" "}
+                        {format(parseISO(d.date), "d MMM")}
                       </SelectItem>
                     ))}
                   </SelectContent>
