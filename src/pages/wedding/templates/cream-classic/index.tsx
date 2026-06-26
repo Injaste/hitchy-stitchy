@@ -668,7 +668,7 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
           className="relative max-w-lg mx-auto rounded-sm border border-(--cl-accent)/40 bg-(--cl-card)/85 p-8 sm:p-10 text-center shadow-sm"
         >
           <CornerSprig className="absolute top-3 left-3 opacity-70" />
-          <CornerSprig className="absolute bottom-3 right-3 opacity-70" flip />
+          <CornerSprig className="absolute bottom-3 right-3 opacity-70 -scale-100" />
           <motion.div
             variants={fadeIn(0)}
             className="flex justify-center mb-5 text-(--cl-primary)/70"
