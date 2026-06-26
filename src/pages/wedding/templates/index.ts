@@ -209,5 +209,3 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     anchors: creamClassicAnchors,
   },
 }
-
-export const FallbackTheme = UniqueMuslim
