@@ -13,7 +13,7 @@ SELECT
   '{
     "groom_name": "Daniel",
     "bride_name": "Grace",
-    "font_couple": null, "font_heading": null, "font_body": null,
+    "font_couple": "Great Vibes", "font_heading": "Cormorant Garamond", "font_body": "EB Garamond",
     "event_date": "2026-07-16",
     "event_time_start": "15:00",
     "greeting": "You are invited to celebrate the wedding of",
