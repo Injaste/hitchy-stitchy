@@ -78,6 +78,11 @@ import * as creamClassicForm from "./cream-classic/form"
 import { creamClassicSchema } from "./cream-classic/types"
 import { creamClassicAnchors } from "./cream-classic/anchors"
 
+import BlackLuxury from "./black-luxury"
+import * as blackLuxuryForm from "./black-luxury/form"
+import { blackLuxurySchema } from "./black-luxury/types"
+import { blackLuxuryAnchors } from "./black-luxury/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -207,5 +212,12 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(creamClassicForm),
     schema: creamClassicSchema as ThemeRegistryEntry["schema"],
     anchors: creamClassicAnchors,
+  },
+  "black-luxury": {
+    component: BlackLuxury,
+    defaultConfig: { slug: "black-luxury" },
+    form: formFor(blackLuxuryForm),
+    schema: blackLuxurySchema as ThemeRegistryEntry["schema"],
+    anchors: blackLuxuryAnchors,
   },
 }

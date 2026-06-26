@@ -1,0 +1,38 @@
+/* black-luxury — slug-owned stylesheet (matte black + cream line-art + wax seal).
+   Consumes the font CSS variables set on .bl-root by the slug component. */
+
+.bl-root {
+  font-family: var(--theme-font-body);
+
+  --bl-bg:           #111114;
+  --bl-bg-2:         #17171b;
+  --bl-fg:           #e7e1d5;
+  --bl-muted-fg:     #9c9484;
+  --bl-primary:      #f6f1e6;
+  --bl-primary-deep: #fffaf0;
+  --bl-accent:       #b4ab97;
+  --bl-emboss:       #cfc7b6;
+  --bl-border:       #2b2b30;
+  --bl-card:         #18181c;
+  --bl-on-primary:   #14141a;
+  --bl-destructive:  #cf8a7e;
+
+  --bl-seal:         #e7e0d2;
+}
+
+.bl-root h1,
+.bl-root h2,
+.bl-root h3,
+.bl-root h4,
+.bl-root h5,
+.bl-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.bl-root .bl-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.bl-root .bl-countdown-number {
+  font-family: var(--theme-font-number);
+}
