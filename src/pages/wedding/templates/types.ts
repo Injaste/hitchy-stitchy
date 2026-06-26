@@ -14,6 +14,7 @@ import type { MehndiIndianPageConfig } from "./mehndi-indian/types"
 import type { MughalIndianPageConfig } from "./mughal-indian/types"
 import type { TempleIndianPageConfig } from "./temple-indian/types"
 import type { LotusIndianPageConfig } from "./lotus-indian/types"
+import type { CreamClassicPageConfig } from "./cream-classic/types"
 import type {
   RSVPFormClassNames,
   RSVPFormLabels,
@@ -93,6 +94,7 @@ export type ThemeConfig =
   | MughalIndianPageConfig
   | TempleIndianPageConfig
   | LotusIndianPageConfig
+  | CreamClassicPageConfig
   | { slug?: null | undefined }
 
 export type ThemeConfigFor<TSlug extends string> = Extract<ThemeConfig, { slug: TSlug }>
