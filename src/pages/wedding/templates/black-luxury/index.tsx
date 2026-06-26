@@ -277,16 +277,18 @@ const RoseDivider = ({ className = "" }: { className?: string }) => (
   </div>
 );
 
-// ─── Formal engraved date — spelled out, black-tie style (its own, not cream's
-//     numeric divided-bar treatment).
-const DAY_ORDINALS = [
-  "", "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh",
-  "Eighth", "Ninth", "Tenth", "Eleventh", "Twelfth", "Thirteenth", "Fourteenth",
-  "Fifteenth", "Sixteenth", "Seventeenth", "Eighteenth", "Nineteenth", "Twentieth",
-  "Twenty-First", "Twenty-Second", "Twenty-Third", "Twenty-Fourth", "Twenty-Fifth",
-  "Twenty-Sixth", "Twenty-Seventh", "Twenty-Eighth", "Twenty-Ninth", "Thirtieth",
-  "Thirty-First",
-];
+// ─── Formal engraved date — "the 10th of October", black-tie style (its own,
+//     not cream's numeric divided-bar treatment). Ordinal is computed, not a table.
+const ORDINAL_PR = new Intl.PluralRules("en", { type: "ordinal" });
+const ORDINAL_SUFFIX: Record<Intl.LDMLPluralRule, string> = {
+  zero: "th",
+  one: "st",
+  two: "nd",
+  few: "rd",
+  many: "th",
+  other: "th",
+};
+const ordinal = (n: number) => `${n}${ORDINAL_SUFFIX[ORDINAL_PR.select(n)]}`;
 
 const FormalDate = ({ iso }: { iso: string | null | undefined }) => {
   if (!iso) return null;
@@ -294,14 +296,13 @@ const FormalDate = ({ iso }: { iso: string | null | undefined }) => {
   if (Number.isNaN(d.getTime())) return null;
   const weekday = d.toLocaleDateString("en-GB", { weekday: "long" });
   const month = d.toLocaleDateString("en-GB", { month: "long" });
-  const day = DAY_ORDINALS[d.getDate()] ?? String(d.getDate());
   return (
     <div className="flex flex-col items-center gap-3 text-(--bl-primary)">
       <span className="text-2xs uppercase tracking-[0.45em] text-(--bl-accent)">
         {weekday}
       </span>
       <span className="text-2xl sm:text-3xl italic leading-tight">
-        the {day} of {month}
+        the {ordinal(d.getDate())} of {month}
       </span>
       <span className="text-sm tracking-[0.4em] tabular-nums text-(--bl-muted-fg)">
         {d.getFullYear()}
