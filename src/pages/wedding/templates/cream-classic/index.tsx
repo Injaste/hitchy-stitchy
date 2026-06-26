@@ -127,41 +127,41 @@ const HeroCornerFloral = ({ className = "" }: { className?: string }) => (
       <g transform="translate(30,116) scale(0.7)">
         <path d={ROSE} />
       </g>
-      {/* leaves */}
-      <g transform="translate(82,26) rotate(16)">
+      {/* leaves — pulled out to hug the top and left edges (right-angle frame) */}
+      <g transform="translate(82,15) rotate(16)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(26,82) rotate(74)">
+      <g transform="translate(15,82) rotate(74)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(70,48) rotate(-16)">
+      <g transform="translate(74,18) rotate(-16)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(48,70) rotate(62)">
+      <g transform="translate(18,74) rotate(62)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(104,20) rotate(8)">
+      <g transform="translate(106,13) rotate(8)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(20,104) rotate(82)">
+      <g transform="translate(13,106) rotate(82)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(34,24) rotate(33)">
+      <g transform="translate(36,14) rotate(33)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(24,34) rotate(54)">
+      <g transform="translate(14,36) rotate(54)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(56,40) rotate(2)">
+      <g transform="translate(60,16) rotate(2)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(40,56) rotate(78)">
+      <g transform="translate(16,60) rotate(78)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(128,40) rotate(20)">
+      <g transform="translate(124,15) rotate(20)">
         <path d={LEAF} />
       </g>
-      <g transform="translate(40,128) rotate(70)">
+      <g transform="translate(15,124) rotate(70)">
         <path d={LEAF} />
       </g>
       {/* buds */}
@@ -211,6 +211,56 @@ const Rose = ({
     <path d="M11.4 12 c -2.2 3 -5.6 4 -8.4 3" />
     <path d="M12.6 12 c 2.2 3 5.6 4 8.4 3" />
     <path d="M12 11.5 l 0 7" />
+  </svg>
+);
+
+// Wax-seal stamp — a warm wax disc with an engraved double-ring border and a
+// small rose posy pressed into it, using the theme's own hero rose/leaf shapes
+// so it matches the floral. Cream's own; black uses a blossom.
+const WaxSeal = ({
+  size = 60,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) => (
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    aria-hidden="true"
+    className={className}
+  >
+    <circle cx="32" cy="32" r="27" fill="var(--cl-seal)" />
+    <circle cx="32" cy="32" r="27" fill="none" stroke="var(--cl-primary)" strokeWidth="1" opacity="0.5" />
+    <circle cx="32" cy="32" r="22.5" fill="none" stroke="var(--cl-primary)" strokeWidth="0.6" opacity="0.3" />
+    <g
+      transform="translate(32,32)"
+      fill="none"
+      stroke="var(--cl-primary)"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      opacity="0.72"
+    >
+      <g transform="translate(0,0) scale(1.15)">
+        {[0, 72, 144, 216, 288].map((a) => (
+          <path
+            key={`op${a}`}
+            d="M0 0 C -3.6 -3 -3.6 -8.5 0 -10.5 C 3.6 -8.5 3.6 -3 0 0 Z"
+            transform={`rotate(${a})`}
+          />
+        ))}
+        {[36, 108, 180, 252, 324].map((a) => (
+          <path
+            key={`ip${a}`}
+            d="M0 0 C -2.4 -2 -2.4 -5.6 0 -7 C 2.4 -5.6 2.4 -2 0 0 Z"
+            transform={`rotate(${a})`}
+          />
+        ))}
+        <path d="M0 0 C 1.4 -0.4 1.8 1 0.9 1.9 C 0 2.6 -1.8 1.8 -1.8 0.2" />
+      </g>
+    </g>
   </svg>
 );
 
@@ -423,7 +473,7 @@ const Preloader = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Rose size={68} />
+            <WaxSeal size={80} />
           </motion.div>
         </motion.div>
       )}
@@ -843,7 +893,7 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
               variants={fadeIn(0)}
               className="flex justify-center mb-5 text-(--cl-primary)/70"
             >
-              <Rose size={28} />
+              <WaxSeal size={56} />
             </motion.div>
             <motion.p
               variants={fadeUp(0.1, 10, 0.6)}
