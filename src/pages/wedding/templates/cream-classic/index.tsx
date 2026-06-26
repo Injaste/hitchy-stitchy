@@ -599,10 +599,10 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         id="hero"
         className="relative min-h-svh flex flex-col items-center justify-center text-center px-6 py-20 overflow-hidden"
       >
-        <HeroCornerFloral className="absolute top-3 left-3 opacity-90" />
-        <HeroCornerFloral className="absolute top-3 right-3 opacity-90 -scale-x-100" />
-        <HeroCornerFloral className="absolute bottom-3 left-3 opacity-90 -scale-y-100" />
-        <HeroCornerFloral className="absolute bottom-3 right-3 opacity-90 -scale-100" />
+        <HeroCornerFloral className="absolute top-0 left-0 opacity-90" />
+        <HeroCornerFloral className="absolute top-0 right-0 opacity-90 -scale-x-100" />
+        <HeroCornerFloral className="absolute bottom-0 left-0 opacity-90 -scale-y-100" />
+        <HeroCornerFloral className="absolute bottom-0 right-0 opacity-90 -scale-100" />
         <motion.div
           initial="hidden"
           animate={ready ? "show" : "hidden"}
@@ -631,7 +631,7 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
           </motion.p>
           <motion.h1
             variants={heroMake(1.0, 22, 1)}
-            className="cl-couple-names sm:text-6xl text-(--cl-primary) leading-none"
+            className="cl-couple-names text-5xl sm:text-6xl text-(--cl-primary) leading-none"
           >
             {config.bride_name}
           </motion.h1>
