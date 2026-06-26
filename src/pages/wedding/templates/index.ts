@@ -73,6 +73,11 @@ import * as lotusIndianForm from "./lotus-indian/form"
 import { lotusIndianSchema } from "./lotus-indian/types"
 import { lotusIndianAnchors } from "./lotus-indian/anchors"
 
+import CreamClassic from "./cream-classic"
+import * as creamClassicForm from "./cream-classic/form"
+import { creamClassicSchema } from "./cream-classic/types"
+import { creamClassicAnchors } from "./cream-classic/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -196,6 +201,11 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     schema: lotusIndianSchema as ThemeRegistryEntry["schema"],
     anchors: lotusIndianAnchors,
   },
+  "cream-classic": {
+    component: CreamClassic,
+    defaultConfig: { slug: "cream-classic" },
+    form: formFor(creamClassicForm),
+    schema: creamClassicSchema as ThemeRegistryEntry["schema"],
+    anchors: creamClassicAnchors,
+  },
 }
-
-export const FallbackTheme = UniqueMuslim
