@@ -45,24 +45,12 @@ const AnchorDock = ({
   const [calOpen, setCalOpen] = useState(false)
   const [mapOpen, setMapOpen] = useState(false)
 
-  // react-frame-component runs component code in the parent window's JS
-  // context, so `document` refers to the admin page — not the iframe's
-  // document. If hero is not found we're in a preview iframe; default to
-  // showing the anchor instead of waiting for an observer that never fires.
-  const [heroMostlyVisible, setHeroMostlyVisible] = useState(true)
+  const [visible, setVisible] = useState(false)
   useEffect(() => {
-    const hero = document.getElementById("hero")
-    if (!hero) {
-      setHeroMostlyVisible(false)
-      return
-    }
-    const obs = new IntersectionObserver(
-      ([e]) => setHeroMostlyVisible(e.isIntersecting),
-      { threshold: 0.8 },
-    )
-    obs.observe(hero)
-    return () => obs.disconnect()
-  }, [])
+    if (!ready) return
+    const t = setTimeout(() => setVisible(true), 1000)
+    return () => clearTimeout(t)
+  }, [ready])
 
   const start = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_start)
   const end = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_end)
@@ -94,7 +82,7 @@ const AnchorDock = ({
   return (
     <>
       <AnchorBar
-        visible={ready && !heroMostlyVisible}
+        visible={visible}
         items={items}
         classNames={classNames}
         labels={labels}
