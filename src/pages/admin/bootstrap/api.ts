@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { AdminBootstrapContext } from "../types";
+import type { PlanTierRow } from "../plan/plan-config";
 import { isSuperAdmin } from "./utils";
 
 export async function fetchBootstrapContext(
@@ -68,12 +69,16 @@ export async function fetchBootstrapContext(
       name: string;
       price: number | null;
       is_free_tier: boolean;
+      limits: Record<string, number>;
+      features: Record<string, boolean>;
     }>).map((c) => ({
       tier: c.tier,
       rank: c.rank,
       name: c.name,
       price: c.price,
       isFreeTier: c.is_free_tier,
+      limits: c.limits as PlanTierRow["limits"],
+      features: c.features as PlanTierRow["features"],
     })),
   };
 }

@@ -11,16 +11,8 @@ export interface PlanContext {
   activatedAt: string | null;
   /** true when the event is over its effective countable limits (downgrade lock). */
   isOverPlanLimits: boolean;
-  /** Countable caps (the meters). */
-  limits: {
-    maxDays: number;
-    maxSegmentsPerDay: number;
-    maxInvitationPages: number;
-    maxGuests: number;
-    maxMembers: number;
-    maxGifts: number;
-    maxExpenses: number;
-  };
+  /** Countable caps, keyed by cap field (the meters + the upgrade diff). */
+  limits: Record<import("./plan/plan-config").PlanCap, number>;
   /** Per-feature access — a map keyed by feature (DB-driven; drives canUseFeature). */
   features: Record<import("./plan/plan-config").PlanFeature, boolean>;
   /** Current usage for meters (guests = active, non-cancelled). */

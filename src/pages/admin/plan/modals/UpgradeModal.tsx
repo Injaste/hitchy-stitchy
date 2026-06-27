@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { AlertTriangle, Check, Sparkles } from "lucide-react";
 
 import {
@@ -13,31 +12,53 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { usePlan } from "../../hooks/usePlan";
-import { PLAN_METERS, planSupportHref } from "../plan-config";
-import { usePublicPlanQuery } from "../queries";
+import {
+  PLAN_METERS,
+  PLAN_FEATURES,
+  PLAN_CAP_LABELS,
+  planSupportHref,
+} from "../plan-config";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
-import { formatPrice } from "../utils";
 
-/** The pay-to-upgrade surface, opened from the limit-reached banner. Lists the
- *  caps that triggered it, pitches the NEXT tier up (name + price from the DB
- *  catalog), and discloses its price. Three contexts:
- *    top      — already on the highest tier: no upsell, route to support
+/** The upgrade surface, opened from the limit-reached banner. Lists the caps that
+ *  triggered it, then shows exactly what the NEXT tier changes — features it
+ *  unlocks and caps it raises (current → next) — all from the bootstrapped catalog.
+ *  No price is shown anywhere (pricing isn't live yet). Three contexts:
+ *    top      — already on the highest tier: route to support
  *    over     — content exceeds the current plan (downgrade lock) but a tier up exists
- *    upgrade  — at a cap, a higher tier exists
- *  Payment itself is wired last (Stripe) — for now the CTA is honestly marked
- *  "coming soon". Reused later by the pending-activation flow. */
+ *    upgrade  — at a cap, a higher tier exists */
 const UpgradeModal = () => {
   const { isOpen, close } = useUpgradeModalStore();
-  const { isOverPlanLimits, canUpgrade, nextTier, reachedLimits, meter } =
-    usePlan();
+  const {
+    isOverPlanLimits,
+    canUpgrade,
+    nextTier,
+    reachedLimits,
+    meter,
+    limits: currentLimits,
+    canUseFeature,
+  } = usePlan();
 
-  // The next tier's full row (perks: caps + features) — fetched only when needed.
-  // Its name + price come from the catalog (nextTier), so they show immediately.
-  const { data: target } = usePublicPlanQuery(
-    nextTier?.tier ?? "",
-    isOpen && canUpgrade,
-  );
   const nextName = nextTier?.name ?? "";
+
+  // What the next tier ADDS vs the current plan — straight from the catalog.
+  // (`?.limits/features != null` guards the brief window where the frontend is
+  // live but the catalog-enriching migration isn't applied yet.)
+  const unlocked =
+    nextTier?.features != null
+      ? PLAN_FEATURES.filter((f) => nextTier.features[f.key] && !canUseFeature(f.key))
+      : [];
+  const raised =
+    nextTier?.limits != null
+      ? PLAN_CAP_LABELS.filter((c) => nextTier.limits[c.key] > currentLimits[c.key]).map(
+          (c) => ({
+            label: c.label,
+            from: currentLimits[c.key],
+            to: nextTier.limits[c.key],
+          }),
+        )
+      : [];
+  const hasDiff = unlocked.length > 0 || raised.length > 0;
 
   const state = !canUpgrade ? "top" : isOverPlanLimits ? "over" : "upgrade";
   const copy = {
@@ -55,28 +76,13 @@ const UpgradeModal = () => {
     },
     upgrade: {
       title: `Upgrade to ${nextName}`,
-      description: `You've reached your plan's limits. Upgrade to ${nextName} to keep going.`,
+      description: `You've reached your plan's limits. Here's what ${nextName} gives you.`,
       note: undefined as string | undefined,
     },
   }[state];
 
   const labelFor = (r: (typeof reachedLimits)[number]) =>
     PLAN_METERS.find((m) => m.resource === r)?.label ?? r;
-
-  const perks = useMemo(() => {
-    if (!target) return [];
-    const items = [
-      `Up to ${target.maxGuests} guests`,
-      `Up to ${target.maxDays} event days`,
-      `Up to ${target.maxSegmentsPerDay} segments per day`,
-      `Up to ${target.maxInvitationPages} invitation pages`,
-      `Up to ${target.maxMembers} team members`,
-    ];
-    if (target.canUseBudget) items.push("Budget tracker");
-    if (target.canUseGifts) items.push("Gift envelopes");
-    if (target.canRemoveBranding) items.push("Remove Hitchy Stitchy branding");
-    return items;
-  }, [target]);
 
   return (
     <Dialog
@@ -97,43 +103,66 @@ const UpgradeModal = () => {
         <DialogBody>
           <div className="space-y-4">
             {/* What's capped right now */}
-            <div className="space-y-2">
-              {reachedLimits.map((r) => {
-                const m = meter(r);
-                return (
-                  <div
-                    key={r}
-                    className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-sm"
-                  >
-                    <AlertTriangle className="size-3.5 shrink-0 text-warning" />
-                    <span className="font-medium text-foreground">
-                      {labelFor(r)}
-                    </span>
-                    <span className="ml-auto font-semibold text-warning">
-                      {m.used}/{m.max}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* The next-tier pitch (upgrade case only) */}
-            {canUpgrade && perks.length > 0 && (
-              <div className="rounded-xl border border-border p-4">
-                <p className="mb-3 text-sm font-semibold text-foreground">
-                  What you get with {nextName}
-                </p>
-                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {perks.map((p) => (
-                    <li
-                      key={p}
-                      className="flex items-center gap-2 text-sm text-muted-foreground"
+            {reachedLimits.length > 0 && (
+              <div className="space-y-2">
+                {reachedLimits.map((r) => {
+                  const m = meter(r);
+                  return (
+                    <div
+                      key={r}
+                      className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-sm"
                     >
-                      <Check className="size-3.5 shrink-0 text-primary" />
-                      {p}
-                    </li>
-                  ))}
-                </ul>
+                      <AlertTriangle className="size-3.5 shrink-0 text-warning" />
+                      <span className="font-medium text-foreground">
+                        {labelFor(r)}
+                      </span>
+                      <span className="ml-auto font-semibold text-warning">
+                        {m.used}/{m.max}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* What the next tier adds (upgrade case only) */}
+            {canUpgrade && hasDiff && (
+              <div className="space-y-3 rounded-xl border border-border p-4">
+                <p className="text-sm font-semibold text-foreground">
+                  What {nextName} adds
+                </p>
+
+                {unlocked.length > 0 && (
+                  <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {unlocked.map((f) => (
+                      <li
+                        key={f.key}
+                        className="flex items-center gap-2 text-sm text-muted-foreground"
+                      >
+                        <Check className="size-3.5 shrink-0 text-primary" />
+                        {f.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {raised.length > 0 && (
+                  <ul className="space-y-1.5">
+                    {raised.map((c) => (
+                      <li
+                        key={c.label}
+                        className="flex items-center justify-between gap-2 text-sm"
+                      >
+                        <span className="text-muted-foreground">{c.label}</span>
+                        <span className="font-medium tabular-nums text-foreground">
+                          {c.from}
+                          <span className="mx-1.5 text-muted-foreground">→</span>
+                          {c.to}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
 
@@ -145,9 +174,7 @@ const UpgradeModal = () => {
 
             {canUpgrade && (
               <p className="text-center text-xs text-muted-foreground">
-                {nextTier?.price != null
-                  ? "Online payment is being set up — coming soon."
-                  : "Pricing coming soon."}
+                Online upgrades are coming soon.
               </p>
             )}
           </div>
@@ -156,9 +183,7 @@ const UpgradeModal = () => {
         {canUpgrade ? (
           <DialogFooter>
             <Button className="w-full" disabled>
-              {nextTier?.price != null
-                ? `Upgrade · ${formatPrice(nextTier.price)}`
-                : `Upgrade to ${nextName}`}
+              Upgrade to {nextName}
             </Button>
           </DialogFooter>
         ) : (

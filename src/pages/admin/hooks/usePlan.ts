@@ -69,6 +69,8 @@ export function usePlan() {
     isOverPlanLimits,
     isReachedPlanLimits,
     canUseFeature,
+    /** Current countable caps (keyed) — for the upgrade diff. */
+    limits: plan.limits,
     meter,
     reachedLimits,
   };

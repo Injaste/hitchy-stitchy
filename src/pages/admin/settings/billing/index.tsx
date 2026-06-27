@@ -26,18 +26,10 @@ interface Receipt {
   status: string;
 }
 
-/** Placeholder receipts. Real history comes in Phase E from event_purchases via a
- *  gated get_event_purchases read-RPC (the table is service-role only) — never a
- *  direct client select. Shape mirrors the eventual row. */
-const MOCK_RECEIPTS: Receipt[] = [
-  {
-    id: "inv_0001",
-    date: "12 Jun 2026",
-    description: "Starter plan · event activation",
-    amount: "S$50.00",
-    status: "Paid",
-  },
-];
+/** Real history comes in Phase E from event_purchases via a gated
+ *  get_event_purchases read-RPC (the table is service-role only) — never a direct
+ *  client select. Empty until then (no placeholder amounts — pricing isn't live). */
+const MOCK_RECEIPTS: Receipt[] = [];
 
 /** Settings → Billing. Super-admin-only (gated at the tab). Plan status + usage
  *  + receipts; upgrade routes through the shared UpgradeModal. */
