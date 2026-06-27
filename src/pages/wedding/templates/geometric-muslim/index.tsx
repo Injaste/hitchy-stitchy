@@ -681,7 +681,7 @@ const GeometricMuslim = ({
             transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
           >
             <img
-              src="/images/weddings/gold-flower-1.png"
+              src="/images/weddings/gold-flower-border-1.png"
               alt=""
               className={`w-64 ${{ tl: "-scale-x-100 -scale-y-100", tr: "-scale-y-100", bl: "-scale-x-100", br: "" }[corner]}`}
             />

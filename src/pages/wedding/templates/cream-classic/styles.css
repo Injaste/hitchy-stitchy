@@ -4,12 +4,12 @@
 .cl-root {
   font-family: var(--theme-font-body);
 
-  --cl-bg:           #f4efe7;
-  --cl-bg-2:         #ece5d8;
+  --cl-bg:           #f3eeea;
+  --cl-bg-2:         #ebe4dd;
   --cl-fg:           #5a4e42;
   --cl-muted-fg:     #8a7d6c;
-  --cl-primary:      #4a3f34;
-  --cl-primary-deep: #382f27;
+  --cl-primary:      #00175e;
+  --cl-primary-deep: #000e3e;
   --cl-accent:       #b9ab97;
   --cl-emboss:       #dcd2bf;
   --cl-border:       #e0d8c8;
@@ -17,7 +17,7 @@
   --cl-on-primary:   #f7f2e9;
   --cl-destructive:  #a3564a;
 
-  --cl-seal:         #d9ccb4;
+  --cl-seal:         #e8dfd0;
 }
 
 .cl-root h1,
