@@ -45,25 +45,24 @@ const AnchorDock = ({
   const [calOpen, setCalOpen] = useState(false)
   const [mapOpen, setMapOpen] = useState(false)
 
-  // In the admin preview the iframe doesn't receive scroll events from the
-  // parent page, so IntersectionObserver never fires. Skip the hero-gate when
-  // running inside an iframe so the anchor is always visible once ready.
-  const isInIframe = window.self !== window.top
+  // react-frame-component runs component code in the parent window's JS
+  // context, so `document` refers to the admin page — not the iframe's
+  // document. If hero is not found we're in a preview iframe; default to
+  // showing the anchor instead of waiting for an observer that never fires.
   const [heroMostlyVisible, setHeroMostlyVisible] = useState(true)
   useEffect(() => {
-    if (isInIframe) {
+    const hero = document.getElementById("hero")
+    if (!hero) {
       setHeroMostlyVisible(false)
       return
     }
-    const hero = document.getElementById("hero")
-    if (!hero) return
     const obs = new IntersectionObserver(
       ([e]) => setHeroMostlyVisible(e.isIntersecting),
       { threshold: 0.8 },
     )
     obs.observe(hero)
     return () => obs.disconnect()
-  }, [isInIframe])
+  }, [])
 
   const start = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_start)
   const end = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_end)
