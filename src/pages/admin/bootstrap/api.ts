@@ -69,7 +69,15 @@ export async function fetchBootstrapContext(
       name: string;
       price: number | null;
       is_free_tier: boolean;
-      limits: Record<string, number>;
+      limits: {
+        max_days: number;
+        max_segments_per_day: number;
+        max_invitation_pages: number;
+        max_guests: number;
+        max_members: number;
+        max_gifts: number;
+        max_expenses: number;
+      };
       features: Record<string, boolean>;
     }>).map((c) => ({
       tier: c.tier,
@@ -77,7 +85,17 @@ export async function fetchBootstrapContext(
       name: c.name,
       price: c.price,
       isFreeTier: c.is_free_tier,
-      limits: c.limits as PlanTierRow["limits"],
+      // Convert snake_case caps → camelCase (same shape as plan.limits) so the
+      // upgrade diff + near-limit checks read the same keys everywhere.
+      limits: {
+        maxDays: c.limits.max_days,
+        maxSegmentsPerDay: c.limits.max_segments_per_day,
+        maxInvitationPages: c.limits.max_invitation_pages,
+        maxGuests: c.limits.max_guests,
+        maxMembers: c.limits.max_members,
+        maxGifts: c.limits.max_gifts,
+        maxExpenses: c.limits.max_expenses,
+      },
       features: c.features as PlanTierRow["features"],
     })),
   };

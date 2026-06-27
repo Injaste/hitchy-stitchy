@@ -1,4 +1,4 @@
-import { AlertTriangle, Check, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 
 import {
   Dialog,
@@ -10,12 +10,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { usePlan } from "../../hooks/usePlan";
 import {
   PLAN_METERS,
   PLAN_FEATURES,
   PLAN_CAP_LABELS,
+  CAP_KEY_FOR,
   planSupportHref,
 } from "../plan-config";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
@@ -33,7 +35,6 @@ const UpgradeModal = () => {
     isOverPlanLimits,
     canUpgrade,
     nextTier,
-    reachedLimits,
     meter,
     limits: currentLimits,
     canUseFeature,
@@ -51,11 +52,19 @@ const UpgradeModal = () => {
   const raised =
     nextTier?.limits != null
       ? PLAN_CAP_LABELS.filter((c) => nextTier.limits[c.key] > currentLimits[c.key]).map(
-          (c) => ({
-            label: c.label,
-            from: currentLimits[c.key],
-            to: nextTier.limits[c.key],
-          }),
+          (c) => {
+            // If this cap has a usage meter, show where you stand (45/50 → 500);
+            // otherwise just the cap raise (50 → 500).
+            const res = PLAN_METERS.find((m) => CAP_KEY_FOR[m.resource] === c.key)
+              ?.resource;
+            return {
+              label: c.label,
+              used: res ? meter(res).used : null,
+              atLimit: res ? meter(res).atLimit : false,
+              from: currentLimits[c.key],
+              to: nextTier.limits[c.key],
+            };
+          },
         )
       : [];
   const hasDiff = unlocked.length > 0 || raised.length > 0;
@@ -76,13 +85,10 @@ const UpgradeModal = () => {
     },
     upgrade: {
       title: `Upgrade to ${nextName}`,
-      description: `You've reached your plan's limits. Here's what ${nextName} gives you.`,
+      description: `See what ${nextName} unlocks for your event.`,
       note: undefined as string | undefined,
     },
   }[state];
-
-  const labelFor = (r: (typeof reachedLimits)[number]) =>
-    PLAN_METERS.find((m) => m.resource === r)?.label ?? r;
 
   return (
     <Dialog
@@ -102,38 +108,48 @@ const UpgradeModal = () => {
 
         <DialogBody>
           <div className="space-y-4">
-            {/* What's capped right now */}
-            {reachedLimits.length > 0 && (
-              <div className="space-y-2">
-                {reachedLimits.map((r) => {
-                  const m = meter(r);
-                  return (
-                    <div
-                      key={r}
-                      className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-sm"
-                    >
-                      <AlertTriangle className="size-3.5 shrink-0 text-warning" />
-                      <span className="font-medium text-foreground">
-                        {labelFor(r)}
-                      </span>
-                      <span className="ml-auto font-semibold text-warning">
-                        {m.used}/{m.max}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* What the next tier adds (upgrade case only) */}
+            {/* One comparison: the metered limits an upgrade raises (with where you
+                stand now), then any features it unlocks. */}
             {canUpgrade && hasDiff && (
-              <div className="space-y-3 rounded-xl border border-border p-4">
-                <p className="text-sm font-semibold text-foreground">
+              <div className="rounded-xl border border-border p-4">
+                <p className="mb-3 text-sm font-semibold text-foreground">
                   What {nextName} adds
                 </p>
 
+                {raised.length > 0 && (
+                  <ul className="divide-y divide-border/60">
+                    {raised.map((c) => (
+                      <li
+                        key={c.label}
+                        className="flex items-center justify-between gap-3 py-2 text-sm first:pt-0 last:pb-0"
+                      >
+                        <span className="text-muted-foreground">{c.label}</span>
+                        <span className="flex items-center gap-2 tabular-nums">
+                          <span
+                            className={cn(
+                              "font-medium",
+                              c.atLimit ? "text-warning" : "text-muted-foreground",
+                            )}
+                          >
+                            {c.used != null ? `${c.used}/${c.from}` : c.from}
+                          </span>
+                          <ArrowRight className="size-3.5 shrink-0 text-muted-foreground/50" />
+                          <span className="font-semibold text-foreground">
+                            {c.to}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
                 {unlocked.length > 0 && (
-                  <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <ul
+                    className={cn(
+                      "grid grid-cols-1 gap-2 sm:grid-cols-2",
+                      raised.length > 0 && "mt-3 border-t border-border/60 pt-3",
+                    )}
+                  >
                     {unlocked.map((f) => (
                       <li
                         key={f.key}
@@ -141,24 +157,6 @@ const UpgradeModal = () => {
                       >
                         <Check className="size-3.5 shrink-0 text-primary" />
                         {f.label}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {raised.length > 0 && (
-                  <ul className="space-y-1.5">
-                    {raised.map((c) => (
-                      <li
-                        key={c.label}
-                        className="flex items-center justify-between gap-2 text-sm"
-                      >
-                        <span className="text-muted-foreground">{c.label}</span>
-                        <span className="font-medium tabular-nums text-foreground">
-                          {c.from}
-                          <span className="mx-1.5 text-muted-foreground">→</span>
-                          {c.to}
-                        </span>
                       </li>
                     ))}
                   </ul>

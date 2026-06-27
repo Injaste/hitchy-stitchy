@@ -13,6 +13,10 @@ export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
   { resource: "members", label: "Team members" },
 ];
 
+/** Usage ratio at which the upgrade nudge appears — an early warning before the
+ *  hard cap (and only for limits a higher tier actually raises). */
+export const NEAR_LIMIT_RATIO = 0.8;
+
 /** Gated feature modules → display label. Keys match the DB `features` map, in
  *  route order (branding is the non-page perk, last). The booleans come from the
  *  DB — this is only labels. Drives RequirePlan + PlanLockedState + the diff. */
@@ -51,6 +55,15 @@ export const PLAN_CAP_LABELS: { key: PlanCap; label: string }[] = [
   { key: "maxGifts", label: "Gift envelopes" },
   { key: "maxExpenses", label: "Budget expenses" },
 ];
+
+/** Meter resource → its cap key. Single source for "which cap backs this meter" —
+ *  used by the near-limit check (usePlan) and the modal's usage-in-diff row. */
+export const CAP_KEY_FOR: Record<PlanResource, PlanCap> = {
+  guests: "maxGuests",
+  days: "maxDays",
+  pages: "maxInvitationPages",
+  members: "maxMembers",
+};
 
 /** A live tier in the catalog ladder — DB-driven (plans where is_active, ordered
  *  by rank), carrying its caps + features so the client computes the upgrade diff

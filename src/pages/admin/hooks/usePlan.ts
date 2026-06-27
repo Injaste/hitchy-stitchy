@@ -1,6 +1,8 @@
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import {
   PLAN_METERS,
+  NEAR_LIMIT_RATIO,
+  CAP_KEY_FOR,
   tierIndex,
   nextTier as findNextTier,
   type PlanResource,
@@ -43,20 +45,39 @@ export function usePlan() {
     members: plan.limits.maxMembers,
   };
 
-  /** Usage meter for a countable resource. No "unlimited" — every cap is real
-   *  (fair use). */
+  /** A limit is worth nudging only if the NEXT tier actually raises it — otherwise
+   *  upgrading wouldn't help (e.g. Starter & Plus both allow a single day/page, so
+   *  those never nag; only guests, 50→500, does). False at the top tier. */
+  const raisesLimit = (r: PlanResource) =>
+    next !== null && next.limits[CAP_KEY_FOR[r]] > limitFor[r];
+
+  /** Usage meter for a countable resource. `near` = within the soft warning
+   *  threshold of the cap; `atLimit` = at/over it. No "unlimited" (fair use). */
   const meter = (resource: PlanResource) => {
     const used = plan.usage[resource];
     const max = limitFor[resource];
-    return { used, max, atLimit: used >= max, remaining: Math.max(0, max - used) };
+    return {
+      used,
+      max,
+      atLimit: used >= max,
+      near: max > 0 && used >= max * NEAR_LIMIT_RATIO,
+      remaining: Math.max(0, max - used),
+    };
   };
 
-  /** Resources at/over their cap — drives the limit-reached banner + per-feature UX. */
-  const reachedLimits: PlanResource[] = PLAN_METERS.map((m) => m.resource).filter(
-    (r) => meter(r).atLimit,
+  /** Limits nearing/at their cap THAT A HIGHER TIER RAISES — the upgrade-nudge set.
+   *  Empty at the top tier (and for caps an upgrade can't lift), so the banner
+   *  never nags with nothing to sell. */
+  const nearLimits: PlanResource[] = PLAN_METERS.map((m) => m.resource).filter(
+    (r) => raisesLimit(r) && meter(r).near,
   );
-  /** Any countable is at/over its cap. */
-  const isReachedPlanLimits = reachedLimits.length > 0;
+  /** Show the upsell nudge — a reached/approaching limit an upgrade would relieve. */
+  const isNearPlanLimits = nearLimits.length > 0;
+  /** Those actually AT the cap (not just approaching) — drives the modal's
+   *  "capped now" list and the "reached" vs "approaching" copy. Non-raisable caps
+   *  (e.g. Starter's 1-day) are excluded — no point flagging what no tier lifts. */
+  const raisableReachedLimits = nearLimits.filter((r) => meter(r).atLimit);
+  const isAtUpgradableLimit = raisableReachedLimits.length > 0;
 
   return {
     planName: plan.name,
@@ -67,11 +88,11 @@ export function usePlan() {
     nextTier: next,
     isPending,
     isOverPlanLimits,
-    isReachedPlanLimits,
+    isNearPlanLimits,
+    isAtUpgradableLimit,
     canUseFeature,
     /** Current countable caps (keyed) — for the upgrade diff. */
     limits: plan.limits,
     meter,
-    reachedLimits,
   };
 }

@@ -7,16 +7,17 @@ import { usePlan } from "../hooks/usePlan";
 import { useUpgradeModalStore } from "../plan/hooks/useUpgradeModalStore";
 
 /** Sits above the ActiveCueBanner: a compact trigger that opens the upgrade
- *  modal. Two flavours — "at a cap" (isReachedPlanLimits, growth blocked) and the
- *  stronger "over the plan" (isOverPlanLimits, a downgrade that locks editing).
- *  Limits only — activation is a separate concern. Mirrors the cue banner. */
+ *  modal. Three flavours — "approaching" (≥80% of a cap a higher tier raises),
+ *  "at a cap" (100%), and the stronger "over the plan" (isOverPlanLimits, a
+ *  downgrade that locks editing). Limits only — activation is a separate concern. */
 const LimitReachedBanner: FC = () => {
-  const { isReachedPlanLimits, isOverPlanLimits, canUpgrade } = usePlan();
+  const { isNearPlanLimits, isOverPlanLimits, isAtUpgradableLimit, canUpgrade } =
+    usePlan();
   const open = useUpgradeModalStore((s) => s.open);
 
   return (
     <AnimatePresence>
-      {(isOverPlanLimits || (isReachedPlanLimits && canUpgrade)) && (
+      {(isOverPlanLimits || isNearPlanLimits) && (
         <motion.button
           key="limit-banner"
           type="button"
@@ -34,7 +35,11 @@ const LimitReachedBanner: FC = () => {
 
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <span className="shrink-0 font-medium text-warning">
-              {isOverPlanLimits ? "Editing paused" : "Limit reached"}
+              {isOverPlanLimits
+                ? "Editing paused"
+                : isAtUpgradableLimit
+                  ? "Limit reached"
+                  : "Approaching limit"}
             </span>
             <span className="ml-auto shrink-0 text-xs font-medium text-muted-foreground">
               {canUpgrade
