@@ -71,7 +71,7 @@ so it can't be spoofed.
 
 > **Deferred (2026-06-18).** With `legacy` gone, every plan has a finite cap, so
 > `assert_plan` already bounds the DB — there's no unlimited plan to overrun.
-> **Build trigger:** a plan ships with very high / uncapped limits, or a
+> **Build trigger:** a plan goes live with very high / uncapped limits, or a
 > misconfiguration risk appears.
 
 The infrastructure layer: absolute limits that protect the DB **regardless of

@@ -40,228 +40,45 @@ const DEFAULT_FONTS = {
 
 const CONFETTI_COLORS = ["#dcd2bf", "#b9ab97", "#8a7d6c", "#fbf7ef", "#4a3f34"];
 
-// ─── Embossed corner rose sprig ───────────────────────────────────────────────
-
-const CornerSprig = ({
-  className = "",
-  flip = false,
-}: {
-  className?: string;
-  flip?: boolean;
-}) => (
-  <svg
-    viewBox="0 0 64 64"
-    width="64"
-    height="64"
-    aria-hidden="true"
-    className={className}
-    style={flip ? { transform: "scaleX(-1)" } : undefined}
-  >
-    <g
-      fill="none"
-      stroke="var(--cl-emboss)"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M2 30 C 12 26, 20 18, 24 6" />
-      <path d="M30 2 C 26 12, 18 20, 6 24" />
-      <path d="M24 6 c 4 -3 9 0 9 5 c 0 5 -6 7 -10 3 c -4 -4 -2 -11 4 -12" />
-      <path d="M6 24 c -3 4 0 9 5 9 c 5 0 7 -6 3 -10 c -4 -4 -11 -2 -12 4" />
-      <path d="M16 16 c 6 -5 13 -4 17 0 c -4 5 -12 5 -17 0 Z" />
-      <path d="M30 30 c 5 -6 12 -7 17 -3 c -4 5 -12 6 -17 3 Z" />
-    </g>
-  </svg>
-);
-
-// A lush, frame-like floral corner — hero only. Long trailing branches along
-// both edges with a cluster of open roses, leaves, buds and baby's-breath.
-const ROSE =
-  "M0 0 c 4 -3 9 0 9 5 c 0 5 -6 7 -10 3 c -4 -4 -2 -11 4 -12 c 6 -2 13 3 13 10";
-const LEAF = "M0 0 c 6 -5 14 -4 18 1 c -5 5 -13 5 -18 -1 Z";
-
-const HeroCornerFloral = ({ className = "" }: { className?: string }) => (
-  <svg
-    viewBox="0 0 184 184"
-    width="176"
-    height="176"
-    aria-hidden="true"
-    className={className}
-  >
-    <g
-      fill="none"
-      stroke="var(--cl-emboss)"
-      strokeWidth="1.15"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {/* long trailing branches sweep down both edges → a fuller frame */}
-      <path d="M4 118 C 26 98, 40 66, 46 34 C 49 18, 58 9, 80 7" />
-      <path d="M118 4 C 98 26, 66 40, 34 46 C 18 49, 9 58, 7 80" />
-      <path d="M10 44 C 32 50, 48 68, 56 94" />
-      <path d="M44 10 C 50 32, 68 48, 94 56" />
-      <path d="M74 8 C 84 20, 98 24, 116 22" />
-      <path d="M8 74 C 20 84, 24 98, 22 116" />
-      {/* roses — seven, varied size, clustered at the corner and trailing out */}
-      <g transform="translate(38,38) scale(1.7)">
-        <path d={ROSE} />
-      </g>
-      <g transform="translate(66,18) scale(1.1)">
-        <path d={ROSE} />
-      </g>
-      <g transform="translate(18,66) scale(1.1)">
-        <path d={ROSE} />
-      </g>
-      <g transform="translate(94,14) scale(0.85)">
-        <path d={ROSE} />
-      </g>
-      <g transform="translate(14,94) scale(0.85)">
-        <path d={ROSE} />
-      </g>
-      <g transform="translate(62,56) scale(1.2)">
-        <path d={ROSE} />
-      </g>
-      <g transform="translate(116,30) scale(0.7)">
-        <path d={ROSE} />
-      </g>
-      <g transform="translate(30,116) scale(0.7)">
-        <path d={ROSE} />
-      </g>
-      {/* leaves — pulled out to hug the top and left edges (right-angle frame) */}
-      <g transform="translate(82,15) rotate(16)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(15,82) rotate(74)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(74,18) rotate(-16)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(18,74) rotate(62)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(106,13) rotate(8)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(13,106) rotate(82)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(36,14) rotate(33)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(14,36) rotate(54)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(60,16) rotate(2)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(16,60) rotate(78)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(124,15) rotate(20)">
-        <path d={LEAF} />
-      </g>
-      <g transform="translate(15,124) rotate(70)">
-        <path d={LEAF} />
-      </g>
-      {/* buds */}
-      <path d="M118 18 c 5 -1 8 3 6 8 c -5 1 -8 -3 -6 -8 Z" />
-      <path d="M18 118 c -1 5 3 8 8 6 c 1 -5 -3 -8 -8 -6 Z" />
-      <path d="M132 34 c 5 0 7 4 5 9" />
-      <path d="M34 132 c 0 5 4 7 9 5" />
-      {/* baby's-breath filler */}
-      <g fill="var(--cl-emboss)" stroke="none">
-        <circle cx="120" cy="46" r="1.3" />
-        <circle cx="126" cy="52" r="1.2" />
-        <circle cx="118" cy="54" r="1.1" />
-        <circle cx="46" cy="120" r="1.3" />
-        <circle cx="52" cy="126" r="1.2" />
-        <circle cx="54" cy="118" r="1.1" />
-        <circle cx="100" cy="34" r="1.1" />
-        <circle cx="34" cy="100" r="1.1" />
-        <circle cx="78" cy="66" r="1" />
-        <circle cx="66" cy="78" r="1" />
-        <circle cx="138" cy="56" r="1.1" />
-        <circle cx="56" cy="138" r="1.1" />
-      </g>
-    </g>
-  </svg>
-);
-
-const Rose = ({
-  size = 30,
-  className = "",
-}: {
-  size?: number;
-  className?: string;
-}) => (
-  <svg
-    viewBox="0 0 24 24"
-    width={size}
-    height={size}
-    aria-hidden="true"
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.1"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 7 c 2.4 -2 5.4 0 5.4 3.2 c 0 3.2 -4.2 4.4 -6.4 1.2 c -2.2 -3.2 0.2 -7.4 4.4 -7.4" />
-    <path d="M11.4 12 c -2.2 3 -5.6 4 -8.4 3" />
-    <path d="M12.6 12 c 2.2 3 5.6 4 8.4 3" />
-    <path d="M12 11.5 l 0 7" />
-  </svg>
-);
-
-// Wax-seal stamp — a warm wax disc with an engraved double-ring border and a
-// small rose posy pressed into it, using the theme's own hero rose/leaf shapes
-// so it matches the floral. Cream's own; black uses a blossom.
+// ─── Wax-seal stamp ──────────────────────────────────────────────────────────
 const WaxSeal = ({
   size = 60,
+  groomInitial = "",
+  brideInitial = "",
   className = "",
 }: {
   size?: number;
+  groomInitial?: string;
+  brideInitial?: string;
   className?: string;
 }) => (
-  <svg
-    viewBox="0 0 64 64"
-    width={size}
-    height={size}
-    aria-hidden="true"
-    className={className}
+  <div
+    className={cn(
+      "relative rounded-full bg-(--cl-seal) shadow-md shrink-0",
+      className,
+    )}
+    style={{ width: size, height: size }}
   >
-    <circle cx="32" cy="32" r="27" fill="var(--cl-seal)" />
-    <circle cx="32" cy="32" r="27" fill="none" stroke="var(--cl-primary)" strokeWidth="1" opacity="0.5" />
-    <circle cx="32" cy="32" r="22.5" fill="none" stroke="var(--cl-primary)" strokeWidth="0.6" opacity="0.3" />
-    <g
-      transform="translate(32,32)"
-      fill="none"
-      stroke="var(--cl-primary)"
-      strokeWidth="1"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      opacity="0.72"
+    <div className="absolute inset-1 rounded-full border border-(--cl-primary)/25 pointer-events-none" />
+    <span
+      className="cl-couple-names absolute top-2 left-3 leading-none text-(--cl-primary)"
+      style={{ fontSize: size * 0.32 }}
     >
-      <g transform="translate(0,0) scale(1.15)">
-        {[0, 72, 144, 216, 288].map((a) => (
-          <path
-            key={`op${a}`}
-            d="M0 0 C -3.6 -3 -3.6 -8.5 0 -10.5 C 3.6 -8.5 3.6 -3 0 0 Z"
-            transform={`rotate(${a})`}
-          />
-        ))}
-        {[36, 108, 180, 252, 324].map((a) => (
-          <path
-            key={`ip${a}`}
-            d="M0 0 C -2.4 -2 -2.4 -5.6 0 -7 C 2.4 -5.6 2.4 -2 0 0 Z"
-            transform={`rotate(${a})`}
-          />
-        ))}
-        <path d="M0 0 C 1.4 -0.4 1.8 1 0.9 1.9 C 0 2.6 -1.8 1.8 -1.8 0.2" />
-      </g>
-    </g>
-  </svg>
+      {groomInitial}
+    </span>
+    <span
+      className="cl-couple-names absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 leading-none text-(--cl-primary)/50"
+      style={{ fontSize: size * 0.2 }}
+    >
+      &amp;
+    </span>
+    <span
+      className="cl-couple-names absolute bottom-2 right-3 leading-none text-(--cl-primary)"
+      style={{ fontSize: size * 0.32 }}
+    >
+      {brideInitial}
+    </span>
+  </div>
 );
 
 const RoseDivider = ({ className = "" }: { className?: string }) => (
@@ -272,7 +89,11 @@ const RoseDivider = ({ className = "" }: { className?: string }) => (
     )}
   >
     <span className="h-px w-14 bg-linear-to-r from-transparent to-current" />
-    <Rose size={20} className="text-(--cl-primary)/70 shrink-0" />
+    <img
+      src="/images/weddings/blue-flower-1.png"
+      alt=""
+      className="w-5 shrink-0"
+    />
     <span className="h-px w-14 bg-linear-to-l from-transparent to-current" />
   </div>
 );
@@ -410,8 +231,8 @@ const InlineCountdown = ({ target }: { target: Date | null }) => {
     <div className="flex items-center justify-center">
       {UNITS.map((u, i) => (
         <div key={u.key} className="flex items-center">
-          {i > 0 && <span className="mx-3 text-(--cl-accent) text-xs">·</span>}
-          <div className="flex flex-col items-center w-16">
+          {i > 0 && <span className="mx-2 text-(--cl-accent) text-xs">·</span>}
+          <div className="flex flex-col items-center w-12">
             <span className="cl-countdown-number text-3xl text-(--cl-primary) tabular-nums leading-none">
               {String(t[u.key]).padStart(2, "0")}
             </span>
@@ -427,53 +248,108 @@ const InlineCountdown = ({ target }: { target: Date | null }) => {
 
 // ─── Preloader ──────────────────────────────────────────────────────────────────
 
-const HOLD_MS = 1000;
+const CURTAIN_DURATION_S = 2;
+const HOLD_MS = 1200;
+const CURTAIN_EASE = [0.7, 0, 0.2, 1] as const;
+
 const Preloader = ({
   loaderReady,
   onExitComplete,
+  groomInitial,
+  brideInitial,
 }: {
   loaderReady: boolean;
   onExitComplete: () => void;
+  groomInitial: string;
+  brideInitial: string;
 }) => {
+  const [phase, setPhase] = useState<"sealed" | "opening">("sealed");
   const [visible, setVisible] = useState(true);
-  const [leaving, setLeaving] = useState(false);
+
   useEffect(() => {
     document.documentElement.style.overflow = visible ? "hidden" : "";
     return () => {
       document.documentElement.style.overflow = "";
     };
   }, [visible]);
+
   useEffect(() => {
     if (!loaderReady) return;
     let cancelled = false;
     const timer = setTimeout(() => {
       if (cancelled) return;
-      setLeaving(true);
-      setTimeout(onExitComplete, 500);
+      setPhase("opening");
+      setTimeout(onExitComplete, (CURTAIN_DURATION_S * 1000) / 2);
     }, HOLD_MS);
     return () => {
       cancelled = true;
       clearTimeout(timer);
     };
   }, [loaderReady]);
+
+  const leftHalf: Variants = {
+    sealed: { x: "0%" },
+    opening: {
+      x: "-100%",
+      transition: {
+        duration: CURTAIN_DURATION_S,
+        ease: CURTAIN_EASE,
+        delay: 0.35,
+      },
+    },
+  };
+  const rightHalf: Variants = {
+    sealed: { x: "0%" },
+    opening: {
+      x: "100%",
+      transition: {
+        duration: CURTAIN_DURATION_S,
+        ease: CURTAIN_EASE,
+        delay: 0.35,
+      },
+    },
+  };
+  const stamp: Variants = {
+    hidden: { opacity: 0, scale: 0.5 },
+    sealed: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+    opening: { opacity: 0, scale: 1.35, transition: { duration: 1, ease: "easeOut" } },
+  };
+
   return (
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-100 flex items-center justify-center bg-(--cl-bg) text-(--cl-primary)"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: leaving ? 0 : 1 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          onAnimationComplete={() => {
-            if (leaving) setVisible(false);
-          }}
+          className="fixed inset-0 z-100 pointer-events-none"
+          exit={{ opacity: 0, transition: { duration: 0.001 } }}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-y-0 left-0 w-1/2 bg-(--cl-bg-2) overflow-hidden shadow-[inset_-6px_0_16px_rgba(0,23,94,0.07)]"
+            variants={leftHalf}
+            initial="sealed"
+            animate={phase}
+            onAnimationComplete={() => {
+              if (phase === "opening") setVisible(false);
+            }}
+          />
+          <motion.div
+            className="absolute inset-y-0 right-0 w-1/2 bg-(--cl-bg-2) overflow-hidden shadow-[inset_6px_0_16px_rgba(0,23,94,0.07)]"
+            variants={rightHalf}
+            initial="sealed"
+            animate={phase}
+          />
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            variants={stamp}
+            initial="hidden"
+            animate={phase}
           >
-            <WaxSeal size={80} />
+            <div className="scale-[2] origin-center">
+              <WaxSeal
+                size={45}
+                groomInitial={groomInitial}
+                brideInitial={brideInitial}
+              />
+            </div>
           </motion.div>
         </motion.div>
       )}
@@ -496,6 +372,8 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   );
   const rootStyle = useThemeAssets({ css: slugCss, fonts });
   const [ready, setReady] = useState(false);
+  const groomInitial = (config.groom_name ?? "G").charAt(0).toUpperCase();
+  const brideInitial = (config.bride_name ?? "B").charAt(0).toUpperCase();
   const rsvp = useRsvpSection(eventConfig, { confettiColors: CONFETTI_COLORS });
 
   const weddingDate = getWeddingDateTime(
@@ -642,6 +520,8 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
       <Preloader
         loaderReady={!!loaderReady}
         onExitComplete={() => setReady(true)}
+        groomInitial={groomInitial}
+        brideInitial={brideInitial}
       />
 
       {/* ── Hero ── embossed corner roses, script names, divided date */}
@@ -649,10 +529,25 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
         id="hero"
         className="relative min-h-svh flex flex-col items-center justify-center text-center px-6 py-20 overflow-hidden"
       >
-        <HeroCornerFloral className="absolute top-0 left-0 opacity-90" />
-        <HeroCornerFloral className="absolute top-0 right-0 opacity-90 -scale-x-100" />
-        <HeroCornerFloral className="absolute bottom-0 left-0 opacity-90 -scale-y-100" />
-        <HeroCornerFloral className="absolute bottom-0 right-0 opacity-90 -scale-100" />
+        {(["tl", "tr", "bl", "br"] as const).map((corner) => (
+          <motion.div
+            key={corner}
+            className={[
+              "absolute pointer-events-none select-none",
+              corner === "tl" || corner === "tr" ? "-top-7" : "-bottom-7",
+              corner === "tl" || corner === "bl" ? "-left-15" : "-right-15",
+            ].join(" ")}
+            initial={{ opacity: 0 }}
+            animate={ready ? { opacity: 1 } : {}}
+            transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
+          >
+            <img
+              src="/images/weddings/blue-flower-border-1.png"
+              alt=""
+              className={`w-64 ${{ tl: "-scale-x-100 -scale-y-100", tr: "-scale-y-100", bl: "-scale-x-100", br: "" }[corner]}`}
+            />
+          </motion.div>
+        ))}
         <motion.div
           initial="hidden"
           animate={ready ? "show" : "hidden"}
@@ -717,13 +612,15 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
           viewport={{ once: true, margin: "-80px" }}
           className="relative max-w-lg mx-auto rounded-sm border border-(--cl-accent)/40 bg-(--cl-card)/85 p-8 sm:p-10 text-center shadow-sm"
         >
-          <CornerSprig className="absolute top-3 left-3 opacity-70" />
-          <CornerSprig className="absolute bottom-3 right-3 opacity-70 -scale-100" />
           <motion.div
             variants={fadeIn(0)}
             className="flex justify-center mb-5 text-(--cl-primary)/70"
           >
-            <Rose size={34} />
+            <img
+              src="/images/weddings/blue-flower-1.png"
+              alt=""
+              className="w-8"
+            />
           </motion.div>
           <motion.h2
             variants={fadeUp(0.1, 14, 0.7)}
@@ -789,7 +686,11 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
                 variants={fadeIn(0)}
                 className="flex justify-center mb-4 text-(--cl-primary)/70"
               >
-                <Rose size={32} />
+                <img
+                  src="/images/weddings/blue-flower-1.png"
+                  alt=""
+                  className="w-8"
+                />
               </motion.div>
               <motion.h2
                 variants={fadeUp(0.1, 14, 0.7)}
@@ -857,14 +758,16 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
             variants={fadeIn(0, 0.8)}
             className="relative rounded-sm border border-(--cl-accent)/40 bg-(--cl-card) p-8 shadow-sm"
           >
-            <CornerSprig className="absolute top-3 left-3 opacity-70" />
-            <CornerSprig className="absolute top-3 right-3 opacity-70" flip />
             <div className="text-center mb-8">
               <motion.div
                 variants={fadeIn(0)}
                 className="flex justify-center mb-4 text-(--cl-primary)/70"
               >
-                <Rose size={34} />
+                <img
+                  src="/images/weddings/blue-flower-1.png"
+                  alt=""
+                  className="w-8"
+                />
               </motion.div>
               <motion.h2
                 variants={fadeUp(0.1, 12, 0.6)}
@@ -893,7 +796,11 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
               variants={fadeIn(0)}
               className="flex justify-center mb-5 text-(--cl-primary)/70"
             >
-              <WaxSeal size={56} />
+              <WaxSeal
+                size={45}
+                groomInitial={groomInitial}
+                brideInitial={brideInitial}
+              />
             </motion.div>
             <motion.p
               variants={fadeUp(0.1, 10, 0.6)}
@@ -903,7 +810,7 @@ const CreamClassic = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
             </motion.p>
             <motion.h2
               variants={fadeUp(0.2, 12, 0.7)}
-              className="cl-couple-names text-4xl text-(--cl-primary) leading-tight"
+              className="cl-couple-names text-3xl text-(--cl-primary) leading-tight"
             >
               <span className="block">{config.groom_name}</span>
               <span className="block text-(--cl-accent) text-2xl my-0.5">
