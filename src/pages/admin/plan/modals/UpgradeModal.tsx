@@ -124,20 +124,28 @@ const UpgradeModal = () => {
                         className="flex items-center justify-between gap-3 py-2 text-sm first:pt-0 last:pb-0"
                       >
                         <span className="text-muted-foreground">{c.label}</span>
-                        <span className="flex items-center gap-2 tabular-nums">
-                          <span
-                            className={cn(
-                              "font-medium",
-                              c.atLimit ? "text-warning" : "text-muted-foreground",
-                            )}
-                          >
-                            {c.used != null ? `${c.used}/${c.from}` : c.from}
-                          </span>
-                          <ArrowRight className="size-3.5 shrink-0 text-muted-foreground/50" />
-                          <span className="font-semibold text-foreground">
+                        {c.from === 0 ? (
+                          // Newly unlocked limit (was 0 — the feature didn't exist
+                          // before): show just the new cap, no "0 →" comparison.
+                          <span className="font-semibold tabular-nums text-foreground">
                             {c.to}
                           </span>
-                        </span>
+                        ) : (
+                          <span className="flex items-center gap-2 tabular-nums">
+                            <span
+                              className={cn(
+                                "font-medium",
+                                c.atLimit ? "text-warning" : "text-muted-foreground",
+                              )}
+                            >
+                              {c.used != null ? `${c.used}/${c.from}` : c.from}
+                            </span>
+                            <ArrowRight className="size-3.5 shrink-0 text-muted-foreground/50" />
+                            <span className="font-semibold text-foreground">
+                              {c.to}
+                            </span>
+                          </span>
+                        )}
                       </li>
                     ))}
                   </ul>
