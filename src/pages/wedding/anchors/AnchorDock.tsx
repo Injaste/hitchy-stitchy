@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { CalendarDays, MapPin } from "lucide-react"
 
@@ -45,6 +45,18 @@ const AnchorDock = ({
   const [calOpen, setCalOpen] = useState(false)
   const [mapOpen, setMapOpen] = useState(false)
 
+  const [heroMostlyVisible, setHeroMostlyVisible] = useState(true)
+  useEffect(() => {
+    const hero = document.getElementById("hero")
+    if (!hero) return
+    const obs = new IntersectionObserver(
+      ([e]) => setHeroMostlyVisible(e.isIntersecting),
+      { threshold: 0.8 },
+    )
+    obs.observe(hero)
+    return () => obs.disconnect()
+  }, [])
+
   const start = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_start)
   const end = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_end)
   const calendarEnabled = !!start
@@ -75,7 +87,7 @@ const AnchorDock = ({
   return (
     <>
       <AnchorBar
-        ready={ready}
+        visible={ready && !heroMostlyVisible}
         items={items}
         classNames={classNames}
         labels={labels}
