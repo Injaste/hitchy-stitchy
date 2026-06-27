@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FC } from "react";
 import { AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import { MailPlus } from "lucide-react";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 import EmptyState from "@/components/custom/states/empty-state";
+import { Button } from "@/components/ui/button";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useActiveEventDay } from "../../hooks/useActiveEventDay";
@@ -59,7 +61,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   const setActiveInvitationId = useGuestModalStore(
     (s) => s.setActiveInvitationId,
   );
-  const { canCreate, canUpdate } = useAccess();
+  const { canCreate, canUpdate, canRead } = useAccess();
   const { bulkUpdateGuests } = useGuestMutations();
   const { slug } = useAdminStore();
 
@@ -233,6 +235,16 @@ const GuestsView: FC<GuestsViewProps> = ({
             }
             title="Create an invitation first"
             description="Guests are tied to an invitation page. Add one from the Invitation tab, then come back to start your guest list."
+            action={
+              canRead("invitation") ? (
+                <Button asChild>
+                  <Link to={`/${slug}/admin/invitation`}>
+                    <MailPlus className="size-4" />
+                    Create invitation
+                  </Link>
+                </Button>
+              ) : undefined
+            }
           />
         </ComponentFade>
       );

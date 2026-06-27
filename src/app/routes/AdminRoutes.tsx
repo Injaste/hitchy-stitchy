@@ -2,6 +2,9 @@ import { lazy } from "react";
 import { Route, Navigate, useParams } from "react-router-dom";
 import RequireRoute from "@/components/custom/require-route";
 import ComponentFade from "@/components/animations/animate-component-fade";
+import { usePlan } from "@/pages/admin/hooks/usePlan";
+import { useAccess } from "@/pages/admin/hooks/useAccess";
+import type { PlanFeature } from "@/pages/admin/plan/plan-config";
 
 import Timeline from "@/pages/admin/timeline";
 import Tasks from "@/pages/admin/tasks";
@@ -14,12 +17,33 @@ import Invitation from "@/pages/admin/invitation";
 
 const Admin = lazy(() => import("@/pages/admin"));
 
-// Absolute redirect built from the slug. A relative `<Navigate to="timeline">`
+// Absolute redirect built from the slug. A relative `<Navigate to="...">`
 // resolves by appending to the current URL inside a splat (`*`) route, which
-// turns an unknown sub-path into an infinite /timeline/timeline/… loop.
-const RedirectToTimeline = () => {
+// turns an unknown sub-path into an infinite /…/… loop.
+//
+// Lands on the first page the PLAN enables AND the member can access, in priority
+// order — so Starter/Plus (timeline etc. locked) open on Guests, and Pro/Advanced
+// open on Timeline, with no per-tier hardcoding. Renders inside the admin outlet,
+// which only mounts once bootstrap is ready, so plan/access are populated.
+const RedirectToLanding = () => {
   const { slug } = useParams();
-  return <Navigate to={`/${slug}/admin/timeline`} replace />;
+  const { canUseFeature } = usePlan();
+  const { canRead, isSuperAdmin } = useAccess();
+
+  const landing: { path: string; feature: PlanFeature; allowed: boolean }[] = [
+    { path: "timeline", feature: "timeline", allowed: canRead("timeline") },
+    { path: "guests", feature: "guests", allowed: canRead("guests") },
+    { path: "invitation", feature: "invitation", allowed: canRead("invitation") },
+    { path: "tasks", feature: "tasks", allowed: canRead("tasks") },
+    { path: "access", feature: "access", allowed: canRead("access") },
+    { path: "budget", feature: "budget", allowed: isSuperAdmin },
+    { path: "gifts", feature: "gifts", allowed: isSuperAdmin },
+  ];
+  const target =
+    landing.find((r) => canUseFeature(r.feature) && r.allowed)?.path ??
+    "invitation";
+
+  return <Navigate to={`/${slug}/admin/${target}`} replace />;
 };
 
 const AdminRoutes = () => (
@@ -31,7 +55,7 @@ const AdminRoutes = () => (
       </ComponentFade>
     }
   >
-    <Route index element={<RedirectToTimeline />} />
+    <Route index element={<RedirectToLanding />} />
     <Route path="timeline" element={<RequireRoute resource="timeline" feature="timeline"><Timeline /></RequireRoute>} />
     <Route path="tasks" element={<RequireRoute resource="tasks" feature="tasks"><Tasks /></RequireRoute>} />
     <Route path="members" element={<RequireRoute feature="members"><Members /></RequireRoute>} />
@@ -42,7 +66,7 @@ const AdminRoutes = () => (
     <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />
-    <Route path="*" element={<RedirectToTimeline />} />
+    <Route path="*" element={<RedirectToLanding />} />
   </Route>
 );
 
