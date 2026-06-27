@@ -50,9 +50,23 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   }, [hasError, isNotFound, navigate, link_slug, slug]);
 
   const themeSlug = eventConfig?.published_page?.theme_slug ?? null;
-  const ThemeComponent = themeSlug
-    ? (themeRegistry[themeSlug]?.component ?? null)
-    : null;
+  const themeEntry = themeSlug ? (themeRegistry[themeSlug] ?? null) : null;
+  const ThemeComponent = themeEntry?.component ?? null;
+
+  useEffect(() => {
+    if (isPreview || !themeEntry?.bgColor) return;
+    const meta =
+      document.querySelector<HTMLMetaElement>('meta[name="theme-color"]') ??
+      (() => {
+        const m = document.createElement("meta");
+        m.name = "theme-color";
+        document.head.appendChild(m);
+        return m;
+      })();
+    const prev = meta.content;
+    meta.content = themeEntry.bgColor;
+    return () => { meta.content = prev; };
+  }, [isPreview, themeEntry?.bgColor]);
   // Published, but this build has no component for its template_key (e.g. a new
   // template that isn't deployed yet). Surface a clean unavailable state — never
   // silently render an unrelated design in its place.

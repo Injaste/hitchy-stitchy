@@ -121,4 +121,6 @@ export interface ThemeRegistryEntry {
   form: ThemeFormConfig
   schema: ThemeFieldGroup[]
   anchors: AnchorThemeConfig
+  /** Primary background colour used for <meta name="theme-color"> on mobile. */
+  bgColor: string
 }
