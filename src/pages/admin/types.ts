@@ -1,26 +1,28 @@
 /** Plan entitlements for the event, from get_bootstrap_context. UX gating only —
  *  the server (RLS + RPCs) is the real boundary. */
 export interface PlanContext {
-  /** Pinned plan version id, e.g. "free" | "pro" | "pro_v2". */
+  /** Pinned plan version id, e.g. "solo_1_v1". */
   key: string;
-  /** Logical tier — "free" | "pro". Use this for "is Pro" checks, not `key`. */
+  /** Logical tier, e.g. "solo_1". The ladder position comes from the catalog. */
   tier: string;
-  /** Display label, e.g. "Free" | "Pro". */
+  /** Display brand label, e.g. "Starter" | "Plus". */
   name: string;
   /** ISO timestamp, or null = the event is pending payment (locked). */
   activatedAt: string | null;
   /** true when the event is over its effective countable limits (downgrade lock). */
   isOverPlanLimits: boolean;
+  /** Countable caps (the meters). */
   limits: {
     maxDays: number;
     maxSegmentsPerDay: number;
     maxInvitationPages: number;
     maxGuests: number;
     maxMembers: number;
-    canUseBudget: boolean;
-    canUseGifts: boolean;
-    canRemoveBranding: boolean;
+    maxGifts: number;
+    maxExpenses: number;
   };
+  /** Per-feature access — a map keyed by feature (DB-driven; drives canUseFeature). */
+  features: Record<import("./plan/plan-config").PlanFeature, boolean>;
   /** Current usage for meters (guests = active, non-cancelled). */
   usage: {
     days: number;
@@ -53,6 +55,8 @@ export interface AdminBootstrapContext {
   isSuperAdmin: boolean;
   /** Plan entitlements for this event (UX gating only). */
   plan: PlanContext;
+  /** The live tier ladder (DB-driven, ordered by rank) — drives upgrade paths. */
+  catalog: import("./plan/plan-config").PlanTierRow[];
 }
 
 export const TIME_REGEX = /^\d{2}:\d{2}(:\d{2})?$/;

@@ -6,8 +6,9 @@ import RequirePlan from "./require-plan";
 
 interface RequireRouteProps {
   resource?: Resource | Resource[];
-  superAdmin?: boolean;
-  feature?: PlanFeature;
+  requireSuperAdmin?: boolean;
+  /** Required — every page declares its plan feature (none omitted). */
+  feature: PlanFeature;
   children: ReactNode;
 }
 
@@ -17,15 +18,15 @@ interface RequireRouteProps {
  * upsell for it); plan second (an entitled member on too low a tier gets the
  * upsell). Lives in a Route's `element=` — it can't replace <Route> itself, since
  * <Routes> only accepts <Route>/<Fragment> children (it inspects, never renders
- * them). Each prop is optional; omit to skip that check.
+ * them). `feature` is required so no page escapes plan accounting.
  */
 const RequireRoute = ({
   resource,
-  superAdmin,
+  requireSuperAdmin,
   feature,
   children,
 }: RequireRouteProps) => (
-  <RequireAccess resource={resource} superAdmin={superAdmin}>
+  <RequireAccess resource={resource} requireSuperAdmin={requireSuperAdmin}>
     <RequirePlan feature={feature}>{children}</RequirePlan>
   </RequireAccess>
 );

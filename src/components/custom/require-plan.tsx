@@ -5,22 +5,22 @@ import Container from "./container";
 import PlanLockedState from "./states/plan-locked-state";
 
 interface RequirePlanProps {
-  /** Feature module the plan must include. Omit for no plan gate (pass-through). */
-  feature?: PlanFeature;
+  /** Feature module the plan must include — required, so every page is accounted for. */
+  feature: PlanFeature;
   children: ReactNode;
 }
 
 /**
  * Plan-entitlement gate: renders children when the event's plan includes the
  * feature, otherwise an UPSELL — a plan limit is an opportunity, not a denial
- * (cf. RequireAccess, which dead-ends). Gated by capability (canUse*), not a tier
- * string, so it stays grandfather-safe. Server RPCs are the real boundary — this
- * is UX. Must render inside the admin shell (after bootstrap) so usePlan() has data.
+ * (cf. RequireAccess, which dead-ends). Gated by the DB feature map (canUseFeature),
+ * not a tier string, so it stays grandfather-safe. Server RPCs are the real
+ * boundary — this is UX. Must render inside the admin shell (after bootstrap).
  */
 const RequirePlan = ({ feature, children }: RequirePlanProps) => {
-  const { hasFeature } = usePlan();
+  const { canUseFeature } = usePlan();
 
-  if (feature && !hasFeature(feature)) {
+  if (!canUseFeature(feature)) {
     return (
       <Container className="py-3 sm:py-5" size="full">
         <PlanLockedState feature={feature} />

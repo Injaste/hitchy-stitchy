@@ -13,23 +13,14 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { usePlan } from "../../hooks/usePlan";
-import {
-  PLAN_METERS,
-  UNLIMITED_ON_PAID,
-  planSupportHref,
-  tierLabel,
-} from "../plan-config";
+import { PLAN_METERS, planSupportHref } from "../plan-config";
 import { usePublicPlanQuery } from "../queries";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
 import { formatPrice } from "../utils";
 
-/** Whether guests are pitched as "Unlimited" rather than a number (every tier we
- *  upsell to is paid, so this is the paid-tier marketing label). */
-const GUESTS_UNLIMITED = UNLIMITED_ON_PAID.has("guests");
-
 /** The pay-to-upgrade surface, opened from the limit-reached banner. Lists the
- *  caps that triggered it, pitches the NEXT tier up (next-tier CTA), and discloses
- *  its price. Three contexts:
+ *  caps that triggered it, pitches the NEXT tier up (name + price from the DB
+ *  catalog), and discloses its price. Three contexts:
  *    top      — already on the highest tier: no upsell, route to support
  *    over     — content exceeds the current plan (downgrade lock) but a tier up exists
  *    upgrade  — at a cap, a higher tier exists
@@ -40,14 +31,13 @@ const UpgradeModal = () => {
   const { isOverPlanLimits, canUpgrade, nextTier, reachedLimits, meter } =
     usePlan();
 
-  // Fetch the target (next-up) tier's catalog row only when an upgrade applies.
+  // The next tier's full row (perks: caps + features) — fetched only when needed.
+  // Its name + price come from the catalog (nextTier), so they show immediately.
   const { data: target } = usePublicPlanQuery(
-    nextTier ?? "",
+    nextTier?.tier ?? "",
     isOpen && canUpgrade,
   );
-  // Prefer the catalog's display name; fall back to a title-cased tier string
-  // before the query resolves.
-  const nextName = target?.name ?? (nextTier ? tierLabel(nextTier) : "");
+  const nextName = nextTier?.name ?? "";
 
   const state = !canUpgrade ? "top" : isOverPlanLimits ? "over" : "upgrade";
   const copy = {
@@ -76,7 +66,7 @@ const UpgradeModal = () => {
   const perks = useMemo(() => {
     if (!target) return [];
     const items = [
-      GUESTS_UNLIMITED ? "Unlimited guests" : `Up to ${target.maxGuests} guests`,
+      `Up to ${target.maxGuests} guests`,
       `Up to ${target.maxDays} event days`,
       `Up to ${target.maxSegmentsPerDay} segments per day`,
       `Up to ${target.maxInvitationPages} invitation pages`,
@@ -155,7 +145,7 @@ const UpgradeModal = () => {
 
             {canUpgrade && (
               <p className="text-center text-xs text-muted-foreground">
-                {target?.price != null
+                {nextTier?.price != null
                   ? "Online payment is being set up — coming soon."
                   : "Pricing coming soon."}
               </p>
@@ -166,8 +156,8 @@ const UpgradeModal = () => {
         {canUpgrade ? (
           <DialogFooter>
             <Button className="w-full" disabled>
-              {target?.price != null
-                ? `Upgrade · ${formatPrice(target.price)}`
+              {nextTier?.price != null
+                ? `Upgrade · ${formatPrice(nextTier.price)}`
                 : `Upgrade to ${nextName}`}
             </Button>
           </DialogFooter>

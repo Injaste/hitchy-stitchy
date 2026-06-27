@@ -11,12 +11,12 @@ import { useUpgradeModalStore } from "../plan/hooks/useUpgradeModalStore";
  *  stronger "over the plan" (isOverPlanLimits, a downgrade that locks editing).
  *  Limits only — activation is a separate concern. Mirrors the cue banner. */
 const LimitReachedBanner: FC = () => {
-  const { isReachedPlanLimits, isOverPlanLimits } = usePlan();
+  const { isReachedPlanLimits, isOverPlanLimits, canUpgrade } = usePlan();
   const open = useUpgradeModalStore((s) => s.open);
 
   return (
     <AnimatePresence>
-      {(isOverPlanLimits || isReachedPlanLimits) && (
+      {(isOverPlanLimits || (isReachedPlanLimits && canUpgrade)) && (
         <motion.button
           key="limit-banner"
           type="button"
@@ -37,7 +37,11 @@ const LimitReachedBanner: FC = () => {
               {isOverPlanLimits ? "Editing paused" : "Limit reached"}
             </span>
             <span className="ml-auto shrink-0 text-xs font-medium text-muted-foreground">
-              {isOverPlanLimits ? "Upgrade to Pro" : "Upgrade for more"}
+              {canUpgrade
+                ? isOverPlanLimits
+                  ? "Upgrade to unlock"
+                  : "Upgrade for more"
+                : "View options"}
             </span>
           </div>
         </motion.button>

@@ -32,14 +32,14 @@ const AdminRoutes = () => (
     }
   >
     <Route index element={<RedirectToTimeline />} />
-    <Route path="timeline" element={<RequireRoute resource="timeline"><Timeline /></RequireRoute>} />
-    <Route path="tasks" element={<RequireRoute resource="tasks"><Tasks /></RequireRoute>} />
-    <Route path="members" element={<Members />} />
-    <Route path="access" element={<RequireRoute resource="access"><Access /></RequireRoute>} />
-    <Route path="guests" element={<RequireRoute resource="guests"><Guests /></RequireRoute>} />
-    <Route path="budget" element={<RequireRoute superAdmin feature="budget"><Budget /></RequireRoute>} />
-    <Route path="gifts" element={<RequireRoute superAdmin feature="gifts"><Gifts /></RequireRoute>} />
-    <Route path="invitation" element={<RequireRoute resource="invitation"><Invitation /></RequireRoute>} />
+    <Route path="timeline" element={<RequireRoute resource="timeline" feature="timeline"><Timeline /></RequireRoute>} />
+    <Route path="tasks" element={<RequireRoute resource="tasks" feature="tasks"><Tasks /></RequireRoute>} />
+    <Route path="members" element={<RequireRoute feature="members"><Members /></RequireRoute>} />
+    <Route path="access" element={<RequireRoute resource="access" feature="access"><Access /></RequireRoute>} />
+    <Route path="guests" element={<RequireRoute resource="guests" feature="guests"><Guests /></RequireRoute>} />
+    <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget"><Budget /></RequireRoute>} />
+    <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts"><Gifts /></RequireRoute>} />
+    <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />
     <Route path="*" element={<RedirectToTimeline />} />

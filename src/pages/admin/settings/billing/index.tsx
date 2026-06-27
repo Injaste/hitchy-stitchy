@@ -15,11 +15,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { usePlan } from "../../hooks/usePlan";
-import {
-  PLAN_METERS,
-  tierLabel,
-  type PlanResource,
-} from "../../plan/plan-config";
+import { PLAN_METERS, type PlanResource } from "../../plan/plan-config";
 import { useUpgradeModalStore } from "../../plan/hooks/useUpgradeModalStore";
 
 interface Receipt {
@@ -37,8 +33,8 @@ const MOCK_RECEIPTS: Receipt[] = [
   {
     id: "inv_0001",
     date: "12 Jun 2026",
-    description: "Pro plan · event activation",
-    amount: "S$49.00",
+    description: "Starter plan · event activation",
+    amount: "S$50.00",
     status: "Paid",
   },
 ];
@@ -75,7 +71,7 @@ const Billing: FC = () => {
             <Button onClick={openUpgrade}>Complete payment</Button>
           ) : canUpgrade ? (
             <Button onClick={openUpgrade}>
-              {nextTier ? `Upgrade to ${tierLabel(nextTier)}` : "Upgrade"}
+              {nextTier ? `Upgrade to ${nextTier.name}` : "Upgrade"}
             </Button>
           ) : (
             <Button variant="outline" disabled>
@@ -146,8 +142,8 @@ const Billing: FC = () => {
   );
 };
 
-/** One usage meter. Hides the bar for resources marketed as unlimited (Pro
- *  guests); turns warning-coloured at the cap. */
+/** One usage meter — used / max with a fill bar; warning-coloured at the cap.
+ *  Every resource has a real cap (no "unlimited"). */
 const MeterRow: FC<{ resource: PlanResource; label: string }> = ({
   resource,
   label,
@@ -161,20 +157,18 @@ const MeterRow: FC<{ resource: PlanResource; label: string }> = ({
       <div className="flex items-center justify-between text-sm">
         <span className="text-foreground">{label}</span>
         <span className="text-muted-foreground">
-          {m.unlimited ? `${m.used} · Unlimited` : `${m.used} / ${m.max}`}
+          {m.used} / {m.max}
         </span>
       </div>
-      {!m.unlimited && (
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className={cn(
-              "h-full rounded-full transition-all",
-              m.atLimit ? "bg-warning" : "bg-primary",
-            )}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      )}
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all",
+            m.atLimit ? "bg-warning" : "bg-primary",
+          )}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
     </div>
   );
 };

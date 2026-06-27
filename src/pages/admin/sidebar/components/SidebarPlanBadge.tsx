@@ -3,7 +3,6 @@ import { Sparkles } from "lucide-react";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useAccess } from "../../hooks/useAccess";
 import { usePlan } from "../../hooks/usePlan";
-import { tierLabel } from "../../plan/plan-config";
 import { useUpgradeModalStore } from "../../plan/hooks/useUpgradeModalStore";
 
 /** Super-admin-only upgrade entry in the sidebar footer. Only renders when
@@ -21,7 +20,7 @@ const SidebarPlanBadge = () => {
   const label = isPending
     ? "Complete payment"
     : nextTier
-      ? `Upgrade to ${tierLabel(nextTier)}`
+      ? `Upgrade to ${nextTier.name}`
       : "Upgrade";
 
   return (

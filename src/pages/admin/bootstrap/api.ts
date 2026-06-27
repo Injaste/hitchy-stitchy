@@ -50,10 +50,11 @@ export async function fetchBootstrapContext(
         maxInvitationPages: limits.max_invitation_pages,
         maxGuests: limits.max_guests,
         maxMembers: limits.max_members,
-        canUseBudget: limits.can_use_budget,
-        canUseGifts: limits.can_use_gifts,
-        canRemoveBranding: limits.can_remove_branding,
+        maxGifts: limits.max_gifts,
+        maxExpenses: limits.max_expenses,
       },
+      // Feature access straight from the DB map (keyed by feature) — no hand-mapping.
+      features: plan.features,
       usage: {
         days: usage.days,
         guests: usage.guests,
@@ -61,5 +62,18 @@ export async function fetchBootstrapContext(
         pages: usage.pages,
       },
     },
+    catalog: ((data.catalog ?? []) as Array<{
+      tier: string;
+      rank: number;
+      name: string;
+      price: number | null;
+      is_free_tier: boolean;
+    }>).map((c) => ({
+      tier: c.tier,
+      rank: c.rank,
+      name: c.name,
+      price: c.price,
+      isFreeTier: c.is_free_tier,
+    })),
   };
 }

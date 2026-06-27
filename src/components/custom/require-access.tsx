@@ -8,7 +8,7 @@ interface RequireAccessProps {
   /** Allowed if the user can read ANY of these resource(s). */
   resource?: Resource | Resource[];
   /** Require the couple/root (the money + identity surfaces). */
-  superAdmin?: boolean;
+  requireSuperAdmin?: boolean;
   children: ReactNode;
 }
 
@@ -20,7 +20,11 @@ interface RequireAccessProps {
  * boundary — this is UX. Must render inside the admin shell (after bootstrap) so
  * useAccess() has data.
  */
-const RequireAccess = ({ resource, superAdmin, children }: RequireAccessProps) => {
+const RequireAccess = ({
+  resource,
+  requireSuperAdmin,
+  children,
+}: RequireAccessProps) => {
   const { isSuperAdmin, canRead } = useAccess();
 
   const resources = resource
@@ -29,7 +33,7 @@ const RequireAccess = ({ resource, superAdmin, children }: RequireAccessProps) =
       : [resource]
     : [];
   const allowed =
-    (!superAdmin || isSuperAdmin) &&
+    (!requireSuperAdmin || isSuperAdmin) &&
     (resources.length === 0 || resources.some((r) => canRead(r)));
 
   if (!allowed) {
