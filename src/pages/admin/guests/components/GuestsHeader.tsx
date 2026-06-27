@@ -44,12 +44,14 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
       ? dayLabel(days[effectiveIndex]?.label, effectiveIndex)
       : null;
 
+  const hasInvitation = !!invitations?.length;
+
   return (
     <AdminPageHeader
       isLoading={isLoading}
       isError={isError}
       isRefetching={isRefetching}
-      refetch={refetch}
+      refetch={hasInvitation ? refetch : undefined}
       title="Guests"
       titleSuffix={
         daySuffix && (
@@ -60,7 +62,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
       }
       description="Your full guest list and their RSVP responses."
       action={
-        canAdd && (
+        hasInvitation && canAdd && (
           <Button
             size="sm"
             variant="default"
