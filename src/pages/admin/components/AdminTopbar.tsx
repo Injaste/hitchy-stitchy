@@ -39,15 +39,21 @@ const Topbar: FC<{ show: boolean; children: ReactNode }> = ({ show, children }) 
  *  Order top→bottom: limit-reached, then the live-cue. */
 const AdminTopbar = () => {
   const { data: active } = useActiveTimelineQuery();
-  const { isReachedPlanLimits, isOverPlanLimits } = usePlan();
+  const { isNearPlanLimits, isOverPlanLimits } = usePlan();
   // Limits are only actionable by whoever can pay, and plan UI is super-admin-
   // only — so don't even mount the banner for members (no DOM/a11y leak).
   const { isSuperAdmin } = useAccess();
 
+  // Over-limit is a real edit lock — always surface it. The "approaching cap"
+  // nudge is an UPSELL, so it only fires for limits a higher tier actually raises
+  // (isNearPlanLimits bakes that in) — Starter's 1-day/1-page baseline never nags,
+  // since nothing higher raises it.
+  const showLimitBanner = isOverPlanLimits || isNearPlanLimits;
+
   return (
     <>
       {isSuperAdmin && (
-        <Topbar show={isOverPlanLimits || isReachedPlanLimits}>
+        <Topbar show={showLimitBanner}>
           <LimitReachedBanner />
         </Topbar>
       )}

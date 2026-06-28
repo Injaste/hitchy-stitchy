@@ -26,23 +26,15 @@ interface Receipt {
   status: string;
 }
 
-/** Placeholder receipts. Real history comes in Phase E from event_purchases via a
- *  gated get_event_purchases read-RPC (the table is service-role only) — never a
- *  direct client select. Shape mirrors the eventual row. */
-const MOCK_RECEIPTS: Receipt[] = [
-  {
-    id: "inv_0001",
-    date: "12 Jun 2026",
-    description: "Pro plan · event activation",
-    amount: "S$49.00",
-    status: "Paid",
-  },
-];
+/** Real history comes in Phase E from event_purchases via a gated
+ *  get_event_purchases read-RPC (the table is service-role only) — never a direct
+ *  client select. Empty until then (no placeholder amounts — pricing isn't live). */
+const MOCK_RECEIPTS: Receipt[] = [];
 
 /** Settings → Billing. Super-admin-only (gated at the tab). Plan status + usage
  *  + receipts; upgrade routes through the shared UpgradeModal. */
 const Billing: FC = () => {
-  const { planName, isPro, isPending } = usePlan();
+  const { planName, isPaid, isPending, canUpgrade, nextTier } = usePlan();
   const openUpgrade = useUpgradeModalStore((s) => s.open);
 
   return (
@@ -52,9 +44,7 @@ const Billing: FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {planName} plan
-            <Badge variant={isPro ? "default" : "outline"}>
-              {isPro ? "Pro" : "Free"}
-            </Badge>
+            <Badge variant={isPaid ? "default" : "outline"}>{planName}</Badge>
           </CardTitle>
           <CardDescription>
             {isPending
@@ -71,12 +61,14 @@ const Billing: FC = () => {
         <CardFooter>
           {isPending ? (
             <Button onClick={openUpgrade}>Complete payment</Button>
-          ) : isPro ? (
+          ) : canUpgrade ? (
+            <Button onClick={openUpgrade}>
+              {nextTier ? `Upgrade to ${nextTier.name}` : "Upgrade"}
+            </Button>
+          ) : (
             <Button variant="outline" disabled>
               Manage billing · coming soon
             </Button>
-          ) : (
-            <Button onClick={openUpgrade}>Upgrade to Pro</Button>
           )}
         </CardFooter>
       </Card>
@@ -142,8 +134,8 @@ const Billing: FC = () => {
   );
 };
 
-/** One usage meter. Hides the bar for resources marketed as unlimited (Pro
- *  guests); turns warning-coloured at the cap. */
+/** One usage meter — used / max with a fill bar; warning-coloured at the cap.
+ *  Every resource has a real cap (no "unlimited"). */
 const MeterRow: FC<{ resource: PlanResource; label: string }> = ({
   resource,
   label,
@@ -157,20 +149,18 @@ const MeterRow: FC<{ resource: PlanResource; label: string }> = ({
       <div className="flex items-center justify-between text-sm">
         <span className="text-foreground">{label}</span>
         <span className="text-muted-foreground">
-          {m.unlimited ? `${m.used} · Unlimited` : `${m.used} / ${m.max}`}
+          {m.used} / {m.max}
         </span>
       </div>
-      {!m.unlimited && (
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className={cn(
-              "h-full rounded-full transition-all",
-              m.atLimit ? "bg-warning" : "bg-primary",
-            )}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      )}
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn(
+            "h-full rounded-full transition-all",
+            m.atLimit ? "bg-warning" : "bg-primary",
+          )}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
     </div>
   );
 };

@@ -22,9 +22,9 @@ export const useAdminStore = create<AdminState>((set) => ({
   isGroom: false,
   isSuperAdmin: false,
   plan: {
-    key: "free",
-    tier: "free",
-    name: "Free",
+    key: "solo_1_v1",
+    tier: "solo_1",
+    name: "Starter",
     activatedAt: null,
     isOverPlanLimits: false,
     // Neutral placeholders until bootstrap fills the real plan — don't duplicate
@@ -36,12 +36,24 @@ export const useAdminStore = create<AdminState>((set) => ({
       maxInvitationPages: 0,
       maxGuests: 0,
       maxMembers: 0,
-      canUseBudget: false,
-      canUseGifts: false,
-      canRemoveBranding: false,
+      maxGifts: 0,
+      maxExpenses: 0,
+    },
+    features: {
+      timeline: false,
+      tasks: false,
+      members: false,
+      access: false,
+      guests: false,
+      budget: false,
+      gifts: false,
+      invitation: false,
+      branding: false,
     },
     usage: { days: 0, guests: 0, members: 0, pages: 0 },
   },
+  // Tier ladder is DB-driven (bootstrap fills it); empty until then.
+  catalog: [],
 
   setContext: (ctx) => set({ ...ctx }),
 }));

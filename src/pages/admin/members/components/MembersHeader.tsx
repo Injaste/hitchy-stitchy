@@ -6,6 +6,7 @@ import { AdminPageHeader } from "@/components/custom/admin-page-header";
 import { ActionLabel, type BaseHeaderProps } from "@/components/custom/page-header-base";
 
 import { useAccess } from "../../hooks/useAccess";
+import { useLimitGuard } from "../../plan/hooks/useLimitGuard";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 
 const MembersHeader: FC<BaseHeaderProps> = ({
@@ -15,6 +16,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
   refetch,
 }) => {
   const { canManageMembers } = useAccess();
+  const guardAdd = useLimitGuard();
   const openInvite = useMemberModalStore((s) => s.openCreate);
 
   return (
@@ -31,7 +33,10 @@ const MembersHeader: FC<BaseHeaderProps> = ({
           <Button
             size="sm"
             variant="default"
-            onClick={openInvite}
+            onClick={() => {
+              if (guardAdd("members")) return;
+              openInvite();
+            }}
             className="gap-0"
           >
             <Plus className="w-4 h-4" />

@@ -53,7 +53,7 @@ const ActiveCueBanner: FC<ActiveCueBannerProps> = ({ active }) => {
           {...itemRevealInUp}
           type="button"
           onClick={() => openDetail(active)}
-          className="flex w-full items-center gap-3 rounded-xl px-2.5 py-1 text-sm cursor-pointer transition-colors hover:bg-primary/15"
+          className="flex w-full items-center gap-3 rounded-xl px-2.5 py-1 text-sm cursor-pointer transition-colors hover:bg-primary/10"
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success/20">
             <Play className="h-3 w-3 fill-success text-success" />

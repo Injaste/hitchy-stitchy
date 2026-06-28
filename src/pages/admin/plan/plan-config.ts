@@ -1,5 +1,5 @@
-// Plan display config — data, not scattered conditionals (mirrors access-config).
-// The hook (usePlan) is the gate; this is just how plan limits render.
+// Plan display config — labels + tiny ladder helpers (config-as-data). The tier
+// ladder and all entitlements come from the DB (bootstrap), never hardcoded here.
 import { SUPPORT_EMAIL } from "@/lib/config";
 
 /** Countable resources that get a usage meter. */
@@ -13,21 +13,87 @@ export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
   { resource: "members", label: "Team members" },
 ];
 
-/** Resources marketed as "Unlimited" on Pro — the real cap is a hidden soft
- *  ceiling, so the meter shows "Unlimited" instead of the number. Everything
- *  else (days/pages/members) shows its real number on every tier. */
-export const UNLIMITED_ON_PRO: ReadonlySet<PlanResource> = new Set(["guests"]);
+/** Usage ratio at which the upgrade nudge appears — an early warning before the
+ *  hard cap (and only for limits a higher tier actually raises). */
+export const NEAR_LIMIT_RATIO = 0.8;
 
-/** Gated feature modules → label + the PlanContext.limits flag that unlocks it. */
+/** Gated feature modules → display label. Keys match the DB `features` map, in
+ *  route order (branding is the non-page perk, last). The booleans come from the
+ *  DB — this is only labels. Drives RequirePlan + PlanLockedState + the diff. */
 export const PLAN_FEATURES = [
-  { key: "budget", label: "Budget tracker", flag: "canUseBudget" },
-  { key: "gifts", label: "Gift envelopes", flag: "canUseGifts" },
+  { key: "timeline", label: "Timeline" },
+  { key: "tasks", label: "Task board" },
+  { key: "members", label: "Team management" },
+  { key: "access", label: "Access groups" },
+  { key: "guests", label: "Guest management" },
+  { key: "budget", label: "Budget tracker" },
+  { key: "gifts", label: "Gift envelopes" },
+  { key: "invitation", label: "Invitation" },
+  { key: "branding", label: "Remove branding" },
 ] as const;
 
-/** The single seam for "talk to us about my plan" — used when Pro hits its
- *  (fair-use) ceiling, where there's no higher tier to sell. Today a no-friction
- *  mailto built from the app SUPPORT_EMAIL; swap for a dedicated limit-increase
- *  flow later without touching call sites. */
+/** A gatable feature key — matches the DB features map exactly. */
+export type PlanFeature = (typeof PLAN_FEATURES)[number]["key"];
+
+/** Countable cap keys (the limits fields). */
+export type PlanCap =
+  | "maxGuests"
+  | "maxDays"
+  | "maxSegmentsPerDay"
+  | "maxInvitationPages"
+  | "maxMembers"
+  | "maxGifts"
+  | "maxExpenses";
+
+/** Cap → label, in display order. Drives the "higher limits" upgrade diff. */
+export const PLAN_CAP_LABELS: { key: PlanCap; label: string }[] = [
+  { key: "maxGuests", label: "Guests" },
+  { key: "maxDays", label: "Event days" },
+  { key: "maxSegmentsPerDay", label: "Segments / day" },
+  { key: "maxInvitationPages", label: "Invitation pages" },
+  { key: "maxMembers", label: "Team members" },
+  { key: "maxGifts", label: "Gift envelopes" },
+  { key: "maxExpenses", label: "Budget expenses" },
+];
+
+/** Meter resource → its cap key. Single source for "which cap backs this meter" —
+ *  used by the near-limit check (usePlan) and the modal's usage-in-diff row. */
+export const CAP_KEY_FOR: Record<PlanResource, PlanCap> = {
+  guests: "maxGuests",
+  days: "maxDays",
+  pages: "maxInvitationPages",
+  members: "maxMembers",
+};
+
+/** A live tier in the catalog ladder — DB-driven (plans where is_active, ordered
+ *  by rank), carrying its caps + features so the client computes the upgrade diff
+ *  without a separate fetch. (price is present but not displayed anywhere.) */
+export interface PlanTierRow {
+  tier: string;
+  rank: number;
+  name: string;
+  price: number | null;
+  isFreeTier: boolean;
+  limits: Record<PlanCap, number>;
+  features: Record<PlanFeature, boolean>;
+}
+
+/** Index of a tier in the (rank-ordered) catalog; -1 if it isn't live. */
+export const tierIndex = (tier: string, catalog: PlanTierRow[]): number =>
+  catalog.findIndex((t) => t.tier === tier);
+
+/** The next tier up the ladder (what checkout sells next), or null at the top /
+ *  if the current tier isn't live. */
+export const nextTier = (
+  tier: string,
+  catalog: PlanTierRow[],
+): PlanTierRow | null => {
+  const i = tierIndex(tier, catalog);
+  return i < 0 ? null : (catalog[i + 1] ?? null);
+};
+
+/** The single seam for "talk to us about my plan" — used at the top tier, where
+ *  there's no higher tier to sell. */
 export const planSupportHref = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
   "Hitchy Stitchy — I'd like to increase my plan limits",
 )}`;
