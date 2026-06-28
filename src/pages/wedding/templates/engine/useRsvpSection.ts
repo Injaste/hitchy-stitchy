@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { isAfter, startOfDay } from "date-fns"
+import { isAfter, isBefore, startOfDay } from "date-fns"
 import confetti from "canvas-confetti"
 
 import { useGuestRSVP, useRSVPMutations } from "@/pages/wedding/queries"
@@ -40,7 +40,7 @@ export function useRsvpSection(
 
   const isEventOver =
     eventConfig.event_date !== null &&
-    isAfter(
+    !isBefore(
       startOfDay(new Date()),
       startOfDay(new Date(eventConfig.event_date)),
     )

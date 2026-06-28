@@ -502,6 +502,7 @@ const UniqueMuslim = ({ eventConfig, pageConfig, loaderReady }: ThemeProps) => {
   )
 
   const renderRsvpBody = () => {
+    if (rsvp.isEventOver) return renderClosed("event-over", "This event has already taken place.")
     if (rsvp.isDeadlinePassed)
       return renderClosed("deadline", rsvp.deadlineMessage)
     if (rsvp.existingRSVP && !rsvp.isEditing) return renderSuccess()
