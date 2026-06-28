@@ -7,6 +7,7 @@ import {
   nextTier as findNextTier,
   type PlanResource,
   type PlanFeature,
+  type PlanTierRow,
 } from "../plan/plan-config";
 
 /** Client plan gate — UX only (the server's RLS + RPCs are the real boundary).
@@ -25,6 +26,18 @@ export function usePlan() {
   const next = findNextTier(plan.tier, catalog);
   /** There's a higher tier to upsell. */
   const canUpgrade = next !== null;
+  /** Every tier above the current one (rank-ordered) — the upgrade-picker choice
+   *  set. `next` is the first entry; empty at the top tier / if not live. */
+  const upgradeTiers = rank < 0 ? [] : catalog.slice(rank + 1);
+
+  /** Whether the current event's usage fits within a target tier's caps — used to
+   *  disable tiers a user would STILL be over (the downgrade-lock case). Only the
+   *  metered resources are checkable client-side; segment/gift/expense caps aren't
+   *  surfaced here, so a tier can read "fits" yet be rejected server-side on those. */
+  const tierFits = (tier: PlanTierRow) =>
+    PLAN_METERS.every(
+      (m) => plan.usage[m.resource] <= tier.limits[CAP_KEY_FOR[m.resource]],
+    );
 
   // Two SEPARATE concerns — never merge them:
   /** activation/billing: activated_at NULL = a 2nd+ event awaiting payment. */
@@ -86,6 +99,9 @@ export function usePlan() {
     canUpgrade,
     /** Next tier up the ladder (catalog row with name/price), or null at the top. */
     nextTier: next,
+    /** All tiers above the current one — the upgrade-picker choice set. */
+    upgradeTiers,
+    tierFits,
     isPending,
     isOverPlanLimits,
     isNearPlanLimits,

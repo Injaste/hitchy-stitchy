@@ -92,6 +92,42 @@ export const nextTier = (
   return i < 0 ? null : (catalog[i + 1] ?? null);
 };
 
+/** What a target tier ADDS over the current plan — features it unlocks and caps it
+ *  raises (current → target). Always diffed against the live plan, so every tier in
+ *  the picker reads as a cumulative "here's what you'd gain". Pure config-as-data:
+ *  the modal just renders the result. (`features/limits != null` guards the brief
+ *  window where the frontend is live but the catalog-enriching migration isn't.) */
+export const diffPlan = (
+  target: PlanTierRow,
+  currentLimits: Record<PlanCap, number>,
+  canUseFeature: (f: PlanFeature) => boolean,
+  meter: (r: PlanResource) => { used: number; atLimit: boolean },
+) => {
+  const unlocked =
+    target.features != null
+      ? PLAN_FEATURES.filter((f) => target.features[f.key] && !canUseFeature(f.key))
+      : [];
+  const raised =
+    target.limits != null
+      ? PLAN_CAP_LABELS.filter((c) => target.limits[c.key] > currentLimits[c.key]).map(
+          (c) => {
+            // If this cap has a usage meter, show where you stand (45/50 → 500);
+            // otherwise just the cap raise (50 → 500).
+            const res = PLAN_METERS.find((m) => CAP_KEY_FOR[m.resource] === c.key)
+              ?.resource;
+            return {
+              label: c.label,
+              used: res ? meter(res).used : null,
+              atLimit: res ? meter(res).atLimit : false,
+              from: currentLimits[c.key],
+              to: target.limits[c.key],
+            };
+          },
+        )
+      : [];
+  return { unlocked, raised };
+};
+
 /** The single seam for "talk to us about my plan" — used at the top tier, where
  *  there's no higher tier to sell. */
 export const planSupportHref = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 
 import {
@@ -13,21 +14,17 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { usePlan } from "../../hooks/usePlan";
-import {
-  PLAN_METERS,
-  PLAN_FEATURES,
-  PLAN_CAP_LABELS,
-  CAP_KEY_FOR,
-  planSupportHref,
-} from "../plan-config";
+import { diffPlan, planSupportHref } from "../plan-config";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
 
-/** The upgrade surface, opened from the limit-reached banner. Lists the caps that
- *  triggered it, then shows exactly what the NEXT tier changes — features it
- *  unlocks and caps it raises (current → next) — all from the bootstrapped catalog.
- *  No price is shown anywhere (pricing isn't live yet). Three contexts:
+/** The upgrade surface, opened from the limit-reached banner. When more than one
+ *  higher tier is live the user PICKS which to move to; the diff below always shows
+ *  what the selected tier adds vs the current plan (features it unlocks + caps it
+ *  raises) — all from the bootstrapped catalog. No price is shown (pricing isn't
+ *  live yet). Three contexts:
  *    top      — already on the highest tier: route to support
- *    over     — content exceeds the current plan (downgrade lock) but a tier up exists
+ *    over     — content exceeds the current plan (downgrade lock) but a tier up
+ *               exists; tiers the event would STILL overflow are disabled
  *    upgrade  — at a cap, a higher tier exists */
 const UpgradeModal = () => {
   const { isOpen, close } = useUpgradeModalStore();
@@ -35,41 +32,36 @@ const UpgradeModal = () => {
     isOverPlanLimits,
     canUpgrade,
     nextTier,
+    upgradeTiers,
+    tierFits,
     meter,
     limits: currentLimits,
     canUseFeature,
   } = usePlan();
 
-  const nextName = nextTier?.name ?? "";
+  const state = !canUpgrade ? "top" : isOverPlanLimits ? "over" : "upgrade";
+  const showPicker = canUpgrade && upgradeTiers.length > 1;
 
-  // What the next tier ADDS vs the current plan — straight from the catalog.
-  // (`?.limits/features != null` guards the brief window where the frontend is
-  // live but the catalog-enriching migration isn't applied yet.)
-  const unlocked =
-    nextTier?.features != null
-      ? PLAN_FEATURES.filter((f) => nextTier.features[f.key] && !canUseFeature(f.key))
-      : [];
-  const raised =
-    nextTier?.limits != null
-      ? PLAN_CAP_LABELS.filter((c) => nextTier.limits[c.key] > currentLimits[c.key]).map(
-          (c) => {
-            // If this cap has a usage meter, show where you stand (45/50 → 500);
-            // otherwise just the cap raise (50 → 500).
-            const res = PLAN_METERS.find((m) => CAP_KEY_FOR[m.resource] === c.key)
-              ?.resource;
-            return {
-              label: c.label,
-              used: res ? meter(res).used : null,
-              atLimit: res ? meter(res).atLimit : false,
-              from: currentLimits[c.key],
-              to: nextTier.limits[c.key],
-            };
-          },
-        )
-      : [];
+  // Default selection: the next tier up — except in the over state, where we open
+  // on the cheapest tier that actually fits the event (falling back to next if
+  // none do, so the diff still renders something).
+  const defaultTier =
+    state === "over" ? (upgradeTiers.find(tierFits) ?? nextTier) : nextTier;
+
+  // Picked tier (by key); reset to the default each time the modal opens.
+  const [picked, setPicked] = useState<string | null>(null);
+  useEffect(() => {
+    if (isOpen) setPicked(null);
+  }, [isOpen]);
+  const selected =
+    (picked ? upgradeTiers.find((t) => t.tier === picked) : null) ?? defaultTier;
+  const selectedName = selected?.name ?? "";
+
+  const { unlocked, raised } = selected
+    ? diffPlan(selected, currentLimits, canUseFeature, meter)
+    : { unlocked: [], raised: [] };
   const hasDiff = unlocked.length > 0 || raised.length > 0;
 
-  const state = !canUpgrade ? "top" : isOverPlanLimits ? "over" : "upgrade";
   const copy = {
     top: {
       title: "Plan limits reached",
@@ -84,8 +76,10 @@ const UpgradeModal = () => {
       note: "Prefer to stay put? Remove items to fit your current plan's limits.",
     },
     upgrade: {
-      title: `Upgrade to ${nextName}`,
-      description: `See what ${nextName} unlocks for your event.`,
+      title: showPicker ? "Choose your plan" : `Upgrade to ${selectedName}`,
+      description: showPicker
+        ? "You've reached your plan's limits. Pick the plan that fits your event."
+        : `See what ${selectedName} unlocks for your event.`,
       note: undefined as string | undefined,
     },
   }[state];
@@ -108,12 +102,50 @@ const UpgradeModal = () => {
 
         <DialogBody>
           <div className="space-y-4">
-            {/* One comparison: the metered limits an upgrade raises (with where you
-                stand now), then any features it unlocks. */}
+            {/* Tier picker — only when there's a real choice (2+ tiers up). In the
+                over state, tiers the event would still overflow are disabled. */}
+            {showPicker && (
+              <div role="radiogroup" className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {upgradeTiers.map((t) => {
+                  const fits = state !== "over" || tierFits(t);
+                  const active = t.tier === selected?.tier;
+                  return (
+                    <button
+                      key={t.tier}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      disabled={!fits}
+                      onClick={() => setPicked(t.tier)}
+                      className={cn(
+                        "flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
+                        active
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/40",
+                        !fits &&
+                          "cursor-not-allowed opacity-50 hover:border-border",
+                      )}
+                    >
+                      <span className="font-medium text-foreground">{t.name}</span>
+                      {active ? (
+                        <Check className="size-4 shrink-0 text-primary" />
+                      ) : !fits ? (
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          Still over limits
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* What the selected tier adds vs the current plan: the metered limits
+                it raises (with where you stand now), then any features it unlocks. */}
             {canUpgrade && hasDiff && (
               <div className="rounded-xl border border-border p-4">
                 <p className="mb-3 text-sm font-semibold text-foreground">
-                  What {nextName} adds
+                  What {selectedName} adds
                 </p>
 
                 {raised.length > 0 && (
@@ -189,7 +221,7 @@ const UpgradeModal = () => {
         {canUpgrade ? (
           <DialogFooter>
             <Button className="w-full" disabled>
-              Upgrade to {nextName}
+              Upgrade to {selectedName}
             </Button>
           </DialogFooter>
         ) : (
