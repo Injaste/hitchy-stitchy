@@ -21,7 +21,7 @@ const LimitReachedBanner: FC = () => {
         <motion.button
           key="limit-banner"
           type="button"
-          onClick={open}
+          onClick={() => open()}
           {...itemRevealInUp}
           className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1 text-left text-sm transition-colors hover:bg-warning/10"
         >

@@ -60,9 +60,9 @@ const Billing: FC = () => {
 
         <CardFooter>
           {isPending ? (
-            <Button onClick={openUpgrade}>Complete payment</Button>
+            <Button onClick={() => openUpgrade()}>Complete payment</Button>
           ) : canUpgrade ? (
-            <Button onClick={openUpgrade}>
+            <Button onClick={() => openUpgrade()}>
               {nextTier ? `Upgrade to ${nextTier.name}` : "Upgrade"}
             </Button>
           ) : (

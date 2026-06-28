@@ -29,7 +29,7 @@ const SidebarPlanBadge = () => {
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
-        onClick={openUpgrade}
+        onClick={() => openUpgrade()}
         tooltip={label}
         className="cursor-pointer text-primary hover:text-primary"
       >

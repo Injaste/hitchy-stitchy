@@ -13,7 +13,7 @@ export function useLimitGuard() {
 
   return (resource: PlanResource): boolean => {
     if (!meter(resource).atLimit) return false;
-    openUpgrade();
+    openUpgrade({ kind: "limit", resource });
     return true;
   };
 }
