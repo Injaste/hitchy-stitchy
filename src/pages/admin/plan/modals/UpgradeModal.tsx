@@ -29,6 +29,7 @@ import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
 const UpgradeModal = () => {
   const { isOpen, close } = useUpgradeModalStore();
   const {
+    planName,
     isOverPlanLimits,
     canUpgrade,
     nextTier,
@@ -106,6 +107,15 @@ const UpgradeModal = () => {
                 over state, tiers the event would still overflow are disabled. */}
             {showPicker && (
               <div role="radiogroup" className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {/* Current plan — shown for context, not selectable. */}
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-dotted border-primary px-3 py-2.5 text-sm">
+                  <span className="font-medium text-foreground">
+                    {planName}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    Current plan
+                  </span>
+                </div>
                 {upgradeTiers.map((t) => {
                   const fits = state !== "over" || tierFits(t);
                   const active = t.tier === selected?.tier;
