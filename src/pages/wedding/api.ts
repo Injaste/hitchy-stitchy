@@ -14,8 +14,7 @@ export async function fetchPublicEvent(
   slug: string,
   linkSlug?: string | null,
 ): Promise<PublicEventConfig> {
-  // Per-(day, segment) model render. Consolidated from get_public_invitation_v2
-  // onto the canonical name at go-live (migration 20260617000007).
+  // Per-(day, segment) model render, resolved by slug + optional link_slug.
   const { data, error } = await supabase.rpc("get_public_invitation", {
     p_slug: slug,
     p_link_slug: linkSlug ?? null,

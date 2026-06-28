@@ -22,14 +22,14 @@ export async function fetchGuests(eventId: string): Promise<Guest[]> {
   return (data ?? []) as Guest[]
 }
 
-// Add one guest to one or more invitation pages, atomically (create_guest_on_pages
-// — all-or-nothing; per-page bounds + phone-dedup). Returns the created rows.
-export async function createGuestOnPages(
+// Add one guest to one or more invitation pages, atomically (create_guest —
+// all-or-nothing; plan cap + per-page bounds + phone-dedup). Returns the created rows.
+export async function createGuest(
   eventId: string,
   invitationIds: string[],
   guest: CreateGuestPayload,
 ): Promise<Guest[]> {
-  const { data, error } = await supabase.rpc("create_guest_on_pages", {
+  const { data, error } = await supabase.rpc("create_guest", {
     p_event_id: eventId,
     p_invitation_ids: invitationIds,
     p_guest: {
@@ -46,8 +46,7 @@ export async function createGuestOnPages(
 }
 
 // Per-(day, segment) model: limits come from the guest's own invitation page.
-// Canonical name post go-live (consolidated from update_guest_v2 — same args).
-export async function updateGuestV2(payload: UpdateGuestPayload): Promise<Guest> {
+export async function updateGuest(payload: UpdateGuestPayload): Promise<Guest> {
   const { data, error } = await supabase.rpc("update_guest", {
     p_event_id: payload.event_id,
     p_id: payload.id,
