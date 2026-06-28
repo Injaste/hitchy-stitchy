@@ -14,8 +14,11 @@ const SidebarPlanBadge = () => {
   const { isPending, canUpgrade, nextTier } = usePlan();
   const openUpgrade = useUpgradeModalStore((s) => s.open);
 
+  // Parked for now — reworking this surface later. Flip to false to restore.
+  const parked: boolean = true;
+
   // Top tier with nothing pending has nothing to act on — the crown carries status.
-  if (!isSuperAdmin || (!isPending && !canUpgrade)) return null;
+  if (parked || !isSuperAdmin || (!isPending && !canUpgrade)) return null;
 
   const label = isPending
     ? "Complete payment"
