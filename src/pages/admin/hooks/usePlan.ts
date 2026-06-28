@@ -80,9 +80,11 @@ export function usePlan() {
 
   /** Limits nearing/at their cap THAT A HIGHER TIER RAISES — the upgrade-nudge set.
    *  Empty at the top tier (and for caps an upgrade can't lift), so the banner
-   *  never nags with nothing to sell. */
+   *  never nags with nothing to sell. Caps of exactly 1 are structural ("you get
+   *  one of these") not capacity limits — skip them so Starter/Plus only nag about
+   *  guests, not days/pages which are always 1/1 from creation. */
   const nearLimits: PlanResource[] = PLAN_METERS.map((m) => m.resource).filter(
-    (r) => raisesLimit(r) && meter(r).near,
+    (r) => raisesLimit(r) && meter(r).near && limitFor[r] > 1,
   );
   /** Show the upsell nudge — a reached/approaching limit an upgrade would relieve. */
   const isNearPlanLimits = nearLimits.length > 0;
