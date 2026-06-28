@@ -38,6 +38,13 @@ export function useRsvpSection(
       startOfDay(new Date(eventConfig.rsvp_deadline)),
     )
 
+  const isEventOver =
+    eventConfig.event_date !== null &&
+    isAfter(
+      startOfDay(new Date()),
+      startOfDay(new Date(eventConfig.event_date)),
+    )
+
   const handleSubmit = async (value: RSVPFormData) => {
     // mutate() resolves even on failure (silent mutations swallow the rejection),
     // so gate the celebration on the success callback — otherwise a rejected RPC
@@ -80,6 +87,7 @@ export function useRsvpSection(
     isPrivate,
     showCode,
     isDeadlinePassed,
+    isEventOver,
     deadlineMessage:
       eventConfig.config.rsvp.messages?.deadline_closed || DEFAULT_DEADLINE_MESSAGE,
     sectionRef,

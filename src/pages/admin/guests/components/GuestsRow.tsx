@@ -121,7 +121,7 @@ const GuestsRow: FC<GuestsRowProps> = memo(
         <div className="text-right" onClick={(e) => e.stopPropagation()}>
           <AnimatePresence>
             {guest.status === "pending" && (
-              <motion.div variants={itemFadeIn} className="inline">
+              <motion.div variants={itemFadeIn} className="hidden sm:inline">
                 <Button
                   variant="ghost-success"
                   size="icon-sm"

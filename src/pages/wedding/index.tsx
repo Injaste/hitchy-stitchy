@@ -63,9 +63,14 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
         document.head.appendChild(m);
         return m;
       })();
-    const prev = meta.content;
+    const prevMeta = meta.content;
+    const prevBody = document.body.style.backgroundColor;
     meta.content = themeEntry.bgColor;
-    return () => { meta.content = prev; };
+    document.body.style.backgroundColor = themeEntry.bgColor;
+    return () => {
+      meta.content = prevMeta;
+      document.body.style.backgroundColor = prevBody;
+    };
   }, [isPreview, themeEntry?.bgColor]);
   // Published, but this build has no component for its template_key (e.g. a new
   // template that isn't deployed yet). Surface a clean unavailable state — never
