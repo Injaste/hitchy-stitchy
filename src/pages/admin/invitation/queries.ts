@@ -86,11 +86,21 @@ export function useInvitationMutations() {
     },
   );
 
-  // Publish = save + promote, atomically, via the one update RPC.
+  // Publish = save + promote, atomically, via the one update RPC. publishAt set
+  // (a future timestamp) schedules the page to go live then instead of now.
   const publish = useMutation(
-    (payload: SaveInvitationPayload) => saveInvitation(payload, true),
+    ({
+      payload,
+      publishAt = null,
+    }: {
+      payload: SaveInvitationPayload;
+      publishAt?: string | null;
+    }) => saveInvitation(payload, true, publishAt),
     {
-      successMessage: "Invitation published",
+      successMessage: (inv) =>
+        inv.published_at && new Date(inv.published_at) > new Date()
+          ? "Publish scheduled"
+          : "Invitation published",
       errorMessage: (err) => err.message,
       onSuccess: invalidate,
     },

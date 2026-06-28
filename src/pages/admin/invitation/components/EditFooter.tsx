@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { CloudUpload } from "lucide-react";
 import SubmitButton from "@/components/custom/form/SubmitButton";
-import { Button } from "@/components/ui/button";
+import PublishButton from "./PublishButton";
 
 interface EditFooterProps {
   statusText: string;
@@ -12,7 +12,14 @@ interface EditFooterProps {
   isPending: boolean;
   isSuccess: boolean;
   isError: boolean;
+  isLive: boolean;
+  isScheduled: boolean;
+  isPublished: boolean;
+  publishPending: boolean;
+  publishSuccess: boolean;
+  publishError: boolean;
   onPublish: () => void;
+  onSchedule: (publishAt: string) => boolean;
 }
 
 // Status + Save-as-draft (submits the form) + Publish (opens the publish confirm).
@@ -29,7 +36,14 @@ const EditFooter = memo(
     isPending,
     isSuccess,
     isError,
+    isLive,
+    isScheduled,
+    isPublished,
+    publishPending,
+    publishSuccess,
+    publishError,
     onPublish,
+    onSchedule,
   }: EditFooterProps) => (
     <div className="flex items-center justify-between gap-2 p-4 bg-background">
       <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
@@ -53,14 +67,18 @@ const EditFooter = memo(
         >
           Save as draft
         </SubmitButton>
-        <Button
-          type="button"
-          size="sm"
-          onClick={onPublish}
-          disabled={!canPublish || busy}
-        >
-          Publish
-        </Button>
+        <PublishButton
+          canPublish={canPublish}
+          busy={busy}
+          isLive={isLive}
+          isScheduled={isScheduled}
+          isPublished={isPublished}
+          publishPending={publishPending}
+          publishSuccess={publishSuccess}
+          publishError={publishError}
+          onPublish={onPublish}
+          onSchedule={onSchedule}
+        />
       </div>
     </div>
   ),

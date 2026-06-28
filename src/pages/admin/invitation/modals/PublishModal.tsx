@@ -16,9 +16,9 @@ const PublishModal = ({ edit }: { edit: InvitationEditController }) => {
       open={open}
       onOpenChange={(o) => !o && closeConfirm()}
       variant="default"
-      title={edit.isPublished ? "Publish changes?" : "Publish invitation?"}
+      title={edit.isLive ? "Publish changes?" : "Publish invitation?"}
       description={
-        edit.isPublished
+        edit.isLive
           ? "This updates the live page your guests see with your current design."
           : "This makes the page live — anyone with the link can open it."
       }

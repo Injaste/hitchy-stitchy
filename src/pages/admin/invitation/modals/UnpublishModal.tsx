@@ -3,7 +3,8 @@ import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 import type { InvitationEditController } from "../hooks/useInvitationEditForm";
 
-// Take the live page down (clears published_at). Re-publishable anytime.
+// Take the live page down (clears published_at). For a scheduled page this is
+// the same RPC — it just cancels the pending publish. Re-publishable anytime.
 const UnpublishModal = ({ edit }: { edit: InvitationEditController }) => {
   const open = useInvitationModalStore((s) => s.confirm === "unpublish");
   const closeConfirm = useInvitationModalStore((s) => s.closeConfirm);
@@ -15,9 +16,15 @@ const UnpublishModal = ({ edit }: { edit: InvitationEditController }) => {
       open={open}
       onOpenChange={(o) => !o && closeConfirm()}
       variant="warning"
-      title="Unpublish invitation?"
-      description="Guests will no longer be able to open the page. You can publish again anytime."
-      confirmLabel="Unpublish"
+      title={
+        edit.isScheduled ? "Cancel scheduled publish?" : "Unpublish invitation?"
+      }
+      description={
+        edit.isScheduled
+          ? "The page won't go live at the scheduled time. You can publish or reschedule anytime."
+          : "Guests will no longer be able to open the page. You can publish again anytime."
+      }
+      confirmLabel={edit.isScheduled ? "Cancel schedule" : "Unpublish"}
       isPending={edit.unpublishPending}
       isSuccess={edit.unpublishSuccess}
       isError={edit.unpublishError}

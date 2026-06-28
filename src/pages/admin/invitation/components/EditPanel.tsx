@@ -1,5 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import { format, parseISO } from "date-fns";
 import { ScrollView } from "@/components/custom/scroll-view";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -62,6 +63,15 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
       if (validateAndJump()) openConfirm("publish");
     };
 
+    // Scheduled publish: validate, then publish with a future timestamp (the
+    // popover is the confirmation). Returns false when invalid so the popover
+    // closes and the errored tab is shown.
+    const onSchedule = (publishAt: string): boolean => {
+      if (!validateAndJump()) return false;
+      edit.commitPublish(publishAt).catch(() => {});
+      return true;
+    };
+
     // Ctrl/Cmd-Enter saves from a textarea (plain Enter inserts a newline there;
     // in single-line inputs Enter already submits via the submit button).
     const onKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -75,9 +85,11 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
       ? "Unsaved changes"
       : !edit.isPublished
         ? "Draft"
-        : edit.hasUnpublishedChanges
-          ? "Unpublished changes"
-          : "Published";
+        : edit.isScheduled && edit.scheduledAt
+          ? `Scheduled for ${format(parseISO(edit.scheduledAt), "d MMM, h:mm a")}`
+          : edit.hasUnpublishedChanges
+            ? "Unpublished changes"
+            : "Published";
 
     return (
       <FormShellContext.Provider
@@ -108,10 +120,7 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            <EditOverflowMenu
-              isDirty={edit.isDirty}
-              isPublished={edit.isPublished}
-            />
+            <EditOverflowMenu isDirty={edit.isDirty} />
           </div>
 
           {/* One form spans both tabs (fields + Save/Publish). */}
@@ -141,7 +150,7 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
                       <div className="space-y-4">
                         <RSVPSection
                           linkSlug={invitation.link_slug}
-                          published={!!invitation.published_at}
+                          published={edit.isLive}
                         />
                         <GuestLimitsSection />
                         <FormFieldsSection />
@@ -163,7 +172,14 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
               isPending={edit.isPending}
               isSuccess={edit.isSuccess}
               isError={edit.isError}
+              isLive={edit.isLive}
+              isScheduled={edit.isScheduled}
+              isPublished={edit.isPublished}
+              publishPending={edit.publishPending}
+              publishSuccess={edit.publishSuccess}
+              publishError={edit.publishError}
               onPublish={onPublish}
+              onSchedule={onSchedule}
             />
           </form>
 

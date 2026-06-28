@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { MoreHorizontal, Undo2, RotateCcw, EyeOff, Trash2 } from "lucide-react";
+import { MoreHorizontal, Undo2, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,13 +12,12 @@ import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
 
 interface EditOverflowMenuProps {
   isDirty: boolean;
-  isPublished: boolean;
 }
 
 // Secondary lifecycle actions. Items open the matching confirm dialog via the
-// store; the dialogs live in modals/.
-const EditOverflowMenu = memo(
-  ({ isDirty, isPublished }: EditOverflowMenuProps) => {
+// store; the dialogs live in modals/. (Publish/Schedule/Unpublish live in the
+// footer's split button.)
+const EditOverflowMenu = memo(({ isDirty }: EditOverflowMenuProps) => {
     const openConfirm = useInvitationModalStore((s) => s.openConfirm);
     return (
       <DropdownMenu>
@@ -44,12 +43,6 @@ const EditOverflowMenu = memo(
             <RotateCcw className="size-4" />
             Reset to template
           </DropdownMenuItem>
-          {isPublished && (
-            <DropdownMenuItem onSelect={() => openConfirm("unpublish")}>
-              <EyeOff className="size-4" />
-              Unpublish
-            </DropdownMenuItem>
-          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onSelect={() => openConfirm("delete")}
@@ -60,9 +53,8 @@ const EditOverflowMenu = memo(
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    );
-  },
-);
+  );
+});
 
 EditOverflowMenu.displayName = "EditOverflowMenu";
 

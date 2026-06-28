@@ -150,13 +150,14 @@ const GuestsView: FC<GuestsViewProps> = ({
       : undefined;
 
   // Copyable links for the page(s) in scope: a focused segment → just that page;
-  // "All" → every page of the day. Only published pages have a live URL.
+  // "All" → every page of the day. Only live pages have a working URL — a
+  // scheduled page (future published_at) won't resolve until it goes live.
   const linkPages = useMemo(() => {
     const inScope = effectivePageId
       ? dayPages.filter((p) => p.id === effectivePageId)
       : dayPages;
     return inScope
-      .filter((p) => p.published_at)
+      .filter((p) => p.published_at && new Date(p.published_at) <= new Date())
       .map((p) => ({
         label: pageLabel(p, days, segments ?? []),
         linkSlug: p.link_slug,

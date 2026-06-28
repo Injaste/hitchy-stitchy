@@ -175,11 +175,15 @@ export function useInvitationEditForm(
     form.reset(form.state.values);
   }, [save, buildPayload, form]);
 
-  // Atomic publish: one RPC persists the draft AND promotes it.
-  const commitPublish = useCallback(async () => {
-    await publish.mutateAsync(buildPayload());
-    form.reset(form.state.values);
-  }, [publish, buildPayload, form]);
+  // Atomic publish: one RPC persists the draft AND promotes it. A future
+  // publishAt schedules the page to go live then (snapshot is taken now).
+  const commitPublish = useCallback(
+    async (publishAt: string | null = null) => {
+      await publish.mutateAsync({ payload: buildPayload(), publishAt });
+      form.reset(form.state.values);
+    },
+    [publish, buildPayload, form],
+  );
 
   // Leave-guard save = validate + commit (throws to keep the guard open on error).
   const saveFromGuard = useCallback(async () => {
@@ -201,27 +205,35 @@ export function useInvitationEditForm(
     onClose,
   });
 
-  // Publish state. "Unpublished changes" = the saved draft design differs from
-  // the published snapshot (RSVP settings are live, so they don't count).
-  // Memoised so the deepEqual doesn't run on every render.
-  const { isPublished, hasUnpublishedChanges, canPublish } = useMemo(() => {
-    const published = !!invitation.published_at;
-    const unpublishedChanges =
-      published &&
-      !deepEqual(invitation.draft_config, invitation.published_config);
-    return {
-      isPublished: published,
-      hasUnpublishedChanges: unpublishedChanges,
-      // Enable publish whenever the working design differs from what's live (or
-      // it was never published) — independent of the Save button's dirty state.
-      canPublish: isDirty || !published || unpublishedChanges,
-    };
-  }, [
-    invitation.published_at,
-    invitation.draft_config,
-    invitation.published_config,
-    isDirty,
-  ]);
+  // Publish state. published_at may be in the FUTURE (scheduled): live = stamped
+  // and due, scheduled = stamped but not yet due. "Unpublished changes" = the
+  // saved draft design differs from the published snapshot (RSVP settings are
+  // live, so they don't count). Memoised so the deepEqual doesn't run each render.
+  const { isPublished, isLive, isScheduled, scheduledAt, hasUnpublishedChanges, canPublish } =
+    useMemo(() => {
+      const at = invitation.published_at;
+      const stamped = !!at;
+      const scheduled = stamped && new Date(at!).getTime() > Date.now();
+      const live = stamped && !scheduled;
+      const unpublishedChanges =
+        stamped &&
+        !deepEqual(invitation.draft_config, invitation.published_config);
+      return {
+        isPublished: stamped,
+        isLive: live,
+        isScheduled: scheduled,
+        scheduledAt: scheduled ? at! : null,
+        hasUnpublishedChanges: unpublishedChanges,
+        // Enable publish whenever it isn't already live as-is: not live (draft or
+        // scheduled), has edits, or the working design differs from the snapshot.
+        canPublish: isDirty || !live || unpublishedChanges,
+      };
+    }, [
+      invitation.published_at,
+      invitation.draft_config,
+      invitation.published_config,
+      isDirty,
+    ]);
 
   // Fire-and-forget mutations; the confirm dialog drives the SubmitButton state
   // and closes itself on success (useCloseOnSuccess in EditPanel).
@@ -269,6 +281,9 @@ export function useInvitationEditForm(
     modal,
     // publish/lifecycle
     isPublished,
+    isLive,
+    isScheduled,
+    scheduledAt,
     hasUnpublishedChanges,
     canPublish,
     handleUnpublish,

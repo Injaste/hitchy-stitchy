@@ -56,10 +56,12 @@ export async function createInvitation(
 }
 
 // One RPC saves the draft (+ live settings); toPublish also promotes it to the
-// live page in the same transaction (atomic publish).
+// live page in the same transaction (atomic publish). publishAt may be a future
+// timestamp (scheduled publish) — the page stays hidden until it passes.
 export async function saveInvitation(
   payload: SaveInvitationPayload,
   toPublish = false,
+  publishAt: string | null = null,
 ): Promise<Invitation> {
   const { data, error } = await supabase.rpc("update_invitation", {
     p_event_id: payload.event_id,
@@ -75,6 +77,8 @@ export async function saveInvitation(
     p_rsvp_config: payload.rsvp_config,
     p_private_code: payload.private_code,
     p_to_publish: toPublish,
+    // Omit when null so the RPC default (now()) applies — immediate publish.
+    ...(publishAt ? { p_publish_at: publishAt } : {}),
   })
 
   if (error) throw new Error(error.message)
