@@ -1,32 +1,36 @@
-import { useEffect, useState } from "react"
-import { format } from "date-fns"
-import { CalendarDays, MapPin } from "lucide-react"
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { CalendarDays, MapPin } from "lucide-react";
 
-import type { PublicEventConfig } from "@/pages/wedding/types"
-import AnchorBar from "./AnchorBar"
-import CalendarDrawer from "./CalendarDrawer"
-import MapDrawer from "./MapDrawer"
-import { getWeddingDateTime } from "./calendar"
-import { deriveMapEmbedUrl } from "./map"
+import type { PublicEventConfig } from "@/pages/wedding/types";
+import AnchorBar from "./AnchorBar";
+import CalendarDrawer from "./CalendarDrawer";
+import MapDrawer from "./MapDrawer";
+import { getWeddingDateTime } from "./calendar";
+import { deriveMapEmbedUrl } from "./map";
 import type {
   AnchorClassNames,
   AnchorDrawerClassNames,
   AnchorItemConfig,
   AnchorLabels,
-} from "./types"
+} from "./types";
 
 interface AnchorDockProps {
-  ready: boolean
-  eventConfig: PublicEventConfig
+  ready: boolean;
+  eventConfig: PublicEventConfig;
   /** The template's own scroll anchors (e.g. Date, Itinerary, RSVP). */
-  scrollItems: AnchorItemConfig[]
-  classNames: AnchorClassNames
-  drawerClassNames: AnchorDrawerClassNames
-  labels: AnchorLabels
+  scrollItems: AnchorItemConfig[];
+  classNames: AnchorClassNames;
+  drawerClassNames: AnchorDrawerClassNames;
+  labels: AnchorLabels;
   /** Calendar event details (title + optional location). */
-  calendar: { title: string; location?: string | null }
+  calendar: { title: string; location?: string | null };
   /** Map details — an embed URL and/or a shareable maps link, plus an address. */
-  map: { embedUrl?: string | null; link?: string | null; address?: string | null }
+  map: {
+    embedUrl?: string | null;
+    link?: string | null;
+    address?: string | null;
+  };
 }
 
 // Engine-injected anchor dock: every template gets calendar + map as anchor
@@ -42,42 +46,62 @@ const AnchorDock = ({
   calendar,
   map,
 }: AnchorDockProps) => {
-  const [calOpen, setCalOpen] = useState(false)
-  const [mapOpen, setMapOpen] = useState(false)
+  const [calOpen, setCalOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
 
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(false);
   useEffect(() => {
-    if (!ready) return
-    const t = setTimeout(() => setVisible(true), 1000)
-    return () => clearTimeout(t)
-  }, [ready])
+    if (!ready) return;
+    const t = setTimeout(() => setVisible(true), 2000);
+    return () => clearTimeout(t);
+  }, [ready]);
 
-  const start = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_start)
-  const end = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_end)
-  const calendarEnabled = !!start
+  const start = getWeddingDateTime(
+    eventConfig.event_date,
+    eventConfig.event_time_start,
+  );
+  const end = getWeddingDateTime(
+    eventConfig.event_date,
+    eventConfig.event_time_end,
+  );
+  const calendarEnabled = !!start;
 
-  const mapEmbed = map.embedUrl || deriveMapEmbedUrl(map.link)
-  const mapEnabled = !!(mapEmbed || map.link)
+  const mapEmbed = map.embedUrl || deriveMapEmbedUrl(map.link);
+  const mapEnabled = !!(mapEmbed || map.link);
 
   // Date (the calendar drawer) leads; map sits just before the RSVP call-to-action,
   // which stays last. Result: Date · …scroll items… · Map · RSVP.
   const calItem: AnchorItemConfig[] = calendarEnabled
-    ? [{ id: "calendar", label: labels.calendar ?? "Date", icon: CalendarDays, target: "action:calendar" }]
-    : []
+    ? [
+        {
+          id: "calendar",
+          label: labels.calendar ?? "Date",
+          icon: CalendarDays,
+          target: "action:calendar",
+        },
+      ]
+    : [];
   const mapItem: AnchorItemConfig[] = mapEnabled
-    ? [{ id: "map", label: labels.map ?? "Map", icon: MapPin, target: "action:map" }]
-    : []
-  const base = [...calItem, ...scrollItems]
-  const rsvpIdx = base.findIndex((i) => i.id === "rsvp")
+    ? [
+        {
+          id: "map",
+          label: labels.map ?? "Map",
+          icon: MapPin,
+          target: "action:map",
+        },
+      ]
+    : [];
+  const base = [...calItem, ...scrollItems];
+  const rsvpIdx = base.findIndex((i) => i.id === "rsvp");
   const items =
     rsvpIdx === -1
       ? [...base, ...mapItem]
-      : [...base.slice(0, rsvpIdx), ...mapItem, ...base.slice(rsvpIdx)]
+      : [...base.slice(0, rsvpIdx), ...mapItem, ...base.slice(rsvpIdx)];
 
   const handleAction = (name: string) => {
-    if (name === "map") setMapOpen(true)
-    if (name === "calendar") setCalOpen(true)
-  }
+    if (name === "map") setMapOpen(true);
+    if (name === "calendar") setCalOpen(true);
+  };
 
   return (
     <>
@@ -113,7 +137,7 @@ const AnchorDock = ({
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default AnchorDock
+export default AnchorDock;
