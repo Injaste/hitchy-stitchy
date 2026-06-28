@@ -13,11 +13,13 @@ import {
 } from "@/components/ui/popover";
 
 import { useAdminStore } from "../../store/useAdminStore";
+import { useLimitGuard } from "../../plan/hooks/useLimitGuard";
 import { useDayMutations } from "../queries";
 
 const AddDay: FC = () => {
   const { eventId } = useAdminStore();
   const { create } = useDayMutations();
+  const guardAdd = useLimitGuard();
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>();
   const [label, setLabel] = useState("");
@@ -51,6 +53,8 @@ const AddDay: FC = () => {
     <Popover
       open={open}
       onOpenChange={(o) => {
+        // At the day cap → upsell instead of opening the form (server still gates).
+        if (o && guardAdd("days")) return;
         setOpen(o);
         if (!o) reset();
       }}
