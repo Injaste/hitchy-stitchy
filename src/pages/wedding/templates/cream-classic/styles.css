@@ -1,0 +1,38 @@
+/* cream-classic — slug-owned stylesheet (ivory + warm brown + embossed roses).
+   Consumes the font CSS variables set on .cl-root by the slug component. */
+
+.cl-root {
+  font-family: var(--theme-font-body);
+
+  --cl-bg:           #f3eeea;
+  --cl-bg-2:         #ebe4dd;
+  --cl-fg:           #5a4e42;
+  --cl-muted-fg:     #8a7d6c;
+  --cl-primary:      #00175e;
+  --cl-primary-deep: #000e3e;
+  --cl-accent:       #b9ab97;
+  --cl-emboss:       #dcd2bf;
+  --cl-border:       #e0d8c8;
+  --cl-card:         #fbf7ef;
+  --cl-on-primary:   #f7f2e9;
+  --cl-destructive:  #a3564a;
+
+  --cl-seal:         #e8dfd0;
+}
+
+.cl-root h1,
+.cl-root h2,
+.cl-root h3,
+.cl-root h4,
+.cl-root h5,
+.cl-root h6 {
+  font-family: var(--theme-font-heading);
+}
+
+.cl-root .cl-couple-names {
+  font-family: var(--theme-font-couple);
+}
+
+.cl-root .cl-countdown-number {
+  font-family: var(--theme-font-number);
+}

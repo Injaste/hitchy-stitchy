@@ -8,7 +8,7 @@ interface AnchorBarProps {
   classNames: AnchorClassNames;
   labels: AnchorLabels;
   onAction?: (name: string) => void;
-  ready: boolean;
+  visible: boolean;
 }
 
 const AnchorBar = ({
@@ -16,7 +16,7 @@ const AnchorBar = ({
   classNames,
   labels,
   onAction,
-  ready,
+  visible,
 }: AnchorBarProps) => {
   if (!items.length) return null;
 
@@ -25,8 +25,8 @@ const AnchorBar = ({
       id="itinerary"
       aria-label={labels.ariaLabel ?? "Page navigation"}
       initial={{ opacity: 0, y: 32 }}
-      animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 5 }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       className={cn(
         "fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 flex items-stretch justify-around",

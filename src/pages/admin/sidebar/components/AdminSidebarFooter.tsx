@@ -26,13 +26,13 @@ const AdminSidebarFooter = () => {
   const { state } = useSidebar();
   const isMobile = useIsMobile();
   const { memberDisplayName, memberRole, isBride, isGroom } = useAdminStore();
-  const { isPro } = usePlan();
+  const { isPaid } = usePlan();
   const { isSuperAdmin } = useAccess();
   const openAccountSettings = useAccountSettingsStore((s) => s.open);
   const displayLabel =
     memberRole ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
-  // Active Pro reads as a crown on the avatar; only the owner (super admin) sees it.
-  const showCrown = isPro && isSuperAdmin;
+  // A paid plan reads as a crown on the avatar; only the owner (super admin) sees it.
+  const showCrown = isPaid && isSuperAdmin;
 
   return (
     <SidebarFooter>

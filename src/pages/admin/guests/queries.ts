@@ -7,8 +7,8 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys"
 
 import {
   fetchGuests,
-  createGuestOnPages,
-  updateGuestV2,
+  createGuest,
+  updateGuest,
   updateGuests,
   deleteGuest,
   subscribeToGuests,
@@ -71,7 +71,7 @@ export function useGuestMutations() {
 
   const create = useMutation(
     (payload: CreateGuestPayload & { invitationIds: string[] }) =>
-      createGuestOnPages(eventId!, payload.invitationIds, payload),
+      createGuest(eventId!, payload.invitationIds, payload),
     {
       successMessage: (rows: Guest[]) =>
         rows.length === 1
@@ -85,7 +85,7 @@ export function useGuestMutations() {
   )
 
   const update = useMutation(
-    (payload: UpdateGuestPayload) => updateGuestV2(payload),
+    (payload: UpdateGuestPayload) => updateGuest(payload),
     {
       successMessage: (result: Guest) => `"${truncate(result.name)}" updated`,
       errorMessage: (err) => err.message,
@@ -97,7 +97,7 @@ export function useGuestMutations() {
 
   const updateStatus = useMutation(
     ({ guest, status }: { guest: Guest; status: GuestStatus }) =>
-      updateGuestV2({
+      updateGuest({
         event_id: guest.event_id,
         id: guest.id,
         name: guest.name,

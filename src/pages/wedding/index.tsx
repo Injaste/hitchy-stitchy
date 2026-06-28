@@ -6,9 +6,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { usePublicEvent, usePublicEventRealtime } from "./queries";
+import ThemeError from "./states/ThemeError";
 import ThemeLoader from "./states/ThemeLoader";
 import ThemeState from "./states/ThemeState";
-import { FallbackTheme, themeRegistry } from "./templates";
+import { themeRegistry } from "./templates";
 import type { PublicEventConfig } from "./types";
 
 interface WeddingProps {
@@ -48,18 +49,48 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
     }
   }, [hasError, isNotFound, navigate, link_slug, slug]);
 
-  const showStateOverlay =
-    !isReady || (!isPreview && (isLoading || !eventConfig || hasError));
-
   const themeSlug = eventConfig?.published_page?.theme_slug ?? null;
-  const ThemeComponent =
-    (themeSlug ? themeRegistry[themeSlug]?.component : null) ?? FallbackTheme;
+  const themeEntry = themeSlug ? (themeRegistry[themeSlug] ?? null) : null;
+  const ThemeComponent = themeEntry?.component ?? null;
+
+  useEffect(() => {
+    if (isPreview || !themeEntry?.bgColor) return;
+    const meta =
+      document.querySelector<HTMLMetaElement>('meta[name="theme-color"]') ??
+      (() => {
+        const m = document.createElement("meta");
+        m.name = "theme-color";
+        document.head.appendChild(m);
+        return m;
+      })();
+    const prev = meta.content;
+    meta.content = themeEntry.bgColor;
+    return () => { meta.content = prev; };
+  }, [isPreview, themeEntry?.bgColor]);
+  // Published, but this build has no component for its template_key (e.g. a new
+  // template that isn't deployed yet). Surface a clean unavailable state — never
+  // silently render an unrelated design in its place.
+  const isThemeMissing =
+    !isPreview && !!eventConfig && !hasError && !ThemeComponent;
+
+  const showStateOverlay =
+    !isReady ||
+    isThemeMissing ||
+    (!isPreview && (isLoading || !eventConfig || hasError));
 
   const renderOverlayContent = () => {
     if (!showStateOverlay) return null;
 
     if (!isPreview && (hasError || isNotFound)) {
       return null;
+    }
+
+    if (isThemeMissing) {
+      return (
+        <ComponentFade key="theme-error">
+          <ThemeError />
+        </ComponentFade>
+      );
     }
 
     if (!isPreview && isLoading) {
@@ -83,7 +114,7 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
 
   const content = (
     <>
-      {eventConfig && !hasError && (
+      {eventConfig && !hasError && ThemeComponent && (
         <ThemeComponent
           eventConfig={eventConfig}
           pageConfig={eventConfig.published_page?.config ?? {}}

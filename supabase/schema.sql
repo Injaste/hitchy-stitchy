@@ -1323,8 +1323,6 @@ BEGIN
 END; $$;
 
 -- get_public_invitation — public render for the per-(day, segment) model.
--- Consolidated from get_public_invitation_v2 onto the canonical name at go-live
--- (migration 20260617000007; the old event_invitation/event_themes body was dropped).
 -- link_slug routing: p_link_slug -> that page; NULL -> root (link_slug NULL) else
 -- first-by-date published page. Guards: event exists + active, page published.
 CREATE OR REPLACE FUNCTION public.get_public_invitation(p_slug text, p_link_slug text DEFAULT null)

@@ -1,5 +1,4 @@
-import { useMemo } from "react";
-import { AlertTriangle, Check, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 
 import {
   Dialog,
@@ -11,69 +10,85 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { usePlan } from "../../hooks/usePlan";
-import { PLAN_METERS, planSupportHref } from "../plan-config";
-import { useProPlanQuery } from "../queries";
+import {
+  PLAN_METERS,
+  PLAN_FEATURES,
+  PLAN_CAP_LABELS,
+  CAP_KEY_FOR,
+  planSupportHref,
+} from "../plan-config";
 import { useUpgradeModalStore } from "../hooks/useUpgradeModalStore";
-import { formatPrice } from "../utils";
 
-/** Per-state copy for the three upgrade contexts — keeps the JSX free of nested
- *  ternaries: pick the state, render COPY[state]. `note` is the muted secondary
- *  line (only the over-limit state has one). */
-type UpgradeState = "pro" | "over" | "free";
-const COPY: Record<
-  UpgradeState,
-  { title: string; description: string; note?: string }
-> = {
-  pro: {
-    title: "Plan limits reached",
-    description:
-      "You've reached your Pro plan's limits — we can raise them for you.",
-  },
-  over: {
-    title: "Unlock your full event",
-    description:
-      "Your event has more than the Free plan allows, so editing is paused. Your content is safe — upgrade to unlock it all instantly.",
-    note: "Staying on Free? You can remove items to fit within its limits.",
-  },
-  free: {
-    title: "Upgrade to Pro",
-    description: "You've reached your Free plan limits. Upgrade to keep going.",
-  },
-};
-
-/** The pay-to-upgrade surface, opened from the limit-reached banner. Lists the
- *  caps that triggered it, pitches Pro, and discloses the price. Payment itself
- *  is wired last (Stripe) — for now the CTA is honestly marked "coming soon".
- *  Reused later by the pending-activation flow. */
+/** The upgrade surface, opened from the limit-reached banner. Lists the caps that
+ *  triggered it, then shows exactly what the NEXT tier changes — features it
+ *  unlocks and caps it raises (current → next) — all from the bootstrapped catalog.
+ *  No price is shown anywhere (pricing isn't live yet). Three contexts:
+ *    top      — already on the highest tier: route to support
+ *    over     — content exceeds the current plan (downgrade lock) but a tier up exists
+ *    upgrade  — at a cap, a higher tier exists */
 const UpgradeModal = () => {
   const { isOpen, close } = useUpgradeModalStore();
-  const { isPro, isOverPlanLimits, reachedLimits, meter } = usePlan();
-  // Over the plan = a downgrade that locks editing (different pitch than just
-  // being at a cap). Only meaningful for Free — Pro over-limit has no higher tier.
-  const over = isOverPlanLimits && !isPro;
-  const copy = COPY[isPro ? "pro" : over ? "over" : "free"];
+  const {
+    isOverPlanLimits,
+    canUpgrade,
+    nextTier,
+    meter,
+    limits: currentLimits,
+    canUseFeature,
+  } = usePlan();
 
-  // Only fetch the Pro catalog row when the modal is open and an upgrade applies.
-  const { data: pro } = useProPlanQuery(isOpen && !isPro);
+  const nextName = nextTier?.name ?? "";
 
-  const labelFor = (r: (typeof reachedLimits)[number]) =>
-    PLAN_METERS.find((m) => m.resource === r)?.label ?? r;
+  // What the next tier ADDS vs the current plan — straight from the catalog.
+  // (`?.limits/features != null` guards the brief window where the frontend is
+  // live but the catalog-enriching migration isn't applied yet.)
+  const unlocked =
+    nextTier?.features != null
+      ? PLAN_FEATURES.filter((f) => nextTier.features[f.key] && !canUseFeature(f.key))
+      : [];
+  const raised =
+    nextTier?.limits != null
+      ? PLAN_CAP_LABELS.filter((c) => nextTier.limits[c.key] > currentLimits[c.key]).map(
+          (c) => {
+            // If this cap has a usage meter, show where you stand (45/50 → 500);
+            // otherwise just the cap raise (50 → 500).
+            const res = PLAN_METERS.find((m) => CAP_KEY_FOR[m.resource] === c.key)
+              ?.resource;
+            return {
+              label: c.label,
+              used: res ? meter(res).used : null,
+              atLimit: res ? meter(res).atLimit : false,
+              from: currentLimits[c.key],
+              to: nextTier.limits[c.key],
+            };
+          },
+        )
+      : [];
+  const hasDiff = unlocked.length > 0 || raised.length > 0;
 
-  const perks = useMemo(() => {
-    if (!pro) return [];
-    const items = [
-      "Unlimited guests",
-      `Up to ${pro.maxDays} event days`,
-      `Up to ${pro.maxInvitationPages} invitation pages`,
-      `Up to ${pro.maxMembers} team members`,
-    ];
-    if (pro.canUseBudget) items.push("Budget tracker");
-    if (pro.canUseGifts) items.push("Gift envelopes");
-    if (pro.canRemoveBranding) items.push("Remove Hitchy Stitchy branding");
-    return items;
-  }, [pro]);
+  const state = !canUpgrade ? "top" : isOverPlanLimits ? "over" : "upgrade";
+  const copy = {
+    top: {
+      title: "Plan limits reached",
+      description:
+        "You've reached your plan's limits — we can raise them for you.",
+      note: undefined as string | undefined,
+    },
+    over: {
+      title: "Unlock your full event",
+      description:
+        "Your event has more than your current plan allows, so editing is paused. Your content is safe — upgrade to unlock it all instantly.",
+      note: "Prefer to stay put? Remove items to fit your current plan's limits.",
+    },
+    upgrade: {
+      title: `Upgrade to ${nextName}`,
+      description: `See what ${nextName} unlocks for your event.`,
+      note: undefined as string | undefined,
+    },
+  }[state];
 
   return (
     <Dialog
@@ -93,44 +108,67 @@ const UpgradeModal = () => {
 
         <DialogBody>
           <div className="space-y-4">
-            {/* What's capped right now */}
-            <div className="space-y-2">
-              {reachedLimits.map((r) => {
-                const m = meter(r);
-                return (
-                  <div
-                    key={r}
-                    className="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-sm"
-                  >
-                    <AlertTriangle className="size-3.5 shrink-0 text-warning" />
-                    <span className="font-medium text-foreground">
-                      {labelFor(r)}
-                    </span>
-                    <span className="ml-auto font-semibold text-warning">
-                      {m.used}/{m.max}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* The Pro pitch (upgrade case only) */}
-            {!isPro && perks.length > 0 && (
+            {/* One comparison: the metered limits an upgrade raises (with where you
+                stand now), then any features it unlocks. */}
+            {canUpgrade && hasDiff && (
               <div className="rounded-xl border border-border p-4">
                 <p className="mb-3 text-sm font-semibold text-foreground">
-                  What you get with Pro
+                  What {nextName} adds
                 </p>
-                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {perks.map((p) => (
-                    <li
-                      key={p}
-                      className="flex items-center gap-2 text-sm text-muted-foreground"
-                    >
-                      <Check className="size-3.5 shrink-0 text-primary" />
-                      {p}
-                    </li>
-                  ))}
-                </ul>
+
+                {raised.length > 0 && (
+                  <ul className="divide-y divide-border/60">
+                    {raised.map((c) => (
+                      <li
+                        key={c.label}
+                        className="flex items-center justify-between gap-3 py-2 text-sm first:pt-0 last:pb-0"
+                      >
+                        <span className="text-muted-foreground">{c.label}</span>
+                        {c.from === 0 ? (
+                          // Newly unlocked limit (was 0 — the feature didn't exist
+                          // before): show just the new cap, no "0 →" comparison.
+                          <span className="font-semibold tabular-nums text-foreground">
+                            {c.to}
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2 tabular-nums">
+                            <span
+                              className={cn(
+                                "font-medium",
+                                c.atLimit ? "text-warning" : "text-muted-foreground",
+                              )}
+                            >
+                              {c.used != null ? `${c.used}/${c.from}` : c.from}
+                            </span>
+                            <ArrowRight className="size-3.5 shrink-0 text-muted-foreground/50" />
+                            <span className="font-semibold text-foreground">
+                              {c.to}
+                            </span>
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {unlocked.length > 0 && (
+                  <ul
+                    className={cn(
+                      "grid grid-cols-1 gap-2 sm:grid-cols-2",
+                      raised.length > 0 && "mt-3 border-t border-border/60 pt-3",
+                    )}
+                  >
+                    {unlocked.map((f) => (
+                      <li
+                        key={f.key}
+                        className="flex items-center gap-2 text-sm text-muted-foreground"
+                      >
+                        <Check className="size-3.5 shrink-0 text-primary" />
+                        {f.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
 
@@ -140,30 +178,26 @@ const UpgradeModal = () => {
               </p>
             )}
 
-            {!isPro && (
+            {canUpgrade && (
               <p className="text-center text-xs text-muted-foreground">
-                {pro?.price != null
-                  ? "Online payment is being set up — coming soon."
-                  : "Pricing coming soon."}
+                Online upgrades are coming soon.
               </p>
             )}
           </div>
         </DialogBody>
 
-        {isPro ? (
+        {canUpgrade ? (
+          <DialogFooter>
+            <Button className="w-full" disabled>
+              Upgrade to {nextName}
+            </Button>
+          </DialogFooter>
+        ) : (
           <DialogFooter>
             <Button asChild className="w-full">
               <a href={planSupportHref} target="_blank" rel="noopener noreferrer">
                 Contact us
               </a>
-            </Button>
-          </DialogFooter>
-        ) : (
-          <DialogFooter>
-            <Button className="w-full" disabled>
-              {pro?.price != null
-                ? `Upgrade · ${formatPrice(pro.price)}`
-                : "Upgrade to Pro"}
             </Button>
           </DialogFooter>
         )}

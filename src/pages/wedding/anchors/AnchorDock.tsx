@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { CalendarDays, MapPin } from "lucide-react"
 
@@ -45,6 +45,13 @@ const AnchorDock = ({
   const [calOpen, setCalOpen] = useState(false)
   const [mapOpen, setMapOpen] = useState(false)
 
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    if (!ready) return
+    const t = setTimeout(() => setVisible(true), 1000)
+    return () => clearTimeout(t)
+  }, [ready])
+
   const start = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_start)
   const end = getWeddingDateTime(eventConfig.event_date, eventConfig.event_time_end)
   const calendarEnabled = !!start
@@ -75,7 +82,7 @@ const AnchorDock = ({
   return (
     <>
       <AnchorBar
-        ready={ready}
+        visible={visible}
         items={items}
         classNames={classNames}
         labels={labels}

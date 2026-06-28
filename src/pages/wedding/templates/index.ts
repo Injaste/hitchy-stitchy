@@ -73,6 +73,16 @@ import * as lotusIndianForm from "./lotus-indian/form"
 import { lotusIndianSchema } from "./lotus-indian/types"
 import { lotusIndianAnchors } from "./lotus-indian/anchors"
 
+import CreamClassic from "./cream-classic"
+import * as creamClassicForm from "./cream-classic/form"
+import { creamClassicSchema } from "./cream-classic/types"
+import { creamClassicAnchors } from "./cream-classic/anchors"
+
+import BlackLuxury from "./black-luxury"
+import * as blackLuxuryForm from "./black-luxury/form"
+import { blackLuxurySchema } from "./black-luxury/types"
+import { blackLuxuryAnchors } from "./black-luxury/anchors"
+
 import type { ThemeRegistryEntry } from "./types"
 
 export type {
@@ -97,6 +107,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(uniqueMuslimForm),
     schema: uniqueMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: uniqueMuslimAnchors,
+    bgColor: "#f4ead3",
   },
   "geometric-muslim": {
     component: GeometricMuslim,
@@ -104,6 +115,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(geometricMuslimForm),
     schema: geometricMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: geometricMuslimAnchors,
+    bgColor: "#0a1733",
   },
   "crescent-muslim": {
     component: CrescentMuslim,
@@ -111,6 +123,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(crescentMuslimForm),
     schema: crescentMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: crescentMuslimAnchors,
+    bgColor: "#f7f3ec",
   },
   "royal-muslim": {
     component: RoyalMuslim,
@@ -118,6 +131,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(royalMuslimForm),
     schema: royalMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: royalMuslimAnchors,
+    bgColor: "#faf6ec",
   },
   "zellij-muslim": {
     component: ZellijMuslim,
@@ -125,6 +139,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(zellijMuslimForm),
     schema: zellijMuslimSchema as ThemeRegistryEntry["schema"],
     anchors: zellijMuslimAnchors,
+    bgColor: "#f7f0e2",
   },
   "classic-chinese": {
     component: ClassicChinese,
@@ -132,6 +147,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(classicChineseForm),
     schema: classicChineseSchema as ThemeRegistryEntry["schema"],
     anchors: classicChineseAnchors,
+    bgColor: "#fbf3e4",
   },
   "ink-chinese": {
     component: InkChinese,
@@ -139,6 +155,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(inkChineseForm),
     schema: inkChineseSchema as ThemeRegistryEntry["schema"],
     anchors: inkChineseAnchors,
+    bgColor: "#f4f0e5",
   },
   "peony-chinese": {
     component: PeonyChinese,
@@ -146,6 +163,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(peonyChineseForm),
     schema: peonyChineseSchema as ThemeRegistryEntry["schema"],
     anchors: peonyChineseAnchors,
+    bgColor: "#fdf3f1",
   },
   "porcelain-chinese": {
     component: PorcelainChinese,
@@ -153,6 +171,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(porcelainChineseForm),
     schema: porcelainChineseSchema as ThemeRegistryEntry["schema"],
     anchors: porcelainChineseAnchors,
+    bgColor: "#f4f7fa",
   },
   "imperial-chinese": {
     component: ImperialChinese,
@@ -160,6 +179,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(imperialChineseForm),
     schema: imperialChineseSchema as ThemeRegistryEntry["schema"],
     anchors: imperialChineseAnchors,
+    bgColor: "#3a0f14",
   },
   "marigold-indian": {
     component: MarigoldIndian,
@@ -167,6 +187,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(marigoldIndianForm),
     schema: marigoldIndianSchema as ThemeRegistryEntry["schema"],
     anchors: marigoldIndianAnchors,
+    bgColor: "#fff6e8",
   },
   "mehndi-indian": {
     component: MehndiIndian,
@@ -174,6 +195,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(mehndiIndianForm),
     schema: mehndiIndianSchema as ThemeRegistryEntry["schema"],
     anchors: mehndiIndianAnchors,
+    bgColor: "#f3f1e3",
   },
   "mughal-indian": {
     component: MughalIndian,
@@ -181,6 +203,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(mughalIndianForm),
     schema: mughalIndianSchema as ThemeRegistryEntry["schema"],
     anchors: mughalIndianAnchors,
+    bgColor: "#2a0e12",
   },
   "temple-indian": {
     component: TempleIndian,
@@ -188,6 +211,7 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(templeIndianForm),
     schema: templeIndianSchema as ThemeRegistryEntry["schema"],
     anchors: templeIndianAnchors,
+    bgColor: "#fdf6ea",
   },
   "lotus-indian": {
     component: LotusIndian,
@@ -195,7 +219,22 @@ export const themeRegistry: Record<string, ThemeRegistryEntry> = {
     form: formFor(lotusIndianForm),
     schema: lotusIndianSchema as ThemeRegistryEntry["schema"],
     anchors: lotusIndianAnchors,
+    bgColor: "#faf7f2",
+  },
+  "cream-classic": {
+    component: CreamClassic,
+    defaultConfig: { slug: "cream-classic" },
+    form: formFor(creamClassicForm),
+    schema: creamClassicSchema as ThemeRegistryEntry["schema"],
+    anchors: creamClassicAnchors,
+    bgColor: "#f3eeea",
+  },
+  "black-luxury": {
+    component: BlackLuxury,
+    defaultConfig: { slug: "black-luxury" },
+    form: formFor(blackLuxuryForm),
+    schema: blackLuxurySchema as ThemeRegistryEntry["schema"],
+    anchors: blackLuxuryAnchors,
+    bgColor: "#111114",
   },
 }
-
-export const FallbackTheme = UniqueMuslim

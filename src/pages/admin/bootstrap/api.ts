@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { AdminBootstrapContext } from "../types";
+import type { PlanTierRow } from "../plan/plan-config";
 import { isSuperAdmin } from "./utils";
 
 export async function fetchBootstrapContext(
@@ -50,10 +51,11 @@ export async function fetchBootstrapContext(
         maxInvitationPages: limits.max_invitation_pages,
         maxGuests: limits.max_guests,
         maxMembers: limits.max_members,
-        canUseBudget: limits.can_use_budget,
-        canUseGifts: limits.can_use_gifts,
-        canRemoveBranding: limits.can_remove_branding,
+        maxGifts: limits.max_gifts,
+        maxExpenses: limits.max_expenses,
       },
+      // Feature access straight from the DB map (keyed by feature) — no hand-mapping.
+      features: plan.features,
       usage: {
         days: usage.days,
         guests: usage.guests,
@@ -61,5 +63,40 @@ export async function fetchBootstrapContext(
         pages: usage.pages,
       },
     },
+    catalog: ((data.catalog ?? []) as Array<{
+      tier: string;
+      rank: number;
+      name: string;
+      price: number | null;
+      is_free_tier: boolean;
+      limits: {
+        max_days: number;
+        max_segments_per_day: number;
+        max_invitation_pages: number;
+        max_guests: number;
+        max_members: number;
+        max_gifts: number;
+        max_expenses: number;
+      };
+      features: Record<string, boolean>;
+    }>).map((c) => ({
+      tier: c.tier,
+      rank: c.rank,
+      name: c.name,
+      price: c.price,
+      isFreeTier: c.is_free_tier,
+      // Convert snake_case caps → camelCase (same shape as plan.limits) so the
+      // upgrade diff + near-limit checks read the same keys everywhere.
+      limits: {
+        maxDays: c.limits.max_days,
+        maxSegmentsPerDay: c.limits.max_segments_per_day,
+        maxInvitationPages: c.limits.max_invitation_pages,
+        maxGuests: c.limits.max_guests,
+        maxMembers: c.limits.max_members,
+        maxGifts: c.limits.max_gifts,
+        maxExpenses: c.limits.max_expenses,
+      },
+      features: c.features as PlanTierRow["features"],
+    })),
   };
 }
