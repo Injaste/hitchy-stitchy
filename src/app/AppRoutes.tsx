@@ -14,6 +14,8 @@ const Join = lazy(() => import("@/pages/join"));
 const Templates = lazy(() => import("@/pages/wedding"));
 const Privacy = lazy(() => import("@/pages/privacy"));
 
+// Adding a top-level route? Reserve its path so no user slug can shadow it.
+// See docs/architecture/reserved-slugs.md (append-only migration).
 const standaloneRoutes = [
   { path: "/", element: Home, fade: true },
   { path: "/login", element: Login, fade: true },
