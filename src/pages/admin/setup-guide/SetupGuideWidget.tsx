@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ListChecks, ChevronLeft, ChevronRight, Minus, X } from "lucide-react";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { useAdminStore } from "../store/useAdminStore";
+import { useEventSettingsStore } from "../settings/useEventSettingsStore";
 import { adminKeys } from "../lib/queryKeys";
 import { useSetupGuide } from "./useSetupGuide";
 import { useSetupCountsSync } from "./queries";
@@ -129,6 +130,16 @@ export default function SetupGuideWidget() {
     if (location.pathname.endsWith("/admin/access")) markViewed("access");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
+
+  // Dates are already set at create-event, so the days step is "review/update": it
+  // completes once the Event Dates settings section is opened (the same view-only
+  // pattern as Access, but the target is a settings section, not a route).
+  const settingsOpen = useEventSettingsStore((s) => s.isOpen);
+  const settingsSection = useEventSettingsStore((s) => s.section);
+  useEffect(() => {
+    if (active && settingsOpen && settingsSection === "days") markViewed("days");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, settingsOpen, settingsSection]);
 
   // Keep completion retroactive as feature data changes (lives with the query).
   useSetupCountsSync();

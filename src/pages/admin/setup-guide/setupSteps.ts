@@ -33,16 +33,19 @@ export interface SetupGroup {
   steps: SetupStep[];
 }
 
-/** Completion inputs come from TWO sources by design, not one — don't merge them:
- *  - usage  — capped / RLS-restricted resources from the plan store (days, members),
- *             kept live by their own mutations. members can't be a count: event_members
- *             is own-row under RLS, so a count query only ever sees you.
- *  - counts — existence counts for the rest (timeline/tasks/…), refreshed via
- *             useSetupCountsSync. Different trust + freshness paths from usage. */
+/** Completion inputs come from THREE sources by design, not one — don't merge them:
+ *  - usage       — capped / RLS-restricted resources from the plan store (members),
+ *                  kept live by its mutation. members can't be a count: event_members
+ *                  is own-row under RLS, so a count query only ever sees you.
+ *  - counts      — existence counts for feature data (timeline/tasks/…), refreshed
+ *                  via useSetupCountsSync. Different trust + freshness paths from usage.
+ *  - viewedSteps — steps with nothing to count: a read-only page (access) or an
+ *                  already-set value to review (days). Complete on being opened. */
 export interface SetupContext {
-  usage: { days: number; members: number };
+  usage: { members: number };
   counts: SetupCounts;
-  /** Step ids completed by being viewed (read-only pages, e.g. "access"). */
+  /** Step ids completed by being viewed — a read-only page ("access") or an
+   *  already-set value to review ("days"). See SetupContext above. */
   viewedSteps: string[];
   canUseFeature: (f: PlanFeature) => boolean;
 }
@@ -62,19 +65,16 @@ export function buildSetupGroups({
       label: "The basics",
       steps: [
         {
+          // Dates are set during create-event, so this isn't "add" — it points the
+          // couple to where they can review/adjust them. Completes on being opened
+          // (tracked in viewed_steps), like the read-only Access step.
           id: "days",
-          label: "Set your event days",
-          description: "Confirm the day(s) your celebration runs.",
+          label: "Review your event dates",
+          description: "Confirm the day(s) your celebration runs — change them here anytime.",
           settingsSection: "days",
-          completed: usage.days > 0,
+          completed: viewedSteps.includes("days"),
           unlocked: true,
         },
-      ],
-    },
-    {
-      id: "operations",
-      label: "Operations",
-      steps: [
         {
           id: "timeline",
           label: "Build your run-of-show",
@@ -83,6 +83,12 @@ export function buildSetupGroups({
           completed: counts.timeline > 0,
           unlocked: canUseFeature("timeline"),
         },
+      ],
+    },
+    {
+      id: "operations",
+      label: "Operations",
+      steps: [
         {
           id: "tasks",
           label: "Add your to-dos",
