@@ -65,8 +65,10 @@ export const PLAN_CAP_LABELS: { key: PlanCap; label: string }[] = [
   { key: "maxTimelineItems", label: "Timeline items" },
   { key: "maxInvitationPages", label: "Invitation pages" },
   { key: "maxMembers", label: "Team members" },
-  { key: "maxGifts", label: "Gift envelopes" },
-  { key: "maxExpenses", label: "Budget expenses" },
+  // maxGifts / maxExpenses are intentionally NOT listed: they're flat abuse
+  // ceilings (2000, Pro+), not tier levers — budget/gifts already surface as
+  // feature UNLOCKS in the modal, so a cap row would be redundant and imply a
+  // Pro→Advanced difference that doesn't exist. Enforced server-side only.
 ];
 
 /** Meter resource → its cap key. Single source for "which cap backs this meter" —
