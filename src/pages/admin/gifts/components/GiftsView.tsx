@@ -165,6 +165,7 @@ const GiftsView: FC<GiftsViewProps> = ({
                           <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === "Escape") { setSearch(""); e.currentTarget.blur(); } }}
                             placeholder="Search by name or notes…"
                             className="rounded-full pl-9"
                           />

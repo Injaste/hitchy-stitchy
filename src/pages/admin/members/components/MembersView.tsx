@@ -167,6 +167,7 @@ const MembersView: FC<MembersViewProps> = ({
             placeholder="Search by name or role…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Escape") { setSearch(""); e.currentTarget.blur(); } }}
             className="pl-8 h-8 text-sm"
           />
         </div>
