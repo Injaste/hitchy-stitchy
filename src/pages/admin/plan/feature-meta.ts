@@ -1,5 +1,6 @@
 import {
   Clock,
+  Radio,
   CheckSquare,
   Users,
   Shield,
@@ -24,6 +25,11 @@ export const FEATURE_META: Record<
     icon: Clock,
     description:
       "Map every cue — prep, ceremony, celebration — then run the day live as your whole team follows along.",
+  },
+  timeline_liverun: {
+    icon: Radio,
+    description:
+      "Run the day live — start and end each cue in real time so your whole team stays on the same moment as it unfolds.",
   },
   tasks: {
     icon: CheckSquare,

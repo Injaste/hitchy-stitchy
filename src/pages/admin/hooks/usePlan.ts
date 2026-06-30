@@ -46,6 +46,7 @@ export function usePlan() {
     days: plan.limits.maxDays,
     pages: plan.limits.maxInvitationPages,
     members: plan.limits.maxMembers,
+    timeline_items: plan.limits.maxTimelineItems,
   };
 
   /** A limit is worth nudging only if the NEXT tier actually raises it — otherwise

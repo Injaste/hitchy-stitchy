@@ -38,9 +38,11 @@ export const useAdminStore = create<AdminState>((set) => ({
       maxMembers: 0,
       maxGifts: 0,
       maxExpenses: 0,
+      maxTimelineItems: 0,
     },
     features: {
       timeline: false,
+      timeline_liverun: false,
       tasks: false,
       members: false,
       access: false,
@@ -50,7 +52,7 @@ export const useAdminStore = create<AdminState>((set) => ({
       invitation: false,
       branding: false,
     },
-    usage: { days: 0, guests: 0, members: 0, pages: 0 },
+    usage: { days: 0, guests: 0, members: 0, pages: 0, timeline_items: 0 },
   },
   // Tier ladder is DB-driven (bootstrap fills it); empty until then.
   catalog: [],

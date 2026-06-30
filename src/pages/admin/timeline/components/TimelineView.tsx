@@ -6,6 +6,7 @@ import ErrorState from "@/components/custom/states/error-state";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useTimelineCreateGuard } from "../hooks/useTimelineCreateGuard";
 import { useTimelineDays } from "../hooks/useTimelineDays";
 import { defaultSegmentId, dayHasItems } from "../utils";
 import TimelineSkeleton from "../states/TimelineSkeleton";
@@ -32,7 +33,7 @@ const TimelineView: FC<TimelineViewProps> = ({
   refetch,
   isRefetching,
 }) => {
-  const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const openCreate = useTimelineCreateGuard();
   const setActiveDate = useTimelineModalStore((s) => s.setActiveDate);
   const { canCreate } = useAccess();
 
