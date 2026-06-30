@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Crown, LayoutDashboard, Settings } from "lucide-react";
+import { ChevronsUpDown, LayoutDashboard, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   SidebarFooter,
@@ -14,11 +14,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAdminStore } from "../../store/useAdminStore";
-import { usePlan } from "../../hooks/usePlan";
-import { useAccess } from "../../hooks/useAccess";
 import { useAccountSettingsStore } from "@/pages/account/useAccountSettingsStore";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
+import MemberCrown from "../../components/MemberCrown";
 import AdminLogout from "../AdminLogout";
 import SidebarPlanBadge from "./SidebarPlanBadge";
 
@@ -26,13 +25,9 @@ const AdminSidebarFooter = () => {
   const { state } = useSidebar();
   const isMobile = useIsMobile();
   const { memberDisplayName, memberRole, isBride, isGroom } = useAdminStore();
-  const { isPaid } = usePlan();
-  const { isSuperAdmin } = useAccess();
   const openAccountSettings = useAccountSettingsStore((s) => s.open);
   const displayLabel =
     memberRole ?? (isBride ? "Bride" : isGroom ? "Groom" : null);
-  // A paid plan reads as a crown on the avatar; only the owner (super admin) sees it.
-  const showCrown = isPaid && isSuperAdmin;
 
   return (
     <SidebarFooter>
@@ -51,10 +46,8 @@ const AdminSidebarFooter = () => {
                 <div className="relative shrink-0">
                   <div
                     className={cn(
-                      "flex aspect-square items-center justify-center bg-muted text-xs font-medium text-muted-foreground capitalize truncate transition-colors group-hover/menu-button:bg-primary group-hover/menu-button:text-primary-foreground group-data-[state=open]/menu-button:bg-primary group-data-[state=open]/menu-button:text-primary-foreground",
-                      state === "expanded" || isMobile
-                        ? "size-9 rounded-md"
-                        : "size-8 rounded-full",
+                      "flex aspect-square items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground capitalize truncate transition-colors group-hover/menu-button:bg-primary group-hover/menu-button:text-primary-foreground group-data-[state=open]/menu-button:bg-primary group-data-[state=open]/menu-button:text-primary-foreground",
+                      state === "expanded" || isMobile ? "size-9" : "size-8",
                     )}
                   >
                     {memberDisplayName
@@ -66,12 +59,11 @@ const AdminSidebarFooter = () => {
                       .join("")
                       .toUpperCase() || "?"}
                   </div>
-                  {showCrown && (
-                    <Crown
-                      aria-hidden
-                      className="pointer-events-none absolute -top-2.5 -left-1.5 size-4 -rotate-28 fill-amber-400 text-amber-500 drop-shadow-sm group-data-[collapsible=icon]:-rotate-40 group-data-[collapsible=icon]:-top-1.5 group-data-[collapsible=icon]:-left-1 transition-all"
-                    />
-                  )}
+                  <MemberCrown
+                    isBride={isBride}
+                    isGroom={isGroom}
+                    className="-top-2 -left-1.5 size-4 group-data-[collapsible=icon]:size-3.5 group-data-[collapsible=icon]:-rotate-40 group-data-[collapsible=icon]:-top-1.5 group-data-[collapsible=icon]:-left-1"
+                  />
                 </div>
                 <div
                   className={cn(
@@ -79,7 +71,7 @@ const AdminSidebarFooter = () => {
                     !displayLabel && "content-center",
                   )}
                 >
-                  <span className="truncate font-medium">
+                  <span className="truncate text-xs font-semibold">
                     {memberDisplayName}
                   </span>
                   {displayLabel && (
