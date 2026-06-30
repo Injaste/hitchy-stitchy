@@ -22,6 +22,7 @@ export interface PlanContext {
     members: number;
     pages: number;
     timeline_items: number;
+    tasks: number;
   };
 }
 

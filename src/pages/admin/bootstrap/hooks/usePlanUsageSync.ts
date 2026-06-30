@@ -13,6 +13,7 @@ const METERED_QUERY_NAMES = new Set([
   "guests",
   "invitation",
   "timeline",
+  "tasks",
 ]);
 
 /**

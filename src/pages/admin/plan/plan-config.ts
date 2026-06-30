@@ -8,7 +8,8 @@ export type PlanResource =
   | "days"
   | "pages"
   | "members"
-  | "timeline_items";
+  | "timeline_items"
+  | "tasks";
 
 /** Display labels for the meters, in the order they should appear. */
 export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
@@ -17,6 +18,7 @@ export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
   { resource: "pages", label: "Invitation pages" },
   { resource: "members", label: "Team members" },
   { resource: "timeline_items", label: "Timeline items" },
+  { resource: "tasks", label: "Tasks" },
 ];
 
 /** Usage ratio at which the upgrade nudge appears — an early warning before the
@@ -55,7 +57,8 @@ export type PlanCap =
   | "maxMembers"
   | "maxGifts"
   | "maxExpenses"
-  | "maxTimelineItems";
+  | "maxTimelineItems"
+  | "maxTasks";
 
 /** Cap → label, in display order. Drives the "higher limits" upgrade diff. */
 export const PLAN_CAP_LABELS: { key: PlanCap; label: string }[] = [
@@ -63,6 +66,7 @@ export const PLAN_CAP_LABELS: { key: PlanCap; label: string }[] = [
   { key: "maxDays", label: "Event days" },
   { key: "maxSegmentsPerDay", label: "Segments / day" },
   { key: "maxTimelineItems", label: "Timeline items" },
+  { key: "maxTasks", label: "Tasks" },
   { key: "maxInvitationPages", label: "Invitation pages" },
   { key: "maxMembers", label: "Team members" },
   // maxGifts / maxExpenses are intentionally NOT listed: they're flat abuse
@@ -79,6 +83,7 @@ export const CAP_KEY_FOR: Record<PlanResource, PlanCap> = {
   pages: "maxInvitationPages",
   members: "maxMembers",
   timeline_items: "maxTimelineItems",
+  tasks: "maxTasks",
 };
 
 /** A live tier in the catalog ladder — DB-driven (plans where is_active, ordered
