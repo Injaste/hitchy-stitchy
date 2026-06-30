@@ -23,4 +23,8 @@ export const adminKeys = {
   settingsAppearance: (slug: string) => [slug, 'settings', 'appearance'] as const,
   settingsNotifications: (slug: string, memberId: string) =>
     [slug, 'settings', 'notifications', memberId] as const,
+  tutorial: (slug: string, eventId: string) =>
+    [slug, 'tutorial', eventId] as const,
+  setupCounts: (slug: string, eventId: string) =>
+    [slug, 'setup-counts', eventId] as const,
 }

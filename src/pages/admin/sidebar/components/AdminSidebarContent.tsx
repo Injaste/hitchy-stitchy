@@ -174,6 +174,10 @@ const AdminSidebarContent = () => {
               <SidebarMenuButton
                 variant="ghost"
                 tooltip="Event settings"
+                // Target the setup guide's dismiss animation flies to — it's the
+                // home of the "Getting started" section, so the couple learns where
+                // to find the guide again.
+                data-guide-home
                 className="cursor-pointer"
                 onClick={() => {
                   openEventSettings();

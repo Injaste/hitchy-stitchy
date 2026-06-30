@@ -10,6 +10,7 @@ import useActivePage from "./hooks/useActivePage";
 
 import AdminSidebar from "./sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";
+import SetupGuideWidget from "./setup-guide/SetupGuideWidget";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
 import MemberModals from "./members/modals";
@@ -67,6 +68,7 @@ const AdminView = () => {
                 </ComponentFade>
               </AnimatePresence>
             </SidebarInset>
+            <SetupGuideWidget />
             <MemberModals />
             <TimelineModals />
             <PlanModals />
