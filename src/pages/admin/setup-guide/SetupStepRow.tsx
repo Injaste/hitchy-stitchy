@@ -22,14 +22,16 @@ export default function SetupStepRow({
       <div className="min-w-0 flex-1">
         <p
           className={cn(
-            "flex items-center gap-1.5 text-sm font-medium",
+            "flex items-center gap-1.5 text-xs font-medium",
             step.completed && "text-muted-foreground",
           )}
         >
-          <span className={cn(step.completed && "line-through")}>{step.label}</span>
-          {step.completed && <Check className="size-3.5 shrink-0 text-primary" />}
+          <span className={cn(step.completed && "line-through")}>
+            {step.label}
+          </span>
+          {step.completed && <Check className="size-3 shrink-0 text-primary" />}
         </p>
-        <p className="text-xs text-muted-foreground">{step.description}</p>
+        <p className="text-2xs text-muted-foreground">{step.description}</p>
       </div>
       <ArrowRight className="size-4 shrink-0 -translate-x-1 text-muted-foreground opacity-0 transition-all group-hover/step:translate-x-0 group-hover/step:opacity-100" />
     </div>

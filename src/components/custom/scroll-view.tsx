@@ -31,6 +31,8 @@ type ScrollViewProps = Omit<React.ComponentProps<"div">, "onScroll"> & {
   gradientLeft?: boolean;
   gradientRight?: boolean;
   gradientClass?: string;
+  /** Pin a chevron in each edge fade (select-content style) as a scroll cue. */
+  gradientChevron?: boolean;
   /** Overlay thumb thickness. "normal" for page-level scrolls, "thin" elsewhere. */
   size?: "thin" | "normal";
   /**
@@ -57,6 +59,7 @@ export const ScrollView = ({
   gradientLeft = false,
   gradientRight = false,
   gradientClass = "from-background",
+  gradientChevron = false,
   size = "thin",
   maxHeight,
   onScroll,
@@ -127,6 +130,7 @@ export const ScrollView = ({
             side="top"
             visible={canScrollUp}
             fromClass={gradientClass}
+            chevron={gradientChevron}
           />
         )}
         {gradientLeft && (
@@ -134,6 +138,7 @@ export const ScrollView = ({
             side="left"
             visible={canScrollLeft}
             fromClass={gradientClass}
+            chevron={gradientChevron}
           />
         )}
         <OverlayScrollbarsComponent
@@ -173,6 +178,7 @@ export const ScrollView = ({
             side="bottom"
             visible={canScrollDown}
             fromClass={gradientClass}
+            chevron={gradientChevron}
           />
         )}
         {gradientRight && (
@@ -180,6 +186,7 @@ export const ScrollView = ({
             side="right"
             visible={canScrollRight}
             fromClass={gradientClass}
+            chevron={gradientChevron}
           />
         )}
       </div>

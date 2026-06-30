@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ListChecks, ChevronLeft, ChevronRight, Minus, X } from "lucide-react";
 import ComponentFade from "@/components/animations/animate-component-fade";
+import { ScrollView } from "@/components/custom/scroll-view";
 import { useAdminStore } from "../store/useAdminStore";
 import { useEventSettingsStore } from "../settings/useEventSettingsStore";
 import { adminKeys } from "../lib/queryKeys";
@@ -15,7 +16,13 @@ const SW = 2.5;
 
 // A rounded-rect border path + its perimeter — same methodology as SubmitButton's
 // border arc, generalised to any measured size/corner radius.
-function roundedRectPath(x: number, y: number, w: number, h: number, r: number) {
+function roundedRectPath(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
   return `M ${x + r} ${y} H ${x + w - r} A ${r} ${r} 0 0 1 ${x + w} ${y + r} V ${y + h - r} A ${r} ${r} 0 0 1 ${x + w - r} ${y + h} H ${x + r} A ${r} ${r} 0 0 1 ${x} ${y + h - r} V ${y + r} A ${r} ${r} 0 0 1 ${x + r} ${y} Z`;
 }
 function roundedRectPerimeter(w: number, h: number, r: number) {
@@ -59,7 +66,7 @@ function ProgressBorder({ pct }: { pct: number }) {
       viewBox={`0 0 ${w} ${h}`}
       fill="none"
       aria-hidden
-      className="pointer-events-none absolute inset-0 size-full"
+      className="pointer-events-none absolute inset-0 size-full z-20"
     >
       {d && (
         <>
@@ -112,8 +119,16 @@ type Point = { x: number; y: number };
  *  refreshes on navigation. On dismiss, an icon flies to the Event Settings button
  *  so the couple learns where to reopen it. */
 export default function SetupGuideWidget() {
-  const { active, groups, doneCount, totalCount, isComplete, dismissed, dismiss, markViewed } =
-    useSetupGuide();
+  const {
+    active,
+    groups,
+    doneCount,
+    totalCount,
+    isComplete,
+    dismissed,
+    dismiss,
+    markViewed,
+  } = useSetupGuide();
   const [expanded, setExpanded] = useState(true);
   const [flight, setFlight] = useState<{ from: Point; to: Point } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -137,7 +152,8 @@ export default function SetupGuideWidget() {
   const settingsOpen = useEventSettingsStore((s) => s.isOpen);
   const settingsSection = useEventSettingsStore((s) => s.section);
   useEffect(() => {
-    if (active && settingsOpen && settingsSection === "days") markViewed("days");
+    if (active && settingsOpen && settingsSection === "days")
+      markViewed("days");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, settingsOpen, settingsSection]);
 
@@ -186,7 +202,11 @@ export default function SetupGuideWidget() {
     document
       .querySelector<HTMLElement>("[data-guide-home]")
       ?.animate(
-        [{ transform: "scale(1)" }, { transform: "scale(1.3)" }, { transform: "scale(1)" }],
+        [
+          { transform: "scale(1)" },
+          { transform: "scale(1.3)" },
+          { transform: "scale(1)" },
+        ],
         { duration: 360, easing: "ease-out" },
       );
     dismiss();
@@ -209,24 +229,31 @@ export default function SetupGuideWidget() {
                 exit={{ opacity: 0, scale: 0.9, y: 8 }}
                 transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                 style={{ transformOrigin: "bottom right" }}
-                className="relative w-[320px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
+                className="relative w-[280px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
               >
                 <ProgressBorder pct={pct} />
 
                 <div className="flex items-start gap-1 px-4 pt-3.5 pb-3">
                   <div className="min-w-0 flex-1">
                     {isComplete ? (
-                      <p className="font-display text-sm font-medium">You're all set! 🎉</p>
+                      <p className="font-display text-xs font-medium">
+                        You're all set! 🎉
+                      </p>
                     ) : (
                       <>
-                        <p className="font-display text-sm font-medium">Get your event ready</p>
+                        <p className="font-display text-xs font-medium">
+                          Get your event ready
+                        </p>
                         <p className="text-2xs text-muted-foreground">
                           {doneCount} of {totalCount} done
                         </p>
                       </>
                     )}
                   </div>
-                  <IconButton label="Minimize" onClick={() => setExpanded(false)}>
+                  <IconButton
+                    label="Minimize"
+                    onClick={() => setExpanded(false)}
+                  >
                     <Minus className="size-4" />
                   </IconButton>
                   <IconButton label="Dismiss" onClick={startDismiss}>
@@ -235,11 +262,15 @@ export default function SetupGuideWidget() {
                 </div>
 
                 <div className="flex items-center gap-1 border-t border-border px-2 py-1.5">
-                  <IconButton label="Previous group" disabled={i === 0} onClick={() => go(-1)}>
+                  <IconButton
+                    label="Previous group"
+                    disabled={i === 0}
+                    onClick={() => go(-1)}
+                  >
                     <ChevronLeft className="size-4" />
                   </IconButton>
                   <div className="flex-1 text-center">
-                    <p className="text-sm font-medium">{group.label}</p>
+                    <p className="text-xs font-medium">{group.label}</p>
                   </div>
                   <IconButton
                     label="Next group"
@@ -250,14 +281,28 @@ export default function SetupGuideWidget() {
                   </IconButton>
                 </div>
 
-                <div className="border-t border-border p-1">
-                  <AnimatePresence mode="wait">
-                    <ComponentFade key={group.id} useBlur className="flex flex-col">
-                      {group.steps.map((step) => (
-                        <SetupStepRow key={step.id} step={step} />
-                      ))}
-                    </ComponentFade>
-                  </AnimatePresence>
+                <div className="border-t border-border px-0.5">
+                  <div style={{ height: 160 }}>
+                    <ScrollView
+                      gradientTop
+                      gradientBottom
+                      gradientChevron
+                      gradientClass="from-popover rounded-b-lg"
+                      size="thin"
+                    >
+                      <AnimatePresence mode="wait">
+                        <ComponentFade
+                          key={group.id}
+                          useBlur
+                          className="flex flex-col"
+                        >
+                          {group.steps.map((step) => (
+                            <SetupStepRow key={step.id} step={step} />
+                          ))}
+                        </ComponentFade>
+                      </AnimatePresence>
+                    </ScrollView>
+                  </div>
                 </div>
               </motion.div>
             ) : (
@@ -284,8 +329,18 @@ export default function SetupGuideWidget() {
 
       {flight && (
         <motion.div
-          initial={{ x: flight.from.x - F, y: flight.from.y - F, scale: 1, opacity: 1 }}
-          animate={{ x: flight.to.x - F, y: flight.to.y - F, scale: 0.45, opacity: 1 }}
+          initial={{
+            x: flight.from.x - F,
+            y: flight.from.y - F,
+            scale: 1,
+            opacity: 1,
+          }}
+          animate={{
+            x: flight.to.x - F,
+            y: flight.to.y - F,
+            scale: 0.45,
+            opacity: 1,
+          }}
           transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
           onAnimationComplete={finishFlight}
           className="pointer-events-none fixed left-0 top-0 z-50 flex size-9 items-center justify-center rounded-full bg-popover shadow-lg ring-1 ring-primary/30"
