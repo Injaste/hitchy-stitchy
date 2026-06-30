@@ -53,6 +53,8 @@ export async function fetchBootstrapContext(
         maxMembers: limits.max_members,
         maxGifts: limits.max_gifts,
         maxExpenses: limits.max_expenses,
+        maxTimelineItems: limits.max_timeline_items,
+        maxTasks: limits.max_tasks,
       },
       // Feature access straight from the DB map (keyed by feature) — no hand-mapping.
       features: plan.features,
@@ -61,6 +63,8 @@ export async function fetchBootstrapContext(
         guests: usage.guests,
         members: usage.members,
         pages: usage.pages,
+        timeline_items: usage.timeline_items,
+        tasks: usage.tasks,
       },
     },
     catalog: ((data.catalog ?? []) as Array<{
@@ -77,6 +81,8 @@ export async function fetchBootstrapContext(
         max_members: number;
         max_gifts: number;
         max_expenses: number;
+        max_timeline_items: number;
+        max_tasks: number;
       };
       features: Record<string, boolean>;
     }>).map((c) => ({
@@ -95,6 +101,8 @@ export async function fetchBootstrapContext(
         maxMembers: c.limits.max_members,
         maxGifts: c.limits.max_gifts,
         maxExpenses: c.limits.max_expenses,
+        maxTimelineItems: c.limits.max_timeline_items,
+        maxTasks: c.limits.max_tasks,
       },
       features: c.features as PlanTierRow["features"],
     })),

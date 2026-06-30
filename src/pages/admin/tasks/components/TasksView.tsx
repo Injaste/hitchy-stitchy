@@ -9,6 +9,7 @@ import ErrorState from "@/components/custom/states/error-state";
 import { ScrollView } from "@/components/custom/scroll-view";
 
 import { useAccess } from "../../hooks/useAccess";
+import { useLimitGuard } from "../../plan/hooks/useLimitGuard";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTasksFilter } from "../hooks/useTasksFilter";
 import { useTaskDnd, type ItemsByStatus } from "../hooks/useTaskDnd";
@@ -39,6 +40,7 @@ const TasksView: FC<TasksViewProps> = ({
   refetch,
 }) => {
   const openCreate = useTaskModalStore((s) => s.openCreate);
+  const guardAdd = useLimitGuard();
   const { canCreate, canUpdate } = useAccess();
   const canDrag = canUpdate("tasks");
 
@@ -99,7 +101,7 @@ const TasksView: FC<TasksViewProps> = ({
     if (!data?.length)
       return (
         <ComponentFade key="empty" useBlur>
-          <TasksEmpty onAdd={openCreate} canCreate={canCreate("tasks")} />
+          <TasksEmpty onAdd={() => { if (guardAdd("tasks")) return; openCreate(); }} canCreate={canCreate("tasks")} />
         </ComponentFade>
       );
 

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormShell, TextField } from "@/components/custom/form";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useLimitGuard } from "@/pages/admin/plan/hooks/useLimitGuard";
 import { useTaskMutations } from "../queries";
 import { useTasksFilterStore } from "../hooks/useTasksFilter";
 import { ALL_LABEL, type TaskStatus } from "../types";
@@ -29,6 +30,7 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
 
   const { eventId } = useAdminStore();
   const { create } = useTaskMutations();
+  const guardAdd = useLimitGuard();
   const activeLabel = useTasksFilterStore((s) => s.activeLabel);
   const prefillLabel = activeLabel !== ALL_LABEL ? activeLabel : null;
 
@@ -91,7 +93,7 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
           <Button
             className="w-full h-9 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
             variant="ghost"
-            onClick={() => setIsAdding(true)}
+            onClick={() => { if (guardAdd("tasks")) return; setIsAdding(true); }}
           >
             <Plus className="size-4" /> Add task
           </Button>

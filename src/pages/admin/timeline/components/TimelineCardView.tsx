@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Clock, ClockCheck, Play, Square } from "lucide-react";
+import { Clock, ClockCheck, Lock, Play, Square } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import {
@@ -34,6 +34,10 @@ interface TimelineCardViewProps {
   onOpen?: () => void;
   startPending?: boolean;
   endPending?: boolean;
+  /** True when the plan doesn't include the live-run sub-feature: the start
+   *  control reads as gated and onStart opens the upgrade modal instead of
+   *  starting. Never set by the marketing showcase (stays unlocked there). */
+  liveLocked?: boolean;
   /** When provided (marketing showcase), render these resolved members directly
    *  instead of resolving item.assignees through the members query. */
   assigneeMembers?: Member[];
@@ -54,6 +58,7 @@ const TimelineCardView: FC<TimelineCardViewProps> = ({
   onOpen,
   startPending,
   endPending,
+  liveLocked,
   assigneeMembers,
   selfId,
 }) => {
@@ -101,7 +106,7 @@ const TimelineCardView: FC<TimelineCardViewProps> = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="success"
+                    variant={liveLocked ? "outline" : "success"}
                     size="icon-xs"
                     className="relative z-10"
                     disabled={startPending}
@@ -110,10 +115,16 @@ const TimelineCardView: FC<TimelineCardViewProps> = ({
                       onStart?.();
                     }}
                   >
-                    <Play className="size-3 fill-current" />
+                    {liveLocked ? (
+                      <Lock className="size-3" />
+                    ) : (
+                      <Play className="size-3 fill-current" />
+                    )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Start</TooltipContent>
+                <TooltipContent>
+                  {liveLocked ? "Upgrade to run the day live" : "Start"}
+                </TooltipContent>
               </Tooltip>
             </motion.div>
           )}

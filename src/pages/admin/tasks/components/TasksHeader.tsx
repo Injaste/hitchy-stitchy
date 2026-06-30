@@ -11,6 +11,7 @@ import {
 
 import Odometer from "@/components/animations/animate-odometer";
 import { useAccess } from "../../hooks/useAccess";
+import { useLimitGuard } from "../../plan/hooks/useLimitGuard";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
 import { useTasksFilter } from "../hooks/useTasksFilter";
 import type { Task } from "../types";
@@ -39,6 +40,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
 }) => {
   const { canCreate, canDelete } = useAccess();
   const openCreate = useTaskModalStore((s) => s.openCreate);
+  const guardAdd = useLimitGuard();
   const openArchivedSheet = useTaskModalStore((s) => s.openArchivedSheet);
   const { tabs, activeLabel, setActiveLabel, filteredTasks } = useTasksFilter(
     data ?? [],
@@ -165,7 +167,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
               </Tooltip>
             )}
             {canCreate("tasks") && (
-              <Button size="sm" className="gap-0" onClick={openCreate}>
+              <Button size="sm" className="gap-0" onClick={() => { if (guardAdd("tasks")) return; openCreate(); }}>
                 <Plus className="size-4" /> <ActionLabel>Task</ActionLabel>
               </Button>
             )}

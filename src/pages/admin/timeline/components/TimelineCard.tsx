@@ -29,7 +29,8 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
   const openDetail = useTimelineModalStore((s) => s.openDetail);
   const { canUpdate } = useAccess();
   const { data: active } = useActiveTimelineQuery();
-  const { startItem, endItem, start, end } = useTimelineLifecycleActions();
+  const { startItem, endItem, start, end, liveLocked } =
+    useTimelineLifecycleActions();
 
   // Count toward the item's next meaningful moment (its end while live, else
   // its start); the clock only ticks per-second when that moment is near.
@@ -52,6 +53,7 @@ const TimelineCard: FC<TimelineCardProps> = ({ item, dayItems }) => {
       onOpen={() => openDetail(item)}
       startPending={start.isPending}
       endPending={end.isPending}
+      liveLocked={liveLocked}
     />
   );
 };

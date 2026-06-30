@@ -3,7 +3,13 @@
 import { SUPPORT_EMAIL } from "@/lib/config";
 
 /** Countable resources that get a usage meter. */
-export type PlanResource = "guests" | "days" | "pages" | "members";
+export type PlanResource =
+  | "guests"
+  | "days"
+  | "pages"
+  | "members"
+  | "timeline_items"
+  | "tasks";
 
 /** Display labels for the meters, in the order they should appear. */
 export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
@@ -11,6 +17,8 @@ export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
   { resource: "days", label: "Event days" },
   { resource: "pages", label: "Invitation pages" },
   { resource: "members", label: "Team members" },
+  { resource: "timeline_items", label: "Timeline items" },
+  { resource: "tasks", label: "Tasks" },
 ];
 
 /** Usage ratio at which the upgrade nudge appears — an early warning before the
@@ -19,9 +27,14 @@ export const NEAR_LIMIT_RATIO = 0.8;
 
 /** Gated feature modules → display label. Keys match the DB `features` map, in
  *  route order (branding is the non-page perk, last). The booleans come from the
- *  DB — this is only labels. Drives RequirePlan + PlanLockedState + the diff. */
+ *  DB — this is only labels. Drives RequirePlan + PlanLockedState + the diff.
+ *  `timeline_liverun` is a SUB-feature, not a route: the timeline module is open
+ *  to every tier, but running the day live (start/end cues) is gated. It rides
+ *  this list so it shows in the upgrade diff + powers canUseFeature, but no route
+ *  uses RequirePlan on it (it gates an inline control, see TimelineCardView). */
 export const PLAN_FEATURES = [
   { key: "timeline", label: "Timeline" },
+  { key: "timeline_liverun", label: "Live run" },
   { key: "tasks", label: "Task board" },
   { key: "members", label: "Team management" },
   { key: "access", label: "Access groups" },
@@ -43,17 +56,23 @@ export type PlanCap =
   | "maxInvitationPages"
   | "maxMembers"
   | "maxGifts"
-  | "maxExpenses";
+  | "maxExpenses"
+  | "maxTimelineItems"
+  | "maxTasks";
 
 /** Cap → label, in display order. Drives the "higher limits" upgrade diff. */
 export const PLAN_CAP_LABELS: { key: PlanCap; label: string }[] = [
   { key: "maxGuests", label: "Guests" },
   { key: "maxDays", label: "Event days" },
   { key: "maxSegmentsPerDay", label: "Segments / day" },
+  { key: "maxTimelineItems", label: "Timeline items" },
+  { key: "maxTasks", label: "Tasks" },
   { key: "maxInvitationPages", label: "Invitation pages" },
   { key: "maxMembers", label: "Team members" },
-  { key: "maxGifts", label: "Gift envelopes" },
-  { key: "maxExpenses", label: "Budget expenses" },
+  // maxGifts / maxExpenses are intentionally NOT listed: they're flat abuse
+  // ceilings (2000, Pro+), not tier levers — budget/gifts already surface as
+  // feature UNLOCKS in the modal, so a cap row would be redundant and imply a
+  // Pro→Advanced difference that doesn't exist. Enforced server-side only.
 ];
 
 /** Meter resource → its cap key. Single source for "which cap backs this meter" —
@@ -63,6 +82,8 @@ export const CAP_KEY_FOR: Record<PlanResource, PlanCap> = {
   days: "maxDays",
   pages: "maxInvitationPages",
   members: "maxMembers",
+  timeline_items: "maxTimelineItems",
+  tasks: "maxTasks",
 };
 
 /** A live tier in the catalog ladder — DB-driven (plans where is_active, ordered

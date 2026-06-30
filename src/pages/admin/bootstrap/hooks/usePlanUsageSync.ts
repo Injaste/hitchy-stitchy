@@ -3,14 +3,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAdminStore } from "../../store/useAdminStore";
 import { adminKeys } from "../../lib/queryKeys";
 
-/** Feature caches whose row counts feed plan.usage (days/guests/members/pages).
- *  Their query keys are exactly [slug, <name>]; the invitation list backs the
- *  "pages" count. A change to any means the bootstrap usage snapshot is stale. */
+/** Feature caches whose row counts feed plan.usage (days/guests/members/pages/
+ *  timeline_items). Their query keys are exactly [slug, <name>]; the invitation
+ *  list backs the "pages" count and the timeline list backs "timeline_items". A
+ *  change to any means the bootstrap usage snapshot is stale. */
 const METERED_QUERY_NAMES = new Set([
   "days",
   "members",
   "guests",
   "invitation",
+  "timeline",
+  "tasks",
 ]);
 
 /**

@@ -10,7 +10,7 @@ import ArraySeparator from "@/components/custom/array-separator";
 import { getEarliestTime, getLatestTime, segmentItems } from "../utils";
 import type { Timeline, TimelineGroupedSegment } from "../types";
 import { useAccess } from "../../hooks/useAccess";
-import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useTimelineCreateGuard } from "../hooks/useTimelineCreateGuard";
 import { useSegmentCollapse } from "../hooks/useSegmentCollapse";
 import SegmentLabel from "./SegmentLabel";
 
@@ -35,7 +35,7 @@ const DaySegment: FC<DaySegmentProps> = ({
   collapsible,
 }) => {
   const { canCreate } = useAccess();
-  const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const openCreate = useTimelineCreateGuard();
   const storedCollapsed = useSegmentCollapse((s) => !!s.collapsed[segment.id]);
   const toggleCollapse = useSegmentCollapse((s) => s.toggle);
   const collapsed = collapsible && storedCollapsed;

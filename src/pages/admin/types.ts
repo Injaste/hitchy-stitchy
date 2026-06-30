@@ -21,6 +21,8 @@ export interface PlanContext {
     guests: number;
     members: number;
     pages: number;
+    timeline_items: number;
+    tasks: number;
   };
 }
 

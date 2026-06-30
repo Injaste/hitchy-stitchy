@@ -9,7 +9,7 @@ import {
 } from "@/components/custom/page-header-base";
 
 import { useAccess } from "../../hooks/useAccess";
-import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useTimelineCreateGuard } from "../hooks/useTimelineCreateGuard";
 import { useTimelineDays } from "../hooks/useTimelineDays";
 import { dayItems, defaultSegmentId, getLatestTime } from "../utils";
 import { dayLabel } from "../../days/utils";
@@ -30,7 +30,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
   data,
 }) => {
   const { canCreate } = useAccess();
-  const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const openCreate = useTimelineCreateGuard();
   const { dateStart, dateEnd } = useAdminStore();
   const { dates, activeIndex, activeDay, hasItems } = useTimelineDays(data);
 

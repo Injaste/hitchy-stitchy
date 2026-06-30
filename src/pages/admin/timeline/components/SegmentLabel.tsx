@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import type { Timeline, TimelineLabelGroup } from "../types";
 import { useAccess } from "../../hooks/useAccess";
-import { useTimelineModalStore } from "../hooks/useTimelineModalStore";
+import { useTimelineCreateGuard } from "../hooks/useTimelineCreateGuard";
 import { useActiveTimelineQuery } from "../queries";
 import LabelCarousel from "./LabelCarousel";
 
@@ -25,7 +25,7 @@ const SegmentLabel: FC<SegmentLabelProps> = ({
   dayItems,
 }) => {
   const { canCreate } = useAccess();
-  const openCreate = useTimelineModalStore((s) => s.openCreate);
+  const openCreate = useTimelineCreateGuard();
   const { data: active } = useActiveTimelineQuery();
 
   const isActive = group.items.some((i) => i.id === active?.id);

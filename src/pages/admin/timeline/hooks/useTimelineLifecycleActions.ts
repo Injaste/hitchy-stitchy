@@ -1,4 +1,6 @@
 import { useAdminStore } from "../../store/useAdminStore";
+import { usePlan } from "../../hooks/usePlan";
+import { useUpgradeModalStore } from "../../plan/hooks/useUpgradeModalStore";
 import { useTimelineLifecycleMutations, useActiveTimelineQuery } from "../queries";
 import { useTimelineModalStore } from "./useTimelineModalStore";
 import { scheduledStartDate, scheduledEndDate } from "../utils";
@@ -10,13 +12,25 @@ export function useTimelineLifecycleActions() {
   const { eventId } = useAdminStore();
   const { start, end } = useTimelineLifecycleMutations();
   const openConfirm = useTimelineModalStore((s) => s.openConfirm);
+  const { canUseFeature } = usePlan();
+  const openUpgrade = useUpgradeModalStore((s) => s.open);
   const { data: active } = useActiveTimelineQuery();
+
+  /** Running the day live (start/end cues) is a gated sub-feature — the timeline
+   *  module itself is open to every tier. UX gate only; start/end_timeline assert
+   *  it server-side too. */
+  const liveLocked = !canUseFeature("timeline_liverun");
 
   const isEarly = (scheduled: Date | null) =>
     scheduled !== null &&
     Date.now() < scheduled.getTime() - BUFFER_MIN * 60_000;
 
   const startItem = (item: Timeline) => {
+    if (liveLocked) {
+      openUpgrade({ kind: "feature", feature: "timeline_liverun" });
+      return;
+    }
+
     const otherActive = active && active.id !== item.id ? active : null;
 
     if (item.started_at !== null) {
@@ -35,5 +49,5 @@ export function useTimelineLifecycleActions() {
     openConfirm({ item, kind: "end", reason });
   };
 
-  return { startItem, endItem, start, end };
+  return { startItem, endItem, start, end, liveLocked };
 }
