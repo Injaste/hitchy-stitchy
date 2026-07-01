@@ -33,6 +33,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
           <Button
             size="sm"
             variant="default"
+            data-tour-action
             onClick={() => {
               if (guardAdd("members")) return;
               openInvite();

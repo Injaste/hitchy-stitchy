@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { Check, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEventSettingsStore } from "../settings/useEventSettingsStore";
+import { useTourSpotlight } from "./useTourSpotlight";
 import type { SetupStep } from "./setupSteps";
 
 /** One checklist row, shared by the widget and the Event Settings list. Every step
@@ -16,6 +17,8 @@ export default function SetupStepRow({
 }) {
   const { slug } = useParams();
   const openSettings = useEventSettingsStore((s) => s.open);
+  const armSpotlight = useTourSpotlight((s) => s.arm);
+  const disarmSpotlight = useTourSpotlight((s) => s.disarm);
 
   const body = (
     <div className="flex items-center gap-2">
@@ -47,6 +50,9 @@ export default function SetupStepRow({
         type="button"
         className={cls}
         onClick={() => {
+          // Opens a self-focused settings modal, not an action to point at — close
+          // any open spotlight so it doesn't linger behind the modal.
+          disarmSpotlight();
           openSettings(section);
           onNavigate?.();
         }}
@@ -56,10 +62,18 @@ export default function SetupStepRow({
     );
   }
 
+  const route = step.route;
   return (
     <Link
-      to={`/${slug}/admin/${step.route}`}
-      onClick={onNavigate}
+      to={`/${slug}/admin/${route}`}
+      onClick={() => {
+        // An ACTION route step points the spotlight at that page's action button
+        // (re-targeting a live spotlight). A view-only step (access) has nothing to
+        // point at, so it closes the spotlight instead.
+        if (route && !step.viewOnly) armSpotlight(route);
+        else disarmSpotlight();
+        onNavigate?.();
+      }}
       className={cls}
     >
       {body}

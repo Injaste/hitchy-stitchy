@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ListChecks, ChevronLeft, ChevronRight, Minus, X } from "lucide-react";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { ScrollView } from "@/components/custom/scroll-view";
+import PortalToApp from "@/components/custom/portal-to-app";
+import { Z } from "@/lib/z-index";
 import { useAdminStore } from "../store/useAdminStore";
 import { useEventSettingsStore } from "../settings/useEventSettingsStore";
 import { adminKeys } from "../lib/queryKeys";
@@ -216,9 +218,13 @@ export default function SetupGuideWidget() {
   const F = 18; // half the flying icon's size, to center it on the coordinates
 
   return (
-    <>
+    <PortalToApp>
       {!flight && (
-        <div className="fixed bottom-4 right-4 z-30 print:hidden">
+        <div
+          data-guide-widget
+          style={{ zIndex: Z.tourWidget }}
+          className="fixed bottom-4 right-4 print:hidden"
+        >
           <AnimatePresence mode="wait">
             {expanded ? (
               <motion.div
@@ -316,11 +322,10 @@ export default function SetupGuideWidget() {
                 transition={{ duration: 0.15 }}
                 style={{ transformOrigin: "bottom right" }}
                 aria-label={`Get started — ${doneCount} of ${totalCount} done`}
-                className="relative flex cursor-pointer items-center gap-2 rounded-full bg-popover py-2.5 pl-4 pr-5 text-sm font-medium text-popover-foreground shadow-lg transition-transform active:scale-95"
+                className="relative flex size-10 cursor-pointer items-center justify-center rounded-full bg-popover text-popover-foreground shadow-lg transition-transform active:scale-95"
               >
                 <ProgressBorder pct={pct} />
                 <ListChecks className="size-4 text-primary" />
-                <span>{isComplete ? "All set" : "Get started"}</span>
               </motion.button>
             )}
           </AnimatePresence>
@@ -348,6 +353,6 @@ export default function SetupGuideWidget() {
           <ListChecks className="size-4 text-primary" />
         </motion.div>
       )}
-    </>
+    </PortalToApp>
   );
 }

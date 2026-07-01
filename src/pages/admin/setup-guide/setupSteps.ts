@@ -25,6 +25,9 @@ export interface SetupStep {
   /** The plan tier unlocks this feature. The whole guide is super-admin-only, so
    *  access never gates a step — only whether the tier includes it. */
   unlocked: boolean;
+  /** A review step (e.g. access) — completes on being seen and has no single action
+   *  to point at, so following it does NOT arm the tour spotlight. */
+  viewOnly?: boolean;
 }
 
 export interface SetupGroup {
@@ -135,6 +138,7 @@ export function buildSetupGroups({
           route: "access",
           completed: viewedSteps.includes("access"),
           unlocked: canUseFeature("access"),
+          viewOnly: true,
         },
         {
           id: "members",

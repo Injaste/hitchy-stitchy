@@ -167,7 +167,7 @@ const TasksHeader: FC<TasksHeaderProps> = ({
               </Tooltip>
             )}
             {canCreate("tasks") && (
-              <Button size="sm" className="gap-0" onClick={() => { if (guardAdd("tasks")) return; openCreate(); }}>
+              <Button size="sm" data-tour-action className="gap-0" onClick={() => { if (guardAdd("tasks")) return; openCreate(); }}>
                 <Plus className="size-4" /> <ActionLabel>Task</ActionLabel>
               </Button>
             )}
