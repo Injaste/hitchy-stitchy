@@ -36,6 +36,12 @@ type ScrollViewProps = Omit<React.ComponentProps<"div">, "onScroll"> & {
   /** Overlay thumb thickness. "normal" for page-level scrolls, "thin" elsewhere. */
   size?: "thin" | "normal";
   /**
+   * Hide the overlay scrollbar entirely while keeping the surface scrollable
+   * (wheel/touch/keyboard). For places that cue scrollability another way — e.g.
+   * the setup guide, which uses edge fades + chevrons instead of a thumb.
+   */
+  hideScrollbar?: boolean;
+  /**
    * Cap the scroll region at a fixed px height (grow-to-fit, then scroll). Omit
    * to fill the parent (the default). Used by the data table's fixed-height body.
    */
@@ -61,6 +67,7 @@ export const ScrollView = ({
   gradientClass = "from-background",
   gradientChevron = false,
   size = "thin",
+  hideScrollbar = false,
   maxHeight,
   onScroll,
   ...props
@@ -159,6 +166,7 @@ export const ScrollView = ({
               autoHide: "leave",
               autoHideDelay: 600,
               theme: "os-theme-app",
+              visibility: hideScrollbar ? "hidden" : "auto",
             },
           }}
           events={{

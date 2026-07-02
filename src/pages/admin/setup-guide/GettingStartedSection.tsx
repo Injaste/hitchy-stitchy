@@ -21,11 +21,18 @@ export default function GettingStartedSection() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-muted-foreground">
-        {isComplete
-          ? "Everything's ready 🎉"
-          : `${doneCount} of ${totalCount} steps complete`}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted-foreground">
+          {isComplete
+            ? "Everything's ready 🎉"
+            : `${doneCount} of ${totalCount} steps complete`}
+        </p>
+        {dismissed && (
+          <Button variant="outline" size="sm" onClick={replay}>
+            Show guide again
+          </Button>
+        )}
+      </div>
 
       <div className="flex flex-col gap-3">
         {groups.map((group) => {
@@ -52,14 +59,6 @@ export default function GettingStartedSection() {
           );
         })}
       </div>
-
-      {dismissed && (
-        <div>
-          <Button variant="outline" size="sm" onClick={replay}>
-            Show the guide again
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

@@ -68,16 +68,23 @@ export function buildSetupGroups({
       label: "The basics",
       steps: [
         {
-          // Dates are set during create-event, so this isn't "add" — it points the
-          // couple to where they can review/adjust them. Completes on being opened
-          // (tracked in viewed_steps), like the read-only Access step.
+          // The doorway to the event-wide settings — dates, display name and
+          // notifications all live in the one modal, so opening it surfaces them
+          // together. Not an "add"; completes on being opened (tracked in
+          // viewed_steps), the same view-only pattern as the read-only Access step.
           id: "days",
-          label: "Review your event dates",
-          description: "Confirm the day(s) your celebration runs — change them here anytime.",
+          label: "Review your event settings",
+          description: "Your dates, display name and notifications — review them all here.",
           settingsSection: "days",
           completed: viewedSteps.includes("days"),
           unlocked: true,
         },
+      ],
+    },
+    {
+      id: "operations",
+      label: "Plan the day",
+      steps: [
         {
           id: "timeline",
           label: "Build your run-of-show",
@@ -86,12 +93,6 @@ export function buildSetupGroups({
           completed: counts.timeline > 0,
           unlocked: canUseFeature("timeline"),
         },
-      ],
-    },
-    {
-      id: "operations",
-      label: "Operations",
-      steps: [
         {
           id: "tasks",
           label: "Add your to-dos",

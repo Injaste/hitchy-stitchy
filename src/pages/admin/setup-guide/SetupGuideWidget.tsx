@@ -1,10 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
-import { ListChecks, ChevronLeft, ChevronRight, Minus, X } from "lucide-react";
-import ComponentFade from "@/components/animations/animate-component-fade";
-import { ScrollView } from "@/components/custom/scroll-view";
+import { AnimatePresence } from "framer-motion";
+
 import PortalToApp from "@/components/custom/portal-to-app";
 import { Z } from "@/lib/z-index";
 import { useAdminStore } from "../store/useAdminStore";
@@ -12,108 +10,9 @@ import { useEventSettingsStore } from "../settings/useEventSettingsStore";
 import { adminKeys } from "../lib/queryKeys";
 import { useSetupGuide } from "./useSetupGuide";
 import { useSetupCountsSync } from "./queries";
-import SetupStepRow from "./SetupStepRow";
-
-const SW = 2.5;
-
-// A rounded-rect border path + its perimeter — same methodology as SubmitButton's
-// border arc, generalised to any measured size/corner radius.
-function roundedRectPath(
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
-  return `M ${x + r} ${y} H ${x + w - r} A ${r} ${r} 0 0 1 ${x + w} ${y + r} V ${y + h - r} A ${r} ${r} 0 0 1 ${x + w - r} ${y + h} H ${x + r} A ${r} ${r} 0 0 1 ${x} ${y + h - r} V ${y + r} A ${r} ${r} 0 0 1 ${x + r} ${y} Z`;
-}
-function roundedRectPerimeter(w: number, h: number, r: number) {
-  return 2 * (w - 2 * r) + 2 * (h - 2 * r) + 2 * Math.PI * r;
-}
-
-/** Draws the progress as the BORDER of its positioned parent. Measures the parent
- *  (size + corner radius) so the radius/length are computed exactly, then fills
- *  `pct` of the perimeter — the SubmitButton approach, used as a progress meter. */
-function ProgressBorder({ pct }: { pct: number }) {
-  const ref = useRef<SVGSVGElement>(null);
-  const [dims, setDims] = useState({ w: 0, h: 0, br: 0 });
-
-  useLayoutEffect(() => {
-    const parent = ref.current?.parentElement;
-    if (!parent) return;
-    const measure = () =>
-      setDims({
-        w: parent.offsetWidth,
-        h: parent.offsetHeight,
-        br: parseFloat(getComputedStyle(parent).borderTopLeftRadius) || 0,
-      });
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(parent);
-    return () => ro.disconnect();
-  }, []);
-
-  const { w, h, br } = dims;
-  const inset = SW / 2;
-  const W = Math.max(0, w - SW);
-  const H = Math.max(0, h - SW);
-  const r = Math.max(0, Math.min(br - inset, Math.min(W, H) / 2));
-  const d = w && h ? roundedRectPath(inset, inset, W, H, r) : "";
-  const P = roundedRectPerimeter(W, H, r) || 1;
-  const clamped = Math.max(0, Math.min(1, pct));
-
-  return (
-    <svg
-      ref={ref}
-      viewBox={`0 0 ${w} ${h}`}
-      fill="none"
-      aria-hidden
-      className="pointer-events-none absolute inset-0 size-full z-20"
-    >
-      {d && (
-        <>
-          <path d={d} strokeWidth={SW} className="stroke-current opacity-15" />
-          <motion.path
-            d={d}
-            strokeWidth={SW}
-            strokeLinecap="round"
-            className="stroke-primary"
-            strokeDasharray={P}
-            initial={false}
-            animate={{ strokeDashoffset: P * (1 - clamped) }}
-            transition={{ type: "spring", stiffness: 80, damping: 18 }}
-          />
-        </>
-      )}
-    </svg>
-  );
-}
-
-function IconButton({
-  label,
-  onClick,
-  disabled,
-  children,
-}: {
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      disabled={disabled}
-      onClick={onClick}
-      className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors enabled:hover:bg-muted enabled:hover:text-foreground disabled:cursor-default disabled:opacity-30"
-    >
-      {children}
-    </button>
-  );
-}
-
-type Point = { x: number; y: number };
+import SetupGuidePanel from "./SetupGuidePanel";
+import SetupGuidePill from "./SetupGuidePill";
+import DismissFlight, { type Point } from "./DismissFlight";
 
 /** Corner-docked setup guide (desktop + mobile). A small pill that expands to a
  *  persistent panel showing ONE group at a time, with prev/next + auto-advance.
@@ -154,8 +53,7 @@ export default function SetupGuideWidget() {
   const settingsOpen = useEventSettingsStore((s) => s.isOpen);
   const settingsSection = useEventSettingsStore((s) => s.section);
   useEffect(() => {
-    if (active && settingsOpen && settingsSection === "days")
-      markViewed("days");
+    if (active && settingsOpen && settingsSection === "days") markViewed("days");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, settingsOpen, settingsSection]);
 
@@ -215,8 +113,6 @@ export default function SetupGuideWidget() {
     setFlight(null);
   };
 
-  const F = 18; // half the flying icon's size, to center it on the coordinates
-
   return (
     <PortalToApp>
       {!flight && (
@@ -227,131 +123,40 @@ export default function SetupGuideWidget() {
         >
           <AnimatePresence mode="wait">
             {expanded ? (
-              <motion.div
+              <SetupGuidePanel
                 key="panel"
-                ref={panelRef}
-                initial={{ opacity: 0, scale: 0.9, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                style={{ transformOrigin: "bottom right" }}
-                className="relative w-[280px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
-              >
-                <ProgressBorder pct={pct} />
-
-                <div className="flex items-start gap-1 px-4 pt-3.5 pb-3">
-                  <div className="min-w-0 flex-1">
-                    {isComplete ? (
-                      <p className="font-display text-xs font-medium">
-                        You're all set! 🎉
-                      </p>
-                    ) : (
-                      <>
-                        <p className="font-display text-xs font-medium">
-                          Get your event ready
-                        </p>
-                        <p className="text-2xs text-muted-foreground">
-                          {doneCount} of {totalCount} done
-                        </p>
-                      </>
-                    )}
-                  </div>
-                  <IconButton
-                    label="Minimize"
-                    onClick={() => setExpanded(false)}
-                  >
-                    <Minus className="size-4" />
-                  </IconButton>
-                  <IconButton label="Dismiss" onClick={startDismiss}>
-                    <X className="size-4" />
-                  </IconButton>
-                </div>
-
-                <div className="flex items-center gap-1 border-t border-border px-2 py-1.5">
-                  <IconButton
-                    label="Previous group"
-                    disabled={i === 0}
-                    onClick={() => go(-1)}
-                  >
-                    <ChevronLeft className="size-4" />
-                  </IconButton>
-                  <div className="flex-1 text-center">
-                    <p className="text-xs font-medium">{group.label}</p>
-                  </div>
-                  <IconButton
-                    label="Next group"
-                    disabled={i === groups.length - 1}
-                    onClick={() => go(1)}
-                  >
-                    <ChevronRight className="size-4" />
-                  </IconButton>
-                </div>
-
-                <div className="border-t border-border px-0.5">
-                  <div style={{ height: 160 }}>
-                    <ScrollView
-                      gradientTop
-                      gradientBottom
-                      gradientChevron
-                      gradientClass="from-popover rounded-b-lg"
-                      size="thin"
-                    >
-                      <AnimatePresence mode="wait">
-                        <ComponentFade
-                          key={group.id}
-                          useBlur
-                          className="flex flex-col"
-                        >
-                          {group.steps.map((step) => (
-                            <SetupStepRow key={step.id} step={step} />
-                          ))}
-                        </ComponentFade>
-                      </AnimatePresence>
-                    </ScrollView>
-                  </div>
-                </div>
-              </motion.div>
+                panelRef={panelRef}
+                pct={pct}
+                isComplete={isComplete}
+                doneCount={doneCount}
+                totalCount={totalCount}
+                group={group}
+                index={i}
+                groupCount={groups.length}
+                onPrev={() => go(-1)}
+                onNext={() => go(1)}
+                onMinimize={() => setExpanded(false)}
+                onDismiss={startDismiss}
+              />
             ) : (
-              <motion.button
+              <SetupGuidePill
                 key="pill"
-                type="button"
-                onClick={() => setExpanded(true)}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.15 }}
-                style={{ transformOrigin: "bottom right" }}
-                aria-label={`Get started — ${doneCount} of ${totalCount} done`}
-                className="relative flex size-10 cursor-pointer items-center justify-center rounded-full bg-popover text-popover-foreground shadow-lg transition-transform active:scale-95"
-              >
-                <ProgressBorder pct={pct} />
-                <ListChecks className="size-4 text-primary" />
-              </motion.button>
+                pct={pct}
+                doneCount={doneCount}
+                totalCount={totalCount}
+                onExpand={() => setExpanded(true)}
+              />
             )}
           </AnimatePresence>
         </div>
       )}
 
       {flight && (
-        <motion.div
-          initial={{
-            x: flight.from.x - F,
-            y: flight.from.y - F,
-            scale: 1,
-            opacity: 1,
-          }}
-          animate={{
-            x: flight.to.x - F,
-            y: flight.to.y - F,
-            scale: 0.45,
-            opacity: 1,
-          }}
-          transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
-          onAnimationComplete={finishFlight}
-          className="pointer-events-none fixed left-0 top-0 z-50 flex size-9 items-center justify-center rounded-full bg-popover shadow-lg ring-1 ring-primary/30"
-        >
-          <ListChecks className="size-4 text-primary" />
-        </motion.div>
+        <DismissFlight
+          from={flight.from}
+          to={flight.to}
+          onComplete={finishFlight}
+        />
       )}
     </PortalToApp>
   );
