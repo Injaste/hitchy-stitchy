@@ -35,6 +35,7 @@ const AdminSidebarHeader = () => {
             )}
           >
             <SidebarMenuButton
+              asChild
               size="lg"
               className={cn(
                 "pointer-events-none gap-0",
@@ -43,44 +44,46 @@ const AdminSidebarHeader = () => {
                   "group-hover/logo:opacity-0",
               )}
             >
-              <Logo
-                className="shrink-0 -mb-1"
-                imageClassName={
-                  !isMobile && state === "collapsed"
-                    ? "size-11 -ml-1"
-                    : "size-12"
-                }
-              />
-              <AnimatePresence initial={false}>
-                {(state === "expanded" || isMobile) && (
-                  <motion.div
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{
-                      opacity: 1,
-                      width: "100%",
-                      transition: { duration: 0.2, ease: "easeInOut" },
-                    }}
-                    exit={{
-                      opacity: 0,
-                      width: 0,
-                      transition: { duration: 0.15, ease: "easeInOut" },
-                    }}
-                    className="grid text-left text-sm leading-tight overflow-hidden"
-                  >
-                    <span className="font-bold truncate">{eventName}</span>
-                    <div className="flex justify-between items-center gap-1.5">
-                      <span className="truncate text-xs">{slug}</span>
-                      {isSuperAdmin ? (
-                        <Badge variant="action" asChild className="pointer-events-auto">
-                          <button onClick={() => openUpgrade()}>{planName}</button>
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline">{planName}</Badge>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div>
+                <Logo
+                  className="shrink-0 -mb-1"
+                  imageClassName={
+                    !isMobile && state === "collapsed"
+                      ? "size-11 -ml-1"
+                      : "size-12"
+                  }
+                />
+                <AnimatePresence initial={false}>
+                  {(state === "expanded" || isMobile) && (
+                    <motion.div
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{
+                        opacity: 1,
+                        width: "100%",
+                        transition: { duration: 0.2, ease: "easeInOut" },
+                      }}
+                      exit={{
+                        opacity: 0,
+                        width: 0,
+                        transition: { duration: 0.15, ease: "easeInOut" },
+                      }}
+                      className="grid text-left text-sm leading-tight overflow-hidden"
+                    >
+                      <span className="font-bold truncate">{eventName}</span>
+                      <div className="flex justify-between items-center gap-1.5">
+                        <span className="truncate text-xs">{slug}</span>
+                        {isSuperAdmin ? (
+                          <Badge variant="action" asChild className="pointer-events-auto">
+                            <button onClick={() => openUpgrade()}>{planName}</button>
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline">{planName}</Badge>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </SidebarMenuButton>
 
             {!isMobile && state === "collapsed" && (
