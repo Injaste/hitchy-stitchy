@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { ChevronDown, CalendarClock, EyeOff, CalendarX, ChevronLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import SubmitButton from "@/components/custom/form/SubmitButton";
 import { useCloseOnSuccess } from "@/components/custom/form/useCloseOnSuccess";
 import { useInvitationModalStore } from "../hooks/useInvitationModalStore";
@@ -26,14 +28,14 @@ interface PublishButtonProps {
   // Immediate publish (opens the confirm dialog).
   onPublish: () => void;
   // Schedule for a future timestamp. Returns false when the form is invalid
-  // (the caller jumps to the errored tab); the popover closes in that case.
+  // (the caller jumps to the errored tab); the dropdown closes in that case.
   onSchedule: (publishAt: string) => boolean;
 }
 
-// Split button: "Publish" (immediate, unchanged) + a chevron whose popover is a
+// Split button: "Publish" (immediate, unchanged) + a chevron whose dropdown is a
 // 2-step menu — pick "Schedule publish" to reveal a date/time picker, or
-// "Unpublish"/"Cancel" (moved here from the overflow menu). Scheduling reuses the
-// same publish RPC with a future published_at — no separate backend path.
+// "Unpublish"/"Cancel". Scheduling reuses the same publish RPC with a future
+// published_at — no separate backend path.
 const PublishButton = ({
   canPublish,
   busy,
@@ -52,7 +54,7 @@ const PublishButton = ({
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("09:00");
 
-  // Reset to the menu step + clear the picked date whenever the popover closes.
+  // Reset to the menu step + clear the picked date whenever the dropdown closes.
   const onOpenChange = (o: boolean) => {
     setOpen(o);
     if (!o) {
@@ -61,7 +63,7 @@ const PublishButton = ({
     }
   };
 
-  // Close the popover once a scheduled publish lands.
+  // Close the dropdown once a scheduled publish lands.
   useCloseOnSuccess(open && publishSuccess, () => onOpenChange(false));
 
   // Compare the chosen local date+time to now to block past schedules.
@@ -74,7 +76,7 @@ const PublishButton = ({
     const publishAt = combineDeadline(format(date, "yyyy-MM-dd"), time);
     if (!publishAt) return;
     // If the form is invalid the caller jumps tabs and returns false — close
-    // the popover so the errored field is visible.
+    // the dropdown so the errored field is visible.
     if (!onSchedule(publishAt)) onOpenChange(false);
   };
 
@@ -94,8 +96,8 @@ const PublishButton = ({
       >
         Publish
       </Button>
-      <Popover open={open} onOpenChange={onOpenChange}>
-        <PopoverTrigger asChild>
+      <DropdownMenu open={open} onOpenChange={onOpenChange}>
+        <DropdownMenuTrigger asChild>
           <Button
             type="button"
             size="sm"
@@ -105,88 +107,93 @@ const PublishButton = ({
           >
             <ChevronDown className="size-4" />
           </Button>
-        </PopoverTrigger>
+        </DropdownMenuTrigger>
 
-        {step === "menu" ? (
-          <PopoverContent align="end" className="w-52 bg-card p-1.5">
-            {!isLive && (
-              <button
-                type="button"
-                onClick={() => setStep("schedule")}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
-              >
-                <CalendarClock className="size-4 text-muted-foreground" />
-                {isScheduled ? "Reschedule" : "Schedule publish"}
-              </button>
-            )}
-            {isPublished && (
-              <button
-                type="button"
-                onClick={unpublish}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
-              >
-                {isScheduled ? (
-                  <>
-                    <CalendarX className="size-4 text-muted-foreground" />
-                    Cancel scheduled publish
-                  </>
-                ) : (
-                  <>
-                    <EyeOff className="size-4 text-muted-foreground" />
-                    Unpublish
-                  </>
-                )}
-              </button>
-            )}
-          </PopoverContent>
-        ) : (
-          <PopoverContent align="end" className="w-auto space-y-3 bg-card p-3">
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => setStep("menu")}
-                aria-label="Back"
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
-              <span className="text-sm font-medium">Schedule publish</span>
+        <DropdownMenuContent
+          align="end"
+          className={cn(
+            "bg-card p-0",
+            step === "menu" ? "w-52" : "w-auto",
+          )}
+        >
+          {step === "menu" ? (
+            <div key="menu" className="animate-in fade-in-0 zoom-in-95 p-1.5">
+              {!isLive && (
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setStep("schedule");
+                  }}
+                >
+                  <CalendarClock className="size-4 text-muted-foreground" />
+                  {isScheduled ? "Reschedule" : "Schedule publish"}
+                </DropdownMenuItem>
+              )}
+              {isPublished && (
+                <DropdownMenuItem onSelect={unpublish}>
+                  {isScheduled ? (
+                    <>
+                      <CalendarX className="size-4 text-muted-foreground" />
+                      Cancel scheduled publish
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="size-4 text-muted-foreground" />
+                      Unpublish
+                    </>
+                  )}
+                </DropdownMenuItem>
+              )}
             </div>
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              disabled={{ before: new Date() }}
-              className="p-0 bg-card w-full"
-            />
-            <Input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
-            {date && !isFuture && (
-              <p className="text-xs text-destructive">
-                Pick a date and time in the future.
-              </p>
-            )}
-            <SubmitButton
-              type="button"
-              size="sm"
-              className="w-full"
-              onClick={schedule}
-              disabled={!date || !isFuture}
-              isPending={publishPending}
-              isSuccess={publishSuccess}
-              isError={publishError}
-            >
-              {localTarget && isFuture
-                ? `Schedule for ${format(localTarget, "d MMM, h:mm a")}`
-                : "Schedule publish"}
-            </SubmitButton>
-          </PopoverContent>
-        )}
-      </Popover>
+          ) : (
+            <div key="schedule" className="animate-in fade-in-0 zoom-in-95 space-y-3 p-3">
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => setStep("menu")}
+                  aria-label="Back"
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
+                <span className="text-sm font-medium">Schedule publish</span>
+              </div>
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                disabled={{ before: new Date() }}
+                className="w-full bg-card p-0"
+              />
+              <Input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+              />
+              {date && !isFuture && (
+                <p className="text-xs text-destructive">
+                  Pick a date and time in the future.
+                </p>
+              )}
+              <SubmitButton
+                type="button"
+                size="sm"
+                className="w-full"
+                onClick={schedule}
+                disabled={!date || !isFuture}
+                isPending={publishPending}
+                isSuccess={publishSuccess}
+                isError={publishError}
+              >
+                {localTarget && isFuture
+                  ? `Schedule for ${format(localTarget, "d MMM, h:mm a")}`
+                  : "Schedule publish"}
+              </SubmitButton>
+            </div>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
