@@ -55,7 +55,9 @@ export function groupMembersByRole(
 
 /** Field-ready assignee options for <AssigneeField> — the assignable members
  *  mapped to {id,label} plus their role groups. One place so TaskForm +
- *  TimelineItemForm can't drift apart. */
+ *  TimelineItemForm can't drift apart. Role groups are the "Labels" bulk-select
+ *  shortcut, so only surface a role that 2+ members share — a single-member role
+ *  would just duplicate that member's own chip. */
 export function getMemberAssigneeOptions(members: Member[]): {
   items: { id: string; label: string }[];
   groups: { name: string; memberIds: string[] }[];
@@ -63,6 +65,8 @@ export function getMemberAssigneeOptions(members: Member[]): {
   const assignable = getAssignableMembers(members);
   return {
     items: assignable.map((m) => ({ id: m.id, label: m.display_name })),
-    groups: groupMembersByRole(assignable),
+    groups: groupMembersByRole(assignable).filter(
+      (g) => g.memberIds.length >= 2,
+    ),
   };
 }
