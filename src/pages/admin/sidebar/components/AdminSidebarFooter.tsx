@@ -81,11 +81,7 @@ const AdminSidebarFooter = () => {
                 <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              side="top"
-              align="start"
-              style={{ width: "var(--radix-popper-anchor-width)" }}
-            >
+            <DropdownMenuContent side="top" align="start" className="min-w-40">
               <DropdownMenuItem onSelect={() => openAccountSettings()}>
                 <Settings className="w-4 h-4" />
                 Account settings
