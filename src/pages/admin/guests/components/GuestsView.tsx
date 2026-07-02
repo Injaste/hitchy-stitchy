@@ -239,7 +239,7 @@ const GuestsView: FC<GuestsViewProps> = ({
             action={
               canRead("invitation") ? (
                 <Button asChild>
-                  <Link to={`/${slug}/admin/invitation`}>
+                  <Link to={`/${slug}/admin/invitation`} data-tour-action>
                     <MailPlus className="size-4" />
                     Create invitation
                   </Link>

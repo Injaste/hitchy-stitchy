@@ -60,6 +60,7 @@ const GuestsFilters: FC<GuestsFiltersProps> = ({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Escape") { onSearchChange(""); e.currentTarget.blur(); } }}
             placeholder="Search by name or phone…"
             className="pl-8 h-8 text-sm"
             aria-label="Search guests"

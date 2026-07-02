@@ -32,6 +32,7 @@ const InvitationHeader: FC<InvitationHeaderProps> = ({
         canCreate("invitation") && (
           <Button
             size="sm"
+            data-tour-action
             className="gap-0"
             onClick={() => {
               if (guardAdd("pages")) return;

@@ -68,6 +68,7 @@ const GuestsHeader: FC<GuestsHeaderProps> = ({
           <Button
             size="sm"
             variant="default"
+            data-tour-action
             onClick={() => {
               if (guardAdd("guests")) return;
               openCreate();

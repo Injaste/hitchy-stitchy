@@ -9,6 +9,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAdminStore } from "../../store/useAdminStore";
+import { usePlan } from "../../hooks/usePlan";
+import { useAccess } from "../../hooks/useAccess";
+import { useUpgradeModalStore } from "../../plan/hooks/useUpgradeModalStore";
+import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +20,9 @@ const AdminSidebarHeader = () => {
   const { state } = useSidebar();
   const isMobile = useIsMobile();
   const { eventName, slug } = useAdminStore();
+  const { planName } = usePlan();
+  const { isSuperAdmin } = useAccess();
+  const openUpgrade = useUpgradeModalStore((s) => s.open);
 
   return (
     <SidebarHeader>
@@ -50,7 +57,7 @@ const AdminSidebarHeader = () => {
                     initial={{ opacity: 0, width: 0 }}
                     animate={{
                       opacity: 1,
-                      width: "auto",
+                      width: "100%",
                       transition: { duration: 0.2, ease: "easeInOut" },
                     }}
                     exit={{
@@ -61,7 +68,16 @@ const AdminSidebarHeader = () => {
                     className="grid text-left text-sm leading-tight overflow-hidden"
                   >
                     <span className="font-bold truncate">{eventName}</span>
-                    <span className="truncate text-xs">{slug}</span>
+                    <div className="flex justify-between items-center gap-1.5">
+                      <span className="truncate text-xs">{slug}</span>
+                      {isSuperAdmin ? (
+                        <Badge variant="action" asChild className="pointer-events-auto">
+                          <button onClick={() => openUpgrade()}>{planName}</button>
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">{planName}</Badge>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

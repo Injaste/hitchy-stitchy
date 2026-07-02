@@ -2,6 +2,7 @@ import type { FC } from "react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar";
+import MemberCrown from "./MemberCrown";
 import { getInitials } from "@/pages/admin/members/utils";
 import type { Member } from "@/pages/admin/members/types";
 
@@ -35,6 +36,9 @@ const AssigneeAvatars: FC<AssigneeAvatarsProps> = ({
 }) => {
   if (members.length === 0) return null;
 
+  const coupleRank = (m: Member) => (m.is_groom ? 0 : m.is_bride ? 1 : 2);
+  const sorted = [...members].sort((a, b) => coupleRank(a) - coupleRank(b));
+
   const renderAvatar = (m: Member) => (
     <Avatar key={m.id} size="sm" title={m.display_name}>
       <AvatarFallback
@@ -47,15 +51,20 @@ const AssigneeAvatars: FC<AssigneeAvatarsProps> = ({
       >
         {getInitials(m.display_name)}
       </AvatarFallback>
+      <MemberCrown
+        isBride={m.is_bride}
+        isGroom={m.is_groom}
+        className="size-3 -top-1.5 -left-1"
+      />
     </Avatar>
   );
 
-  const me = selfId ? members.find((m) => m.id === selfId) : undefined;
+  const me = selfId ? sorted.find((m) => m.id === selfId) : undefined;
 
   // Only break "you" out once the row overflows; within `max` everything is
   // already side by side and visible, so the plain group is enough.
-  if (me && members.length > max) {
-    const others = members.filter((m) => m.id !== selfId);
+  if (me && sorted.length > max) {
+    const others = sorted.filter((m) => m.id !== selfId);
     return (
       <div className={cn("flex items-center gap-1", className)}>
         {renderAvatar(me)}
@@ -68,7 +77,7 @@ const AssigneeAvatars: FC<AssigneeAvatarsProps> = ({
 
   return (
     <AvatarGroup max={max} className={cn(RING_CARD, className)}>
-      {members.map(renderAvatar)}
+      {sorted.map(renderAvatar)}
     </AvatarGroup>
   );
 };

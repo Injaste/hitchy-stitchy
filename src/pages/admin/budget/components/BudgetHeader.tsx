@@ -55,6 +55,7 @@ const BudgetHeader: FC<BudgetHeaderProps> = ({
           <Button
             size="sm"
             variant="default"
+            data-tour-action
             onClick={openCreate}
             className="gap-0"
           >

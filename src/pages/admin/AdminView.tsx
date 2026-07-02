@@ -10,6 +10,7 @@ import useActivePage from "./hooks/useActivePage";
 
 import AdminSidebar from "./sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";
+import SetupGuide from "./setup-guide";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
 import MemberModals from "./members/modals";
@@ -54,6 +55,7 @@ const AdminView = () => {
               <AnimatePresence mode="wait">
                 <ComponentFade
                   key={activePage}
+                  data-tour-page={activePage}
                   className="flex flex-col flex-1 min-h-0"
                 >
                   <ScrollView
@@ -67,6 +69,7 @@ const AdminView = () => {
                 </ComponentFade>
               </AnimatePresence>
             </SidebarInset>
+            <SetupGuide />
             <MemberModals />
             <TimelineModals />
             <PlanModals />

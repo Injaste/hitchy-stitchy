@@ -36,3 +36,16 @@ Until then, the in-app pending UX shows a hint + copy-email button (superadmins 
 
 ### Admin chunk size (~2.1 MB)
 **Status:** deferred — fine for now (good-internet assumption). When it grows: split `page-admin` by sub-route (timeline / tasks / members / guests / invitation / settings), each lazy-loaded, and land the vendor split above so libs aren't bundled into it.
+
+## Plans & Monetization
+
+### "Remove branding" (Advanced) is advertised but not wired
+**Status:** deferred (intentional). **Today:** `can_remove_branding` is a real plan flag (Advanced-only) and is sold in the upgrade modal as an unlock (`PLAN_FEATURES` + `feature-meta`), but **nothing consumes it**. The only persistent guest-facing brand is the "Made with Hitchy Stitchy" footer in `src/pages/wedding/form/RSVPForm.tsx` (~L220–231), shown unconditionally on every tier; `get_public_invitation` (the anon guest-page RPC) doesn't even emit the flag. So an Advanced buyer who pays to remove branding still sees it.
+
+**Why deferred:** the founder's own public event runs on Advanced and we *want* the Hitchy Stitchy brand shown there for marketing — so removing it isn't a priority, and it's harmless pre-launch (no other Advanced customers yet).
+
+**When built:**
+- BE: `get_public_invitation` (current body = migration `20260628000101`) emits `remove_branding` = `can_remove_branding` for the event's effective plan.
+- FE: thread it via a small `RemoveBrandingContext` provided once in `src/pages/wedding/index.tsx` (do **not** prop-drill through the 9 templates that each render `<RSVPForm>` via `useRsvpSection`), consumed in `RSVPForm` to gate the footer. Map the field in `wedding/api.ts` + `wedding/types.ts`.
+
+**Interim caveat:** until built, the modal advertises a non-functional perk. If a paying Advanced customer other than the founder appears before it's wired, either build it or drop `branding` from `PLAN_FEATURES` so it isn't sold (same call we made for the phantom `max_expenses` / `max_gifts` caps).

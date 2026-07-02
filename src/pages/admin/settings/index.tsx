@@ -1,9 +1,10 @@
-import { CalendarDays, UserRound, Bell, CreditCard } from "lucide-react";
+import { ListChecks, CalendarDays, UserRound, Bell, CreditCard } from "lucide-react";
 
 import SettingsDialog, {
   type SettingsSection,
 } from "@/components/custom/settings-dialog";
 import DaysManager from "@/pages/admin/days/components/DaysManager";
+import GettingStartedSection from "../setup-guide/components/GettingStartedSection";
 import Profile from "./profile";
 import { NotificationsSection } from "./notifications";
 import Billing from "./billing";
@@ -23,7 +24,11 @@ const EventSettingsModal = () => {
     { id: "profile", label: "Display name", icon: UserRound, render: () => <Profile /> },
     { id: "notifications", label: "Notifications", icon: Bell, render: () => <NotificationsSection /> },
     ...(isSuperAdmin
-      ? [{ id: "billing", label: "Billing", icon: CreditCard, render: () => <Billing /> }]
+      ? [
+          { id: "billing", label: "Billing", icon: CreditCard, render: () => <Billing /> },
+          // Onboarding home — last, below Billing. Done steps are revisitable here.
+          { id: "getting-started", label: "Getting started", icon: ListChecks, render: () => <GettingStartedSection /> },
+        ]
       : []),
   ];
 

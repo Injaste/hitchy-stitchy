@@ -4,6 +4,7 @@ import { useHasScrolled } from "@/hooks/use-has-scrolled";
 import { usePageTitle } from "@/hooks/use-page-title";
 import Container from "./container";
 import { cn } from "@/lib/utils";
+import { Z } from "@/lib/z-index";
 import { HeaderActions, type BaseHeaderProps } from "./page-header-base";
 
 interface DashboardPageHeaderProps extends BaseHeaderProps {
@@ -29,7 +30,10 @@ export const DashboardPageHeader: FC<DashboardPageHeaderProps> = ({
 
   return (
     <>
-      <div className="sticky top-0 z-30 px-4 md:px-6 pt-4 pb-3">
+      <div
+        style={{ zIndex: Z.header }}
+        className="sticky top-0 px-4 md:px-6 pt-4 pb-3"
+      >
         <Container>
           <div className="flex items-center justify-between gap-4">
             <h1 className="text-xl font-semibold">{title}</h1>

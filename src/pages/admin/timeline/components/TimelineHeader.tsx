@@ -83,6 +83,7 @@ const TimelineHeader: FC<TimelineHeaderProps> = ({
         canCreate("timeline") && (
           <Button
             size="sm"
+            data-tour-action
             onClick={() => openCreate(targetSegmentId, null, suggestedStart)}
             className="gap-0"
           >

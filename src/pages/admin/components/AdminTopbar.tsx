@@ -2,6 +2,7 @@ import type { FC, ReactNode } from "react";
 import { motion } from "framer-motion";
 
 import Container from "@/components/custom/container";
+import { Z } from "@/lib/z-index";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { useActiveTimelineQuery } from "../timeline/queries";
 import { usePlan } from "../hooks/usePlan";
@@ -24,7 +25,8 @@ const Topbar: FC<{ show: boolean; children: ReactNode }> = ({ show, children }) 
         marginBottom: show && !isMobile ? 8 : 0,
       }}
       transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-      className="relative z-40 shrink-0 overflow-hidden md:rounded-2xl shadow-sm md:shadow-none ring-1 ring-sidebar-border bg-background"
+      style={{ zIndex: Z.topbar }}
+      className="relative shrink-0 overflow-hidden md:rounded-2xl shadow-sm md:shadow-none ring-1 ring-sidebar-border bg-background"
     >
       <div className="flex h-full w-full items-center justify-center bg-background/50 backdrop-blur-md">
         <Container>

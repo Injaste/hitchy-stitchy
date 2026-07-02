@@ -12,6 +12,9 @@ interface ComponentFadeProps {
    * Only opt in around content with no fixed children.
    */
   useBlur?: boolean;
+  /** Forwarded to the motion element — e.g. a `data-tour-page` hook that reads the
+   *  fade's live opacity to know when a page transition has settled. */
+  [dataAttr: `data-${string}`]: string | undefined;
 }
 
 // Opacity only. Unlike `filter`, opacity does not create a containing block, so
@@ -44,6 +47,7 @@ const ComponentFade: FC<ComponentFadeProps> = ({
   className,
   initialVisible,
   useBlur,
+  ...rest
 }) => {
   return (
     <motion.div
@@ -52,6 +56,7 @@ const ComponentFade: FC<ComponentFadeProps> = ({
       exit="exit"
       variants={useBlur ? fadeBlur : fade}
       className={className}
+      {...rest}
     >
       {children}
     </motion.div>

@@ -33,6 +33,7 @@ const ExpenseFilters: FC<ExpenseFiltersProps> = ({
       <Input
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Escape") { onSearchChange(""); e.currentTarget.blur(); } }}
         placeholder="Search item, vendor or payer…"
         className="rounded-full pl-9"
       />

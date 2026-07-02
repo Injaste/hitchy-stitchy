@@ -4,6 +4,7 @@ import RequireRoute from "@/components/custom/require-route";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { usePlan } from "@/pages/admin/hooks/usePlan";
 import { useAccess } from "@/pages/admin/hooks/useAccess";
+import { useSetupGuide } from "@/pages/admin/setup-guide/hooks/useSetupGuide";
 import type { PlanFeature } from "@/pages/admin/plan/plan-config";
 
 import Timeline from "@/pages/admin/timeline";
@@ -29,6 +30,15 @@ const RedirectToLanding = () => {
   const { slug } = useParams();
   const { canUseFeature } = usePlan();
   const { canRead, isSuperAdmin } = useAccess();
+  const { active, nextRoute } = useSetupGuide();
+
+  // While the couple is still setting up (super-admin + a routable step left), land
+  // on the next thing to do. Falls through to the standard priority list once setup
+  // is complete, and never applies for collaborators. nextRoute skips the days step
+  // (it opens a settings modal, not a page).
+  if (active && nextRoute) {
+    return <Navigate to={`/${slug}/admin/${nextRoute}`} replace />;
+  }
 
   const landing: { path: string; feature: PlanFeature; allowed: boolean }[] = [
     { path: "timeline", feature: "timeline", allowed: canRead("timeline") },

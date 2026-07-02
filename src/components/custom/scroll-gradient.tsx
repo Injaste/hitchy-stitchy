@@ -1,4 +1,11 @@
 import type { CSSProperties, FC } from "react";
+import {
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  type LucideIcon,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -17,6 +24,11 @@ interface ScrollGradientProps {
    * left/right. Default h-10 / w-10 (~40px).
    */
   sizeClass?: string;
+  /**
+   * Pin a chevron pointing toward the scrollable edge inside the fade — the
+   * select-content scroll affordance (gradient + chevron). Off by default.
+   */
+  chevron?: boolean;
   className?: string;
 }
 
@@ -25,6 +37,17 @@ const SIDE_CLASS: Record<ScrollGradientProps["side"], string> = {
   bottom: "inset-x-0 bottom-0 bg-linear-to-t",
   left: "inset-y-0 left-0 bg-linear-to-r",
   right: "inset-y-0 right-0 bg-linear-to-l",
+};
+
+// Chevron icon + alignment that pins it to the scrollable edge of the fade.
+const CHEVRON: Record<
+  ScrollGradientProps["side"],
+  { Icon: LucideIcon; align: string }
+> = {
+  top: { Icon: ChevronUp, align: "justify-center items-start pt-1" },
+  bottom: { Icon: ChevronDown, align: "justify-center items-end pb-1" },
+  left: { Icon: ChevronLeft, align: "items-center justify-start pl-1" },
+  right: { Icon: ChevronRight, align: "items-center justify-end pr-1" },
 };
 
 /**
@@ -41,8 +64,10 @@ const ScrollGradient: FC<ScrollGradientProps> = ({
   sizeClass,
   className,
   style,
+  chevron = false,
 }) => {
   const isHorizontal = side === "left" || side === "right";
+  const { Icon, align } = CHEVRON[side];
   return (
     <div
       aria-hidden
@@ -52,10 +77,13 @@ const ScrollGradient: FC<ScrollGradientProps> = ({
         sizeClass ?? (isHorizontal ? "w-10" : "h-10"),
         SIDE_CLASS[side],
         fromClass,
+        chevron && cn("flex text-muted-foreground", align),
         visible ? "opacity-100" : "opacity-0",
         className,
       )}
-    />
+    >
+      {chevron && <Icon className="size-4" />}
+    </div>
   );
 };
 
