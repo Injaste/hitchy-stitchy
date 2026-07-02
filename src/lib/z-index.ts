@@ -13,6 +13,7 @@
  *   46  setup-guide widget — above its own dim, below modals
  *   50  dialogs, sheets, popovers, tooltips            (Tailwind z-50)
  *   60  mobile drawer                                  (Tailwind z-60)
+ *   65  flying clones — task-card move, guide dismiss — ride above everything
  */
 export const Z = {
   header: 30,
@@ -21,4 +22,5 @@ export const Z = {
   tourWidget: 46,
   modal: 50,
   drawer: 60,
+  flyover: 65,
 } as const;

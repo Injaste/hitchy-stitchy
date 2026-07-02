@@ -2,6 +2,7 @@ import * as React from "react";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 
 import { cn } from "@/lib/utils";
+import { Z } from "@/lib/z-index";
 
 // Bottom drawer with swipe-to-dismiss, built on framer-motion (already a project
 // dep). Rendered inline (no portal) so it inherits the consumer's scoped CSS
@@ -78,7 +79,8 @@ function DrawerContent({
         <>
           <motion.div
             data-slot="drawer-overlay"
-            className="fixed inset-0 z-60 bg-black/40"
+            style={{ zIndex: Z.drawer }}
+            className="fixed inset-0 bg-black/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -89,9 +91,12 @@ function DrawerContent({
             data-slot="drawer-content"
             role="dialog"
             aria-modal="true"
-            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+            style={{
+              paddingBottom: "env(safe-area-inset-bottom)",
+              zIndex: Z.drawer,
+            }}
             className={cn(
-              "fixed inset-x-0 bottom-0 z-60 mx-auto flex max-h-[88svh] w-full max-w-md touch-none flex-col rounded-t-2xl border-t bg-popover text-popover-foreground shadow-2xl",
+              "fixed inset-x-0 bottom-0 mx-auto flex max-h-[88svh] w-full max-w-md touch-none flex-col rounded-t-2xl border-t bg-popover text-popover-foreground shadow-2xl",
               className,
             )}
             initial={{ y: "100%" }}

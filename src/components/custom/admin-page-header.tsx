@@ -9,6 +9,7 @@ import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { Separator } from "../ui/separator";
 import Container from "./container";
 import { cn } from "@/lib/utils";
+import { Z } from "@/lib/z-index";
 import { HeaderActions, type BaseHeaderProps } from "./page-header-base";
 
 interface AdminPageHeaderProps extends BaseHeaderProps {
@@ -78,7 +79,10 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
 
   return (
     <>
-      <div className="-mx-3 md:-mx-6 px-4 md:px-6 sticky top-0 z-30 pt-4 pb-3 bg-background">
+      <div
+        style={{ zIndex: Z.header }}
+        className="-mx-3 md:-mx-6 px-4 md:px-6 sticky top-0 pt-4 pb-3 bg-background"
+      >
         <Container size={containerSize}>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center min-w-0">

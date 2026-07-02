@@ -2,6 +2,7 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
+import { Z } from "@/lib/z-index";
 import { useCardFly } from "../hooks/useCardFly";
 
 const RING_CLASS = {
@@ -31,10 +32,12 @@ const CardFlyOverlay = () => {
       aria-hidden
       className={cn(
         "pointer-events-none fixed shadow-lg transition-shadow",
-        to ? "z-60" : "z-30",
         ring && RING_CLASS[ring],
       )}
       style={{
+        // In flight (`to` set) it rides above everything; lifted in place it sits
+        // at content level, below an open modal.
+        zIndex: to ? Z.flyover : Z.header,
         top: from.top,
         left: from.left,
         width: from.width,
