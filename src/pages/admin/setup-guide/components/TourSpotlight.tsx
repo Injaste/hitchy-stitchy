@@ -4,7 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Z } from "@/lib/z-index";
 import PortalToApp from "@/components/custom/portal-to-app";
-import { useTourSpotlight } from "./useTourSpotlight";
+import { useTourSpotlight } from "../hooks/useTourSpotlight";
 
 const PAD = 6; // breathing room around the highlighted target
 const OPEN_MS = 320; // hole growing open at a new target

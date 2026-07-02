@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Minus, X } from "lucide-react";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { ScrollView } from "@/components/custom/scroll-view";
-import type { SetupGroup } from "./setupSteps";
+import type { SetupGroup } from "../setupSteps";
 import { ProgressBorder } from "./ProgressBorder";
 import SetupStepRow from "./SetupStepRow";
 

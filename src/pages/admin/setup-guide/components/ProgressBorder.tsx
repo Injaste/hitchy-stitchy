@@ -1,6 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import confetti from "canvas-confetti";
 
 import { cn } from "@/lib/utils";
 
@@ -21,23 +20,12 @@ function roundedRectPerimeter(w: number, h: number, r: number) {
   return 2 * (w - 2 * r) + 2 * (h - 2 * r) + 2 * Math.PI * r;
 }
 
-// A celebratory burst from the widget's corner, fired once when the guide is
-// completed. Same library as the RSVP success confetti.
-function celebrate() {
-  confetti({
-    particleCount: 120,
-    spread: 70,
-    startVelocity: 38,
-    angle: 110,
-    origin: { x: 0.92, y: 0.9 },
-  });
-}
-
 /** Draws the progress as the BORDER of its positioned parent. Measures the parent
  *  (size + corner radius) so the radius/length are computed exactly, then fills
  *  `pct` of the perimeter — the SubmitButton approach, used as a progress meter.
  *  On completion the grey track fills to primary and the arc turns success and
- *  redraws itself from zero, with a one-shot confetti burst. */
+ *  redraws itself from zero. (The one-shot confetti is fired by the widget, gated
+ *  per-member; this component owns only the visual.) */
 export function ProgressBorder({ pct }: { pct: number }) {
   const ref = useRef<SVGSVGElement>(null);
   const [dims, setDims] = useState({ w: 0, h: 0, br: 0 });
@@ -66,14 +54,6 @@ export function ProgressBorder({ pct }: { pct: number }) {
   const P = roundedRectPerimeter(W, H, r) || 1;
   const clamped = Math.max(0, Math.min(1, pct));
   const complete = clamped >= 1;
-
-  // Fire the celebration once, when the guide flips from in-progress to complete
-  // (not on a mount that is already complete — e.g. re-expanding a done guide).
-  const wasComplete = useRef(complete);
-  useEffect(() => {
-    if (complete && !wasComplete.current) celebrate();
-    wasComplete.current = complete;
-  }, [complete]);
 
   return (
     <svg

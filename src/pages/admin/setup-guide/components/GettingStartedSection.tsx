@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEventSettingsStore } from "../settings/useEventSettingsStore";
-import { useSetupGuide } from "./useSetupGuide";
+import { useEventSettingsStore } from "../../settings/useEventSettingsStore";
+import { useSetupGuide } from "../hooks/useSetupGuide";
 import SetupStepRow from "./SetupStepRow";
 
 /** The always-available home for the setup guide, inside Event Settings — the full

@@ -2,14 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 
 import PortalToApp from "@/components/custom/portal-to-app";
+import { useIsMobile } from "@/hooks/use-media-query";
 import { Z } from "@/lib/z-index";
-import { useAdminStore } from "../store/useAdminStore";
-import { useEventSettingsStore } from "../settings/useEventSettingsStore";
-import { adminKeys } from "../lib/queryKeys";
-import { useSetupGuide } from "./useSetupGuide";
-import { useSetupCountsSync } from "./queries";
+import { useAdminStore } from "../../store/useAdminStore";
+import { useEventSettingsStore } from "../../settings/useEventSettingsStore";
+import { adminKeys } from "../../lib/queryKeys";
+import { useSetupGuide } from "../hooks/useSetupGuide";
+import { useSetupCountsSync } from "../queries";
+import { useLiveRunDemoStore } from "../hooks/useLiveRunDemoStore";
 import SetupGuidePanel from "./SetupGuidePanel";
 import SetupGuidePill from "./SetupGuidePill";
 import DismissFlight, { type Point } from "./DismissFlight";
@@ -28,6 +31,8 @@ export default function SetupGuideWidget() {
     isComplete,
     dismissed,
     dismiss,
+    celebrated,
+    markCelebrated,
     markViewed,
   } = useSetupGuide();
   const [expanded, setExpanded] = useState(true);
@@ -52,13 +57,57 @@ export default function SetupGuideWidget() {
   // pattern as Access, but the target is a settings section, not a route).
   const settingsOpen = useEventSettingsStore((s) => s.isOpen);
   const settingsSection = useEventSettingsStore((s) => s.section);
+  const isMobile = useIsMobile();
   useEffect(() => {
-    if (active && settingsOpen && settingsSection === "days") markViewed("days");
+    // Complete "days" whenever the Event Dates panel is actually on screen: the
+    // explicit "days" section, OR — desktop only — the fallback when no section is
+    // chosen, which lands on the first tab (Event Dates). On mobile an unset
+    // section shows the LIST, not dates, so there it must be explicit.
+    const viewingDates =
+      settingsSection === "days" || (!isMobile && settingsSection === undefined);
+    if (active && settingsOpen && viewingDates) markViewed("days");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, settingsOpen, settingsSection]);
+  }, [active, settingsOpen, settingsSection, isMobile]);
+
+  // Opening the live-run demo completes the "liverun" step (view-based, like days).
+  const liveRunDemoOpen = useLiveRunDemoStore((s) => s.isOpen);
+  useEffect(() => {
+    if (active && liveRunDemoOpen) markViewed("liverun");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, liveRunDemoOpen]);
 
   // Keep completion retroactive as feature data changes (lives with the query).
   useSetupCountsSync();
+
+  // Fire the completion confetti exactly ONCE per member (persisted in
+  // celebrated_by): never repeats across sessions, or if the guide re-completes
+  // (delete then re-add an item). The "all done" ring/header visual still shows
+  // every time — only this one-shot burst is gated. Skipped if this member has
+  // dismissed the guide (they hid it; don't celebrate behind their back). The ref
+  // latches it to at most once per mount: un-dismissing a completed guide fires
+  // replay + markCelebrated in the same tick, and replay's write momentarily
+  // reverts `celebrated` — without the latch that would re-trigger a 2nd burst.
+  const hasFiredConfetti = useRef(false);
+  useEffect(() => {
+    if (
+      active &&
+      !dismissed &&
+      isComplete &&
+      !celebrated &&
+      !hasFiredConfetti.current
+    ) {
+      hasFiredConfetti.current = true;
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        startVelocity: 38,
+        angle: 110,
+        origin: { x: 0.92, y: 0.9 },
+      });
+      markCelebrated();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, dismissed, isComplete, celebrated]);
 
   const firstIncomplete = Math.max(
     0,

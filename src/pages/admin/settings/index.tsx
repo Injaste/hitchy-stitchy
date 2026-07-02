@@ -4,7 +4,7 @@ import SettingsDialog, {
   type SettingsSection,
 } from "@/components/custom/settings-dialog";
 import DaysManager from "@/pages/admin/days/components/DaysManager";
-import GettingStartedSection from "../setup-guide/GettingStartedSection";
+import GettingStartedSection from "../setup-guide/components/GettingStartedSection";
 import Profile from "./profile";
 import { NotificationsSection } from "./notifications";
 import Billing from "./billing";

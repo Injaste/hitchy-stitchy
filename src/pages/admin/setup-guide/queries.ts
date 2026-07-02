@@ -67,7 +67,12 @@ export function useSetTutorialStateMutation() {
         await qc.cancelQueries({ queryKey: key });
         qc.setQueryData<TutorialState>(key, state);
       },
-      onSuccess: (result) => qc.setQueryData(key, result),
+      // No onSuccess re-stamp: setTutorialState echoes its input (no server-computed
+      // fields), so onMutate already cached the authoritative value. Re-writing that
+      // per-call snapshot on success would clobber a sibling mutation that changed a
+      // DIFFERENT field in between — e.g. show-again (dismissedBy) and the completion
+      // confetti (celebratedBy) fire together; the stale re-stamp briefly reverted
+      // `celebrated` and double-fired the burst. A later fetch reconciles with the DB.
     },
   );
 }

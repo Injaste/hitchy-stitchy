@@ -4,6 +4,7 @@ import type { SetupCounts } from "./api";
 export type SetupStepId =
   | "days"
   | "timeline"
+  | "liverun"
   | "tasks"
   | "budget"
   | "gifts"
@@ -28,6 +29,13 @@ export interface SetupStep {
   /** A review step (e.g. access) — completes on being seen and has no single action
    *  to point at, so following it does NOT arm the tour spotlight. */
   viewOnly?: boolean;
+  /** Opens a self-contained demo modal instead of a route/settings section (the
+   *  live-run practice). Completes on being opened, like a view-only step. */
+  demo?: boolean;
+  /** A prerequisite isn't met yet (e.g. guests need an invitation first): the row
+   *  is shown disabled with `lockedHint` instead of being actionable. */
+  locked?: boolean;
+  lockedHint?: string;
 }
 
 export interface SetupGroup {
@@ -82,7 +90,7 @@ export function buildSetupGroups({
       ],
     },
     {
-      id: "operations",
+      id: "plan",
       label: "Plan the day",
       steps: [
         {
@@ -93,6 +101,23 @@ export function buildSetupGroups({
           completed: counts.timeline > 0,
           unlocked: canUseFeature("timeline"),
         },
+        {
+          // Live-run is a day-of feature, not setup data — so we TEACH it with a
+          // safe, self-contained demo (no real cue is started). Completes once the
+          // demo has been opened; hidden for tiers without the sub-feature.
+          id: "liverun",
+          label: "Run your day live",
+          description: "Start and end each cue in real time — give it a try.",
+          demo: true,
+          completed: viewedSteps.includes("liverun"),
+          unlocked: canUseFeature("timeline_liverun"),
+        },
+      ],
+    },
+    {
+      id: "tasks",
+      label: "Tasks",
+      steps: [
         {
           id: "tasks",
           label: "Add your to-dos",
@@ -105,7 +130,7 @@ export function buildSetupGroups({
     },
     {
       id: "money",
-      label: "Money",
+      label: "Budget & Gifts",
       steps: [
         {
           id: "budget",
@@ -171,6 +196,9 @@ export function buildSetupGroups({
           route: "guests",
           completed: counts.guests > 0,
           unlocked: canUseFeature("guests"),
+          // Guests are attached to an invitation — no invitation, nothing to add to.
+          locked: counts.invitations === 0,
+          lockedHint: "Create your invitation first",
         },
       ],
     },

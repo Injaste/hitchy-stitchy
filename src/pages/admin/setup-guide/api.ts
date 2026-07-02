@@ -1,27 +1,38 @@
 import { supabase } from "@/lib/supabase";
 
 export interface TutorialState {
-  /** The guide is hidden (dismissed). */
-  dismissed: boolean;
-  /** Ids of steps marked done-on-view (e.g. "access" — a read-only page). */
+  /** event_members.id values that have dismissed (hidden) the guide. Dismissal is a
+   *  personal preference, so it's per-member, not a shared flag — a member sees the
+   *  guide unless their id is listed. */
+  dismissedBy: string[];
+  /** event_members.id values that have already seen the completion confetti — so it
+   *  fires once per person, ever. Per-member like dismissedBy. */
+  celebratedBy: string[];
+  /** Ids of steps marked done-on-view (e.g. "access" — a read-only page). Event-wide
+   *  (real setup progress), unlike dismissedBy. */
   viewedSteps: string[];
 }
 
-const EMPTY_STATE: TutorialState = { dismissed: false, viewedSteps: [] };
+const EMPTY_STATE: TutorialState = {
+  dismissedBy: [],
+  celebratedBy: [],
+  viewedSteps: [],
+};
 
 /** Read the event's setup-guide state. RLS restricts the row to the couple
  *  (super-admins). A missing row = the empty state. */
 export async function getTutorialState(eventId: string): Promise<TutorialState> {
   const { data, error } = await supabase
     .from("event_tutorial")
-    .select("dismissed, viewed_steps")
+    .select("dismissed_by, celebrated_by, viewed_steps")
     .eq("event_id", eventId)
     .maybeSingle();
 
   if (error) throw new Error(error.message);
   if (!data) return EMPTY_STATE;
   return {
-    dismissed: !!data.dismissed,
+    dismissedBy: (data.dismissed_by ?? []) as string[],
+    celebratedBy: (data.celebrated_by ?? []) as string[],
     viewedSteps: (data.viewed_steps ?? []) as string[],
   };
 }
@@ -35,7 +46,8 @@ export async function setTutorialState(
   const { error } = await supabase.from("event_tutorial").upsert(
     {
       event_id: eventId,
-      dismissed: state.dismissed,
+      dismissed_by: state.dismissedBy,
+      celebrated_by: state.celebratedBy,
       viewed_steps: state.viewedSteps,
     },
     { onConflict: "event_id" },

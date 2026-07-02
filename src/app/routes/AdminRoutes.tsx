@@ -4,7 +4,7 @@ import RequireRoute from "@/components/custom/require-route";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { usePlan } from "@/pages/admin/hooks/usePlan";
 import { useAccess } from "@/pages/admin/hooks/useAccess";
-import { useSetupGuide } from "@/pages/admin/setup-guide/useSetupGuide";
+import { useSetupGuide } from "@/pages/admin/setup-guide/hooks/useSetupGuide";
 import type { PlanFeature } from "@/pages/admin/plan/plan-config";
 
 import Timeline from "@/pages/admin/timeline";

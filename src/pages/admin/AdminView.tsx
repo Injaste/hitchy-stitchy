@@ -10,8 +10,7 @@ import useActivePage from "./hooks/useActivePage";
 
 import AdminSidebar from "./sidebar/AdminSidebar";
 import AdminTopbar from "./components/AdminTopbar";
-import SetupGuideWidget from "./setup-guide/SetupGuideWidget";
-import TourSpotlight from "./setup-guide/TourSpotlight";
+import SetupGuide from "./setup-guide";
 import AdminErrorLayout from "./components/AdminErrorLayout";
 import LoadingState from "@/components/custom/states/loading-state";
 import MemberModals from "./members/modals";
@@ -70,8 +69,7 @@ const AdminView = () => {
                 </ComponentFade>
               </AnimatePresence>
             </SidebarInset>
-            <SetupGuideWidget />
-            <TourSpotlight />
+            <SetupGuide />
             <MemberModals />
             <TimelineModals />
             <PlanModals />
