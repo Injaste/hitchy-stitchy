@@ -169,53 +169,66 @@ const MobileSettings: FC<{
       >
         <SheetTitle className="sr-only">{title}</SheetTitle>
 
-        <AnimatePresence mode="popLayout" initial={false}>
-          {section === null ? (
-            <motion.div
-              key="list"
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ duration: 0.2 }}
-              className="flex size-full flex-col bg-gradient-surface"
-            >
-              <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
-                <h2 className="font-display font-medium text-foreground">
-                  {title}
-                </h2>
-                <SheetClose asChild>
-                  <Button variant="ghost" size="icon-sm">
-                    <X />
-                    <span className="sr-only">Close</span>
-                  </Button>
-                </SheetClose>
-              </header>
+        {/* Base layer: the master list is always mounted, so the detail sheet
+            overlays it (below) and drags away to reveal it already sitting
+            behind — a stacked sheet, not a swap. */}
+        <div className="flex size-full flex-col bg-gradient-surface">
+          <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+            <h2 className="font-display font-medium text-foreground">{title}</h2>
+            <SheetClose asChild>
+              <Button variant="ghost" size="icon-sm">
+                <X />
+                <span className="sr-only">Close</span>
+              </Button>
+            </SheetClose>
+          </header>
 
-              <nav className="flex-1 overflow-y-auto p-2">
-                {sections.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setActive(s.id)}
-                    className="flex w-full items-center justify-between rounded-md px-3 py-3 text-sm text-foreground transition-colors hover:bg-accent"
-                  >
-                    <span className="flex items-center gap-3">
-                      <s.icon className="size-4 shrink-0 text-muted-foreground" />
-                      {s.label}
-                    </span>
-                    <ChevronRight className="size-4 text-muted-foreground" />
-                  </button>
-                ))}
-              </nav>
-            </motion.div>
-          ) : (
+          <nav className="flex-1 overflow-y-auto p-2">
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setActive(s.id)}
+                className="flex w-full items-center justify-between rounded-md px-3 py-3 text-sm text-foreground transition-colors hover:bg-accent"
+              >
+                <span className="flex items-center gap-3">
+                  <s.icon className="size-4 shrink-0 text-muted-foreground" />
+                  {s.label}
+                </span>
+                <ChevronRight className="size-4 text-muted-foreground" />
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Overlay layer: the detail sheet, stacked above the list. */}
+        <AnimatePresence initial={false}>
+          {section !== null && (
             <motion.div
               key="detail"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.2 }}
-              className="flex size-full flex-col bg-gradient-surface"
+              // Swipe-right to go back, mirroring the header's back button. drag="x"
+              // makes framer set touch-action: pan-y, so vertical scrolling inside
+              // the panel still hits the native scroller untouched; dragDirectionLock
+              // ignores a mostly-vertical gesture. Elastic left:0 pins the left edge
+              // so it only pulls rightward. Release past the distance/velocity
+              // threshold pops back to the list — and dragging reveals the list
+              // already sitting on the base layer beneath.
+              drag="x"
+              dragDirectionLock
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={{ left: 0, right: 0.6 }}
+              dragMomentum={false}
+              onDragEnd={(_, info) => {
+                if (info.offset.x > 80 || info.velocity.x > 500)
+                  setActive(undefined);
+              }}
+              // Left-edge shadow so the sheet reads as elevated over the list.
+              style={{ boxShadow: "-8px 0 24px rgb(0 0 0 / 0.12)" }}
+              className="absolute inset-0 z-10 flex flex-col bg-gradient-surface"
             >
               <header className="flex h-14 shrink-0 items-center border-b border-border px-2">
                 <Button
