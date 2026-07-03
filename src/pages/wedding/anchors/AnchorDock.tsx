@@ -85,7 +85,7 @@ const AnchorDock = ({
     ? [
         {
           id: "map",
-          label: labels.map ?? "Map",
+          label: labels.map ?? "Address",
           icon: MapPin,
           target: "action:map",
         },
