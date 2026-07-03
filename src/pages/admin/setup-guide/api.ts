@@ -8,6 +8,10 @@ export interface TutorialState {
   /** event_members.id values that have already seen the completion confetti — so it
    *  fires once per person, ever. Per-member like dismissedBy. */
   celebratedBy: string[];
+  /** event_members.id values that have minimised the widget to its pill. Per-member
+   *  like dismissedBy, so the collapsed state persists across reloads and devices; a
+   *  member sees the full panel unless their id is listed. */
+  minimisedBy: string[];
   /** Ids of steps marked done-on-view (e.g. "access" — a read-only page). Event-wide
    *  (real setup progress), unlike dismissedBy. */
   viewedSteps: string[];
@@ -16,6 +20,7 @@ export interface TutorialState {
 const EMPTY_STATE: TutorialState = {
   dismissedBy: [],
   celebratedBy: [],
+  minimisedBy: [],
   viewedSteps: [],
 };
 
@@ -24,7 +29,7 @@ const EMPTY_STATE: TutorialState = {
 export async function getTutorialState(eventId: string): Promise<TutorialState> {
   const { data, error } = await supabase
     .from("event_tutorial")
-    .select("dismissed_by, celebrated_by, viewed_steps")
+    .select("dismissed_by, celebrated_by, minimised_by, viewed_steps")
     .eq("event_id", eventId)
     .maybeSingle();
 
@@ -33,6 +38,7 @@ export async function getTutorialState(eventId: string): Promise<TutorialState> 
   return {
     dismissedBy: (data.dismissed_by ?? []) as string[],
     celebratedBy: (data.celebrated_by ?? []) as string[],
+    minimisedBy: (data.minimised_by ?? []) as string[],
     viewedSteps: (data.viewed_steps ?? []) as string[],
   };
 }
@@ -48,6 +54,7 @@ export async function setTutorialState(
       event_id: eventId,
       dismissed_by: state.dismissedBy,
       celebrated_by: state.celebratedBy,
+      minimised_by: state.minimisedBy,
       viewed_steps: state.viewedSteps,
     },
     { onConflict: "event_id" },

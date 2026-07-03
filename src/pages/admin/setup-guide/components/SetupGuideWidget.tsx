@@ -25,17 +25,19 @@ import DismissFlight, { type Point } from "./DismissFlight";
 export default function SetupGuideWidget() {
   const {
     active,
+    stateReady,
     groups,
     doneCount,
     totalCount,
     isComplete,
     dismissed,
     dismiss,
+    minimised,
+    setMinimised,
     celebrated,
     markCelebrated,
     markViewed,
   } = useSetupGuide();
-  const [expanded, setExpanded] = useState(true);
   const [flight, setFlight] = useState<{ from: Point; to: Point } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +121,9 @@ export default function SetupGuideWidget() {
     if (!touched.current) setIndex(firstIncomplete);
   }, [firstIncomplete]);
 
-  if (!active || dismissed) return null;
+  // Hold the render until the persisted state has loaded, so we never flash the
+  // maximised panel before snapping to the pill (or vice versa).
+  if (!active || !stateReady || dismissed) return null;
 
   const pct = totalCount > 0 ? doneCount / totalCount : 0;
   const i = Math.min(index, groups.length - 1);
@@ -171,7 +175,7 @@ export default function SetupGuideWidget() {
           className="fixed bottom-4 right-4 print:hidden"
         >
           <AnimatePresence mode="wait">
-            {expanded ? (
+            {!minimised ? (
               <SetupGuidePanel
                 key="panel"
                 panelRef={panelRef}
@@ -184,7 +188,7 @@ export default function SetupGuideWidget() {
                 groupCount={groups.length}
                 onPrev={() => go(-1)}
                 onNext={() => go(1)}
-                onMinimize={() => setExpanded(false)}
+                onMinimize={() => setMinimised(true)}
                 onDismiss={startDismiss}
               />
             ) : (
@@ -193,7 +197,7 @@ export default function SetupGuideWidget() {
                 pct={pct}
                 doneCount={doneCount}
                 totalCount={totalCount}
-                onExpand={() => setExpanded(true)}
+                onExpand={() => setMinimised(false)}
               />
             )}
           </AnimatePresence>

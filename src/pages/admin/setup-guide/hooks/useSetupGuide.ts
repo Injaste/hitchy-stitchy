@@ -20,6 +20,7 @@ const EMPTY_COUNTS = {
 const EMPTY_STATE: TutorialState = {
   dismissedBy: [],
   celebratedBy: [],
+  minimisedBy: [],
   viewedSteps: [],
 };
 
@@ -27,6 +28,10 @@ export interface SetupGuide {
   /** Super-admin, event activated, AND at least one available step. Every surface
    *  keys off this — false hides the widget, spotlight, and demo entirely. */
   active: boolean;
+  /** The persisted state (dismissed/minimised) has been fetched. The widget holds its
+   *  render until this is true so it never flashes the wrong form (maximised then
+   *  snapping to the pill). Derived completion doesn't wait on it. */
+  stateReady: boolean;
   groups: SetupGroup[];
   steps: SetupStep[];
   doneCount: number;
@@ -38,6 +43,10 @@ export interface SetupGuide {
   dismissed: boolean;
   dismiss: () => void;
   replay: () => void;
+  /** This member has collapsed the widget to its pill. Persisted per-member (like
+   *  dismissal) so it survives reloads and follows them across devices. */
+  minimised: boolean;
+  setMinimised: (minimised: boolean) => void;
   /** This member has already seen the completion confetti (fire it once, ever). */
   celebrated: boolean;
   /** Record that this member has now seen the confetti, so it never fires again. */
@@ -58,6 +67,7 @@ export function useSetupGuide(): SetupGuide {
   const { data: state } = useTutorialStateQuery();
   const stateM = useSetTutorialStateMutation();
   const current = state ?? EMPTY_STATE;
+  const stateReady = state !== undefined;
 
   const groups = buildSetupGroups({
     usage,
@@ -77,6 +87,7 @@ export function useSetupGuide(): SetupGuide {
 
   return {
     active,
+    stateReady,
     groups,
     steps,
     doneCount,
@@ -98,6 +109,18 @@ export function useSetupGuide(): SetupGuide {
         ...current,
         dismissedBy: current.dismissedBy.filter((id) => id !== memberId),
       }),
+    // Minimise is per-member, mirroring dismissal: a member is minimised only if their
+    // id is listed. Expanding removes it. Skip the write when already in the target state.
+    minimised: !!memberId && current.minimisedBy.includes(memberId),
+    setMinimised: (next) => {
+      if (!memberId || current.minimisedBy.includes(memberId) === next) return;
+      stateM.mutate({
+        ...current,
+        minimisedBy: next
+          ? [...current.minimisedBy, memberId]
+          : current.minimisedBy.filter((id) => id !== memberId),
+      });
+    },
     celebrated: !!memberId && current.celebratedBy.includes(memberId),
     markCelebrated: () => {
       if (!memberId || current.celebratedBy.includes(memberId)) return;
