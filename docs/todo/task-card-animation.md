@@ -2,31 +2,31 @@
 
 Deferred notes on the tasks-board card motion (entrance + checkbox "fly").
 
-## ⚠️ Breaking: entrance animation makes a dragged card vanish
-`src/pages/admin/tasks/components/TasksSection.tsx` (the `EnteringItem` wrapper)
+## Per-card entrance animation — DROPPED
+`src/pages/admin/tasks/components/TasksSection.tsx`
 
-**Status: the entrance-animation work is currently STASHED** (`git stash` →
-"tasks: card entrance animation"), because of this bug — it is NOT in the tree.
+Not pursuing for now. The stash it lived in ("tasks: card entrance animation")
+is gone, and no `EnteringItem` wrapper is in the tree — only the column-level
+`taskSectionEnter` stagger ships. So there is no bug to fix and no feature to
+un-stash; this is closed.
 
-When dragging a card, the card sometimes disappears (renders as though
-`opacity: 0`) even though the drag still works — the layout keeps shifting under
-dnd-kit as expected, just with an invisible card. The `EnteringItem` motion
-wrapper (opacity/scale entrance) is the cause; its opacity state appears to get
-re-applied during drag. Resolve before un-stashing / shipping the entrance
-animation.
+If per-card entrances are revisited, watch for the original blocker: the motion
+wrapper's opacity state got re-applied during a dnd-kit drag, so a dragged card
+rendered at `opacity: 0` (drag still worked, card invisible). Solve that before
+shipping.
 
-## Fly clone: scale 1 → 1.05 never plays
-`src/pages/admin/tasks/hooks/useCardFly.ts` + the fly overlay component
+## Fly clone scale — DONE (different values)
+`src/pages/admin/tasks/components/CardFlyOverlay.tsx`
 
-When marking a task done/undone, a clone is created to fly to the new column.
-The intended scale-up (1 → 1.05) during flight doesn't happen. Fix so the clone
-animates the scale while airborne.
+The clone does scale in flight — it lifts at `1.03` and settles to `1`. That's
+not the originally-noted `1 → 1.05`, but the mechanic is in place and the motion
+reads well, so leaving as-is.
 
-## Fly landing position drifts when the user scrolls mid-flight
+## Fly landing drift on mid-flight scroll — DONE
 `src/pages/admin/tasks/hooks/useCardFly.ts` (`land`)
 
-`land` reads the destination rect once (double rAF). If the user scrolls the
-board left/right while the clone is mid-air, the real card's viewport rect moves,
-so the captured landing target is now wrong and the clone lands off-position.
-Track the landing rect with a rAF loop (re-read on each frame) so it always flies
-to the card's current position, not a stale snapshot.
+`land` now chases the destination rect with a rAF loop, re-reading the card's
+live viewport rect each frame instead of snapshotting it once. A board scroll
+during flight no longer leaves the clone flying to a stale target. The loop
+self-cancels when the flight is superseded, the card unmounts, or the spring
+settles (overlay's `onAnimationComplete → clear()`).
