@@ -114,10 +114,13 @@ const MemberDetailModal = () => {
             {/* Notes — what this person handles */}
             <NotesMarkdown content={member.notes} />
 
-            {/* Pending/expired — managers can re-share or regenerate the join link */}
+            {/* Un-joined member — managers share the live link or regenerate.
+                Two states, keyed off invite_expires_at: still valid → share the
+                link; expired → prompt to regenerate. A pending-live invite always
+                carries its token (only claim/expiry-sweep clear it), so the share
+                branch needs no token guard. */}
             {(status === "pending" || status === "expired") &&
-              canManageMembers &&
-              member.invite_token && (
+              canManageMembers && (
                 <div className="rounded-md bg-muted px-3 py-2.5 space-y-2">
                   {inviteExpiry?.expired ? (
                     <p className="text-xs text-muted-foreground leading-relaxed">

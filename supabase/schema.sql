@@ -164,7 +164,7 @@ CREATE TABLE public.event_members (
   event_id        uuid        NOT NULL,
   user_id         uuid,                -- auth.users.id; nullable until invite claimed
   access_group_id uuid        NOT NULL,
-  invite_token    text                 DEFAULT encode(gen_random_bytes(32), 'hex'),  -- shareable invite link; NULLed once claimed (spent credential — 20260610000102)
+  invite_token    text                 DEFAULT encode(gen_random_bytes(32), 'hex'),  -- shareable invite link; NULLed once claimed (20260610000102) or once expired-swept (20260713000001) — spent credential
   invite_expires_at timestamptz         DEFAULT now() + interval '7 days',           -- link deadline; reset on regenerate, NULLed once claimed (invited_at stays immutable)
   display_name    text        NOT NULL,
   invited_at      timestamptz NOT NULL DEFAULT now(),
@@ -2158,6 +2158,22 @@ RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   WHERE expires_at IS NOT NULL AND expires_at < now();
 $$;
 REVOKE EXECUTE ON FUNCTION public.cleanup_expired_slug_reservations() FROM PUBLIC, anon, authenticated;
+
+-- clear_expired_invite_tokens — housekeeping purge, run daily by pg_cron (migration
+-- 20260713000001). NULLs the spent invite_token on expired-unclaimed invites so the
+-- bearer credential never persists. Keeps invite_expires_at (the frontend derives
+-- "expired" from it and the row stays regenerable). Complements the claim-time
+-- destroy in 20260610000102.
+CREATE OR REPLACE FUNCTION public.clear_expired_invite_tokens()
+RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
+  UPDATE public.event_members
+  SET invite_token = NULL
+  WHERE joined_at IS NULL
+    AND invite_token IS NOT NULL
+    AND invite_expires_at IS NOT NULL
+    AND invite_expires_at < now();
+$$;
+REVOKE EXECUTE ON FUNCTION public.clear_expired_invite_tokens() FROM PUBLIC, anon, authenticated;
 
 
 -- =============================================================================
