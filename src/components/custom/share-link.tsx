@@ -3,6 +3,13 @@ import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { copyToClipboard } from "@/lib/utils/clipboard";
 import IconSwap from "@/components/animations/animate-icon-swap";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ShareLinkProps {
   /** The URL to copy / share. */
@@ -29,59 +36,90 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 const ShareLink = ({ url, message, className }: ShareLinkProps) => {
   const [copied, setCopied] = useState(false);
 
+  // WhatsApp and Copy share one text blob: append the URL unless the message
+  // already places it inline (e.g. an invite template with a {link} placeholder),
+  // so the link isn't posted twice. With no message it's just the URL. Telegram
+  // carries the URL as its own param.
+  const waText = !message
+    ? url
+    : message.includes(url)
+      ? message
+      : `${message} ${url}`;
+
   const handleCopy = async () => {
-    // IconSwap reverts to the copy icon after autoReturnMs; only flip on success.
-    if (await copyToClipboard(url)) setCopied(true);
+    // Copy the full composed message (link included), matching what the share
+    // buttons send. IconSwap reverts after autoReturnMs; only flip on success.
+    if (await copyToClipboard(waText)) setCopied(true);
   };
 
   const tgHref = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(message ?? "")}`;
-  const waHref = `https://wa.me/?text=${encodeURIComponent(message ? `${message} ${url}` : url)}`;
+  const waHref = `https://wa.me/?text=${encodeURIComponent(waText)}`;
 
-  const btn =
-    "group inline-flex size-9 items-center justify-center rounded-lg bg-card text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-foreground/20 cursor-pointer";
+  const copyLabel = copied
+    ? "Copied!"
+    : message
+      ? "Copy message"
+      : "Copy link";
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <a
-        href={tgHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Share invite link via Telegram"
-        title="Telegram"
-        className={btn}
-      >
-        <TelegramIcon className="size-4 transition-colors group-hover:text-primary" />
-      </a>
+    <TooltipProvider delayDuration={500}>
+      <div className={cn("flex items-center gap-2", className)}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button asChild variant="share" size="icon">
+              <a
+                href={tgHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Share invite link via Telegram"
+              >
+                <TelegramIcon className="size-4 transition-colors group-hover/button:text-primary" />
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Telegram</TooltipContent>
+        </Tooltip>
 
-      <a
-        href={waHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Share invite link via WhatsApp"
-        title="WhatsApp"
-        className={btn}
-      >
-        <WhatsAppIcon className="size-4 transition-colors group-hover:text-primary" />
-      </a>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button asChild variant="share" size="icon">
+              <a
+                href={waHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Share invite link via WhatsApp"
+              >
+                <WhatsAppIcon className="size-4 transition-colors group-hover/button:text-primary" />
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>WhatsApp</TooltipContent>
+        </Tooltip>
 
-      <button
-        type="button"
-        onClick={handleCopy}
-        aria-label="Copy invite link"
-        title="Copy link"
-        className={btn}
-      >
-        <IconSwap
-          active={copied}
-          autoReturnMs={2000}
-          onAutoReturn={() => setCopied(false)}
-          defaultIcon={
-            <Copy className="size-4 transition-colors group-hover:text-primary" />
-          }
-          activeIcon={<Check className="size-4 text-success" />}
-        />
-      </button>
-    </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              variant="share"
+              size="icon"
+              onClick={handleCopy}
+              aria-label={message ? "Copy invite message" : "Copy invite link"}
+            >
+              <IconSwap
+                active={copied}
+                autoReturnMs={2000}
+                onAutoReturn={() => setCopied(false)}
+                defaultIcon={
+                  <Copy className="size-4 transition-colors group-hover/button:text-primary" />
+                }
+                activeIcon={<Check className="size-4 text-success" />}
+              />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{copyLabel}</TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
   );
 };
 

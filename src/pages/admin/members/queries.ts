@@ -5,6 +5,8 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { adminKeys } from "@/pages/admin/lib/queryKeys";
 import {
   fetchMembers,
+  fetchInviteMessage,
+  updateInviteMessage,
   createMember,
   regenerateMemberInvite,
   updateMember,
@@ -32,6 +34,31 @@ export function useMembersQuery() {
     queryKey: adminKeys.members(slug!),
     queryFn: () => fetchMembers(eventId!),
     enabled: !!eventId && !!slug,
+  });
+}
+
+/** Per-event invite-message override (null = use the code default). Shared cache
+ *  between the settings editor and the share UI in MemberDetailModal. */
+export function useInviteMessageQuery() {
+  const { slug, eventId } = useAdminStore();
+  return useQuery({
+    queryKey: adminKeys.inviteMessage(slug!),
+    queryFn: () => fetchInviteMessage(eventId!),
+    enabled: !!eventId && !!slug,
+  });
+}
+
+export function useUpdateInviteMessageMutation() {
+  const { slug, eventId } = useAdminStore();
+  const queryClient = useQueryClient();
+
+  // Silent: autosave shouldn't toast on every debounced save. The field itself
+  // surfaces validation inline; cache is reconciled to server truth on success.
+  return useMutation((message: string) => updateInviteMessage(eventId!, message), {
+    silent: true,
+    onSuccess: (result: string | null) => {
+      queryClient.setQueryData(adminKeys.inviteMessage(slug!), result);
+    },
   });
 }
 

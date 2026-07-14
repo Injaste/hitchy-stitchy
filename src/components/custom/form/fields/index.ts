@@ -5,6 +5,7 @@ export { default as AvatarField } from "./AvatarField";
 export { default as DayLabelField } from "./DayLabelField";
 export { default as PasswordField } from "./PasswordField";
 export { default as TextareaField } from "./TextareaField";
+export { default as TextareaAutosaveField } from "./TextareaAutosaveField";
 export { default as SelectField } from "./SelectField";
 export { default as SwitchField } from "./SwitchField";
 export { default as CheckboxField } from "./CheckboxField";

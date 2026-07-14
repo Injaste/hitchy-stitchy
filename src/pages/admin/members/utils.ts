@@ -21,11 +21,61 @@ export const getMemberStatus = (
  *  interval the claim/regenerate RPCs stamp into invite_expires_at. */
 export const INVITE_TTL_DAYS = 7;
 
-/** Share text prepended to the invite link (WhatsApp/Telegram). Single source —
- *  edit here. A per-event customizable version is a documented follow-up
- *  (docs/todo/mvp-phase-1-member-invite.md). */
+/** Default invite share-text template (WhatsApp/Telegram). Single-brace
+ *  placeholders, matching the guest-RSVP invite message ({code}): {member} →
+ *  invitee name, {event} → event name, {link} → join URL. {member}/{event} are
+ *  optional; {link} is required (validateInviteMessage + the RPC enforce it) so
+ *  the join link always has a home. A per-event override lives on
+ *  event_settings.invite_message; render through renderInviteMessage. */
 export const INVITE_MESSAGE =
-  "You've been invited to help plan our wedding on Hitchy Stitchy. Join here:";
+  "Hi {member}! You've been invited to help plan {event} on Hitchy Stitchy. Join here: {link}";
+
+/** Fills {member} / {event} / {link} in an invite template, falling back to the
+ *  default when blank. The link goes where {link} sits, or is appended if the
+ *  template omits it — so the join URL is never lost. Values are inserted
+ *  verbatim (plain-text share message — ShareLink URL-encodes it, no markup
+ *  escaping needed); the lead-in is length-capped before the link is placed so a
+ *  long template can't truncate the URL. */
+export function renderInviteMessage(
+  template: string | null | undefined,
+  vars: { member: string; event: string; link: string },
+): string {
+  const base = (template?.trim() || INVITE_MESSAGE)
+    .replace(/\{member\}/gi, vars.member)
+    .replace(/\{event\}/gi, vars.event)
+    .slice(0, 500);
+
+  return /\{link\}/i.test(base)
+    ? base.replace(/\{link\}/gi, vars.link)
+    : `${base} ${vars.link}`;
+}
+
+/** The placeholders the invite template understands (case-insensitive). */
+const KNOWN_PLACEHOLDERS = new Set(["member", "event", "link"]);
+
+/** Validates a custom invite message; mirrored server-side by update_invite_message.
+ *  {member}/{event} are optional, but {link} is required so the join link always
+ *  has a home, and empty is rejected (the default is reached by clearing to it, not
+ *  by blanking). Case-insensitive. Receives the trimmed value; returns an error
+ *  string or null. */
+export function validateInviteMessage(value: string): string | null {
+  if (!value) return "Invite message can't be empty";
+  if (!/\{link\}/i.test(value)) return "Include {link} where the join link should go";
+  return null;
+}
+
+/** Any {token} in the message that isn't a known placeholder — sent verbatim, so
+ *  a typo like {name} is worth flagging (soft warning, doesn't block saving). */
+export function findUnknownPlaceholders(value: string): string[] {
+  const tokens = value.match(/\{[^{}]*\}/g) ?? [];
+  return [
+    ...new Set(
+      tokens.filter(
+        (t) => !KNOWN_PLACEHOLDERS.has(t.slice(1, -1).trim().toLowerCase()),
+      ),
+    ),
+  ];
+}
 
 /** Regenerate cooldown — mirrors the 1-minute limit regenerate_member_invite
  *  enforces, so the UI can reject a too-soon click without a doomed round-trip. */

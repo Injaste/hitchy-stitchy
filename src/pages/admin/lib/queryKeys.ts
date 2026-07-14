@@ -20,6 +20,7 @@ export const adminKeys = {
   pages: (slug: string) => [slug, 'pages'] as const,
   templates: (slug: string) => [slug, 'templates'] as const,
   settingsEvent: (slug: string) => [slug, 'settings', 'event'] as const,
+  inviteMessage: (slug: string) => [slug, 'settings', 'invite-message'] as const,
   settingsAppearance: (slug: string) => [slug, 'settings', 'appearance'] as const,
   settingsNotifications: (slug: string, memberId: string) =>
     [slug, 'settings', 'notifications', memberId] as const,

@@ -10,17 +10,39 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, History, RefreshCw, Shield } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  History,
+  RefreshCw,
+  Settings,
+  Shield,
+} from "lucide-react";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import ShareLink from "@/components/custom/share-link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { BASE_URL } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useEventSettingsStore } from "../../settings/useEventSettingsStore";
 import { useAccess } from "../../hooks/useAccess";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
-import { useMembersQuery, useMemberMutations } from "../queries";
-import { getMemberStatus, getInviteExpiry, INVITE_MESSAGE } from "../utils";
+import {
+  useMembersQuery,
+  useMemberMutations,
+  useInviteMessageQuery,
+} from "../queries";
+import {
+  getMemberStatus,
+  getInviteExpiry,
+  renderInviteMessage,
+} from "../utils";
 import { isSuperAdminMember } from "../../utils/memberUtils";
 import MemberAvatar from "../components/MemberAvatar";
 import MemberRole from "../components/MemberRole";
@@ -33,8 +55,9 @@ const MemberDetailModal = () => {
   const openEdit = useMemberModalStore((s) => s.openEdit);
   const openDelete = useMemberModalStore((s) => s.openDelete);
   const openFreeze = useMemberModalStore((s) => s.openFreeze);
-  const { slug, eventId, memberId } = useAdminStore();
+  const { slug, eventId, memberId, eventName } = useAdminStore();
   const { data: members } = useMembersQuery();
+  const { data: inviteMessage } = useInviteMessageQuery();
   const { regenerate } = useMemberMutations();
 
   const {
@@ -51,6 +74,15 @@ const MemberDetailModal = () => {
 
   const isFrozen = !!member.frozen_at;
   const status = getMemberStatus(member);
+  const joinUrl = `${BASE_URL}/${slug}/join?token=${member.invite_token}`;
+
+  // Jump to the invite-message editor. Close this modal first so the settings
+  // dialog isn't stacked on top of it.
+  const openInviteMessageSettings = () => {
+    closeAll();
+    useEventSettingsStore.getState().open("invite-message");
+  };
+
   const inviteExpiry =
     (status === "pending" || status === "expired") && member.invite_expires_at
       ? getInviteExpiry(member.invite_expires_at)
@@ -124,8 +156,8 @@ const MemberDetailModal = () => {
                 <div className="rounded-md bg-muted px-3 py-2.5 space-y-2">
                   {inviteExpiry?.expired ? (
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      This invite link has expired. Regenerate to share a fresh one
-                      with{" "}
+                      This invite link has expired. Regenerate to share a fresh
+                      one with{" "}
                       <span className="font-semibold text-foreground">
                         {member.display_name}
                       </span>
@@ -139,13 +171,35 @@ const MemberDetailModal = () => {
                           {member.display_name}
                         </span>{" "}
                         can join
-                        {inviteExpiry ? ` — expires in ${inviteExpiry.remaining}` : ""}
+                        {inviteExpiry
+                          ? ` — expires in ${inviteExpiry.remaining}`
+                          : ""}
                         .
                       </p>
-                      <ShareLink
-                        url={`${BASE_URL}/${slug}/join?token=${member.invite_token}`}
-                        message={INVITE_MESSAGE}
-                      />
+                      <div className="flex items-center justify-between gap-2">
+                        <ShareLink
+                          url={joinUrl}
+                          message={renderInviteMessage(inviteMessage, {
+                            member: member.display_name,
+                            event: eventName,
+                            link: joinUrl,
+                          })}
+                        />
+                        <TooltipProvider delayDuration={500}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                onClick={openInviteMessageSettings}
+                                aria-label="Edit invite message"
+                              >
+                                <Settings className="size-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit invite message</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </>
                   )}
                   <Button

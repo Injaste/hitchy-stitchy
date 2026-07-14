@@ -33,6 +33,9 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
         link: "",
+        // Icon-only share/link controls (see ShareLink). Pair with size="icon".
+        share:
+          "bg-card text-muted-foreground ring-1 ring-border hover:text-foreground hover:ring-foreground/20",
         empty: "",
       },
       size: {

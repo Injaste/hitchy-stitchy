@@ -274,10 +274,11 @@ CREATE TABLE public.event_invitations (
 --   20260608000011). Stays uniformly all-member; gated config lives elsewhere.
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_settings (
-  id         uuid        NOT NULL DEFAULT gen_random_uuid(),
-  event_id   uuid        NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
+  id             uuid        NOT NULL DEFAULT gen_random_uuid(),
+  event_id       uuid        NOT NULL,
+  invite_message text,       -- per-event member-invite share text; NULL = code default (20260713000101)
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  updated_at     timestamptz NOT NULL DEFAULT now(),
 
   CONSTRAINT event_settings_pkey         PRIMARY KEY (id),
   CONSTRAINT event_settings_event_id_key UNIQUE (event_id),
@@ -1437,6 +1438,49 @@ BEGIN
   RETURN v_prefs;
 END;
 $$;
+
+-- update_invite_message — manager-gated (members:update) write of the per-event
+-- member-invite share text on event_settings (20260713000101). Trims + caps at
+-- 500; blank collapses to NULL (code default); {link} mandatory for a custom
+-- message ({member}/{event} optional). Returns the stored value.
+CREATE OR REPLACE FUNCTION public.update_invite_message(p_event_id uuid, p_message text)
+RETURNS text LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_clean  text;
+  v_result text;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'members', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to edit the invite message';
+  END IF;
+
+  v_clean := NULLIF(left(btrim(p_message), 500), '');
+
+  -- {link} mandatory for a custom message ({member}/{event} optional); NULL falls
+  -- back to the default, which contains {link}. Case-insensitive (~*).
+  IF v_clean IS NOT NULL AND v_clean !~* '\{link\}' THEN
+    RAISE EXCEPTION 'Invite message must include {link}';
+  END IF;
+
+  UPDATE public.event_settings
+  SET invite_message = v_clean
+  WHERE event_id = p_event_id
+  RETURNING invite_message INTO v_result;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Event settings not found';
+  END IF;
+
+  RETURN v_result;
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.update_invite_message(uuid, text) FROM PUBLIC, anon;
+GRANT  EXECUTE ON FUNCTION public.update_invite_message(uuid, text) TO authenticated;
 
 
 -- =============================================================================

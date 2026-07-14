@@ -51,6 +51,31 @@ export async function regenerateMemberInvite(payload: RegenerateMemberInvitePayl
   return data as Member
 }
 
+export async function fetchInviteMessage(eventId: string): Promise<string | null> {
+  // Direct select — event_settings has a member SELECT policy (is_event_member).
+  // NULL means "use the code default" (see renderInviteMessage).
+  const { data, error } = await supabase
+    .from("event_settings")
+    .select("invite_message")
+    .eq("event_id", eventId)
+    .maybeSingle()
+
+  if (error) throw new Error(error.message)
+  return (data?.invite_message ?? null) as string | null
+}
+
+export async function updateInviteMessage(eventId: string, message: string): Promise<string | null> {
+  // Manager-gated write (members:update) via SECURITY DEFINER RPC — event_settings
+  // has no UPDATE policy. Returns the stored value (blank collapses to NULL).
+  const { data, error } = await supabase.rpc("update_invite_message", {
+    p_event_id: eventId,
+    p_message: message,
+  })
+
+  if (error) throw new Error(error.message)
+  return (data ?? null) as string | null
+}
+
 export async function updateMember(payload: UpdateMemberPayload): Promise<Member> {
   const { data, error } = await supabase.rpc("update_member", {
     p_event_id: payload.event_id,
