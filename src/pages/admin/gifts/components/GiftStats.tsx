@@ -41,7 +41,9 @@ const GiftStats: FC<{ summary: GiftSummary }> = ({ summary }) => {
             />
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Covers {Math.round(coverPct * 100)}% of budget</span>
+            <span>
+              Covers {Math.round(coverPct * 100)}% of {formatSGD(costToCover ?? 0)}
+            </span>
             <span className={cn(brokeEven && "font-medium text-success")}>
               {brokeEven
                 ? "Broken even 🎉"
