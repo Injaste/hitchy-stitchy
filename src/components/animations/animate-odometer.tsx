@@ -1,20 +1,31 @@
-import type { FC } from "react";
+import { useLayoutEffect, useRef, useState, type FC } from "react";
 import { motion } from "framer-motion";
 
 interface OdometerDigitProps {
   value: number;
+  /** Row height snapped to whole device pixels — digits translate by a multiple
+   *  of it so the resting position always lands on the physical pixel grid.
+   *  null until measured (pre-paint only; never visible). */
+  unit: number | null;
 }
 
-const OdometerDigit: FC<OdometerDigitProps> = ({ value }) => {
+const OdometerDigit: FC<OdometerDigitProps> = ({ value, unit }) => {
   const offset = 1.5;
   const inline = 0.45;
-  const valueCorrected = value * offset;
+  // In px once measured, em as a pre-paint fallback. Snapping height and the
+  // translate to the same whole-pixel unit keeps every digit grid-aligned;
+  // an em translate lands mid-pixel for some values and renders crooked.
+  const cellHeight = unit != null ? `${unit}px` : `${offset}em`;
+  // Multiples of the device-snapped unit stay on the physical pixel grid; an em
+  // translate lands mid-pixel for some values and renders crooked (worse at
+  // fractional devicePixelRatio, where even a whole-CSS-px unit drifts).
+  const shift = unit != null ? `-${value * unit}px` : `-${value * offset}em`;
 
   return (
     <div
       style={{
         position: "relative",
-        height: `${offset}em`,
+        height: cellHeight,
         width: `${offset}em`,
         WebkitMaskImage:
           "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
@@ -28,7 +39,7 @@ const OdometerDigit: FC<OdometerDigitProps> = ({ value }) => {
     >
       <motion.div
         initial={false}
-        animate={{ y: `-${valueCorrected}em` }}
+        animate={{ y: shift }}
         transition={{ type: "spring", stiffness: 180, damping: 30 }}
         style={{ display: "flex", flexDirection: "column" }}
       >
@@ -47,8 +58,7 @@ const OdometerDigit: FC<OdometerDigitProps> = ({ value }) => {
                 display: "inline-flex",
                 justifyContent: "center",
                 alignItems: "center",
-                height: `${offset}em`,
-                willChange: "filter",
+                height: cellHeight,
               }}
             >
               {num}
@@ -70,13 +80,38 @@ interface OdometerProps {
 }
 
 const Odometer = ({ value, pad, prefix, group }: OdometerProps) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [unit, setUnit] = useState<number | null>(null);
+
+  // Row height ≈ 1.5 × font-size, snapped so it spans a whole number of *device*
+  // pixels. Measured from the computed font-size (which the digits inherit) so
+  // it tracks every size the Odometer is used at; re-measured on layout resize
+  // and on window resize (which fires when zoom changes devicePixelRatio).
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const fontSize = parseFloat(getComputedStyle(el).fontSize);
+      const dpr = window.devicePixelRatio || 1;
+      setUnit(fontSize ? Math.round(fontSize * 1.5 * dpr) / dpr : null);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
   const base = group
     ? Math.round(value).toLocaleString("en-US")
     : String(value);
   const chars = (pad ? base.padStart(pad, "0") : base).split("");
 
   return (
-    <span className="inline-flex items-center">
+    <span ref={ref} className="inline-flex items-center">
       {prefix && (
         <span className="inline-flex items-center" style={{ marginRight: "0.05em" }}>
           {prefix}
@@ -84,12 +119,12 @@ const Odometer = ({ value, pad, prefix, group }: OdometerProps) => {
       )}
       {chars.map((ch, i) =>
         /\d/.test(ch) ? (
-          <OdometerDigit key={i} value={Number(ch)} />
+          <OdometerDigit key={i} value={Number(ch)} unit={unit} />
         ) : (
           <span
             key={i}
             className="inline-flex items-center justify-center"
-            style={{ height: "1.5em" }}
+            style={{ height: unit != null ? `${unit}px` : "1.5em" }}
           >
             {ch}
           </span>
