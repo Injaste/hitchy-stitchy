@@ -48,6 +48,12 @@ type ScrollViewProps = Omit<React.ComponentProps<"div">, "onScroll"> & {
   maxHeight?: number;
   /** Fires on each viewport scroll (e.g. to keep a parent framed in view). */
   onScroll?: () => void;
+  /**
+   * Hands the underlying scrollable viewport element up to the parent (null on
+   * teardown). OverlayScrollbars owns that element internally; a row virtualizer
+   * needs a direct handle to it as its scroll container.
+   */
+  onViewport?: (el: HTMLElement | null) => void;
 };
 
 // Every scroll surface uses a macOS/mobile-style OverlayScrollbars overlay
@@ -70,6 +76,7 @@ export const ScrollView = ({
   hideScrollbar = false,
   maxHeight,
   onScroll,
+  onViewport,
   ...props
 }: ScrollViewProps) => {
   const [selfScrolled, setSelfScrolled] = useState(false);
@@ -170,8 +177,12 @@ export const ScrollView = ({
             },
           }}
           events={{
-            initialized: update,
+            initialized: (inst) => {
+              update(inst);
+              onViewport?.(inst.elements().viewport as HTMLElement);
+            },
             updated: update,
+            destroyed: () => onViewport?.(null),
             scroll: (inst) => {
               update(inst);
               onScroll?.();

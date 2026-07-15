@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { memo, type FC } from "react";
 
 import NotesTooltip from "@/components/custom/notes-tooltip";
 import DataTableRow from "@/components/custom/tables/data-table-row";
@@ -16,7 +16,7 @@ interface GiftRowProps {
   onClick: (gift: Gift) => void;
 }
 
-const GiftRow: FC<GiftRowProps> = ({ gift, onClick }) => {
+const GiftRow: FC<GiftRowProps> = memo(({ gift, onClick }) => {
   const method = METHOD_META[gift.method];
   const MethodIcon = method.icon;
 
@@ -37,6 +37,6 @@ const GiftRow: FC<GiftRowProps> = ({ gift, onClick }) => {
       </div>
     </DataTableRow>
   );
-};
+});
 
 export default GiftRow;

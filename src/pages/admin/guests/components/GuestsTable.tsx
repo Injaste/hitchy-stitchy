@@ -102,6 +102,26 @@ const GuestsTable: FC<GuestsTableProps> = ({
       columns={columns}
       isEmpty={guests.length === 0}
       emptyMessage="No guests match your search."
+      items={guests}
+      getRowId={(guest) => guest.id}
+      renderRow={(guest) => (
+        <GuestsRow
+          key={guest.id}
+          guest={guest}
+          isSelected={selectedIds.has(guest.id)}
+          onToggle={onToggleRow}
+          openDetail={openDetail}
+          openEdit={openEdit}
+          openDelete={openDelete}
+          openDuplicate={openDuplicate}
+          canEdit={canEdit}
+          canRemove={canRemove}
+          canDuplicate={canDuplicate}
+          hasCrudActions={hasCrudActions}
+          onUpdateStatus={handleUpdateStatus}
+          isUpdating={updateStatus.isPending}
+        />
+      )}
       footer={
         <DataTableTotalRow>
           <div className="col-span-full flex items-center justify-between">
@@ -122,26 +142,7 @@ const GuestsTable: FC<GuestsTableProps> = ({
           </div>
         </DataTableTotalRow>
       }
-    >
-      {guests.map((guest) => (
-        <GuestsRow
-          key={guest.id}
-          guest={guest}
-          isSelected={selectedIds.has(guest.id)}
-          onToggle={onToggleRow}
-          openDetail={openDetail}
-          openEdit={openEdit}
-          openDelete={openDelete}
-          openDuplicate={openDuplicate}
-          canEdit={canEdit}
-          canRemove={canRemove}
-          canDuplicate={canDuplicate}
-          hasCrudActions={hasCrudActions}
-          onUpdateStatus={handleUpdateStatus}
-          isUpdating={updateStatus.isPending}
-        />
-      ))}
-    </DataTable>
+    />
   );
 };
 

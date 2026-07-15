@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { listItemReveal, listLayoutTransition } from "@/lib/animations"
 
-import { useDataTableGrid } from "./data-table"
+import { useDataTableGrid, useDataTableMode } from "./data-table"
 
 interface DataTableRowProps {
   onClick?: () => void
@@ -35,6 +35,7 @@ const DataTableRow: FC<DataTableRowProps> = ({
   children,
 }) => {
   const cols = useDataTableGrid()
+  const { virtualized } = useDataTableMode()
 
   const inner = (
     <>
@@ -59,6 +60,25 @@ const DataTableRow: FC<DataTableRowProps> = ({
       </div>
     </>
   )
+
+  // Inside a virtualized body the row is positioned by the virtualizer's own
+  // transform and mounts/unmounts as the window scrolls — framer's `layout` slide
+  // and enter/exit would fight that and flicker on every scroll. So there the row
+  // renders static; the virtual body owns the (scroll-silent) create fade instead.
+  if (virtualized) {
+    const staticProps = {
+      onClick,
+      "data-state": selected ? "selected" : undefined,
+      className: ROW_CLASS,
+    }
+    return element === "div" ? (
+      <div {...staticProps}>{inner}</div>
+    ) : (
+      <button type="button" {...staticProps}>
+        {inner}
+      </button>
+    )
+  }
 
   const motionProps = {
     layout: "position" as const,

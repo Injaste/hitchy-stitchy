@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { memo, type FC } from "react";
 import { AlertTriangle, Check, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ interface ExpenseRowProps {
   onClick: (expense: Expense) => void;
 }
 
-const ExpenseRow: FC<ExpenseRowProps> = ({ expense, onClick }) => {
+const ExpenseRow: FC<ExpenseRowProps> = memo(({ expense, onClick }) => {
   const status = statusOf(expense);
   const due = dueInfo(expense);
   const balance = expense.amount - expense.paid;
@@ -116,6 +116,6 @@ const ExpenseRow: FC<ExpenseRowProps> = ({ expense, onClick }) => {
       </div>
     </DataTableRow>
   );
-};
+});
 
 export default ExpenseRow;

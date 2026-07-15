@@ -33,10 +33,15 @@ const ExpensesSheet: FC<ExpensesSheetProps> = ({
 
   return (
     <DataTable
+      fill
+      virtualizeThreshold={200}
       colsClass={ROW_COLS}
       columns={COLUMNS}
       isEmpty={expenses.length === 0}
       emptyMessage="No expenses match your search."
+      items={expenses}
+      getRowId={(e) => e.id}
+      renderRow={(e) => <ExpenseRow key={e.id} expense={e} onClick={onRowClick} />}
       footer={
         <DataTableTotalRow>
           <span className="text-xs">
@@ -59,11 +64,7 @@ const ExpensesSheet: FC<ExpensesSheetProps> = ({
           </div>
         </DataTableTotalRow>
       }
-    >
-      {expenses.map((e) => (
-        <ExpenseRow key={e.id} expense={e} onClick={onRowClick} />
-      ))}
-    </DataTable>
+    />
   )
 }
 

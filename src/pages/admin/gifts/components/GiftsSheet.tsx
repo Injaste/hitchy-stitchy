@@ -23,10 +23,15 @@ interface GiftsSheetProps {
 
 const GiftsSheet: FC<GiftsSheetProps> = ({ gifts, total, onRowClick }) => (
   <DataTable
+    fill
+    virtualizeThreshold={200}
     colsClass={ROW_COLS}
     columns={COLUMNS}
     isEmpty={gifts.length === 0}
     emptyMessage="No gifts match your search."
+    items={gifts}
+    getRowId={(gift) => gift.id}
+    renderRow={(gift) => <GiftRow key={gift.id} gift={gift} onClick={onRowClick} />}
     footer={
       <DataTableTotalRow>
         <span className="text-xs">
@@ -43,11 +48,7 @@ const GiftsSheet: FC<GiftsSheetProps> = ({ gifts, total, onRowClick }) => (
         </div>
       </DataTableTotalRow>
     }
-  >
-    {gifts.map((gift) => (
-      <GiftRow key={gift.id} gift={gift} onClick={onRowClick} />
-    ))}
-  </DataTable>
+  />
 )
 
 export default GiftsSheet
