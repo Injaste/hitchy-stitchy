@@ -22,21 +22,19 @@ interface TaskCardProps {
 const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
   const openDetail = useTaskModalStore((s) => s.openDetail);
   const { update } = useTaskMutations();
-  const isFlying = useCardFly((s) => s.flight?.id === task.id);
+  const isFlying = useCardFly((s) => Boolean(s.flights[task.id]));
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     const next: TaskStatus = task.status === "done" ? "todo" : "done";
-    // checkbox teleports the card to another column → fly it there,
-    // ringed green when completing (into Done), neutral when reopening
-    useCardFly
-      .getState()
-      .takeOff(task.id, next === "done" ? "success" : undefined);
+    // checkbox teleports the card to another column → fly it there with the
+    // same green ring the card wears while dragging, whichever way it moves
+    useCardFly.getState().takeOff(task.id, "success");
     update.mutate(
       { ...task, status: next },
       {
         onSuccess: () => useCardFly.getState().land(task.id),
-        onError: () => useCardFly.getState().clear(),
+        onError: () => useCardFly.getState().clear(task.id),
       },
     );
   };

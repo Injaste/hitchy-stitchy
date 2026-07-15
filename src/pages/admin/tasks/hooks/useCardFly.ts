@@ -8,110 +8,73 @@ import type { FlyRect, FlyRing } from "../types";
  * (you're already moving it), and create/delete/archive have no spatial story.
  *
  * FLIP via a portal clone: `takeOff` snapshots the card's rect + HTML and hides
- * the real card; once the card has re-rendered at its new slot, `land` chases the
- * new rect each frame and the overlay flies the clone from old → new. A clone in
- * a fixed portal isn't clipped by the lanes' overflow, so it can cross columns
- * freely. Re-reading the target every frame (rather than snapshotting it once)
- * keeps the landing spot correct if the board scrolls mid-flight.
+ * the real card; `land` flags the flight to fly, and the overlay's clone chases
+ * the card's live rect each frame until it lands. A clone in a fixed portal
+ * isn't clipped by the lanes' overflow, so it can cross columns freely.
+ *
+ * Flights are keyed by task id, so several cards can fly at once (e.g. rapid
+ * checkbox toggles) — each renders an independent clone that owns its own chase
+ * loop. The store is just the registry; the motion lives in CardFlyOverlay.
  */
 
-interface Flight {
+export interface Flight {
   id: string;
   html: string;
   from: FlyRect;
-  to: FlyRect | null; // null while lifted, awaiting the landing slot
-  key: number;
+  landed: boolean; // false = lifted in place (below a modal); true = fly to slot
+  key: number; // React key — a fresh flight per takeOff resets the clone
   ring: FlyRing | null; // success (into Done), destructive (snap-back), or none
   radius: string; // the card's border-radius so the ring hugs its corners
 }
 
 interface CardFlyState {
-  flight: Flight | null;
+  flights: Record<string, Flight>;
   takeOff: (id: string, ring?: FlyRing) => void;
   land: (id: string) => void;
-  clear: () => void;
+  clear: (id: string) => void;
 }
 
-const cardEl = (id: string) =>
+export const cardEl = (id: string) =>
   document.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`);
 
-const rectOf = (el: HTMLElement): FlyRect => {
+export const rectOf = (el: HTMLElement): FlyRect => {
   const r = el.getBoundingClientRect();
   return { top: r.top, left: r.left, width: r.width, height: r.height };
 };
 
 let key = 0;
-let raf = 0; // pending frame for the landing chase loop (0 = none)
 
-const cancelChase = () => {
-  if (raf) cancelAnimationFrame(raf);
-  raf = 0;
-};
-
-export const useCardFly = create<CardFlyState>((set, get) => ({
-  flight: null,
+export const useCardFly = create<CardFlyState>((set) => ({
+  flights: {},
 
   takeOff: (id, ring) => {
-    cancelChase(); // a stray chase from a prior flight must not outlive this one
     const el = cardEl(id);
     if (!el) return;
-    set({
-      flight: {
-        id,
-        // strip the id so the clone can't be confused for the real card
-        html: el.outerHTML.replace(/\sdata-task-id="[^"]*"/, ""),
-        from: rectOf(el),
-        to: null,
-        key: ++key,
-        ring: ring ?? null,
-        radius: getComputedStyle(el).borderRadius,
-      },
-    });
-  },
-
-  land: (id) => {
-    const flightKey = get().flight?.key;
-    let settled = false; // has the first post-render read happened yet?
-
-    // Chase the card's live rect every frame. The clone is viewport-fixed, so a
-    // mid-flight board scroll moves the real card but not the clone — re-reading
-    // each frame keeps the target current instead of flying to a stale snapshot.
-    // When the card is still, `to` stays constant and the spring settles, so the
-    // overlay's onAnimationComplete → clear() cancels this loop.
-    const chase = () => {
-      const f = get().flight;
-      // cleared or superseded by a newer flight → stop
-      if (!f || f.id !== id || f.key !== flightKey) return cancelChase();
-      const el = cardEl(id);
-      if (!el) {
-        cancelChase();
-        return set({ flight: null });
-      }
-      const to = rectOf(el);
-      if (!settled) {
-        settled = true;
-        // no real move (e.g. status unchanged) → nothing to animate
-        if (
-          Math.abs(to.top - f.from.top) < 2 &&
-          Math.abs(to.left - f.from.left) < 2
-        ) {
-          cancelChase();
-          return set({ flight: null });
-        }
-      }
-      set({ flight: { ...f, to } });
-      raf = requestAnimationFrame(chase);
+    const flight: Flight = {
+      id,
+      // strip the id so the clone can't be confused for the real card
+      html: el.outerHTML.replace(/\sdata-task-id="[^"]*"/, ""),
+      from: rectOf(el),
+      landed: false,
+      key: ++key,
+      ring: ring ?? null,
+      radius: getComputedStyle(el).borderRadius,
     };
-
-    // double rAF: wait for the cache patch to re-render the card at its new slot
-    // before the first read, then chase it.
-    raf = requestAnimationFrame(() => {
-      raf = requestAnimationFrame(chase);
-    });
+    set((s) => ({ flights: { ...s.flights, [id]: flight } }));
   },
 
-  clear: () => {
-    cancelChase();
-    set({ flight: null });
-  },
+  land: (id) =>
+    set((s) =>
+      s.flights[id]
+        ? { flights: { ...s.flights, [id]: { ...s.flights[id], landed: true } } }
+        : s,
+    ),
+
+  clear: (id) =>
+    set((s) => {
+      if (!s.flights[id]) return s;
+      const next = { ...s.flights };
+      delete next[id];
+      return { flights: next };
+    }),
 }));

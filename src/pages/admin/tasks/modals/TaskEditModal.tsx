@@ -54,7 +54,7 @@ const TaskEditModal = () => {
         statusChanged
           ? {
               onSuccess: () => useCardFly.getState().land(selectedItem.id),
-              onError: () => useCardFly.getState().clear(),
+              onError: () => useCardFly.getState().clear(selectedItem.id),
             }
           : undefined,
       );
