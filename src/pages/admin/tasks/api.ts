@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import type {
   Task,
   CreateTaskPayload,
@@ -100,4 +101,27 @@ export async function archiveTasks(payload: ArchiveTasksPayload): Promise<void> 
   });
 
   if (error) throw new Error(error.message);
+}
+
+export function subscribeToTasks(
+  eventId: string,
+  onChange: (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => void,
+): () => void {
+  const channel = supabase
+    .channel(`admin-tasks-${eventId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "event_tasks",
+        filter: `event_id=eq.${eventId}`,
+      },
+      onChange,
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
 }

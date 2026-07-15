@@ -1,4 +1,4 @@
-import { useTasksQuery } from "./queries";
+import { useTasksQuery, useTasksRealtime } from "./queries";
 import TasksHeader from "./components/TasksHeader";
 import TasksView from "./components/TasksView";
 import TaskModals from "./modals";
@@ -12,6 +12,7 @@ import CardFlyOverlay from "./components/CardFlyOverlay";
  */
 const Tasks = () => {
   const tasks = useTasksQuery();
+  useTasksRealtime();
 
   return (
     <div className="flex flex-col md:h-full md:min-h-0">
