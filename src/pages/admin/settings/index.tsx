@@ -1,7 +1,7 @@
 import { ListChecks, CalendarDays, UserRound, Bell, CreditCard, Keyboard, MessageSquare } from "lucide-react";
 
 import SettingsDialog, {
-  type SettingsSection,
+  type SettingsGroup,
 } from "@/components/custom/settings-dialog";
 import DaysManager from "@/pages/admin/days/components/DaysManager";
 import GettingStartedSection from "../setup-guide/components/GettingStartedSection";
@@ -21,25 +21,45 @@ const EventSettingsModal = () => {
   const { isSuperAdmin, canManageMembers } = useAccess();
   const { isOpen, section, setSection, close } = useEventSettingsStore();
 
-  const sections: SettingsSection[] = [
-    { id: "days", label: "Event Dates", icon: CalendarDays, render: () => <DaysManager /> },
-    { id: "profile", label: "Display name", icon: UserRound, render: () => <Profile /> },
+  const groups: SettingsGroup[] = [
+    { label: "Event", sections: [{ id: "days", label: "Event Dates", icon: CalendarDays, render: () => <DaysManager /> }] },
+    {
+      label: "You",
+      sections: [
+        { id: "profile", label: "Display name", icon: UserRound, render: () => <Profile /> },
+        { id: "notifications", label: "Notifications", icon: Bell, render: () => <NotificationsSection /> },
+      ],
+    },
     // Team-invite share text — only whoever manages invites can edit it.
-    ...(canManageMembers
-      ? [{ id: "invite-message", label: "Invite message", icon: MessageSquare, render: () => <InviteMessageSection /> }]
-      : []),
-    { id: "notifications", label: "Notifications", icon: Bell, render: () => <NotificationsSection /> },
-    { id: "tips", label: "Tips & shortcuts", icon: Keyboard, render: () => <TipsSection /> },
-    ...(isSuperAdmin
-      ? [
-          { id: "billing", label: "Billing", icon: CreditCard, render: () => <Billing /> },
-          // Onboarding home — last, below Billing. Done steps are revisitable here.
-          { id: "getting-started", label: "Getting started", icon: ListChecks, render: () => <GettingStartedSection /> },
-        ]
-      : []),
+    {
+      label: "Outreach",
+      sections: canManageMembers
+        ? [{ id: "invite-message", label: "Invite message", icon: MessageSquare, render: () => <InviteMessageSection /> }]
+        : [],
+    },
+    {
+      label: "Plan",
+      sections: isSuperAdmin
+        ? [{ id: "billing", label: "Billing", icon: CreditCard, render: () => <Billing /> }]
+        : [],
+    },
+    {
+      label: "Help",
+      sections: [
+        { id: "tips", label: "Tips & shortcuts", icon: Keyboard, render: () => <TipsSection /> },
+        // Onboarding home — done steps are revisitable here.
+        ...(isSuperAdmin
+          ? [{ id: "getting-started", label: "Getting started", icon: ListChecks, render: () => <GettingStartedSection /> }]
+          : []),
+      ],
+    },
   ];
 
-  const active = sections.some((s) => s.id === section) ? section : undefined;
+  const active = groups
+    .flatMap((g) => g.sections)
+    .some((s) => s.id === section)
+    ? section
+    : undefined;
 
   return (
     <SettingsDialog
@@ -48,7 +68,7 @@ const EventSettingsModal = () => {
         if (!o) close();
       }}
       title="Event settings"
-      sections={sections}
+      groups={groups}
       value={active}
       onValueChange={setSection}
     />

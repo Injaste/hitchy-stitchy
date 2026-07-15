@@ -1,5 +1,6 @@
 import {
   createContext,
+  Fragment,
   useCallback,
   useContext,
   useEffect,
@@ -65,11 +66,23 @@ export interface SettingsSection {
   render: () => ReactNode;
 }
 
+export interface SettingsGroup {
+  /** Muted header drawn above the group. Omit for an unlabeled, flat group. */
+  label?: string;
+  sections: readonly SettingsSection[];
+}
+
+// Flatten to the id-keyed list the tab logic runs on (Radix value, first-tab
+// fallback, find-by-id, panels). Empty groups contribute nothing here, and are
+// skipped when rendering the nav — so a fully-gated group leaves no orphan header.
+const flatten = (groups: readonly SettingsGroup[]): readonly SettingsSection[] =>
+  groups.flatMap((g) => g.sections);
+
 interface SettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  sections: readonly SettingsSection[];
+  groups: readonly SettingsGroup[];
   /** Active section (controlled). `undefined` = mobile list / first desktop tab. */
   value?: string;
   /** Fires with a section id, or `undefined` on mobile "back" to the list. */
@@ -82,10 +95,11 @@ const DesktopSettings: FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  sections: readonly SettingsSection[];
+  groups: readonly SettingsGroup[];
   active: string | undefined;
   setActive: (id: string | undefined) => void;
-}> = ({ open, onOpenChange, title, sections, active, setActive }) => {
+}> = ({ open, onOpenChange, title, groups, active, setActive }) => {
+  const sections = flatten(groups);
   // Desktop always has a section selected — fall back to the first.
   const activeId = active ?? sections[0].id;
 
@@ -116,12 +130,23 @@ const DesktopSettings: FC<{
             <DialogTitle className="w-full pt-1 pb-2 text-left text-xs font-medium text-muted-foreground">
               {title}
             </DialogTitle>
-            {sections.map((s) => (
-              <TabsTrigger key={s.id} value={s.id} className="gap-2 py-1.5">
-                <s.icon className="size-4 shrink-0" />
-                {s.label}
-              </TabsTrigger>
-            ))}
+            {groups.map((g, gi) =>
+              g.sections.length === 0 ? null : (
+                <Fragment key={g.label ?? gi}>
+                  {g.label && (
+                    <p className="w-full px-2 pt-3 pb-1 text-left text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {g.label}
+                    </p>
+                  )}
+                  {g.sections.map((s) => (
+                    <TabsTrigger key={s.id} value={s.id} className="gap-2 py-1.5">
+                      <s.icon className="size-4 shrink-0" />
+                      {s.label}
+                    </TabsTrigger>
+                  ))}
+                </Fragment>
+              ),
+            )}
           </TabsList>
 
           <Separator orientation="vertical" className="h-full" />
@@ -151,10 +176,11 @@ const MobileSettings: FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  sections: readonly SettingsSection[];
+  groups: readonly SettingsGroup[];
   active: string | undefined;
   setActive: (id: string | undefined) => void;
-}> = ({ open, onOpenChange, title, sections, active, setActive }) => {
+}> = ({ open, onOpenChange, title, groups, active, setActive }) => {
+  const sections = flatten(groups);
   const section = active
     ? (sections.find((s) => s.id === active) ?? null)
     : null;
@@ -184,20 +210,31 @@ const MobileSettings: FC<{
           </header>
 
           <nav className="flex-1 overflow-y-auto p-2">
-            {sections.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setActive(s.id)}
-                className="flex w-full items-center justify-between rounded-md px-3 py-3 text-sm text-foreground transition-colors hover:bg-accent"
-              >
-                <span className="flex items-center gap-3">
-                  <s.icon className="size-4 shrink-0 text-muted-foreground" />
-                  {s.label}
-                </span>
-                <ChevronRight className="size-4 text-muted-foreground" />
-              </button>
-            ))}
+            {groups.map((g, gi) =>
+              g.sections.length === 0 ? null : (
+                <Fragment key={g.label ?? gi}>
+                  {g.label && (
+                    <p className="px-3 pt-4 pb-1 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {g.label}
+                    </p>
+                  )}
+                  {g.sections.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setActive(s.id)}
+                      className="flex w-full items-center justify-between rounded-md px-3 py-3 text-sm text-foreground transition-colors hover:bg-accent"
+                    >
+                      <span className="flex items-center gap-3">
+                        <s.icon className="size-4 shrink-0 text-muted-foreground" />
+                        {s.label}
+                      </span>
+                      <ChevronRight className="size-4 text-muted-foreground" />
+                    </button>
+                  ))}
+                </Fragment>
+              ),
+            )}
           </nav>
         </div>
 
@@ -259,7 +296,7 @@ const SettingsDialog: FC<SettingsDialogProps> = ({
   open,
   onOpenChange,
   title,
-  sections,
+  groups,
   value,
   onValueChange,
 }) => {
@@ -312,7 +349,7 @@ const SettingsDialog: FC<SettingsDialogProps> = ({
         open={open}
         onOpenChange={guardedOpenChange}
         title={title}
-        sections={sections}
+        groups={groups}
         active={value}
         setActive={guardedSetActive}
       />
