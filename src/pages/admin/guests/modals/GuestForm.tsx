@@ -229,6 +229,9 @@ const GuestForm: FC<GuestFormProps> = ({ pages, multiPage = false }) => {
   const { minGuest, maxGuest, showMessage } = pageBounds(
     selected.length ? selected : pages.slice(0, 1),
   );
+  // Phone is the reserved guest's claim identity, so a private page makes it
+  // required (validateGuestForm enforces it) — keep the label in step.
+  const phoneRequired = selected.some((p) => p.mode === "private");
 
   const countHint =
     minGuest === maxGuest
@@ -258,7 +261,7 @@ const GuestForm: FC<GuestFormProps> = ({ pages, multiPage = false }) => {
             name="phone"
             label="Phone"
             type="tel"
-            optional
+            optional={!phoneRequired}
             placeholder="e.g. +60123456789"
           />
         </div>
