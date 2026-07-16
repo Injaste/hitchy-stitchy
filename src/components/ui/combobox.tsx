@@ -94,14 +94,21 @@ function ComboboxContent({
   align = "start",
   alignOffset = 0,
   anchor,
+  container,
   ...props
 }: ComboboxPrimitive.Popup.Props &
   Pick<
     ComboboxPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
-  >) {
+  > &
+  Pick<ComboboxPrimitive.Portal.Props, "container">) {
   return (
-    <ComboboxPrimitive.Portal>
+    // `container` escapes the default body portal. Needed when the popup holds
+    // its own focusable content (e.g. a search input) *inside* a Radix Dialog:
+    // Radix traps focus to the dialog subtree, so a body-portaled popup can
+    // never be focused. Pass the dialog element to render within the trap.
+    // Omit it everywhere else — body remains the default.
+    <ComboboxPrimitive.Portal container={container}>
       <ComboboxPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}
