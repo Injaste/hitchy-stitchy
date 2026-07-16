@@ -1,6 +1,10 @@
 import { lazy } from "react";
 import { Route, Navigate, useParams } from "react-router-dom";
 import RequireRoute from "@/components/custom/require-route";
+// MOCKUP: vendors is guarded by RequireAccess alone (super-admin), skipping the
+// plan gate — it has no plan feature/resource yet. Swap to RequireRoute when the
+// backend + entitlements land (see docs/todo/mvp-phase-6-vendor-management.md).
+import RequireAccess from "@/components/custom/require-access";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { usePlan } from "@/pages/admin/hooks/usePlan";
 import { useAccess } from "@/pages/admin/hooks/useAccess";
@@ -14,6 +18,7 @@ import Access from "@/pages/admin/access";
 import Guests from "@/pages/admin/guests";
 import Budget from "@/pages/admin/budget";
 import Gifts from "@/pages/admin/gifts";
+import Vendors from "@/pages/admin/vendors";
 import Invitation from "@/pages/admin/invitation";
 
 const Admin = lazy(() => import("@/pages/admin"));
@@ -73,6 +78,7 @@ const AdminRoutes = () => (
     <Route path="guests" element={<RequireRoute resource="guests" feature="guests"><Guests /></RequireRoute>} />
     <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget"><Budget /></RequireRoute>} />
     <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts"><Gifts /></RequireRoute>} />
+    <Route path="vendors" element={<RequireAccess requireSuperAdmin><Vendors /></RequireAccess>} />
     <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />

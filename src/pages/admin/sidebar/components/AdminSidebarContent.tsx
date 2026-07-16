@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Wallet,
   HandCoins,
+  Store,
   CalendarCog,
 } from "lucide-react";
 import {
@@ -28,7 +29,7 @@ import NavItem from "../NavItem";
 
 const AdminSidebarContent = () => {
   const { slug } = useAdminStore();
-  const { canRead } = useAccess();
+  const { canRead, isSuperAdmin } = useAccess();
   const activePage = useActivePage();
   const { isMobile, setOpenMobile } = useSidebar();
   const openEventSettings = useEventSettingsStore((s) => s.open);
@@ -38,6 +39,8 @@ const AdminSidebarContent = () => {
   const showTasks = canRead("tasks");
   const showBudget = canRead("budget");
   const showGifts = canRead("gifts");
+  // MOCKUP: vendors is couple-only for now (no resource yet) — gate on super-admin.
+  const showVendors = isSuperAdmin;
   // The member roster is viewable by every active member; managing it needs members:full.
   const showMembers = true;
   const showAccess = canRead("access");
@@ -46,6 +49,7 @@ const AdminSidebarContent = () => {
 
   const hasOperations = showTimeline || showTasks;
   const hasMoney = showBudget || showGifts;
+  const hasVendors = showVendors;
   const hasTeam = showMembers || showAccess;
   const hasRSVP = showGuests || showInvitation;
 
@@ -98,6 +102,27 @@ const AdminSidebarContent = () => {
                     label="Gifts"
                     to={`${base}/gifts`}
                     isActive={activePage === "gifts"}
+                  />
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </>
+      )}
+
+      {hasVendors && (
+        <>
+          <SidebarSeparator className="mx-4" />
+          <SidebarGroup>
+            <SidebarGroupLabel>Vendors</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {showVendors && (
+                  <NavItem
+                    icon={Store}
+                    label="Vendors"
+                    to={`${base}/vendors`}
+                    isActive={activePage === "vendors"}
                   />
                 )}
               </SidebarMenu>

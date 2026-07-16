@@ -17,6 +17,7 @@ export const adminKeys = {
   guests: (slug: string) => [slug, 'guests'] as const,
   budget: (slug: string) => [slug, 'budget'] as const,
   gifts: (slug: string) => [slug, 'gifts'] as const,
+  vendors: (slug: string) => [slug, 'vendors'] as const,
   pages: (slug: string) => [slug, 'pages'] as const,
   templates: (slug: string) => [slug, 'templates'] as const,
   settingsEvent: (slug: string) => [slug, 'settings', 'event'] as const,
