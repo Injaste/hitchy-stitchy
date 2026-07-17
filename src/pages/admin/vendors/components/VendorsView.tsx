@@ -15,6 +15,7 @@ import { categoryMeta, sortVendors } from "../utils";
 import type { VendorsData } from "../api";
 
 import VendorCard from "./VendorCard";
+import VendorStats from "./VendorStats";
 import VendorsSkeleton from "../states/VendorsSkeleton";
 import VendorsEmpty from "../states/VendorsEmpty";
 
@@ -125,19 +126,30 @@ const VendorsView: FC<VendorsViewProps> = ({
     return (
       <ComponentFade key="content" useBlur>
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  setSearch("");
-                  e.currentTarget.blur();
-                }
-              }}
-              placeholder="Search by name, category or contact…"
-              className="rounded-full pl-9"
+          {/* Count rides the search row rather than a line of its own — it's a
+              single stat, and it belongs next to the thing that changes it. */}
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setSearch("");
+                    e.currentTarget.blur();
+                  }
+                }}
+                placeholder="Search by name, category or contact…"
+                className="rounded-full pl-9"
+              />
+            </div>
+
+            <VendorStats
+              total={vendors.length}
+              shown={filtered.length}
+              isLoading={isLoading}
+              isError={isError}
             />
           </div>
 
