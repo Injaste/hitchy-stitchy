@@ -68,6 +68,7 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onEdit }) => {
       <button
         onClick={() => onEdit(vendor)}
         aria-label={vendor.name}
+        data-card-hit
         className="absolute inset-0 z-0 cursor-pointer rounded-[inherit]"
       />
 

@@ -168,6 +168,7 @@ const TimelineCardView: FC<TimelineCardViewProps> = ({
         <button
           onClick={onOpen}
           aria-label={item.title}
+          data-card-hit
           className="absolute inset-0 rounded-[inherit] z-0 cursor-pointer"
         />
         <CardHeader className="flex-1 flex flex-col">

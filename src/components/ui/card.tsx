@@ -9,8 +9,14 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: "",
+        // The press-scale is skipped when the thing being pressed is an
+        // interactive descendant: :active is a CSS state, not an event, so the
+        // browser marks the pressed control AND every ancestor — which made the
+        // whole card recoil when you tapped a button inside it. A card's own
+        // whole-card hit button carries [data-card-hit] and is excluded from
+        // that exclusion, so pressing the card body still scales it.
         interactive:
-          "hover:ring-secondary hover:shadow-sm cursor-pointer active:not-aria-[haspopup]:scale-[0.975]",
+          "hover:ring-secondary hover:shadow-sm cursor-pointer [&:active:not([aria-haspopup]):not(:has(:is(a,button):not([data-card-hit]):active))]:scale-[0.975]",
       },
       size: {
         default: "gap-4 py-4 has-data-[slot=card-footer]:pb-0",
