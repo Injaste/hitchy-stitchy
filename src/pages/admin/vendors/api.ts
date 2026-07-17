@@ -1,38 +1,65 @@
-// Vendor CRM API.
-//
-// MOCKUP: these delegate to an in-memory mock (./data/mock-vendors) while the
-// data shape + UI are being confirmed. The signatures match the real feature
-// (fetch = RLS-gated select; writes = create_/update_/delete_vendor RPCs) so
-// swapping the bodies for supabase is a drop-in once the migration lands.
+// Vendor CRM API. event_vendors is a flat table. Reads are RLS-gated selects
+// (super-admin only); writes go through create_vendor / update_vendor /
+// delete_vendor [20260717000001].
 
+import { supabase } from "@/lib/supabase";
 import type { CreateVendorPayload, Vendor, UpdateVendorPayload } from "./types";
-import {
-  mockCreateVendor,
-  mockDeleteVendor,
-  mockFetchVendors,
-  mockUpdateVendor,
-} from "./data/mock-vendors";
 
 export interface VendorsData {
   vendors: Vendor[];
 }
 
-export async function fetchVendors(_eventId: string): Promise<VendorsData> {
-  const vendors = await mockFetchVendors();
-  return { vendors };
+const VENDOR_FIELDS =
+  "id, event_id, name, category, phone, email, notes, created_at, updated_at";
+
+export async function fetchVendors(eventId: string): Promise<VendorsData> {
+  const { data, error } = await supabase
+    .from("event_vendors")
+    .select(VENDOR_FIELDS)
+    .eq("event_id", eventId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return { vendors: (data ?? []) as Vendor[] };
 }
 
 export async function createVendor(
   eventId: string,
   payload: CreateVendorPayload,
 ): Promise<Vendor> {
-  return mockCreateVendor(eventId, payload);
+  const { data, error } = await supabase.rpc("create_vendor", {
+    p_event_id: eventId,
+    p_name: payload.name,
+    p_category: payload.category,
+    p_phone: payload.phone,
+    p_email: payload.email,
+    p_notes: payload.notes,
+  });
+
+  if (error) throw new Error(error.message);
+  return data as Vendor;
 }
 
 export async function updateVendor(payload: UpdateVendorPayload): Promise<Vendor> {
-  return mockUpdateVendor(payload);
+  const { data, error } = await supabase.rpc("update_vendor", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+    p_name: payload.name,
+    p_category: payload.category,
+    p_phone: payload.phone,
+    p_email: payload.email,
+    p_notes: payload.notes,
+  });
+
+  if (error) throw new Error(error.message);
+  return data as Vendor;
 }
 
-export async function deleteVendor(_eventId: string, id: string): Promise<void> {
-  return mockDeleteVendor(id);
+export async function deleteVendor(eventId: string, id: string): Promise<void> {
+  const { error } = await supabase.rpc("delete_vendor", {
+    p_event_id: eventId,
+    p_id: id,
+  });
+
+  if (error) throw new Error(error.message);
 }

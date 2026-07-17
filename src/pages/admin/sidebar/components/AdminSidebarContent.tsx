@@ -39,7 +39,8 @@ const AdminSidebarContent = () => {
   const showTasks = canRead("tasks");
   const showBudget = canRead("budget");
   const showGifts = canRead("gifts");
-  // MOCKUP: vendors is couple-only for now (no resource yet) — gate on super-admin.
+  // Couple-only, and gated on the super-admin bypass rather than canRead:
+  // vendors isn't an event_resources entry yet (see AdminRoutes).
   const showVendors = isSuperAdmin;
   // The member roster is viewable by every active member; managing it needs members:full.
   const showMembers = true;

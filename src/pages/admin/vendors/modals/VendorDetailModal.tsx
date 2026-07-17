@@ -62,9 +62,9 @@ const VendorDetailModal = () => {
   const category = categoryMeta(vendor.category);
   const CategoryIcon = category.icon;
 
-  const phone = formatPhone(vendor.contact_phone);
-  const phoneHref = vendor.contact_phone?.replace(/\s+/g, "");
-  const waHref = whatsAppHref({ type: "chat", phone: vendor.contact_phone });
+  const phone = formatPhone(vendor.phone);
+  const phoneHref = vendor.phone?.replace(/\s+/g, "");
+  const waHref = whatsAppHref({ type: "chat", phone: vendor.phone });
 
   return (
     <Dialog open={isDetailOpen} onOpenChange={closeAll}>
@@ -113,10 +113,10 @@ const VendorDetailModal = () => {
                 )}
               </ContactRow>
 
-              <ContactRow icon={Mail} value={vendor.contact_email ?? ""}>
+              <ContactRow icon={Mail} value={vendor.email ?? ""}>
                 <Button variant="ghost" size="icon-xs" asChild>
                   <a
-                    href={`mailto:${vendor.contact_email}`}
+                    href={`mailto:${vendor.email}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`Email ${vendor.name}`}

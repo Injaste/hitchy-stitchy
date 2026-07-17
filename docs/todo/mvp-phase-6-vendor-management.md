@@ -13,7 +13,7 @@ keep in sync. The two correlate via `vendor_id`.
 
 ### Data
 - **`event_vendors`** — contact only: `id, event_id, name, category,
-  contact_phone, contact_email, notes, timestamps`. No cost/deposit/balance, no
+  phone, email, notes, timestamps`. No cost/deposit/balance, no
   `created_by`, no `day_id`.
 - **`event_expenses`** — add `vendor_id uuid → event_vendors(id) ON DELETE SET
   NULL` (deleting a vendor unlinks its expenses, keeps them). Existing free-text

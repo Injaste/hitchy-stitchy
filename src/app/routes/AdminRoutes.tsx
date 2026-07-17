@@ -1,9 +1,11 @@
 import { lazy } from "react";
 import { Route, Navigate, useParams } from "react-router-dom";
 import RequireRoute from "@/components/custom/require-route";
-// MOCKUP: vendors is guarded by RequireAccess alone (super-admin), skipping the
-// plan gate — it has no plan feature/resource yet. Swap to RequireRoute when the
-// backend + entitlements land (see docs/todo/mvp-phase-6-vendor-management.md).
+// Vendors is guarded by RequireAccess alone (super-admin), skipping the plan
+// gate: the table is live [20260717000001] but vendors isn't in the
+// event_resources catalog and has no plan feature, so RequireRoute would demand
+// a feature key that doesn't exist yet. Swap once that lands — see
+// docs/todo/mvp-phase-6-vendor-management.md.
 import RequireAccess from "@/components/custom/require-access";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { usePlan } from "@/pages/admin/hooks/usePlan";

@@ -18,8 +18,8 @@ const VendorEditModal = () => {
       ? {
           name: selectedItem.name,
           category: selectedItem.category,
-          contact_phone: selectedItem.contact_phone,
-          contact_email: selectedItem.contact_email,
+          phone: selectedItem.phone,
+          email: selectedItem.email,
           notes: selectedItem.notes,
         }
       : undefined,

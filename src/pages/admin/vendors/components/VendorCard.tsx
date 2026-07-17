@@ -50,9 +50,9 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
   const category = categoryMeta(vendor.category);
   const CategoryIcon = category.icon;
 
-  const phoneHref = vendor.contact_phone?.replace(/\s+/g, "");
-  const waHref = whatsAppHref({ type: "chat", phone: vendor.contact_phone });
-  const hasContact = !!(vendor.contact_phone || vendor.contact_email);
+  const phoneHref = vendor.phone?.replace(/\s+/g, "");
+  const waHref = whatsAppHref({ type: "chat", phone: vendor.phone });
+  const hasContact = !!(vendor.phone || vendor.email);
 
   return (
     // h-full + the mt-auto action row below: cards in a grid row stretch to the
@@ -86,8 +86,8 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
         </h3>
 
         <div className="space-y-0.5">
-          <ContactLine icon={Phone} value={formatPhone(vendor.contact_phone)} />
-          <ContactLine icon={Mail} value={vendor.contact_email ?? ""} />
+          <ContactLine icon={Phone} value={formatPhone(vendor.phone)} />
+          <ContactLine icon={Mail} value={vendor.email ?? ""} />
         </div>
 
         {vendor.notes && (
@@ -129,10 +129,10 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
                 </a>
               </Button>
             )}
-            {vendor.contact_email && (
+            {vendor.email && (
               <Button size="icon" variant="outline" asChild>
                 <a
-                  href={`mailto:${vendor.contact_email}`}
+                  href={`mailto:${vendor.email}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Email ${vendor.name}`}

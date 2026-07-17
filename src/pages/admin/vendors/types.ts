@@ -4,17 +4,17 @@ import { z } from "zod";
 // florist, emcee…). The vendor is a *contact card*; money lives in Budget and
 // correlates by vendor_id, so there are no cost fields here. Super-admin only.
 //
-// MOCKUP: shape is still being confirmed — see docs/todo/mvp-phase-6-vendor-
-// management.md. `category` is a plain string (known ones get an icon; unknown
-// falls back), kept loose until we lock free-text vs enum.
+// Mirrors event_vendors [20260717000001]. `category` is a plain string: the FE
+// renders a known SG set and falls back for anything else (categoryMeta), so
+// loosening it to free-text later costs nothing. `phone` is E.164.
 
 export interface Vendor {
   id: string;
   event_id: string;
   name: string;
   category: string;
-  contact_phone: string | null;
-  contact_email: string | null;
+  phone: string | null;
+  email: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -29,8 +29,8 @@ const optionalText = (max: number, tooLong: string) =>
 export const vendorFormSchema = z.object({
   name: z.string().min(1, "Give the vendor a name").max(200, "Name is too long"),
   category: z.string().min(1, "Pick a category"),
-  contact_phone: optionalText(60, "Phone is too long"),
-  contact_email: z
+  phone: optionalText(60, "Phone is too long"),
+  email: z
     .string()
     .max(200, "Email is too long")
     .transform((v) => v.trim())

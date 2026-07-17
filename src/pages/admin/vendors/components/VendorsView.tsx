@@ -49,8 +49,8 @@ const VendorsView: FC<VendorsViewProps> = ({
       return (
         vendor.name.toLowerCase().includes(q) ||
         categoryMeta(vendor.category).label.toLowerCase().includes(q) ||
-        (vendor.contact_phone ?? "").toLowerCase().includes(q) ||
-        (vendor.contact_email ?? "").toLowerCase().includes(q) ||
+        (vendor.phone ?? "").toLowerCase().includes(q) ||
+        (vendor.email ?? "").toLowerCase().includes(q) ||
         (vendor.notes ?? "").toLowerCase().includes(q)
       );
     });

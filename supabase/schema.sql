@@ -92,6 +92,11 @@
 --   20260628000001_scheduled_publish                  — update_invitation gains
 --       p_publish_at (publish at a future time); get_public_invitation gates on
 --       published_at <= now() so scheduled pages stay hidden until they're due.
+--   20260717000001_vendor_crm                         — event_vendors rebuilt as
+--       a contact directory (the 20260605000002 drop left a stub in this file
+--       with unknown columns; it's defined for real here). Super-admin-only RLS
+--       + create_/update_/delete_vendor. No money columns, no created_by; not
+--       yet an event_resources entry or a plan feature.
 -- =============================================================================
 
 
@@ -589,15 +594,23 @@ CREATE TABLE public.event_live_logs (
 );
 
 -- -----------------------------------------------------------------------------
--- event_vendors  [inferred — only FK and index data available]
--- TODO: run the column query and add missing fields here.
+-- event_vendors  [20260717000001]
+-- The couple's directory of who they hired. A CONTACT CARD, not a money row:
+-- cost/deposit/balance are deliberately absent — money lives in Budget and will
+-- correlate via a vendor_id on event_expenses, so a vendor's spend is derived
+-- from its linked expenses rather than copied here. Super-admin only (like
+-- budget/gifts), so no created_by — the creator is always the couple.
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_vendors (
-  id         uuid        NOT NULL DEFAULT gen_random_uuid(),
-  event_id   uuid        NOT NULL,
-  -- [UNKNOWN COLUMNS — add from a fresh column query]
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
+  id            uuid        NOT NULL DEFAULT gen_random_uuid(),
+  event_id      uuid        NOT NULL,
+  name          text        NOT NULL,
+  category      text        NOT NULL,   -- free-form; the FE renders a known set and falls back for the rest
+  phone         text,                   -- E.164 ("+6591234567") — the only form wa.me/tel: reliably accept
+  email         text,
+  notes         text,
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now(),
 
   CONSTRAINT event_vendors_pkey PRIMARY KEY (id),
 
@@ -885,9 +898,10 @@ CREATE POLICY event_timelines_select ON public.event_timelines
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
+-- Super-admin only — the couple's private list [20260717000001].
 CREATE POLICY event_vendors_select ON public.event_vendors
   FOR SELECT TO authenticated
-  USING (is_event_member(event_id));
+  USING (is_super_admin_member(event_id));
 
 CREATE POLICY events_select ON public.events
   FOR SELECT TO authenticated
@@ -1864,6 +1878,144 @@ $$;
 
 
 -- =============================================================================
+-- VENDOR CRM — RPCs  [added migration 20260717000001]
+-- Super-admin only, on the bypass alone: vendors is not in the event_resources
+-- catalog and has no plan feature yet, so there are no assert_plan(...) calls.
+-- create/update carry assert_event_writable; delete stays ungated so a dormant
+-- module on a downgraded event is still cleanable (same rule as 20260618000107).
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.create_vendor(
+  p_event_id      uuid,
+  p_name          text,
+  p_category      text,
+  p_phone         text DEFAULT NULL,
+  p_email         text DEFAULT NULL,
+  p_notes         text DEFAULT NULL
+)
+RETURNS event_vendors LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_row    event_vendors;
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT is_super_admin(v_caller) THEN
+    RAISE EXCEPTION 'Insufficient permission to add vendors';
+  END IF;
+
+  PERFORM assert_event_writable(p_event_id);
+
+  IF btrim(COALESCE(p_name, '')) = '' THEN
+    RAISE EXCEPTION 'A vendor name is required';
+  END IF;
+
+  IF btrim(COALESCE(p_category, '')) = '' THEN
+    RAISE EXCEPTION 'A category is required';
+  END IF;
+
+  INSERT INTO event_vendors (
+    event_id, name, category, phone, email, notes
+  )
+  VALUES (
+    p_event_id, btrim(p_name), btrim(p_category),
+    p_phone, p_email, p_notes
+  )
+  RETURNING * INTO v_row;
+
+  RETURN v_row;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.update_vendor(
+  p_event_id      uuid,
+  p_id            uuid,
+  p_name          text,
+  p_category      text,
+  p_phone         text DEFAULT NULL,
+  p_email         text DEFAULT NULL,
+  p_notes         text DEFAULT NULL
+)
+RETURNS event_vendors LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_row    event_vendors;
+BEGIN
+  SELECT * INTO v_row FROM event_vendors WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Vendor not found';
+  END IF;
+
+  IF v_row.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT is_super_admin(v_caller) THEN
+    RAISE EXCEPTION 'Insufficient permission to update vendors';
+  END IF;
+
+  PERFORM assert_event_writable(p_event_id);
+
+  IF btrim(COALESCE(p_name, '')) = '' THEN
+    RAISE EXCEPTION 'A vendor name is required';
+  END IF;
+
+  IF btrim(COALESCE(p_category, '')) = '' THEN
+    RAISE EXCEPTION 'A category is required';
+  END IF;
+
+  UPDATE event_vendors
+  SET
+    name          = btrim(p_name),
+    category      = btrim(p_category),
+    phone         = p_phone,
+    email         = p_email,
+    notes         = p_notes
+  WHERE id = p_id
+  RETURNING * INTO v_row;
+
+  RETURN v_row;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.delete_vendor(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_row    event_vendors;
+BEGIN
+  SELECT * INTO v_row FROM event_vendors WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Vendor not found';
+  END IF;
+
+  IF v_row.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT is_super_admin(v_caller) THEN
+    RAISE EXCEPTION 'Insufficient permission to remove vendors';
+  END IF;
+
+  DELETE FROM event_vendors WHERE id = p_id;
+END;
+$$;
+
+
+-- =============================================================================
 -- DAY / SEGMENT SPINE — RPCs  [added migration 20260608000003]
 -- Day + default-segment seeding is explicit in create_event (no trigger).
 -- Segment CRUD RPCs below are gated on the `timeline` resource.
@@ -2378,10 +2530,9 @@ CREATE EVENT TRIGGER auto_attach_triggers_on_create
 -- =============================================================================
 -- KNOWN GAPS — fill these in after running the missing queries
 -- =============================================================================
--- 1. event_vendors column definitions (only FK + index confirmed)
--- 2. push_subscriptions full column list (endpoint/p256dh/auth inferred)
--- 3. events full column list (inferred from RPCs — verify nullable/defaults)
--- 4. event_tasks archived_at / assignees column defaults (inferred)
--- 5. Full RPC function bodies (copy from the 2026-06-04 function dump)
--- 6. Any INSERT/UPDATE/DELETE RLS policies (none found in dump — confirm intentional)
+-- 1. push_subscriptions full column list (endpoint/p256dh/auth inferred)
+-- 2. events full column list (inferred from RPCs — verify nullable/defaults)
+-- 3. event_tasks archived_at / assignees column defaults (inferred)
+-- 4. Full RPC function bodies (copy from the 2026-06-04 function dump)
+-- 5. Any INSERT/UPDATE/DELETE RLS policies (none found in dump — confirm intentional)
 -- =============================================================================

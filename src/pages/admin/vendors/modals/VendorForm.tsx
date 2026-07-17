@@ -37,8 +37,8 @@ export const useVendorForm = ({ defaultValues, onSubmit }: UseVendorFormOpts) =>
     defaultValues: {
       name: defaultValues?.name ?? "",
       category: defaultValues?.category ?? "",
-      contact_phone: (defaultValues?.contact_phone ?? "") as string | null,
-      contact_email: (defaultValues?.contact_email ?? "") as string | null,
+      phone: (defaultValues?.phone ?? "") as string | null,
+      email: (defaultValues?.email ?? "") as string | null,
       notes: (defaultValues?.notes ?? "") as string | null,
     },
     validators: {
@@ -73,10 +73,10 @@ const VendorForm = () => (
         />
       </div>
 
-      <PhoneField name="contact_phone" label="Phone" optional />
+      <PhoneField name="phone" label="Phone" optional />
 
       <TextField
-        name="contact_email"
+        name="email"
         label="Email"
         optional
         placeholder="name@example.com"
