@@ -21,18 +21,25 @@ keep in sync. The two correlate via `vendor_id`.
 - A vendor's **cost / paid / balance is derived** from its linked expenses (live
   sum), never stored. Edit an expense → the vendor's total updates automatically.
 
-### Build (gist)
-0. Remove the phantom `event_vendors` still in `schema.sql` (dropped from the DB,
-   never removed from the snapshot).
-1. Migration: `event_vendors` + RLS SELECT (no write policies); `vendor_id` on
-   `event_expenses`; RPCs `create_/update_/delete_vendor`; add `p_vendor_id` to
-   `create_/update_expense`; seed `vendors` into `event_resources`.
-2. Sync all of the above into `schema.sql`.
-3. Feature folder `src/pages/admin/vendors/` mirroring `gifts/` (DataTable,
-   realtime, modal store).
-4. Budget side: vendor picker in the expense modal; vendor name on expense rows.
-5. Access: `vendors` resource in `access/types.ts`; route + sidebar.
-6. Query keys; `npm run build`.
+### Build — A done, B and C outstanding
+Split by risk, so the safe part could land on its own:
+
+- **A · Make it real — DONE** [`20260717000001`]. Phantom `event_vendors` removed
+  from `schema.sql` — it had survived the 20260605000002 drop still carrying an
+  `is_event_member` SELECT policy, i.e. the snapshot claimed the whole team could
+  read vendors. Real table + super-admin RLS + `create_/update_/delete_vendor`;
+  `api.ts` swapped off the mock, `data/` deleted. Additive only — no live RPC
+  touched. Driven end-to-end against Supabase.
+- **B · Resource + plan wiring — TODO.** Seed `vendors` into `event_resources`
+  (granted to nobody; super-admin bypass, exactly like gifts) and add a `vendors`
+  key to the DB features map, *then* swap the route to
+  `RequireRoute resource="vendors" feature="vendors"` and the sidebar/header to
+  `canRead`/`canCreate`. Order matters: until the feature key exists
+  `canUseFeature` returns false and the page reads as locked — hence today's
+  interim `RequireAccess` + `isSuperAdmin` gate.
+- **C · Budget link — TODO, and the only part behind the hard gate.** `vendor_id`
+  on `event_expenses` means `CREATE OR REPLACE` on the live `create_expense` /
+  `update_expense`. Kept separate so A and B don't inherit that risk.
 
 ### Settled during the mockup
 - **Tier** — super-admin-only (the couple's private list). The FE gates on
@@ -47,15 +54,32 @@ keep in sync. The two correlate via `vendor_id`.
   one of 2–3 people and the attribution carries no information. Matches the
   convention (`created-by-convention.md`): only where functionally used.
 
-### Deferred — pick up when the migration lands
+### Deferred
 - **Access group naming.** `RESOURCE_GROUPS` in `access/types.ts` still labels
   members + access as **"Team"** (the sidebar now calls the same grouping
-  **"People"**, since vendors joined it). Revisit when vendors becomes a real
-  `Resource` with its own access convention — that's the moment the access page
-  can group it honestly, rather than renaming to "People" while listing no
-  vendors.
+  **"People"**, since vendors joined it). Do it with **B** — that's the moment
+  the access page can group vendors honestly, rather than renaming to "People"
+  while listing no vendors.
 - **Getting-started tutorial** — add vendors to the setup guide
   (`src/pages/admin/setup-guide/`).
+
+### Found while building — outside this phase
+- **`FieldShell` labels aren't associated with their controls.** Verified live:
+  `input.labels.length === 0`, no `id`/`htmlFor`, no `aria-label`, and the label
+  is a sibling rather than a wrapper. So clicking a label doesn't focus its
+  field, and a screen reader announces the input with no name — across **every**
+  admin form, not just vendors. Fix is one place: `FieldShell` mints a `useId()`,
+  passes `id` to the control and `htmlFor` to `FieldLabel` (and the same trick
+  wires `aria-describedby` to the description/error). Deliberately *not* a `name`
+  attribute — TanStack Form owns the value, so a native `name` would be dead
+  weight.
+- **Combobox hidden input serialises the whole item.** The country picker's
+  hidden input holds `{"code":"MY","name":…}` because `PhoneField` gives
+  `Combobox` no `itemToStringValue`. Harmless today (nothing submits natively);
+  `itemToStringValue={(c) => c.code}` fixes it.
+- **Drag on a task card is unverified** after the whole-card hit-button
+  migration (`e9513df`) — dnd-kit's pointer activation doesn't respond to
+  synthetic drags, so it needs one real drag by hand.
 
 ## Facet 2 — Vendor day-scoped login (deferred) · Advanced
 

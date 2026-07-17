@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isValidPhone } from "@/lib/phone";
+
 // Vendor CRM — a couple-side directory of who they hired (photographer, banquet,
 // florist, emcee…). The vendor is a *contact card*; money lives in Budget and
 // correlates by vendor_id, so there are no cost fields here. Super-admin only.
@@ -29,7 +31,16 @@ const optionalText = (max: number, tooLong: string) =>
 export const vendorFormSchema = z.object({
   name: z.string().min(1, "Give the vendor a name").max(200, "Name is too long"),
   category: z.string().min(1, "Pick a category"),
-  phone: optionalText(60, "Phone is too long"),
+  // The control hands us E.164, but it can still compose nonsense: the field
+  // pre-fills "+65 ", so pasting a full "+60 12-345 6789" after the cursor
+  // yields "+65 +60 12-345 6789" -> the first code wins and the rest becomes the
+  // national part -> +6560123456789. That's E.164-*shaped* and even a plausible
+  // *length* for SG, so only a real validity check rejects it. Left unguarded it
+  // saves silently and fails on the day, when someone taps Call.
+  phone: optionalText(60, "Phone is too long").refine(
+    (v) => !v || isValidPhone(v),
+    { message: "That doesn't look like a valid number" },
+  ),
   email: z
     .string()
     .max(200, "Email is too long")

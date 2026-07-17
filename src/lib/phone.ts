@@ -10,6 +10,7 @@
 import {
   getCountries,
   getCountryCallingCode,
+  isValidPhoneNumber,
   parsePhoneNumberFromString,
   type CountryCode,
 } from "libphonenumber-js";
@@ -166,6 +167,25 @@ export function absorbDialCode(
     if (country) return { country, national: digits.slice(len) };
   }
   return null;
+}
+
+/** Is this a real number for the country code it carries?
+ *
+ *  Deliberately isValidPhoneNumber, not the laxer isPossiblePhoneNumber. The
+ *  "possible" check only weighs the digit count against a country's permitted
+ *  lengths, and those are wider than you'd guess — SG allows more than its
+ *  8-digit mobiles (1800-numbers and friends), so "+6560123456789" is judged
+ *  *possible* and slips straight through. Only the full validity check, which
+ *  also matches the operator prefix, rejects it.
+ *
+ *  The cost is that a genuinely new telco block can be refused until
+ *  libphonenumber's metadata catches up. Worth it: a rejected real number is a
+ *  visible annoyance the couple can work around, where a stored fake one fails
+ *  silently and only surfaces when someone taps Call on the day.
+ *
+ *  Empty isn't handled here — an optional field decides that for itself. */
+export function isValidPhone(value: string): boolean {
+  return isValidPhoneNumber(value);
 }
 
 /** Picker + input → the E.164 we store. Null when there's no national number,
