@@ -49,8 +49,9 @@ const AdminSidebarContent = () => {
 
   const hasOperations = showTimeline || showTasks;
   const hasMoney = showBudget || showGifts;
-  const hasVendors = showVendors;
-  const hasTeam = showMembers || showAccess;
+  // "People" spans your own team and the vendors you hired — everyone being
+  // coordinated. (Access is the permissions for those people.)
+  const hasPeople = showMembers || showAccess || showVendors;
   const hasRSVP = showGuests || showInvitation;
 
   return (
@@ -110,32 +111,11 @@ const AdminSidebarContent = () => {
         </>
       )}
 
-      {hasVendors && (
+      {hasPeople && (
         <>
           <SidebarSeparator className="mx-4" />
           <SidebarGroup>
-            <SidebarGroupLabel>Vendors</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {showVendors && (
-                  <NavItem
-                    icon={Store}
-                    label="Vendors"
-                    to={`${base}/vendors`}
-                    isActive={activePage === "vendors"}
-                  />
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </>
-      )}
-
-      {hasTeam && (
-        <>
-          <SidebarSeparator className="mx-4" />
-          <SidebarGroup>
-            <SidebarGroupLabel>Teams</SidebarGroupLabel>
+            <SidebarGroupLabel>People</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {showMembers && (
@@ -144,6 +124,14 @@ const AdminSidebarContent = () => {
                     label="Members"
                     to={`${base}/members`}
                     isActive={activePage === "members"}
+                  />
+                )}
+                {showVendors && (
+                  <NavItem
+                    icon={Store}
+                    label="Vendors"
+                    to={`${base}/vendors`}
+                    isActive={activePage === "vendors"}
                   />
                 )}
                 {showAccess && (
