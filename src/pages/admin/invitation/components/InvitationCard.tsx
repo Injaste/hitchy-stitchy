@@ -58,12 +58,21 @@ const InvitationCard = ({
   return (
     <Card
       variant="interactive"
-      onClick={onEdit}
       className={cn(
-        "group/inv-card cursor-pointer",
+        "group/inv-card relative",
         !isSet && "border-dashed bg-muted/30",
       )}
     >
+      {/* Whole-card hit target as a real button — focusable and labelled, and it
+          paints over the static content, so the action row below out-stacks it
+          with z-10 rather than each control opting out of propagation. */}
+      <button
+        onClick={onEdit}
+        aria-label={label}
+        data-card-hit
+        className="absolute inset-0 z-0 cursor-pointer rounded-[inherit]"
+      />
+
       <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
         <div
           className={cn(
@@ -119,7 +128,10 @@ const InvitationCard = ({
             <RelativeTime date={stampDate} prefix={stampPrefix} />
           )}
         </div>
-        <div className="flex items-center gap-2 mt-4">
+        {/* z-10 lifts the row above the whole-card button so each control takes
+            its own click — the button is a sibling, not an ancestor, so there's
+            nothing left to stop propagating. */}
+        <div className="relative z-10 flex items-center gap-2 mt-4">
           <Button
             size="sm"
             variant={isLive ? "default" : "outline"}
@@ -131,26 +143,19 @@ const InvitationCard = ({
           </Button>
           {isLive && (
             <>
-              <span onClick={(e) => e.stopPropagation()}>
-                <CopyLinksMenu
-                  compact
-                  slug={slug}
-                  pages={[
-                    {
-                      label,
-                      linkSlug: invitation.link_slug,
-                      mode: invitation.rsvp_mode,
-                      code: invitation.private_code,
-                    },
-                  ]}
-                />
-              </span>
-              <Button
-                size="icon"
-                variant="outline"
-                asChild
-                onClick={(e) => e.stopPropagation()}
-              >
+              <CopyLinksMenu
+                compact
+                slug={slug}
+                pages={[
+                  {
+                    label,
+                    linkSlug: invitation.link_slug,
+                    mode: invitation.rsvp_mode,
+                    code: invitation.private_code,
+                  },
+                ]}
+              />
+              <Button size="icon" variant="outline" asChild>
                 <Link to={path} target="_blank" aria-label="Open live page">
                   <ExternalLink />
                 </Link>

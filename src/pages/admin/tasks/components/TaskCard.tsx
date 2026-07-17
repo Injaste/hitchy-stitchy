@@ -24,8 +24,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, dragHandleRef, isDragging }) => {
   const { update } = useTaskMutations();
   const isFlying = useCardFly((s) => Boolean(s.flights[task.id]));
 
-  const handleToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleToggle = () => {
     const next: TaskStatus = task.status === "done" ? "todo" : "done";
     // checkbox teleports the card to another column → fly it there with the
     // same green ring the card wears while dragging, whichever way it moves
