@@ -86,8 +86,9 @@ const VendorForm = () => (
         name="notes"
         label="Notes"
         optional
-        rows={2}
-        placeholder="Package, deposit status, anything to remember…"
+        rows={3}
+        placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
+        description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
       />
     </FieldGroup>
   </FormBody>
