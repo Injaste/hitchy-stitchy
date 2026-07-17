@@ -35,7 +35,7 @@ const VendorsView: FC<VendorsViewProps> = ({
   isRefetching,
 }) => {
   const openCreate = useVendorModalStore((s) => s.openCreate);
-  const openEditItem = useVendorModalStore((s) => s.openEditItem);
+  const openDetail = useVendorModalStore((s) => s.openDetail);
   const { isSuperAdmin } = useAccess();
 
   const [search, setSearch] = useState("");
@@ -84,7 +84,7 @@ const VendorsView: FC<VendorsViewProps> = ({
                   transition={{ layout: { duration: 0.4, ease: "easeInOut" } }}
                   className="h-full"
                 >
-                  <VendorCard vendor={vendor} onEdit={openEditItem} />
+                  <VendorCard vendor={vendor} onOpen={openDetail} />
                 </motion.div>
               ))}
             </AnimatePresence>

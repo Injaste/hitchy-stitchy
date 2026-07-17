@@ -1,9 +1,6 @@
 import { Store } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { DialogFooter } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { FormDialog, FormHeader, SubmitButton } from "@/components/custom/form";
+import { FormDialog, FormFooter, FormHeader } from "@/components/custom/form";
 
 import { useVendorModalStore } from "../hooks/useVendorModalStore";
 import { useVendorMutations } from "../queries";
@@ -14,7 +11,6 @@ const VendorEditModal = () => {
   const isEditOpen = useVendorModalStore((s) => s.isEditOpen);
   const selectedItem = useVendorModalStore((s) => s.selectedItem);
   const closeAll = useVendorModalStore((s) => s.closeAll);
-  const openDeleteItem = useVendorModalStore((s) => s.openDeleteItem);
   const { update } = useVendorMutations();
 
   const form = useVendorForm({
@@ -52,22 +48,9 @@ const VendorEditModal = () => {
 
       <VendorForm />
 
-      {/* Footer mirrors DialogDetailActions: destructive Delete · Cancel · Save. */}
-      <DialogFooter>
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          onClick={() => openDeleteItem(selectedItem)}
-        >
-          Delete
-        </Button>
-        <Separator orientation="vertical" className="hidden h-6 sm:block" />
-        <Button type="button" variant="outline" size="sm" onClick={closeAll}>
-          Cancel
-        </Button>
-        <SubmitButton size="sm">Save</SubmitButton>
-      </DialogFooter>
+      {/* Just a form now — Delete lives on the detail modal it opens from,
+          same as MemberEditModal. */}
+      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
     </FormDialog>
   );
 };

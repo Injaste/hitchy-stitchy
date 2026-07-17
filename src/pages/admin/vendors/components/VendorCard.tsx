@@ -19,7 +19,8 @@ import type { Vendor } from "../types";
 
 interface VendorCardProps {
   vendor: Vendor;
-  onEdit: (vendor: Vendor) => void;
+  /** Card body click — opens the vendor's detail. */
+  onOpen: (vendor: Vendor) => void;
 }
 
 /** One contact row. Always renders its icon — a missing value reads as a dimmed
@@ -45,7 +46,7 @@ const ContactLine: FC<{ icon: LucideIcon; value: string }> = ({
 // vendor's identity mark and the badge spells it out — icon to glance, label to
 // read. No per-category colour: a tone would imply meaning the data doesn't
 // carry (same call gifts made for its methods). Tokens only.
-const VendorCard: FC<VendorCardProps> = ({ vendor, onEdit }) => {
+const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
   const category = categoryMeta(vendor.category);
   const CategoryIcon = category.icon;
 
@@ -66,7 +67,7 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onEdit }) => {
           content (positioned, z-0), so anything that needs its own click has to
           out-stack it — see the action row's z-10 below. */}
       <button
-        onClick={() => onEdit(vendor)}
+        onClick={() => onOpen(vendor)}
         aria-label={vendor.name}
         data-card-hit
         className="absolute inset-0 z-0 cursor-pointer rounded-[inherit]"
