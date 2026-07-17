@@ -208,7 +208,7 @@ const PhoneControl = ({
             />
             <ComboboxEmpty>No country matches.</ComboboxEmpty>
 
-            <ComboboxList>
+            <ComboboxList className="mt-1">
               {(group: CountryGroup) => (
                 <ComboboxGroup key={group.value} items={group.items}>
                   <ComboboxLabel>{group.heading}</ComboboxLabel>
@@ -218,7 +218,9 @@ const PhoneControl = ({
                         <span className="w-6 shrink-0 text-xs text-muted-foreground tabular-nums">
                           {c.code}
                         </span>
-                        <span className="min-w-0 flex-1 truncate">{c.name}</span>
+                        <span className="min-w-0 flex-1 truncate">
+                          {c.name}
+                        </span>
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                           {c.dial}
                         </span>
