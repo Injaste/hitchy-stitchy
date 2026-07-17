@@ -34,19 +34,46 @@ keep in sync. The two correlate via `vendor_id`.
 5. Access: `vendors` resource in `access/types.ts`; route + sidebar.
 6. Query keys; `npm run build`.
 
-### Open decision
-- **Tier of the contact table.** It holds no money, so it's a free choice:
-  super-admin-only for now (couple's private list, mirror gifts) — *lean* — vs a
-  Team-readable `vendors` resource (a coordinator can pull a vendor's number
-  today). Loosening it later is a one-line RLS change.
-- Category free-text vs enum (photographer / banquet / florist / emcee /
-  bridal…). Leaning free-text for MVP.
+### Settled during the mockup
+- **Tier** — super-admin-only (the couple's private list). The FE gates on
+  `RequireAccess requireSuperAdmin`, deliberately *not* a `vendors` resource or
+  plan feature: those get defined with the migration. Loosening it later is a
+  one-line RLS change.
+- **Category** — a fixed SG list (photographer / venue / catering / bridal /
+  makeup / emcee / music / florist / transport / others) rendered via
+  `categoryMeta`, which falls back gracefully for any unknown value — so a switch
+  to free-text later costs nothing.
+- **No `created_by`** — vendors are super-admin-only, so the creator is always
+  one of 2–3 people and the attribution carries no information. Matches the
+  convention (`created-by-convention.md`): only where functionally used.
+
+### Deferred — pick up when the migration lands
+- **Access group naming.** `RESOURCE_GROUPS` in `access/types.ts` still labels
+  members + access as **"Team"** (the sidebar now calls the same grouping
+  **"People"**, since vendors joined it). Revisit when vendors becomes a real
+  `Resource` with its own access convention — that's the moment the access page
+  can group it honestly, rather than renaming to "People" while listing no
+  vendors.
+- **Getting-started tutorial** — add vendors to the setup guide
+  (`src/pages/admin/setup-guide/`).
 
 ## Facet 2 — Vendor day-scoped login (deferred) · Advanced
 
 Vendors log in and see **only their booked day(s)**, enforced server-side. Their
 **own access group** — the ladder becomes superadmin → admin → team → **vendor**
 (not merged into Team: Team is event-wide, a vendor is near-zero + day-scoped).
+
+**Link, don't merge.** Most vendors never log in — the florist is a phone number,
+not a user account. So `event_vendors` (a CRM record that exists regardless) and
+`event_members` (someone who can authenticate) stay separate tables joined by a
+nullable **`event_vendors.member_id → event_members(id)`**:
+- `NULL` — the 95% case: a contact card, no member row, no invite, no cost.
+- Set — you invited them to collaborate; a member row exists in the Vendor group.
+
+That keeps the invite/auth engine exactly where it is (members) instead of
+duplicating it onto vendors, and avoids dead member rows for people who'll never
+sign in. The Members roster filters the Vendor group out; the vendor's detail
+modal shows the state (*Not invited → Invited → Joined*).
 
 Deferred because it introduces a **per-member day-allowlist read dimension** that
 exists nowhere yet and is shared with per-day RSVP links + per-day guest lists.
