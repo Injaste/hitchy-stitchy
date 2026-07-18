@@ -21,7 +21,7 @@ keep in sync. The two correlate via `vendor_id`.
 - A vendor's **cost / paid / balance is derived** from its linked expenses (live
   sum), never stored. Edit an expense → the vendor's total updates automatically.
 
-### Build — A done, B and C outstanding
+### Build — A and B done, C outstanding
 Split by risk, so the safe part could land on its own:
 
 - **A · Make it real — DONE** [`20260717000001`]. Phantom `event_vendors` removed
@@ -30,36 +30,42 @@ Split by risk, so the safe part could land on its own:
   read vendors. Real table + super-admin RLS + `create_/update_/delete_vendor`;
   `api.ts` swapped off the mock, `data/` deleted. Additive only — no live RPC
   touched. Driven end-to-end against Supabase.
-- **B · Resource + plan wiring — TODO.** Seed `vendors` into `event_resources`
-  (granted to nobody; super-admin bypass, exactly like gifts) and add a `vendors`
-  key to the DB features map, *then* swap the route to
-  `RequireRoute resource="vendors" feature="vendors"` and the sidebar/header to
-  `canRead`/`canCreate`. Order matters: until the feature key exists
-  `canUseFeature` returns false and the page reads as locked — hence today's
-  interim `RequireAccess` + `isSuperAdmin` gate.
+- **B · Access + plan wiring — DONE** [`20260718000001`–`8`, one SQL per function].
+  The tier moved from super-admin-only to **delegated**: **Admin = full, Team =
+  none** (hardcoded — the access groups are fixed/read-only anyway). So unlike
+  gifts/budget (couple-only, granted to nobody), `vendors` is keyed into the Admin
+  permissions JSON like `guests`/`invitation`: `create_event` seeds it + a backfill
+  grants existing Admin groups; RLS + write RPCs move onto
+  `has_event_permission('vendors',…)`; a `vendors` `event_resources` catalog entry
+  lists it in the access matrix. Plan side: a **Pro** feature (`can_use_vendors`,
+  Pro+), wired through `plan_within_limits` / `get_bootstrap_context` /
+  `assert_plan` (create+update; delete stays ungated). FE: route →
+  `RequireRoute resource="vendors" feature="vendors"`; sidebar/header/detail →
+  `canRead`/`canCreate`/`canEdit`; `Resource` + `PLAN_FEATURES` + `FEATURE_META`
+  gain `vendors`; the access-matrix group renamed **Team → People** (members +
+  vendors + access).
 - **C · Budget link — TODO, and the only part behind the hard gate.** `vendor_id`
   on `event_expenses` means `CREATE OR REPLACE` on the live `create_expense` /
   `update_expense`. Kept separate so A and B don't inherit that risk.
 
 ### Settled during the mockup
-- **Tier** — super-admin-only (the couple's private list). The FE gates on
-  `RequireAccess requireSuperAdmin`, deliberately *not* a `vendors` resource or
-  plan feature: those get defined with the migration. Loosening it later is a
-  one-line RLS change.
+- **Tier** — *(superseded by Build B)* began super-admin-only; the couple later
+  chose **Admin = full, Team = none** + a **Pro** feature gate. Now a delegated,
+  Pro-gated resource — see Build B.
 - **Category** — a fixed SG list (photographer / venue / catering / bridal /
   makeup / emcee / music / florist / transport / others) rendered via
   `categoryMeta`, which falls back gracefully for any unknown value — so a switch
   to free-text later costs nothing.
-- **No `created_by`** — vendors are super-admin-only, so the creator is always
-  one of 2–3 people and the attribution carries no information. Matches the
-  convention (`created-by-convention.md`): only where functionally used.
+- **No `created_by`** — *reconsider, now that Build B delegated vendors to the
+  Admin group.* The original rationale (creator is always the couple → no info)
+  weakens: an event can have several Admins, so "who added this vendor" now
+  carries information. Still deferred (the column doesn't exist and nothing needs
+  it yet), but it's no longer a clear-cut drop. `VendorDetailModal`'s History
+  shows *when*, not *who*.
 
 ### Deferred
-- **Access group naming.** `RESOURCE_GROUPS` in `access/types.ts` still labels
-  members + access as **"Team"** (the sidebar now calls the same grouping
-  **"People"**, since vendors joined it). Do it with **B** — that's the moment
-  the access page can group vendors honestly, rather than renaming to "People"
-  while listing no vendors.
+- **Access group naming — DONE with B.** `RESOURCE_GROUPS` now labels the grouping
+  **"People"** (members + vendors + access), matching the sidebar.
 - **Getting-started tutorial** — add vendors to the setup guide
   (`src/pages/admin/setup-guide/`).
 
