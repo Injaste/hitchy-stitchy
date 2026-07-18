@@ -45,16 +45,15 @@ const ContactRow: FC<{
 // Vendor detail — the read view the card opens onto; Edit/Delete hang off it via
 // DialogDetailActions, the same shape MemberDetailModal uses.
 //
-// History shows *when* it was added, never *who*: the table is super-admin only,
-// so the creator is always the couple. That's the same reasoning that dropped
-// created_by from event_gifts and event_expenses.
+// History shows *when* it was added, never *who* — event_vendors carries no
+// created_by column (see the vendors:full delegation note in the todo doc).
 const VendorDetailModal = () => {
   const isDetailOpen = useVendorModalStore((s) => s.isDetailOpen);
   const selectedItem = useVendorModalStore((s) => s.selectedItem);
   const closeAll = useVendorModalStore((s) => s.closeAll);
   const openEdit = useVendorModalStore((s) => s.openEdit);
   const openDelete = useVendorModalStore((s) => s.openDelete);
-  const { isSuperAdmin } = useAccess();
+  const { canEdit } = useAccess();
 
   if (!selectedItem) return null;
 
@@ -143,7 +142,7 @@ const VendorDetailModal = () => {
           </div>
         </DialogBody>
 
-        {isSuperAdmin && (
+        {canEdit("vendors") && (
           <DialogDetailActions
             destructive={[{ label: "Delete", onClick: openDelete }]}
             primary={{ label: "Edit", onClick: openEdit }}

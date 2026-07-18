@@ -29,7 +29,7 @@ import NavItem from "../NavItem";
 
 const AdminSidebarContent = () => {
   const { slug } = useAdminStore();
-  const { canRead, isSuperAdmin } = useAccess();
+  const { canRead } = useAccess();
   const activePage = useActivePage();
   const { isMobile, setOpenMobile } = useSidebar();
   const openEventSettings = useEventSettingsStore((s) => s.open);
@@ -39,9 +39,7 @@ const AdminSidebarContent = () => {
   const showTasks = canRead("tasks");
   const showBudget = canRead("budget");
   const showGifts = canRead("gifts");
-  // Couple-only, and gated on the super-admin bypass rather than canRead:
-  // vendors isn't an event_resources entry yet (see AdminRoutes).
-  const showVendors = isSuperAdmin;
+  const showVendors = canRead("vendors");
   // The member roster is viewable by every active member; managing it needs members:full.
   const showMembers = true;
   const showAccess = canRead("access");

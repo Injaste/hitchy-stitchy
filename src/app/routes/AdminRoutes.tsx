@@ -1,12 +1,6 @@
 import { lazy } from "react";
 import { Route, Navigate, useParams } from "react-router-dom";
 import RequireRoute from "@/components/custom/require-route";
-// Vendors is guarded by RequireAccess alone (super-admin), skipping the plan
-// gate: the table is live [20260717000001] but vendors isn't in the
-// event_resources catalog and has no plan feature, so RequireRoute would demand
-// a feature key that doesn't exist yet. Swap once that lands — see
-// docs/todo/mvp-phase-6-vendor-management.md.
-import RequireAccess from "@/components/custom/require-access";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { usePlan } from "@/pages/admin/hooks/usePlan";
 import { useAccess } from "@/pages/admin/hooks/useAccess";
@@ -80,7 +74,7 @@ const AdminRoutes = () => (
     <Route path="guests" element={<RequireRoute resource="guests" feature="guests"><Guests /></RequireRoute>} />
     <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget"><Budget /></RequireRoute>} />
     <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts"><Gifts /></RequireRoute>} />
-    <Route path="vendors" element={<RequireAccess requireSuperAdmin><Vendors /></RequireAccess>} />
+    <Route path="vendors" element={<RequireRoute resource="vendors" feature="vendors"><Vendors /></RequireRoute>} />
     <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />

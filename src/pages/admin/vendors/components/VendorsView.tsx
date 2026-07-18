@@ -36,7 +36,7 @@ const VendorsView: FC<VendorsViewProps> = ({
 }) => {
   const openCreate = useVendorModalStore((s) => s.openCreate);
   const openDetail = useVendorModalStore((s) => s.openDetail);
-  const { isSuperAdmin } = useAccess();
+  const { canCreate } = useAccess();
 
   const [search, setSearch] = useState("");
 
@@ -118,7 +118,7 @@ const VendorsView: FC<VendorsViewProps> = ({
     if (vendors.length === 0) {
       return (
         <ComponentFade key="empty" useBlur>
-          <VendorsEmpty onAdd={openCreate} canCreate={isSuperAdmin} />
+          <VendorsEmpty onAdd={openCreate} canCreate={canCreate("vendors")} />
         </ComponentFade>
       );
     }

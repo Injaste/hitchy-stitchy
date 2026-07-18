@@ -17,7 +17,7 @@ const VendorsHeader: FC<BaseHeaderProps> = ({
   isRefetching,
   refetch,
 }) => {
-  const { isSuperAdmin } = useAccess()
+  const { canCreate } = useAccess()
   const openCreate = useVendorModalStore((s) => s.openCreate)
 
   return (
@@ -30,7 +30,7 @@ const VendorsHeader: FC<BaseHeaderProps> = ({
       title="Vendors"
       description="Keep every vendor you've hired in one place — who they are, what they do, and how to reach them."
       action={
-        isSuperAdmin && (
+        canCreate("vendors") && (
           <Button
             size="sm"
             variant="default"
