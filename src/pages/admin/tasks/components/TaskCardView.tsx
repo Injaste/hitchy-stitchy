@@ -122,7 +122,8 @@ const TaskCardView: FC<TaskCardViewProps> = ({
         <div className="flex items-start gap-2.5 pr-6">
           <Button
             onClick={onToggle}
-            className="group/task-button-hover relative z-10 shrink-0 items-start -ml-3 -mr-3.5 h-fit"
+            data-card-action
+            className="group/task-button-hover shrink-0 items-start -ml-3 -mr-3.5 h-fit"
             variant="empty"
           >
             <TaskStatusIcon

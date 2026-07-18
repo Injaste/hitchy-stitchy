@@ -288,6 +288,19 @@
   }
 }
 
+/* ── Interactive-card actions ────────────────────────── */
+/* A card marks its whole-card click target with data-card-hit — an absolute,
+   z-0 overlay button. Any control inside that needs its OWN click (an action
+   button, a link, a menu) marks itself data-card-action to sit above that
+   overlay. Pairs with the data-card-hit :active guard in card.tsx, and spares
+   authors re-deriving `relative z-10` per control — forgetting it turns the
+   control (or the blank space around it) into a dead zone that recoils the
+   card but never opens it. */
+[data-card-action] {
+  position: relative;
+  z-index: 10;
+}
+
 /* ── dnd-kit drag clone ──────────────────────────────── */
 /* The floating clone is stamped with data-dnd-dragging.
    Force full opacity (clone inherits data-dragging → Tailwind dims it to 50%),

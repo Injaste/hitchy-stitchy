@@ -25,15 +25,21 @@ interface VendorCardProps {
 
 /** One contact row. Always renders its icon — a missing value reads as a dimmed
  *  em-dash rather than vanishing, so every card keeps the same two rows and the
- *  grid doesn't ripple as vendors gain or lose details. */
+ *  grid doesn't ripple as vendors gain or lose details.
+ *
+ *  Dimming is via text-colour alpha, NOT element opacity: opacity < 1 forms a
+ *  stacking context, which would float the placeholder line above the card's
+ *  z-0 hit button and make that row a dead zone (the card recoils but won't
+ *  open). Colour alpha dims the icon (currentColor) and text identically with no
+ *  stacking context. */
 const ContactLine: FC<{ icon: LucideIcon; value: string }> = ({
   icon: Icon,
   value,
 }) => (
   <p
     className={cn(
-      "flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground",
-      !value && "opacity-50",
+      "flex min-w-0 items-center gap-1.5 text-sm",
+      value ? "text-muted-foreground" : "text-muted-foreground/50",
     )}
   >
     <Icon className="size-3.5 shrink-0" />
@@ -64,8 +70,8 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
     >
       {/* Whole-card hit target as a real button — keyboard focusable and
           labelled, unlike an onClick on the Card div. It paints over the static
-          content (positioned, z-0), so anything that needs its own click has to
-          out-stack it — see the action row's z-10 below. */}
+          content (positioned, z-0), so anything that needs its own click marks
+          itself data-card-action to sit above it (see the action row below). */}
       <button
         onClick={() => onOpen(vendor)}
         aria-label={vendor.name}
@@ -98,15 +104,14 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
 
         {/* Reach-them actions only — the card itself opens the vendor, so an
             Edit button would just duplicate that. Hidden outright when there's
-            nothing to reach.
-            z-10 lifts the row above the whole-card button so these take their
-            own clicks (no stopPropagation needed — the button is a sibling, not
-            an ancestor). Each hands off to another app, so they open in a new
-            tab and the admin never navigates away mid-edit. */}
+            nothing to reach. data-card-action sits each button above the
+            whole-card hit target (see index.css) so it takes its own click,
+            while the blank gaps between them stay part of the card and open it.
+            Each button opens in a new tab so the admin never leaves mid-edit. */}
         {hasContact && (
-          <div className="relative z-10 mt-auto flex items-center gap-2 pt-4">
+          <div className="mt-auto flex items-center gap-2 pt-4">
             {waHref && (
-              <Button size="icon" variant="outline" asChild>
+              <Button size="icon" variant="outline" asChild data-card-action>
                 <a
                   href={waHref}
                   target="_blank"
@@ -118,7 +123,7 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
               </Button>
             )}
             {phoneHref && (
-              <Button size="icon" variant="outline" asChild>
+              <Button size="icon" variant="outline" asChild data-card-action>
                 <a
                   href={`tel:${phoneHref}`}
                   target="_blank"
@@ -130,7 +135,7 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
               </Button>
             )}
             {vendor.email && (
-              <Button size="icon" variant="outline" asChild>
+              <Button size="icon" variant="outline" asChild data-card-action>
                 <a
                   href={`mailto:${vendor.email}`}
                   target="_blank"

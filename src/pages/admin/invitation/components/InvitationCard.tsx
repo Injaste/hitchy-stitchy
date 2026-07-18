@@ -64,8 +64,8 @@ const InvitationCard = ({
       )}
     >
       {/* Whole-card hit target as a real button — focusable and labelled, and it
-          paints over the static content, so the action row below out-stacks it
-          with z-10 rather than each control opting out of propagation. */}
+          paints over the static content, so each control below marks itself
+          data-card-action to sit above it rather than opting out of propagation. */}
       <button
         onClick={onEdit}
         aria-label={label}
@@ -128,14 +128,15 @@ const InvitationCard = ({
             <RelativeTime date={stampDate} prefix={stampPrefix} />
           )}
         </div>
-        {/* z-10 lifts the row above the whole-card button so each control takes
-            its own click — the button is a sibling, not an ancestor, so there's
-            nothing left to stop propagating. */}
-        <div className="relative z-10 flex items-center gap-2 mt-4">
+        {/* data-card-action sits each control above the whole-card hit button
+            (see index.css) so it takes its own click, while the gaps between
+            them stay part of the card and open it. */}
+        <div className="mt-4 flex items-center gap-2">
           <Button
             size="sm"
             variant={isLive ? "default" : "outline"}
             onClick={onEdit}
+            data-card-action
             className="flex-1 gap-1.5"
           >
             <Pencil className="w-3.5 h-3.5" />
@@ -143,19 +144,21 @@ const InvitationCard = ({
           </Button>
           {isLive && (
             <>
-              <CopyLinksMenu
-                compact
-                slug={slug}
-                pages={[
-                  {
-                    label,
-                    linkSlug: invitation.link_slug,
-                    mode: invitation.rsvp_mode,
-                    code: invitation.private_code,
-                  },
-                ]}
-              />
-              <Button size="icon" variant="outline" asChild>
+              <span data-card-action>
+                <CopyLinksMenu
+                  compact
+                  slug={slug}
+                  pages={[
+                    {
+                      label,
+                      linkSlug: invitation.link_slug,
+                      mode: invitation.rsvp_mode,
+                      code: invitation.private_code,
+                    },
+                  ]}
+                />
+              </span>
+              <Button size="icon" variant="outline" asChild data-card-action>
                 <Link to={path} target="_blank" aria-label="Open live page">
                   <ExternalLink />
                 </Link>
