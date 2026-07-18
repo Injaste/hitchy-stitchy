@@ -94,9 +94,15 @@
 --       published_at <= now() so scheduled pages stay hidden until they're due.
 --   20260717000001_vendor_crm                         — event_vendors rebuilt as
 --       a contact directory (the 20260605000002 drop left a stub in this file
---       with unknown columns; it's defined for real here). Super-admin-only RLS
---       + create_/update_/delete_vendor. No money columns, no created_by; not
---       yet an event_resources entry or a plan feature.
+--       with unknown columns; it's defined for real here). No money columns, no
+--       created_by.
+--   20260718000001-8_vendor_access_and_plan_gate      — vendors becomes a
+--       DELEGATED, Pro-gated resource: Admin=full / Team=none (keyed into the
+--       create_event Admin seed + backfilled), RLS + write RPCs move onto
+--       has_event_permission('vendors',…), a `vendors` event_resources catalog
+--       entry, and a can_use_vendors plan feature (Pro+; plan_within_limits /
+--       get_bootstrap_context / assert_plan — see migrations, not snapshotted
+--       here per the plan-machinery gap above).
 -- =============================================================================
 
 
@@ -898,10 +904,11 @@ CREATE POLICY event_timelines_select ON public.event_timelines
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
--- Super-admin only — the couple's private list [20260717000001].
+-- Delegated resource — Admin manages fully, Team none; reads gate on the
+-- 'vendors' permission (super-admins pass via bypass) [20260718000008].
 CREATE POLICY event_vendors_select ON public.event_vendors
   FOR SELECT TO authenticated
-  USING (is_super_admin_member(event_id));
+  USING (has_event_permission(event_id, 'vendors', 'read'));
 
 CREATE POLICY events_select ON public.events
   FOR SELECT TO authenticated
@@ -1164,12 +1171,12 @@ BEGIN
   VALUES (p_slug, p_name)
   RETURNING events.id, events.slug INTO v_event_id, v_slug;
 
-  -- No budget grant — budget is super-admin only (the couple), enforced by the
-  -- RPCs/RLS. The `budget` resource stays in the catalog for discovery.
+  -- No budget/gifts grant — those are super-admin only (the couple). Vendors, by
+  -- contrast, is a DELEGATED resource: Admin=full, Team=none [20260718000004].
   INSERT INTO event_access_groups (event_id, name, permissions)
   VALUES (v_event_id, 'Admin', '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
-    "members":"full","access":"read"
+    "vendors":"full","members":"full","access":"read"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_admin_id;
 
@@ -1878,11 +1885,12 @@ $$;
 
 
 -- =============================================================================
--- VENDOR CRM — RPCs  [added migration 20260717000001]
--- Super-admin only, on the bypass alone: vendors is not in the event_resources
--- catalog and has no plan feature yet, so there are no assert_plan(...) calls.
--- create/update carry assert_event_writable; delete stays ungated so a dormant
--- module on a downgraded event is still cleanable (same rule as 20260618000107).
+-- VENDOR CRM — RPCs  [added 20260717000001; delegated + Pro-gated 20260718000005-7]
+-- Delegated resource (Admin=full, Team=none), so writes gate on
+-- has_event_permission('vendors', <action>) — super-admins pass via bypass.
+-- Vendors is a Pro feature: create/update carry assert_plan('vendors') after
+-- assert_event_writable; delete stays ungated so a dormant module on a downgraded
+-- event is still cleanable (same rule as 20260618000107).
 -- =============================================================================
 
 CREATE OR REPLACE FUNCTION public.create_vendor(
@@ -1903,11 +1911,12 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'vendors', 'create') THEN
     RAISE EXCEPTION 'Insufficient permission to add vendors';
   END IF;
 
   PERFORM assert_event_writable(p_event_id);
+  PERFORM assert_plan(p_event_id, 'vendors');
 
   IF btrim(COALESCE(p_name, '')) = '' THEN
     RAISE EXCEPTION 'A vendor name is required';
@@ -1958,11 +1967,12 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'vendors', 'update') THEN
     RAISE EXCEPTION 'Insufficient permission to update vendors';
   END IF;
 
   PERFORM assert_event_writable(p_event_id);
+  PERFORM assert_plan(p_event_id, 'vendors');
 
   IF btrim(COALESCE(p_name, '')) = '' THEN
     RAISE EXCEPTION 'A vendor name is required';
@@ -2006,10 +2016,11 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'vendors', 'delete') THEN
     RAISE EXCEPTION 'Insufficient permission to remove vendors';
   END IF;
 
+  -- No assert_event_writable / assert_plan — deletes stay cleanable on downgrade.
   DELETE FROM event_vendors WHERE id = p_id;
 END;
 $$;
