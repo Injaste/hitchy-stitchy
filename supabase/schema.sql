@@ -615,6 +615,7 @@ CREATE TABLE public.event_vendors (
   phone         text,                   -- E.164 ("+6591234567") — the only form wa.me/tel: reliably accept
   email         text,
   notes         text,
+  day_ids       uuid[]      NOT NULL DEFAULT '{}',  -- which event_days this vendor works (0..N); array, no FK [20260718000009]
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT now(),
 
@@ -1899,12 +1900,14 @@ CREATE OR REPLACE FUNCTION public.create_vendor(
   p_category      text,
   p_phone         text DEFAULT NULL,
   p_email         text DEFAULT NULL,
-  p_notes         text DEFAULT NULL
+  p_notes         text DEFAULT NULL,
+  p_day_ids       uuid[] DEFAULT '{}'
 )
 RETURNS event_vendors LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_caller event_members;
-  v_row    event_vendors;
+  v_caller  event_members;
+  v_row     event_vendors;
+  v_day_ids uuid[];
 BEGIN
   v_caller := get_current_member(p_event_id);
   IF v_caller.id IS NULL THEN
@@ -1926,12 +1929,21 @@ BEGIN
     RAISE EXCEPTION 'A category is required';
   END IF;
 
+  -- Dedupe + validate the day tags: every id must be a day of this event.
+  v_day_ids := ARRAY(SELECT DISTINCT d FROM unnest(COALESCE(p_day_ids, '{}'::uuid[])) AS d);
+  IF EXISTS (
+    SELECT 1 FROM unnest(v_day_ids) AS d
+    WHERE NOT EXISTS (SELECT 1 FROM event_days WHERE id = d AND event_id = p_event_id)
+  ) THEN
+    RAISE EXCEPTION 'A selected day does not belong to this event';
+  END IF;
+
   INSERT INTO event_vendors (
-    event_id, name, category, phone, email, notes
+    event_id, name, category, phone, email, notes, day_ids
   )
   VALUES (
     p_event_id, btrim(p_name), btrim(p_category),
-    p_phone, p_email, p_notes
+    p_phone, p_email, p_notes, v_day_ids
   )
   RETURNING * INTO v_row;
 
@@ -1946,12 +1958,14 @@ CREATE OR REPLACE FUNCTION public.update_vendor(
   p_category      text,
   p_phone         text DEFAULT NULL,
   p_email         text DEFAULT NULL,
-  p_notes         text DEFAULT NULL
+  p_notes         text DEFAULT NULL,
+  p_day_ids       uuid[] DEFAULT '{}'
 )
 RETURNS event_vendors LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_caller event_members;
-  v_row    event_vendors;
+  v_caller  event_members;
+  v_row     event_vendors;
+  v_day_ids uuid[];
 BEGIN
   SELECT * INTO v_row FROM event_vendors WHERE id = p_id;
   IF NOT FOUND THEN
@@ -1982,13 +1996,23 @@ BEGIN
     RAISE EXCEPTION 'A category is required';
   END IF;
 
+  -- Dedupe + validate the day tags: every id must be a day of this event.
+  v_day_ids := ARRAY(SELECT DISTINCT d FROM unnest(COALESCE(p_day_ids, '{}'::uuid[])) AS d);
+  IF EXISTS (
+    SELECT 1 FROM unnest(v_day_ids) AS d
+    WHERE NOT EXISTS (SELECT 1 FROM event_days WHERE id = d AND event_id = p_event_id)
+  ) THEN
+    RAISE EXCEPTION 'A selected day does not belong to this event';
+  END IF;
+
   UPDATE event_vendors
   SET
     name          = btrim(p_name),
     category      = btrim(p_category),
     phone         = p_phone,
     email         = p_email,
-    notes         = p_notes
+    notes         = p_notes,
+    day_ids       = v_day_ids
   WHERE id = p_id
   RETURNING * INTO v_row;
 
@@ -2278,6 +2302,11 @@ BEGIN
   IF v_invitations > 0 THEN
     RAISE EXCEPTION 'Remove this day''s % invitation(s) before deleting it', v_invitations;
   END IF;
+
+  -- Vendor day-tags aren't owned data — scrub, don't block [20260718000012].
+  UPDATE event_vendors
+  SET day_ids = array_remove(day_ids, p_id)
+  WHERE event_id = p_event_id AND p_id = ANY(day_ids);
 
   DELETE FROM event_days WHERE id = p_id AND event_id = p_event_id;
   IF NOT FOUND THEN
