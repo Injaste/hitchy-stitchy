@@ -20,6 +20,7 @@ import { formatPhone, whatsAppHref } from "@/lib/phone";
 import { useAccess } from "../../hooks/useAccess";
 import { useVendorModalStore } from "../hooks/useVendorModalStore";
 import { categoryMeta } from "../utils";
+import VendorDays from "../components/VendorDays";
 
 /** A contact line plus the ways to use it. Mirrors the card: the icon always
  *  renders, and a missing value reads as a dimmed em-dash. */
@@ -73,9 +74,12 @@ const VendorDetailModal = () => {
             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               <CategoryIcon className="size-5 text-primary" />
             </div>
-            <div className="min-w-0 space-y-1">
+            <div className="min-w-0 space-y-1.5">
               <DialogTitle className="truncate">{vendor.name}</DialogTitle>
-              <Badge variant="secondary">{category.label}</Badge>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge variant="secondary">{category.label}</Badge>
+                <VendorDays dayIds={vendor.day_ids} />
+              </div>
             </div>
           </div>
         </DialogHeader>

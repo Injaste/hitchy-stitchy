@@ -10,7 +10,7 @@ export interface VendorsData {
 }
 
 const VENDOR_FIELDS =
-  "id, event_id, name, category, phone, email, notes, created_at, updated_at";
+  "id, event_id, name, category, phone, email, notes, day_ids, created_at, updated_at";
 
 export async function fetchVendors(eventId: string): Promise<VendorsData> {
   const { data, error } = await supabase
@@ -34,6 +34,7 @@ export async function createVendor(
     p_phone: payload.phone,
     p_email: payload.email,
     p_notes: payload.notes,
+    p_day_ids: payload.day_ids,
   });
 
   if (error) throw new Error(error.message);
@@ -49,6 +50,7 @@ export async function updateVendor(payload: UpdateVendorPayload): Promise<Vendor
     p_phone: payload.phone,
     p_email: payload.email,
     p_notes: payload.notes,
+    p_day_ids: payload.day_ids,
   });
 
   if (error) throw new Error(error.message);

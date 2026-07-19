@@ -21,6 +21,7 @@ const VendorEditModal = () => {
           phone: selectedItem.phone,
           email: selectedItem.email,
           notes: selectedItem.notes,
+          day_ids: selectedItem.day_ids,
         }
       : undefined,
     onSubmit: (values) => {

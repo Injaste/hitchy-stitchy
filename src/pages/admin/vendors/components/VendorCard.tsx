@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { formatPhone, whatsAppHref } from "@/lib/phone";
 
 import { categoryMeta } from "../utils";
+import VendorDays from "./VendorDays";
 import type { Vendor } from "../types";
 
 interface VendorCardProps {
@@ -95,6 +96,8 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
           <ContactLine icon={Phone} value={formatPhone(vendor.phone)} />
           <ContactLine icon={Mail} value={vendor.email ?? ""} />
         </div>
+
+        <VendorDays dayIds={vendor.day_ids} className="mt-2" />
 
         {vendor.notes && (
           <CardDescription className="mt-2 line-clamp-2">

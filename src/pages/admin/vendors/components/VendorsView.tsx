@@ -7,9 +7,12 @@ import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 import NoResults from "@/components/custom/states/no-results";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { itemFadeUp } from "@/lib/animations";
 
 import { useAccess } from "../../hooks/useAccess";
+import { useActiveEventDay } from "../../hooks/useActiveEventDay";
+import { dayLabel } from "../../days/utils";
 import { useVendorModalStore } from "../hooks/useVendorModalStore";
 import { categoryMeta, sortVendors } from "../utils";
 import type { VendorsData } from "../api";
@@ -37,14 +40,19 @@ const VendorsView: FC<VendorsViewProps> = ({
   const openCreate = useVendorModalStore((s) => s.openCreate);
   const openDetail = useVendorModalStore((s) => s.openDetail);
   const { canCreate } = useAccess();
+  const { days, multiDay } = useActiveEventDay();
 
   const [search, setSearch] = useState("");
+  // Local day filter (null = all). Independent of the global active-day rail —
+  // a vendor can span days, so this narrows the directory rather than scoping it.
+  const [dayFilter, setDayFilter] = useState<string | null>(null);
 
   const vendors = data?.vendors ?? [];
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const matched = vendors.filter((vendor) => {
+      if (dayFilter && !vendor.day_ids.includes(dayFilter)) return false;
       if (!q) return true;
       return (
         vendor.name.toLowerCase().includes(q) ||
@@ -55,7 +63,7 @@ const VendorsView: FC<VendorsViewProps> = ({
       );
     });
     return sortVendors(matched);
-  }, [vendors, search]);
+  }, [vendors, search, dayFilter]);
 
   // No results after search — blur-swap against the grid (mirrors MembersView).
   const renderContent = () => {
@@ -152,6 +160,34 @@ const VendorsView: FC<VendorsViewProps> = ({
               isError={isError}
             />
           </div>
+
+          {/* Day filter — only on multi-day events, where a vendor roster splits
+              by day. "All days" clears it; tapping the active chip also clears. */}
+          {multiDay && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Button
+                size="sm"
+                variant={dayFilter === null ? "default" : "outline"}
+                onClick={() => setDayFilter(null)}
+                className="rounded-full"
+              >
+                All days
+              </Button>
+              {days.map((day, index) => (
+                <Button
+                  key={day.id}
+                  size="sm"
+                  variant={dayFilter === day.id ? "default" : "outline"}
+                  onClick={() =>
+                    setDayFilter((current) => (current === day.id ? null : day.id))
+                  }
+                  className="rounded-full"
+                >
+                  {dayLabel(day.label, index)}
+                </Button>
+              ))}
+            </div>
+          )}
 
           <AnimatePresence mode="wait" initial={false}>
             {renderContent()}

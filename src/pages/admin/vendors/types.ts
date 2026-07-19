@@ -2,13 +2,16 @@ import { z } from "zod";
 
 import { isValidPhone } from "@/lib/phone";
 
-// Vendor CRM — a couple-side directory of who they hired (photographer, banquet,
-// florist, emcee…). The vendor is a *contact card*; money lives in Budget and
-// correlates by vendor_id, so there are no cost fields here. Super-admin only.
+// Vendor CRM — a directory of who they hired (photographer, banquet, florist,
+// emcee…). The vendor is a *contact card*; money lives in Budget and correlates
+// by vendor_id, so there are no cost fields here. A delegated resource (Admin
+// manages fully, Team none), gated on the Pro plan.
 //
-// Mirrors event_vendors [20260717000001]. `category` is a plain string: the FE
-// renders a known SG set and falls back for anything else (categoryMeta), so
-// loosening it to free-text later costs nothing. `phone` is E.164.
+// Mirrors event_vendors. `category` is a plain string: the FE renders a known SG
+// set and falls back for anything else (categoryMeta), so loosening it to
+// free-text later costs nothing. `phone` is E.164. `day_ids` are the event days
+// this vendor works — none / one / many (a photographer on both days is one
+// contact with two day ids) [20260718000009].
 
 export interface Vendor {
   id: string;
@@ -18,6 +21,7 @@ export interface Vendor {
   phone: string | null;
   email: string | null;
   notes: string | null;
+  day_ids: string[];
   created_at: string;
   updated_at: string;
 }
@@ -50,6 +54,9 @@ export const vendorFormSchema = z.object({
     })
     .transform((v) => (v ? v : null)),
   notes: optionalText(1000, "Notes are too long"),
+  // Which event days this vendor works. Validated server-side against the event's
+  // days; here it's just the selected set (may be empty).
+  day_ids: z.array(z.string()).default([]),
 });
 
 export type VendorFormValues = z.infer<typeof vendorFormSchema>;
