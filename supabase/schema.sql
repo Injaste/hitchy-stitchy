@@ -103,6 +103,15 @@
 --       entry, and a can_use_vendors plan feature (Pro+; plan_within_limits /
 --       get_bootstrap_context / assert_plan — see migrations, not snapshotted
 --       here per the plan-machinery gap above).
+--   20260718000013-15_expense_vendor_link                — event_expenses gains
+--       vendor_id -> event_vendors ON DELETE SET NULL; create_/update_expense
+--       take p_vendor_id (validated to the same event). A vendor's spend derives
+--       from its linked expenses; vendor_name is the label snapshot that survives
+--       a vendor delete.
+--   20260718000016_drop_stale_rpc_overloads              — adding params above
+--       created OVERLOADS (CREATE OR REPLACE only replaces the same signature),
+--       making old-arity calls ambiguous. The old signatures are dropped; only
+--       the definitions in this file remain. Change signatures with DROP+CREATE.
 -- =============================================================================
 
 
