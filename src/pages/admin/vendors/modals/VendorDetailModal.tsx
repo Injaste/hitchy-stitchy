@@ -1,6 +1,13 @@
 import type { FC } from "react";
 import { format, parseISO } from "date-fns";
-import { Calendar, History, Mail, Phone, PhoneCall, type LucideIcon } from "lucide-react";
+import {
+  Calendar,
+  History,
+  Mail,
+  Phone,
+  PhoneCall,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +28,7 @@ import { useAccess } from "../../hooks/useAccess";
 import { useVendorModalStore } from "../hooks/useVendorModalStore";
 import { categoryMeta } from "../utils";
 import VendorDays from "../components/VendorDays";
+import VendorSpend from "../components/VendorSpend";
 
 /** A contact line plus the ways to use it. Mirrors the card: the icon always
  *  renders, and a missing value reads as a dimmed em-dash. */
@@ -39,7 +47,9 @@ const ContactRow: FC<{
       <Icon className="size-3.5 shrink-0" />
       <span className="truncate">{value || "—"}</span>
     </span>
-    {value && <span className="flex shrink-0 items-center gap-1">{children}</span>}
+    {value && (
+      <span className="flex shrink-0 items-center gap-1">{children}</span>
+    )}
   </div>
 );
 
@@ -54,7 +64,7 @@ const VendorDetailModal = () => {
   const closeAll = useVendorModalStore((s) => s.closeAll);
   const openEdit = useVendorModalStore((s) => s.openEdit);
   const openDelete = useVendorModalStore((s) => s.openDelete);
-  const { canEdit } = useAccess();
+  const { canEdit, canRead } = useAccess();
 
   if (!selectedItem) return null;
 
@@ -75,7 +85,12 @@ const VendorDetailModal = () => {
               <CategoryIcon className="size-5 text-primary" />
             </div>
             <div className="min-w-0 space-y-1.5">
-              <DialogTitle className="truncate">{vendor.name}</DialogTitle>
+              {/* Wraps rather than truncates: `truncate` is overflow-hidden +
+                  nowrap, which both ellipsised long vendor names and clipped the
+                  descenders (g/p/y) off this display face. */}
+              <DialogTitle className="wrap-break-word">
+                {vendor.name}
+              </DialogTitle>
               <div className="flex flex-wrap items-center gap-1.5">
                 <Badge variant="secondary">{category.label}</Badge>
                 <VendorDays dayIds={vendor.day_ids} />
@@ -129,6 +144,11 @@ const VendorDetailModal = () => {
                 </Button>
               </ContactRow>
             </div>
+
+            {/* Money is couple-only while the vendor card itself is delegable to
+                Admins — so this whole section (query included) only mounts with
+                budget read rights. RLS is the real boundary; this is UX. */}
+            {canRead("budget") && <VendorSpend vendor={vendor} />}
 
             <div className="space-y-1.5">
               <p className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">

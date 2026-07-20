@@ -14,6 +14,10 @@ import { useAccess } from "../../hooks/useAccess";
 import { useActiveEventDay } from "../../hooks/useActiveEventDay";
 import { dayLabel } from "../../days/utils";
 import { useVendorModalStore } from "../hooks/useVendorModalStore";
+import {
+  useVendorDayFilter,
+  useValidVendorDayFilter,
+} from "../hooks/useVendorDayFilter";
 import { categoryMeta, sortVendors } from "../utils";
 import type { VendorsData } from "../api";
 
@@ -43,9 +47,11 @@ const VendorsView: FC<VendorsViewProps> = ({
   const { days, multiDay } = useActiveEventDay();
 
   const [search, setSearch] = useState("");
-  // Local day filter (null = all). Independent of the global active-day rail —
-  // a vendor can span days, so this narrows the directory rather than scoping it.
-  const [dayFilter, setDayFilter] = useState<string | null>(null);
+  // Day filter (null = all). Independent of the global active-day rail — a vendor
+  // can span days, so this narrows the directory rather than scoping it. Lives in
+  // a store because "Add expense" from a vendor reads it to guess the day.
+  const dayFilter = useValidVendorDayFilter();
+  const setDayFilter = useVendorDayFilter((s) => s.setDayId);
 
   const vendors = data?.vendors ?? [];
 
@@ -179,7 +185,7 @@ const VendorsView: FC<VendorsViewProps> = ({
                   size="sm"
                   variant={dayFilter === day.id ? "default" : "outline"}
                   onClick={() =>
-                    setDayFilter((current) => (current === day.id ? null : day.id))
+                    setDayFilter(dayFilter === day.id ? null : day.id)
                   }
                   className="rounded-full"
                 >

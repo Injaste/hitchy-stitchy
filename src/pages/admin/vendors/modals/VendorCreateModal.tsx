@@ -3,6 +3,7 @@ import { Store } from "lucide-react"
 import { FormDialog, FormFooter, FormHeader } from "@/components/custom/form"
 
 import { useVendorModalStore } from "../hooks/useVendorModalStore"
+import { useValidVendorDayFilter } from "../hooks/useVendorDayFilter"
 import { useVendorMutations } from "../queries"
 
 import VendorForm, { useVendorForm } from "./VendorForm"
@@ -13,8 +14,13 @@ const VendorCreateModal = () => {
   const isCreateMore = useVendorModalStore((s) => s.isCreateMore)
   const setIsCreateMore = useVendorModalStore((s) => s.setIsCreateMore)
   const { create } = useVendorMutations()
+  // Adding a vendor while the list is filtered to a day: book them for that day.
+  // Without this the new vendor lands untagged and immediately DISAPPEARS from
+  // the view you created it in, which reads as the save having failed.
+  const dayFilter = useValidVendorDayFilter()
 
   const form = useVendorForm({
+    defaultValues: dayFilter ? { day_ids: [dayFilter] } : undefined,
     onSubmit: (values) => create.mutate(values),
   })
 
