@@ -7,9 +7,12 @@ import {
   TextField,
   TextareaField,
   DateField,
+  SelectField,
   FormBody,
 } from "@/components/custom/form";
 
+import { useVendorsQuery } from "../../vendors/queries";
+import { sortVendors } from "../../vendors/utils";
 import { expenseFormSchema, type ExpenseFormValues } from "../types";
 
 // Money is cents at most — drop any digits past 2 decimals as they're typed
@@ -43,7 +46,7 @@ export const useExpenseForm = ({
   useForm({
     defaultValues: {
       item: defaultValues?.item ?? "",
-      vendor_name: defaultValues?.vendor_name ?? "",
+      vendor_id: defaultValues?.vendor_id ?? null,
       payer: defaultValues?.payer ?? "",
       amount: defaultValues?.amount ?? 0,
       paid: defaultValues?.paid ?? 0,
@@ -64,26 +67,39 @@ interface ExpenseFormProps {
   autoFocusPaid?: boolean;
 }
 
-const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => (
-  <FormBody>
-    <FieldGroup>
-      <TextField
-        name="item"
-        label="Item"
-        placeholder="e.g. Hall buffet — 1,000 pax"
-      />
-      <TextField
-        name="vendor_name"
-        label="Vendor"
-        optional
-        placeholder="e.g. Sedap Catering"
-      />
-      <TextField
-        name="payer"
-        label="Paid by"
-        optional
-        placeholder="e.g. Bride's family"
-      />
+const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => {
+  const { data } = useVendorsQuery();
+  const vendorOptions = sortVendors(data?.vendors ?? []).map((vendor) => ({
+    value: vendor.id,
+    label: vendor.name,
+  }));
+
+  return (
+    <FormBody>
+      <FieldGroup>
+        <TextField
+          name="item"
+          label="Item"
+          placeholder="e.g. Hall buffet — 1,000 pax"
+        />
+        {/* Ties to a CRM vendor (or none) — no free-text, so a vendor's spend
+            derives cleanly from its linked expenses. */}
+        <SelectField
+          name="vendor_id"
+          label="Vendor"
+          optional
+          nullable
+          placeholder={
+            vendorOptions.length ? "Select a vendor" : "No vendors yet"
+          }
+          options={vendorOptions}
+        />
+        <TextField
+          name="payer"
+          label="Paid by"
+          optional
+          placeholder="e.g. Bride's family"
+        />
       <div className="grid grid-cols-2 gap-3">
         <TextField
           name="amount"
@@ -113,8 +129,9 @@ const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => (
         rows={2}
         placeholder="Deposit paid, balance on collection…"
       />
-    </FieldGroup>
-  </FormBody>
-);
+      </FieldGroup>
+    </FormBody>
+  );
+};
 
 export default ExpenseForm;

@@ -18,7 +18,7 @@ export interface BudgetData {
 }
 
 const EXPENSE_FIELDS =
-  "id, event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes, created_at, updated_at";
+  "id, event_id, budget_id, item, vendor_name, vendor_id, payer, amount, paid, due_at, notes, created_at, updated_at";
 
 export async function fetchBudget(eventId: string): Promise<BudgetData> {
   const [expensesRes, bucketsRes] = await Promise.all([
@@ -57,6 +57,7 @@ export async function createExpense(
     p_due_at: payload.due_at,
     p_notes: payload.notes,
     p_day_id: dayId,
+    p_vendor_id: payload.vendor_id,
   });
 
   if (error) throw new Error(error.message);
@@ -78,6 +79,7 @@ export async function updateExpense(
     p_due_at: payload.due_at,
     p_notes: payload.notes,
     p_day_id: dayId,
+    p_vendor_id: payload.vendor_id,
   });
 
   if (error) throw new Error(error.message);

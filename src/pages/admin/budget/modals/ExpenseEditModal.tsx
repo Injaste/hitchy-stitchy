@@ -7,6 +7,7 @@ import { FormDialog, FormHeader, SubmitButton } from "@/components/custom/form";
 
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore";
 import { useExpenseMutations } from "../queries";
+import { useVendorsQuery } from "../../vendors/queries";
 
 import ExpenseForm, { useExpenseForm } from "./ExpenseForm";
 
@@ -16,12 +17,13 @@ const ExpenseEditModal = () => {
   const closeAll = useExpenseModalStore((s) => s.closeAll);
   const openDeleteItem = useExpenseModalStore((s) => s.openDeleteItem);
   const { update } = useExpenseMutations();
+  const { data: vendorsData } = useVendorsQuery();
 
   const form = useExpenseForm({
     defaultValues: selectedItem
       ? {
           item: selectedItem.item,
-          vendor_name: selectedItem.vendor_name,
+          vendor_id: selectedItem.vendor_id,
           payer: selectedItem.payer,
           amount: selectedItem.amount,
           paid: selectedItem.paid,
@@ -35,6 +37,10 @@ const ExpenseEditModal = () => {
         event_id: selectedItem.event_id,
         id: selectedItem.id,
         ...values,
+        // Re-snapshot the label from the (possibly changed) vendor selection.
+        vendor_name:
+          vendorsData?.vendors.find((v) => v.id === values.vendor_id)?.name ??
+          null,
       });
     },
   });
