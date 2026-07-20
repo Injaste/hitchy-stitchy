@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useMutation } from "@/lib/query/useMutation";
@@ -25,6 +26,19 @@ export function useVendorsQuery() {
     queryFn: () => fetchVendors(eventId!),
     enabled: !!eventId && !!slug,
   });
+}
+
+/** id → vendor, for surfaces that store a `vendor_id` and need the vendor's
+ *  CURRENT name (budget rows today; the per-vendor spend view next). Rides the
+ *  cached vendors query, so it's free wherever the list is already loaded — and
+ *  reading the live name means renaming a vendor updates everywhere at once,
+ *  rather than leaving stale copies behind. */
+export function useVendorLookup() {
+  const { data } = useVendorsQuery();
+  return useMemo(
+    () => new Map((data?.vendors ?? []).map((vendor) => [vendor.id, vendor])),
+    [data],
+  );
 }
 
 export function useVendorMutations() {

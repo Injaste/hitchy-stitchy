@@ -7,6 +7,7 @@ import NotesTooltip from "@/components/custom/notes-tooltip";
 import DataTableRow from "@/components/custom/tables/data-table-row";
 import { formatSGD } from "@/lib/money";
 
+import { useVendorLookup } from "../../vendors/queries";
 import {
   dueInfo,
   statusOf,
@@ -42,10 +43,19 @@ interface ExpenseRowProps {
 }
 
 const ExpenseRow: FC<ExpenseRowProps> = memo(({ expense, onClick }) => {
+  const vendors = useVendorLookup();
   const status = statusOf(expense);
   const due = dueInfo(expense);
   const balance = expense.amount - expense.paid;
   const stripe = stripeColor(expense);
+
+  // Linked vendor wins and is read LIVE, so a rename shows through immediately.
+  // vendor_name is the fallback: the snapshot left behind when the vendor was
+  // deleted (ON DELETE SET NULL clears vendor_id), or a legacy free-text entry.
+  const vendorLabel =
+    (expense.vendor_id && vendors.get(expense.vendor_id)?.name) ||
+    expense.vendor_name ||
+    "—";
 
   return (
     <DataTableRow onClick={() => onClick(expense)} stripeColor={stripe}>
@@ -58,7 +68,7 @@ const ExpenseRow: FC<ExpenseRowProps> = memo(({ expense, onClick }) => {
           <NotesTooltip notes={expense.notes} />
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="min-w-0 truncate">{expense.vendor_name ?? "—"}</span>
+          <span className="min-w-0 truncate">{vendorLabel}</span>
           {expense.payer && (
             <PayerChip
               payer={expense.payer}

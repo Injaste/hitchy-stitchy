@@ -65,10 +65,7 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
     // h-full + the mt-auto action row below: cards in a grid row stretch to the
     // tallest, and the buttons stay on one line across all of them however much
     // contact/notes each vendor has.
-    <Card
-      variant="interactive"
-      className="group/vendor-card relative h-full"
-    >
+    <Card variant="interactive" className="group/vendor-card relative h-full">
       {/* Whole-card hit target as a real button — keyboard focusable and
           labelled, unlike an onClick on the Card div. It paints over the static
           content (positioned, z-0), so anything that needs its own click marks
@@ -92,12 +89,16 @@ const VendorCard: FC<VendorCardProps> = ({ vendor, onOpen }) => {
           {vendor.name}
         </h3>
 
+        {/* A full-width row of its own rather than riding the header: the header
+            is justify-between (icon left, badge right), so chips there wrap into
+            a narrow ragged column while the left half sits empty. Here they get
+            the whole card width and read in order — who / when / how to reach. */}
+        <VendorDays dayIds={vendor.day_ids} className="mb-2" />
+
         <div className="space-y-0.5">
           <ContactLine icon={Phone} value={formatPhone(vendor.phone)} />
           <ContactLine icon={Mail} value={vendor.email ?? ""} />
         </div>
-
-        <VendorDays dayIds={vendor.day_ids} className="mt-2" />
 
         {vendor.notes && (
           <CardDescription className="mt-2 line-clamp-2">

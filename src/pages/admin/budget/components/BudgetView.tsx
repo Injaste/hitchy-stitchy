@@ -9,6 +9,7 @@ import { dayLabel } from "@/pages/admin/days/utils"
 
 import { useAccess } from "../../hooks/useAccess"
 import { useActiveEventDay } from "../../hooks/useActiveEventDay"
+import { useVendorLookup } from "../../vendors/queries"
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore"
 import {
   computeSummary,
@@ -47,6 +48,7 @@ const BudgetView: FC<BudgetViewProps> = ({
   const openCreate = useExpenseModalStore((s) => s.openCreate)
   const openEditItem = useExpenseModalStore((s) => s.openEditItem)
   const { canCreate } = useAccess()
+  const vendors = useVendorLookup()
 
   const { days, activeDayId, activeDay, activeIndex, multiDay } =
     useActiveEventDay()
@@ -77,10 +79,15 @@ const BudgetView: FC<BudgetViewProps> = ({
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     const matched = dayExpenses.filter((e) => {
+      // Match the vendor label the ROW actually shows — the live name for a
+      // linked vendor, else the snapshot. Searching vendor_name alone would miss
+      // a renamed vendor the user can plainly see on screen.
+      const vendorLabel =
+        (e.vendor_id && vendors.get(e.vendor_id)?.name) || e.vendor_name || ""
       const matchesSearch =
         !q ||
         e.item.toLowerCase().includes(q) ||
-        (e.vendor_name ?? "").toLowerCase().includes(q) ||
+        vendorLabel.toLowerCase().includes(q) ||
         (e.payer ?? "").toLowerCase().includes(q)
       if (!matchesSearch) return false
 
@@ -90,7 +97,7 @@ const BudgetView: FC<BudgetViewProps> = ({
       return true
     })
     return sortExpenses(matched)
-  }, [dayExpenses, search, filter])
+  }, [dayExpenses, search, filter, vendors])
 
   const renderBody = () => {
     if (isLoading) {
