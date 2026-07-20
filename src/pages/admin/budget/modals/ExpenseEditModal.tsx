@@ -7,7 +7,6 @@ import { FormDialog, FormHeader, SubmitButton } from "@/components/custom/form";
 
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore";
 import { useBudgetQuery, useExpenseMutations } from "../queries";
-import { useVendorsQuery } from "../../vendors/queries";
 
 import ExpenseForm, { useExpenseForm } from "./ExpenseForm";
 
@@ -17,7 +16,6 @@ const ExpenseEditModal = () => {
   const closeAll = useExpenseModalStore((s) => s.closeAll);
   const openDeleteItem = useExpenseModalStore((s) => s.openDeleteItem);
   const { update } = useExpenseMutations();
-  const { data: vendorsData } = useVendorsQuery();
   const { data: budgetData } = useBudgetQuery();
 
   // The expense's own day, resolved through its bucket. Seeds the Day select so
@@ -47,10 +45,6 @@ const ExpenseEditModal = () => {
         event_id: selectedItem.event_id,
         id: selectedItem.id,
         ...values,
-        // Re-snapshot the label from the (possibly changed) vendor selection.
-        vendor_name:
-          vendorsData?.vendors.find((v) => v.id === values.vendor_id)?.name ??
-          null,
       });
     },
   });

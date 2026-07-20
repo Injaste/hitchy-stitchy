@@ -17,8 +17,6 @@ export interface Expense {
   /** The (event, day) bucket this expense is filed under — maps to a day via the buckets list. */
   budget_id: string
   item: string
-  /** Snapshot label of the linked vendor (or a legacy free-text name). */
-  vendor_name: string | null
   /** Link to a CRM vendor; a vendor's spend derives from its linked expenses. */
   vendor_id: string | null
   payer: string | null
@@ -34,7 +32,7 @@ export const expenseFormSchema = z
   .object({
     item: z.string().min(1, "Item is required").max(200, "Item is too long"),
     // The vendor is picked from the CRM (a real vendor id) or left unset — no
-    // free-text. The snapshot label (vendor_name) is resolved from this at submit.
+    // free-text, so the name is always read live and a rename shows through.
     vendor_id: z.string().nullable(),
     // Which day's budget bucket this expense files under. Normally null — the
     // Budget page takes the day from its day tabs. It's only surfaced as a field
@@ -74,11 +72,7 @@ export interface BudgetBucket {
   budget_total: number | null
 }
 
-// vendor_name isn't a form field — it's the snapshot the modal resolves from the
-// selected vendor_id (so the label survives a vendor delete, which nulls vendor_id).
-export interface CreateExpensePayload extends ExpenseFormValues {
-  vendor_name: string | null
-}
+export type CreateExpensePayload = ExpenseFormValues
 
 export interface UpdateExpensePayload extends CreateExpensePayload {
   event_id: string

@@ -16,8 +16,10 @@ keep in sync. The two correlate via `vendor_id`.
   phone, email, notes, timestamps`. No cost/deposit/balance, no
   `created_by`, no `day_id`.
 - **`event_expenses`** — add `vendor_id uuid → event_vendors(id) ON DELETE SET
-  NULL` (deleting a vendor unlinks its expenses, keeps them). Existing free-text
-  `vendor_name` stays as a fallback for un-linked expenses.
+  NULL` (deleting a vendor unlinks its expenses, keeps them). The old free-text
+  `vendor_name` is **dropped** [`20260720000001-03`] — the field is a hard
+  `vendor_id` dropdown now, so an unlinked expense simply shows no vendor and the
+  delete modal states that up front.
 - A vendor's **cost / paid / balance is derived** from its linked expenses (live
   sum), never stored. Edit an expense → the vendor's total updates automatically.
 

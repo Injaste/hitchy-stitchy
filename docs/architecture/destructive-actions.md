@@ -20,6 +20,7 @@ How deletes are gated, tiered by consequence.
 | Delete guest | `delete_guest` | re-addable | — | ✅ |
 | Delete task | `delete_task` | no (hard) | — | ✅ |
 | Delete timeline item | `delete_timeline` | no (hard) | — | ✅ |
+| Delete vendor | `delete_vendor` | no (hard) | — | ✅ |
 | Delete member | `delete_member` | re-invitable | ✅ | ✅ |
 | Delete theme | `delete_theme` | no (hard) | ✅ | ✅ |
 | Archive tasks | `archive_tasks` | yes (flag) | — | — (already reversible) |

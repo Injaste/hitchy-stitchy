@@ -49,13 +49,11 @@ const ExpenseRow: FC<ExpenseRowProps> = memo(({ expense, onClick }) => {
   const balance = expense.amount - expense.paid;
   const stripe = stripeColor(expense);
 
-  // Linked vendor wins and is read LIVE, so a rename shows through immediately.
-  // vendor_name is the fallback: the snapshot left behind when the vendor was
-  // deleted (ON DELETE SET NULL clears vendor_id), or a legacy free-text entry.
+  // Always read LIVE off the link, so a rename shows through immediately. Nothing
+  // is cached on the expense: deleting a vendor clears vendor_id (ON DELETE SET
+  // NULL) and the row falls back to "—", which the delete modal warns about.
   const vendorLabel =
-    (expense.vendor_id && vendors.get(expense.vendor_id)?.name) ||
-    expense.vendor_name ||
-    "—";
+    (expense.vendor_id && vendors.get(expense.vendor_id)?.name) || "—";
 
   return (
     <DataTableRow onClick={() => onClick(expense)} stripeColor={stripe}>

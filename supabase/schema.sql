@@ -106,12 +106,18 @@
 --   20260718000013-15_expense_vendor_link                — event_expenses gains
 --       vendor_id -> event_vendors ON DELETE SET NULL; create_/update_expense
 --       take p_vendor_id (validated to the same event). A vendor's spend derives
---       from its linked expenses; vendor_name is the label snapshot that survives
---       a vendor delete.
+--       from its linked expenses.
 --   20260718000016_drop_stale_rpc_overloads              — adding params above
 --       created OVERLOADS (CREATE OR REPLACE only replaces the same signature),
 --       making old-arity calls ambiguous. The old signatures are dropped; only
 --       the definitions in this file remain. Change signatures with DROP+CREATE.
+--   20260720000001-03_expenses_drop_vendor_name          — vendor_name (a snapshot
+--       of the linked vendor's name) is gone, along with p_vendor_name on
+--       create_/update_expense. The field is a hard vendor_id dropdown with no
+--       free-text, so there was no placeholder left to hold, and the snapshot was
+--       written at save time yet only read after a vendor delete — a rename in
+--       between made the one label it existed to produce the stale one. Deleting
+--       a vendor now just clears the link; the confirm modal states the impact.
 -- =============================================================================
 
 
@@ -336,7 +342,6 @@ CREATE TABLE public.event_expenses (
   event_id    uuid          NOT NULL,
   budget_id   uuid          NOT NULL,                 -- the (event,day) bucket [20260612000101]
   item        text          NOT NULL,
-  vendor_name text,                                    -- free-text label / snapshot of the linked vendor's name
   vendor_id   uuid,                                    -- optional link to a CRM vendor; spend derives from this [20260718000013]
   payer       text,
   amount      numeric(12,2) NOT NULL DEFAULT 0,
@@ -1563,16 +1568,15 @@ REVOKE EXECUTE ON FUNCTION public.get_or_create_budget_bucket(uuid, uuid)
   FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.create_expense(
-  p_event_id    uuid,
-  p_item        text,
-  p_vendor_name text    DEFAULT NULL,
-  p_payer       text    DEFAULT NULL,
-  p_amount      numeric DEFAULT 0,
-  p_paid        numeric DEFAULT 0,
-  p_due_at      date    DEFAULT NULL,
-  p_notes       text    DEFAULT NULL,
-  p_day_id      uuid    DEFAULT NULL,
-  p_vendor_id   uuid    DEFAULT NULL
+  p_event_id  uuid,
+  p_item      text,
+  p_payer     text    DEFAULT NULL,
+  p_amount    numeric DEFAULT 0,
+  p_paid      numeric DEFAULT 0,
+  p_due_at    date    DEFAULT NULL,
+  p_notes     text    DEFAULT NULL,
+  p_day_id    uuid    DEFAULT NULL,
+  p_vendor_id uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -1611,10 +1615,10 @@ BEGIN
   PERFORM assert_plan(p_event_id, 'expenses');   -- per-event expense ceiling [20260630000102]
 
   INSERT INTO event_expenses (
-    event_id, budget_id, item, vendor_name, vendor_id, payer, amount, paid, due_at, notes
+    event_id, budget_id, item, vendor_id, payer, amount, paid, due_at, notes
   )
   VALUES (
-    p_event_id, v_budget_id, btrim(p_item), p_vendor_name, p_vendor_id, p_payer,
+    p_event_id, v_budget_id, btrim(p_item), p_vendor_id, p_payer,
     COALESCE(p_amount, 0), COALESCE(p_paid, 0), p_due_at, p_notes
   )
   RETURNING * INTO v_row;
@@ -1624,17 +1628,16 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION public.update_expense(
-  p_event_id    uuid,
-  p_id          uuid,
-  p_item        text    DEFAULT NULL,
-  p_vendor_name text    DEFAULT NULL,
-  p_payer       text    DEFAULT NULL,
-  p_amount      numeric DEFAULT NULL,
-  p_paid        numeric DEFAULT NULL,
-  p_due_at      date    DEFAULT NULL,
-  p_notes       text    DEFAULT NULL,
-  p_day_id      uuid    DEFAULT NULL,
-  p_vendor_id   uuid    DEFAULT NULL
+  p_event_id  uuid,
+  p_id        uuid,
+  p_item      text    DEFAULT NULL,
+  p_payer     text    DEFAULT NULL,
+  p_amount    numeric DEFAULT NULL,
+  p_paid      numeric DEFAULT NULL,
+  p_due_at    date    DEFAULT NULL,
+  p_notes     text    DEFAULT NULL,
+  p_day_id    uuid    DEFAULT NULL,
+  p_vendor_id uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -1685,7 +1688,6 @@ BEGIN
   SET
     budget_id   = v_budget_id,
     item        = COALESCE(NULLIF(btrim(p_item), ''), item),
-    vendor_name = p_vendor_name,
     vendor_id   = p_vendor_id,
     payer       = p_payer,
     amount      = v_amount,

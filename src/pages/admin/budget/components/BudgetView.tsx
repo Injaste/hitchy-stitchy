@@ -79,11 +79,9 @@ const BudgetView: FC<BudgetViewProps> = ({
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     const matched = dayExpenses.filter((e) => {
-      // Match the vendor label the ROW actually shows — the live name for a
-      // linked vendor, else the snapshot. Searching vendor_name alone would miss
-      // a renamed vendor the user can plainly see on screen.
-      const vendorLabel =
-        (e.vendor_id && vendors.get(e.vendor_id)?.name) || e.vendor_name || ""
+      // Match the vendor label the ROW actually shows — resolved live, so a
+      // renamed vendor is findable by the name that's on screen.
+      const vendorLabel = (e.vendor_id && vendors.get(e.vendor_id)?.name) || ""
       const matchesSearch =
         !q ||
         e.item.toLowerCase().includes(q) ||
