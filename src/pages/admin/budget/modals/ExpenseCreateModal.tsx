@@ -4,7 +4,7 @@ import { FormDialog, FormFooter, FormHeader } from "@/components/custom/form";
 
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore";
 import { useExpenseMutations } from "../queries";
-import { useVendorsQuery } from "../../vendors/queries";
+import { useVendorLookup } from "../../vendors/queries";
 
 import ExpenseForm, { useExpenseForm } from "./ExpenseForm";
 
@@ -14,17 +14,24 @@ const ExpenseCreateModal = () => {
   const isCreateMore = useExpenseModalStore((s) => s.isCreateMore);
   const setIsCreateMore = useExpenseModalStore((s) => s.setIsCreateMore);
   const { create } = useExpenseMutations();
-  const { data: vendorsData } = useVendorsQuery();
+  const vendors = useVendorLookup();
+  // Set when opened from a vendor's detail: pre-link that vendor and its likely
+  // day (the caller works the day out), and surface the Day select since there
+  // are no day tabs over there to imply one.
+  const createVendorId = useExpenseModalStore((s) => s.createVendorId);
+  const createDayId = useExpenseModalStore((s) => s.createDayId);
 
   const form = useExpenseForm({
+    defaultValues: createVendorId
+      ? { vendor_id: createVendorId, day_id: createDayId }
+      : undefined,
     // Snapshot the picked vendor's name so the label survives a vendor delete
     // (which nulls vendor_id via ON DELETE SET NULL).
     onSubmit: (values) =>
       create.mutate({
         ...values,
         vendor_name:
-          vendorsData?.vendors.find((v) => v.id === values.vendor_id)?.name ??
-          null,
+          (values.vendor_id && vendors.get(values.vendor_id)?.name) || null,
       }),
   });
 
@@ -41,7 +48,7 @@ const ExpenseCreateModal = () => {
     >
       <FormHeader icon={<Wallet className="size-4" />} title="Add expense" />
 
-      <ExpenseForm />
+      <ExpenseForm showDay={!!createVendorId} />
 
       <FormFooter
         onCancel={closeAll}

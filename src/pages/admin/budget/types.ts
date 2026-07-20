@@ -36,6 +36,11 @@ export const expenseFormSchema = z
     // The vendor is picked from the CRM (a real vendor id) or left unset — no
     // free-text. The snapshot label (vendor_name) is resolved from this at submit.
     vendor_id: z.string().nullable(),
+    // Which day's budget bucket this expense files under. Normally null — the
+    // Budget page takes the day from its day tabs. It's only surfaced as a field
+    // when the modal is opened somewhere with no day context (a vendor's detail),
+    // where guessing the ambient day would be surprising.
+    day_id: z.string().nullable(),
     payer: z
       .string()
       .max(100, "Name is too long")

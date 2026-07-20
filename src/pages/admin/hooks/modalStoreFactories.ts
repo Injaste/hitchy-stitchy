@@ -1,5 +1,10 @@
 import { create } from "zustand";
 
+/** How long a dialog takes to animate out — selectedItem (and any extendedReset)
+ *  is cleared only after the modal has visibly gone, so the content doesn't blank
+ *  out mid-exit. */
+export const MODAL_EXIT_MS = 200;
+
 interface DisclosureState {
   isOpen: boolean;
   open: () => void;
@@ -78,7 +83,7 @@ export function createCrudModalStore<T, U extends object = {}>(
           setTimeout(() => {
             set({ selectedItem: null } as Partial<ModalState<T> & U>);
             get().extendedReset?.();
-          }, 200);
+          }, MODAL_EXIT_MS);
         },
 
         ...(additionalState ? additionalState(set, get) : {}),

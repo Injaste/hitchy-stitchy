@@ -6,10 +6,26 @@ interface ExpenseModalAddons {
   openEditItem: (item: Expense) => void
   /** Open the delete confirm directly on a row. */
   openDeleteItem: (item: Expense) => void
+  /** Vendor to pre-link, when the create modal was opened from a vendor's
+   *  detail rather than the Budget page. Null on the normal Budget flow. */
+  createVendorId: string | null
+  /** Day to pre-select alongside it. The caller works this out (a vendor knows
+   *  its own booked days and the list's filter); this store just carries it. */
+  createDayId: string | null
+  openCreateForVendor: (vendorId: string, dayId: string | null) => void
+  /** Run once when these modals close. Lets a caller that handed off to them
+   *  (the vendor detail) send the user back where they came from — without this
+   *  store needing to know what a vendor is. */
+  onCloseReturn: (() => void) | null
+  setOnCloseReturn: (fn: (() => void) | null) => void
+  extendedCloseAll: () => void
+  /** Clears the preset on close (the factory runs this alongside selectedItem),
+   *  so the next plain "Add expense" on Budget doesn't inherit a vendor. */
+  extendedReset: () => void
 }
 
 export const useExpenseModalStore = createCrudModalStore<Expense, ExpenseModalAddons>(
-  (set) => ({
+  (set, get) => ({
     openEditItem: (item) =>
       set({
         selectedItem: item,
@@ -19,5 +35,20 @@ export const useExpenseModalStore = createCrudModalStore<Expense, ExpenseModalAd
       }),
     openDeleteItem: (item) =>
       set({ selectedItem: item, isDeleteOpen: true, isEditOpen: false }),
+    createVendorId: null,
+    createDayId: null,
+    openCreateForVendor: (vendorId, dayId) =>
+      set({ isCreateOpen: true, createVendorId: vendorId, createDayId: dayId }),
+    onCloseReturn: null,
+    setOnCloseReturn: (fn) => set({ onCloseReturn: fn }),
+    // closeAll runs this immediately after resetting the flags — the one place
+    // every close path (save, cancel, dismiss) funnels through.
+    extendedCloseAll: () => {
+      const back = get().onCloseReturn
+      if (!back) return
+      set({ onCloseReturn: null })
+      back()
+    },
+    extendedReset: () => set({ createVendorId: null, createDayId: null }),
   }),
 )

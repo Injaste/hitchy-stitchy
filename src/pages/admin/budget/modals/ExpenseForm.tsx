@@ -11,6 +11,8 @@ import {
   FormBody,
 } from "@/components/custom/form";
 
+import { useActiveEventDay } from "../../hooks/useActiveEventDay";
+import { dayLabel } from "../../days/utils";
 import { useVendorsQuery } from "../../vendors/queries";
 import { sortVendors } from "../../vendors/utils";
 import { expenseFormSchema, type ExpenseFormValues } from "../types";
@@ -52,6 +54,7 @@ export const useExpenseForm = ({
       paid: defaultValues?.paid ?? 0,
       due_at: (defaultValues?.due_at ?? null) as string | null,
       notes: defaultValues?.notes ?? "",
+      day_id: defaultValues?.day_id ?? null,
     },
     validators: {
       onSubmit: ({ value }) => validateExpenseForm(value),
@@ -65,13 +68,22 @@ export const useExpenseForm = ({
 interface ExpenseFormProps {
   /** Focus the Paid field on open (edit flow — usually updating a payment). */
   autoFocusPaid?: boolean;
+  /** Surface the Day select. Only for callers with no day context of their own
+   *  (a vendor's detail) — the Budget page takes the day from its day tabs, so
+   *  showing it there would duplicate the tab the user just clicked. */
+  showDay?: boolean;
 }
 
-const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => {
+const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid, showDay }) => {
   const { data } = useVendorsQuery();
+  const { days, multiDay } = useActiveEventDay();
   const vendorOptions = sortVendors(data?.vendors ?? []).map((vendor) => ({
     value: vendor.id,
     label: vendor.name,
+  }));
+  const dayOptions = days.map((day, index) => ({
+    value: day.id,
+    label: dayLabel(day.label, index),
   }));
 
   return (
@@ -94,6 +106,14 @@ const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid }) => {
           }
           options={vendorOptions}
         />
+        {showDay && multiDay && (
+          <SelectField
+            name="day_id"
+            label="Day"
+            options={dayOptions}
+            placeholder="Select a day"
+          />
+        )}
         <TextField
           name="payer"
           label="Paid by"

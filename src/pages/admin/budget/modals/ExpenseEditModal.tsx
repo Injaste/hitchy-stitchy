@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { FormDialog, FormHeader, SubmitButton } from "@/components/custom/form";
 
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore";
-import { useExpenseMutations } from "../queries";
+import { useBudgetQuery, useExpenseMutations } from "../queries";
 import { useVendorsQuery } from "../../vendors/queries";
 
 import ExpenseForm, { useExpenseForm } from "./ExpenseForm";
@@ -18,12 +18,22 @@ const ExpenseEditModal = () => {
   const openDeleteItem = useExpenseModalStore((s) => s.openDeleteItem);
   const { update } = useExpenseMutations();
   const { data: vendorsData } = useVendorsQuery();
+  const { data: budgetData } = useBudgetQuery();
+
+  // The expense's own day, resolved through its bucket. Seeds the Day select so
+  // editing can MOVE a cost between days — previously impossible anywhere in the
+  // UI, since the day only ever came from the Budget page's tabs.
+  const ownDayId = selectedItem
+    ? (budgetData?.buckets.find((b) => b.id === selectedItem.budget_id)?.day_id ??
+      null)
+    : null;
 
   const form = useExpenseForm({
     defaultValues: selectedItem
       ? {
           item: selectedItem.item,
           vendor_id: selectedItem.vendor_id,
+          day_id: ownDayId,
           payer: selectedItem.payer,
           amount: selectedItem.amount,
           paid: selectedItem.paid,
@@ -58,7 +68,7 @@ const ExpenseEditModal = () => {
     >
       <FormHeader icon={<Wallet className="size-4" />} title="Edit expense" />
 
-      <ExpenseForm autoFocusPaid />
+      <ExpenseForm autoFocusPaid showDay />
 
       {/* Footer mirrors DialogDetailActions: destructive Delete · Cancel · Save. */}
       <DialogFooter>

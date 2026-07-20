@@ -44,13 +44,15 @@ export function useExpenseMutations() {
   ) =>
     queryClient.setQueryData<BudgetData>(adminKeys.budget(slug!), fn as never);
 
+  // The day comes from the form when it supplied one (opened from a vendor,
+  // where there are no day tabs); otherwise from the active day tab.
   const create = useMutation(
     (payload: CreateExpensePayload) =>
-      createExpense(eventId!, payload, activeDayId),
+      createExpense(eventId!, payload, payload.day_id ?? activeDayId),
     {
       successMessage: (result: Expense) => `"${truncate(result.item)}" added`,
       errorMessage: (err) => err.message,
-      onSuccess: (result: Expense) => {
+      onSuccess: (result: Expense, args: CreateExpensePayload) => {
         setData((old) => {
           if (!old) return old;
           // The expense may have lazily created its bucket — ensure it's mapped
@@ -61,7 +63,7 @@ export function useExpenseMutations() {
                 ...old.buckets,
                 {
                   id: result.budget_id,
-                  day_id: activeDayId!,
+                  day_id: (args.day_id ?? activeDayId)!,
                   budget_total: null,
                 },
               ];
@@ -73,27 +75,36 @@ export function useExpenseMutations() {
 
   const update = useMutation(
     (payload: UpdateExpensePayload) => {
-      // Re-file under the expense's own day (never silently move it across days).
+      // The form's day when it supplied one (it can now MOVE an expense between
+      // days); otherwise re-file under the expense's own day so an edit never
+      // shifts it by accident.
       const data = getData();
       const expense = data?.expenses.find((e) => e.id === payload.id);
-      const dayId =
+      const ownDayId =
         data?.buckets.find((b) => b.id === expense?.budget_id)?.day_id ?? null;
-      return updateExpense(payload, dayId);
+      return updateExpense(payload, payload.day_id ?? ownDayId);
     },
     {
       successMessage: (result: Expense) => `"${truncate(result.item)}" updated`,
       errorMessage: (err) => err.message,
-      onSuccess: (result: Expense) => {
-        setData((old) =>
-          old
-            ? {
-                ...old,
-                expenses: old.expenses.map((e) =>
-                  e.id === result.id ? result : e,
-                ),
-              }
-            : old,
-        );
+      onSuccess: (result: Expense, args: UpdateExpensePayload) => {
+        setData((old) => {
+          if (!old) return old;
+          // Moving to a day with no bucket yet mints one server-side — map it,
+          // or the row resolves to no day until the next refetch.
+          const buckets =
+            old.buckets.some((b) => b.id === result.budget_id) || !args.day_id
+              ? old.buckets
+              : [
+                  ...old.buckets,
+                  { id: result.budget_id, day_id: args.day_id, budget_total: null },
+                ];
+          return {
+            ...old,
+            buckets,
+            expenses: old.expenses.map((e) => (e.id === result.id ? result : e)),
+          };
+        });
       },
     },
   );
