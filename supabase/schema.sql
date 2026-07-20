@@ -327,7 +327,8 @@ CREATE TABLE public.event_expenses (
   event_id    uuid          NOT NULL,
   budget_id   uuid          NOT NULL,                 -- the (event,day) bucket [20260612000101]
   item        text          NOT NULL,
-  vendor_name text,
+  vendor_name text,                                    -- free-text label / snapshot of the linked vendor's name
+  vendor_id   uuid,                                    -- optional link to a CRM vendor; spend derives from this [20260718000013]
   payer       text,
   amount      numeric(12,2) NOT NULL DEFAULT 0,
   paid        numeric(12,2) NOT NULL DEFAULT 0,
@@ -341,11 +342,14 @@ CREATE TABLE public.event_expenses (
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE,
   CONSTRAINT event_expenses_budget_id_fk
     FOREIGN KEY (budget_id) REFERENCES public.event_budget (id) ON DELETE RESTRICT,
+  CONSTRAINT event_expenses_vendor_id_fk
+    FOREIGN KEY (vendor_id) REFERENCES public.event_vendors (id) ON DELETE SET NULL,
   CONSTRAINT event_expenses_amount_chk CHECK (amount >= 0),
   CONSTRAINT event_expenses_paid_chk   CHECK (paid >= 0)
 );
 CREATE INDEX event_expenses_event_id_idx  ON public.event_expenses (event_id);
 CREATE INDEX event_expenses_budget_id_idx ON public.event_expenses (budget_id);
+CREATE INDEX event_expenses_vendor_id_idx ON public.event_expenses (vendor_id);
 
 -- -----------------------------------------------------------------------------
 -- event_gifts  [20260613000002 — Gift Envelopes]
@@ -1558,7 +1562,8 @@ CREATE OR REPLACE FUNCTION public.create_expense(
   p_paid        numeric DEFAULT 0,
   p_due_at      date    DEFAULT NULL,
   p_notes       text    DEFAULT NULL,
-  p_day_id      uuid    DEFAULT NULL
+  p_day_id      uuid    DEFAULT NULL,
+  p_vendor_id   uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -1587,13 +1592,20 @@ BEGIN
     RAISE EXCEPTION 'Paid cannot exceed the amount';
   END IF;
 
+  IF p_vendor_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM event_vendors WHERE id = p_vendor_id AND event_id = p_event_id
+  ) THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
   v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
+  PERFORM assert_plan(p_event_id, 'expenses');   -- per-event expense ceiling [20260630000102]
 
   INSERT INTO event_expenses (
-    event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes
+    event_id, budget_id, item, vendor_name, vendor_id, payer, amount, paid, due_at, notes
   )
   VALUES (
-    p_event_id, v_budget_id, btrim(p_item), p_vendor_name, p_payer,
+    p_event_id, v_budget_id, btrim(p_item), p_vendor_name, p_vendor_id, p_payer,
     COALESCE(p_amount, 0), COALESCE(p_paid, 0), p_due_at, p_notes
   )
   RETURNING * INTO v_row;
@@ -1612,7 +1624,8 @@ CREATE OR REPLACE FUNCTION public.update_expense(
   p_paid        numeric DEFAULT NULL,
   p_due_at      date    DEFAULT NULL,
   p_notes       text    DEFAULT NULL,
-  p_day_id      uuid    DEFAULT NULL
+  p_day_id      uuid    DEFAULT NULL,
+  p_vendor_id   uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -1651,6 +1664,12 @@ BEGIN
     RAISE EXCEPTION 'Paid cannot exceed the amount';
   END IF;
 
+  IF p_vendor_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM event_vendors WHERE id = p_vendor_id AND event_id = p_event_id
+  ) THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
   v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
 
   UPDATE event_expenses
@@ -1658,6 +1677,7 @@ BEGIN
     budget_id   = v_budget_id,
     item        = COALESCE(NULLIF(btrim(p_item), ''), item),
     vendor_name = p_vendor_name,
+    vendor_id   = p_vendor_id,
     payer       = p_payer,
     amount      = v_amount,
     paid        = v_paid,
