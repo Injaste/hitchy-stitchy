@@ -39,9 +39,10 @@ const TextField = ({
     hint={hint}
     labelClassName={labelClassName}
   >
-    {(field) => (
+    {(field, _hasError, { controlProps }) => (
       <Input
         {...inputProps}
+        {...controlProps}
         type={type}
         value={field.state.value ?? ""}
         onChange={(e) => {

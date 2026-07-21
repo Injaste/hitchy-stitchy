@@ -33,7 +33,7 @@ const AssigneeField = ({
   groups = [],
 }: AssigneeFieldProps) => (
   <FieldShell name={name} label={label} optional={optional} description={description}>
-    {(field) => {
+    {(field, _hasError, { labelId }) => {
       const value: string[] = field.state.value ?? [];
 
       const toggle = (id: string) => {
@@ -68,7 +68,9 @@ const AssigneeField = ({
       }
 
       return (
-        <div className="space-y-4">
+        // A group of checkboxes has no single control to be htmlFor'd, so it
+        // associates with the field's label via aria-labelledby instead.
+        <div className="space-y-4" role="group" aria-labelledby={labelId}>
           {groups.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground/70">Labels</p>

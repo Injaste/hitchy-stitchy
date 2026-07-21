@@ -57,7 +57,7 @@ const SelectField = ({
     hint={hint}
     labelAction={labelAction}
   >
-    {(field) => {
+    {(field, _hasError, { controlProps }) => {
       const raw = field.state.value;
       const triggerValue =
         raw === null || raw === undefined || raw === ""
@@ -74,7 +74,7 @@ const SelectField = ({
           }
           disabled={disabled}
         >
-          <SelectTrigger className="w-full" disabled={disabled}>
+          <SelectTrigger {...controlProps} className="w-full" disabled={disabled}>
             {raw && raw !== NULL_SENTINEL ? (
               <SelectValue />
             ) : nullable ? (

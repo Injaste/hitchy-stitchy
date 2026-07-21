@@ -39,9 +39,10 @@ const PasswordField = ({
       description={description}
       hint={hint}
     >
-      {(field) => (
+      {(field, _hasError, { controlProps }) => (
         <InputGroup>
           <InputGroupInput
+            {...controlProps}
             type={show ? "text" : "password"}
             placeholder={placeholder}
             autoComplete={autoComplete}

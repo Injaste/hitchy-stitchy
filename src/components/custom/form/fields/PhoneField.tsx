@@ -32,7 +32,7 @@ import {
   type CountryOption,
 } from "@/lib/phone";
 
-import FieldShell from "./FieldShell";
+import FieldShell, { type FieldA11y } from "./FieldShell";
 
 interface PhoneFieldProps {
   name: string;
@@ -47,6 +47,7 @@ interface PhoneFieldProps {
 interface PhoneControlProps {
   field: AnyFieldApi;
   hasError: boolean;
+  controlProps: FieldA11y["controlProps"];
   placeholder?: string;
   defaultCountry?: CountryCode;
 }
@@ -80,6 +81,7 @@ function matchCountry(country: CountryOption, query: string): boolean {
 const PhoneControl = ({
   field,
   hasError,
+  controlProps,
   placeholder,
   defaultCountry,
 }: PhoneControlProps) => {
@@ -235,12 +237,12 @@ const PhoneControl = ({
       </InputGroupAddon>
 
       <InputGroupInput
+        {...controlProps}
         type="tel"
         inputMode="tel"
         value={text}
         onChange={(e) => handleText(e.target.value)}
         onBlur={field.handleBlur}
-        aria-invalid={hasError}
         placeholder={placeholder ?? "+65 9123 4567"}
       />
     </InputGroup>
@@ -256,10 +258,11 @@ const PhoneField = ({
   defaultCountry,
 }: PhoneFieldProps) => (
   <FieldShell name={name} label={label} optional={optional} hint={hint}>
-    {(field, hasError) => (
+    {(field, hasError, { controlProps }) => (
       <PhoneControl
         field={field}
         hasError={hasError}
+        controlProps={controlProps}
         placeholder={placeholder}
         defaultCountry={defaultCountry}
       />

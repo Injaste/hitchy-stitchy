@@ -21,6 +21,7 @@ const AnimateItem = ({
   errors,
   hasError,
   error,
+  errorId,
   attemptCount,
   className,
   children,
@@ -28,6 +29,8 @@ const AnimateItem = ({
   error?: AllErrors;
   errors?: FieldErrors;
   hasError: boolean;
+  /** id put on the rendered FieldError, so a control's aria-describedby resolves. */
+  errorId?: string;
   attemptCount: number;
   /** Extra classes for the shaking container — lets it double as a row card. */
   className?: string;
@@ -44,7 +47,12 @@ const AnimateItem = ({
   return (
     <div ref={scope} className={cn("empty:hidden", className)}>
       {children}
-      <AnimateError hasError={hasError} errors={errors} error={error} />
+      <AnimateError
+        hasError={hasError}
+        errors={errors}
+        error={error}
+        errorId={errorId}
+      />
     </div>
   );
 };
@@ -53,10 +61,12 @@ const AnimateError = ({
   hasError,
   error,
   errors,
+  errorId,
 }: {
   hasError: boolean;
   error?: AllErrors;
   errors?: FieldErrors;
+  errorId?: string;
 }) => {
   const message = resolveMessage(errors, error);
 
@@ -80,7 +90,7 @@ const AnimateError = ({
           style={{ overflow: "hidden" }}
           className="mt-0.5"
         >
-          <FieldError>{message}</FieldError>
+          <FieldError id={errorId}>{message}</FieldError>
         </motion.div>
       )}
     </AnimatePresence>

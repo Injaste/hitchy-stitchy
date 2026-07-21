@@ -24,16 +24,16 @@ const CheckboxField = ({
   labelClassName,
 }: CheckboxFieldProps) => (
   <FieldShell name={name} description={description} hint={hint}>
-    {(field) => (
+    {(field, _hasError, { controlProps }) => (
       <div className={cn("flex items-start gap-2", className)}>
         <Checkbox
-          id={name}
+          {...controlProps}
           checked={!!field.state.value}
           onCheckedChange={(v) => field.handleChange(v === true)}
           onBlur={field.handleBlur}
         />
         <Label
-          htmlFor={name}
+          htmlFor={controlProps.id}
           className={cn(
             "text-xs font-normal leading-snug text-muted-foreground select-none",
             labelClassName,
