@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import DateTile from "@/components/custom/date-tile";
 import { itemFadeIn, itemFadeUp } from "@/lib/animations";
@@ -20,7 +21,56 @@ interface DayTabsProps {
   days?: EventDay[];
   activeDayId?: string | null;
   onSelect?: (id: string) => void;
+  /** Prepend an "All days" tile, active when `activeDayId` is null. For rails
+   *  that FILTER rather than scope — vendors, where a vendor can span days and
+   *  an untagged one belongs to no single tab, so "all" has to be reachable. */
+  includeAll?: boolean;
+  onSelectAll?: () => void;
 }
+
+/** The "All days" tile. Mirrors DateTile's three-row rhythm (strip / figure /
+ *  unit) so it sits in the rail as a peer rather than a bolted-on control. */
+const AllDaysTile = ({
+  count,
+  active,
+  onClick,
+}: {
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) => (
+  <div className="flex w-16 flex-col items-center gap-1.5">
+    <button
+      type="button"
+      onClick={onClick}
+      className="group/date-tile cursor-pointer rounded-xl transition-transform active:scale-[0.95]"
+    >
+      <Card className="w-16 gap-0 py-0 text-center">
+        <div
+          className={cn(
+            "py-1 text-2xs font-semibold uppercase tracking-widest transition-colors group-hover/date-tile:bg-primary/30",
+            active
+              ? "bg-primary/90! text-primary-foreground"
+              : "bg-muted text-muted-foreground",
+          )}
+        >
+          All
+        </div>
+        <div className="py-2">
+          <div className="font-display text-2xl font-bold leading-none text-foreground">
+            {count}
+          </div>
+          <div className="mt-1 text-2xs uppercase tracking-wide text-muted-foreground">
+            Days
+          </div>
+        </div>
+      </Card>
+    </button>
+    <div className="line-clamp-2 w-16 text-center text-xs text-muted-foreground">
+      All days
+    </div>
+  </div>
+);
 
 /**
  * Day selector rail, shared across day-scoped admin pages (timeline, budget).
@@ -32,6 +82,8 @@ const DayTabs = ({
   days: daysProp,
   activeDayId: activeProp,
   onSelect,
+  includeAll = false,
+  onSelectAll,
 }: DayTabsProps = {}) => {
   const global = useActiveEventDay();
   const controlled = daysProp !== undefined;
@@ -40,20 +92,25 @@ const DayTabs = ({
   const setActiveDay = controlled
     ? onSelect ?? (() => {})
     : global.setActiveDay;
-  const activeIndex = controlled
-    ? Math.max(
-        0,
-        days.findIndex((d) => d.id === activeDayId),
-      )
+  // Slide index to scroll to. The "All days" tile occupies slot 0, so every day
+  // sits one slot right; a not-found day (-1, which is what "All" selected looks
+  // like) lands cleanly on slot 0 via rawIndex + 1. Same +1 the animation stagger
+  // uses below. Uncontrolled rails have no All tile, so no offset.
+  const rawIndex = controlled
+    ? days.findIndex((d) => d.id === activeDayId)
     : global.activeIndex;
+  const emblaIndex = includeAll ? rawIndex + 1 : Math.max(0, rawIndex);
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
-  const { emblaRef, emblaApi } = useEmblaCarouselApi("start", activeIndex);
+  // Center the active tile rather than pin it left, so it's always framed with
+  // context on both sides; Embla still clamps the first/last snaps to the edges,
+  // so early/late days settle flush rather than leaving dead space.
+  const { emblaRef, emblaApi } = useEmblaCarouselApi("center", emblaIndex);
   const { showLeftFade, showRightFade } = useEmblaEdgeDetection(emblaApi);
 
   useEffect(() => {
-    if (emblaApi) emblaApi.scrollTo(activeIndex);
-  }, [emblaApi, activeIndex]);
+    if (emblaApi) emblaApi.scrollTo(emblaIndex);
+  }, [emblaApi, emblaIndex]);
 
   if (days.length <= 1) return null;
 
@@ -63,13 +120,34 @@ const DayTabs = ({
         <div ref={emblaRef} className="overflow-hidden p-1">
           <div className="flex gap-2">
             <AnimatePresence>
+              {/* Inside the same AnimatePresence and carrying the same variants
+                  as the day tiles — it leads the stagger (custom 0), so the rail
+                  animates in as one row rather than one static tile beside a
+                  cascade. Days shift to custom idx+1 to keep the order. */}
+              {includeAll && (
+                <motion.div
+                  key="all-days"
+                  custom={0}
+                  variants={itemFadeUp}
+                  initial="hidden"
+                  animate="show"
+                  exit="hidden"
+                  layout
+                >
+                  <AllDaysTile
+                    count={days.length}
+                    active={activeDayId === null}
+                    onClick={() => onSelectAll?.()}
+                  />
+                </motion.div>
+              )}
               {days.map((day, idx) => {
                 const isActive = day.id === activeDayId;
                 const isToday = day.date === todayStr;
                 return (
                   <motion.div
                     key={day.id}
-                    custom={idx}
+                    custom={includeAll ? idx + 1 : idx}
                     variants={itemFadeUp}
                     initial="hidden"
                     animate="show"

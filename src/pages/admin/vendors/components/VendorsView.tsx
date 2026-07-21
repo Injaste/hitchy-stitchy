@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FC } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search } from "lucide-react";
@@ -7,17 +7,13 @@ import ComponentFade from "@/components/animations/animate-component-fade";
 import ErrorState from "@/components/custom/states/error-state";
 import NoResults from "@/components/custom/states/no-results";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import DayTabs from "@/pages/admin/components/DayTabs";
 import { itemFadeUp } from "@/lib/animations";
 
 import { useAccess } from "../../hooks/useAccess";
 import { useActiveEventDay } from "../../hooks/useActiveEventDay";
-import { dayLabel } from "../../days/utils";
 import { useVendorModalStore } from "../hooks/useVendorModalStore";
-import {
-  useVendorDayFilter,
-  useValidVendorDayFilter,
-} from "../hooks/useVendorDayFilter";
+import { useVendorDayScope } from "../hooks/useVendorDayFilter";
 import { categoryMeta, sortVendors } from "../utils";
 import type { VendorsData } from "../api";
 
@@ -44,14 +40,20 @@ const VendorsView: FC<VendorsViewProps> = ({
   const openCreate = useVendorModalStore((s) => s.openCreate);
   const openDetail = useVendorModalStore((s) => s.openDetail);
   const { canCreate } = useAccess();
-  const { days, multiDay } = useActiveEventDay();
+  // No multiDay guard needed — DayTabs hides itself on single-day events.
+  const { days, activeDayId, setActiveDay } = useActiveEventDay();
 
   const [search, setSearch] = useState("");
-  // Day filter (null = all). Independent of the global active-day rail — a vendor
-  // can span days, so this narrows the directory rather than scoping it. Lives in
-  // a store because "Add expense" from a vendor reads it to guess the day.
-  const dayFilter = useValidVendorDayFilter();
-  const setDayFilter = useVendorDayFilter((s) => s.setDayId);
+  // The day tiles drive the SHARED global day (so a pick persists to Budget /
+  // Timeline); "All days" is a local override that shows the whole roster without
+  // touching the global day. Effective filter: the active day, or null under All.
+  const showAll = useVendorDayScope((s) => s.showAll);
+  const setShowAll = useVendorDayScope((s) => s.setShowAll);
+  const dayFilter = showAll ? null : activeDayId;
+
+  // "All days" is a per-visit override — clear it on leave so the next visit
+  // opens on the active day (the default) rather than a stale "All".
+  useEffect(() => () => setShowAll(false), [setShowAll]);
 
   const vendors = data?.vendors ?? [];
 
@@ -140,9 +142,10 @@ const VendorsView: FC<VendorsViewProps> = ({
     return (
       <ComponentFade key="content" useBlur>
         <div className="space-y-4">
-          {/* Count rides the search row rather than a line of its own — it's a
-              single stat, and it belongs next to the thing that changes it. */}
-          <div className="flex items-center gap-3">
+          {/* Count sits beside the search on desktop — a single stat next to the
+              thing that changes it. On mobile there's no room for both on one
+              line, so it stacks above (col-reverse), mirroring the guests view. */}
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:gap-3">
             <div className="relative flex-1">
               <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -167,33 +170,20 @@ const VendorsView: FC<VendorsViewProps> = ({
             />
           </div>
 
-          {/* Day filter — only on multi-day events, where a vendor roster splits
-              by day. "All days" clears it; tapping the active chip also clears. */}
-          {multiDay && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Button
-                size="sm"
-                variant={dayFilter === null ? "default" : "outline"}
-                onClick={() => setDayFilter(null)}
-                className="rounded-full"
-              >
-                All days
-              </Button>
-              {days.map((day, index) => (
-                <Button
-                  key={day.id}
-                  size="sm"
-                  variant={dayFilter === day.id ? "default" : "outline"}
-                  onClick={() =>
-                    setDayFilter(dayFilter === day.id ? null : day.id)
-                  }
-                  className="rounded-full"
-                >
-                  {dayLabel(day.label, index)}
-                </Button>
-              ))}
-            </div>
-          )}
+          {/* The shared day rail. Day tiles write the GLOBAL day (so the pick
+              persists across routes); "All days" is a local override for the
+              whole roster — the only place a 0-day vendor (e.g. flowers) shows —
+              and leaves the global day untouched. */}
+          <DayTabs
+            days={days}
+            activeDayId={dayFilter}
+            onSelect={(id) => {
+              setActiveDay(id);
+              setShowAll(false);
+            }}
+            includeAll
+            onSelectAll={() => setShowAll(true)}
+          />
 
           <AnimatePresence mode="wait" initial={false}>
             {renderContent()}

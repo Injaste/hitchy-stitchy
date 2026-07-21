@@ -2,38 +2,38 @@ import { create } from "zustand"
 
 import { useActiveEventDay } from "../../hooks/useActiveEventDay"
 
-interface VendorDayFilterState {
-  /** Day the vendors list is narrowed to, or null for all days. */
-  dayId: string | null
-  setDayId: (dayId: string | null) => void
+interface VendorDayScopeState {
+  /** The "All days" override: show every vendor regardless of day. */
+  showAll: boolean
+  setShowAll: (showAll: boolean) => void
 }
 
 /**
- * The vendors list's day filter. A store rather than local state because it's a
- * VIEW SCOPE two places need: the list narrows by it, and "Add expense" from a
- * vendor uses it to guess which day the cost belongs to.
+ * The vendors directory's day scope has two parts, deliberately split:
  *
- * Deliberately separate from the global `useActiveDay` (Budget/Timeline's
- * persisted day rail): narrowing a contact directory shouldn't change which day
- * the rest of the app is showing, and vendors can span days anyway.
+ *   • the SELECTED DAY is the shared global day (`useActiveDay`) — picking a day
+ *     here shows on Budget/Timeline too, and vice versa. Symmetric with every
+ *     other day-scoped page.
+ *   • "All days" is a vendors-ONLY override held here. It shows the whole roster
+ *     (the only place a 0-day vendor — e.g. flowers — is reachable) and never
+ *     touches the global day, so the other routes keep their concrete day.
+ *
+ * The override is per-visit: VendorsView clears it on unmount, so each fresh
+ * visit starts on the active day (the default) rather than a stale "All".
  */
-export const useVendorDayFilter = create<VendorDayFilterState>((set) => ({
-  dayId: null,
-  setDayId: (dayId) => set({ dayId }),
+export const useVendorDayScope = create<VendorDayScopeState>((set) => ({
+  showAll: false,
+  setShowAll: (showAll) => set({ showAll }),
 }))
 
 /**
- * The filter, but only while it still points at a LIVE day. The day it names can
- * be deleted underneath it (days are editable in event settings), and a stale id
- * would otherwise:
- *   • strand the list on an empty result with no chip highlighted — nothing to
- *     click to get out of it except "All days",
- *   • and prefill a dead day into new vendors/expenses, which the server rejects
- *     ("A selected day does not belong to this event").
- * Resolving against live days makes it self-heal back to "all days" instead.
+ * The effective day the directory is filtered to: the shared global day, unless
+ * the local "All days" override is on (then null = the whole roster). Read by the
+ * list, the day-tile highlight, and the "Add expense / Add vendor" day guesses,
+ * so they all agree on one answer.
  */
-export function useValidVendorDayFilter() {
-  const dayId = useVendorDayFilter((s) => s.dayId)
-  const { days } = useActiveEventDay()
-  return dayId && days.some((d) => d.id === dayId) ? dayId : null
+export function useVendorFilterDay(): string | null {
+  const { activeDayId } = useActiveEventDay()
+  const showAll = useVendorDayScope((s) => s.showAll)
+  return showAll ? null : activeDayId
 }

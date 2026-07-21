@@ -12,7 +12,7 @@ import { useBudgetQuery } from "../../budget/queries";
 import { useExpenseModalStore } from "../../budget/hooks/useExpenseModalStore";
 import type { Expense } from "../../budget/types";
 import { useVendorModalStore } from "../hooks/useVendorModalStore";
-import { useValidVendorDayFilter } from "../hooks/useVendorDayFilter";
+import { useVendorFilterDay } from "../hooks/useVendorDayFilter";
 import type { Vendor } from "../types";
 
 interface VendorSpendProps {
@@ -40,7 +40,7 @@ const VendorSpend: FC<VendorSpendProps> = ({ vendor }) => {
   const setOnCloseReturn = useExpenseModalStore((s) => s.setOnCloseReturn);
   const closeVendor = useVendorModalStore((s) => s.closeAll);
   const openDetail = useVendorModalStore((s) => s.openDetail);
-  const filterDayId = useValidVendorDayFilter();
+  const filterDayId = useVendorFilterDay();
 
   // Which day a new cost most likely belongs to, best guess first: the vendor's
   // own day when it's booked for exactly one (it can't be anything else), else

@@ -1,7 +1,7 @@
 import { useAccess } from "../../hooks/useAccess"
 import ExpenseModals from "../../budget/modals"
 import { useVendorModalStore } from "../hooks/useVendorModalStore"
-import { useVendorDayFilter } from "../hooks/useVendorDayFilter"
+import { useVendorFilterDay } from "../hooks/useVendorDayFilter"
 
 import VendorCreateModal from "./VendorCreateModal"
 import VendorDetailModal from "./VendorDetailModal"
@@ -10,7 +10,7 @@ import VendorDeleteModal from "./VendorDeleteModal"
 
 const VendorModals = () => {
   const selectedId = useVendorModalStore((s) => s.selectedItem?.id)
-  const dayFilter = useVendorDayFilter((s) => s.dayId)
+  const dayFilter = useVendorFilterDay()
   const { canRead } = useAccess()
 
   return (
