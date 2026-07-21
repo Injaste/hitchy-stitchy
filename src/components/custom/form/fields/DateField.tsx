@@ -41,14 +41,14 @@ const DateField = ({
       description={description}
       hint={hint}
     >
-      {(field, hasError) => {
+      {(field, _hasError, { controlProps }) => {
         const value: string | null = field.state.value ?? null;
         return (
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <button
+                {...controlProps}
                 type="button"
-                aria-invalid={hasError || undefined}
                 // data-[state=open] ring opacity (/70) mirrors fieldRing in field-styles.ts — keep in sync.
                 className={cn(
                   fieldSurface,

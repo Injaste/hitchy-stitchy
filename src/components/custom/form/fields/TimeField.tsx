@@ -41,13 +41,14 @@ const TimeField = ({
     description={description}
     hint={hint}
   >
-    {(field) => (
+    {(field, _hasError, { controlProps }) => (
       <InputGroup>
         <InputGroupAddon>
           <Clock className="size-4" />
         </InputGroupAddon>
         <InputGroupInput
           {...inputProps}
+          {...controlProps}
           type="time"
           value={field.state.value ?? ""}
           onChange={(e) => field.handleChange(e.target.value)}

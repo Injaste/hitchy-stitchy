@@ -33,9 +33,10 @@ const TextareaField = ({
     description={description}
     hint={hint}
   >
-    {(field) => (
+    {(field, _hasError, { controlProps }) => (
       <Textarea
         {...textareaProps}
+        {...controlProps}
         rows={rows}
         value={field.state.value ?? ""}
         onChange={(e) =>
