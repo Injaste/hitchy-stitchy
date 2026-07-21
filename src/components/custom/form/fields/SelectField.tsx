@@ -31,6 +31,8 @@ interface SelectFieldProps {
   nullable?: boolean;
   /** Label for the null option. Defaults to "None". */
   nullLabel?: ReactNode;
+  /** Action pinned to the far end of the label row — see FieldShell. */
+  labelAction?: ReactNode;
 }
 
 const SelectField = ({
@@ -45,6 +47,7 @@ const SelectField = ({
   disabled,
   nullable,
   nullLabel = "None",
+  labelAction,
 }: SelectFieldProps) => (
   <FieldShell
     name={name}
@@ -52,6 +55,7 @@ const SelectField = ({
     optional={optional}
     description={description}
     hint={hint}
+    labelAction={labelAction}
   >
     {(field) => {
       const raw = field.state.value;

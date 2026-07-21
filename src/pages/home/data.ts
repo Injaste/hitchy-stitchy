@@ -62,7 +62,7 @@ export const steps: Step[] = [
   },
 ];
 
-// Grouped exactly as the app groups them (Operations · Money · Teams · RSVP),
+// Grouped exactly as the app groups them (Operations · Money · People · RSVP),
 // so the landing page and the product tell the same story. Live Mode is the
 // day-of climax and lives in its own spotlight below the pillars.
 export const pillars: Pillar[] = [
@@ -129,8 +129,8 @@ export const pillars: Pillar[] = [
     ],
   },
   {
-    key: "teams",
-    label: "Teams",
+    key: "people",
+    label: "People",
     tagline: "Bring your people together",
     features: [
       {

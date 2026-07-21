@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Wallet,
   HandCoins,
+  Store,
   CalendarCog,
 } from "lucide-react";
 import {
@@ -38,6 +39,7 @@ const AdminSidebarContent = () => {
   const showTasks = canRead("tasks");
   const showBudget = canRead("budget");
   const showGifts = canRead("gifts");
+  const showVendors = canRead("vendors");
   // The member roster is viewable by every active member; managing it needs members:full.
   const showMembers = true;
   const showAccess = canRead("access");
@@ -46,7 +48,9 @@ const AdminSidebarContent = () => {
 
   const hasOperations = showTimeline || showTasks;
   const hasMoney = showBudget || showGifts;
-  const hasTeam = showMembers || showAccess;
+  // "People" spans your own team and the vendors you hired — everyone being
+  // coordinated. (Access is the permissions for those people.)
+  const hasPeople = showMembers || showAccess || showVendors;
   const hasRSVP = showGuests || showInvitation;
 
   return (
@@ -106,11 +110,11 @@ const AdminSidebarContent = () => {
         </>
       )}
 
-      {hasTeam && (
+      {hasPeople && (
         <>
           <SidebarSeparator className="mx-4" />
           <SidebarGroup>
-            <SidebarGroupLabel>Teams</SidebarGroupLabel>
+            <SidebarGroupLabel>People</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {showMembers && (
@@ -119,6 +123,14 @@ const AdminSidebarContent = () => {
                     label="Members"
                     to={`${base}/members`}
                     isActive={activePage === "members"}
+                  />
+                )}
+                {showVendors && (
+                  <NavItem
+                    icon={Store}
+                    label="Vendors"
+                    to={`${base}/vendors`}
+                    isActive={activePage === "vendors"}
                   />
                 )}
                 {showAccess && (

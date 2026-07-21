@@ -17,7 +17,8 @@ export interface Expense {
   /** The (event, day) bucket this expense is filed under — maps to a day via the buckets list. */
   budget_id: string
   item: string
-  vendor_name: string | null
+  /** Link to a CRM vendor; a vendor's spend derives from its linked expenses. */
+  vendor_id: string | null
   payer: string | null
   amount: number
   paid: number
@@ -30,10 +31,14 @@ export interface Expense {
 export const expenseFormSchema = z
   .object({
     item: z.string().min(1, "Item is required").max(200, "Item is too long"),
-    vendor_name: z
-      .string()
-      .max(200, "Vendor is too long")
-      .transform((v) => (v.trim() ? v.trim() : null)),
+    // The vendor is picked from the CRM (a real vendor id) or left unset — no
+    // free-text, so the name is always read live and a rename shows through.
+    vendor_id: z.string().nullable(),
+    // Which day's budget bucket this expense files under. Normally null — the
+    // Budget page takes the day from its day tabs. It's only surfaced as a field
+    // when the modal is opened somewhere with no day context (a vendor's detail),
+    // where guessing the ambient day would be surprising.
+    day_id: z.string().nullable(),
     payer: z
       .string()
       .max(100, "Name is too long")
@@ -67,9 +72,9 @@ export interface BudgetBucket {
   budget_total: number | null
 }
 
-export interface CreateExpensePayload extends ExpenseFormValues {}
+export type CreateExpensePayload = ExpenseFormValues
 
-export interface UpdateExpensePayload extends ExpenseFormValues {
+export interface UpdateExpensePayload extends CreateExpensePayload {
   event_id: string
   id: string
 }

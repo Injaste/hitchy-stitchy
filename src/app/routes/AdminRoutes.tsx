@@ -14,6 +14,7 @@ import Access from "@/pages/admin/access";
 import Guests from "@/pages/admin/guests";
 import Budget from "@/pages/admin/budget";
 import Gifts from "@/pages/admin/gifts";
+import Vendors from "@/pages/admin/vendors";
 import Invitation from "@/pages/admin/invitation";
 
 const Admin = lazy(() => import("@/pages/admin"));
@@ -73,6 +74,7 @@ const AdminRoutes = () => (
     <Route path="guests" element={<RequireRoute resource="guests" feature="guests"><Guests /></RequireRoute>} />
     <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget"><Budget /></RequireRoute>} />
     <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts"><Gifts /></RequireRoute>} />
+    <Route path="vendors" element={<RequireRoute resource="vendors" feature="vendors"><Vendors /></RequireRoute>} />
     <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />

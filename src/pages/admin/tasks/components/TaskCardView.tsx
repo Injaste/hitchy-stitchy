@@ -22,7 +22,7 @@ import AssigneeAvatars from "../../components/AssigneeAvatars";
 interface TaskCardViewProps {
   task: Task;
   /** Status toggle (checkbox) click. */
-  onToggle?: (e: React.MouseEvent) => void;
+  onToggle?: () => void;
   /** Card body click — opens detail in-app. */
   onOpen?: () => void;
   dragHandleRef?: (element: Element | null) => void;
@@ -69,7 +69,6 @@ const TaskCardView: FC<TaskCardViewProps> = ({
   return (
     <Card
       data-task-id={task.id}
-      onClick={onOpen}
       variant="interactive"
       size="sm"
       className={cn(
@@ -80,6 +79,17 @@ const TaskCardView: FC<TaskCardViewProps> = ({
         isFlying && "opacity-0",
       )}
     >
+      {/* Whole-card hit target as a real button — focusable and labelled. It
+          paints over the static content, so anything that needs its own click
+          (status toggle, drag handle) out-stacks it instead of each one opting
+          out of propagation. */}
+      <button
+        onClick={onOpen}
+        aria-label={task.title}
+        data-card-hit
+        className="absolute inset-0 z-0 cursor-pointer rounded-[inherit]"
+      />
+
       {/* Priority — the single priority signal */}
       {task.priority && (
         <span
@@ -96,7 +106,6 @@ const TaskCardView: FC<TaskCardViewProps> = ({
           ref={dragHandleRef}
           type="button"
           aria-label="Drag to reorder"
-          onClick={(e) => e.stopPropagation()}
           className={cn(
             "absolute top-2 right-2 z-10 rounded p-1 touch-none",
             "cursor-grab active:cursor-grabbing",
@@ -113,7 +122,8 @@ const TaskCardView: FC<TaskCardViewProps> = ({
         <div className="flex items-start gap-2.5 pr-6">
           <Button
             onClick={onToggle}
-            className="group/task-button-hover relative shrink-0 items-start -ml-3 -mr-3.5 h-fit"
+            data-card-action
+            className="group/task-button-hover shrink-0 items-start -ml-3 -mr-3.5 h-fit"
             variant="empty"
           >
             <TaskStatusIcon

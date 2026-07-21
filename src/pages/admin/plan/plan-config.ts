@@ -41,6 +41,7 @@ export const PLAN_FEATURES = [
   { key: "guests", label: "Guest management" },
   { key: "budget", label: "Budget tracker" },
   { key: "gifts", label: "Gift envelopes" },
+  { key: "vendors", label: "Vendors" },
   { key: "invitation", label: "Invitation" },
   { key: "branding", label: "Remove branding" },
 ] as const;

@@ -18,7 +18,7 @@ export interface BudgetData {
 }
 
 const EXPENSE_FIELDS =
-  "id, event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes, created_at, updated_at";
+  "id, event_id, budget_id, item, vendor_id, payer, amount, paid, due_at, notes, created_at, updated_at";
 
 export async function fetchBudget(eventId: string): Promise<BudgetData> {
   const [expensesRes, bucketsRes] = await Promise.all([
@@ -50,13 +50,13 @@ export async function createExpense(
   const { data, error } = await supabase.rpc("create_expense", {
     p_event_id: eventId,
     p_item: payload.item,
-    p_vendor_name: payload.vendor_name,
     p_payer: payload.payer,
     p_amount: payload.amount,
     p_paid: payload.paid,
     p_due_at: payload.due_at,
     p_notes: payload.notes,
     p_day_id: dayId,
+    p_vendor_id: payload.vendor_id,
   });
 
   if (error) throw new Error(error.message);
@@ -71,13 +71,13 @@ export async function updateExpense(
     p_event_id: payload.event_id,
     p_id: payload.id,
     p_item: payload.item,
-    p_vendor_name: payload.vendor_name,
     p_payer: payload.payer,
     p_amount: payload.amount,
     p_paid: payload.paid,
     p_due_at: payload.due_at,
     p_notes: payload.notes,
     p_day_id: dayId,
+    p_vendor_id: payload.vendor_id,
   });
 
   if (error) throw new Error(error.message);

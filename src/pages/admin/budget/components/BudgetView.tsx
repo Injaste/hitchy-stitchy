@@ -9,6 +9,7 @@ import { dayLabel } from "@/pages/admin/days/utils"
 
 import { useAccess } from "../../hooks/useAccess"
 import { useActiveEventDay } from "../../hooks/useActiveEventDay"
+import { useVendorLookup } from "../../vendors/queries"
 import { useExpenseModalStore } from "../hooks/useExpenseModalStore"
 import {
   computeSummary,
@@ -47,6 +48,7 @@ const BudgetView: FC<BudgetViewProps> = ({
   const openCreate = useExpenseModalStore((s) => s.openCreate)
   const openEditItem = useExpenseModalStore((s) => s.openEditItem)
   const { canCreate } = useAccess()
+  const vendors = useVendorLookup()
 
   const { days, activeDayId, activeDay, activeIndex, multiDay } =
     useActiveEventDay()
@@ -77,10 +79,13 @@ const BudgetView: FC<BudgetViewProps> = ({
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     const matched = dayExpenses.filter((e) => {
+      // Match the vendor label the ROW actually shows — resolved live, so a
+      // renamed vendor is findable by the name that's on screen.
+      const vendorLabel = (e.vendor_id && vendors.get(e.vendor_id)?.name) || ""
       const matchesSearch =
         !q ||
         e.item.toLowerCase().includes(q) ||
-        (e.vendor_name ?? "").toLowerCase().includes(q) ||
+        vendorLabel.toLowerCase().includes(q) ||
         (e.payer ?? "").toLowerCase().includes(q)
       if (!matchesSearch) return false
 
@@ -90,7 +95,7 @@ const BudgetView: FC<BudgetViewProps> = ({
       return true
     })
     return sortExpenses(matched)
-  }, [dayExpenses, search, filter])
+  }, [dayExpenses, search, filter, vendors])
 
   const renderBody = () => {
     if (isLoading) {

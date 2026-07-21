@@ -58,12 +58,21 @@ const InvitationCard = ({
   return (
     <Card
       variant="interactive"
-      onClick={onEdit}
       className={cn(
-        "group/inv-card cursor-pointer",
+        "group/inv-card relative",
         !isSet && "border-dashed bg-muted/30",
       )}
     >
+      {/* Whole-card hit target as a real button — focusable and labelled, and it
+          paints over the static content, so each control below marks itself
+          data-card-action to sit above it rather than opting out of propagation. */}
+      <button
+        onClick={onEdit}
+        aria-label={label}
+        data-card-hit
+        className="absolute inset-0 z-0 cursor-pointer rounded-[inherit]"
+      />
+
       <CardHeader className="flex flex-row items-start justify-between gap-3 pb-0">
         <div
           className={cn(
@@ -119,11 +128,15 @@ const InvitationCard = ({
             <RelativeTime date={stampDate} prefix={stampPrefix} />
           )}
         </div>
-        <div className="flex items-center gap-2 mt-4">
+        {/* data-card-action sits each control above the whole-card hit button
+            (see index.css) so it takes its own click, while the gaps between
+            them stay part of the card and open it. */}
+        <div className="mt-4 flex items-center gap-2">
           <Button
             size="sm"
             variant={isLive ? "default" : "outline"}
             onClick={onEdit}
+            data-card-action
             className="flex-1 gap-1.5"
           >
             <Pencil className="w-3.5 h-3.5" />
@@ -131,7 +144,7 @@ const InvitationCard = ({
           </Button>
           {isLive && (
             <>
-              <span onClick={(e) => e.stopPropagation()}>
+              <span data-card-action>
                 <CopyLinksMenu
                   compact
                   slug={slug}
@@ -145,12 +158,7 @@ const InvitationCard = ({
                   ]}
                 />
               </span>
-              <Button
-                size="icon"
-                variant="outline"
-                asChild
-                onClick={(e) => e.stopPropagation()}
-              >
+              <Button size="icon" variant="outline" asChild data-card-action>
                 <Link to={path} target="_blank" aria-label="Open live page">
                   <ExternalLink />
                 </Link>

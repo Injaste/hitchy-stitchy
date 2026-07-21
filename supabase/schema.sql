@@ -92,6 +92,32 @@
 --   20260628000001_scheduled_publish                  — update_invitation gains
 --       p_publish_at (publish at a future time); get_public_invitation gates on
 --       published_at <= now() so scheduled pages stay hidden until they're due.
+--   20260717000001_vendor_crm                         — event_vendors rebuilt as
+--       a contact directory (the 20260605000002 drop left a stub in this file
+--       with unknown columns; it's defined for real here). No money columns, no
+--       created_by.
+--   20260718000001-8_vendor_access_and_plan_gate      — vendors becomes a
+--       DELEGATED, Pro-gated resource: Admin=full / Team=none (keyed into the
+--       create_event Admin seed + backfilled), RLS + write RPCs move onto
+--       has_event_permission('vendors',…), a `vendors` event_resources catalog
+--       entry, and a can_use_vendors plan feature (Pro+; plan_within_limits /
+--       get_bootstrap_context / assert_plan — see migrations, not snapshotted
+--       here per the plan-machinery gap above).
+--   20260718000013-15_expense_vendor_link                — event_expenses gains
+--       vendor_id -> event_vendors ON DELETE SET NULL; create_/update_expense
+--       take p_vendor_id (validated to the same event). A vendor's spend derives
+--       from its linked expenses.
+--   20260718000016_drop_stale_rpc_overloads              — adding params above
+--       created OVERLOADS (CREATE OR REPLACE only replaces the same signature),
+--       making old-arity calls ambiguous. The old signatures are dropped; only
+--       the definitions in this file remain. Change signatures with DROP+CREATE.
+--   20260720000001-03_expenses_drop_vendor_name          — vendor_name (a snapshot
+--       of the linked vendor's name) is gone, along with p_vendor_name on
+--       create_/update_expense. The field is a hard vendor_id dropdown with no
+--       free-text, so there was no placeholder left to hold, and the snapshot was
+--       written at save time yet only read after a vendor delete — a rename in
+--       between made the one label it existed to produce the stale one. Deleting
+--       a vendor now just clears the link; the confirm modal states the impact.
 -- =============================================================================
 
 
@@ -316,7 +342,7 @@ CREATE TABLE public.event_expenses (
   event_id    uuid          NOT NULL,
   budget_id   uuid          NOT NULL,                 -- the (event,day) bucket [20260612000101]
   item        text          NOT NULL,
-  vendor_name text,
+  vendor_id   uuid,                                    -- optional link to a CRM vendor; spend derives from this [20260718000013]
   payer       text,
   amount      numeric(12,2) NOT NULL DEFAULT 0,
   paid        numeric(12,2) NOT NULL DEFAULT 0,
@@ -330,11 +356,14 @@ CREATE TABLE public.event_expenses (
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE,
   CONSTRAINT event_expenses_budget_id_fk
     FOREIGN KEY (budget_id) REFERENCES public.event_budget (id) ON DELETE RESTRICT,
+  CONSTRAINT event_expenses_vendor_id_fk
+    FOREIGN KEY (vendor_id) REFERENCES public.event_vendors (id) ON DELETE SET NULL,
   CONSTRAINT event_expenses_amount_chk CHECK (amount >= 0),
   CONSTRAINT event_expenses_paid_chk   CHECK (paid >= 0)
 );
 CREATE INDEX event_expenses_event_id_idx  ON public.event_expenses (event_id);
 CREATE INDEX event_expenses_budget_id_idx ON public.event_expenses (budget_id);
+CREATE INDEX event_expenses_vendor_id_idx ON public.event_expenses (vendor_id);
 
 -- -----------------------------------------------------------------------------
 -- event_gifts  [20260613000002 — Gift Envelopes]
@@ -589,15 +618,24 @@ CREATE TABLE public.event_live_logs (
 );
 
 -- -----------------------------------------------------------------------------
--- event_vendors  [inferred — only FK and index data available]
--- TODO: run the column query and add missing fields here.
+-- event_vendors  [20260717000001]
+-- The couple's directory of who they hired. A CONTACT CARD, not a money row:
+-- cost/deposit/balance are deliberately absent — money lives in Budget and will
+-- correlate via a vendor_id on event_expenses, so a vendor's spend is derived
+-- from its linked expenses rather than copied here. Super-admin only (like
+-- budget/gifts), so no created_by — the creator is always the couple.
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.event_vendors (
-  id         uuid        NOT NULL DEFAULT gen_random_uuid(),
-  event_id   uuid        NOT NULL,
-  -- [UNKNOWN COLUMNS — add from a fresh column query]
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
+  id            uuid        NOT NULL DEFAULT gen_random_uuid(),
+  event_id      uuid        NOT NULL,
+  name          text        NOT NULL,
+  category      text        NOT NULL,   -- free-form; the FE renders a known set and falls back for the rest
+  phone         text,                   -- E.164 ("+6591234567") — the only form wa.me/tel: reliably accept
+  email         text,
+  notes         text,
+  day_ids       uuid[]      NOT NULL DEFAULT '{}',  -- which event_days this vendor works (0..N); array, no FK [20260718000009]
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now(),
 
   CONSTRAINT event_vendors_pkey PRIMARY KEY (id),
 
@@ -885,9 +923,11 @@ CREATE POLICY event_timelines_select ON public.event_timelines
   FOR SELECT TO authenticated
   USING (is_event_member(event_id));
 
+-- Delegated resource — Admin manages fully, Team none; reads gate on the
+-- 'vendors' permission (super-admins pass via bypass) [20260718000008].
 CREATE POLICY event_vendors_select ON public.event_vendors
   FOR SELECT TO authenticated
-  USING (is_event_member(event_id));
+  USING (has_event_permission(event_id, 'vendors', 'read'));
 
 CREATE POLICY events_select ON public.events
   FOR SELECT TO authenticated
@@ -984,18 +1024,28 @@ CREATE OR REPLACE FUNCTION public.has_event_permission(
 )
 RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
 DECLARE
-  v_caller      event_members;
-  v_permissions jsonb;
+  v_caller event_members;
+  v_level  text;
 BEGIN
   v_caller := get_current_member(p_event_id);
   IF v_caller.id IS NULL THEN RETURN false; END IF;
+
+  -- Couple/owner bypass everything (flag-derived).
   IF is_super_admin(v_caller) THEN RETURN true; END IF;
 
-  SELECT ag.permissions INTO v_permissions
+  -- permissions is a FLAT map {resource: 'none'|'read'|'full'} (three-level model,
+  -- collapsed in 20260605000001 — not the old nested {resource:{action:bool}}).
+  SELECT ag.permissions ->> p_resource INTO v_level
   FROM event_access_groups ag
   WHERE ag.id = v_caller.access_group_id;
 
-  RETURN COALESCE((v_permissions -> p_resource ->> p_action)::boolean, false);
+  IF v_level IS NULL THEN RETURN false; END IF;
+
+  IF p_action = 'read' THEN
+    RETURN v_level IN ('read', 'full');
+  END IF;
+  -- create / update / delete -> requires full
+  RETURN v_level = 'full';
 END;
 $$;
 REVOKE EXECUTE ON FUNCTION public.has_event_permission(uuid, text, text) FROM PUBLIC, anon;
@@ -1150,12 +1200,12 @@ BEGIN
   VALUES (p_slug, p_name)
   RETURNING events.id, events.slug INTO v_event_id, v_slug;
 
-  -- No budget grant — budget is super-admin only (the couple), enforced by the
-  -- RPCs/RLS. The `budget` resource stays in the catalog for discovery.
+  -- No budget/gifts grant — those are super-admin only (the couple). Vendors, by
+  -- contrast, is a DELEGATED resource: Admin=full, Team=none [20260718000004].
   INSERT INTO event_access_groups (event_id, name, permissions)
   VALUES (v_event_id, 'Admin', '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
-    "members":"full","access":"read"
+    "vendors":"full","members":"full","access":"read"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_admin_id;
 
@@ -1528,15 +1578,15 @@ REVOKE EXECUTE ON FUNCTION public.get_or_create_budget_bucket(uuid, uuid)
   FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.create_expense(
-  p_event_id    uuid,
-  p_item        text,
-  p_vendor_name text    DEFAULT NULL,
-  p_payer       text    DEFAULT NULL,
-  p_amount      numeric DEFAULT 0,
-  p_paid        numeric DEFAULT 0,
-  p_due_at      date    DEFAULT NULL,
-  p_notes       text    DEFAULT NULL,
-  p_day_id      uuid    DEFAULT NULL
+  p_event_id  uuid,
+  p_item      text,
+  p_payer     text    DEFAULT NULL,
+  p_amount    numeric DEFAULT 0,
+  p_paid      numeric DEFAULT 0,
+  p_due_at    date    DEFAULT NULL,
+  p_notes     text    DEFAULT NULL,
+  p_day_id    uuid    DEFAULT NULL,
+  p_vendor_id uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -1565,13 +1615,20 @@ BEGIN
     RAISE EXCEPTION 'Paid cannot exceed the amount';
   END IF;
 
+  IF p_vendor_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM event_vendors WHERE id = p_vendor_id AND event_id = p_event_id
+  ) THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
   v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
+  PERFORM assert_plan(p_event_id, 'expenses');   -- per-event expense ceiling [20260630000102]
 
   INSERT INTO event_expenses (
-    event_id, budget_id, item, vendor_name, payer, amount, paid, due_at, notes
+    event_id, budget_id, item, vendor_id, payer, amount, paid, due_at, notes
   )
   VALUES (
-    p_event_id, v_budget_id, btrim(p_item), p_vendor_name, p_payer,
+    p_event_id, v_budget_id, btrim(p_item), p_vendor_id, p_payer,
     COALESCE(p_amount, 0), COALESCE(p_paid, 0), p_due_at, p_notes
   )
   RETURNING * INTO v_row;
@@ -1581,16 +1638,16 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION public.update_expense(
-  p_event_id    uuid,
-  p_id          uuid,
-  p_item        text    DEFAULT NULL,
-  p_vendor_name text    DEFAULT NULL,
-  p_payer       text    DEFAULT NULL,
-  p_amount      numeric DEFAULT NULL,
-  p_paid        numeric DEFAULT NULL,
-  p_due_at      date    DEFAULT NULL,
-  p_notes       text    DEFAULT NULL,
-  p_day_id      uuid    DEFAULT NULL
+  p_event_id  uuid,
+  p_id        uuid,
+  p_item      text    DEFAULT NULL,
+  p_payer     text    DEFAULT NULL,
+  p_amount    numeric DEFAULT NULL,
+  p_paid      numeric DEFAULT NULL,
+  p_due_at    date    DEFAULT NULL,
+  p_notes     text    DEFAULT NULL,
+  p_day_id    uuid    DEFAULT NULL,
+  p_vendor_id uuid    DEFAULT NULL
 )
 RETURNS event_expenses LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
@@ -1629,13 +1686,19 @@ BEGIN
     RAISE EXCEPTION 'Paid cannot exceed the amount';
   END IF;
 
+  IF p_vendor_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM event_vendors WHERE id = p_vendor_id AND event_id = p_event_id
+  ) THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
   v_budget_id := get_or_create_budget_bucket(p_event_id, p_day_id);
 
   UPDATE event_expenses
   SET
     budget_id   = v_budget_id,
     item        = COALESCE(NULLIF(btrim(p_item), ''), item),
-    vendor_name = p_vendor_name,
+    vendor_id   = p_vendor_id,
     payer       = p_payer,
     amount      = v_amount,
     paid        = v_paid,
@@ -1859,6 +1922,171 @@ BEGIN
   END IF;
 
   DELETE FROM event_gifts WHERE id = p_id;
+END;
+$$;
+
+
+-- =============================================================================
+-- VENDOR CRM — RPCs  [added 20260717000001; delegated + Pro-gated 20260718000005-7]
+-- Delegated resource (Admin=full, Team=none), so writes gate on
+-- has_event_permission('vendors', <action>) — super-admins pass via bypass.
+-- Vendors is a Pro feature: create/update carry assert_plan('vendors') after
+-- assert_event_writable; delete stays ungated so a dormant module on a downgraded
+-- event is still cleanable (same rule as 20260618000107).
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.create_vendor(
+  p_event_id      uuid,
+  p_name          text,
+  p_category      text,
+  p_phone         text DEFAULT NULL,
+  p_email         text DEFAULT NULL,
+  p_notes         text DEFAULT NULL,
+  p_day_ids       uuid[] DEFAULT '{}'
+)
+RETURNS event_vendors LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller  event_members;
+  v_row     event_vendors;
+  v_day_ids uuid[];
+BEGIN
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'vendors', 'create') THEN
+    RAISE EXCEPTION 'Insufficient permission to add vendors';
+  END IF;
+
+  PERFORM assert_event_writable(p_event_id);
+  PERFORM assert_plan(p_event_id, 'vendors');
+
+  IF btrim(COALESCE(p_name, '')) = '' THEN
+    RAISE EXCEPTION 'A vendor name is required';
+  END IF;
+
+  IF btrim(COALESCE(p_category, '')) = '' THEN
+    RAISE EXCEPTION 'A category is required';
+  END IF;
+
+  -- Dedupe + validate the day tags: every id must be a day of this event.
+  v_day_ids := ARRAY(SELECT DISTINCT d FROM unnest(COALESCE(p_day_ids, '{}'::uuid[])) AS d);
+  IF EXISTS (
+    SELECT 1 FROM unnest(v_day_ids) AS d
+    WHERE NOT EXISTS (SELECT 1 FROM event_days WHERE id = d AND event_id = p_event_id)
+  ) THEN
+    RAISE EXCEPTION 'A selected day does not belong to this event';
+  END IF;
+
+  INSERT INTO event_vendors (
+    event_id, name, category, phone, email, notes, day_ids
+  )
+  VALUES (
+    p_event_id, btrim(p_name), btrim(p_category),
+    p_phone, p_email, p_notes, v_day_ids
+  )
+  RETURNING * INTO v_row;
+
+  RETURN v_row;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.update_vendor(
+  p_event_id      uuid,
+  p_id            uuid,
+  p_name          text,
+  p_category      text,
+  p_phone         text DEFAULT NULL,
+  p_email         text DEFAULT NULL,
+  p_notes         text DEFAULT NULL,
+  p_day_ids       uuid[] DEFAULT '{}'
+)
+RETURNS event_vendors LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller  event_members;
+  v_row     event_vendors;
+  v_day_ids uuid[];
+BEGIN
+  SELECT * INTO v_row FROM event_vendors WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Vendor not found';
+  END IF;
+
+  IF v_row.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'vendors', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update vendors';
+  END IF;
+
+  PERFORM assert_event_writable(p_event_id);
+  PERFORM assert_plan(p_event_id, 'vendors');
+
+  IF btrim(COALESCE(p_name, '')) = '' THEN
+    RAISE EXCEPTION 'A vendor name is required';
+  END IF;
+
+  IF btrim(COALESCE(p_category, '')) = '' THEN
+    RAISE EXCEPTION 'A category is required';
+  END IF;
+
+  -- Dedupe + validate the day tags: every id must be a day of this event.
+  v_day_ids := ARRAY(SELECT DISTINCT d FROM unnest(COALESCE(p_day_ids, '{}'::uuid[])) AS d);
+  IF EXISTS (
+    SELECT 1 FROM unnest(v_day_ids) AS d
+    WHERE NOT EXISTS (SELECT 1 FROM event_days WHERE id = d AND event_id = p_event_id)
+  ) THEN
+    RAISE EXCEPTION 'A selected day does not belong to this event';
+  END IF;
+
+  UPDATE event_vendors
+  SET
+    name          = btrim(p_name),
+    category      = btrim(p_category),
+    phone         = p_phone,
+    email         = p_email,
+    notes         = p_notes,
+    day_ids       = v_day_ids
+  WHERE id = p_id
+  RETURNING * INTO v_row;
+
+  RETURN v_row;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.delete_vendor(p_event_id uuid, p_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_row    event_vendors;
+BEGIN
+  SELECT * INTO v_row FROM event_vendors WHERE id = p_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Vendor not found';
+  END IF;
+
+  IF v_row.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Vendor does not belong to this event';
+  END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event';
+  END IF;
+
+  IF NOT has_event_permission(p_event_id, 'vendors', 'delete') THEN
+    RAISE EXCEPTION 'Insufficient permission to remove vendors';
+  END IF;
+
+  -- No assert_event_writable / assert_plan — deletes stay cleanable on downgrade.
+  DELETE FROM event_vendors WHERE id = p_id;
 END;
 $$;
 
@@ -2115,6 +2343,11 @@ BEGIN
   IF v_invitations > 0 THEN
     RAISE EXCEPTION 'Remove this day''s % invitation(s) before deleting it', v_invitations;
   END IF;
+
+  -- Vendor day-tags aren't owned data — scrub, don't block [20260718000012].
+  UPDATE event_vendors
+  SET day_ids = array_remove(day_ids, p_id)
+  WHERE event_id = p_event_id AND p_id = ANY(day_ids);
 
   DELETE FROM event_days WHERE id = p_id AND event_id = p_event_id;
   IF NOT FOUND THEN
@@ -2378,10 +2611,9 @@ CREATE EVENT TRIGGER auto_attach_triggers_on_create
 -- =============================================================================
 -- KNOWN GAPS — fill these in after running the missing queries
 -- =============================================================================
--- 1. event_vendors column definitions (only FK + index confirmed)
--- 2. push_subscriptions full column list (endpoint/p256dh/auth inferred)
--- 3. events full column list (inferred from RPCs — verify nullable/defaults)
--- 4. event_tasks archived_at / assignees column defaults (inferred)
--- 5. Full RPC function bodies (copy from the 2026-06-04 function dump)
--- 6. Any INSERT/UPDATE/DELETE RLS policies (none found in dump — confirm intentional)
+-- 1. push_subscriptions full column list (endpoint/p256dh/auth inferred)
+-- 2. events full column list (inferred from RPCs — verify nullable/defaults)
+-- 3. event_tasks archived_at / assignees column defaults (inferred)
+-- 4. Full RPC function bodies (copy from the 2026-06-04 function dump)
+-- 5. Any INSERT/UPDATE/DELETE RLS policies (none found in dump — confirm intentional)
 -- =============================================================================

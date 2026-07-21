@@ -19,6 +19,10 @@ export interface FieldShellProps {
   hint?: ReactNode;
   fieldClassName?: string;
   labelClassName?: string;
+  /** Control pinned to the far end of the LABEL row — for an action that creates
+   *  what the field selects ("+ New vendor"). Rendered as the label's sibling,
+   *  never inside it, so clicking it doesn't trigger the label's focus behaviour. */
+  labelAction?: ReactNode;
   /** An imperative/async error (e.g. an upload failure) shown via the same
    *  animated FieldError as validation errors. */
   error?: string | null;
@@ -33,6 +37,7 @@ const FieldShell = ({
   hint,
   fieldClassName,
   labelClassName,
+  labelAction,
   error,
   children,
 }: FieldShellProps) => {
@@ -56,14 +61,17 @@ const FieldShell = ({
               className={cn("gap-2", fieldClassName)}
             >
               {label && (
-                <FieldLabel className={labelClassName}>
-                  {label}
-                  {optional && (
-                    <Badge variant="outline" className="h-4 px-1.5 py-0 font-normal text-2xs">
-                      Optional
-                    </Badge>
-                  )}
-                </FieldLabel>
+                <div className="flex items-center justify-between gap-2">
+                  <FieldLabel className={labelClassName}>
+                    {label}
+                    {optional && (
+                      <Badge variant="outline" className="h-4 px-1.5 py-0 font-normal text-2xs">
+                        Optional
+                      </Badge>
+                    )}
+                  </FieldLabel>
+                  {labelAction}
+                </div>
               )}
               {description && (
                 <FieldDescription>{description}</FieldDescription>

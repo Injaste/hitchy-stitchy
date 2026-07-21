@@ -22,6 +22,8 @@ interface FormDialogProps {
   resetOnSuccess?: boolean;
   children: ReactNode;
   contentClassName?: string;
+  /** Opens on top of another dialog — drops the duplicate overlay tint/blur. */
+  nested?: boolean;
 }
 
 /**
@@ -40,6 +42,7 @@ const FormDialog = ({
   resetOnSuccess = false,
   children,
   contentClassName,
+  nested = false,
 }: FormDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(open);
   const [animate, setAnimate] = useState<"idle" | "shake">("idle");
@@ -95,6 +98,7 @@ const FormDialog = ({
         <DialogContent
           aria-describedby={undefined}
           className={contentClassName}
+          nested={nested}
           animate={animate}
           onAnimationComplete={() => setAnimate("idle")}
           onPointerDownOutside={handlePointerDownOutside}

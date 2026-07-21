@@ -5,6 +5,7 @@ import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 
 import { cn } from "@/lib/utils";
 import { fieldSurface } from "@/components/ui/field-styles";
+import ScrollGradient from "@/components/custom/scroll-gradient";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -94,14 +95,21 @@ function ComboboxContent({
   align = "start",
   alignOffset = 0,
   anchor,
+  container,
   ...props
 }: ComboboxPrimitive.Popup.Props &
   Pick<
     ComboboxPrimitive.Positioner.Props,
     "side" | "align" | "sideOffset" | "alignOffset" | "anchor"
-  >) {
+  > &
+  Pick<ComboboxPrimitive.Portal.Props, "container">) {
   return (
-    <ComboboxPrimitive.Portal>
+    // `container` escapes the default body portal. Needed when the popup holds
+    // its own focusable content (e.g. a search input) *inside* a Radix Dialog:
+    // Radix traps focus to the dialog subtree, so a body-portaled popup can
+    // never be focused. Pass the dialog element to render within the trap.
+    // Omit it everywhere else — body remains the default.
+    <ComboboxPrimitive.Portal container={container}>
       <ComboboxPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}
@@ -116,7 +124,10 @@ function ComboboxContent({
           data-slot="combobox-content"
           data-chips={!!anchor}
           className={cn(
-            "group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-md bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 pointer-events-auto",
+            // Radius nests: popup rounded-lg (12px) − the m-1/p-1 inset (4px) =
+            // rounded-sm (8px) for the search field and the items inside it.
+            // Matches SelectContent, which is the same shape of popup.
+            "group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 data-[chips=true]:min-w-(--anchor-width) data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-8 *:data-[slot=input-group]:rounded-sm *:data-[slot=input-group]:border-input/30 *:data-[slot=input-group]:bg-input/30 *:data-[slot=input-group]:shadow-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 pointer-events-auto",
             className,
           )}
           {...props}
@@ -126,16 +137,60 @@ function ComboboxContent({
   );
 }
 
+// The list hides its scrollbar (no-scrollbar), so the only cue that there's more
+// below is a gradient + chevron pinned to each scrollable edge — the same
+// affordance SelectContent uses, driven off the live scroll position so it eases
+// in AND out. Every combobox gets it (phone country picker, label picker, …).
 function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
+  const listRef = React.useRef<HTMLDivElement>(null);
+  const [showTop, setShowTop] = React.useState(false);
+  const [showBottom, setShowBottom] = React.useState(false);
+
+  const updateEdges = React.useCallback(() => {
+    const el = listRef.current;
+    if (!el) return;
+    setShowTop(el.scrollTop > 1);
+    setShowBottom(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
+  }, []);
+
+  // No dep array on purpose: filtering swaps the rows without resizing the box,
+  // so a ResizeObserver alone would leave the bottom fade stale. Re-measuring
+  // after every render covers it; setState bails out when nothing changed.
+  React.useEffect(updateEdges);
+
+  React.useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(updateEdges);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [updateEdges]);
+
   return (
-    <ComboboxPrimitive.List
-      data-slot="combobox-list"
-      className={cn(
-        "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
-        className,
-      )}
-      {...props}
-    />
+    <div className="relative">
+      <ScrollGradient
+        side="top"
+        visible={showTop}
+        chevron
+        fromClass="from-popover"
+      />
+      <ComboboxPrimitive.List
+        ref={listRef}
+        onScroll={updateEdges}
+        data-slot="combobox-list"
+        className={cn(
+          "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
+          className,
+        )}
+        {...props}
+      />
+      <ScrollGradient
+        side="bottom"
+        visible={showBottom}
+        chevron
+        fromClass="from-popover"
+      />
+    </div>
   );
 }
 

@@ -25,7 +25,8 @@ export type Resource =
   | "members"
   | "access"
   | "budget"
-  | "gifts";
+  | "gifts"
+  | "vendors";
 
 export interface ResourceGroup {
   label: string;
@@ -41,13 +42,14 @@ export const RESOURCE_LABELS: Record<Resource, string> = {
   access: "Access",
   budget: "Budget",
   gifts: "Gifts",
+  vendors: "Vendors",
 };
 
 export const RESOURCE_GROUPS: ResourceGroup[] = [
   { label: "Operations", resources: ["timeline", "tasks"] },
   { label: "Money", resources: ["budget", "gifts"] },
   { label: "Guests", resources: ["guests", "invitation"] },
-  { label: "Team", resources: ["members", "access"] },
+  { label: "People", resources: ["members", "vendors", "access"] },
 ];
 
 /** Read a resource's level off a (flat) permissions object. */

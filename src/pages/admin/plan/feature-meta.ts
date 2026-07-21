@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Wallet,
   HandCoins,
+  Store,
   Crown,
   type LucideIcon,
 } from "lucide-react";
@@ -60,6 +61,11 @@ export const FEATURE_META: Record<
     icon: HandCoins,
     description:
       "Record every ang bao, sampul duit or shagun — the tally adds up as the day goes on.",
+  },
+  vendors: {
+    icon: Store,
+    description:
+      "Keep every vendor you've hired in one place — who they are, what they do, and how to reach them.",
   },
   invitation: {
     icon: Mail,

@@ -13,8 +13,16 @@ const ExpenseCreateModal = () => {
   const isCreateMore = useExpenseModalStore((s) => s.isCreateMore);
   const setIsCreateMore = useExpenseModalStore((s) => s.setIsCreateMore);
   const { create } = useExpenseMutations();
+  // Set when opened from a vendor's detail: pre-link that vendor and its likely
+  // day (the caller works the day out), and surface the Day select since there
+  // are no day tabs over there to imply one.
+  const createVendorId = useExpenseModalStore((s) => s.createVendorId);
+  const createDayId = useExpenseModalStore((s) => s.createDayId);
 
   const form = useExpenseForm({
+    defaultValues: createVendorId
+      ? { vendor_id: createVendorId, day_id: createDayId }
+      : undefined,
     onSubmit: (values) => create.mutate(values),
   });
 
@@ -31,7 +39,7 @@ const ExpenseCreateModal = () => {
     >
       <FormHeader icon={<Wallet className="size-4" />} title="Add expense" />
 
-      <ExpenseForm />
+      <ExpenseForm showDay={!!createVendorId} />
 
       <FormFooter
         onCancel={closeAll}

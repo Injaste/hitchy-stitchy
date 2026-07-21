@@ -50,6 +50,7 @@ export const useAdminStore = create<AdminState>((set) => ({
       guests: false,
       budget: false,
       gifts: false,
+      vendors: false,
       invitation: false,
       branding: false,
     },

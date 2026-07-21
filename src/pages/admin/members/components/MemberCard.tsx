@@ -46,6 +46,7 @@ const MemberCard: FC<MemberCardProps> = ({ member, isSelf }) => {
       <button
         onClick={() => openDetail(member)}
         aria-label={member.display_name}
+        data-card-hit
         className="absolute inset-0 rounded-[inherit] z-0 cursor-pointer"
       />
       <CardContent>
