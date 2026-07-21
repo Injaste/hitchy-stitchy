@@ -1024,18 +1024,28 @@ CREATE OR REPLACE FUNCTION public.has_event_permission(
 )
 RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
 DECLARE
-  v_caller      event_members;
-  v_permissions jsonb;
+  v_caller event_members;
+  v_level  text;
 BEGIN
   v_caller := get_current_member(p_event_id);
   IF v_caller.id IS NULL THEN RETURN false; END IF;
+
+  -- Couple/owner bypass everything (flag-derived).
   IF is_super_admin(v_caller) THEN RETURN true; END IF;
 
-  SELECT ag.permissions INTO v_permissions
+  -- permissions is a FLAT map {resource: 'none'|'read'|'full'} (three-level model,
+  -- collapsed in 20260605000001 — not the old nested {resource:{action:bool}}).
+  SELECT ag.permissions ->> p_resource INTO v_level
   FROM event_access_groups ag
   WHERE ag.id = v_caller.access_group_id;
 
-  RETURN COALESCE((v_permissions -> p_resource ->> p_action)::boolean, false);
+  IF v_level IS NULL THEN RETURN false; END IF;
+
+  IF p_action = 'read' THEN
+    RETURN v_level IN ('read', 'full');
+  END IF;
+  -- create / update / delete -> requires full
+  RETURN v_level = 'full';
 END;
 $$;
 REVOKE EXECUTE ON FUNCTION public.has_event_permission(uuid, text, text) FROM PUBLIC, anon;
