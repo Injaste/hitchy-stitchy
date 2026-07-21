@@ -1,7 +1,9 @@
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
 import { useForm } from "@tanstack/react-form";
+import { Plus } from "lucide-react";
 import { z } from "zod";
 
+import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import {
   TextField,
@@ -10,11 +12,15 @@ import {
   SelectField,
   FormBody,
 } from "@/components/custom/form";
+import { useFormShell } from "@/components/custom/form/form-context";
 
+import { useAccess } from "../../hooks/useAccess";
 import { useActiveEventDay } from "../../hooks/useActiveEventDay";
+import { usePlan } from "../../hooks/usePlan";
 import { dayLabel } from "../../days/utils";
 import { useVendorsQuery } from "../../vendors/queries";
 import { sortVendors } from "../../vendors/utils";
+import { useExpenseModalStore } from "../hooks/useExpenseModalStore";
 import { expenseFormSchema, type ExpenseFormValues } from "../types";
 
 // Money is cents at most — drop any digits past 2 decimals as they're typed
@@ -76,7 +82,37 @@ interface ExpenseFormProps {
 
 const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid, showDay }) => {
   const { data } = useVendorsQuery();
-  const { days, multiDay } = useActiveEventDay();
+  const { days, multiDay, activeDayId } = useActiveEventDay();
+  const { form } = useFormShell();
+  const { canCreate } = useAccess();
+  const { canUseFeature } = usePlan();
+  const createVendorId = useExpenseModalStore((s) => s.createVendorId);
+  const openVendorCreate = useExpenseModalStore((s) => s.openVendorCreate);
+  const closeVendorCreate = useExpenseModalStore((s) => s.closeVendorCreate);
+  const pendingVendorId = useExpenseModalStore((s) => s.pendingVendorId);
+  const setPendingVendorId = useExpenseModalStore((s) => s.setPendingVendorId);
+
+  // A vendor was just added from the stacked dialog: select it and dismiss that
+  // dialog. Doing it here rather than in the dialog keeps the form the only
+  // writer of its own fields.
+  useEffect(() => {
+    if (!pendingVendorId) return;
+    form.setFieldValue("vendor_id", pendingVendorId);
+    setPendingVendorId(null);
+    closeVendorCreate();
+  }, [pendingVendorId, form, setPendingVendorId, closeVendorCreate]);
+
+  // Adding a vendor inline needs the vendors module (Pro+) AND write rights on
+  // it — an Admin who can spend but not manage the roster shouldn't get a button
+  // the server would reject.
+  //
+  // Hidden when the modal was opened FROM a vendor: that vendor is the reason
+  // this form exists, so offering to create another one invites unlinking the
+  // expense from the detail you'd be sent back to. The select itself stays
+  // editable — correcting a mis-click is fair; starting a new vendor isn't.
+  const canAddVendor =
+    canUseFeature("vendors") && canCreate("vendors") && !createVendorId;
+
   const vendorOptions = sortVendors(data?.vendors ?? []).map((vendor) => ({
     value: vendor.id,
     label: vendor.name,
@@ -95,7 +131,9 @@ const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid, showDay }) => {
           placeholder="e.g. Hall buffet — 1,000 pax"
         />
         {/* Ties to a CRM vendor (or none) — no free-text, so a vendor's spend
-            derives cleanly from its linked expenses. */}
+            derives cleanly from its linked expenses. The label action covers the
+            gap that creates: with no free-text, a vendor missing from the list
+            used to be a dead end mid-form ("No vendors yet" especially). */}
         <SelectField
           name="vendor_id"
           label="Vendor"
@@ -105,6 +143,21 @@ const ExpenseForm: FC<ExpenseFormProps> = ({ autoFocusPaid, showDay }) => {
             vendorOptions.length ? "Select a vendor" : "No vendors yet"
           }
           options={vendorOptions}
+          labelAction={
+            canAddVendor && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                onClick={() =>
+                  openVendorCreate(form.state.values.day_id ?? activeDayId)
+                }
+              >
+                <Plus className="size-3.5" />
+                Vendor
+              </Button>
+            )
+          }
         />
         {showDay && multiDay && (
           <SelectField

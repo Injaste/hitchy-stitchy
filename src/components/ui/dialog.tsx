@@ -64,9 +64,17 @@ function DialogContent({
   showCloseButton = true,
   animate = "idle",
   onAnimationComplete,
+  nested = false,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
+  /**
+   * This dialog opens ON TOP of another one. Keeps the overlay (Radix needs it
+   * for scroll lock) but drops its tint and blur — the dialog underneath already
+   * dims the page, and stacking two would double both, reading as a much darker
+   * scrim than either modal asked for.
+   */
+  nested?: boolean;
   /**
    * Drives the framer-motion variant on the inner visual card. Default
    * `"idle"`. Pass `"shake"` to trigger the blocked-close shake, then use
@@ -77,7 +85,13 @@ function DialogContent({
 }) {
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay
+        className={
+          nested
+            ? "bg-transparent supports-backdrop-filter:backdrop-blur-none"
+            : undefined
+        }
+      />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
