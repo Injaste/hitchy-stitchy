@@ -9,6 +9,9 @@ interface RequireRouteProps {
   requireSuperAdmin?: boolean;
   /** Required — every page declares its plan feature (none omitted). */
   feature: PlanFeature;
+  /** Required — the section title the denial/upsell header shows, so the shell
+   *  (and its mobile menu trigger) survives a dead-end. */
+  title: string;
   children: ReactNode;
 }
 
@@ -24,10 +27,17 @@ const RequireRoute = ({
   resource,
   requireSuperAdmin,
   feature,
+  title,
   children,
 }: RequireRouteProps) => (
-  <RequireAccess resource={resource} requireSuperAdmin={requireSuperAdmin}>
-    <RequirePlan feature={feature}>{children}</RequirePlan>
+  <RequireAccess
+    resource={resource}
+    requireSuperAdmin={requireSuperAdmin}
+    title={title}
+  >
+    <RequirePlan feature={feature} title={title}>
+      {children}
+    </RequirePlan>
   </RequireAccess>
 );
 

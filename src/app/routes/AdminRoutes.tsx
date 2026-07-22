@@ -67,15 +67,15 @@ const AdminRoutes = () => (
     }
   >
     <Route index element={<RedirectToLanding />} />
-    <Route path="timeline" element={<RequireRoute resource="timeline" feature="timeline"><Timeline /></RequireRoute>} />
-    <Route path="tasks" element={<RequireRoute resource="tasks" feature="tasks"><Tasks /></RequireRoute>} />
-    <Route path="members" element={<RequireRoute feature="members"><Members /></RequireRoute>} />
-    <Route path="access" element={<RequireRoute resource="access" feature="access"><Access /></RequireRoute>} />
-    <Route path="guests" element={<RequireRoute resource="guests" feature="guests"><Guests /></RequireRoute>} />
-    <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget"><Budget /></RequireRoute>} />
-    <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts"><Gifts /></RequireRoute>} />
-    <Route path="vendors" element={<RequireRoute resource="vendors" feature="vendors"><Vendors /></RequireRoute>} />
-    <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation"><Invitation /></RequireRoute>} />
+    <Route path="timeline" element={<RequireRoute resource="timeline" feature="timeline" title="Timeline"><Timeline /></RequireRoute>} />
+    <Route path="tasks" element={<RequireRoute resource="tasks" feature="tasks" title="Tasks"><Tasks /></RequireRoute>} />
+    <Route path="members" element={<RequireRoute feature="members" title="Members"><Members /></RequireRoute>} />
+    <Route path="access" element={<RequireRoute resource="access" feature="access" title="Access"><Access /></RequireRoute>} />
+    <Route path="guests" element={<RequireRoute resource="guests" feature="guests" title="Guests"><Guests /></RequireRoute>} />
+    <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget" title="Budget"><Budget /></RequireRoute>} />
+    <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts" title="Gifts"><Gifts /></RequireRoute>} />
+    <Route path="vendors" element={<RequireRoute resource="vendors" feature="vendors" title="Vendors"><Vendors /></RequireRoute>} />
+    <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation" title="Invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />
     <Route path="themes" element={<Navigate to="../invitation" replace />} />
     <Route path="*" element={<RedirectToLanding />} />

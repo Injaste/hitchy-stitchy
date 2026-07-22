@@ -3,12 +3,17 @@ import { useAccess } from "@/pages/admin/hooks/useAccess";
 import type { Resource } from "@/pages/admin/access/types";
 import Container from "./container";
 import NoAccessState from "./states/no-access-state";
+import { AdminPageHeader } from "./admin-page-header";
 
 interface RequireAccessProps {
   /** Allowed if the user can read ANY of these resource(s). */
   resource?: Resource | Resource[];
   /** Require the couple/root (the money + identity surfaces). */
   requireSuperAdmin?: boolean;
+  /** Section title. When set, the denial renders the page header above the
+   *  no-access state so the shell (and its mobile menu trigger) survives.
+   *  Omitted for sub-section gates, where a page header would be wrong. */
+  title?: string;
   children: ReactNode;
 }
 
@@ -23,6 +28,7 @@ interface RequireAccessProps {
 const RequireAccess = ({
   resource,
   requireSuperAdmin,
+  title,
   children,
 }: RequireAccessProps) => {
   const { isSuperAdmin, canRead } = useAccess();
@@ -38,9 +44,12 @@ const RequireAccess = ({
 
   if (!allowed) {
     return (
-      <Container className="py-3 sm:py-5" size="full">
-        <NoAccessState />
-      </Container>
+      <>
+        {title && <AdminPageHeader title={title} />}
+        <Container className="py-3 sm:py-5" size="full">
+          <NoAccessState />
+        </Container>
+      </>
     );
   }
 

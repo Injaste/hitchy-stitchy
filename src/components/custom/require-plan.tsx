@@ -3,10 +3,14 @@ import { usePlan } from "@/pages/admin/hooks/usePlan";
 import type { PlanFeature } from "@/pages/admin/plan/plan-config";
 import Container from "./container";
 import PlanLockedState from "./states/plan-locked-state";
+import { AdminPageHeader } from "./admin-page-header";
 
 interface RequirePlanProps {
   /** Feature module the plan must include — required, so every page is accounted for. */
   feature: PlanFeature;
+  /** Section title. When set, the upsell renders the page header above the
+   *  locked state so the shell (and its mobile menu trigger) survives. */
+  title?: string;
   children: ReactNode;
 }
 
@@ -17,14 +21,17 @@ interface RequirePlanProps {
  * not a tier string, so it stays grandfather-safe. Server RPCs are the real
  * boundary — this is UX. Must render inside the admin shell (after bootstrap).
  */
-const RequirePlan = ({ feature, children }: RequirePlanProps) => {
+const RequirePlan = ({ feature, title, children }: RequirePlanProps) => {
   const { canUseFeature } = usePlan();
 
   if (!canUseFeature(feature)) {
     return (
-      <Container className="py-3 sm:py-5" size="full">
-        <PlanLockedState feature={feature} />
-      </Container>
+      <>
+        {title && <AdminPageHeader title={title} />}
+        <Container className="py-3 sm:py-5" size="full">
+          <PlanLockedState feature={feature} />
+        </Container>
+      </>
     );
   }
 
