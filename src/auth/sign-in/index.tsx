@@ -12,7 +12,7 @@ import {
   FormBody,
   FormFooter,
   FormError,
-  TextField,
+  EmailField,
   PasswordField,
 } from "@/components/custom/form";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
@@ -118,10 +118,9 @@ const SignIn = () => {
 
                   <FormBody>
                     <FieldGroup>
-                      <TextField
+                      <EmailField
                         name="email"
                         label="Email"
-                        type="email"
                         placeholder="Email"
                         autoComplete="email"
                       />

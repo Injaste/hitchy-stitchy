@@ -12,7 +12,7 @@ import {
   FormBody,
   FormFooter,
   FormError,
-  TextField,
+  EmailField,
 } from "@/components/custom/form";
 import { Button } from "@/components/ui/button";
 import { container, itemFadeUp, itemScaleIn } from "@/lib/animations";
@@ -134,10 +134,9 @@ const ResetPassword = () => {
 
                 <FormBody>
                   <FieldGroup>
-                    <TextField
+                    <EmailField
                       name="email"
                       label="Email"
-                      type="email"
                       placeholder="Email"
                       autoFocus
                       autoComplete="email"

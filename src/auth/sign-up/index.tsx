@@ -13,6 +13,7 @@ import {
   FormFooter,
   FormError,
   TextField,
+  EmailField,
   PasswordField,
   PasswordChecklist,
   CheckboxField,
@@ -162,10 +163,9 @@ const Signup = () => {
                       autoComplete="name"
                     />
 
-                    <TextField
+                    <EmailField
                       name="email"
                       label="Email"
-                      type="email"
                       placeholder="Email"
                       autoComplete="email"
                     />
