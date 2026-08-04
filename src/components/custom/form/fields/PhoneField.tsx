@@ -183,6 +183,9 @@ const PhoneControl = ({
             next && pickCountry(next.code)
           }
           itemToStringLabel={(c: CountryOption) => c.name}
+          // Serialise the hidden input to the ISO code, not the whole object —
+          // without this it stores {"code":…,"name":…} JSON.
+          itemToStringValue={(c: CountryOption) => c.code}
           isItemEqualToValue={(a: CountryOption, b: CountryOption) =>
             a.code === b.code
           }
