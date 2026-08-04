@@ -51,7 +51,7 @@ const VendorEditModal = () => {
 
       {/* Just a form now — Delete lives on the detail modal it opens from,
           same as MemberEditModal. */}
-      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
+      <FormFooter onCancel={closeAll} submitLabel="Save" />
     </FormDialog>
   );
 };

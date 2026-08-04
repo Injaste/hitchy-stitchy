@@ -39,7 +39,7 @@ const GiftCreateModal = () => {
 
       <FormFooter
         onCancel={closeAll}
-        submitLabel="Save gift"
+        submitLabel="Add"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
       />
     </FormDialog>

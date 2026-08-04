@@ -133,7 +133,7 @@ const MemberEditModal = () => {
         isRoot={selectedItem.is_root}
       />
 
-      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
+      <FormFooter onCancel={closeAll} submitLabel="Save" />
     </FormDialog>
   );
 };

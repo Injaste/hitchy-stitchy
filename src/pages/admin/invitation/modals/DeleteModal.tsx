@@ -24,15 +24,15 @@ const DeleteModal = ({ edit, onSheetClose }: DeleteModalProps) => {
       open={open}
       onOpenChange={(o) => !o && closeConfirm()}
       variant="destructive"
-      title="Delete invitation?"
+      title="Remove invitation?"
       description={
         edit.isScheduled
-          ? "Cancel the scheduled publish before deleting it."
+          ? "Cancel the scheduled publish before removing it."
           : edit.isPublished
-            ? "Unpublish this invitation before deleting it."
+            ? "Unpublish this invitation before removing it."
             : "This permanently removes the invitation and its design. This can't be undone."
       }
-      confirmLabel="Delete"
+      confirmLabel="Remove"
       confirmDisabled={edit.isPublished}
       isPending={edit.deletePending}
       isSuccess={edit.deleteSuccess}

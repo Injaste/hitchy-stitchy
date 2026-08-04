@@ -57,7 +57,7 @@ const TaskCreateModal = () => {
 
       <FormFooter
         onCancel={closeAll}
-        submitLabel="Add task"
+        submitLabel="Add"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
       />
     </FormDialog>

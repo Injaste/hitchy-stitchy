@@ -81,7 +81,7 @@ const CreateTimelineItemModal = () => {
 
       <FormFooter
         onCancel={closeAll}
-        submitLabel="Add item"
+        submitLabel="Add"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
       />
     </FormDialog>

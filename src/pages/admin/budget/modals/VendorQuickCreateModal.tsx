@@ -53,7 +53,7 @@ const VendorQuickCreateModal = () => {
 
       <VendorForm />
 
-      <FormFooter onCancel={close} submitLabel="Save vendor" />
+      <FormFooter onCancel={close} submitLabel="Add" />
     </FormDialog>
   );
 };

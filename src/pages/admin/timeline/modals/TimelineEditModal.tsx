@@ -55,7 +55,7 @@ const TimelineEditModal = () => {
 
       <TimelineItemForm />
 
-      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
+      <FormFooter onCancel={closeAll} submitLabel="Save" />
     </FormDialog>
   );
 };

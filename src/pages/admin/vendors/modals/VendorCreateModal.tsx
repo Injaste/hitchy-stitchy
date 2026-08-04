@@ -41,7 +41,7 @@ const VendorCreateModal = () => {
 
       <FormFooter
         onCancel={closeAll}
-        submitLabel="Save vendor"
+        submitLabel="Add"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
       />
     </FormDialog>

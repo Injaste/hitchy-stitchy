@@ -26,15 +26,15 @@ const TaskDeleteModal = () => {
       open={isDeleteOpen}
       onOpenChange={closeAll}
       variant="destructive"
-      title="Delete task"
+      title="Remove task"
       description={
         <>
-          Are you sure you want to delete{" "}
+          Are you sure you want to remove{" "}
           <span className="font-semibold text-foreground">"{task.title}"</span>?
           This action cannot be undone.
         </>
       }
-      confirmLabel="Delete"
+      confirmLabel="Remove"
       onConfirm={handleConfirm}
       isPending={remove.isPending}
       isSuccess={remove.isSuccess}

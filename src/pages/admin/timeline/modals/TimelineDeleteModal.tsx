@@ -27,15 +27,15 @@ const TimelineDeleteModal = () => {
       open={isDeleteOpen}
       onOpenChange={closeAll}
       variant="destructive"
-      title="Delete item"
+      title="Remove item"
       description={
         <>
-          Are you sure you want to delete{" "}
+          Are you sure you want to remove{" "}
           <span className="font-semibold text-foreground">"{item.title}"</span>?
           This action cannot be undone.
         </>
       }
-      confirmLabel="Delete"
+      confirmLabel="Remove"
       onConfirm={handleConfirm}
       isPending={remove.isPending}
       isSuccess={remove.isSuccess}

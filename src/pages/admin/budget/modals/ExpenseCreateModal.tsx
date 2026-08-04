@@ -43,7 +43,7 @@ const ExpenseCreateModal = () => {
 
       <FormFooter
         onCancel={closeAll}
-        submitLabel="Add expense"
+        submitLabel="Add"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
       />
     </FormDialog>

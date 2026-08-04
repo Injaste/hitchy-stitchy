@@ -60,7 +60,7 @@ const CreateGuestForm = ({ pages, pageId, open }: CreateGuestFormProps) => {
       <GuestForm pages={pages} multiPage />
       <FormFooter
         onCancel={closeAll}
-        submitLabel="Add guest"
+        submitLabel="Add"
         createMore={{ checked: isCreateMore, onChange: setIsCreateMore }}
       />
     </FormDialog>

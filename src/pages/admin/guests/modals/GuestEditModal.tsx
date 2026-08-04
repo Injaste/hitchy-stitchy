@@ -96,7 +96,7 @@ const GuestEditModal = () => {
     >
       <FormHeader icon={<User className="size-4" />} title="Edit guest" />
       <GuestForm pages={pages} />
-      <FormFooter onCancel={closeAll} submitLabel="Save changes" />
+      <FormFooter onCancel={closeAll} submitLabel="Save" />
     </FormDialog>
   );
 };
