@@ -11,6 +11,7 @@ import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useMemberModalStore } from "../hooks/useMemberModalStore";
 import { useMemberMutations, useMembersQuery } from "../queries";
 import { useAccessGroupsQuery } from "../../access/queries";
+import { useAccess } from "../../hooks/useAccess";
 
 import MemberForm, { useMemberForm } from "./MemberForm";
 
@@ -21,6 +22,7 @@ const MemberCreateModal = () => {
   const setIsCreateMore = useMemberModalStore((s) => s.setIsCreateMore);
   const openDetailForCreated = useMemberModalStore((s) => s.openDetailForCreated);
   const { eventId } = useAdminStore();
+  const { isSuperAdmin } = useAccess();
   const { create } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
 
@@ -30,18 +32,17 @@ const MemberCreateModal = () => {
     .map((m) => m.role)
     .filter((r): r is string => !!r);
 
-  // Every member defaults to the Admin group — the only group (Team was retired).
-  // The picker is hidden (showAccessGroup={false}); we still resolve the id so the
-  // create RPC gets a valid group.
+  // New members default to Helper. Owners see a picker (Helper / Co-owner);
+  // everyone else has no picker and lands in Helper.
   const { data: accessGroups = [] } = useAccessGroupsQuery();
-  const adminId = useMemo(
-    () => accessGroups.find((g) => g.name === "Admin")?.id ?? "",
+  const helperId = useMemo(
+    () => accessGroups.find((g) => g.name === "Helper")?.id ?? "",
     [accessGroups],
   );
 
   const form = useMemberForm({
     reservedRoles,
-    defaultValues: { access_group_id: adminId },
+    defaultValues: { access_group_id: helperId },
     onSubmit: async (values) => {
       // Freeze the hand-off intent at submit time: a later "Invite more" toggle
       // must not change what an already-submitted create does.
@@ -65,12 +66,12 @@ const MemberCreateModal = () => {
     },
   });
 
-  // Seed the Admin default once groups load / whenever the modal reopens empty.
+  // Seed the Helper default once groups load / whenever the modal reopens empty.
   useEffect(() => {
-    if (isCreateOpen && adminId && !form.getFieldValue("access_group_id")) {
-      form.setFieldValue("access_group_id", adminId);
+    if (isCreateOpen && helperId && !form.getFieldValue("access_group_id")) {
+      form.setFieldValue("access_group_id", helperId);
     }
-  }, [isCreateOpen, adminId, form]);
+  }, [isCreateOpen, helperId, form]);
 
   // Reset the mutation when the modal closes so a stale success state never
   // carries into the next open. Depend on the stable `reset` fn.
@@ -92,9 +93,9 @@ const MemberCreateModal = () => {
     >
       <FormHeader icon={<Users className="size-4" />} title="Invite member" />
 
-      {/* Access group picker hidden — Admin is the only group. Restore the
-          default (drop the prop) when the Access page returns. */}
-      <MemberForm showAccessGroup={false} />
+      {/* Owners pick the tier (Helper / Co-owner); everyone else has no picker
+          and creates Helpers. */}
+      <MemberForm showAccessGroup={isSuperAdmin} />
 
       <FormFooter
         onCancel={closeAll}

@@ -128,7 +128,7 @@ const MemberForm = ({
                   disabled={lockAccessGroup || forceAccessSuperAdmin}
                   initialDisplayName={accessGroupInitialName}
                   overrideDisplayName={
-                    forceAccessSuperAdmin ? "SuperAdmin" : undefined
+                    forceAccessSuperAdmin ? "Owner" : undefined
                   }
                 />
               )}

@@ -171,13 +171,15 @@ CREATE TABLE public.events (
 CREATE TABLE public.event_access_groups (
   id          uuid        NOT NULL DEFAULT gen_random_uuid(),
   event_id    uuid        NOT NULL,
-  name        text        NOT NULL,
+  code        text        NOT NULL,   -- stable machine id: 'helper' | 'admin' (logic/logs key off this)
+  name        text        NOT NULL,   -- human label: 'Helper' | 'Co-owner' (display only)
+  rank        int,                    -- ordering (lower = higher privilege)
   permissions jsonb       NOT NULL DEFAULT '{}',
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now(),
 
-  CONSTRAINT event_roles_pkey              PRIMARY KEY (id),
-  CONSTRAINT event_roles_event_id_name_key UNIQUE (event_id, name),
+  CONSTRAINT event_roles_pkey                      PRIMARY KEY (id),
+  CONSTRAINT event_access_groups_event_id_code_key UNIQUE (event_id, code),
   CONSTRAINT event_access_groups_event_id_fk
     FOREIGN KEY (event_id) REFERENCES public.events (id) ON DELETE CASCADE
 );
@@ -1172,6 +1174,7 @@ DECLARE
   v_user_id   uuid := auth.uid();
   v_event_id  uuid;
   v_slug      text;
+  v_helper_id uuid;
   v_admin_id  uuid;
   v_member_id uuid;
   v_day_id    uuid;
@@ -1199,16 +1202,26 @@ BEGIN
   VALUES (p_slug, p_name)
   RETURNING events.id, events.slug INTO v_event_id, v_slug;
 
-  -- No budget/gifts grant — those are super-admin only (the couple). Vendors, by
-  -- contrast, is a DELEGATED resource: Admin=full [20260718000004]. Admin is the
-  -- only group now — Team retired in 20260805000001; every member lands here.
-  INSERT INTO event_access_groups (event_id, name, permissions)
-  VALUES (v_event_id, 'Admin', '{
+  -- Helper (default) + Co-owner (code 'admin') — identical perms; they differ
+  -- only by money, granted via a code='admin' gate (money-delegation migration),
+  -- not the map. Budget/gifts stay super-admin/couple-gated + delegated
+  -- [ladder: 20260805000002].
+  INSERT INTO event_access_groups (event_id, code, name, rank, permissions)
+  VALUES (v_event_id, 'helper', 'Helper', 3, '{
+    "timeline":"full","tasks":"full","guests":"full","invitation":"full",
+    "vendors":"full","members":"full","access":"read"
+  }'::jsonb)
+  RETURNING event_access_groups.id INTO v_helper_id;
+
+  INSERT INTO event_access_groups (event_id, code, name, rank, permissions)
+  VALUES (v_event_id, 'admin', 'Co-owner', 2, '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
     "vendors":"full","members":"full","access":"read"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_admin_id;
 
+  -- Creator (root/Owner) placed in Co-owner as the NOT NULL placeholder; the
+  -- is_super_admin flag, not the group, grants their power.
   INSERT INTO event_members (
     event_id, user_id, display_name, access_group_id,
     role, is_root, is_bride, is_groom, invited_at, joined_at
