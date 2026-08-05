@@ -2,7 +2,6 @@ import {
   Clock,
   CheckSquare,
   Users,
-  Shield,
   Mail,
   ClipboardList,
   Wallet,
@@ -42,15 +41,16 @@ const AdminSidebarContent = () => {
   const showVendors = canRead("vendors");
   // The member roster is viewable by every active member; managing it needs members:full.
   const showMembers = true;
-  const showAccess = canRead("access");
+  // Access page hidden — role management collapsed to Admin-only.
+  // const showAccess = canRead("access");
   const showGuests = canRead("guests");
   const showInvitation = canRead("invitation");
 
   const hasOperations = showTimeline || showTasks;
   const hasMoney = showBudget || showGifts;
   // "People" spans your own team and the vendors you hired — everyone being
-  // coordinated. (Access is the permissions for those people.)
-  const hasPeople = showMembers || showAccess || showVendors;
+  // coordinated.
+  const hasPeople = showMembers || showVendors;
   const hasRSVP = showGuests || showInvitation;
 
   return (
@@ -133,6 +133,7 @@ const AdminSidebarContent = () => {
                     isActive={activePage === "vendors"}
                   />
                 )}
+                {/* Access page hidden — role management collapsed to Admin-only.
                 {showAccess && (
                   <NavItem
                     icon={Shield}
@@ -140,7 +141,7 @@ const AdminSidebarContent = () => {
                     to={`${base}/access`}
                     isActive={activePage === "access"}
                   />
-                )}
+                )} */}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

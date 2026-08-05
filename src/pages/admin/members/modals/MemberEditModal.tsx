@@ -19,7 +19,7 @@ const MemberEditModal = () => {
   const selectedItem = useMemberModalStore((s) => s.selectedItem);
   const closeAll = useMemberModalStore((s) => s.closeAll);
   const { eventId } = useAdminStore();
-  const { canManageMembers, canManageCouple, guardChangeAccessGroup } = useAccess();
+  const { canManageCouple, guardChangeAccessGroup } = useAccess();
   const { update, updateAccessGroup, updateCouple } = useMemberMutations();
   const { data: members = [] } = useMembersQuery();
 
@@ -125,8 +125,10 @@ const MemberEditModal = () => {
     >
       <FormHeader icon={<Users className="size-4" />} title="Edit member" />
 
+      {/* Access group picker hidden — Admin is the only group. Restore
+          showAccessGroup={canManageMembers} when the Access page returns. */}
       <MemberForm
-        showAccessGroup={canManageMembers}
+        showAccessGroup={false}
         lockAccessGroup={lockAccessGroup}
         accessGroupInitialName={selectedItem.accessGroup?.name ?? undefined}
         currentMemberId={selectedItem.id}

@@ -30,16 +30,18 @@ const MemberCreateModal = () => {
     .map((m) => m.role)
     .filter((r): r is string => !!r);
 
-  // New members default to the Team group.
+  // Every member defaults to the Admin group — the only group (Team was retired).
+  // The picker is hidden (showAccessGroup={false}); we still resolve the id so the
+  // create RPC gets a valid group.
   const { data: accessGroups = [] } = useAccessGroupsQuery();
-  const teamId = useMemo(
-    () => accessGroups.find((g) => g.name === "Team")?.id ?? "",
+  const adminId = useMemo(
+    () => accessGroups.find((g) => g.name === "Admin")?.id ?? "",
     [accessGroups],
   );
 
   const form = useMemberForm({
     reservedRoles,
-    defaultValues: { access_group_id: teamId },
+    defaultValues: { access_group_id: adminId },
     onSubmit: async (values) => {
       // Freeze the hand-off intent at submit time: a later "Invite more" toggle
       // must not change what an already-submitted create does.
@@ -63,12 +65,12 @@ const MemberCreateModal = () => {
     },
   });
 
-  // Seed the Team default once groups load / whenever the modal reopens empty.
+  // Seed the Admin default once groups load / whenever the modal reopens empty.
   useEffect(() => {
-    if (isCreateOpen && teamId && !form.getFieldValue("access_group_id")) {
-      form.setFieldValue("access_group_id", teamId);
+    if (isCreateOpen && adminId && !form.getFieldValue("access_group_id")) {
+      form.setFieldValue("access_group_id", adminId);
     }
-  }, [isCreateOpen, teamId, form]);
+  }, [isCreateOpen, adminId, form]);
 
   // Reset the mutation when the modal closes so a stale success state never
   // carries into the next open. Depend on the stable `reset` fn.
@@ -90,7 +92,9 @@ const MemberCreateModal = () => {
     >
       <FormHeader icon={<Users className="size-4" />} title="Invite member" />
 
-      <MemberForm />
+      {/* Access group picker hidden — Admin is the only group. Restore the
+          default (drop the prop) when the Access page returns. */}
+      <MemberForm showAccessGroup={false} />
 
       <FormFooter
         onCancel={closeAll}

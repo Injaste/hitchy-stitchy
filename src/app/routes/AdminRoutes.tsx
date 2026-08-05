@@ -10,7 +10,9 @@ import type { PlanFeature } from "@/pages/admin/plan/plan-config";
 import Timeline from "@/pages/admin/timeline";
 import Tasks from "@/pages/admin/tasks";
 import Members from "@/pages/admin/members";
-import Access from "@/pages/admin/access";
+// Access page hidden — role management collapsed to Admin-only. Restore when the
+// Access page returns.
+// import Access from "@/pages/admin/access";
 import Guests from "@/pages/admin/guests";
 import Budget from "@/pages/admin/budget";
 import Gifts from "@/pages/admin/gifts";
@@ -46,7 +48,8 @@ const RedirectToLanding = () => {
     { path: "guests", feature: "guests", allowed: canRead("guests") },
     { path: "invitation", feature: "invitation", allowed: canRead("invitation") },
     { path: "tasks", feature: "tasks", allowed: canRead("tasks") },
-    { path: "access", feature: "access", allowed: canRead("access") },
+    // Access page hidden — never a landing target while roles are Admin-only.
+    // { path: "access", feature: "access", allowed: canRead("access") },
     { path: "budget", feature: "budget", allowed: isSuperAdmin },
     { path: "gifts", feature: "gifts", allowed: isSuperAdmin },
   ];
@@ -70,7 +73,8 @@ const AdminRoutes = () => (
     <Route path="timeline" element={<RequireRoute resource="timeline" feature="timeline" title="Timeline"><Timeline /></RequireRoute>} />
     <Route path="tasks" element={<RequireRoute resource="tasks" feature="tasks" title="Tasks"><Tasks /></RequireRoute>} />
     <Route path="members" element={<RequireRoute feature="members" title="Members"><Members /></RequireRoute>} />
-    <Route path="access" element={<RequireRoute resource="access" feature="access" title="Access"><Access /></RequireRoute>} />
+    {/* Access page hidden — role management collapsed to Admin-only.
+    <Route path="access" element={<RequireRoute resource="access" feature="access" title="Access"><Access /></RequireRoute>} /> */}
     <Route path="guests" element={<RequireRoute resource="guests" feature="guests" title="Guests"><Guests /></RequireRoute>} />
     <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget" title="Budget"><Budget /></RequireRoute>} />
     <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts" title="Gifts"><Gifts /></RequireRoute>} />

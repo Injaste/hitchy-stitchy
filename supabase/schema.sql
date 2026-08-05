@@ -1158,7 +1158,7 @@ $$;
 --  They are omitted here to avoid duplication — the dump you provided on
 --  2026-06-04 is the authoritative source and should be appended below.]
 
--- create_event  [last updated: 20260613000002_team_tasks_read]
+-- create_event  [last updated: 20260805000001_remove_team_access_group]
 CREATE OR REPLACE FUNCTION public.create_event(
   p_slug         text,
   p_name         text,
@@ -1173,7 +1173,6 @@ DECLARE
   v_event_id  uuid;
   v_slug      text;
   v_admin_id  uuid;
-  v_team_id   uuid;
   v_member_id uuid;
   v_day_id    uuid;
   v_start     date;
@@ -1201,19 +1200,14 @@ BEGIN
   RETURNING events.id, events.slug INTO v_event_id, v_slug;
 
   -- No budget/gifts grant — those are super-admin only (the couple). Vendors, by
-  -- contrast, is a DELEGATED resource: Admin=full, Team=none [20260718000004].
+  -- contrast, is a DELEGATED resource: Admin=full [20260718000004]. Admin is the
+  -- only group now — Team retired in 20260805000001; every member lands here.
   INSERT INTO event_access_groups (event_id, name, permissions)
   VALUES (v_event_id, 'Admin', '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
     "vendors":"full","members":"full","access":"read"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_admin_id;
-
-  INSERT INTO event_access_groups (event_id, name, permissions)
-  VALUES (v_event_id, 'Team', '{
-    "timeline":"full","tasks":"read","members":"read","access":"read"
-  }'::jsonb)
-  RETURNING event_access_groups.id INTO v_team_id;
 
   INSERT INTO event_members (
     event_id, user_id, display_name, access_group_id,
