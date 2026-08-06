@@ -1204,13 +1204,14 @@ BEGIN
   VALUES (p_slug, p_name)
   RETURNING events.id, events.slug INTO v_event_id, v_slug;
 
-  -- Helper: full ops, no money, NO member-management (identity/access stays
-  -- Owner+Co-owner only [20260805000005]). Co-owner: full ops + full money +
-  -- member-management.
+  -- Helper: full ops, no money, members:read (sees the roster, cannot act on
+  -- it — write RPCs all require 'full', and a DB trigger blocks any non-admin
+  -- group from ever holding members:full [20260806000001]). Co-owner: full ops
+  -- + full money + members:full (identity/access management).
   INSERT INTO event_access_groups (event_id, code, name, rank, permissions)
   VALUES (v_event_id, 'helper', 'Helper', 3, '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
-    "vendors":"full","access":"read"
+    "vendors":"full","members":"read","access":"read"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_helper_id;
 
@@ -2473,6 +2474,25 @@ REVOKE EXECUTE ON FUNCTION public.clear_expired_invite_tokens() FROM PUBLIC, ano
 CREATE TRIGGER touch_updated_at_event_access_groups
   BEFORE UPDATE ON public.event_access_groups
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+
+-- Structural guard: identity/access management ('members') is Owner+Co-owner
+-- only. Caps the ceiling (blocks 'full' on any non-admin group) — doesn't force
+-- a floor, 'none'/'read' stays legal everywhere. Matters once group-CRUD
+-- returns; today it's the only thing that could grant it besides this seed.
+-- [20260806000001]
+CREATE OR REPLACE FUNCTION public.enforce_members_admin_only()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.permissions ->> 'members' = 'full' AND NEW.code <> 'admin' THEN
+    RAISE EXCEPTION 'Only the admin (Co-owner) group may hold members:full';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER event_access_groups_lock_members
+  BEFORE INSERT OR UPDATE ON public.event_access_groups
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_members_admin_only();
 
 CREATE TRIGGER touch_updated_at_event_announcement_reads
   BEFORE UPDATE ON public.event_announcement_reads
