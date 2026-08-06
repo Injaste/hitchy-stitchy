@@ -32,7 +32,7 @@ const Admin = lazy(() => import("@/pages/admin"));
 const RedirectToLanding = () => {
   const { slug } = useParams();
   const { canUseFeature } = usePlan();
-  const { canRead, isSuperAdmin } = useAccess();
+  const { canRead } = useAccess();
   const { active, nextRoute } = useSetupGuide();
 
   // While the couple is still setting up (super-admin + a routable step left), land
@@ -50,8 +50,8 @@ const RedirectToLanding = () => {
     { path: "tasks", feature: "tasks", allowed: canRead("tasks") },
     // Access page hidden — never a landing target while roles are Admin-only.
     // { path: "access", feature: "access", allowed: canRead("access") },
-    { path: "budget", feature: "budget", allowed: isSuperAdmin },
-    { path: "gifts", feature: "gifts", allowed: isSuperAdmin },
+    { path: "budget", feature: "budget", allowed: canRead("budget") },
+    { path: "gifts", feature: "gifts", allowed: canRead("gifts") },
   ];
   const target =
     landing.find((r) => canUseFeature(r.feature) && r.allowed)?.path ??
@@ -76,8 +76,8 @@ const AdminRoutes = () => (
     {/* Access page hidden — role management collapsed to Admin-only.
     <Route path="access" element={<RequireRoute resource="access" feature="access" title="Access"><Access /></RequireRoute>} /> */}
     <Route path="guests" element={<RequireRoute resource="guests" feature="guests" title="Guests"><Guests /></RequireRoute>} />
-    <Route path="budget" element={<RequireRoute requireSuperAdmin feature="budget" title="Budget"><Budget /></RequireRoute>} />
-    <Route path="gifts" element={<RequireRoute requireSuperAdmin feature="gifts" title="Gifts"><Gifts /></RequireRoute>} />
+    <Route path="budget" element={<RequireRoute resource="budget" feature="budget" title="Budget"><Budget /></RequireRoute>} />
+    <Route path="gifts" element={<RequireRoute resource="gifts" feature="gifts" title="Gifts"><Gifts /></RequireRoute>} />
     <Route path="vendors" element={<RequireRoute resource="vendors" feature="vendors" title="Vendors"><Vendors /></RequireRoute>} />
     <Route path="invitation" element={<RequireRoute resource="invitation" feature="invitation" title="Invitation"><Invitation /></RequireRoute>} />
     <Route path="details" element={<Navigate to="../invitation" replace />} />

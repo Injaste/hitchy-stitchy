@@ -903,16 +903,16 @@ CREATE POLICY event_settings_select ON public.event_settings
 -- super-admin only; the `budget` resource is no longer checked. 20260612000101.
 CREATE POLICY event_budget_select ON public.event_budget
   FOR SELECT TO authenticated
-  USING (is_super_admin_member(event_id));
+  USING (has_event_permission(event_id, 'budget', 'read'));
 
 CREATE POLICY event_expenses_select ON public.event_expenses
   FOR SELECT TO authenticated
-  USING (is_super_admin_member(event_id));
+  USING (has_event_permission(event_id, 'budget', 'read'));
 
 -- event_gifts — super-admin only (the couple); no write policies (RPCs only).
 CREATE POLICY event_gifts_select ON public.event_gifts
   FOR SELECT TO authenticated
-  USING (is_super_admin_member(event_id));
+  USING (has_event_permission(event_id, 'gifts', 'read'));
 
 CREATE POLICY event_tasks_select ON public.event_tasks
   FOR SELECT TO authenticated
@@ -1001,9 +1001,11 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_member_rank(p_member event_members)
 RETURNS integer LANGUAGE sql STABLE AS $$
   SELECT CASE
-    WHEN p_member.is_root                       THEN 0
-    WHEN p_member.is_bride OR p_member.is_groom THEN 1
-    ELSE 2
+    WHEN is_super_admin(p_member) THEN 0
+    ELSE COALESCE(
+      (SELECT ag.rank FROM event_access_groups ag WHERE ag.id = p_member.access_group_id),
+      999
+    )
   END;
 $$;
 REVOKE EXECUTE ON FUNCTION public.get_member_rank(event_members) FROM PUBLIC, anon, authenticated;
@@ -1202,21 +1204,21 @@ BEGIN
   VALUES (p_slug, p_name)
   RETURNING events.id, events.slug INTO v_event_id, v_slug;
 
-  -- Helper (default) + Co-owner (code 'admin') — identical perms; they differ
-  -- only by money, granted via a code='admin' gate (money-delegation migration),
-  -- not the map. Budget/gifts stay super-admin/couple-gated + delegated
-  -- [ladder: 20260805000002].
+  -- Helper: full ops, no money, NO member-management (identity/access stays
+  -- Owner+Co-owner only [20260805000005]). Co-owner: full ops + full money +
+  -- member-management.
   INSERT INTO event_access_groups (event_id, code, name, rank, permissions)
   VALUES (v_event_id, 'helper', 'Helper', 3, '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
-    "vendors":"full","members":"full","access":"read"
+    "vendors":"full","access":"read"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_helper_id;
 
   INSERT INTO event_access_groups (event_id, code, name, rank, permissions)
   VALUES (v_event_id, 'admin', 'Co-owner', 2, '{
     "timeline":"full","tasks":"full","guests":"full","invitation":"full",
-    "vendors":"full","members":"full","access":"read"
+    "vendors":"full","members":"full","access":"read",
+    "budget":"full","gifts":"full"
   }'::jsonb)
   RETURNING event_access_groups.id INTO v_admin_id;
 
@@ -1606,7 +1608,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'budget', 'full') THEN
     RAISE EXCEPTION 'Insufficient permission to create expenses';
   END IF;
 
@@ -1678,7 +1680,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'budget', 'full') THEN
     RAISE EXCEPTION 'Insufficient permission to update expenses';
   END IF;
 
@@ -1738,7 +1740,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'budget', 'full') THEN
     RAISE EXCEPTION 'Insufficient permission to delete expenses';
   END IF;
 
@@ -1760,7 +1762,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'budget', 'full') THEN
     RAISE EXCEPTION 'Insufficient permission to update the budget';
   END IF;
 
@@ -1804,7 +1806,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'gifts', 'full') THEN
     RAISE EXCEPTION 'Insufficient permission to record gifts';
   END IF;
 
@@ -1868,7 +1870,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'gifts', 'full') THEN
     RAISE EXCEPTION 'Insufficient permission to update gifts';
   END IF;
 
@@ -1924,7 +1926,7 @@ BEGIN
     RAISE EXCEPTION 'You are not an active member of this event';
   END IF;
 
-  IF NOT is_super_admin(v_caller) THEN
+  IF NOT has_event_permission(p_event_id, 'gifts', 'full') THEN
     RAISE EXCEPTION 'Insufficient permission to delete gifts';
   END IF;
 
