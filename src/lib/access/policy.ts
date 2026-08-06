@@ -6,30 +6,40 @@ export interface CallerPolicy {
   memberId: string;
   /** Caller's group grants members:full (can manage the team). */
   canManageTeam: boolean;
+  /** Caller's own access group rank (lower = higher privilege). Ignored when
+   *  isSuperAdmin — the couple/root aren't ranked by group. */
+  rank: number;
 }
 
 // -----------------------------------------------------------------------------
-// Member-management guards (mirror the server RPCs). Managing a member —
-// change-group / delete / freeze — is gated by a CAPABILITY rank:
-//   0 = superadmin (couple/owner), 1 = members:full, 2 = everyone else.
-// You may act on a member only if you outrank them (lower number). Couple/owner
-// (rank 0) are unreachable; you can never act on yourself. Editing a member's
-// profile (name/role/notes) is NOT peer-gated — only access/delete/freeze are.
+// Member-management guards (mirror the server RPCs, which gate the SAME two
+// ways in order: has_event_permission('members', action) first, THEN a strict
+// rank comparison via get_member_rank — see update_member_access_group /
+// delete_member / freeze_member). Rank comes straight from
+// event_access_groups.rank (0 for superadmin) — it is NOT inferred from
+// permissions, so the permission check in canManage is load-bearing: without
+// it, a caller who merely has a numerically lower rank than the target (but no
+// members:full) would appear able to manage them, when the server would reject
+// them outright at the permission gate.
+// You may act on a member only if you outrank them (strictly). Couple/owner are
+// unreachable; you can never act on yourself. Editing a member's profile
+// (name/role/notes) is NOT peer-gated — only access/delete/freeze are.
 // -----------------------------------------------------------------------------
 
 type RankTarget = Pick<Member, "is_root" | "is_bride" | "is_groom" | "accessGroup">;
 
 function targetRank(target: RankTarget): number {
   if (isSuperAdminMember(target)) return 0;
-  return target.accessGroup?.permissions?.members === "full" ? 1 : 2;
+  return target.accessGroup?.rank ?? 999;
 }
 
 function callerRank(caller: CallerPolicy): number {
-  return caller.isSuperAdmin ? 0 : caller.canManageTeam ? 1 : 2;
+  return caller.isSuperAdmin ? 0 : caller.rank;
 }
 
 /** Whether the caller outranks the target enough to manage them. */
 function canManage(caller: CallerPolicy, target: Pick<Member, "id"> & RankTarget): boolean {
+  if (!caller.isSuperAdmin && !caller.canManageTeam) return false; // permission gate first, mirrors has_event_permission
   if (caller.memberId === target.id) return false; // never yourself
   if (isSuperAdminMember(target)) return false; // couple/owner protected
   return callerRank(caller) < targetRank(target);

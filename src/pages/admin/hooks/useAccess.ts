@@ -13,6 +13,7 @@ export function useAccess() {
   const isSuperAdmin = useAdminStore((s) => s.isSuperAdmin);
   const memberId = useAdminStore((s) => s.memberId);
   const permissions = useAdminStore((s) => s.permissions);
+  const memberAccessGroupRank = useAdminStore((s) => s.memberAccessGroupRank);
 
   // Two verbs underpin everything: can you see it, can you edit it.
   const canView = (...resources: Resource[]) =>
@@ -36,6 +37,7 @@ export function useAccess() {
     isSuperAdmin,
     memberId,
     canManageTeam: canManageMembers,
+    rank: memberAccessGroupRank ?? 999,
   };
 
   return {

@@ -6,8 +6,13 @@ export type AccessLevel = "none" | "read" | "full";
 export interface AccessGroup {
   id: string;
   event_id: string;
+  /** Stable machine id ("helper" / "admin") — use this for lookups, never `name`. */
+  code: string;
   /** Human label — display only ("Helper" / "Co-owner"). */
   name: string;
+  /** Ordering (lower = higher privilege). Owner/superadmin isn't a group and
+   *  isn't represented here — see is_super_admin / isSuperAdminMember. */
+  rank: number | null;
   /** Flat permissions jsonb: { resource: "none" | "read" | "full" } */
   permissions: Record<string, AccessLevel>;
   created_at: string;

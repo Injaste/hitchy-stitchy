@@ -33,10 +33,11 @@ const MemberCreateModal = () => {
     .filter((r): r is string => !!r);
 
   // New members default to Helper. Owners see a picker (Helper / Co-owner);
-  // everyone else has no picker and lands in Helper.
+  // everyone else has no picker and lands in Helper. Looked up by `code` — the
+  // stable machine id — never `name`, which is just the display label.
   const { data: accessGroups = [] } = useAccessGroupsQuery();
   const helperId = useMemo(
-    () => accessGroups.find((g) => g.name === "Helper")?.id ?? "",
+    () => accessGroups.find((g) => g.code === "helper")?.id ?? "",
     [accessGroups],
   );
 

@@ -35,7 +35,11 @@ export interface AdminBootstrapContext {
   memberId: string;
   memberDisplayName: string;
   memberAccessGroupId: string;
+  memberAccessGroupCode: string;
   memberAccessGroupName: string;
+  /** Group ordering (lower = higher privilege). Irrelevant when isSuperAdmin —
+   *  the couple/root aren't ranked by group. */
+  memberAccessGroupRank: number | null;
   /** true when event_members.is_root = true (bypasses all permission checks) */
   isRoot: boolean;
   /** Permissions jsonb from the member's access group — flat: { resource: "none" | "read" | "full" } */
