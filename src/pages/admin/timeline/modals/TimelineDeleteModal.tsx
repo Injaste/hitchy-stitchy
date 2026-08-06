@@ -27,7 +27,7 @@ const TimelineDeleteModal = () => {
       open={isDeleteOpen}
       onOpenChange={closeAll}
       variant="destructive"
-      title="Remove item"
+      title="Remove moment"
       description={
         <>
           Are you sure you want to remove{" "}

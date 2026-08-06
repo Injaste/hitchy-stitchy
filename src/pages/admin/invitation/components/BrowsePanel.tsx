@@ -181,7 +181,7 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs">Segment</Label>
+                <Label className="text-xs">Part</Label>
                 <Select
                   value={segmentId || "none"}
                   onValueChange={(v) => setSegmentId(v === "none" ? "" : v)}

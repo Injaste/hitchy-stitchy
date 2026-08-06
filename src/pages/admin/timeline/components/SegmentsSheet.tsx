@@ -119,7 +119,7 @@ const SortableSegmentRow: FC<SortableRowProps> = ({
           onKeyDown={(e) => {
             if (e.key === "Enter") (e.target as HTMLInputElement).blur();
           }}
-          placeholder="Schedule"
+          placeholder="Part"
           className="h-8 border-0 bg-transparent shadow-none focus-visible:ring-0 pl-0"
         />
 
@@ -135,7 +135,7 @@ const SortableSegmentRow: FC<SortableRowProps> = ({
             variant="ghost"
             size="icon-sm"
             onClick={onDelete}
-            aria-label="Delete segment"
+            aria-label="Delete part"
           >
             <Trash2 className="size-4" />
           </Button>
@@ -214,16 +214,16 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <GalleryVerticalEnd className="size-4" />
               </span>
-              Segments
+              Parts
             </SheetTitle>
             <SheetDescription>
               {day.segments.length}{" "}
-              {day.segments.length === 1 ? "segment" : "segments"} on{" "}
+              {day.segments.length === 1 ? "part" : "parts"} on{" "}
               {format(parseLocalDate(day.date), "EEEE, do MMMM yyyy")}
             </SheetDescription>
           </SheetHeader>
 
-          <ScrollView className="space-y-2 px-4 py-2">
+          <ScrollView className="px-4 py-2">
             <DragDropProvider
               modifiers={[RestrictToVerticalAxis]}
               plugins={(defaults) => [
@@ -235,26 +235,29 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
               onDragOver={(e) => setOrder((prev) => move(prev, e))}
               onDragEnd={onDragEnd}
             >
-              {order.map((id, index) => {
-                const segment = segmentsById.get(id);
-                if (!segment) return null;
-                return (
-                  <SortableSegmentRow
-                    key={id}
-                    id={id}
-                    index={index}
-                    segment={segment}
-                    canReorder={canReorder}
-                    canUpdate={canUpdate("timeline")}
-                    canDelete={canDeleteRow}
-                    failed={id === failedId}
-                    onRename={(name) =>
-                      eventId && update.mutate({ event_id: eventId, id, name })
-                    }
-                    onDelete={() => setPendingDelete(segment)}
-                  />
-                );
-              })}
+              <div className="space-y-2">
+                {order.map((id, index) => {
+                  const segment = segmentsById.get(id);
+                  if (!segment) return null;
+                  return (
+                    <SortableSegmentRow
+                      key={id}
+                      id={id}
+                      index={index}
+                      segment={segment}
+                      canReorder={canReorder}
+                      canUpdate={canUpdate("timeline")}
+                      canDelete={canDeleteRow}
+                      failed={id === failedId}
+                      onRename={(name) =>
+                        eventId &&
+                        update.mutate({ event_id: eventId, id, name })
+                      }
+                      onDelete={() => setPendingDelete(segment)}
+                    />
+                  );
+                })}
+              </div>
             </DragDropProvider>
           </ScrollView>
 
@@ -266,7 +269,7 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") addSegment();
                 }}
-                placeholder="New segment… e.g. Reception"
+                placeholder="New part… e.g. Reception"
               />
               <SubmitButton
                 type="button"
@@ -288,13 +291,13 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
         open={!!pendingDelete}
         onOpenChange={(o) => !o && setPendingDelete(null)}
         variant="destructive"
-        title="Delete segment?"
+        title="Delete part?"
         description={
           pendingDelete && segmentItems(pendingDelete).length
-            ? `The ${segmentItems(pendingDelete).length} item${segmentItems(pendingDelete).length > 1 ? "s" : ""} in “${pendingDelete.name ?? "Schedule"}” will move to the previous segment.`
-            : `“${pendingDelete?.name ?? "Schedule"}” will be removed.`
+            ? `The ${segmentItems(pendingDelete).length} moment${segmentItems(pendingDelete).length > 1 ? "s" : ""} in “${pendingDelete.name ?? "Part"}” will move to the previous part.`
+            : `“${pendingDelete?.name ?? "Part"}” will be removed.`
         }
-        confirmLabel="Delete segment"
+        confirmLabel="Delete part"
         onConfirm={() =>
           pendingDelete &&
           eventId &&

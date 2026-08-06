@@ -155,12 +155,13 @@ export function buildSetupGroups({
       label: "Your team",
       steps: [
         {
-          // Before members: inviting someone means picking a role for them, so it
-          // helps to know the roles first. The Access page is read-only, so this
-          // completes once it's been opened (tracked in viewed_steps).
+          // Before members: inviting someone means picking an access level for
+          // them, so it helps to know the levels first. The Access page is
+          // read-only, so this completes once it's been opened (viewed_steps).
           id: "access",
-          label: "Review your access roles",
-          description: "See who can view and edit what — you pick a role per invite.",
+          label: "Review your access levels",
+          description:
+            "See who can view and edit what — you pick a level per invite.",
           route: "access",
           completed: viewedSteps.includes("access"),
           unlocked: canUseFeature("access"),
@@ -169,7 +170,7 @@ export function buildSetupGroups({
         {
           id: "members",
           label: "Invite collaborators",
-          description: "Bring helpers in and give each a role.",
+          description: "Bring people in and set what each one can access.",
           // Creation seeds one member (the creator), so > 1 means a real invite.
           route: "members",
           completed: usage.members > 1,

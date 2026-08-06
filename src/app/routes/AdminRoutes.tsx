@@ -72,7 +72,7 @@ const AdminRoutes = () => (
     <Route index element={<RedirectToLanding />} />
     <Route path="timeline" element={<RequireRoute resource="timeline" feature="timeline" title="Timeline"><Timeline /></RequireRoute>} />
     <Route path="tasks" element={<RequireRoute resource="tasks" feature="tasks" title="Tasks"><Tasks /></RequireRoute>} />
-    <Route path="members" element={<RequireRoute feature="members" title="Members"><Members /></RequireRoute>} />
+    <Route path="members" element={<RequireRoute feature="members" title="Your team"><Members /></RequireRoute>} />
     {/* Access page hidden — role management collapsed to Admin-only.
     <Route path="access" element={<RequireRoute resource="access" feature="access" title="Access"><Access /></RequireRoute>} /> */}
     <Route path="guests" element={<RequireRoute resource="guests" feature="guests" title="Guests"><Guests /></RequireRoute>} />

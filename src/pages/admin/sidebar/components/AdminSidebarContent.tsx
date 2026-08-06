@@ -120,7 +120,7 @@ const AdminSidebarContent = () => {
                 {showMembers && (
                   <NavItem
                     icon={Users}
-                    label="Members"
+                    label="Your team"
                     to={`${base}/members`}
                     isActive={activePage === "members"}
                   />

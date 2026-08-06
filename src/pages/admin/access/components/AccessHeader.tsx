@@ -10,7 +10,7 @@ const AccessHeader: FC<BaseHeaderProps> = ({
 }) => (
   <AdminPageHeader
     title="Access"
-    description="What each group can see and change."
+    description="What each access level can see and change."
     isLoading={isLoading}
     isError={isError}
     isRefetching={isRefetching}

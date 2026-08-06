@@ -74,7 +74,7 @@ const CreateTimelineItemModal = () => {
     >
       <FormHeader
         icon={<Clock className="size-4" />}
-        title={createPrefill.title ?? "Add schedule item"}
+        title={createPrefill.title ?? "Add moment"}
       />
 
       <TimelineItemForm />

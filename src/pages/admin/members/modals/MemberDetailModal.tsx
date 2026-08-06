@@ -234,7 +234,7 @@ const MemberDetailModal = () => {
                   <Shield className="w-3 h-3" />
                   {isSuperAdminMember(member)
                     ? "Full access"
-                    : (member.accessGroup?.name ?? "Unknown access group")}
+                    : (member.accessGroup?.name ?? "Unknown access level")}
                 </Badge>
               </div>
             )}

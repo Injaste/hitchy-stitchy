@@ -150,7 +150,7 @@ export function useSegmentMutations() {
   const create = useMutation(
     (payload: CreateSegmentPayload) => createSegment(payload),
     {
-      successMessage: (result: EventSegment) => `"${truncate(result.name ?? "Segment")}" added`,
+      successMessage: (result: EventSegment) => `"${truncate(result.name ?? "Part")}" added`,
       errorMessage: (err) => err.message,
       onSuccess: (result: EventSegment) => {
         patchSegments((segments) => [...segments, result])
@@ -202,7 +202,7 @@ export function useSegmentMutations() {
     (payload: DeleteSegmentPayload) => deleteSegment(payload),
     {
       successMessage: (_: void, args: DeleteSegmentPayload) =>
-        `"${truncate(args.name ?? "Segment")}" deleted`,
+        `"${truncate(args.name ?? "Part")}" deleted`,
       errorMessage: (err) => err.message,
       // Patch the cache (mirror delete_segment's reassignment) rather than
       // invalidate — a refetch can resolve late and clobber a concurrent patch.

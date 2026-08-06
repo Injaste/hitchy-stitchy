@@ -29,12 +29,12 @@ const TimelineDayEmpty: FC<TimelineDayEmptyProps> = ({
     <EmptyState
       icon={icon}
       title="Nothing scheduled yet"
-      description="This day is a blank canvas. Add your first item to start shaping the schedule."
+      description="This day is a blank canvas. Add your first moment to start shaping it."
       action={
         canCreate ? (
           <Button onClick={onAdd} className="gap-1">
             <Plus className="h-4 w-4" />
-            Add item
+            Add moment
           </Button>
         ) : undefined
       }

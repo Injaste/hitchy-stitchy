@@ -122,7 +122,7 @@ const TimelineConfirmModal = () => {
       titlePrefix: "End",
       titleSuffix: "?",
       action: "End",
-      body: <p>This will mark the item as ended.</p>,
+      body: <p>This will mark the moment as ended.</p>,
     },
   }[reason];
 

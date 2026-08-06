@@ -100,7 +100,7 @@ const TimelineItemForm = () => {
   const allLabels = timelineData?.labels ?? [];
 
   // The segment this item lives in. Tracked live (not just at open) so changing
-  // the Segment field re-resolves which labels count as "in this segment".
+  // the Part field re-resolves which labels count as "in this part".
   const selectedSegmentId = useStore(
     form.store,
     (s: unknown) => (s as { values: TimelineItemFormValues }).values.segment_id,
@@ -124,10 +124,10 @@ const TimelineItemForm = () => {
     [days],
   );
 
-  // Label picker framed around the selected segment. "In this segment" are the
+  // Grouping picker framed around the selected segment. "In this part" are the
   // labels already there — picking one merges the item into that existing group.
-  // "Other labels" are every other name, de-duplicated, so reusing a name reads
-  // as "reuse the name here", not "this label belongs elsewhere".
+  // "Other groupings" are every other name, de-duplicated, so reusing a name reads
+  // as "reuse the name here", not "this grouping belongs elsewhere".
   const selectedSegment = findSegment(days, selectedSegmentId);
   const inThisSegment =
     selectedSegment?.labelGroups
@@ -138,10 +138,10 @@ const TimelineItemForm = () => {
 
   const labelGroups: SelectComboGroup[] = [
     ...(inThisSegment.length
-      ? [{ label: "In this segment", items: inThisSegment }]
+      ? [{ label: "In this part", items: inThisSegment }]
       : []),
     ...(otherLabels.length
-      ? [{ label: "Other labels", items: otherLabels }]
+      ? [{ label: "Other groupings", items: otherLabels }]
       : []),
   ];
 
@@ -153,15 +153,15 @@ const TimelineItemForm = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <SelectField
             name="segment_id"
-            label="Segment"
+            label="Part"
             options={segmentOptions}
-            placeholder="Select a segment"
+            placeholder="Select a part"
             placeholderIcon={<CalendarIcon className="size-4 shrink-0" />}
           />
 
           <SelectComboField
             name="label"
-            label="Label"
+            label="Grouping"
             optional
             groups={labelGroups}
             matchAgainst={allLabels}

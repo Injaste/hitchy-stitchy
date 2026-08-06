@@ -124,7 +124,7 @@ const MemberForm = ({
                     field.handleChange(accessGroupId)
                   }
                   onBlur={field.handleBlur}
-                  placeholder="Select an access group"
+                  placeholder="Select an access level"
                   disabled={lockAccessGroup || forceAccessSuperAdmin}
                   initialDisplayName={accessGroupInitialName}
                   overrideDisplayName={

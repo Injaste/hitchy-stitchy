@@ -19,7 +19,7 @@ interface TimelineDayProps {
 /**
  * One day's body. A day with only its default (unnamed) segment renders flat
  * (the original look); named segments render as light chapter headings. The
- * "Segments" button opens the management sheet (add / rename / delete / reorder).
+ * "Parts" button opens the management sheet (add / rename / delete / reorder).
  */
 const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
   const { canCreate } = useAccess();
@@ -59,7 +59,7 @@ const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
           {/* Count + times share a column so the times wrap under the heading
               on mobile, and sit inline on desktop. When collapsing is possible
               the chevron + count are one toggle (like a segment heading), so the
-              "N Segments" label is clickable too. */}
+              "N Parts" label is clickable too. */}
           <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
             {showCollapseToggle ? (
               <button
@@ -69,7 +69,7 @@ const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
                 }
                 aria-expanded={!allCollapsed}
                 aria-label={
-                  allCollapsed ? "Expand all segments" : "Collapse all segments"
+                  allCollapsed ? "Expand all parts" : "Collapse all parts"
                 }
                 className="group/day-toggle flex cursor-pointer items-center gap-2 rounded p-0.5 text-left"
               >
@@ -89,13 +89,13 @@ const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
                 </span>
                 <span className="text-foreground">
                   {day.segments.length}{" "}
-                  {day.segments.length === 1 ? "Segment" : "Segments"}
+                  {day.segments.length === 1 ? "Part" : "Parts"}
                 </span>
               </button>
             ) : (
               <span className="text-foreground">
                 {day.segments.length}{" "}
-                {day.segments.length === 1 ? "Segment" : "Segments"}
+                {day.segments.length === 1 ? "Part" : "Parts"}
               </span>
             )}
             {earliest && latest && (
@@ -130,7 +130,7 @@ const TimelineDay: FC<TimelineDayProps> = ({ day }) => {
             className="gap-1.5"
             onClick={() => setSheetOpen(true)}
           >
-            <GalleryVerticalEnd className="size-3.5" /> Segments
+            <GalleryVerticalEnd className="size-3.5" /> Parts
           </Button>
         )}
       </div>

@@ -60,8 +60,8 @@ const DaySegment: FC<DaySegmentProps> = ({
               aria-expanded={!collapsed}
               aria-label={
                 collapsed
-                  ? `Expand ${segment.name ?? "schedule"}`
-                  : `Collapse ${segment.name ?? "schedule"}`
+                  ? `Expand ${segment.name ?? "part"}`
+                  : `Collapse ${segment.name ?? "part"}`
               }
               className="group/segment-toggle flex min-w-0 cursor-pointer items-center gap-2 rounded p-0.5 text-left"
             >
@@ -73,12 +73,12 @@ const DaySegment: FC<DaySegmentProps> = ({
                 />
               </span>
               <span className="min-w-0 truncate font-display text-sm font-semibold text-foreground">
-                {segment.name ?? "Schedule"}
+                {segment.name ?? "Part"}
               </span>
             </button>
           ) : (
             <span className="min-w-0 truncate p-0.5 font-display text-sm font-semibold text-foreground">
-              {segment.name ?? "Schedule"}
+              {segment.name ?? "Part"}
             </span>
           )}
           {earliest && latest && (
@@ -107,7 +107,7 @@ const DaySegment: FC<DaySegmentProps> = ({
                   segment.name ? `Add to ${segment.name}` : null,
                 )
               }
-              aria-label={`Add item to ${segment.name ?? "schedule"}`}
+              aria-label={`Add moment to ${segment.name ?? "part"}`}
             >
               <Plus className="size-4" />
             </Button>
@@ -147,7 +147,7 @@ const DaySegment: FC<DaySegmentProps> = ({
               </motion.div>
             ) : (
               <p className="py-1 text-sm italic text-muted-foreground">
-                No items yet — add the first to set the time.
+                No moments yet — add the first to set the time.
               </p>
             )}
           </motion.div>

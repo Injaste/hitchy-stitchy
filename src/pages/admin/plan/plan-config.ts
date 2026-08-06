@@ -17,7 +17,7 @@ export const PLAN_METERS: { resource: PlanResource; label: string }[] = [
   { resource: "days", label: "Event days" },
   { resource: "pages", label: "Invitation pages" },
   { resource: "members", label: "Team members" },
-  { resource: "timeline_items", label: "Timeline items" },
+  { resource: "timeline_items", label: "Timeline moments" },
   { resource: "tasks", label: "Tasks" },
 ];
 
@@ -34,10 +34,10 @@ export const NEAR_LIMIT_RATIO = 0.8;
  *  uses RequirePlan on it (it gates an inline control, see TimelineCardView). */
 export const PLAN_FEATURES = [
   { key: "timeline", label: "Timeline" },
-  { key: "timeline_liverun", label: "Live run" },
+  { key: "timeline_liverun", label: "Run the day" },
   { key: "tasks", label: "Task board" },
   { key: "members", label: "Team management" },
-  { key: "access", label: "Access groups" },
+  { key: "access", label: "Access levels" },
   { key: "guests", label: "Guest management" },
   { key: "budget", label: "Budget tracker" },
   { key: "gifts", label: "Gift envelopes" },
@@ -65,8 +65,8 @@ export type PlanCap =
 export const PLAN_CAP_LABELS: { key: PlanCap; label: string }[] = [
   { key: "maxGuests", label: "Guests" },
   { key: "maxDays", label: "Event days" },
-  { key: "maxSegmentsPerDay", label: "Segments / day" },
-  { key: "maxTimelineItems", label: "Timeline items" },
+  { key: "maxSegmentsPerDay", label: "Parts / day" },
+  { key: "maxTimelineItems", label: "Timeline moments" },
   { key: "maxTasks", label: "Tasks" },
   { key: "maxInvitationPages", label: "Invitation pages" },
   { key: "maxMembers", label: "Team members" },

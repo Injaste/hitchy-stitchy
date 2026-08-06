@@ -89,7 +89,9 @@ const SegmentLabel: FC<SegmentLabelProps> = ({
                   group.label ? `Add to ${group.label}` : null,
                 )
               }
-              aria-label={group.label ? `Add item to ${group.label}` : "Add item"}
+              aria-label={
+                group.label ? `Add moment to ${group.label}` : "Add moment"
+              }
             >
               <Plus className="size-4" />
             </Button>

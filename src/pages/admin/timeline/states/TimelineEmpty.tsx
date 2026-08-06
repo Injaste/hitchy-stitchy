@@ -17,12 +17,12 @@ const TimelineEmpty: FC<TimelineEmptyProps> = ({ onAdd, canCreate }) => (
       </div>
     }
     title="No timeline yet"
-    description="Start building your day. Add your first schedule item and bring your wedding timeline to life."
+    description="Start building your day. Add your first moment and the rest follows from there."
     action={
       canCreate ? (
         <Button onClick={onAdd} className="gap-1">
           <Plus className="w-4 h-4" />
-          Add first item
+          Add first moment
         </Button>
       ) : undefined
     }

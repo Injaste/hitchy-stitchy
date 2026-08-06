@@ -69,11 +69,11 @@ export interface TimelineGrouped {
 
 export const timelineItemFormSchema = z
   .object({
-    segment_id: z.string().min(1, "Please select a segment"),
+    segment_id: z.string().min(1, "Please select a part"),
 
     label: z
       .string()
-      .max(100, "Please keep label short")
+      .max(100, "Please keep the grouping short")
       .transform((v) => v.trim() || null),
 
     time_start: z.string().regex(TIME_REGEX, "Please enter a start time"),

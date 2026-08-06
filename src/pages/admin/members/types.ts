@@ -39,7 +39,7 @@ export const memberSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(80, "Name is too long"),
-  access_group_id: z.string().min(1, "Select an access group"),
+  access_group_id: z.string().min(1, "Select an access level"),
   role: z
     .string()
     .trim()

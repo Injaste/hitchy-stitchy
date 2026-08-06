@@ -26,7 +26,7 @@ const MembersHeader: FC<BaseHeaderProps> = ({
       isError={isError}
       isRefetching={isRefetching}
       refetch={refetch}
-      title="Members"
+      title="Your team"
       description="Everyone helping bring your day together. Add people and manage who's active."
       action={
         canManageMembers && (

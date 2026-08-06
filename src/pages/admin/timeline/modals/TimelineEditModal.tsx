@@ -51,7 +51,7 @@ const TimelineEditModal = () => {
       isSuccess={update.isSuccess}
       isError={update.isError}
     >
-      <FormHeader icon={<Clock className="size-4" />} title="Edit item" />
+      <FormHeader icon={<Clock className="size-4" />} title="Edit moment" />
 
       <TimelineItemForm />
 

@@ -78,7 +78,7 @@ export default function SetupGuidePanel({
         <div className="min-w-0 flex-1">
           {isComplete ? (
             <p className="font-display text-xs font-medium">
-              You're all set! 🎉
+              You're all set!
             </p>
           ) : (
             <>

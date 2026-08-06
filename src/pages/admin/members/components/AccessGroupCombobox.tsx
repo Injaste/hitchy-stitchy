@@ -88,7 +88,7 @@ const AccessGroupCombobox: FC<AccessGroupComboboxProps> = ({
         disabled={disabled}
       />
       <ComboboxContent>
-        <ComboboxEmpty>No access groups yet.</ComboboxEmpty>
+        <ComboboxEmpty>No access levels yet.</ComboboxEmpty>
         <ComboboxList>
           {(group: { value: string; items: string[] }) => (
             <ComboboxGroup key={group.value} items={group.items}>

@@ -24,7 +24,7 @@ export default function GettingStartedSection() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
           {isComplete
-            ? "Everything's ready 🎉"
+            ? "Everything's ready"
             : `${doneCount} of ${totalCount} steps complete`}
         </p>
         {dismissed && (

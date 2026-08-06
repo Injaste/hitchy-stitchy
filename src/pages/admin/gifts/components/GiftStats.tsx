@@ -46,7 +46,7 @@ const GiftStats: FC<{ summary: GiftSummary }> = ({ summary }) => {
             </span>
             <span className={cn(brokeEven && "font-medium text-success")}>
               {brokeEven
-                ? "Broken even 🎉"
+                ? "Broken even"
                 : `${formatSGD(toBreakEven ?? 0)} to break even`}
             </span>
           </div>
