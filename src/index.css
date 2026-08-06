@@ -214,7 +214,7 @@
   overflow: visible !important;
 }
 .os-scroll-y-flush .os-scrollbar-vertical {
-  right: -4px;
+  right: -8px;
 }
 
 @layer base {

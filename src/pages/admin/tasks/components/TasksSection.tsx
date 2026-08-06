@@ -113,7 +113,7 @@ const TasksSection: FC<TasksSectionProps> = ({
           gradientBottom={!canAddTasks}
           gradientClass="from-task-column"
           mainClass="md:absolute md:inset-0"
-          className="os-scroll-y-flush md:px-2 md:pt-2"
+          className="os-scroll-y-flush md:px-1 md:pt-2"
           size="thin"
         >
           <div
@@ -149,7 +149,7 @@ const TasksSection: FC<TasksSectionProps> = ({
             thumb reserves no gutter and rides on top, so the composer spans the
             full width — no scrollbar-clearance inset needed. */}
         {canAddTasks && (
-          <div className="pt-3 md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:px-2 md:pb-2 md:pt-3 md:bg-linear-to-t md:from-task-column md:from-80% md:to-transparent">
+          <div className="pt-3 md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:px-1 md:pb-2 md:pt-5 md:bg-linear-to-t md:from-task-column md:from-80% md:to-transparent">
             <div className="md:pointer-events-auto">
               <TaskQuickAdd status={status} />
             </div>

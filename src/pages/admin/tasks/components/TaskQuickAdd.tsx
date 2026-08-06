@@ -93,7 +93,10 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
           <Button
             className="w-full h-9 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
             variant="ghost"
-            onClick={() => { if (guardAdd("tasks")) return; setIsAdding(true); }}
+            onClick={() => {
+              if (guardAdd("tasks")) return;
+              setIsAdding(true);
+            }}
           >
             <Plus className="size-4" /> Add task
           </Button>
@@ -101,7 +104,7 @@ const TaskQuickAdd = ({ status }: TaskQuickAddProps) => {
       ) : (
         <motion.div
           key="form"
-          className="scroll-mb-8"
+          className="scroll-mb-8 pt-5"
           variants={itemFadeIn}
           initial="hidden"
           animate="show"
