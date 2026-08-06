@@ -26,6 +26,19 @@ interface AccessGroupComboboxProps {
   overrideDisplayName?: string;
 }
 
+/** One-line summary of what a group grants, shown under its name while picking.
+ *  Derived from the permissions themselves rather than the group's name, so it
+ *  can't drift from the actual grant. */
+const describeGroup = (group: AccessGroup | undefined): string | null => {
+  if (!group) return null;
+  const money = group.permissions.budget === "full";
+  const team = group.permissions.members === "full";
+  if (money && team) return "Full access — budget, gifts and the team";
+  if (money) return "Full access — budget and gifts";
+  if (team) return "Everything except budget and gifts";
+  return "Everything except money and managing the team";
+};
+
 const AccessGroupCombobox: FC<AccessGroupComboboxProps> = ({
   value,
   onChange,
@@ -75,16 +88,26 @@ const AccessGroupCombobox: FC<AccessGroupComboboxProps> = ({
         disabled={disabled}
       />
       <ComboboxContent>
-        <ComboboxEmpty>No access groups yet — add them in Access.</ComboboxEmpty>
+        <ComboboxEmpty>No access groups yet.</ComboboxEmpty>
         <ComboboxList>
           {(group: { value: string; items: string[] }) => (
             <ComboboxGroup key={group.value} items={group.items}>
               <ComboboxCollection>
-                {(name: string) => (
-                  <ComboboxItem key={name} value={name}>
-                    {name}
-                  </ComboboxItem>
-                )}
+                {(name: string) => {
+                  const description = describeGroup(groupsByName[name]);
+                  return (
+                    <ComboboxItem key={name} value={name}>
+                      <span className="flex flex-col gap-0.5">
+                        <span>{name}</span>
+                        {description && (
+                          <span className="text-xs text-muted-foreground">
+                            {description}
+                          </span>
+                        )}
+                      </span>
+                    </ComboboxItem>
+                  );
+                }}
               </ComboboxCollection>
             </ComboboxGroup>
           )}

@@ -46,10 +46,10 @@ export const SELF_ID = Math.random() < 0.5 ? BRIDE_ID : GROOM_ID;
 
 export const HUI_LING = mk({ id: BRIDE_ID, display_name: "Hui Ling", is_bride: true, role: "Bride" });
 export const WEI_JIE = mk({ id: GROOM_ID, display_name: "Wei Jie", is_groom: true, role: "Groom" });
-export const SERENE = mk({ id: "m-serene", display_name: "Serene Koh", role: "Wedding Coordinator", accessGroup: ag("Admin"), notes: "Main contact on the day — reach me first for any timing changes." });
-export const PRIYA = mk({ id: "m-priya", display_name: "Priya Nair", role: "Jie Mei", accessGroup: ag("Team"), notes: "Leading the jie mei (姐妹) and the gate games." });
-export const FAIZ = mk({ id: "m-faiz", display_name: "Faiz Rahman", role: "Heng Dai", accessGroup: ag("Team"), notes: "On gate games and ang bao logistics." });
-export const JOEY = mk({ id: "m-joey", display_name: "Joey Tan", role: "Makeup Artist", accessGroup: ag("Team"), joined_at: null, invite_expires_at: "2099-01-01T00:00:00Z" });
+export const SERENE = mk({ id: "m-serene", display_name: "Serene Koh", role: "Wedding Coordinator", accessGroup: ag("Co-owner"), notes: "Main contact on the day — reach me first for any timing changes." });
+export const PRIYA = mk({ id: "m-priya", display_name: "Priya Nair", role: "Jie Mei", accessGroup: ag("Helper"), notes: "Leading the jie mei (姐妹) and the gate games." });
+export const FAIZ = mk({ id: "m-faiz", display_name: "Faiz Rahman", role: "Heng Dai", accessGroup: ag("Helper"), notes: "On gate games and ang bao logistics." });
+export const JOEY = mk({ id: "m-joey", display_name: "Joey Tan", role: "Makeup Artist", accessGroup: ag("Helper"), joined_at: null, invite_expires_at: "2099-01-01T00:00:00Z" });
 
 // ── Timeline cast: a Malay wedding (akad nikah & bersanding) ──
 const M_BRIDE_ID = "m-nurul";
@@ -57,4 +57,4 @@ const M_GROOM_ID = "m-hafiz";
 export const TIMELINE_SELF = Math.random() < 0.5 ? M_BRIDE_ID : M_GROOM_ID;
 export const NURUL = mk({ id: M_BRIDE_ID, display_name: "Nurul Huda", is_bride: true, role: "Bride" });
 export const HAFIZ = mk({ id: M_GROOM_ID, display_name: "Hafiz Iskandar", is_groom: true, role: "Groom" });
-export const SITI = mk({ id: "m-siti", display_name: "Siti Aminah", role: "Coordinator", accessGroup: ag("Admin") });
+export const SITI = mk({ id: "m-siti", display_name: "Siti Aminah", role: "Coordinator", accessGroup: ag("Co-owner") });

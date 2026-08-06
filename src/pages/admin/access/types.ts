@@ -6,6 +6,7 @@ export type AccessLevel = "none" | "read" | "full";
 export interface AccessGroup {
   id: string;
   event_id: string;
+  /** Human label — display only ("Helper" / "Co-owner"). */
   name: string;
   /** Flat permissions jsonb: { resource: "none" | "read" | "full" } */
   permissions: Record<string, AccessLevel>;
@@ -15,8 +16,8 @@ export interface AccessGroup {
 
 // ── Resources ─────────────────────────────────────────────────────────────────
 
-// Fixed, read-only access groups (Admin / Team) gate these. Member management
-// also layers a capability rank — see lib/access/policy.ts.
+// Fixed, read-only access groups (Helper / Co-owner) gate these. Member
+// management also layers a capability rank — see lib/access/policy.ts.
 export type Resource =
   | "timeline"
   | "tasks"

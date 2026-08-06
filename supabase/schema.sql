@@ -118,6 +118,39 @@
 --       written at save time yet only read after a vendor delete — a rename in
 --       between made the one label it existed to produce the stale one. Deleting
 --       a vendor now just clears the link; the confirm modal states the impact.
+--   20260805000001_remove_team_access_group             — Team retired; Admin the
+--       only group. Members reassigned to Admin BEFORE the delete (the
+--       access_group_id FK is ON DELETE SET NULL — a bare delete silently nulls
+--       members into a no-permission state). create_event drops the Team seed;
+--       update_member_couple's demote target follows.
+--   20260805000002_access_group_ladder                  — groups gain `code` (the
+--       stable machine id; identity moves here from `name`, unique constraint
+--       included), `name` becomes a display label, and `rank` orders the tiers.
+--       The old Admin group is renamed in place to code 'helper' / "Helper";
+--       a new code 'admin' / "Co-owner" (rank 2) is added with identical perms.
+--   20260805000003-4_coowner_money                      — money delegation. Budget
+--       and gifts become permission-map resources granted to the Co-owner group
+--       (read in ...03, upgraded to full in ...04): the 3 money RLS SELECTs and
+--       7 money write RPCs move from the bespoke is_super_admin gate onto
+--       has_event_permission('budget'/'gifts',…). Owner still passes via the
+--       superadmin bypass INSIDE has_event_permission — that bypass is the
+--       Owner's guarantee and must stay. Days remain super-admin-only.
+--   20260805000005_rank_and_lock_members                — get_member_rank now reads
+--       event_access_groups.rank instead of inferring rank from members:full
+--       (which tied Helper and Co-owner). update_member_access_group /
+--       delete_member / freeze_member already delegate to it, so they inherit
+--       the correct ladder with no change. 'members' is restricted to the admin
+--       tier (the IAM-style rule: identity/access management is not an ordinary
+--       delegable resource).
+--   20260806000001_members_read_and_lock_trigger        — Helper's members grant is
+--       "read" (the roster is visible to every member regardless; the map should
+--       say so) and a BEFORE INSERT/UPDATE trigger refuses members:full on any
+--       group whose code isn't 'admin' — enforcing the rule structurally rather
+--       than by convention, so it survives group-CRUD returning.
+--   20260806000002_fix_preexisting_superadmin_group     — ...02's in-place rename
+--       left root/couple on pre-existing events parked in Helper; repointed to
+--       Co-owner. Placement only — is_super_admin bypasses the map, and the UI
+--       renders "Full access"/"Owner" for superadmins, never the group name.
 -- =============================================================================
 
 
