@@ -10,12 +10,14 @@ import {
   saveInvitation,
   deleteInvitation,
   unpublishInvitation,
+  setInvitationLinkSlug,
 } from "./api";
 import type {
   CreateInvitationPayload,
   SaveInvitationPayload,
   DeleteInvitationPayload,
   UnpublishInvitationPayload,
+  SetInvitationLinkSlugPayload,
 } from "./types";
 
 export function useTemplatesQuery() {
@@ -115,5 +117,14 @@ export function useInvitationMutations() {
     },
   );
 
-  return { create, save, remove, publish, unpublish, eventId };
+  const setLinkSlug = useMutation(
+    (payload: SetInvitationLinkSlugPayload) => setInvitationLinkSlug(payload),
+    {
+      successMessage: "Link updated",
+      errorMessage: (err) => err.message,
+      onSuccess: invalidate,
+    },
+  );
+
+  return { create, save, remove, publish, unpublish, setLinkSlug, eventId };
 }

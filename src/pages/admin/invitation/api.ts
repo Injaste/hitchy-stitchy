@@ -7,6 +7,7 @@ import type {
   SaveInvitationPayload,
   DeleteInvitationPayload,
   UnpublishInvitationPayload,
+  SetInvitationLinkSlugPayload,
 } from "./types"
 
 // Day segments for this event — labels the hub tiles + powers the create flow's
@@ -94,6 +95,19 @@ export async function deleteInvitation(
   })
 
   if (error) throw new Error(error.message)
+}
+
+export async function setInvitationLinkSlug(
+  payload: SetInvitationLinkSlugPayload,
+): Promise<Invitation> {
+  const { data, error } = await supabase.rpc("set_invitation_link_slug", {
+    p_event_id: payload.event_id,
+    p_id: payload.id,
+    p_link_slug: payload.link_slug,
+  })
+
+  if (error) throw new Error(error.message)
+  return data as Invitation
 }
 
 export async function unpublishInvitation(

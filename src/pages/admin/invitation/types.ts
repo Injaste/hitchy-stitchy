@@ -131,3 +131,9 @@ export interface InvitationIdPayload {
 
 export type DeleteInvitationPayload = InvitationIdPayload
 export type UnpublishInvitationPayload = InvitationIdPayload
+
+// Separate from SaveInvitationPayload: link_slug is URL identity, not content —
+// its own RPC so update_invitation's signature doesn't grow an overload.
+export interface SetInvitationLinkSlugPayload extends InvitationIdPayload {
+  link_slug: string | null
+}

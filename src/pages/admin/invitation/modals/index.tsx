@@ -4,6 +4,7 @@ import UnpublishModal from "./UnpublishModal";
 import DeleteModal from "./DeleteModal";
 import ResetModal from "./ResetModal";
 import DiscardModal from "./DiscardModal";
+import SetLinkSlugModal from "./SetLinkSlugModal";
 
 interface InvitationModalsProps {
   edit: InvitationEditController;
@@ -19,6 +20,7 @@ const InvitationModals = ({ edit, onSheetClose }: InvitationModalsProps) => (
     <DeleteModal edit={edit} onSheetClose={onSheetClose} />
     <ResetModal edit={edit} />
     <DiscardModal edit={edit} />
+    <SetLinkSlugModal edit={edit} />
   </>
 );
 

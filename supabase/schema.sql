@@ -161,6 +161,20 @@
 --       to admin-tier — see 20260805000005). get_bootstrap_context's body here
 --       was pulled from the LIVE db — the prior schema.sql definition had
 --       drifted badly (missing the entire plan/catalog block).
+--   20260807000001-4_invitation_seed_and_page_caps       — Phase C-1
+--       (docs/ux/phase-c-creation-and-lists.md §6). create_event seeds one
+--       unpublished, day-level ROOT invitation page so Guests never dead-ends
+--       on an unvisited Invitation screen (L4); the plan's `pages` meter counts
+--       PUBLISHED rows only, with a separate total-row abuse ceiling on create
+--       (plan-tiers helper layer — see the gap note above, not snapshotted
+--       here) and a distinct publish-time cap on update_invitation. New RPC
+--       set_invitation_link_slug edits a page's URL independently of its
+--       content (validation shared with create_invitation via
+--       validate_invitation_link_slug). create_event's snapshot here had
+--       drifted past live independently of this work (missing the
+--       activated_at/free-allowance trial machinery, 20260618000105) — re-
+--       pasted whole from the confirmed-live body rather than layering a fix
+--       on top of stale ground.
 -- =============================================================================
 
 
@@ -1213,7 +1227,10 @@ BEGIN
         'guests',  (SELECT COALESCE(sum(guest_count), 0) FROM event_rsvps
                     WHERE event_id = v_event.id AND status <> 'cancelled'),
         'members', (SELECT count(*) FROM event_members WHERE event_id = v_event.id),
-        'pages',   (SELECT count(*) FROM event_invitations WHERE event_id = v_event.id),
+        -- Published only [20260807000001] — a draft (incl. the seed
+        -- create_event plants) costs nothing against the plan meter.
+        'pages',   (SELECT count(*) FROM event_invitations
+                    WHERE event_id = v_event.id AND published_at IS NOT NULL),
         'timeline_items', (SELECT count(*) FROM event_timelines WHERE event_id = v_event.id),
         'tasks',   (SELECT count(*) FROM event_tasks
                     WHERE event_id = v_event.id AND archived_at IS NULL)
@@ -1254,7 +1271,11 @@ $$;
 --  They are omitted here to avoid duplication — the dump you provided on
 --  2026-06-04 is the authoritative source and should be appended below.]
 
--- create_event  [last updated: 20260805000001_remove_team_access_group]
+-- create_event  [last updated: 20260807000001_seed_root_invitation_page]
+-- NOTE: the snapshot here had drifted well past live before this update —
+-- missing the whole activated_at/free-allowance trial machinery
+-- [20260618000105]. Re-pasted whole from the confirmed-live body rather than
+-- patching drift on drift; see supabase/migrations/ for the granular history.
 CREATE OR REPLACE FUNCTION public.create_event(
   p_slug         text,
   p_name         text,
@@ -1274,6 +1295,9 @@ DECLARE
   v_day_id    uuid;
   v_start     date;
   v_end       date;
+  v_free_available boolean;
+  v_seed_day_id uuid;   -- earliest day; where the seeded root page lands [20260807000001]
+  v_seed_config jsonb;
   rec         record;
 BEGIN
   IF v_user_id IS NULL THEN
@@ -1292,8 +1316,10 @@ BEGIN
   INTO v_start, v_end
   FROM jsonb_array_elements(p_days) AS d;
 
-  INSERT INTO events (slug, name)
-  VALUES (p_slug, p_name)
+  v_free_available := free_event_available(v_user_id);
+
+  INSERT INTO events (slug, name, activated_at)
+  VALUES (p_slug, p_name, CASE WHEN v_free_available THEN now() ELSE NULL END)
   RETURNING events.id, events.slug INTO v_event_id, v_slug;
 
   -- Helper: full ops, no money, members:read (sees the roster, cannot act on
@@ -1351,12 +1377,39 @@ BEGIN
 
     INSERT INTO event_segments (event_id, day_id, name, sort_order)
     VALUES (v_event_id, v_day_id, NULL, 0);
+
+    -- ORDER BY dt above means the first pass is the earliest day.
+    IF v_seed_day_id IS NULL THEN
+      v_seed_day_id := v_day_id;
+    END IF;
   END LOOP;
+
+  -- One unpublished, day-level ROOT page so Guests never dead-ends on an
+  -- unvisited Invitation screen (L4) [20260807000001]. Free — draft rows don't
+  -- count against max_invitation_pages. Skipped (not raised) if the neutral
+  -- seed template is missing/inactive; an absent seed is recoverable, a failed
+  -- event creation is not. 'cream-classic' is a literal, not "first in the
+  -- catalog" — the catalog sorts by name and most templates are
+  -- culture-specific; this one is the deliberately neutral option. Revisit
+  -- once event-type exists (docs/todo/event-type-and-couple-flags.md).
+  SELECT field_config INTO v_seed_config
+  FROM event_templates
+  WHERE template_key = 'cream-classic' AND is_active = true;
+
+  IF FOUND THEN
+    INSERT INTO event_invitations (
+      event_id, day_id, segment_id, template_key, link_slug, draft_config
+    )
+    VALUES (
+      v_event_id, v_seed_day_id, NULL, 'cream-classic', NULL,
+      COALESCE(v_seed_config, '{}'::jsonb)
+    );
+  END IF;
 
   DELETE FROM slug_reservations WHERE user_id = v_user_id;
 
   RETURN QUERY
-  SELECT v_event_id, v_slug, p_name, v_start, v_end, false;
+  SELECT v_event_id, v_slug, p_name, v_start, v_end, NOT v_free_available;
 END;
 $$;
 
@@ -1368,32 +1421,27 @@ $$;
 -- day∈event -> segment∈day∈event -> link_slug (format/reserved/unique, or single
 -- root) -> slot-unique -> template. update_invitation = whole-invitation save
 -- (design draft + RSVP); p_to_publish promotes the draft to published_config in the
--- same UPDATE (atomic publish). link_slug is NOT edited here (set at create).
+-- same UPDATE (atomic publish). link_slug is NOT edited here — see
+-- set_invitation_link_slug. Link-path validation lives in
+-- validate_invitation_link_slug, shared with that RPC [20260807000002].
 CREATE OR REPLACE FUNCTION public.create_invitation(
   p_event_id uuid, p_template_key text, p_day_id uuid, p_segment_id uuid DEFAULT null, p_link_slug text DEFAULT null
 )
 RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
-DECLARE v_caller event_members; v_config jsonb; v_inv event_invitations; v_slug text := NULLIF(btrim(lower(p_link_slug)), '');
+DECLARE v_caller event_members; v_config jsonb; v_inv event_invitations; v_slug text;
 BEGIN
   v_caller := get_current_member(p_event_id);
   IF v_caller.id IS NULL THEN RAISE EXCEPTION 'You are not an active member of this event'; END IF;
   IF NOT has_event_permission(p_event_id, 'invitation', 'create') THEN
     RAISE EXCEPTION 'Insufficient permission to create an invitation'; END IF;
+  PERFORM assert_event_writable(p_event_id);     -- [20260618000106]
+  PERFORM assert_plan(p_event_id, 'pages', 1);   -- total-row abuse ceiling [20260807000004]
   IF NOT EXISTS (SELECT 1 FROM event_days WHERE id = p_day_id AND event_id = p_event_id) THEN
     RAISE EXCEPTION 'Day not found for this event'; END IF;
   IF p_segment_id IS NOT NULL AND NOT EXISTS (
     SELECT 1 FROM event_segments WHERE id = p_segment_id AND day_id = p_day_id AND event_id = p_event_id) THEN
     RAISE EXCEPTION 'Segment not found for this day'; END IF;
-  IF v_slug IS NULL THEN
-    IF EXISTS (SELECT 1 FROM event_invitations WHERE event_id = p_event_id AND link_slug IS NULL) THEN
-      RAISE EXCEPTION 'A root link already exists — choose a link path'; END IF;
-  ELSE
-    IF v_slug !~ '^[a-z0-9]+(-[a-z0-9]+)*$' THEN RAISE EXCEPTION 'Link path may use only lowercase letters, numbers and hyphens'; END IF;
-    IF EXISTS (SELECT 1 FROM slug_reservations WHERE slug = v_slug AND expires_at IS NULL) THEN
-      RAISE EXCEPTION 'That link path is reserved'; END IF;  -- permanent slug_reservations entry
-    IF EXISTS (SELECT 1 FROM event_invitations WHERE event_id = p_event_id AND link_slug = v_slug) THEN
-      RAISE EXCEPTION 'That link path is already in use'; END IF;
-  END IF;
+  v_slug := validate_invitation_link_slug(p_event_id, p_link_slug, NULL);
   IF EXISTS (SELECT 1 FROM event_invitations WHERE event_id = p_event_id AND day_id = p_day_id AND segment_id IS NOT DISTINCT FROM p_segment_id) THEN
     RAISE EXCEPTION 'An invitation already exists for this day/segment'; END IF;
   SELECT field_config INTO v_config FROM event_templates WHERE template_key = p_template_key AND is_active = true;
@@ -1404,6 +1452,80 @@ BEGIN
   RETURN v_inv;
 END; $$;
 GRANT EXECUTE ON FUNCTION public.create_invitation(uuid, text, uuid, uuid, text) TO authenticated;
+
+-- Link-path validation shared by create_invitation and set_invitation_link_slug
+-- [20260807000002]. p_exclude_id lets an update ignore the row's OWN current
+-- slug when checking for a collision (NULL at create — nothing to exclude).
+CREATE OR REPLACE FUNCTION public.validate_invitation_link_slug(
+  p_event_id uuid, p_link_slug text, p_exclude_id uuid DEFAULT NULL
+)
+RETURNS text LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
+DECLARE
+  v_slug text := NULLIF(btrim(lower(p_link_slug)), '');
+BEGIN
+  IF v_slug IS NULL THEN
+    IF EXISTS (
+      SELECT 1 FROM event_invitations
+      WHERE event_id = p_event_id AND link_slug IS NULL
+        AND (p_exclude_id IS NULL OR id <> p_exclude_id)
+    ) THEN
+      RAISE EXCEPTION 'A root link already exists — choose a link path';
+    END IF;
+    RETURN NULL;
+  END IF;
+
+  IF v_slug !~ '^[a-z0-9]+(-[a-z0-9]+)*$' THEN
+    RAISE EXCEPTION 'Link path may use only lowercase letters, numbers and hyphens';
+  END IF;
+  IF EXISTS (SELECT 1 FROM slug_reservations WHERE slug = v_slug AND expires_at IS NULL) THEN
+    RAISE EXCEPTION 'That link path is reserved';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM event_invitations
+    WHERE event_id = p_event_id AND link_slug = v_slug
+      AND (p_exclude_id IS NULL OR id <> p_exclude_id)
+  ) THEN
+    RAISE EXCEPTION 'That link path is already in use';
+  END IF;
+  RETURN v_slug;
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.validate_invitation_link_slug(uuid, text, uuid) FROM PUBLIC, anon, authenticated;
+
+-- The page's URL identity, edited independently of content/RSVP config
+-- [20260807000001, 002]. A LIVE page's link is destructive to change (a
+-- forwarded WhatsApp link 404s) — the client confirms before calling this;
+-- the RPC itself carries no confirm gate of its own.
+CREATE OR REPLACE FUNCTION public.set_invitation_link_slug(
+  p_event_id uuid, p_id uuid, p_link_slug text DEFAULT NULL
+)
+RETURNS event_invitations LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_caller event_members;
+  v_inv    event_invitations;
+  v_slug   text;
+BEGIN
+  SELECT * INTO v_inv FROM event_invitations WHERE id = p_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Invitation not found'; END IF;
+  IF v_inv.event_id != p_event_id THEN
+    RAISE EXCEPTION 'Invitation does not belong to this event'; END IF;
+
+  v_caller := get_current_member(p_event_id);
+  IF v_caller.id IS NULL THEN
+    RAISE EXCEPTION 'You are not an active member of this event'; END IF;
+  IF NOT has_event_permission(p_event_id, 'invitation', 'update') THEN
+    RAISE EXCEPTION 'Insufficient permission to update the invitation'; END IF;
+  PERFORM assert_event_writable(p_event_id);   -- paid/active + not over-limit
+
+  v_slug := validate_invitation_link_slug(p_event_id, p_link_slug, p_id);
+
+  UPDATE event_invitations SET link_slug = v_slug
+  WHERE id = p_id RETURNING * INTO v_inv;
+  RETURN v_inv;
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.set_invitation_link_slug(uuid, uuid, text) FROM PUBLIC, anon;
+GRANT  EXECUTE ON FUNCTION public.set_invitation_link_slug(uuid, uuid, text) TO authenticated;
 
 -- p_private_code [20260618000001]: required when (effective) mode is private;
 -- stored NULL for public. Never returned by get_public_invitation (no leak).
@@ -1427,6 +1549,15 @@ BEGIN
   IF NOT has_event_permission(p_event_id, 'invitation', 'update') THEN
     RAISE EXCEPTION 'Insufficient permission to update the invitation'; END IF;
   PERFORM assert_event_writable(p_event_id);   -- paid/active + not over-limit
+
+  -- The only plan check this RPC needs. A plain edit adds no row and changes
+  -- nothing publicly visible; publishing is the one thing that does, so it's
+  -- the only transition checked, and only against the publish cap
+  -- [20260807000003, 004].
+  IF p_to_publish AND v_inv.published_at IS NULL THEN
+    PERFORM assert_plan(p_event_id, 'pages_publish', 1);
+  END IF;
+
   IF COALESCE(p_guest_count_max, v_inv.guest_count_max) < COALESCE(p_guest_count_min, v_inv.guest_count_min) THEN
     RAISE EXCEPTION 'Maximum guests cannot be less than the minimum'; END IF;
   v_mode := COALESCE(p_rsvp_mode, v_inv.rsvp_mode);
@@ -1437,7 +1568,7 @@ BEGIN
   SELECT max_guests INTO v_plan_cap FROM plans WHERE key = effective_plan_key(p_event_id);
   v_max_guests := COALESCE(p_max_guests, v_plan_cap);
   IF v_max_guests > v_plan_cap THEN
-    RAISE EXCEPTION 'Guest capacity (%) can''t exceed your plan limit of %. Upgrade to Pro for more.', v_max_guests, v_plan_cap;
+    RAISE EXCEPTION 'Guest capacity (%) can''t exceed your plan limit of %. Upgrade your plan for more.', v_max_guests, v_plan_cap;
   END IF;
   UPDATE event_invitations SET
     template_key = COALESCE(p_template_key, template_key),

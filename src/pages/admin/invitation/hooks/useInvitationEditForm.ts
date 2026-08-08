@@ -7,6 +7,7 @@ import { themeRegistry } from "@/pages/wedding/templates";
 import type { ThemeConfig } from "@/pages/wedding/templates/types";
 
 import { useThemeSheetStore } from "../themes/editor/store";
+import { useInvitationModalStore } from "./useInvitationModalStore";
 import { useSheetLeaveGuard } from "../themes/editor/hooks/useThemeSheetLeaveGuard";
 import { schema, rsvpDefaults } from "../config/components/ConfigsForm";
 import { useInvitationMutations, useTemplatesQuery } from "../queries";
@@ -30,8 +31,10 @@ export function useInvitationEditForm(
   onClose: () => void,
 ) {
   const { eventId } = useAdminStore();
-  const { save, publish, unpublish, remove } = useInvitationMutations();
+  const { save, publish, unpublish, remove, setLinkSlug } =
+    useInvitationMutations();
   const { data: templates } = useTemplatesQuery();
+  const openConfirm = useInvitationModalStore((s) => s.openConfirm);
 
   const initStore = useThemeSheetStore((s) => s.init);
   const clearStore = useThemeSheetStore((s) => s.clear);
@@ -247,6 +250,19 @@ export function useInvitationEditForm(
     [remove, eventId, invitation.id],
   );
 
+  // Editing the link on a LIVE page breaks any copy already sent out (a
+  // forwarded WhatsApp link 404s), so that path confirms first. Whether to
+  // confirm is a UI decision and lives at the call site (EditPanel), same as
+  // publish — see mutations.md. This hook only holds the value the confirm
+  // modal will commit, and fires the mutation.
+  const [pendingLinkSlug, setPendingLinkSlug] = useState<string | null>(null);
+
+  const saveLinkSlug = useCallback(
+    (value: string | null) =>
+      setLinkSlug.mutate({ event_id: eventId!, id: invitation.id, link_slug: value }),
+    [setLinkSlug, eventId, invitation.id],
+  );
+
   // Reset the design draft to the template's base config — the DB seed that
   // create_invitation copies from (not the minimal registry scaffold). RSVP
   // settings are untouched; the user still Saves to persist.
@@ -290,6 +306,9 @@ export function useInvitationEditForm(
     handleDelete,
     resetToTemplate,
     discardChanges,
+    pendingLinkSlug,
+    setPendingLinkSlug,
+    saveLinkSlug,
     publishPending: publish.isPending,
     publishSuccess: publish.isSuccess,
     publishError: publish.isError,
@@ -299,5 +318,8 @@ export function useInvitationEditForm(
     deletePending: remove.isPending,
     deleteSuccess: remove.isSuccess,
     deleteError: remove.isError,
+    setLinkSlugPending: setLinkSlug.isPending,
+    setLinkSlugSuccess: setLinkSlug.isSuccess,
+    setLinkSlugError: setLinkSlug.isError,
   };
 }

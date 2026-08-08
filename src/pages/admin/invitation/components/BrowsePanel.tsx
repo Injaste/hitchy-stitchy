@@ -16,6 +16,7 @@ import { themeRegistry } from "@/pages/wedding/templates";
 import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import { useAccess } from "@/pages/admin/hooks/useAccess";
 import { ScrollView } from "@/components/custom/scroll-view";
+import { toSafeSlug, toSlug } from "@/hooks/useSlugCheck";
 import TemplateCard from "./TemplateCard";
 import BespokeTemplateCard from "./BespokeTemplateCard";
 import { BESPOKE_ENABLED } from "./bespoke";
@@ -34,13 +35,6 @@ interface BrowsePanelProps {
   onSelect: (slug: string) => void;
   onUsed: (invitation: Invitation) => void;
 }
-
-const slugify = (s: string) =>
-  s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 // Left pane in "browse" mode: template list + the create form (day, optional
 // segment, link path). Selection is lifted to the shell so the shared preview
@@ -103,11 +97,14 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
 
   // Auto-fill the link path from the label until the user types their own.
   useEffect(() => {
-    if (!slugTouched) setLinkSlug(slugify(derivedLabel));
+    if (!slugTouched) setLinkSlug(toSlug(derivedLabel));
   }, [derivedLabel, slugTouched]);
 
   const hasRoot = (invitations ?? []).some((i) => i.link_slug === null);
-  const trimmedSlug = linkSlug.trim();
+  // toSlug, not trim: toSafeSlug leaves a trailing dash while typing, which the
+  // server's link-path check rejects. Submitting the normalised value means
+  // Save can't fail on something the user has no way to see.
+  const trimmedSlug = toSlug(linkSlug);
   // Empty path = the event root; only allowed if no root exists yet.
   const rootConflict = trimmedSlug === "" && hasRoot;
 
@@ -208,8 +205,9 @@ const BrowsePanel = ({ selectedSlug, onSelect, onUsed }: BrowsePanelProps) => {
                 value={linkSlug}
                 onChange={(e) => {
                   setSlugTouched(true);
-                  setLinkSlug(e.target.value);
+                  setLinkSlug(toSafeSlug(e.target.value));
                 }}
+                onBlur={() => setLinkSlug(toSlug(linkSlug))}
                 placeholder="e.g. mehndi"
                 className="h-9"
               />

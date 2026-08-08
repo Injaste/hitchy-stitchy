@@ -6,8 +6,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import ComponentFade from "@/components/animations/animate-component-fade";
 import { FormShellContext } from "@/components/custom/form/form-context";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 
 import ThemeSheetForm from "../themes/editor/components/ThemeSheetForm";
+import PageLinkSection from "../config/sections/PageLinkSection";
 import RSVPSection from "../config/sections/RSVPSection";
 import GuestLimitsSection from "../config/sections/GuestLimitsSection";
 import FormFieldsSection from "../config/sections/FormFieldsSection";
@@ -36,6 +38,7 @@ type Tab = "design" | "rsvp";
 // modals. Presentation lives in the extracted components.
 const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
   ({ invitation, onClose }, ref) => {
+    const { slug } = useAdminStore();
     const edit = useInvitationEditForm(invitation, onClose);
     const openConfirm = useInvitationModalStore((s) => s.openConfirm);
 
@@ -53,7 +56,7 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
       return false;
     };
 
-    const submit = (e: React.FormEvent) => {
+    const submit = (e: React.SyntheticEvent) => {
       e.preventDefault();
       if (validateAndJump()) edit.commitSave().catch(() => {});
     };
@@ -61,6 +64,19 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
     // Publish is confirmed first; only open the dialog once the form is valid.
     const onPublish = () => {
       if (validateAndJump()) openConfirm("publish");
+    };
+
+    // Same shape as onPublish: the confirm-vs-act decision is UI, so it lives
+    // here rather than in the mutation hook (mutations.md). Changing a LIVE
+    // page's link 404s any copy already shared, so it confirms; a draft has no
+    // guests yet and saves straight away.
+    const onSaveLink = (value: string | null) => {
+      if (edit.isPublished) {
+        edit.setPendingLinkSlug(value);
+        openConfirm("link");
+      } else {
+        edit.saveLinkSlug(value);
+      }
     };
 
     // Scheduled publish: validate, then publish with a future timestamp (the
@@ -148,6 +164,15 @@ const EditPanel = forwardRef<EditPanelHandle, EditPanelProps>(
                       </div>
                     ) : (
                       <div className="space-y-4">
+                        <PageLinkSection
+                          slug={slug!}
+                          linkSlug={invitation.link_slug}
+                          published={edit.isPublished}
+                          isSaving={edit.setLinkSlugPending}
+                          isSaveSuccess={edit.setLinkSlugSuccess}
+                          isSaveError={edit.setLinkSlugError}
+                          onSave={onSaveLink}
+                        />
                         <RSVPSection
                           linkSlug={invitation.link_slug}
                           published={edit.isLive}

@@ -16,7 +16,7 @@ const FormShell = forwardRef<HTMLFormElement, FormShellProps>(
       form.handleSubmit();
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
       e.preventDefault();
       e.stopPropagation();
       submit();

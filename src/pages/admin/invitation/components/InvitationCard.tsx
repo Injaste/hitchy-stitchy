@@ -117,7 +117,12 @@ const InvitationCard = ({
         <p className="text-sm text-muted-foreground truncate">
           {dateLabel ? `${dateLabel} · ` : ""}RSVP {invitation.rsvp_mode}
         </p>
-        <p className="text-xs text-muted-foreground mt-1 truncate">{path}</p>
+        <p className="text-xs text-muted-foreground mt-1 truncate">
+          {!invitation.link_slug && (
+            <span className="font-medium text-foreground">Main link · </span>
+          )}
+          {path}
+        </p>
         <div className="mt-2">
           {isScheduled ? (
             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">

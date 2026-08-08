@@ -10,7 +10,8 @@ export type InvitationConfirm =
   | "unpublish"
   | "delete"
   | "reset"
-  | "discard";
+  | "discard"
+  | "link";
 
 interface InvitationModalState {
   isOpen: boolean;
