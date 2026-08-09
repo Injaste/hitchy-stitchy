@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 import { useMutation } from "@/lib/query/useMutation"
 import { useAdminStore } from "@/pages/admin/store/useAdminStore"
@@ -116,9 +117,16 @@ export function useGuestMutations() {
     },
   )
 
-  const bulkUpdateGuests = useMutation(
-    ({ ids, status }: { ids: string[]; status: GuestStatus }) =>
-      updateGuests(eventId!, ids, status),
+  // prevStatuses is client-only (never reaches the RPC) — each affected
+  // guest's status *before* this call, captured by the caller from the
+  // current cache. Present only on the original bulk action; the undo
+  // call(s) below omit it, which is what keeps the restore toast plain
+  // (no undo-of-undo, matching the L5 pattern from task archive/restore).
+  const bulkUpdateGuests = useMutation<
+    { ids: string[]; status: GuestStatus; prevStatuses?: Record<string, GuestStatus> },
+    Guest[]
+  >(
+    ({ ids, status }) => updateGuests(eventId!, ids, status),
     {
       successMessage: (rows: Guest[], args) => {
         const label = STATUS_LABELS[args.status].toLowerCase()
@@ -127,6 +135,39 @@ export function useGuestMutations() {
           : `${rows.length} guests marked ${label}`
       },
       errorMessage: (err) => err.message,
+      // A bulk change can sweep up guests that had different prior statuses —
+      // undo has to send each back to its OWN previous status, not one shared
+      // value, so it regroups by prevStatuses into one RPC call per group.
+      // Those calls go straight through the API (not bulkUpdateGuests.mutate),
+      // so the wrapper's own toast doesn't fire per group — one summary toast
+      // covers the whole undo instead, matching the single toast the original
+      // bulk action got.
+      onUndo: (_rows, args) => {
+        if (!args.prevStatuses) return undefined
+        const groups = new Map<GuestStatus, string[]>()
+        for (const id of args.ids) {
+          const prev = args.prevStatuses[id]
+          if (!prev) continue
+          groups.set(prev, [...(groups.get(prev) ?? []), id])
+        }
+        return async () => {
+          try {
+            const results = await Promise.all(
+              Array.from(groups, ([status, ids]) => updateGuests(eventId!, ids, status)),
+            )
+            const rows = results.flat()
+            const byId = new Map(rows.map((r) => [r.id, r]))
+            setGuests((old) => old?.map((g) => byId.get(g.id) ?? g) ?? [])
+            toast.success(
+              rows.length === 1
+                ? `"${truncate(rows[0].name)}" restored`
+                : `${rows.length} guests restored`,
+            )
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Couldn't undo the status change")
+          }
+        }
+      },
       onSuccess: (rows: Guest[]) => {
         const byId = new Map(rows.map((r) => [r.id, r]))
         setGuests((old) => old?.map((g) => byId.get(g.id) ?? g) ?? [])

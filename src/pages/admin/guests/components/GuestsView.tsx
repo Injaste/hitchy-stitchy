@@ -52,7 +52,6 @@ const GuestsView: FC<GuestsViewProps> = ({
   refetch,
 }) => {
   const openCreate = useGuestModalStore((s) => s.openCreate);
-  const openBulkUpdate = useGuestModalStore((s) => s.openBulkUpdate);
   const selectedIds = useGuestModalStore((s) => s.selectedIds);
   const toggleRow = useGuestModalStore((s) => s.toggleRow);
   const setSelectedIds = useGuestModalStore((s) => s.setSelectedIds);
@@ -199,8 +198,21 @@ const GuestsView: FC<GuestsViewProps> = ({
     setSelectedIds(next);
   };
 
+  // Status change is a flag flip, not a destruction — it acts immediately
+  // with an undo toast (L5) instead of a confirm dialog. prevStatuses snapshots
+  // each selected guest's CURRENT status so undo can send it back to its own
+  // prior value, not one shared value (a bulk selection can mix statuses).
   const handleBulkRequest = (status: GuestStatus) => {
-    openBulkUpdate(Array.from(selectedIds), status);
+    const ids = Array.from(selectedIds);
+    const prevStatuses = Object.fromEntries(
+      (data ?? [])
+        .filter((g) => selectedIds.has(g.id))
+        .map((g) => [g.id, g.status]),
+    );
+    bulkUpdateGuests.mutate(
+      { ids, status, prevStatuses },
+      { onSuccess: clearSelection },
+    );
   };
 
   const renderBody = () => {
