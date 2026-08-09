@@ -7,6 +7,12 @@ import type { MutationOptions } from "./types";
 // default (~4s).
 const ERROR_TOAST_DURATION = 8000;
 
+// The undo window IS the toast's lifetime — once it's gone the action stands.
+// Long enough to read what happened, decide, and reach the button on a phone;
+// the soft-delete underneath is already durable, so this is a UI affordance, not
+// a grace period the server honours.
+const UNDO_TOAST_DURATION = 10000;
+
 export function useMutation<TArgs, TResult, TContext = unknown>(
   fn: (args: TArgs) => Promise<TResult>,
   options: MutationOptions<TResult, TArgs, TContext>,
@@ -33,7 +39,13 @@ export function useMutation<TArgs, TResult, TContext = unknown>(
           typeof options.successMessage === "function"
             ? options.successMessage(result, args)
             : options.successMessage;
-        toast.success(msg);
+        const undo = "onUndo" in options ? options.onUndo?.(result, args) : undefined;
+        toast.success(
+          msg,
+          undo
+            ? { duration: UNDO_TOAST_DURATION, action: { label: "Undo", onClick: undo } }
+            : undefined,
+        );
       }
     },
 

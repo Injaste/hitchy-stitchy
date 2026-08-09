@@ -14,7 +14,8 @@ import { ScrollView } from "@/components/custom/scroll-view";
 
 import type { Task, TaskStatus } from "../types";
 import { useAccess } from "../../hooks/useAccess";
-import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
+import { useTaskMutations } from "../queries";
 import TaskCard from "./TaskCard";
 import TaskQuickAdd from "./TaskQuickAdd";
 import TaskStatusIcon from "./TaskStatusIcon";
@@ -53,7 +54,8 @@ const TasksSection: FC<TasksSectionProps> = ({
   });
 
   const { canCreate, canDelete } = useAccess();
-  const openArchive = useTaskModalStore((s) => s.openArchive);
+  const { eventId } = useAdminStore();
+  const { archive } = useTaskMutations();
   const isDone = status === "done";
   const count = taskIds.length;
   const hasTasks = count > 0;
@@ -90,7 +92,12 @@ const TasksSection: FC<TasksSectionProps> = ({
               const tasks = taskIds
                 .map((id) => tasksById.get(id))
                 .filter((t): t is Task => !!t);
-              openArchive(tasks);
+              archive.mutate({
+                event_id: eventId!,
+                ids: tasks.map((t) => t.id),
+                archive: true,
+                label: tasks[0].title,
+              });
             }}
             className="ml-auto h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           >

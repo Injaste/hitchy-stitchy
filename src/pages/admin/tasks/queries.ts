@@ -151,7 +151,7 @@ export function useTaskMutations() {
     },
   )
 
-  const archive = useMutation(
+  const archive = useMutation<ArchiveTasksPayload, void>(
     (payload: ArchiveTasksPayload) => archiveTasks(payload),
     {
       successMessage: (_: void, args: ArchiveTasksPayload) => {
@@ -161,6 +161,11 @@ export function useTaskMutations() {
           : `${args.ids.length} tasks ${verb}`
       },
       errorMessage: (err) => err.message,
+      // Only the archive direction is destructive (L5); restoring already IS
+      // the undo, so it doesn't get its own. Referencing `archive` here is
+      // safe: the returned closure only runs on click, after this call exists.
+      onUndo: (_: void, args: ArchiveTasksPayload) =>
+        args.archive ? () => archive.mutate({ ...args, archive: false }) : undefined,
       onSuccess: (_: void, args: ArchiveTasksPayload) => {
         const idSet = new Set(args.ids)
 

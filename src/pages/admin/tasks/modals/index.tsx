@@ -4,7 +4,6 @@ import TaskCreateModal from "./TaskCreateModal"
 import TaskDetailModal from "./TaskDetailModal"
 import TaskEditModal from "./TaskEditModal"
 import TaskDeleteModal from "./TaskDeleteModal"
-import TaskArchiveModal from "./TaskArchiveModal"
 import TaskArchivedSheet from "../components/TaskArchivedSheet"
 
 const TaskModals = () => {
@@ -18,7 +17,6 @@ const TaskModals = () => {
       <TaskDetailModal />
       <TaskEditModal key={selectedId ?? "none"} />
       <TaskDeleteModal />
-      <TaskArchiveModal />
       <TaskArchivedSheet />
     </>
   )

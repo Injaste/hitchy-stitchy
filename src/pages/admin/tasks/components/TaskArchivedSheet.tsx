@@ -34,9 +34,10 @@ const TaskArchivedSheet = () => {
     if (!next) closeArchivedSheet();
   };
 
-  const [rowState, setRowState] = useState<
-    { id: string; state: "pending" | "success" | "error" } | null
-  >(null);
+  const [rowState, setRowState] = useState<{
+    id: string;
+    state: "pending" | "success" | "error";
+  } | null>(null);
 
   const handleUnarchive = async (task: Task) => {
     setRowState({ id: task.id, state: "pending" });
@@ -118,7 +119,9 @@ const TaskArchivedSheet = () => {
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           <span className="inline-flex items-center gap-1">
                             <Archive className="size-4 text-muted-foreground" />
-                            {task.archived_at ? format(parseISO(task.archived_at), "d MMM yyyy") : "—"}
+                            {task.archived_at
+                              ? format(parseISO(task.archived_at), "d MMM yyyy")
+                              : "—"}
                           </span>
                           {task.priority && (
                             <span
@@ -137,22 +140,33 @@ const TaskArchivedSheet = () => {
                         <div className="flex items-center gap-1.5 shrink-0">
                           <SubmitButton
                             type="button"
-                            size="sm"
+                            size="icon-sm"
                             variant="outline"
                             onClick={() => handleUnarchive(task)}
-                            isPending={rowState?.id === task.id && rowState.state === "pending"}
-                            isSuccess={rowState?.id === task.id && rowState.state === "success"}
-                            isError={rowState?.id === task.id && rowState.state === "error"}
+                            isPending={
+                              rowState?.id === task.id &&
+                              rowState.state === "pending"
+                            }
+                            isSuccess={
+                              rowState?.id === task.id &&
+                              rowState.state === "success"
+                            }
+                            isError={
+                              rowState?.id === task.id &&
+                              rowState.state === "error"
+                            }
                             className="gap-1.5"
                           >
                             <RotateCcw className="size-3.5" />
-                            Unarchive
                           </SubmitButton>
                           <Button
                             size="icon-sm"
                             variant="destructive"
                             onClick={() => handleDelete(task)}
-                            disabled={rowState?.id === task.id && rowState.state === "pending"}
+                            disabled={
+                              rowState?.id === task.id &&
+                              rowState.state === "pending"
+                            }
                             aria-label="Delete task"
                           >
                             <Trash2 className="size-3.5" />

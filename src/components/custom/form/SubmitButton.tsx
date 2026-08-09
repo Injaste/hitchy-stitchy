@@ -247,7 +247,7 @@ const SubmitButton: FC<SubmitButtonProps> = ({
         type={type}
         disabled={isPending || !!disabled}
         {...props}
-        className="w-full"
+        className="flex-1"
       >
         {children}
       </Button>

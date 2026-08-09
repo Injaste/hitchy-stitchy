@@ -13,8 +13,10 @@ import { Separator } from "@/components/ui/separator";
 
 import { cn } from "@/lib/utils";
 import { useAccess } from "../../hooks/useAccess";
+import { useAdminStore } from "@/pages/admin/store/useAdminStore";
 import NotesMarkdown from "@/components/custom/notes-markdown";
 import { useTaskModalStore } from "../hooks/useTaskModalStore";
+import { useTaskMutations } from "../queries";
 import { PRIORITY_LABELS, PRIORITY_BADGE_CLASS, STATUS_LABELS } from "../types";
 import TaskStatusIcon from "../components/TaskStatusIcon";
 import MemberBadge from "@/pages/admin/members/components/MemberBadge";
@@ -25,8 +27,9 @@ const TaskDetailModal = () => {
   const closeAll = useTaskModalStore((s) => s.closeAll);
   const openEdit = useTaskModalStore((s) => s.openEdit);
   const openDelete = useTaskModalStore((s) => s.openDelete);
-  const openArchive = useTaskModalStore((s) => s.openArchive);
 
+  const { eventId } = useAdminStore();
+  const { archive } = useTaskMutations();
   const { canUpdate, canDelete } = useAccess();
 
   if (!selectedItem) return null;
@@ -52,7 +55,18 @@ const TaskDetailModal = () => {
     canDelete("tasks") && { label: "Delete", onClick: openDelete },
     canDelete("tasks") && {
       label: "Archive",
-      onClick: () => openArchive([task]),
+      // Archiving is reversible, so it acts immediately and offers Undo on the
+      // toast (L5) instead of a confirm dialog. Close first — the toast is the
+      // feedback, and leaving the detail modal up would strand it behind.
+      onClick: () => {
+        closeAll();
+        archive.mutate({
+          event_id: eventId!,
+          ids: [task.id],
+          archive: true,
+          label: task.title,
+        });
+      },
     },
   ];
   const primaryAction = canUpdate("tasks") && {

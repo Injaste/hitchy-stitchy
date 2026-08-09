@@ -30,6 +30,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast: "cn-toast",
+          // Tailwind's Preflight resets every <button> to a transparent
+          // background + inherited text colour, which silently wins over
+          // Sonner's own [data-button] rule — hence the !important overrides.
+          // bg-current ties the pill to whichever accent is inherited (Sonner
+          // sets it per toast type — success/error/warning/info), instead of a
+          // flat neutral tint that clashes with the type colour.
+          actionButton: "!bg-current/10 hover:!bg-current/20 !text-current transition-colors",
         },
       }}
       {...props}
