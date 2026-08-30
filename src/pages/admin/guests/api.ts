@@ -81,10 +81,10 @@ export async function updateGuests(
   return (data ?? []) as Guest[]
 }
 
-export async function deleteGuest(eventId: string, id: string): Promise<void> {
-  const { error } = await supabase.rpc("delete_guest", {
+export async function deleteGuests(eventId: string, ids: string[]): Promise<void> {
+  const { error } = await supabase.rpc("delete_guests", {
     p_event_id: eventId,
-    p_id: id,
+    p_ids: ids,
   })
 
   if (error) throw new Error(error.message)

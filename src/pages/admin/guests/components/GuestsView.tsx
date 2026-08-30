@@ -52,6 +52,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   refetch,
 }) => {
   const openCreate = useGuestModalStore((s) => s.openCreate);
+  const openBulkDelete = useGuestModalStore((s) => s.openBulkDelete);
   const selectedIds = useGuestModalStore((s) => s.selectedIds);
   const toggleRow = useGuestModalStore((s) => s.toggleRow);
   const setSelectedIds = useGuestModalStore((s) => s.setSelectedIds);
@@ -60,7 +61,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   const setActiveInvitationId = useGuestModalStore(
     (s) => s.setActiveInvitationId,
   );
-  const { canCreate, canUpdate, canRead } = useAccess();
+  const { canCreate, canUpdate, canDelete, canRead } = useAccess();
   const { bulkUpdateGuests } = useGuestMutations();
   const { slug } = useAdminStore();
 
@@ -72,6 +73,7 @@ const GuestsView: FC<GuestsViewProps> = ({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const canBulkUpdate = canUpdate("guests");
+  const canBulkDelete = canDelete("guests");
 
   // Guests drive their own day rail: only days that actually have an invitation
   // page appear (like gifts). The global active day is the source of truth, but
@@ -215,6 +217,12 @@ const GuestsView: FC<GuestsViewProps> = ({
     );
   };
 
+  // A hard delete with no reversal — bulk scale is enough of a blast radius
+  // to keep the confirm dialog (type-to-confirm), unlike status above.
+  const handleBulkDelete = () => {
+    openBulkDelete(Array.from(selectedIds));
+  };
+
   const renderBody = () => {
     if (isLoading) {
       return (
@@ -319,6 +327,8 @@ const GuestsView: FC<GuestsViewProps> = ({
               count={selectedIds.size}
               onClear={clearSelection}
               onRequest={handleBulkRequest}
+              onRequestDelete={handleBulkDelete}
+              canDelete={canBulkDelete}
               isPending={bulkUpdateGuests.isPending}
             />
           )}

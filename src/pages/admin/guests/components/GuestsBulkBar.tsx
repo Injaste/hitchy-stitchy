@@ -1,8 +1,9 @@
 import type { FC } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Clock, X, XCircle } from "lucide-react";
+import { CheckCircle, Clock, Trash2, X, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { itemRevealInUp } from "@/lib/animations";
 
 import type { GuestStatus } from "../types";
@@ -11,6 +12,8 @@ interface GuestsBulkBarProps {
   count: number;
   onClear: () => void;
   onRequest: (status: GuestStatus) => void;
+  onRequestDelete: () => void;
+  canDelete: boolean;
   isPending: boolean;
 }
 
@@ -18,6 +21,8 @@ const GuestsBulkBar: FC<GuestsBulkBarProps> = ({
   count,
   onClear,
   onRequest,
+  onRequestDelete,
+  canDelete,
   isPending,
 }) => {
   return (
@@ -40,28 +45,46 @@ const GuestsBulkBar: FC<GuestsBulkBarProps> = ({
             size="sm"
             onClick={() => onRequest("confirmed")}
             disabled={isPending}
+            aria-label="Confirm"
           >
-            <CheckCircle className="w-4 h-4 mr-1.5" />
-            Confirm
+            <CheckCircle className="w-4 h-4" />
+            <span className="hidden sm:inline">Confirm</span>
           </Button>
           <Button
             variant="warning"
             size="sm"
             onClick={() => onRequest("pending")}
             disabled={isPending}
+            aria-label="Pending"
           >
-            <Clock className="w-4 h-4 mr-1.5" />
-            Pending
+            <Clock className="w-4 h-4" />
+            <span className="hidden sm:inline">Pending</span>
           </Button>
           <Button
             variant="destructive"
             size="sm"
             onClick={() => onRequest("cancelled")}
             disabled={isPending}
+            aria-label="Cancel"
           >
-            <XCircle className="w-4 h-4 mr-1.5" />
-            Cancel
+            <XCircle className="w-4 h-4" />
+            <span className="hidden sm:inline">Cancel</span>
           </Button>
+          {canDelete && (
+            <>
+              <Separator orientation="vertical" className="h-6" />
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={onRequestDelete}
+                disabled={isPending}
+                aria-label="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Delete</span>
+              </Button>
+            </>
+          )}
 
           <Button
             variant="ghost"
