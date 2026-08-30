@@ -5,6 +5,21 @@ All mutations go through `lib/query/useMutation.ts`, with three feedback modes:
 - **Simple** `{ successMessage, errorMessage }` → auto toasts.
 - **Promise** `{ toast: {...} }` → one promise toast.
 - **Silent** `{ silent: true }` → no toast; caller surfaces it (usually `<FormError>`, see [forms.md](forms.md)).
+- **Simple + `onUndo`** → the success toast grows an Undo button and a longer
+  window. This is the L5 (undo over confirm) primitive — see
+  [destructive-actions.md](destructive-actions.md). `onUndo: (result, args) =>
+  (() => void) | void` is resolved once at success time, not eagerly — return
+  a handler to show the button, or nothing to leave the toast plain. That lets
+  one mutation used in both directions offer undo on only the destructive one
+  (task archive shows Undo; the restore it triggers doesn't loop back).
+  Two shapes so far:
+  - **Symmetric flip** (task archive/restore) — the handler just re-calls the
+    same mutation with the arg flipped.
+  - **Grouped + consolidated** (guest bulk status) — a bulk action can sweep up
+    rows with different prior values, so undo has to send each back to its OWN
+    previous value, not one shared one. The handler regroups and calls the raw
+    API directly (not `mutation.mutate`, which would fire its own toast per
+    call) so the whole undo still lands as one toast, matching the original.
 
 **Toast duration is intentionally split:** errors use `ERROR_TOAST_DURATION`
 (8s) so a server message is readable; success keeps sonner's ~4s default. This

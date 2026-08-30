@@ -7,6 +7,7 @@ when working in a given area.
 Keep them **terse** — scannable rules and tables, not essays. A doc you have to
 scroll to answer a simple question is a tax on every task.
 
+- [ux-principles.md](ux-principles.md) — the UX charter: the ten laws every user-facing surface obeys, and the conformance checklist they're graded against. Phased plans live in [`docs/ux/`](../ux/README.md).
 - [conventions.md](conventions.md) — coding standards: naming and comment style.
 - [forms.md](forms.md) — form primitives (bundles vs shells), when to use which, and how to surface form errors (inline vs toast).
 - [auth.md](auth.md) — auth folder structure, the `AuthGate` → `/login` pattern, the login/session/redirect flow, and logout destinations.
