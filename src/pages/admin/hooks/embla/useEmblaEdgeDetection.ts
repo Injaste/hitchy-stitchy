@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { EmblaCarouselType } from 'embla-carousel'
 
+/**
+ * DELIBERATE DUPLICATE of `pages/home/features/hooks.ts`. Home and admin are
+ * bundled as independent sites, and a shared module would land in `shared`,
+ * which loads on every route — including the wedding invite, which has no
+ * carousels at all. See `docs/architecture/bundling.md`. Do not "dedupe" these
+ * into a common hook; fix both copies instead.
+ */
 export const useEmblaEdgeDetection = (emblaApi: EmblaCarouselType | undefined) => {
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);

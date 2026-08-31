@@ -3,6 +3,14 @@ import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
 
 /**
+ * DELIBERATE DUPLICATE of `pages/home/features/hooks.ts`. Home and admin are
+ * bundled as independent sites, and a shared module would land in `shared`,
+ * which loads on every route — including the wedding invite, which has no
+ * carousels at all. See `docs/architecture/bundling.md`. Do not "dedupe" these
+ * into a common hook; fix both copies instead.
+ */
+
+/**
  * @param align - snap alignment. "center" keeps the active slide clear of both
  *   edge fades (its leading/trailing edges land where the fades turn transparent)
  *   when the slide is sized to fit between them; Embla still clamps the first and
