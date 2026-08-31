@@ -112,6 +112,82 @@ export function useGuestMutations() {
 
   // Bulk page assignment. Additive: every guest is written to the target pages
   // it isn't already on, which is why the call arrives pre-split into batches —
+  // import_guests applies one guest list to one page list, so guests that need
+  // different pages can't share a call. The batches run one after another, NOT
+  // in parallel: each call's plan check only sees rows that are already
+  // committed, so concurrent batches would each be measured against the same
+  // pre-assignment usage and could land the selection over the cap between them.
+  // Removal (the "move" half) runs only after the additive half lands in full,
+  // so a failure can't leave a guest on no page.
+  const assignGuestPages = useMutation<
+    {
+      batches: { invitationIds: string[]; guests: ImportGuestPayload[] }[]
+      removeIds: string[]
+      /** Guests the sheet acted on, and pages picked — for the toast only. */
+      guestCount: number
+      pageCount: number
+    },
+    { added: Guest[]; removed: string[] }
+  >(
+    async ({ batches, removeIds }) => {
+      const added: Guest[] = []
+      let failedGuests = 0
+      let firstError: Error | undefined
+
+      for (const batch of batches) {
+        try {
+          added.push(
+            ...(await importGuestsApi(eventId!, batch.invitationIds, batch.guests)),
+          )
+        } catch (err) {
+          failedGuests += batch.guests.length
+          firstError ??=
+            err instanceof Error ? err : new Error("Couldn't add those guests")
+        }
+      }
+
+      // A partly-written assignment is a failure, not a success with a footnote:
+      // it takes the error toast's length and close button, and leaves the sheet
+      // (and the selection) open to retry. Rows that DID land are real, so the
+      // cache takes them before the throw or the table would deny they exist.
+      if (failedGuests > 0) {
+        if (added.length > 0) setGuests((old) => [...added, ...(old ?? [])])
+        const detail = firstError?.message ?? "Couldn't add those guests"
+        throw new Error(
+          added.length > 0
+            ? `${added.length} added, ${failedGuests} couldn't be: ${detail}`
+            : detail,
+        )
+      }
+
+      let removed: string[] = []
+      if (removeIds.length > 0) {
+        await deleteGuests(eventId!, removeIds)
+        removed = removeIds
+      }
+
+      return { added, removed }
+    },
+    {
+      successMessage: (result, args) => {
+        const pages = `${args.pageCount} ${args.pageCount === 1 ? "page" : "pages"}`
+        if (result.removed.length > 0)
+          return `${args.guestCount} guests moved to ${pages}`
+        return result.added.length === 0
+          ? "Those guests are already on the pages you picked"
+          : `${result.added.length} guests added to ${pages}`
+      },
+      errorMessage: (err) => err.message,
+      onSuccess: (result) => {
+        const removedIds = new Set(result.removed)
+        setGuests((old) => [
+          ...result.added,
+          ...(old ?? []).filter((g) => !removedIds.has(g.id)),
+        ])
+      },
+    },
+  )
+
   const update = useMutation(
     (payload: UpdateGuestPayload) => updateGuest(payload),
     {
@@ -256,6 +332,7 @@ export function useGuestMutations() {
   return {
     create,
     importGuests,
+    assignGuestPages,
     update,
     updateStatus,
     bulkUpdateGuests,

@@ -54,6 +54,7 @@ const GuestsView: FC<GuestsViewProps> = ({
 }) => {
   const openCreate = useGuestModalStore((s) => s.openCreate);
   const openBulkDelete = useGuestModalStore((s) => s.openBulkDelete);
+  const openBulkPages = useGuestModalStore((s) => s.openBulkPages);
   const selectedIds = useGuestModalStore((s) => s.selectedIds);
   const toggleRow = useGuestModalStore((s) => s.toggleRow);
   const setSelectedIds = useGuestModalStore((s) => s.setSelectedIds);
@@ -334,6 +335,8 @@ const GuestsView: FC<GuestsViewProps> = ({
               onClear={clearSelection}
               onRequest={handleBulkRequest}
               onRequestDelete={handleBulkDelete}
+              onRequestPages={() => openBulkPages(Array.from(selectedIds))}
+              canAssignPages={canCreate("guests")}
               canDelete={canBulkDelete}
               isPending={bulkUpdateGuests.isPending}
             />

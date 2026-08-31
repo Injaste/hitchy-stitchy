@@ -6,6 +6,7 @@ import GuestEditModal from "./GuestEditModal";
 import GuestDeleteModal from "./GuestDeleteModal";
 import GuestDuplicateModal from "./GuestDuplicateModal";
 import GuestBulkDeleteModal from "./GuestBulkDeleteModal";
+import GuestBulkPagesSheet from "./GuestBulkPagesSheet";
 import GuestImportModal from "./GuestImportModal";
 
 const GuestModals = () => {
@@ -19,6 +20,7 @@ const GuestModals = () => {
       <GuestDeleteModal />
       <GuestDuplicateModal />
       <GuestBulkDeleteModal />
+      <GuestBulkPagesSheet />
       <GuestImportModal />
     </>
   );

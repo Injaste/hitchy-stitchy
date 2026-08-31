@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Clock, Trash2, X, XCircle } from "lucide-react";
+import { CheckCircle, Clock, Copy, Trash2, X, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,9 @@ interface GuestsBulkBarProps {
   onClear: () => void;
   onRequest: (status: GuestStatus) => void;
   onRequestDelete: () => void;
+  /** Opens the page-assignment sheet (adds rows, so it needs create rights). */
+  onRequestPages: () => void;
+  canAssignPages: boolean;
   canDelete: boolean;
   isPending: boolean;
 }
@@ -22,6 +25,8 @@ const GuestsBulkBar: FC<GuestsBulkBarProps> = ({
   onClear,
   onRequest,
   onRequestDelete,
+  onRequestPages,
+  canAssignPages,
   canDelete,
   isPending,
 }) => {
@@ -70,6 +75,21 @@ const GuestsBulkBar: FC<GuestsBulkBarProps> = ({
             <XCircle className="w-4 h-4" />
             <span className="hidden sm:inline">Cancel</span>
           </Button>
+          {canAssignPages && (
+            <>
+              <Separator orientation="vertical" className="h-6" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRequestPages}
+                disabled={isPending}
+                aria-label="Add to pages"
+              >
+                <Copy className="w-4 h-4" />
+                <span className="hidden sm:inline">Pages</span>
+              </Button>
+            </>
+          )}
           {canDelete && (
             <>
               <Separator orientation="vertical" className="h-6" />
