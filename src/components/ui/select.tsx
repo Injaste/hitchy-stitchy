@@ -3,7 +3,9 @@ import { Select as SelectPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { fieldRing, fieldSurface } from "@/components/ui/field-styles";
-import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
+import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
+import ScrollGradient from "@/components/custom/scroll-gradient";
+import { ChevronDownIcon, CheckIcon } from "lucide-react";
 
 function Select({
   ...props
@@ -66,28 +68,11 @@ function SelectContent({
   align = "center",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
-  const viewportRef = React.useRef<HTMLDivElement>(null);
-  const [showTop, setShowTop] = React.useState(false);
-  const [showBottom, setShowBottom] = React.useState(false);
-
   // Drive the fades off the viewport's live scroll position so they ease in
-  // AND out (mirrors ScrollGradient) — Radix's own scroll buttons just
-  // mount/unmount, which can't animate out.
-  const updateEdges = React.useCallback(() => {
-    const el = viewportRef.current;
-    if (!el) return;
-    setShowTop(el.scrollTop > 1);
-    setShowBottom(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
-  }, []);
-
-  React.useEffect(() => {
-    const el = viewportRef.current;
-    if (!el) return;
-    updateEdges();
-    const ro = new ResizeObserver(updateEdges);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [updateEdges]);
+  // AND out — Radix's own scroll buttons just mount/unmount, which can't
+  // animate out.
+  const { scrollRef, canScrollUp, canScrollDown, onScroll } =
+    useScrollVisibility();
 
   return (
     <SelectPrimitive.Portal>
@@ -104,10 +89,15 @@ function SelectContent({
         align={align}
         {...props}
       >
-        <SelectScrollFade side="top" visible={showTop} />
+        <ScrollGradient
+          side="top"
+          visible={canScrollUp}
+          fromClass="from-popover"
+          chevron
+        />
         <SelectPrimitive.Viewport
-          ref={viewportRef}
-          onScroll={updateEdges}
+          ref={scrollRef}
+          onScroll={onScroll}
           data-position={position}
           className={cn(
             "data-[position=popper]:h-(--radix-select-trigger-height) data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
@@ -115,7 +105,12 @@ function SelectContent({
         >
           {children}
         </SelectPrimitive.Viewport>
-        <SelectScrollFade side="bottom" visible={showBottom} />
+        <ScrollGradient
+          side="bottom"
+          visible={canScrollDown}
+          fromClass="from-popover"
+          chevron
+        />
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
   );
@@ -168,32 +163,6 @@ function SelectSeparator({
       className={cn("pointer-events-none -mx-1 my-1 h-px bg-border", className)}
       {...props}
     />
-  );
-}
-
-// Scroll affordance mirroring ScrollGradient: an always-mounted, pointer-through
-// gradient + chevron pinned to the content edge, eased in/out via opacity as the
-// viewport's scroll position changes (driven by SelectContent).
-function SelectScrollFade({
-  side,
-  visible,
-}: {
-  side: "top" | "bottom";
-  visible: boolean;
-}) {
-  return (
-    <div
-      aria-hidden
-      className={cn(
-        "pointer-events-none absolute inset-x-0 z-10 flex h-10 justify-center text-muted-foreground from-popover to-transparent transition-opacity [&_svg:not([class*='size-'])]:size-4",
-        side === "top"
-          ? "top-0 items-start bg-linear-to-b pt-1"
-          : "bottom-0 items-end bg-linear-to-t pb-1",
-        visible ? "opacity-100" : "opacity-0",
-      )}
-    >
-      {side === "top" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-    </div>
   );
 }
 

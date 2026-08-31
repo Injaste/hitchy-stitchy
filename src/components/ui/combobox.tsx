@@ -5,6 +5,7 @@ import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 
 import { cn } from "@/lib/utils";
 import { fieldSurface } from "@/components/ui/field-styles";
+import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
 import ScrollGradient from "@/components/custom/scroll-gradient";
 import { Button } from "@/components/ui/button";
 import {
@@ -142,41 +143,20 @@ function ComboboxContent({
 // affordance SelectContent uses, driven off the live scroll position so it eases
 // in AND out. Every combobox gets it (phone country picker, label picker, …).
 function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
-  const listRef = React.useRef<HTMLDivElement>(null);
-  const [showTop, setShowTop] = React.useState(false);
-  const [showBottom, setShowBottom] = React.useState(false);
-
-  const updateEdges = React.useCallback(() => {
-    const el = listRef.current;
-    if (!el) return;
-    setShowTop(el.scrollTop > 1);
-    setShowBottom(el.scrollTop + el.clientHeight < el.scrollHeight - 1);
-  }, []);
-
-  // No dep array on purpose: filtering swaps the rows without resizing the box,
-  // so a ResizeObserver alone would leave the bottom fade stale. Re-measuring
-  // after every render covers it; setState bails out when nothing changed.
-  React.useEffect(updateEdges);
-
-  React.useEffect(() => {
-    const el = listRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(updateEdges);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [updateEdges]);
+  const { scrollRef, canScrollUp, canScrollDown, onScroll } =
+    useScrollVisibility();
 
   return (
     <div className="relative">
       <ScrollGradient
         side="top"
-        visible={showTop}
+        visible={canScrollUp}
         chevron
         fromClass="from-popover"
       />
       <ComboboxPrimitive.List
-        ref={listRef}
-        onScroll={updateEdges}
+        ref={scrollRef}
+        onScroll={onScroll}
         data-slot="combobox-list"
         className={cn(
           "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1 data-empty:p-0",
@@ -186,7 +166,7 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
       />
       <ScrollGradient
         side="bottom"
-        visible={showBottom}
+        visible={canScrollDown}
         chevron
         fromClass="from-popover"
       />
