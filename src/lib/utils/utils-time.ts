@@ -8,7 +8,6 @@ import {
   isToday,
   isTomorrow,
   isYesterday,
-  isPast,
   isFuture,
   startOfDay,
   isWithinInterval,

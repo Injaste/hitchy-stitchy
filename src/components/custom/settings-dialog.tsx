@@ -14,7 +14,6 @@ import { ChevronRight, ChevronLeft, X, type LucideIcon } from "lucide-react";
 
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";

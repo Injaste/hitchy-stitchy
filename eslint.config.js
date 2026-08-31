@@ -34,6 +34,25 @@ export default tseslint.config(
       "react-hooks/static-components": "off",
       "react-hooks/incompatible-library": "off",
 
+      // The codebase marks deliberately-unused bindings with a leading
+      // underscore (_credentials, _props, _info); honour that convention.
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+
+      // `interface CreateXPayload extends XFormValues {}` is a deliberate
+      // pattern here — it names a payload type without widening it. Allowed;
+      // bare `{}` object types are still flagged.
+      "@typescript-eslint/no-empty-object-type": [
+        "error",
+        { allowInterfaces: "with-single-extends" },
+      ],
+
       // Real signal, but too many pre-existing hits to gate on today.
       "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/no-explicit-any": "warn",

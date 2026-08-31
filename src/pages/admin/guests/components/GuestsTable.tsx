@@ -11,8 +11,6 @@ import DataTable, {
 import DataTableTotalRow from "@/components/custom/tables/data-table-total-row";
 
 import GuestsRow, { ROW_COLS } from "./GuestsRow";
-import { RSVP_MODE_META } from "../../invitation/rsvpMeta";
-import type { RSVPMode } from "../../invitation/types";
 
 interface GuestsTableProps {
   guests: Guest[];

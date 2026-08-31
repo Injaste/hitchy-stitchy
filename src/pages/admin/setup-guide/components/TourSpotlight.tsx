@@ -100,7 +100,6 @@ export default function TourSpotlight() {
       setTarget(null);
     }
     prevArmed.current = armedRoute;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [armedRoute]);
 
   // Measure the button on the ARMED route's page. data-tour-page carries the route

@@ -7,7 +7,6 @@ import { themeRegistry } from "@/pages/wedding/templates";
 import type { ThemeConfig } from "@/pages/wedding/templates/types";
 
 import { useThemeSheetStore } from "../themes/editor/store";
-import { useInvitationModalStore } from "./useInvitationModalStore";
 import { useSheetLeaveGuard } from "../themes/editor/hooks/useThemeSheetLeaveGuard";
 import { schema, rsvpDefaults } from "../config/components/ConfigsForm";
 import { useInvitationMutations, useTemplatesQuery } from "../queries";
@@ -34,7 +33,6 @@ export function useInvitationEditForm(
   const { save, publish, unpublish, remove, setLinkSlug } =
     useInvitationMutations();
   const { data: templates } = useTemplatesQuery();
-  const openConfirm = useInvitationModalStore((s) => s.openConfirm);
 
   const initStore = useThemeSheetStore((s) => s.init);
   const clearStore = useThemeSheetStore((s) => s.clear);

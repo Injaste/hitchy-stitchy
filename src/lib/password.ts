@@ -26,7 +26,7 @@ export const PASSWORD_RULES: PasswordRule[] = [
     id: "symbol",
     label: "A symbol",
     example: "!@#",
-    test: (v) => /[!@#$%^&*()_+\-=[\]{};':"\\|<>?,.\/`~]/.test(v),
+    test: (v) => /[!@#$%^&*()_+\-=[\]{};':"\\|<>?,./`~]/.test(v),
   },
 ];
 

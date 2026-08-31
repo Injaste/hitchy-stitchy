@@ -522,7 +522,7 @@ const GeometricMuslim = ({
   const detailsNo =
     detailsList.length || config.invitation_body ? ++sectionNo : sectionNo;
   const itineraryNo = itinerarySections.length ? ++sectionNo : sectionNo;
-  const rsvpNo = ++sectionNo;
+  
 
   const mergedRsvpLabels = {
     ...rsvpLabels,

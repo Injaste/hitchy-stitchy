@@ -3,7 +3,7 @@ import { X, ArrowBigLeft } from "lucide-react";
 
 import Logo from "@/components/custom/logo";
 import { Button } from "@/components/ui/button";
-import { container, itemFadeIn, itemFadeUp } from "@/lib/animations";
+import { itemFadeUp } from "@/lib/animations";
 
 import CreateEventForm from "./CreateEventForm";
 

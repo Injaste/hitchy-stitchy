@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CalendarPlus, Plus } from "lucide-react";
+import { CalendarPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

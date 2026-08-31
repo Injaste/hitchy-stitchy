@@ -4,7 +4,6 @@ import { Edit2, Trash2 } from "lucide-react"
 import LottieRaw from "lottie-react"
 
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import { RSVPForm, RSVPDelete } from "@/pages/wedding/form"
 import { AnchorDock } from "@/pages/wedding/anchors"
 import { getWeddingDateTime } from "@/pages/wedding/anchors/calendar"

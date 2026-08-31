@@ -19,7 +19,6 @@ interface BudgetHeaderProps extends BaseHeaderProps {
 }
 
 const BudgetHeader: FC<BudgetHeaderProps> = ({
-  data,
   isError,
   isLoading,
   isRefetching,

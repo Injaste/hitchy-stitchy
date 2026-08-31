@@ -60,7 +60,6 @@ export const useEmblaCarouselApi = (
     setEmblaApi(api);
 
     return () => api.destroy();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { emblaRef, emblaApi };

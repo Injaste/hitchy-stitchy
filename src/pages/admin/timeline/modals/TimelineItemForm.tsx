@@ -112,7 +112,7 @@ const TimelineItemForm = () => {
   // Every segment across the event, labelled "Day N · <segment>".
   const segmentOptions: SelectFieldOption[] = useMemo(
     () =>
-      days.flatMap((d, i) =>
+      days.flatMap((d) =>
         d.segments.map((s) => ({
           value: s.id,
           label: s.name || d.label,

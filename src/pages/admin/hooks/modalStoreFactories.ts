@@ -41,7 +41,7 @@ interface ModalState<T> {
   extendedReset?: () => void;
 }
 
-export function createCrudModalStore<T, U extends object = {}>(
+export function createCrudModalStore<T, U extends object = object>(
   additionalState?: (set: (partial: any) => void, get: () => any) => U,
 ) {
   return create<ModalState<T> & U>(

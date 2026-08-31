@@ -18,7 +18,6 @@ interface GuestsHeaderProps extends BaseHeaderProps {
 }
 
 const GuestsHeader: FC<GuestsHeaderProps> = ({
-  data,
   isError,
   isLoading,
   isRefetching,

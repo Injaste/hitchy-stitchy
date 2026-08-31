@@ -36,14 +36,9 @@ const SIDEBAR_WIDTH_MOBILE = "16rem";
 // Icon-rail panel width — injected as the --sidebar-width-icon CSS var on the
 // provider (sidebar.tsx is the source of truth for these dimensions). The collapsed
 // container adds its own padding on top of this, so the resulting content-offset
-// footprint is SIDEBAR_WIDTH_ICON_INSET, not this value.
+// footprint is wider than this value — see SIDEBAR_WIDTH_ICON_OFFSET.
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_WIDTH_ICON_OFFSET = "3.5rem";
-// Collapsed-rail *footprint* (panel + container padding) used for SidebarInset's
-// marginLeft offset. Kept as a plain rem value so framer interpolates the collapse
-// animation against SIDEBAR_WIDTH. Deliberately larger than the panel width above —
-// don't reconcile them to the same value.
-const SIDEBAR_WIDTH_ICON_INSET = "4rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 type SidebarContextProps = {
