@@ -175,6 +175,23 @@
 --       activated_at/free-allowance trial machinery, 20260618000105) — re-
 --       pasted whole from the confirmed-live body rather than layering a fix
 --       on top of stale ground.
+--   20260831000001_import_guests                        — Phase C-2
+--       (docs/ux/phase-c-creation-and-lists.md §4). NEW RPC import_guests —
+--       the paste/CSV guest import. create_guest can't serve it: its
+--       assert_plan runs per row INSIDE the page loop, so an over-cap batch
+--       lands halfway and then raises, and a phone that already exists RAISES
+--       instead of skipping. This one resolves the whole batch first, runs a
+--       SINGLE assert_plan over the heads that will actually be written
+--       (guest_count × target pages, skipped duplicates excluded), then
+--       inserts — all-or-nothing, with an event-scoped advisory lock held
+--       across the check and the insert so two imports can't both pass it.
+--       Duplicates are skipped silently, per page, both against existing
+--       guests and within one paste, matched on the phone with whitespace
+--       stripped (submit_rsvp stores public RSVPs that way, so a pasted
+--       '+65 9123 4567' is the stored '+6591234567'); the phone is stored as
+--       sent. Purely additive: create_guest / update_guest /
+--       update_guests / delete_guests are untouched. Body is NOT snapshotted
+--       below — no guest RPC's is; see the "Functions still to add" note.
 -- =============================================================================
 
 
@@ -1683,13 +1700,19 @@ GRANT EXECUTE ON FUNCTION public.get_templates(uuid) TO authenticated;
 --   create_access_group, update_access_group, delete_access_group
 --   create_member, update_member, update_member_couple, update_member_access_group,
 --   freeze_member, delete_member, claim_member_invite, regenerate_member_invite
---   create_guests, update_guests, delete_guest, import_guests_csv (if exists), cancel_rsvp,
+--   create_guests, update_guests, delete_guests, import_guests, cancel_rsvp,
 --   submit_rsvp (if exists), update_rsvp (if exists)
 --   create_task, update_task, delete_task, archive_tasks, move_task
 --   create_timeline, update_timeline, delete_timeline, start_timeline, end_timeline
 --   create_theme, update_theme, delete_theme, publish_theme
 --   update_invitation, update_event, update_profile, change_password, delete_event
 --   fetch_events, fetch_pending_invites (if RPCs, else direct selects)
+--
+-- import_guests replaces the speculative "import_guests_csv (if exists)" that
+-- sat in this list — it is real as of 20260831000001. Unlike everything else
+-- here its body IS versioned (in that migration), just not folded in above; no
+-- guest RPC's body is snapshotted in this file, so grepping here for one and
+-- finding nothing does NOT mean it doesn't exist. Check supabase/migrations/.
 
 -- update_notification_preferences — member edits their OWN notification feature
 -- flags (added by migration 20260606000001). Merges into

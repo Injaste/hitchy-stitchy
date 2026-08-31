@@ -5,6 +5,7 @@ import type {
   Guest,
   UpdateGuestPayload,
   CreateGuestPayload,
+  ImportGuestPayload,
   GuestStatus,
 } from "./types"
 
@@ -39,6 +40,34 @@ export async function createGuest(
       message: guest.message,
       status: guest.status,
     },
+  })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as Guest[]
+}
+
+// Import a whole batch onto one or more invitation pages in a single call
+// (import_guests — all-or-nothing; ONE plan check over the batch total before
+// any row is written, so an over-cap import writes nothing). Guests whose phone
+// already exists on a target page are SKIPPED rather than rejected, so the
+// returned rows are the ones that actually landed — possibly fewer than sent.
+export async function importGuests(
+  eventId: string,
+  invitationIds: string[],
+  guests: ImportGuestPayload[],
+): Promise<Guest[]> {
+  const { data, error } = await supabase.rpc("import_guests", {
+    p_event_id: eventId,
+    p_invitation_ids: invitationIds,
+    p_guests: guests.map((guest) => ({
+      name: guest.name.trim(),
+      phone: guest.phone?.trim() || null,
+      guest_count: guest.guest_count,
+      // Always explicit: an absent status defaults to 'confirmed' server-side
+      // (matching create_guest), which spends the active guest cap immediately.
+      status: guest.status,
+      message: guest.message,
+    })),
   })
 
   if (error) throw new Error(error.message)

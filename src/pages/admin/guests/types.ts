@@ -46,6 +46,20 @@ export type GuestFormValues = z.infer<typeof guestFormSchema>
 
 export interface CreateGuestPayload extends GuestFormValues { }
 
+/**
+ * One row of an import batch. `message` isn't a mappable import column (no
+ * pasted/CSV source carries one, so a fresh import always sends null) — it's
+ * here so a bulk page move can carry a guest's existing note across, instead
+ * of import_guests defaulting it away.
+ */
+export interface ImportGuestPayload {
+  name: string
+  phone: string | null
+  guest_count: number
+  status: GuestStatus
+  message: string | null
+}
+
 export interface UpdateGuestPayload {
   event_id: string
   id: string
