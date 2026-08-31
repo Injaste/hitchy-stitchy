@@ -52,7 +52,7 @@ export function CTABanner() {
   });
 
   useEffect(() => {
-    // preventScroll: let the anchor (smooth-scrolled by Lenis) own the scroll;
+    // preventScroll: let the anchor's native smooth scroll own the scroll;
     // focus only sets the cursor so it doesn't fight the animation.
     const focusInput = () =>
       setTimeout(() => {

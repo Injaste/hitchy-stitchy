@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Lenis } from "lenis/react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import ComponentFade from "@/components/animations/animate-component-fade";
-import { useIsMobile } from "@/hooks/use-media-query";
 import { usePublicEvent, usePublicEventRealtime } from "./queries";
 import ThemeError from "./states/ThemeError";
 import ThemeLoader from "./states/ThemeLoader";
@@ -19,7 +17,6 @@ interface WeddingProps {
 }
 
 const Wedding = ({ previewConfig }: WeddingProps = {}) => {
-  const isMobile = useIsMobile();
   const [isReady, setIsReady] = useState(false);
   const navigate = useNavigate();
   const { slug, link_slug } = useParams<{ slug?: string; link_slug?: string }>();
@@ -139,19 +136,12 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
     </>
   );
 
-  // Skip Lenis in preview — the iframe has its own scroll context.
-  if (isPreview || isMobile) return content;
+  // The invite is a portrait, phone-shaped design, so it's capped to a centred
+  // column at every width rather than stretching on tablets and desktop. Preview
+  // renders bare — the iframe already supplies its own viewport.
+  if (isPreview) return content;
 
-  return (
-    <Lenis
-      root
-      options={{
-        prevent: () => document.body.hasAttribute("data-scroll-locked"),
-      }}
-    >
-      <main className="max-w-md mx-auto">{content}</main>
-    </Lenis>
-  );
+  return <main className="max-w-sm mx-auto">{content}</main>;
 };
 
 export default Wedding;
