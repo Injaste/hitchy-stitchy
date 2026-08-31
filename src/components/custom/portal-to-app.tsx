@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState, useRef } from "react";
-import * as Portal from "@radix-ui/react-portal";
+import { Portal } from "radix-ui";
 
 const PortalToApp = ({ children }: { children: React.ReactNode }) => {
   const [target, setTarget] = useState<HTMLElement | null>(null);

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { Checkbox as CheckboxPrimitive } from "radix-ui";
 import ArraySeparator from "@/components/custom/array-separator";
 import FieldShell from "./FieldShell";
 
