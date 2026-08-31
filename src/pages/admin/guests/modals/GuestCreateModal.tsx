@@ -1,18 +1,13 @@
-import { useMemo } from "react";
 import { User } from "lucide-react";
 
 import { FormDialog, FormFooter, FormHeader } from "@/components/custom/form";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
+import { useGuestTargetPages } from "../hooks/useGuestTargetPages";
 import { useGuestMutations } from "../queries";
-import { pageLabel } from "../../invitation/utils";
-import { useActiveEventDay } from "../../hooks/useActiveEventDay";
-import {
-  useInvitationsQuery,
-  useEventSegmentsQuery,
-} from "../../invitation/queries";
+import type { GuestPageOption } from "../pageOptions";
 
-import GuestForm, { useGuestForm, type GuestPageOption } from "./GuestForm";
+import GuestForm, { useGuestForm } from "./GuestForm";
 
 // Inner form, keyed by the focused page so it re-seeds with the right target
 // each time the modal opens. The in-form page picker drives the selection
@@ -69,52 +64,13 @@ const CreateGuestForm = ({ pages, pageId, open }: CreateGuestFormProps) => {
 
 const GuestCreateModal = () => {
   const isCreateOpen = useGuestModalStore((s) => s.isCreateOpen);
-  const activeInvitationId = useGuestModalStore((s) => s.activeInvitationId);
-
-  const { activeDay, days } = useActiveEventDay();
-  const { data: invitations } = useInvitationsQuery();
-  const { data: segments } = useEventSegmentsQuery();
 
   // Guests attach to invitation pages, which may not live on the globally-active
-  // day (e.g. a multi-day event whose first/active day has no page). Target the
-  // active day if it has a page, else the first day that does — mirroring the
-  // list's effective-day pick, so the modal always has a target when any
-  // invitation exists.
-  const invitationDayIds = useMemo(
-    () => new Set((invitations ?? []).map((i) => i.day_id)),
-    [invitations],
-  );
-  const effectiveDayId =
-    (activeDay && invitationDayIds.has(activeDay.id) ? activeDay.id : null) ??
-    days.find((d) => invitationDayIds.has(d.id))?.id ??
-    null;
-
-  // The effective day's pages, day-level first — mirrors the list's ordering.
-  const pages: GuestPageOption[] = useMemo(() => {
-    const list = (invitations ?? []).filter((i) => i.day_id === effectiveDayId);
-    return [...list]
-      .sort((a, b) => {
-        const rank = (s: string | null) => (s === null ? 0 : 1);
-        const byRoot = rank(a.segment_id) - rank(b.segment_id);
-        return byRoot !== 0 ? byRoot : a.created_at.localeCompare(b.created_at);
-      })
-      .map((p) => ({
-        id: p.id,
-        label: pageLabel(p, days, segments ?? []),
-        minGuest: p.guest_count_min,
-        maxGuest: p.guest_count_max,
-        showMessage: p.rsvp_config.rsvp.fields.message.visible,
-        mode: p.rsvp_mode,
-      }));
-  }, [invitations, effectiveDayId, days, segments]);
-
-  // Pre-target the focused segment, else this day's first page.
-  const defaultPageId =
-    (activeInvitationId &&
-      pages.some((p) => p.id === activeInvitationId) &&
-      activeInvitationId) ||
-    pages[0]?.id ||
-    null;
+  // day (e.g. a multi-day event whose first/active day has no page) — the hook
+  // mirrors the list's effective-day pick, so the modal always has a target when
+  // any invitation exists. Pre-target the focused segment, else the first page.
+  const { pages, focusedPageId } = useGuestTargetPages();
+  const defaultPageId = focusedPageId ?? pages[0]?.id ?? null;
 
   if (!defaultPageId) return null;
 

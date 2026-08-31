@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { User } from "lucide-react";
 
 import {
@@ -8,15 +7,11 @@ import {
 } from "@/components/custom/form";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
+import { useGuestTargetPages } from "../hooks/useGuestTargetPages";
 import { useGuestMutations } from "../queries";
-import {
-  useInvitationsQuery,
-  useEventSegmentsQuery,
-} from "../../invitation/queries";
-import { useActiveEventDay } from "../../hooks/useActiveEventDay";
-import { pageLabel } from "../../invitation/utils";
+import { useInvitationsQuery } from "../../invitation/queries";
 
-import GuestForm, { useGuestForm, type GuestPageOption } from "./GuestForm";
+import GuestForm, { useGuestForm } from "./GuestForm";
 
 const GuestEditModal = () => {
   const isEditOpen = useGuestModalStore((s) => s.isEditOpen);
@@ -26,32 +21,11 @@ const GuestEditModal = () => {
 
   // All event pages so a guest can be moved between them; bounds + the message
   // field follow the page selected in-form (validated against it, server too).
-  const { days } = useActiveEventDay();
+  const { allPages: pages } = useGuestTargetPages();
   const { data: invitations } = useInvitationsQuery();
-  const { data: segments } = useEventSegmentsQuery();
   const invitation = (invitations ?? []).find(
     (i) => i.id === selectedItem?.invitation_id,
   );
-
-  const pages: GuestPageOption[] = useMemo(() => {
-    const dayIdx = (id: string) => days.findIndex((d) => d.id === id);
-    return [...(invitations ?? [])]
-      .sort((a, b) => {
-        const byDay = dayIdx(a.day_id) - dayIdx(b.day_id);
-        if (byDay !== 0) return byDay;
-        const rank = (s: string | null) => (s === null ? 0 : 1);
-        const byRoot = rank(a.segment_id) - rank(b.segment_id);
-        return byRoot !== 0 ? byRoot : a.created_at.localeCompare(b.created_at);
-      })
-      .map((p) => ({
-        id: p.id,
-        label: pageLabel(p, days, segments ?? []),
-        minGuest: p.guest_count_min,
-        maxGuest: p.guest_count_max,
-        showMessage: p.rsvp_config.rsvp.fields.message.visible,
-        mode: p.rsvp_mode,
-      }));
-  }, [invitations, days, segments]);
 
   const form = useGuestForm({
     pages: pages.length ? pages : [{ id: "", label: "", minGuest: 1, maxGuest: 1, showMessage: false }],
