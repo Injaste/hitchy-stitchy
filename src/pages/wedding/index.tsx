@@ -137,11 +137,14 @@ const Wedding = ({ previewConfig }: WeddingProps = {}) => {
   );
 
   // The invite is a portrait, phone-shaped design, so it's capped to a centred
-  // column at every width rather than stretching on tablets and desktop. Preview
-  // renders bare — the iframe already supplies its own viewport.
+  // column at every width rather than stretching on tablets and desktop. 448px
+  // (max-w-md) clears every common phone width — a 430px iPhone Pro Max still
+  // renders edge to edge — and it's the width AnchorBar and the templates' own
+  // fixed decorations are built to. Preview renders bare: the iframe already
+  // supplies its own viewport.
   if (isPreview) return content;
 
-  return <main className="max-w-sm mx-auto">{content}</main>;
+  return <main className="max-w-md mx-auto">{content}</main>;
 };
 
 export default Wedding;
