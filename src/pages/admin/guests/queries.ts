@@ -150,21 +150,41 @@ export function useGuestMutations() {
           if (!prev) continue
           groups.set(prev, [...(groups.get(prev) ?? []), id])
         }
+        // allSettled, not all: one failing group must not throw away the groups
+        // that already succeeded — those rows are changed on the server, so the
+        // cache has to show them or the table lies about the current status.
         return async () => {
-          try {
-            const results = await Promise.all(
-              Array.from(groups, ([status, ids]) => updateGuests(eventId!, ids, status)),
-            )
-            const rows = results.flat()
+          const entries = Array.from(groups)
+          const results = await Promise.allSettled(
+            entries.map(([status, ids]) => updateGuests(eventId!, ids, status)),
+          )
+          const rows = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+          if (rows.length > 0) {
             const byId = new Map(rows.map((r) => [r.id, r]))
             setGuests((old) => old?.map((g) => byId.get(g.id) ?? g) ?? [])
+          }
+
+          const missed = results.reduce(
+            (n, r, i) => (r.status === "rejected" ? n + entries[i][1].length : n),
+            0,
+          )
+          // Still exactly one toast per undo, whatever the outcome.
+          if (missed === 0) {
             toast.success(
               rows.length === 1
                 ? `"${truncate(rows[0].name)}" restored`
                 : `${rows.length} guests restored`,
             )
-          } catch (err) {
-            toast.error(err instanceof Error ? err.message : "Couldn't undo the status change")
+          } else if (rows.length === 0) {
+            const reason = results.find((r) => r.status === "rejected")
+            const err = (reason as PromiseRejectedResult | undefined)?.reason
+            toast.error(
+              err instanceof Error ? err.message : "Couldn't undo the status change",
+            )
+          } else {
+            toast.error(
+              `${rows.length} guests restored. ${missed} couldn't be changed back.`,
+            )
           }
         }
       },
