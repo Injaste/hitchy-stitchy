@@ -186,15 +186,17 @@ const DataTableFill: FC<DataTableFillProps> = ({
       ref={cardRef}
       className={cn("relative scroll-mb-5 gap-0 py-0", className)}
     >
-      {/* Header sits *above* the scroll box so the scrollbar runs alongside the
-          rows only, never across the header. Its `pr-3` matches the rows' `pr-3`
-          — the overlay scrollbar reserves no gutter, so no compensation needed. */}
+      {/* Header sits *above* the scroll box and shares the rows' grid, so the
+          body must not reserve a scrollbar gutter — that inset would shift the
+          rows out of alignment with the header columns. Hence hideScrollbar;
+          the edge fades cue the overflow instead. */}
       <HeaderBar columns={columns} colsClass={colsClass} />
       <ScrollView
         maxHeight={maxBodyHeight}
         gradientTop
         gradientBottom
         gradientClass="from-card"
+        hideScrollbar
         onScroll={() => cardRef.current?.scrollIntoView({ block: "nearest" })}
       >
         <DataTableBody emptyMessage={emptyMessage} isEmpty={isEmpty}>
@@ -232,8 +234,8 @@ function DataTableFillVirtual<T>({
   className,
 }: DataTableFillVirtualProps<T>) {
   const cardRef = useRef<HTMLDivElement>(null);
-  // OverlayScrollbars owns the scrolling element; hold it in state so the
-  // virtualizer picks it up once ScrollView hands it over on init.
+  // ScrollView owns the scrolling element; hold it in state so the virtualizer
+  // picks it up once ScrollView hands it over on mount.
   const [viewport, setViewport] = useState<HTMLElement | null>(null);
 
   // Deferred-unmount buffer. `display` = the live items plus any row just removed
@@ -321,6 +323,7 @@ function DataTableFillVirtual<T>({
           gradientTop
           gradientBottom
           gradientClass="from-card"
+          hideScrollbar
           onViewport={setViewport}
           onScroll={() => cardRef.current?.scrollIntoView({ block: "nearest" })}
         >

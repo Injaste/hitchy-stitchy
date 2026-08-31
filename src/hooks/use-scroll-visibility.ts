@@ -25,6 +25,12 @@ export function useScrollVisibility() {
     return () => ro.disconnect();
   }, [update]);
 
+  // Content can change without the scroll box itself resizing — rows arriving,
+  // a list filtering down — which the ResizeObserver above never sees, leaving
+  // the edge flags stale. Those changes are React-driven, so re-measure after
+  // every render; setState bails out when nothing changed, so it costs nothing.
+  useEffect(update);
+
   return {
     scrollRef,
     canScrollUp,

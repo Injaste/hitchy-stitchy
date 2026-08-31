@@ -156,76 +156,14 @@
   --radius: 0.75rem;
 }
 
-/* OverlayScrollbars custom theme — thin, rounded, foreground-tinted so the
-   overlay thumb adapts to light/dark automatically. Selected app-wide via the
-   `os-theme-app` scrollbars option in ScrollView. Compounded with `.os-scrollbar`
-   so it outweighs the library's own `.os-scrollbar` defaults (equal specificity
-   otherwise, and the library CSS loads after this file). */
-.os-scrollbar.os-theme-app {
-  --os-size: 6px; /* thin: ~4px (w-1) visible thumb + 1px padding each side */
-  --os-padding-perpendicular: 1px;
-  --os-padding-axis: 2px;
-  --os-track-bg: transparent;
-  --os-handle-border-radius: 9999px;
-  --os-handle-perpendicular-size: 100%;
-  --os-handle-perpendicular-size-hover: 100%;
-  --os-handle-bg: color-mix(in oklch, var(--color-foreground) 22%, transparent);
-  --os-handle-bg-hover: color-mix(
-    in oklch,
-    var(--color-foreground) 38%,
-    transparent
-  );
-  --os-handle-bg-active: color-mix(
-    in oklch,
-    var(--color-foreground) 50%,
-    transparent
-  );
-  z-index: 11;
-}
-
-/* Page-level / primary scrolls opt into a thicker bar via size="normal".
-   `os-scroll-normal` sits on the ScrollView host; its scrollbar is a *direct*
-   child, so use `>`. A descendant selector here would leak the thick size into
-   nested ScrollViews — the tasks board and its columns live inside the page's
-   own normal scroll, and must keep their thin default. Still outweighs base thin. */
-.os-scroll-normal > .os-scrollbar.os-theme-app {
-  --os-size: 10px; /* normal: ~8px (w-2) visible thumb */
-}
-
-/* The horizontal overlay bar sits at the host's bottom edge by default, which
-   on the tasks board leaves it floating above the page's bottom scroll gutter
-   (AdminView's `md:pb-5`). `os-scroll-x-flush` tucks it down into that gutter so
-   it hugs the panel's bottom edge instead. Scoped to the host so only opted-in
-   horizontal scrolls move; vertical bars are unaffected.
-
-   The host clips its children with `overflow: hidden !important`
-   ([data-overlayscrollbars~=host]), so the offset bar alone would be cut off —
-   we lift that clip on the host (the viewport still clips content on its own, so
-   scrolling is unaffected). The compound selector + !important outweigh the
-   library rule, which loads after this file. */
-.os-scroll-x-flush[data-overlayscrollbars~="host"] {
-  overflow: visible !important;
-}
-.os-scroll-x-flush .os-scrollbar-horizontal {
-  bottom: -12px;
-}
-
-.os-scroll-y-flush[data-overlayscrollbars~="host"] {
-  overflow: visible !important;
-}
-.os-scroll-y-flush .os-scrollbar-vertical {
-  right: -8px;
-}
-
 @layer base {
-  /* ── Dialogs / sheets ──────── */
-  [role="dialog"] *,
-  [data-radix-scroll-area-viewport] {
+  /* Raw overflow containers inside a dialog (ones that aren't a ScrollView)
+     still get the thin treatment, so no sheet grows a chunky OS bar. */
+  [role="dialog"] * {
     scrollbar-width: thin;
   }
 
   html {
-    scrollbar-width: auto;
     scroll-behavior: smooth;
     @apply font-sans;
   }
@@ -276,6 +214,41 @@
   }
   .bg-gradient-ai {
     background-image: var(--gradient-ai);
+  }
+
+  /* Native scrollbar theming, selected by ScrollView's `size`. The thumb tint is
+     foreground-derived so it tracks light/dark on its own, and is written out at
+     each surface rather than hoisted to a shared var — resolved here it reads
+     whatever `--color-foreground` the scroll element inherits, so it stays right
+     wherever a future dark class lands.
+
+     `scrollbar-color` is honoured by Chrome 121+, Firefox 64+ and Safari 18.2+;
+     older Safari ignores it and falls back to the macOS system overlay bar,
+     which is the same shape. Deliberately NOT paired with ::-webkit-scrollbar
+     rules — styling those switches Chrome off the standard properties entirely,
+     so the two can't co-exist. */
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in oklch,
+        var(--color-foreground) 22%,
+        transparent
+      )
+      transparent;
+  }
+
+  /* Page-level scrolls. `stable` holds the gutter open even when a page is short
+     enough not to scroll, so moving between a short and a tall page doesn't
+     shift the layout sideways. */
+  .scroll-normal {
+    scrollbar-width: auto;
+    scrollbar-color: color-mix(
+        in oklch,
+        var(--color-foreground) 22%,
+        transparent
+      )
+      transparent;
+    scrollbar-gutter: stable;
   }
 }
 

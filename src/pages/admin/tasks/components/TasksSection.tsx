@@ -109,19 +109,20 @@ const TasksSection: FC<TasksSectionProps> = ({
 
       <Separator />
 
-      {/* Scroll body — the column's cards scroll inside an overlay ScrollView
-          that absolutely fills the grid track at md (grows in-flow on mobile,
-          where the page scrolls the whole stack). ScrollView owns the edge
-          fades; the bottom fade is only its job when there's no composer below
-          to provide one. */}
+      {/* Scroll body — the column's cards scroll inside a ScrollView that
+          absolutely fills the grid track at md (grows in-flow on mobile, where
+          the page scrolls the whole stack). ScrollView owns the edge fades; the
+          bottom fade is only its job when there's no composer below to provide
+          one. The bar is hidden — a ~300px lane can't spare a reserved gutter,
+          and the fades already cue it. */}
       <div className="relative md:min-h-0">
         <ScrollView
           gradientTop
           gradientBottom={!canAddTasks}
           gradientClass="from-task-column"
           mainClass="md:absolute md:inset-0"
-          className="os-scroll-y-flush md:px-1 md:pt-2"
-          size="thin"
+          className="md:px-1 md:pt-2"
+          hideScrollbar
         >
           <div
             ref={droppableRef}
@@ -152,9 +153,9 @@ const TasksSection: FC<TasksSectionProps> = ({
         </ScrollView>
 
         {/* Composer — in-flow block below the cards on mobile; a pinned overlay
-            (cards scroll under it) once the column scrolls at md. The overlay
-            thumb reserves no gutter and rides on top, so the composer spans the
-            full width — no scrollbar-clearance inset needed. */}
+            (cards scroll under it) once the column scrolls at md. The column's
+            bar is hidden, so nothing reserves a gutter and the composer spans
+            the full width — no scrollbar-clearance inset needed. */}
         {canAddTasks && (
           <div className="pt-3 md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:px-1 md:pb-2 md:pt-5 md:bg-linear-to-t md:from-task-column md:from-80% md:to-transparent">
             <div className="md:pointer-events-auto">

@@ -1,16 +1,7 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import type { OverlayScrollbars } from "overlayscrollbars";
-import "overlayscrollbars/overlayscrollbars.css";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
 import ScrollGradient from "./scroll-gradient";
 
 type ScrollContextValue = {
@@ -33,12 +24,13 @@ type ScrollViewProps = Omit<React.ComponentProps<"div">, "onScroll"> & {
   gradientClass?: string;
   /** Pin a chevron in each edge fade (select-content style) as a scroll cue. */
   gradientChevron?: boolean;
-  /** Overlay thumb thickness. "normal" for page-level scrolls, "thin" elsewhere. */
+  /** Scrollbar thickness. "normal" for page-level scrolls, "thin" elsewhere. */
   size?: "thin" | "normal";
   /**
-   * Hide the overlay scrollbar entirely while keeping the surface scrollable
-   * (wheel/touch/keyboard). For places that cue scrollability another way — e.g.
-   * the setup guide, which uses edge fades + chevrons instead of a thumb.
+   * Hide the scrollbar entirely while keeping the surface scrollable
+   * (wheel/touch/keyboard). For places that cue scrollability another way — the
+   * setup guide's edge fades + chevrons, or a surface whose reserved gutter
+   * would misalign it with sibling chrome (the data table's pinned header).
    */
   hideScrollbar?: boolean;
   /**
@@ -49,18 +41,15 @@ type ScrollViewProps = Omit<React.ComponentProps<"div">, "onScroll"> & {
   /** Fires on each viewport scroll (e.g. to keep a parent framed in view). */
   onScroll?: () => void;
   /**
-   * Hands the underlying scrollable viewport element up to the parent (null on
-   * teardown). OverlayScrollbars owns that element internally; a row virtualizer
-   * needs a direct handle to it as its scroll container.
+   * Hands the scrollable element up to the parent (null on teardown) — a row
+   * virtualizer needs a direct handle to it as its scroll container.
    */
   onViewport?: (el: HTMLElement | null) => void;
 };
 
-// Every scroll surface uses a macOS/mobile-style OverlayScrollbars overlay
-// scrollbar — thin, auto-hiding, reserves no space, consistent across OS and
-// browser (vs the native bar: chunky always-on on Windows, auto-hiding Fluent
-// overlay in Win11 Chrome). The optional edge fades cue scrollability while the
-// thumb is hidden. Theme + sizing live in `.os-theme-app` (index.css).
+// Every scroll surface is a plain overflow container with a native scrollbar,
+// themed by `scroll-thin` / `scroll-normal` (index.css). The optional edge fades
+// cue scrollability, and are the sole cue where `hideScrollbar` is set.
 export const ScrollView = ({
   mainClass,
   children,
@@ -79,33 +68,30 @@ export const ScrollView = ({
   onViewport,
   ...props
 }: ScrollViewProps) => {
-  const [selfScrolled, setSelfScrolled] = useState(false);
   const [sourceScrolled, setSourceScrolled] = useState(false);
   const sourcesRef = useRef<Map<string, boolean>>(new Map());
 
-  // Scrollability flags for the edge fades, read from the OverlayScrollbars
-  // viewport on init / scroll / resize.
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const update = useCallback(
-    (inst: OverlayScrollbars) => {
-      const vp = inst.elements().viewport;
-      const up = vp.scrollTop > 0;
-      const down = vp.scrollTop + vp.clientHeight < vp.scrollHeight - 1;
-      const left = vp.scrollLeft > 0;
-      const right = vp.scrollLeft + vp.clientWidth < vp.scrollWidth - 1;
-      setCanScrollUp(up);
-      setCanScrollDown(down);
-      setCanScrollLeft(left);
-      setCanScrollRight(right);
-      // hasScrolled (the dialog header shadow cue) tracks the primary axis only.
-      const started = axis === "x" ? left : up;
-      setSelfScrolled((cur) => (cur === started ? cur : started));
+  const {
+    scrollRef,
+    canScrollUp,
+    canScrollDown,
+    canScrollLeft,
+    canScrollRight,
+    onScroll: measure,
+  } = useScrollVisibility();
+
+  const setScrollEl = useCallback(
+    (el: HTMLDivElement | null) => {
+      scrollRef.current = el;
+      onViewport?.(el);
     },
-    [axis],
+    [scrollRef, onViewport],
   );
+
+  const handleScroll = () => {
+    measure();
+    onScroll?.();
+  };
 
   const registerSource = useCallback((id: string, scrolled: boolean) => {
     const map = sourcesRef.current;
@@ -122,6 +108,8 @@ export const ScrollView = ({
     setSourceScrolled((cur) => (cur === any ? cur : any));
   }, []);
 
+  // hasScrolled (the dialog header shadow cue) tracks the primary axis only.
+  const selfScrolled = axis === "x" ? canScrollLeft : canScrollUp;
   const hasScrolled = selfScrolled || sourceScrolled;
 
   const ctx = useMemo<ScrollContextValue>(
@@ -155,43 +143,32 @@ export const ScrollView = ({
             chevron={gradientChevron}
           />
         )}
-        <OverlayScrollbarsComponent
-          element="div"
+        <div
+          ref={setScrollEl}
+          onScroll={handleScroll}
           className={cn(
+            axis === "x"
+              ? "overflow-x-auto overflow-y-hidden"
+              : "overflow-y-auto overflow-x-hidden",
             maxHeight === undefined && "h-full",
-            "pb-1",
-            size === "normal" && "os-scroll-normal",
+            // No overscroll-behavior here on purpose: `contain` blocks scroll
+            // chaining on BOTH axes, which strands a gesture the surface can't
+            // consume itself — a horizontal swipe over a task column would never
+            // reach the board behind it, and a wheel over an unscrollable column
+            // would never reach the page. Dialogs don't need it either: Radix
+            // locks the body with overflow:hidden + overscroll-behavior:contain
+            // while one is open, so there's nothing behind left to move.
+            hideScrollbar
+              ? "no-scrollbar"
+              : size === "normal"
+                ? "scroll-normal"
+                : "scroll-thin",
             className,
           )}
           style={maxHeight !== undefined ? { maxHeight } : undefined}
-          options={{
-            overflow:
-              axis === "x"
-                ? { x: "scroll", y: "hidden" }
-                : { x: "hidden", y: "scroll" },
-            scrollbars: {
-              autoHide: "leave",
-              autoHideDelay: 600,
-              theme: "os-theme-app",
-              visibility: hideScrollbar ? "hidden" : "auto",
-            },
-          }}
-          events={{
-            initialized: (inst) => {
-              update(inst);
-              onViewport?.(inst.elements().viewport as HTMLElement);
-            },
-            updated: update,
-            destroyed: () => onViewport?.(null),
-            scroll: (inst) => {
-              update(inst);
-              onScroll?.();
-            },
-          }}
-          defer
         >
           {children}
-        </OverlayScrollbarsComponent>
+        </div>
         {gradientBottom && (
           <ScrollGradient
             side="bottom"

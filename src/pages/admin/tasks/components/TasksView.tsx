@@ -152,6 +152,11 @@ const TasksView: FC<TasksViewProps> = ({
  *  - md and up: a 3-column grid that fills the height, each lane scrolling its
  *    own cards independently. Lanes hold a 300px min width and the board
  *    scrolls horizontally once they no longer fit, so cards never get cramped.
+ *
+ * The horizontal bar stays visible. Hiding a bar is only safe when some other
+ * input covers that axis — the wheel covers the lanes' vertical scroll, but
+ * nothing covers horizontal, so the bar is the only thing a mouse user can grab
+ * to reach a clipped lane. The edge fades cue it; the bar moves it.
  */
 const Board: FC<{
   items: ItemsByStatus;
@@ -163,10 +168,9 @@ const Board: FC<{
     gradientLeft
     gradientRight
     mainClass="min-w-0 md:h-full md:min-h-0 md:-mx-1"
-    className="os-scroll-x-flush md:px-1 md:pt-1 md:pb-2"
+    className="md:px-1 md:pt-1 md:pb-2"
   >
-    {/* As a child of the OverlayScrollbars viewport (rather than the scroll
-        container itself), a block grid would never exceed the viewport width,
+    {/* A block grid would never exceed the scroll container's width on its own,
         so it would never overflow to scroll. The md:min-w floor forces it wider
         than the viewport once the lanes hit their 300px min — 3×300 + 2×gap-5
         (2.5rem) — while 1fr still lets them share the width on roomier screens. */}
