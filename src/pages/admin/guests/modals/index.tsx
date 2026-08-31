@@ -6,6 +6,7 @@ import GuestEditModal from "./GuestEditModal";
 import GuestDeleteModal from "./GuestDeleteModal";
 import GuestDuplicateModal from "./GuestDuplicateModal";
 import GuestBulkDeleteModal from "./GuestBulkDeleteModal";
+import GuestImportModal from "./GuestImportModal";
 
 const GuestModals = () => {
   const selectedId = useGuestModalStore((s) => s.selectedItem?.id);
@@ -18,6 +19,7 @@ const GuestModals = () => {
       <GuestDeleteModal />
       <GuestDuplicateModal />
       <GuestBulkDeleteModal />
+      <GuestImportModal />
     </>
   );
 };

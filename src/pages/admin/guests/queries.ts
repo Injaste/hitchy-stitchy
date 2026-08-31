@@ -9,6 +9,7 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import {
   fetchGuests,
   createGuest,
+  importGuests as importGuestsApi,
   updateGuest,
   updateGuests,
   deleteGuests,
@@ -16,6 +17,7 @@ import {
 } from "./api"
 import type {
   CreateGuestPayload,
+  ImportGuestPayload,
   UpdateGuestPayload,
   GuestStatus,
   Guest,
@@ -85,6 +87,31 @@ export function useGuestMutations() {
     },
   )
 
+  // A whole pasted/uploaded list in one call. import_guests skips guests whose
+  // phone is already on a target page instead of failing, so it returns only the
+  // rows that actually landed — an all-duplicate batch is an empty success, not
+  // an error.
+  const importGuests = useMutation<
+    { invitationIds: string[]; guests: ImportGuestPayload[] },
+    Guest[]
+  >(
+    ({ invitationIds, guests }) => importGuestsApi(eventId!, invitationIds, guests),
+    {
+      successMessage: (rows: Guest[], args) =>
+        rows.length === 0
+          ? "Everyone on that list is already on your guest list"
+          : args.invitationIds.length > 1
+            ? `${rows.length} guests added across ${args.invitationIds.length} pages`
+            : `${rows.length} guests added`,
+      errorMessage: (err) => err.message,
+      onSuccess: (rows: Guest[]) => {
+        setGuests((old) => [...rows, ...(old ?? [])])
+      },
+    },
+  )
+
+  // Bulk page assignment. Additive: every guest is written to the target pages
+  // it isn't already on, which is why the call arrives pre-split into batches —
   const update = useMutation(
     (payload: UpdateGuestPayload) => updateGuest(payload),
     {
@@ -226,5 +253,13 @@ export function useGuestMutations() {
     },
   )
 
-  return { create, update, updateStatus, bulkUpdateGuests, remove, removeMany }
+  return {
+    create,
+    importGuests,
+    update,
+    updateStatus,
+    bulkUpdateGuests,
+    remove,
+    removeMany,
+  }
 }

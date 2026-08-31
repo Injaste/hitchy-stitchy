@@ -11,10 +11,13 @@ interface GuestModalAddons {
   activeInvitationId: string | null
   isBulkDeleteOpen: boolean
   bulkDeleteIds: string[]
+  // Paste/CSV import of a whole list onto one or more pages.
+  isImportOpen: boolean
 
   setActiveInvitationId: (id: string | null) => void
   openDuplicate: () => void
   openBulkDelete: (ids: string[]) => void
+  openImport: () => void
   toggleRow: (id: string) => void
   setSelectedIds: (ids: Set<string>) => void
   clearSelection: () => void
@@ -28,10 +31,12 @@ export const useGuestModalStore = createCrudModalStore<Guest, GuestModalAddons>(
   activeInvitationId: null,
   isBulkDeleteOpen: false,
   bulkDeleteIds: [],
+  isImportOpen: false,
 
   setActiveInvitationId: (id) => set({ activeInvitationId: id }),
   openDuplicate: () => set({ isDetailOpen: false, isDuplicateOpen: true }),
   openBulkDelete: (ids) => set({ isBulkDeleteOpen: true, bulkDeleteIds: ids }),
+  openImport: () => set({ isImportOpen: true }),
 
   toggleRow: (id) => {
     const next = new Set((get() as { selectedIds: Set<string> }).selectedIds)
@@ -42,6 +47,11 @@ export const useGuestModalStore = createCrudModalStore<Guest, GuestModalAddons>(
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   clearSelection: () => set({ selectedIds: new Set() }),
 
-  extendedCloseAll: () => set({ isDuplicateOpen: false, isBulkDeleteOpen: false }),
+  extendedCloseAll: () =>
+    set({
+      isDuplicateOpen: false,
+      isBulkDeleteOpen: false,
+      isImportOpen: false,
+    }),
   extendedReset: () => set({ bulkDeleteIds: [] }),
 }))

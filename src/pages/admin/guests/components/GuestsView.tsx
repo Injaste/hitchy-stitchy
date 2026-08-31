@@ -26,6 +26,7 @@ import GuestsTable from "./GuestsTable";
 import GuestsFilters from "./GuestsFilters";
 import GuestsBulkBar from "./GuestsBulkBar";
 import GuestsExport from "./GuestsExport";
+import GuestsImport from "./GuestsImport";
 import SegmentTabs, { type SegmentTabsOption } from "./SegmentTabs";
 import { useGuestMutations } from "../queries";
 import { pageLabel } from "../../invitation/utils";
@@ -274,7 +275,11 @@ const GuestsView: FC<GuestsViewProps> = ({
     if (!data?.length) {
       return (
         <ComponentFade key="empty" useBlur>
-          <GuestsEmpty onAdd={openCreate} canCreate={canCreate("guests")} />
+          <GuestsEmpty
+            onAdd={openCreate}
+            canCreate={canCreate("guests")}
+            importAction={<GuestsImport showLabel />}
+          />
         </ComponentFade>
       );
     }
@@ -298,6 +303,7 @@ const GuestsView: FC<GuestsViewProps> = ({
           }
           actions={
             <>
+              <GuestsImport />
               <GuestsExport guests={filtered} allGuests={selectedRows} />
               {slug && linkPages.length > 0 && (
                 <CopyLinksMenu slug={slug} pages={linkPages} />
