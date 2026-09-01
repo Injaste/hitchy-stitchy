@@ -23,6 +23,7 @@ import {
   type ImportField,
   type ImportPreview,
   type ImportPreviewRow,
+  type ImportRowWarning,
   type ParsedTable,
 } from "../parseGuests";
 
@@ -51,12 +52,20 @@ const STATE_NOTE: Record<Exclude<ImportPreviewRow["state"], "ok">, string> = {
   "phone-required": "Phone needed",
 };
 
+/** Row-level quality flags — shown same as a skip reason, but the row still
+ *  imports (the name is worth having even when this one field is junk). */
+const WARNING_NOTE: Record<ImportRowWarning, string> = {
+  "bad-phone": "Not a phone number",
+  "bad-party-size": "Party size isn't a number",
+};
+
 const PreviewRow: FC<{ row: ImportPreviewRow; note: string | null }> = ({
   row,
   note,
 }) => {
   const cols = useDataTableGrid();
   const skipped = row.state !== "ok";
+  const flagged = skipped || row.warning !== null;
 
   return (
     <div
@@ -84,7 +93,7 @@ const PreviewRow: FC<{ row: ImportPreviewRow; note: string | null }> = ({
       <span
         className={cn(
           "min-w-0 truncate text-xs",
-          skipped ? "text-warning" : "text-muted-foreground",
+          flagged ? "text-warning" : "text-muted-foreground",
         )}
       >
         {note}
@@ -129,6 +138,7 @@ const GuestImportPreview: FC<GuestImportPreviewProps> = ({
 
   const noteFor = (row: ImportPreviewRow): string | null => {
     if (row.state !== "ok") return STATE_NOTE[row.state];
+    if (row.warning) return WARNING_NOTE[row.warning];
     if (row.dupPageIds.length === 0) return null;
     return `Already on ${row.dupPageIds.map((id) => labelById.get(id) ?? "a page").join(", ")}`;
   };

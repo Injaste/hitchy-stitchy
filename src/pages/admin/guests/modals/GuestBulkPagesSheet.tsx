@@ -37,6 +37,10 @@ interface AssignmentPlan {
   addedRows: number;
   heads: number;
   perPageAdds: Map<string, number>;
+  /** How many selected guests are already on each page — every page, not just
+   *  a target one, so the checklist can show existing membership on unticked
+   *  rows too. */
+  alreadyByPage: Map<string, number>;
   alreadyThere: number;
   blockedSize: Guest[];
   blockedPhone: Guest[];
@@ -73,9 +77,13 @@ export function planAssignment(
   // twice. The server writes a (page, phone) once, so counting both rows would
   // charge the cap twice and promise a row that never lands.
   const claimed = new Set<string>();
+  // Same identity problem for the "already here" tally: two selected rows for
+  // the same phone must not double the count on a page they're both linked to.
+  const countedHere = new Set<string>();
 
   const batches = new Map<string, { invitationIds: string[]; guests: ImportGuestPayload[] }>();
   const perPageAdds = new Map<string, number>();
+  const alreadyByPage = new Map<string, number>();
   const removeIds: string[] = [];
   const blockedSize: Guest[] = [];
   const blockedPhone: Guest[] = [];
@@ -90,6 +98,16 @@ export function planAssignment(
     const on = key
       ? (pagesByPhone.get(key) ?? new Set<string>())
       : new Set<string>(guest.invitation_id ? [guest.invitation_id] : []);
+    on.forEach((id) => {
+      // A phone-less guest has no cross-row identity, so every selected row
+      // for them counts on its own — same rule the write path (`claimed`) uses.
+      if (key) {
+        const hereKey = `${id}|${key}`;
+        if (countedHere.has(hereKey)) return;
+        countedHere.add(hereKey);
+      }
+      alreadyByPage.set(id, (alreadyByPage.get(id) ?? 0) + 1);
+    });
     const onTargets = targetIds.filter((id) => !on.has(id));
     // Pages an earlier row of this same person already claimed cost nothing.
     const missing = key
@@ -153,6 +171,7 @@ export function planAssignment(
     addedRows,
     heads,
     perPageAdds,
+    alreadyByPage,
     alreadyThere,
     blockedSize,
     blockedPhone,
@@ -248,11 +267,24 @@ const GuestBulkPagesSheet = () => {
               pages={allPages}
               selectedIds={selectedIds}
               onToggle={toggle}
-              meta={(p) =>
-                selectedIds.includes(p.id) && plan.perPageAdds.get(p.id)
-                  ? `+${plan.perPageAdds.get(p.id)}`
-                  : null
-              }
+              meta={(p) => {
+                const already = plan.alreadyByPage.get(p.id) ?? 0;
+                const adding = selectedIds.includes(p.id)
+                  ? (plan.perPageAdds.get(p.id) ?? 0)
+                  : 0;
+                if (!already && !adding) return null;
+                return (
+                  <>
+                    {already > 0 && `${already} here`}
+                    {already > 0 && adding > 0 && " · "}
+                    {adding > 0 && (
+                      <span className="font-medium text-primary">
+                        +{adding}
+                      </span>
+                    )}
+                  </>
+                );
+              }}
             />
 
             {canRemove && (
@@ -341,8 +373,22 @@ const GuestBulkPagesSheet = () => {
               })
             }
           >
-            {moving ? "Move to" : "Add to"}{" "}
-            {pageCount > 0 ? pagesLabel : "pages"}
+            {(() => {
+              const verb = moving ? "Move to" : "Add to";
+              if (pageCount === 0) return `${verb} pages`;
+              // Only claim membership when that's actually why there's no
+              // work — a guest blocked by size or by a private page also
+              // leaves batches/removeIds empty, and the alert above already
+              // names that conflict, so don't paper over it with "Already on".
+              const trulyAlreadyThere =
+                !hasWork &&
+                plan.alreadyThere > 0 &&
+                plan.blockedSize.length === 0 &&
+                plan.blockedPhone.length === 0;
+              return trulyAlreadyThere
+                ? `Already on ${pagesLabel}`
+                : `${verb} ${pagesLabel}`;
+            })()}
           </SubmitButton>
         </SheetFooter>
       </SheetContent>

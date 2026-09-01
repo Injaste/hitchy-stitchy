@@ -282,6 +282,10 @@ export type ImportRowState =
   | "out-of-bounds"
   | "phone-required"
 
+/** A row-level quality flag that's worth surfacing but not worth blocking on —
+ *  the name is still the valuable part, and a wrong number is fixable later. */
+export type ImportRowWarning = "bad-phone" | "bad-party-size"
+
 export interface ImportPreviewRow {
   /** Line number in the source, so the user can find the row in their sheet. */
   line: number
@@ -290,6 +294,8 @@ export interface ImportPreviewRow {
   guest_count: number
   status: GuestStatus
   state: ImportRowState
+  /** A value that clearly isn't a phone or a party size — imported anyway. */
+  warning: ImportRowWarning | null
   /** Target pages this row is already on — skipped there, imported elsewhere. */
   dupPageIds: string[]
   /** How many target pages this row will actually be written to. */
@@ -332,10 +338,15 @@ const STATUS_VALUES: GuestStatus[] = ["pending", "confirmed", "cancelled"]
 const readStatus = (value: string, fallback: GuestStatus): GuestStatus =>
   STATUS_VALUES.find((s) => s === value.trim().toLowerCase()) ?? fallback
 
-const readCount = (value: string): number => {
+// Shared by readCount's fallback and the bad-party-size warning, so the two
+// can't drift apart on what counts as a valid party size (e.g. "0" or a
+// negative number, which parseInt reads fine but which isn't a real party).
+const parsePartySize = (value: string): number | null => {
   const n = Number.parseInt(value, 10)
-  return Number.isFinite(n) && n > 0 ? n : 1
+  return Number.isFinite(n) && n > 0 ? n : null
 }
+
+const readCount = (value: string): number => parsePartySize(value) ?? 1
 
 const EMPTY_COUNTS: Record<ImportRowState, number> = {
   ok: 0,
@@ -374,9 +385,27 @@ export function buildImportPreview(
     const name = cell(nameCol)
     const phone = cell(phoneCol) || null
     const key = phone ? phoneKey(phone) : null
-    const guest_count = countCol >= 0 ? readCount(cell(countCol)) : 1
+    const countCell = cell(countCol)
+    const guest_count = countCol >= 0 ? readCount(countCell) : 1
     const status =
       statusCol >= 0 ? readStatus(cell(statusCol), defaultStatus) : defaultStatus
+
+    // Not strict validation — formats vary and a partial number is still worth
+    // importing — just catching a value that couldn't be a phone at all: no
+    // digits (a status word landing in a misdetected column, "N/A", and the
+    // like), or a letter mixed into otherwise-digit content ("123445aa"). Both
+    // are warnings, not blockers: the name is still worth having even when the
+    // phone or party size next to it is junk.
+    const badPhone = phone !== null && (!/\d/.test(phone) || /[a-zA-Z]/.test(phone))
+    const badPartySize =
+      countCol >= 0 &&
+      countCell.trim() !== "" &&
+      parsePartySize(countCell) === null
+    const warning: ImportRowWarning | null = badPhone
+      ? "bad-phone"
+      : badPartySize
+        ? "bad-party-size"
+        : null
 
     const dupPageIds = key
       ? targetPageIds.filter((id) => existingByPage.get(id)?.has(key))
@@ -384,17 +413,15 @@ export function buildImportPreview(
 
     // Order matters: the first thing wrong with a row is what the user is told,
     // and a nameless row can't be described any other way.
-    const state: ImportRowState = !name
-      ? "no-name"
-      : phoneRequired && !phone
-        ? "phone-required"
-        : guest_count < minGuest || guest_count > maxGuest
-          ? "out-of-bounds"
-          : key && seenPhones.has(key)
-            ? "dup-in-batch"
-            : targetPageIds.length > 0 && dupPageIds.length === targetPageIds.length
-              ? "dup-existing"
-              : "ok"
+    const state: ImportRowState = (() => {
+      if (!name) return "no-name"
+      if (phoneRequired && !phone) return "phone-required"
+      if (guest_count < minGuest || guest_count > maxGuest) return "out-of-bounds"
+      if (key && seenPhones.has(key)) return "dup-in-batch"
+      if (targetPageIds.length > 0 && dupPageIds.length === targetPageIds.length)
+        return "dup-existing"
+      return "ok"
+    })()
 
     if (key && state === "ok") seenPhones.add(key)
 
@@ -405,6 +432,7 @@ export function buildImportPreview(
       guest_count,
       status,
       state,
+      warning,
       dupPageIds,
       writes: state === "ok" ? targetPageIds.length - dupPageIds.length : 0,
     }

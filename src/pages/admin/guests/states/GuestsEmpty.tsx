@@ -30,7 +30,7 @@ const GuestsEmpty: FC<GuestsEmptyProps> = ({
         <>
           <Button onClick={onAdd} className="gap-1">
             <Plus className="w-4 h-4" />
-            Add First Guest
+            Add first guest
           </Button>
           {importAction}
         </>
