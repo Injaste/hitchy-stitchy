@@ -70,7 +70,7 @@ export default function SetupGuidePanel({
       exit={{ opacity: 0, scale: 0.9, y: 8 }}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
       style={{ transformOrigin: "bottom right" }}
-      className="relative w-[280px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
+      className="relative w-70 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
     >
       <ProgressBorder pct={pct} />
 

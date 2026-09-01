@@ -113,7 +113,7 @@ const TaskArchivedSheet = () => {
                       className="flex items-start justify-between gap-3 rounded-lg border border-border/60 p-3"
                     >
                       <div className="min-w-0 flex-1 space-y-0.5">
-                        <p className="text-sm font-medium text-foreground/80 line-through truncate max-w-[18rem]">
+                        <p className="text-sm font-medium text-foreground/80 line-through truncate max-w-72">
                           {task.title}
                         </p>
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
