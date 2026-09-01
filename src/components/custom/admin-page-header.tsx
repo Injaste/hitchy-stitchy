@@ -79,9 +79,14 @@ export const AdminPageHeader: FC<AdminPageHeaderProps> = ({
 
   return (
     <>
+      {/* The page scroller carries pt-0 — a padding-top there would park this
+          sticky header that far down and let scrolled content show above it —
+          so this header owns the page's top inset. Its -mx must cancel the
+          scroller's px exactly, at the same breakpoint, or the background bleed
+          falls short of the edge. */}
       <div
         style={{ zIndex: Z.header }}
-        className="-mx-3 md:-mx-6 px-4 md:px-6 sticky top-0 pt-4 pb-3 bg-background"
+        className="-mx-4 sm:-mx-6 px-4 sm:px-6 sticky top-0 pt-4 pb-4 sm:pt-6 sm:pb-6 bg-background"
       >
         <Container size={containerSize}>
           <div className="flex items-center justify-between gap-4">

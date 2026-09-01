@@ -38,7 +38,9 @@ export function useDataTableGrid(): string {
 interface DataTableMode {
   virtualized: boolean;
 }
-const DataTableModeContext = createContext<DataTableMode>({ virtualized: false });
+const DataTableModeContext = createContext<DataTableMode>({
+  virtualized: false,
+});
 export function useDataTableMode(): DataTableMode {
   return useContext(DataTableModeContext);
 }
@@ -197,6 +199,7 @@ const DataTableFill: FC<DataTableFillProps> = ({
         gradientBottom
         gradientClass="from-card"
         hideScrollbar
+        className="p-0"
         onScroll={() => cardRef.current?.scrollIntoView({ block: "nearest" })}
       >
         <DataTableBody emptyMessage={emptyMessage} isEmpty={isEmpty}>
@@ -265,7 +268,9 @@ function DataTableFillVirtual<T>({
         next.splice(
           Math.min(i, next.length),
           0,
-          entry.exiting ? entry : { id: entry.id, item: entry.item, exiting: true },
+          entry.exiting
+            ? entry
+            : { id: entry.id, item: entry.item, exiting: true },
         );
     });
     setDisplay(next);
@@ -324,6 +329,7 @@ function DataTableFillVirtual<T>({
           gradientBottom
           gradientClass="from-card"
           hideScrollbar
+          className="p-0"
           onViewport={setViewport}
           onScroll={() => cardRef.current?.scrollIntoView({ block: "nearest" })}
         >
@@ -333,8 +339,7 @@ function DataTableFillVirtual<T>({
             {virtualItems.map((vi) => {
               const row = byId.get(vi.key as string);
               if (!row) return null;
-              const isNew =
-                !row.exiting && !knownIds.current!.has(row.id);
+              const isNew = !row.exiting && !knownIds.current!.has(row.id);
               return (
                 <div
                   key={vi.key}
@@ -380,8 +385,7 @@ function DataTableFillVirtual<T>({
   );
 }
 
-const defaultGetRowId = (item: unknown): string =>
-  (item as { id: string }).id;
+const defaultGetRowId = (item: unknown): string => (item as { id: string }).id;
 
 function DataTable<T>(props: DataTableProps<T>) {
   const {

@@ -96,7 +96,7 @@ function DrawerContent({
               zIndex: Z.drawer,
             }}
             className={cn(
-              "fixed inset-x-0 bottom-0 mx-auto flex max-h-[88svh] w-full max-w-md touch-none flex-col rounded-t-2xl border-t bg-popover text-popover-foreground shadow-2xl",
+              "fixed inset-x-0 bottom-0 mx-auto flex max-h-[88svh] w-full max-w-md touch-none flex-col gap-3 sm:gap-5 rounded-t-2xl border-t bg-popover text-popover-foreground shadow-2xl",
               className,
             )}
             initial={{ y: "100%" }}
@@ -127,7 +127,7 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-header"
-      className={cn("flex flex-col gap-1 p-5 pb-2 text-center", className)}
+      className={cn("flex flex-col gap-1 px-4 pt-4 sm:px-6 sm:pt-6 text-center", className)}
       {...props}
     />
   );
@@ -137,7 +137,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-footer"
-      className={cn("mt-auto flex flex-col gap-2.5 p-5 pt-2", className)}
+      className={cn("mt-auto flex flex-col gap-2.5 px-4 pb-4 sm:px-6 sm:pb-6", className)}
       {...props}
     />
   );

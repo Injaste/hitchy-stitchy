@@ -121,7 +121,6 @@ const TasksSection: FC<TasksSectionProps> = ({
           gradientBottom={!canAddTasks}
           gradientClass="from-task-column"
           mainClass="md:absolute md:inset-0"
-          className="md:px-1 md:pt-2"
           hideScrollbar
         >
           <div

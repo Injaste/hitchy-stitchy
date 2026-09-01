@@ -60,7 +60,7 @@ const AdminView = () => {
                 >
                   <ScrollView
                     size="normal"
-                    className="px-3 pb-3 md:px-5 md:pb-5 overflow-x-hidden"
+                    className="px-4 pb-4 pt-0 sm:px-6 sm:pb-6 overflow-x-hidden"
                     gradientBottom
                     gradientClass="from-background"
                   >

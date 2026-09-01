@@ -33,8 +33,13 @@ interface ScrollGradientProps {
 }
 
 const SIDE_CLASS: Record<ScrollGradientProps["side"], string> = {
-  top: "inset-x-0 top-0 bg-linear-to-b",
-  bottom: "inset-x-0 bottom-0 bg-linear-to-t",
+  // -top-px / -bottom-px start the fade one pixel outside the clip edge so no
+  // hairline seam shows between the fade and the surface behind it. This used to
+  // come from a `py-px` on the ScrollView wrapper; it lives here now so the
+  // wrapper stays exactly the size of the scroll box and the shells' spacing
+  // arithmetic lands on the scale.
+  top: "inset-x-0 -top-px bg-linear-to-b",
+  bottom: "inset-x-0 -bottom-px bg-linear-to-t",
   left: "inset-y-0 left-0 bg-linear-to-r",
   right: "inset-y-0 right-0 bg-linear-to-l",
 };
