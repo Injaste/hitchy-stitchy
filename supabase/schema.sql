@@ -192,6 +192,18 @@
 --       sent. Purely additive: create_guest / update_guest /
 --       update_guests / delete_guests are untouched. Body is NOT snapshotted
 --       below — no guest RPC's is; see the "Functions still to add" note.
+--   20260901000001_submit_rsvp_reserved_phone_claim   — Phase C-3a hotfix
+--       (docs/ux/phase-c-creation-and-lists.md, finding 1 + C-3a). NEW helper
+--       phone_key() (snapshotted below, HELPER section) normalises phone
+--       whitespace; submit_rsvp's input normalisation, reserved lookup, claim
+--       UPDATE and public duplicate check all route through it instead of a
+--       raw comparison, so a reserved guest stored with spaces
+--       ('+65 9123 4567') can claim their RSVP, and the row self-heals (phone
+--       written back on claim). Same-signature CREATE OR REPLACE on the
+--       confirmed-live body. import_guests / update_rsvp / create_guest /
+--       update_guest untouched — full alignment is C-3. submit_rsvp's own
+--       body is still NOT snapshotted below; see the "Functions still to add"
+--       note.
 -- =============================================================================
 
 
@@ -1156,6 +1168,14 @@ BEGIN
 END;
 $$;
 REVOKE EXECUTE ON FUNCTION public.assert_added_assignees_assignable(uuid, uuid[], uuid[]) FROM PUBLIC, anon, authenticated;
+
+-- Shared phone normaliser (20260901000001) — mirrors the TS phoneKey in
+-- src/lib/phone.ts. Used by submit_rsvp (C-3a); C-3 adopts it in the rest of
+-- the guest/RSVP RPCs instead of their inline regexp_replace copies.
+CREATE OR REPLACE FUNCTION public.phone_key(p_phone text)
+RETURNS text LANGUAGE sql IMMUTABLE STRICT AS $$
+  SELECT regexp_replace($1, '\s+', '', 'g')
+$$;
 
 
 -- =============================================================================
