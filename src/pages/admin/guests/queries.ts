@@ -298,29 +298,15 @@ export function useGuestMutations() {
     },
   )
 
-  // One RPC (delete_guests) backs both single and bulk delete — this just
-  // calls it with a one-element array. Same RPC, same existence + permission
-  // checks either way.
+  // One RPC (delete_guests) backs both single and bulk delete — GuestDeleteModal
+  // resolves the target ids for either path and calls this the same way.
   const remove = useMutation(
-    ({ id }: { id: string; name: string }) => deleteGuests(eventId!, [id]),
-    {
-      successMessage: (_: void, args) => `"${truncate(args.name)}" removed`,
-      errorMessage: (err) => err.message,
-      onSuccess: (_: void, args) => {
-        setGuests((old) => old?.filter((g) => g.id !== args.id) ?? [])
-      },
-    },
-  )
-
-  // Bulk delete is confirm-gated (GuestBulkDeleteModal, type-to-confirm), not
-  // undo — unlike status, this is a genuine hard delete with no reversal, and
-  // at bulk scale the blast radius is bigger than the single small deletes
-  // left as immediate elsewhere in this phase.
-  const removeMany = useMutation(
-    ({ ids }: { ids: string[] }) => deleteGuests(eventId!, ids),
+    ({ ids }: { ids: string[]; name?: string }) => deleteGuests(eventId!, ids),
     {
       successMessage: (_: void, args) =>
-        args.ids.length === 1 ? "Guest removed" : `${args.ids.length} guests removed`,
+        args.ids.length === 1 && args.name
+          ? `"${truncate(args.name)}" removed`
+          : `${args.ids.length} guests removed`,
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args) => {
         const idSet = new Set(args.ids)
@@ -337,6 +323,5 @@ export function useGuestMutations() {
     updateStatus,
     bulkUpdateGuests,
     remove,
-    removeMany,
   }
 }

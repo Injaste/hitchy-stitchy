@@ -194,7 +194,7 @@ const GuestsRow: FC<GuestsRowProps> = memo(
                   }}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
+                  Remove
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

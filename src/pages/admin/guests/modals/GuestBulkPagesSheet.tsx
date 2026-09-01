@@ -192,7 +192,10 @@ const pageList = (pages: GuestPageOption[]) => pages.map((p) => p.label).join(",
 /** Bulk page assignment: additive by default, a move when the toggle is on. */
 const GuestBulkPagesSheet = () => {
   const isBulkPagesOpen = useGuestModalStore((s) => s.isBulkPagesOpen);
-  const bulkPagesIds = useGuestModalStore((s) => s.bulkPagesIds);
+  // The guests to assign, snapshotted by the opener. Never re-derived from the
+  // list: a move deletes their current rows, and this sheet is still on screen
+  // when that lands — it would re-render its own summary as "0 guests".
+  const selected = useGuestModalStore((s) => s.bulkPagesGuests);
   const closeAll = useGuestModalStore((s) => s.closeAll);
   const clearSelection = useGuestModalStore((s) => s.clearSelection);
 
@@ -222,11 +225,6 @@ const GuestBulkPagesSheet = () => {
 
   const canRemove = canDelete("guests");
   const moving = removeOthers && canRemove;
-
-  const selected = useMemo(() => {
-    const ids = new Set(bulkPagesIds);
-    return (guests ?? []).filter((g) => ids.has(g.id));
-  }, [guests, bulkPagesIds]);
 
   const targetPages = useMemo(
     () => allPages.filter((p) => selectedIds.includes(p.id)),

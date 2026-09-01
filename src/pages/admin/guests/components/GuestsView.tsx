@@ -184,9 +184,18 @@ const GuestsView: FC<GuestsViewProps> = ({
     [scopedGuests, search, statusFilter],
   );
 
+  // The selection, resolved to rows that still exist. Realtime can drop a guest
+  // while its id is still ticked, so this — not `selectedIds` — is what every
+  // count and every bulk payload reads: the set is a filter key, not a roster.
+  // Derived from the FULL list, never `filtered`: a guest hidden by a search or
+  // status filter is still legitimately selected.
   const selectedRows = useMemo(
     () => (data ?? []).filter((g) => selectedIds.has(g.id)),
     [data, selectedIds],
+  );
+  const selectedRowIds = useMemo(
+    () => selectedRows.map((g) => g.id),
+    [selectedRows],
   );
 
   const filteredIds = useMemo(() => filtered.map((g) => g.id), [filtered]);
@@ -207,22 +216,22 @@ const GuestsView: FC<GuestsViewProps> = ({
   // each selected guest's CURRENT status so undo can send it back to its own
   // prior value, not one shared value (a bulk selection can mix statuses).
   const handleBulkRequest = (status: GuestStatus) => {
-    const ids = Array.from(selectedIds);
     const prevStatuses = Object.fromEntries(
-      (data ?? [])
-        .filter((g) => selectedIds.has(g.id))
-        .map((g) => [g.id, g.status]),
+      selectedRows.map((g) => [g.id, g.status]),
     );
     bulkUpdateGuests.mutate(
-      { ids, status, prevStatuses },
+      { ids: selectedRowIds, status, prevStatuses },
       { onSuccess: clearSelection },
     );
   };
 
-  // A hard delete with no reversal — bulk scale is enough of a blast radius
-  // to keep the confirm dialog (type-to-confirm), unlike status above.
+  // A hard delete with no reversal, so it stays confirm-gated unlike status
+  // above. GuestDeleteModal only asks for type-to-confirm past a single row.
   const handleBulkDelete = () => {
-    openBulkDelete(Array.from(selectedIds));
+    // Hand the single guest over when only one row is picked, so the dialog can
+    // name them without reading the list it's about to delete from.
+    const single = selectedRows.length === 1 ? selectedRows[0] : null;
+    openBulkDelete(selectedRowIds, single);
   };
 
   const renderBody = () => {
@@ -328,14 +337,14 @@ const GuestsView: FC<GuestsViewProps> = ({
           onStatusFilterChange={setStatusFilter}
         />
         <AnimatePresence initial={false}>
-          {canBulkUpdate && selectedIds.size > 0 && (
+          {canBulkUpdate && selectedRows.length > 0 && (
             <GuestsBulkBar
               key="bulk-bar"
-              count={selectedIds.size}
+              count={selectedRows.length}
               onClear={clearSelection}
               onRequest={handleBulkRequest}
               onRequestDelete={handleBulkDelete}
-              onRequestPages={() => openBulkPages(Array.from(selectedIds))}
+              onRequestPages={() => openBulkPages(selectedRows)}
               canAssignPages={canCreate("guests")}
               canDelete={canBulkDelete}
               isPending={bulkUpdateGuests.isPending}

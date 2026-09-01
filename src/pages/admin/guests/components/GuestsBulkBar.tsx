@@ -133,7 +133,7 @@ const GuestsBulkBar: FC<GuestsBulkBarProps> = ({
                     disabled={isPending}
                   >
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    Remove
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
