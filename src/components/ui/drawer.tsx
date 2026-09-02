@@ -147,7 +147,7 @@ function DrawerTitle({ className, ...props }: React.ComponentProps<"h2">) {
   return (
     <h2
       data-slot="drawer-title"
-      className={cn("text-lg font-medium", className)}
+      className={cn("font-display text-lg font-medium", className)}
       {...props}
     />
   );

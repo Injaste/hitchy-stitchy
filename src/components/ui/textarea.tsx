@@ -10,7 +10,7 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
       className={cn(
         fieldSurface,
         fieldRing,
-        "flex field-sizing-content min-h-16 w-full px-2.5 py-2 text-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm max-h-40 overflow-y-auto",
+        "flex field-sizing-content min-h-16 w-full px-2.5 py-2 text-base placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm max-h-40 overflow-y-auto",
         className,
       )}
       {...props}
