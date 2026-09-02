@@ -67,7 +67,7 @@ const SlugHoldNotice: FC<SlugHoldNoticeProps> = ({
               size="sm"
               disabled={refreshing}
               onClick={onRefresh}
-              className="h-auto p-0 text-xs normal-case text-primary underline"
+              className="h-auto p-0 text-xs text-primary underline"
             >
               I need more time.
             </Button>

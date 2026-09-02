@@ -215,7 +215,7 @@ const Signup = () => {
                 >
                   {({ agreed, password }) => (
                     <FormFooter
-                      submitLabel="Create Account"
+                      submitLabel="Create account"
                       fullWidth
                       submitDisabled={!agreed || !isPasswordValid(password)}
                     />

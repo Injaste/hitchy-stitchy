@@ -38,7 +38,10 @@ const FieldShell = ({
       custom={delay}
       className={classNames.fieldWrapper}
     >
-      <Field data-invalid={isInvalid} className={classNames.field}>
+      <Field
+        data-invalid={isInvalid}
+        className={cn("gap-3", classNames.field)}
+      >
         <FieldLabel htmlFor={name} className={classNames.fieldLabel}>
           {label}
           {required ? (

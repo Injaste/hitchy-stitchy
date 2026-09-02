@@ -1,6 +1,5 @@
 import type { FC } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 
 import { FieldGroup } from "@/components/ui/field";
 import {
@@ -14,7 +13,8 @@ import {
 } from "@/components/custom/form";
 
 import { guestFormSchema, STATUS_LABELS, type GuestFormValues } from "../types";
-import type { RSVPMode } from "../../invitation/types";
+import { pageBounds, type GuestPageOption } from "../pageOptions";
+import PageChecklist from "../components/PageChecklist";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 import z from "zod";
 
@@ -35,33 +35,6 @@ const STATUS_OPTIONS: SelectFieldOption[] = [
     icon: <XCircle className="size-4 shrink-0 text-destructive" />,
   },
 ];
-
-/** A target invitation page the guest can attach to, with its own party-size
- *  limits + message-field visibility. */
-export interface GuestPageOption {
-  id: string;
-  label: string;
-  minGuest: number;
-  maxGuest: number;
-  showMessage: boolean;
-  /** The page's RSVP mode — a private page requires a phone (claim identity). */
-  mode?: RSVPMode;
-}
-
-// Party-size bounds across the selected pages: the count must fit ALL of them, so
-// the allowed range is the intersection. `incompatible` = empty intersection.
-function pageBounds(selected: GuestPageOption[]) {
-  if (selected.length === 0)
-    return { minGuest: 1, maxGuest: 999, showMessage: false, incompatible: false };
-  const minGuest = Math.max(...selected.map((p) => p.minGuest));
-  const maxGuest = Math.min(...selected.map((p) => p.maxGuest));
-  return {
-    minGuest,
-    maxGuest,
-    showMessage: selected.some((p) => p.showMessage),
-    incompatible: minGuest > maxGuest,
-  };
-}
 
 const selectedPages = (
   value: { invitation_id?: string; invitation_ids?: string[] },
@@ -173,32 +146,21 @@ export const useGuestForm = ({
 // mode fixes each row's type on the server, so any combination is valid here.
 // Uses FieldShell (like AssigneeField) so "Add to pages" is a real field label —
 // it goes destructive + shakes and surfaces the "select at least one" error like
-// every other field. Boxed selectable rows driven by the checkbox's data-state.
-const PageChecklist: FC<{ pages: GuestPageOption[] }> = ({ pages }) => (
+// every other field. The list itself is the shared PageChecklist.
+const PageChecklistField: FC<{ pages: GuestPageOption[] }> = ({ pages }) => (
   <FieldShell name="invitation_ids" label="Add to pages">
     {(field) => {
       const ids: string[] = field.state.value ?? [];
-      const toggle = (id: string) =>
-        field.handleChange(
-          ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
-        );
-
       return (
-        <div className="space-y-2">
-          {pages.map((p) => (
-            <label
-              key={p.id}
-              className="flex cursor-pointer items-center rounded-lg border border-input px-3 py-2.5 text-sm text-muted-foreground transition-all active:scale-[0.99] has-[[data-state=unchecked]]:hover:bg-accent has-[[data-state=unchecked]]:hover:text-accent-foreground has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:text-foreground"
-            >
-              <CheckboxPrimitive.Root
-                checked={ids.includes(p.id)}
-                onCheckedChange={() => toggle(p.id)}
-                className="sr-only"
-              />
-              <span className="min-w-0 truncate font-medium">{p.label}</span>
-            </label>
-          ))}
-        </div>
+        <PageChecklist
+          pages={pages}
+          selectedIds={ids}
+          onToggle={(id) =>
+            field.handleChange(
+              ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
+            )
+          }
+        />
       );
     }}
   </FieldShell>
@@ -247,7 +209,7 @@ const GuestForm: FC<GuestFormProps> = ({ pages, multiPage = false }) => {
     <FormBody>
       <FieldGroup>
         {multiPage
-          ? pages.length > 1 && <PageChecklist pages={pages} />
+          ? pages.length > 1 && <PageChecklistField pages={pages} />
           : pages.length > 1 && (
               <SelectField
                 name="invitation_id"

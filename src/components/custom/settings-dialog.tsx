@@ -190,7 +190,7 @@ const MobileSettings: FC<{
         side="bottom"
         showCloseButton={false}
         aria-describedby={undefined}
-        className="inset-0 h-dvh w-full max-w-none gap-0 rounded-none p-0"
+        className="inset-0 h-dvh w-full max-w-none gap-0! rounded-none p-0"
       >
         <SheetTitle className="sr-only">{title}</SheetTitle>
 

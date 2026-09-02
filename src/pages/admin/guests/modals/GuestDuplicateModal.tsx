@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { phoneKey } from "@/lib/phone";
 
 import { useGuestModalStore } from "../hooks/useGuestModalStore";
 import { useGuestMutations, useGuestsQuery } from "../queries";
@@ -41,8 +42,14 @@ const GuestDuplicateModal = () => {
     if (!guest) return [];
     const onPages = new Set<string>([guest.invitation_id ?? ""]);
     if (guest.phone) {
+      // Compare on the shared key, not the raw column: the same person reaches
+      // the table as '+65 9123 4567' from a typed add and '+6591234567' from a
+      // public RSVP, and a raw match would offer a page they are already on.
+      const key = phoneKey(guest.phone);
       (guests ?? []).forEach((g) => {
-        if (g.phone === guest.phone && g.invitation_id) onPages.add(g.invitation_id);
+        if (g.phone && phoneKey(g.phone) === key && g.invitation_id) {
+          onPages.add(g.invitation_id);
+        }
       });
     }
     const dayIdx = (id: string) => days.findIndex((d) => d.id === id);

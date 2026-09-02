@@ -93,7 +93,7 @@ const GuestDetailModal = () => {
   }[];
 
   const destructiveActions = [
-    canDelete("guests") && { label: "Delete", onClick: openDelete },
+    canDelete("guests") && { label: "Remove", onClick: openDelete },
   ];
   const primaryAction = canUpdate("guests") && {
     label: "Edit",

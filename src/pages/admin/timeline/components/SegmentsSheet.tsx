@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SubmitButton from "@/components/custom/form/SubmitButton";
 import ConfirmAlertModal from "@/components/custom/confirm-alert-modal";
-import { ScrollView } from "@/components/custom/scroll-view";
 import {
   Sheet,
+  SheetBody,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -205,10 +205,7 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent
-          side="right"
-          className="w-full bg-gradient-surface sm:max-w-md"
-        >
+        <SheetContent side="right">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -223,7 +220,7 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
             </SheetDescription>
           </SheetHeader>
 
-          <ScrollView className="px-4 py-2">
+          <SheetBody>
             <DragDropProvider
               modifiers={[RestrictToVerticalAxis]}
               plugins={(defaults) => [
@@ -259,7 +256,7 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
                 })}
               </div>
             </DragDropProvider>
-          </ScrollView>
+          </SheetBody>
 
           {canCreate("timeline") && (
             <div className="flex items-center gap-2 border-t p-4">

@@ -136,13 +136,13 @@ const StepDetails: FC<StepDetailsProps> = ({
           </h4>
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-              <span className="text-sm italic min-w-[40px]">Admin:</span>
+              <span className="text-sm italic min-w-10">Admin:</span>
               <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
                 {`${BASE_URL}/${slugValue || "my-wedding"}/admin`}
               </code>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-              <span className="text-sm italic min-w-[40px]">RSVP:</span>
+              <span className="text-sm italic min-w-10">RSVP:</span>
               <code className="text-xs bg-secondary/60 px-2 py-1 rounded-sm border border-secondary/60 w-full truncate">
                 {`${BASE_URL}/${slugValue || "my-wedding"}`}
               </code>

@@ -33,7 +33,7 @@ const Container: FC<ContainerProps> = ({
         "w-full transition-[max-width]",
         sizeMap[size],
         centred && "mx-auto",
-        pageSpacing && "mt-4 sm:mt-8",
+        pageSpacing && "mt-4 sm:mt-6",
         className,
       )}
     >

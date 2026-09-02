@@ -211,6 +211,18 @@ export function formatPhone(value: string | null | undefined): string {
     : value;
 }
 
+/** The key two phone numbers are compared BY — never the shape they are stored
+ *  in. Phones reach the database in whatever form the source typed
+ *  ("+65 9123 4567" from an admin, "+6591234567" from a paste), so any equality
+ *  test on the raw column silently misses the same person written two ways.
+ *
+ *  This is the client half of a pair: `submit_rsvp` already strips whitespace
+ *  the same way server-side, and `import_guests` compares with
+ *  `regexp_replace(phone, '\s+', '', 'g')`. Every comparison on either side must
+ *  go through one of the two, or they disagree — which is exactly the bug that
+ *  left reserved guests unable to claim their RSVP. */
+export const phoneKey = (phone: string): string => phone.replace(/\s+/g, "");
+
 // ── WhatsApp ─────────────────────────────────────────────────────────────────
 
 /** The two wa.me shapes: `share` opens the picker with a prefilled message (no

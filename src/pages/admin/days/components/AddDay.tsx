@@ -61,10 +61,10 @@ const AddDay: FC = () => {
     >
       <PopoverTrigger asChild>
         <Button type="button" size="sm" className="gap-1.5">
-          <Plus className="size-4" /> a day
+          <Plus className="size-4" /> A day
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto space-y-3 bg-card p-3">
+      <PopoverContent align="start" className="w-auto space-y-3 bg-card">
         <Calendar
           mode="single"
           selected={date}

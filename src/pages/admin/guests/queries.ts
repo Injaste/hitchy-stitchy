@@ -9,6 +9,7 @@ import { adminKeys } from "@/pages/admin/lib/queryKeys"
 import {
   fetchGuests,
   createGuest,
+  importGuests as importGuestsApi,
   updateGuest,
   updateGuests,
   deleteGuests,
@@ -16,6 +17,7 @@ import {
 } from "./api"
 import type {
   CreateGuestPayload,
+  ImportGuestPayload,
   UpdateGuestPayload,
   GuestStatus,
   Guest,
@@ -85,6 +87,107 @@ export function useGuestMutations() {
     },
   )
 
+  // A whole pasted/uploaded list in one call. import_guests skips guests whose
+  // phone is already on a target page instead of failing, so it returns only the
+  // rows that actually landed — an all-duplicate batch is an empty success, not
+  // an error.
+  const importGuests = useMutation<
+    { invitationIds: string[]; guests: ImportGuestPayload[] },
+    Guest[]
+  >(
+    ({ invitationIds, guests }) => importGuestsApi(eventId!, invitationIds, guests),
+    {
+      successMessage: (rows: Guest[], args) =>
+        rows.length === 0
+          ? "Everyone on that list is already on your guest list"
+          : args.invitationIds.length > 1
+            ? `${rows.length} guests added across ${args.invitationIds.length} pages`
+            : `${rows.length} guests added`,
+      errorMessage: (err) => err.message,
+      onSuccess: (rows: Guest[]) => {
+        setGuests((old) => [...rows, ...(old ?? [])])
+      },
+    },
+  )
+
+  // Bulk page assignment. Additive: every guest is written to the target pages
+  // it isn't already on, which is why the call arrives pre-split into batches —
+  // import_guests applies one guest list to one page list, so guests that need
+  // different pages can't share a call. The batches run one after another, NOT
+  // in parallel: each call's plan check only sees rows that are already
+  // committed, so concurrent batches would each be measured against the same
+  // pre-assignment usage and could land the selection over the cap between them.
+  // Removal (the "move" half) runs only after the additive half lands in full,
+  // so a failure can't leave a guest on no page.
+  const assignGuestPages = useMutation<
+    {
+      batches: { invitationIds: string[]; guests: ImportGuestPayload[] }[]
+      removeIds: string[]
+      /** Guests the sheet acted on, and pages picked — for the toast only. */
+      guestCount: number
+      pageCount: number
+    },
+    { added: Guest[]; removed: string[] }
+  >(
+    async ({ batches, removeIds }) => {
+      const added: Guest[] = []
+      let failedGuests = 0
+      let firstError: Error | undefined
+
+      for (const batch of batches) {
+        try {
+          added.push(
+            ...(await importGuestsApi(eventId!, batch.invitationIds, batch.guests)),
+          )
+        } catch (err) {
+          failedGuests += batch.guests.length
+          firstError ??=
+            err instanceof Error ? err : new Error("Couldn't add those guests")
+        }
+      }
+
+      // A partly-written assignment is a failure, not a success with a footnote:
+      // it takes the error toast's length and close button, and leaves the sheet
+      // (and the selection) open to retry. Rows that DID land are real, so the
+      // cache takes them before the throw or the table would deny they exist.
+      if (failedGuests > 0) {
+        if (added.length > 0) setGuests((old) => [...added, ...(old ?? [])])
+        const detail = firstError?.message ?? "Couldn't add those guests"
+        throw new Error(
+          added.length > 0
+            ? `${added.length} added, ${failedGuests} couldn't be: ${detail}`
+            : detail,
+        )
+      }
+
+      let removed: string[] = []
+      if (removeIds.length > 0) {
+        await deleteGuests(eventId!, removeIds)
+        removed = removeIds
+      }
+
+      return { added, removed }
+    },
+    {
+      successMessage: (result, args) => {
+        const pages = `${args.pageCount} ${args.pageCount === 1 ? "page" : "pages"}`
+        if (result.removed.length > 0)
+          return `${args.guestCount} guests moved to ${pages}`
+        return result.added.length === 0
+          ? "Those guests are already on the pages you picked"
+          : `${result.added.length} guests added to ${pages}`
+      },
+      errorMessage: (err) => err.message,
+      onSuccess: (result) => {
+        const removedIds = new Set(result.removed)
+        setGuests((old) => [
+          ...result.added,
+          ...(old ?? []).filter((g) => !removedIds.has(g.id)),
+        ])
+      },
+    },
+  )
+
   const update = useMutation(
     (payload: UpdateGuestPayload) => updateGuest(payload),
     {
@@ -150,21 +253,41 @@ export function useGuestMutations() {
           if (!prev) continue
           groups.set(prev, [...(groups.get(prev) ?? []), id])
         }
+        // allSettled, not all: one failing group must not throw away the groups
+        // that already succeeded — those rows are changed on the server, so the
+        // cache has to show them or the table lies about the current status.
         return async () => {
-          try {
-            const results = await Promise.all(
-              Array.from(groups, ([status, ids]) => updateGuests(eventId!, ids, status)),
-            )
-            const rows = results.flat()
+          const entries = Array.from(groups)
+          const results = await Promise.allSettled(
+            entries.map(([status, ids]) => updateGuests(eventId!, ids, status)),
+          )
+          const rows = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []))
+          if (rows.length > 0) {
             const byId = new Map(rows.map((r) => [r.id, r]))
             setGuests((old) => old?.map((g) => byId.get(g.id) ?? g) ?? [])
+          }
+
+          const missed = results.reduce(
+            (n, r, i) => (r.status === "rejected" ? n + entries[i][1].length : n),
+            0,
+          )
+          // Still exactly one toast per undo, whatever the outcome.
+          if (missed === 0) {
             toast.success(
               rows.length === 1
                 ? `"${truncate(rows[0].name)}" restored`
                 : `${rows.length} guests restored`,
             )
-          } catch (err) {
-            toast.error(err instanceof Error ? err.message : "Couldn't undo the status change")
+          } else if (rows.length === 0) {
+            const reason = results.find((r) => r.status === "rejected")
+            const err = (reason as PromiseRejectedResult | undefined)?.reason
+            toast.error(
+              err instanceof Error ? err.message : "Couldn't undo the status change",
+            )
+          } else {
+            toast.error(
+              `${rows.length} guests restored. ${missed} couldn't be changed back.`,
+            )
           }
         }
       },
@@ -175,29 +298,15 @@ export function useGuestMutations() {
     },
   )
 
-  // One RPC (delete_guests) backs both single and bulk delete — this just
-  // calls it with a one-element array. Same RPC, same existence + permission
-  // checks either way.
+  // One RPC (delete_guests) backs both single and bulk delete — GuestDeleteModal
+  // resolves the target ids for either path and calls this the same way.
   const remove = useMutation(
-    ({ id }: { id: string; name: string }) => deleteGuests(eventId!, [id]),
-    {
-      successMessage: (_: void, args) => `"${truncate(args.name)}" removed`,
-      errorMessage: (err) => err.message,
-      onSuccess: (_: void, args) => {
-        setGuests((old) => old?.filter((g) => g.id !== args.id) ?? [])
-      },
-    },
-  )
-
-  // Bulk delete is confirm-gated (GuestBulkDeleteModal, type-to-confirm), not
-  // undo — unlike status, this is a genuine hard delete with no reversal, and
-  // at bulk scale the blast radius is bigger than the single small deletes
-  // left as immediate elsewhere in this phase.
-  const removeMany = useMutation(
-    ({ ids }: { ids: string[] }) => deleteGuests(eventId!, ids),
+    ({ ids }: { ids: string[]; name?: string }) => deleteGuests(eventId!, ids),
     {
       successMessage: (_: void, args) =>
-        args.ids.length === 1 ? "Guest removed" : `${args.ids.length} guests removed`,
+        args.ids.length === 1 && args.name
+          ? `"${truncate(args.name)}" removed`
+          : `${args.ids.length} guests removed`,
       errorMessage: (err) => err.message,
       onSuccess: (_: void, args) => {
         const idSet = new Set(args.ids)
@@ -206,5 +315,13 @@ export function useGuestMutations() {
     },
   )
 
-  return { create, update, updateStatus, bulkUpdateGuests, remove, removeMany }
+  return {
+    create,
+    importGuests,
+    assignGuestPages,
+    update,
+    updateStatus,
+    bulkUpdateGuests,
+    remove,
+  }
 }

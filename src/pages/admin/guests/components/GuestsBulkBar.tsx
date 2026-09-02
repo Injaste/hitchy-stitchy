@@ -1,9 +1,25 @@
 import type { FC } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Clock, Trash2, X, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronDown,
+  Clock,
+  Copy,
+  ListChecks,
+  MoreHorizontal,
+  Trash2,
+  X,
+  XCircle,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { itemRevealInUp } from "@/lib/animations";
 
 import type { GuestStatus } from "../types";
@@ -13,6 +29,9 @@ interface GuestsBulkBarProps {
   onClear: () => void;
   onRequest: (status: GuestStatus) => void;
   onRequestDelete: () => void;
+  /** Opens the page-assignment sheet (adds rows, so it needs create rights). */
+  onRequestPages: () => void;
+  canAssignPages: boolean;
   canDelete: boolean;
   isPending: boolean;
 }
@@ -22,9 +41,13 @@ const GuestsBulkBar: FC<GuestsBulkBarProps> = ({
   onClear,
   onRequest,
   onRequestDelete,
+  onRequestPages,
+  canAssignPages,
   canDelete,
   isPending,
 }) => {
+  const hasActions = canAssignPages || canDelete;
+
   return (
     <motion.div
       initial="initial"
@@ -40,50 +63,81 @@ const GuestsBulkBar: FC<GuestsBulkBarProps> = ({
         </p>
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <Button
-            variant="ghost-success"
-            size="sm"
-            onClick={() => onRequest("confirmed")}
-            disabled={isPending}
-            aria-label="Confirm"
-          >
-            <CheckCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">Confirm</span>
-          </Button>
-          <Button
-            variant="warning"
-            size="sm"
-            onClick={() => onRequest("pending")}
-            disabled={isPending}
-            aria-label="Pending"
-          >
-            <Clock className="w-4 h-4" />
-            <span className="hidden sm:inline">Pending</span>
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onRequest("cancelled")}
-            disabled={isPending}
-            aria-label="Cancel"
-          >
-            <XCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">Cancel</span>
-          </Button>
-          {canDelete && (
-            <>
-              <Separator orientation="vertical" className="h-6" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
-                onClick={onRequestDelete}
                 disabled={isPending}
-                aria-label="Delete"
+                aria-label="Change status"
               >
-                <Trash2 className="w-4 h-4" />
-                <span className="hidden sm:inline">Delete</span>
+                <ListChecks className="w-4 h-4" />
+                <span className="hidden sm:inline">Status</span>
+                <ChevronDown className="w-3.5 h-3.5" />
               </Button>
-            </>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                variant="success"
+                onSelect={() => onRequest("confirmed")}
+                disabled={isPending}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Confirm
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="warning"
+                onSelect={() => onRequest("pending")}
+                disabled={isPending}
+              >
+                <Clock className="w-4 h-4" />
+                Pending
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={() => onRequest("cancelled")}
+                disabled={isPending}
+              >
+                <XCircle className="w-4 h-4" />
+                Cancel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {hasActions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending}
+                  aria-label="More actions"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                  <span className="hidden sm:inline">Actions</span>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {canAssignPages && (
+                  <DropdownMenuItem onSelect={onRequestPages} disabled={isPending}>
+                    <Copy className="w-4 h-4" />
+                    Pages
+                  </DropdownMenuItem>
+                )}
+                {canAssignPages && canDelete && <DropdownMenuSeparator />}
+                {canDelete && (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={onRequestDelete}
+                    disabled={isPending}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
 
           <Button

@@ -101,7 +101,13 @@ const TasksView: FC<TasksViewProps> = ({
     if (!data?.length)
       return (
         <ComponentFade key="empty" useBlur>
-          <TasksEmpty onAdd={() => { if (guardAdd("tasks")) return; openCreate(); }} canCreate={canCreate("tasks")} />
+          <TasksEmpty
+            onAdd={() => {
+              if (guardAdd("tasks")) return;
+              openCreate();
+            }}
+            canCreate={canCreate("tasks")}
+          />
         </ComponentFade>
       );
 
@@ -167,14 +173,13 @@ const Board: FC<{
     axis="x"
     gradientLeft
     gradientRight
-    mainClass="min-w-0 md:h-full md:min-h-0 md:-mx-1"
-    className="md:px-1 md:pt-1 md:pb-2"
+    mainClass="min-w-0 md:h-full md:min-h-0 -mx-1"
   >
     {/* A block grid would never exceed the scroll container's width on its own,
         so it would never overflow to scroll. The md:min-w floor forces it wider
         than the viewport once the lanes hit their 300px min — 3×300 + 2×gap-5
         (2.5rem) — while 1fr still lets them share the width on roomier screens. */}
-    <div className="flex flex-col gap-5 md:grid md:h-full md:min-w-[calc(900px+2.5rem)] md:grid-cols-[repeat(3,minmax(300px,1fr))]">
+    <div className="flex flex-col gap-5 md:grid md:h-full md:min-w-235 md:grid-cols-[repeat(3,minmax(300px,1fr))]">
       {(STATUS_ORDER_DESKTOP as TaskStatus[]).map((status, columnIndex) => (
         <TasksSection
           key={status}

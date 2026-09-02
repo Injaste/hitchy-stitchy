@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import { Download } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import AdaptiveButton from "@/components/custom/adaptive-button";
 import { useIsMobile } from "@/hooks/use-media-query";
@@ -26,34 +25,20 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
   // Match a dropdown trigger: h-9 on desktop, compact h-8 on mobile.
   const size = isMobile ? "sm" : "md";
 
-  // Explicit selection — export exactly what was picked, no menu.
-  if (allGuests.length > 0) {
-    return (
-      <Button
-        variant="outline"
-        size={size}
-        className="text-xs"
-        onClick={() => exportGuestsCSV(allGuests)}
-      >
-        <Download className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">
-          Export {allGuests.length} selected
-        </span>
-      </Button>
-    );
-  }
-
   const exportConfirmedGuests = guests.filter((g) => g.status === "confirmed");
   // Only offer the exclude option when the view is a genuine mix — an
   // all-confirmed or all-cancelled view has nothing meaningful to strip.
+
+  const selected = allGuests.length > 0;
   const isMixed =
+    !selected &&
     exportConfirmedGuests.length > 0 &&
     exportConfirmedGuests.length < guests.length;
 
   return (
     <AdaptiveButton
       asMenu={isMixed}
-      onClick={() => exportGuestsCSV(guests)}
+      onClick={() => exportGuestsCSV(selected ? allGuests : guests)}
       disabled={guests.length === 0}
       size={size}
       className="text-xs"
@@ -78,7 +63,9 @@ const GuestsExport: FC<GuestsExportProps> = ({ guests, allGuests }) => {
       }
     >
       <Download className="w-3.5 h-3.5" />
-      <span className="hidden sm:inline">Export</span>
+      <span className="hidden sm:inline">
+        Export {selected ? `${allGuests.length}` : ""}
+      </span>
     </AdaptiveButton>
   );
 };

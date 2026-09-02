@@ -174,9 +174,7 @@ const VendorSpend: FC<VendorSpendProps> = ({ vendor }) => {
                     variant="ghost"
                     size="sm"
                     onClick={handOff(() => openEditItem(expense))}
-                    // normal-case: Button capitalizes by default, which is right
-                    // for labels but mangles user-entered item names.
-                    className="w-full justify-between gap-2 px-1.5 font-normal normal-case"
+                    className="w-full justify-between gap-2 px-1.5 font-normal"
                   >
                     <span className="min-w-0 truncate">{expense.item}</span>
                     <span className="shrink-0 font-medium tabular-nums">

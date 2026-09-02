@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { cn } from "@/lib/utils";
 import { useScrollVisibility } from "@/hooks/use-scroll-visibility";
@@ -119,6 +126,14 @@ export const ScrollView = ({
 
   return (
     <ScrollContext.Provider value={ctx}>
+      {/* RULE: padding belongs on the scroll element below, never here via
+          `mainClass`. The gradients are absolutely positioned against this
+          wrapper's padding box, so padding added here changes their reach
+          instead of clearing content. It shipped correctly on the scroll
+          element in 9522ec0 and was reverted here as a "tighten" drive-by in
+          c69e1d3 — twice is enough; do not move it again. (The 1px bleed that
+          used to live here as `py-px` now comes from ScrollGradient's own
+          -top-px/-bottom-px, so this wrapper stays exactly the scroll box.) */}
       <div
         className={cn(
           "relative flex flex-col",
@@ -147,6 +162,13 @@ export const ScrollView = ({
           ref={setScrollEl}
           onScroll={handleScroll}
           className={cn(
+            // Ring clearance, unconditional. A 3px focus ring is a box-shadow
+            // that this element clips, so every scroll surface owes 4px on all
+            // sides. Constant by design: a shell subtracts it from its own gap
+            // once (gap-3/gap-5) and the seam then measures the same whether
+            // the body scrolls or not. Pass p-0 to opt out where the box must
+            // sit flush — see data-table.
+            "p-1",
             axis === "x"
               ? "overflow-x-auto overflow-y-hidden"
               : "overflow-y-auto overflow-x-hidden",

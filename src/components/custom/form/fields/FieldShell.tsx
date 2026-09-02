@@ -107,8 +107,10 @@ const FieldShell = ({
                 <div className="flex items-center justify-between gap-2">
                   <FieldLabel htmlFor={uid} id={labelId} className={labelClassName}>
                     {label}
+                    {/* px-1 is two steps down from Badge's px-2 base, to stay in
+                        proportion with the h-4/py-0 override beside it. */}
                     {optional && (
-                      <Badge variant="outline" className="h-4 px-1.5 py-0 font-normal text-2xs">
+                      <Badge variant="outline" className="h-4 px-1 py-0 font-normal text-2xs">
                         Optional
                       </Badge>
                     )}
