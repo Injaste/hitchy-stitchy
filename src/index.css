@@ -237,9 +237,12 @@
       transparent;
   }
 
-  /* Page-level scrolls. `stable` holds the gutter open even when a page is short
-     enough not to scroll, so moving between a short and a tall page doesn't
-     shift the layout sideways. */
+  /* Page-level scrolls. Deliberately no `scrollbar-gutter`: a page must not
+     reserve space for a scrollbar it doesn't have. The cost is a bar-width
+     reflow when a page crosses the overflow threshold — accepted, because the
+     alternative is a permanently dead strip on every short page, and on
+     macOS/iOS (overlay scrollbars) the reservation would be invisible anyway
+     while still costing width on Windows. Do not re-add `stable`. */
   .scroll-normal {
     scrollbar-width: auto;
     scrollbar-color: color-mix(

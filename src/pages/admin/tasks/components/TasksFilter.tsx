@@ -80,7 +80,7 @@ const TasksFilter: FC = () => {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-64 p-3 space-y-3">
+        <PopoverContent align="end" className="w-64 space-y-3">
           <div className="flex flex-col gap-2 [&>button]:w-full">
             <AssigneeSelect
               memberId={memberId}

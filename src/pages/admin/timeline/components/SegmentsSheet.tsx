@@ -207,7 +207,7 @@ const SegmentsSheet: FC<SegmentsSheetProps> = ({ day, open, onOpenChange }) => {
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
           side="right"
-          className="w-full bg-gradient-surface sm:max-w-md"
+          className="w-full sm:max-w-md"
         >
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">

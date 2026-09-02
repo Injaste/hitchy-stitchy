@@ -20,7 +20,7 @@ const FormBody = ({ children, className }: FormBodyProps) => {
   return inDialog ? (
     <DialogBody className={className}>{children}</DialogBody>
   ) : (
-    <div className={cn("px-4", className)}>{children}</div>
+    <div className={cn("px-4 sm:px-6", className)}>{children}</div>
   );
 };
 

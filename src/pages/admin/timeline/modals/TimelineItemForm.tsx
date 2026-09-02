@@ -205,7 +205,7 @@ const TimelineItemForm = () => {
           optional
           rows={3}
           placeholder={"- Item one\n- Item two\n**Bold text**, *italic*"}
-          description="Supports markdown — **bold**, *italic*, - lists, 1. numbered"
+          description="Supports markdown"
         />
 
         <AssigneeField
