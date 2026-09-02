@@ -92,7 +92,7 @@ const InvitationSheet = () => {
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="max-w-6xl! w-screen! p-0 flex flex-col bg-background gap-0"
+        className="max-w-6xl! w-screen! p-0 flex flex-col bg-background gap-0!"
         onAnimationEnd={(e) => {
           if (e.target === e.currentTarget && isOpen) setSheetEntered(true);
         }}

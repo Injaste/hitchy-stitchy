@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 
 import {
   Sheet,
+  SheetBody,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -60,10 +61,12 @@ const TaskArchivedSheet = () => {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="gap-0">
-        <SheetHeader className="border-b">
+      <SheetContent side="right">
+        <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Archive className="size-4 text-muted-foreground" />
+            <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Archive className="size-4" />
+            </span>
             Archived tasks
           </SheetTitle>
           <SheetDescription>
@@ -71,7 +74,7 @@ const TaskArchivedSheet = () => {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto p-4">
+        <SheetBody>
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div
@@ -179,7 +182,7 @@ const TaskArchivedSheet = () => {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </SheetBody>
       </SheetContent>
     </Sheet>
   );

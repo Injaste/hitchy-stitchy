@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
+import { Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Sheet,
+  SheetBody,
   SheetContent,
   SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { ScrollView } from "@/components/custom/scroll-view";
 import SubmitButton from "@/components/custom/form/SubmitButton";
 import { useCloseOnSuccess } from "@/components/custom/form";
 
@@ -249,9 +250,14 @@ const GuestBulkPagesSheet = () => {
 
   return (
     <Sheet open={isBulkPagesOpen} onOpenChange={closeAll}>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right">
         <SheetHeader>
-          <SheetTitle>Add to pages</SheetTitle>
+          <SheetTitle className="flex items-center gap-2">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Copy className="size-4" />
+            </span>
+            Add to pages
+          </SheetTitle>
           <SheetDescription>
             {selected.length} {selected.length === 1 ? "guest" : "guests"}{" "}
             selected. They keep the pages they're already on unless you turn on
@@ -259,7 +265,7 @@ const GuestBulkPagesSheet = () => {
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollView className="px-4 py-2">
+        <SheetBody>
           <div className="grid gap-3">
             <PageChecklist
               pages={allPages}
@@ -350,7 +356,7 @@ const GuestBulkPagesSheet = () => {
               </div>
             )}
           </div>
-        </ScrollView>
+        </SheetBody>
 
         <SheetFooter className="flex-row justify-end">
           <Button variant="outline" onClick={closeAll}>
